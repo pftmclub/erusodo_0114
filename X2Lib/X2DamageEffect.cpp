@@ -5493,6 +5493,35 @@ void CX2DamageEffect::CEffect::AttackResult()
 				float	fIncreateSoulRate			= 1.0f;		// 피*타격시 각성 + 증가치
 
 #ifdef ELSWORD_WAY_OF_SWORD
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+				/// June 31f86bab-31f86ef0: the gain takes the owner's specialization and Madness rates
+				int iOwnerUnitWayOfSwordState = 0;
+				if ( pOwnerGameUnit->GetGameUnitType() == CX2GameUnit::GUT_USER )
+				{
+					CX2GUUser* pUser = static_cast< CX2GUUser* >( pOwnerGameUnit );
+					if( CX2Unit::UT_ELSWORD == pUser->GetUnit()->GetType() )
+					{
+						iOwnerUnitWayOfSwordState = pUser->GetWayOfSwordState();
+						float fWSPGain = g_pData->GetDamageManager()->CalcWayOfSwordPoint( m_DamageData.m_WayofSwordType, m_DamageData.damage.GetAllDamage(), iOwnerUnitWayOfSwordState );
+						fWSPGain = pUser->ApplyWayOfSwordPointGainRate( fWSPGain );
+						pUser->SetWayOfSwordPoint( pUser->GetWayOfSwordPoint() + fWSPGain );
+
+						fIncreaseMpRate *= g_pData->GetDamageManager()->CalcVigorMpUpOnAttack( m_DamageData.m_WayofSwordType, iOwnerUnitWayOfSwordState );
+					}
+#ifdef NEW_CHARACTER_EL
+					else if( CX2Unit::UT_ELESIS == pUser->GetUnit()->GetType() )
+					{
+						iOwnerUnitWayOfSwordState = pUser->GetWayOfSwordState();
+						float fWSPGain = g_pData->GetDamageManager()->CalcWayOfSwordPoint( m_DamageData.m_WayofSwordType, m_DamageData.damage.GetAllDamage(), iOwnerUnitWayOfSwordState );
+						// stand-in: CX2GUEL not ported ( June 31f86da5 also multiplies by her vslot 0x720 rate, base 1.0 )
+						fWSPGain = pUser->ApplyWayOfSwordPointGainRate( fWSPGain );
+						pUser->SetWayOfSwordPoint( pUser->GetWayOfSwordPoint() + fWSPGain );
+
+						fIncreaseMpRate *= g_pData->GetDamageManager()->CalcVigorMpUpOnAttack_Elesis( m_DamageData.m_WayofSwordType, iOwnerUnitWayOfSwordState );
+					}
+#endif NEW_CHARACTER_EL
+				}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 				int iOwnerUnitWayOfSwordState = 0;
 				if ( pOwnerGameUnit->GetGameUnitType() == CX2GameUnit::GUT_USER )
 				{
@@ -5520,6 +5549,7 @@ void CX2DamageEffect::CEffect::AttackResult()
 					}
 #endif //NEW_CHARACTER_EL
 				}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 
 #endif ELSWORD_WAY_OF_SWORD
 				//{{ kimhc // 2009-11-17 // 길드 스킬 중 정신집중, 집중된 마력, 격노, 분노해방

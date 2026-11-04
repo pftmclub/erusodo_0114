@@ -11526,3 +11526,48 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_USER_BASE_STATE_BODIES
 #endif SERV_IRUHADEV_JUNE_USER_MACHINE_GUN_FACING
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-04
+// Description: June character port ( Elsword ) Phase CH1q - June's Way of the Sword: the attack-result WSP gain takes the character
+//              specialization and Madness rates ( CEffect and user AttackResult ), the destruction-rage gain and the destruction damage
+//              rates use the PvP values in PvP or PvE games, Sword Wait's Z has no re-attack gate, the rage particles take the alpha tag.
+//              The shared sites cover Elesis's March class too. Stays commented out until CH1 defines it with JUNE_CHAR_ELSWORD_LIVE.
+//              Revert: comment out the #define ( JUNE_CHAR_ELSWORD_WOS ).
+//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+#ifndef SERV_IRUHADEV_JUNE_ENUM_NAMES
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS needs SERV_IRUHADEV_JUNE_ENUM_NAMES ( RNSI_P_SCA_MADNESS )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#ifndef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS needs SERV_IRUHADEV_JUNE_SOCKET_PARITY ( GetCharacterSpecializationA / B )
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifndef SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS needs SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ( GetIsNowPVPCorrectionGame )
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
+#ifndef SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS needs SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION ( TagEffectAlphaParticle )
+#endif SERV_IRUHADEV_JUNE_EFFECT_ALPHA_OPTION
+#ifndef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS needs SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE ( GetSkillLevelValue )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+#ifndef SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( GetSkillAbilityValue( type, level, bPvp ) )
+#endif SERV_IRUHADEV_JUNE_SKILL_TEMPLET
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE needs SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS ( the Way of the Sword gain, rates and states )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-04
+// Description: June character port ( Elsword ) Phase CH1q - temporary [JUNE_CHAR] ELSWORD WOS lines ( vigor / destruction start, the rage,
+//              the own unit's attack gain once a second ) for CH1's play-test; they sit inside JUNE_CHAR_ELSWORD_WOS code only.
+//              Revert: undefine the flag ( JUNE_CHAR_ELSWORD_WOS_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+//////////////////////////////////////////////////////////////////////////

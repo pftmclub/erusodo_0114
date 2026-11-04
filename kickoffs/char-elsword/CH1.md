@@ -47,3 +47,12 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): intro L14 character script Elsword_SwordMan.lua feeds SetDamageDataFromLUA; §7h L421 EFFECT_SET_LIST_* variants; Elsword among scripts using _FINAL / _FINA; §7h L425 USEFUL_VALUE rows and getters; §7t L590 SHOW_HYPER_CUT_IN_TIME in the class script; §7ad L750 stage June Motion_Elsword* files with the class script.
 - No motion kom is held for this phase: CH0 found no lost animation (CH0b copies data033 / data199). Adopt `Elsword_SwordMan.lua`, `WayOfSword.lua` (see CH1q on its 14 unread keys) and `DLG_Elsword_WayOfSword.lua`.
+
+## Amended by CH1q (2026-11-04)
+
+- Define `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS` together with `_LIVE` (`_LIVE` `#error`s without it). It also changes Elesis's March class at the shared
+  sites (attack-result gain, `GetDestRageWSPGain_Elesis`), as June does.
+- `WayOfSword.lua`: June's 14 extra keys have no reader (`3261aee0` reads March's 28; the MP rates stay the hard-coded 3 / 4 / 2): adopt it whole as
+  bytecode (CH1q dry run: 1 replaced). Its 3 changed values go live with it (`Const_DestRageWSPGain` 1500 -> 2250, the two command constants 96 -> 67.2).
+  `DLG_Elsword_WayOfSword.lua` is already identical to June's. `luabind.py check WayOfSword DLG_Elsword_WayOfSword`: PASS.
+- Play-test lines (`_WOS_DEBUG`): `[JUNE_CHAR] ELSWORD WOS vigor start`, `destruction start`, `destruction rage`, `attack gain` (own unit, once a second).

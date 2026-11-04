@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-04, owes the user a play-test** (then say "check logs"): 4,848 files staged, 36 koms packed + copied, units 66 / 67 added | Sonnet 5.5 / high, user play-test | CH0 | koms, save | `CH0b.md` |
-| CH1q | **ready** (`/x2-phase char-elsword CH1q`): Way of the Sword class side + damage math, flag `_WOS` (CH0 split) | Opus 5.5 / high, Opus review | CH1p review | `X2GUElsword_SwordMan.*`, `X2Gage*`, `X2DamageManager.*` | `CH1q.md` |
+| CH1q | **done 2026-11-04, review next** (`/x2-phase char-elsword CH1q review`): June WoS gain / rates / sword wait under `_WOS` (`//#define`), snapshot pair `_CORE`; no play-test | Opus 5.5 / high, Opus review | CH1p review | `X2GUElsword_SwordMan.*`, `X2GUUser.*`, `X2DamageManager.cpp`, `X2DamageEffect.cpp` | `CH1q.md`, `CH1q-review.md` |
 | CH1q2 | blocked (CH1q review): Way of the Sword gauge data / UI / manager, skill-slot effect (CH0 split) | Opus 5.5 / high, Opus review | CH1q review | `X2GageData.*`, `X2GageUI.*`, `X2GageManager.*`, `X2Game.cpp` | `CH1q2.md` |
 | CH1 | blocked (CH1q2 review, CH0b): define `_LIVE`, adopt the scripts, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036 | `CH1.md` |
 | CH2a | blocked (CH1 review): Sword Man (1) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GUElsword_SwordMan.*`, `MODS.md` | `CH2a.md` |

@@ -51,3 +51,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1h (2026-11-04)
 
 - CH1h's InitEffect refreshes the gauge: `CX2GageManager::GetInstance()->GetMyGageUI()`, then June vslot 0x5c `32e681d0` (sets the gauge data `+0x110` changed flag, tail-calls `UpdateUIElswordWSP` `32e67df0`). CH1h wrote it as `SetChangedWayOfSwordState( true )` plus `static_cast<CX2ElswordMyGageUI*>( ... )->UpdateUIElswordWSP()`; make the gauge UI virtual (or keep this) when the UI is ported.
+
+## Amended by CH1q (2026-11-04)
+
+- The gauge UI and the skill-slot effect are CH1q2's alone; CH1q changed no gauge class. The skill-slot MP requirement with Vigor x0.7
+  (`X2Game.cpp:14855-14881`, `ch0_wos.tsv` row 92, not located in June by CH0) goes with `UpdateElswordSkillSlotEffect` here: read whether June keeps it.
+- Flag: CH1q added `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS` (`//#define`, `_LIVE` `#error`s without it) and `_WOS_DEBUG` (defined); put the gauge bodies
+  under `_WOS` too, and their play-test lines inside `_WOS` code.

@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2guelsword_swordman.h"
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
 
 #define LEAP_GRAVITY 9.8f
 
@@ -246,6 +249,9 @@ CX2GUElsword_SwordMan::CX2GUElsword_SwordMan( int unitIndex, int teamNum,
 	m_fDestructionRageTime		= 0.f;
 	m_fAnimSpeedUpByVigor		= 0.f;
 #endif ELSWORD_WAY_OF_SWORD
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+	m_fSnapshotWayOfSwordPoint	= 0.f;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 #ifdef ELSWORD_SHEATH_KNIGHT
 	m_hSecondBladeSheath		= INVALID_MESH_INSTANCE_HANDLE;
@@ -558,7 +564,11 @@ void CX2GUElsword_SwordMan::Start_SwordmanVigor()
 
 	// 이속 증가 버프를 아이템 보정 받도록 ///////////////////////////////////////
 	const float MAGIC_MOVE_UP_SPEED_FACTOR = 0.2f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+	float fMoveSpeedUpOriginal = 1.0f + CX2SocketItem::GetFinalMoveSpeedPercent( 0.f, GetUnitLevel() );	// June 32d0ca32 passes 0, not the socket move speed
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 	float fMoveSpeedUpOriginal = 1.0f + CX2SocketItem::GetFinalMoveSpeedPercent( m_SocketData.m_fMoveSpeed, GetUnitLevel() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 	float fMoveSpeedUpCorrection = fMoveSpeedUpOriginal + MAGIC_MOVE_UP_SPEED_FACTOR;
 	fMoveSpeedUpCorrection = CX2SocketItem::GetOptionRateCorrection( fMoveSpeedUpCorrection );
 
@@ -582,6 +592,11 @@ void CX2GUElsword_SwordMan::Start_SwordmanVigor()
 	PlaySound( L"elsword_vitality_use_VOX.ogg" );
 	//PlaySound( L"elsword_vitality_loop.ogg", true, true );
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD WOS vigor start: point %.1f, anim speed x%.3f", GetWayOfSwordPoint(), m_fAnimSpeedUpByVigor );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 	m_CommonState.m_Wait = ESSI_SWORD_WAIT;
 	return;
 }
@@ -615,6 +630,11 @@ void CX2GUElsword_SwordMan::Start_SwordmanDestruction()
 	PlaySound( L"elsword_demolition_use_VOX.ogg" );
 	//PlaySound( L"elsword_demolition_loop.ogg", true, true );
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD WOS destruction start: point %.1f", GetWayOfSwordPoint() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 	m_CommonState.m_Wait = ESSI_SWORD_WAIT;
 	return;
 }
@@ -629,6 +649,25 @@ void CX2GUElsword_SwordMan::End_SwordmanDestruction()
 	m_CommonState.m_Wait = USI_WAIT;
 	return;
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+/// June 32d058a0 ( user vslot 0x740 ): keeps the way of the sword point; stand-in: the base 32009780 ( Crest of Time HP / MP snapshot ) is not ported
+void CX2GUElsword_SwordMan::StoreGageSnapshot()
+{
+	if ( false == IsMyUnit() )
+		return;
+
+	m_fSnapshotWayOfSwordPoint = GetWayOfSwordPoint();
+}
+
+/// June 32d058d0 ( user vslot 0x744 ): gives the kept point back, the state is not kept; stand-in: the base 3204da60 ( Crest of Time HP / MP restore ) is not ported
+void CX2GUElsword_SwordMan::RestoreGageSnapshot()
+{
+	if ( false == IsMyUnit() )
+		return;
+
+	SetWayOfSwordPoint( m_fSnapshotWayOfSwordPoint );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 #endif ELSWORD_WAY_OF_SWORD
 #ifdef ELSWORD_SHEATH_KNIGHT
 void CX2GUElsword_SwordMan::AddComboToBrutalSlayer( const CX2DamageManager::DamageData& damageData_ )
@@ -11291,6 +11330,57 @@ void CX2GUElsword_SwordMan::SwordWaitStart()
 
 void CX2GUElsword_SwordMan::SwordWaitEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+	/// June 32d0f0c0: Z has no re-attack gate
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_InputData.oneZ )
+	{
+		StateChange( ESSI_COMBO_Z1 );
+	}
+	else if ( true == m_InputData.oneX )
+	{
+		StateChange( ESSI_COMBO_X1 );
+	}
+	else if ( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if ( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if ( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if ( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if ( true == m_InputData.oneDown
+		&& true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS,
+			&m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( WSS_VIGOR != GetWayOfSwordState() && WSS_DESTRUCTION != GetWayOfSwordState() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -11342,6 +11432,7 @@ void CX2GUElsword_SwordMan::SwordWaitEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 }
 
 void CX2GUElsword_SwordMan::PlayAnimationSwordWaitStart( CKTDGXSkinAnim* pXSkinAnim_, const FrameData& refFrameData_ )
@@ -11454,8 +11545,17 @@ void CX2GUElsword_SwordMan::DoStateDestructionRage()
 
 	D3DXVECTOR3 pos = m_FrameDataNow.syncData.position;
 	pos.y += 80.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+	/// June 32d0f300: both sequences take the owner's effect-alpha category ( 32296d60 )
+	g_pX2Game->TagEffectAlphaParticle( this, g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"MonsterAngryWind", pos ) );
+	g_pX2Game->TagEffectAlphaParticle( this, g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Counter_Particle01", pos ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD WOS destruction rage: point %.1f, rage time %.1f", GetWayOfSwordPoint(), m_fDestructionRageTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 	g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"MonsterAngryWind", pos);
 	g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Counter_Particle01", pos );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 
 
 
@@ -27096,6 +27196,29 @@ void CX2GUElsword_SwordMan::ESSI_A_ESK_WEAPON_BREAK_EventProcess()
 */
 /*virtual*/float CX2GUElsword_SwordMan::GetFinalDamage_WayOfSword( CX2DamageManager::WAY_OF_SWORD_TYPE eWayOfSwordType_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+	/// June 32d18cd0: the destruction rates are lower in a PvP or PvE game ( 322cc1a0 )
+	float fDamageMagnifications = 1.f;
+	if ( WSS_DESTRUCTION == GetWayOfSwordState() )
+	{
+		switch ( eWayOfSwordType_ )
+		{
+		case CX2DamageManager::WST_DESTRUCTION_NORMAL:
+			fDamageMagnifications = ( true == g_pX2Game->GetIsNowPVPCorrectionGame() ? 1.5f : 2.f );
+			break;
+
+		case CX2DamageManager::WST_DESTRUCTION_ACTIVE:
+		case CX2DamageManager::WST_DESTRUCTION_SPECIAL:
+			fDamageMagnifications = ( true == g_pX2Game->GetIsNowPVPCorrectionGame() ? 1.25f : 1.5f );
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	return fDamageMagnifications;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 	float fDamageMagnifications = 1.f;
 	if( -2 == GetWayOfSwordState() )
 	{
@@ -27116,6 +27239,7 @@ void CX2GUElsword_SwordMan::ESSI_A_ESK_WEAPON_BREAK_EventProcess()
 	}
 
 	return fDamageMagnifications;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 }
 #endif //ELSWORD_WAY_OF_SWORD
 

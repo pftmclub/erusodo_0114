@@ -1403,6 +1403,53 @@ No `exestr` line: `_LIVE` is off. No funcmap or `JUNE_BUGS` row.
 `enumscan.py --check X2Lib/X2GUUser.cpp`: `0 A/B row(s) remain`. Probes (`census.cl_cmd`, `/Zs /EHsc`): `X2GUUser.cpp` 0 errors, 39 / 39 warnings off / on;
 `X2GUElsword_SwordMan.cpp` 0 errors, 38 / 38; no `#error` fired. No play-test. Next: `/x2-phase char-elsword CH1q` (Opus 5.5 high).
 
+### CH1q - Done (2026-11-04)
+
+All 21 class-map rows were read, plus the damage-manager math, the CEffect and user AttackResult blocks and the sync field. Real June changes go under the
+new `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS`, a `//#define` that CH1 defines with `_LIVE` (`_LIVE` `#error`s without it; `_WOS` `#error`s without
+`JUNE_ENUM_NAMES`, `JUNE_SOCKET_PARITY`, `JUNE_CHAR_EVE_SKILL`, `JUNE_EFFECT_ALPHA_OPTION`, `JUNE_DIVERGE_SKILL_LEVEL_VALUE`, `JUNE_SKILL_TEMPLET`). The
+snapshot pair sits under `_CORE`. `_WOS_DEBUG` is defined, and its four `[JUNE_CHAR] ELSWORD WOS` lines sit inside `_WOS` code. Funcmap rows `Char Elsword CH1q`: 14.
+
+| June | Site | June differs from March |
+|---|---|---|
+| `31f85910 @31f86bab-31f86ef0`, `32012b50 @32012d3b-32013088` | CEffect / user `AttackResult` WSP block | the gain x ( 1 - specialization B `+0x6d04` ) in vigor / destruction, else x ( A `+0x6c50` + 1.0 ) (`DE E1` = `1.0 - B`); `RNSI_P_SCA_MADNESS` 28420 learned and `SA_DECREASE_REL` ( SA `0x6a`, name table `3379e6b0` ) > HP / max HP ( HP > 0 ) -> x2. One helper `CX2GUUser::ApplyWayOfSwordPointGainRate` for both inlined copies. Elesis's branch also x her vslot `0x720` ( base `3208e1b0` = 1.0 ): stand-in comment |
+| `32622600` / `32622660` | `GetDestRageWSPGain` / `_Elesis` | PvP rate in a PvP **or PvE** game (`322cc1a0` = `GetIsNowPVPCorrectionGame`) |
+| `32d18cd0` | `GetFinalDamage_WayOfSword` | destruction 2.0 / 1.5 become 1.5 / 1.25 in a PvP or PvE game |
+| `32d0f0c0` | `SwordWaitEventProcess` | `oneZ` with no re-attack gate (as Wait, CH1a); the rest = March |
+| `32d0f300` | `DoStateDestructionRage` | the two sequences take the alpha tag `32296d60` (checklist 7c, 2 of the 29 sites) |
+| `32d0c960` | `Start_SwordmanVigor` | `CalculateFinalMoveSpeedPercent( 0, level )` ( `fldz` @32d0ca32 ); no effect, the setter is empty in both builds (JUNE_BUGS 527) |
+| `32d058a0` / `32d058d0` (new, `_CORE`) | `StoreGageSnapshot` / `RestoreGageSnapshot` | own unit keeps / restores `GetWayOfSwordPoint` (`m_fSnapshotWayOfSwordPoint`, June `+0x92b8`); the state is not kept; bases `32009780` / `3204da60` stand in, as Chung's |
+
+**= March, no code:** `WayOfSwordStateChange` `32d0eeb0`, Get / Set state and point (`32cf50f0` `32cf5100` `32cf5130` `32cf5140` clamp), End vigor, Start /
+End destruction, `32715040` = `CX2SocketItem::GetOptionRateCorrection`, sword wait Start / StartFuture / `PlayAnimationSwordWaitStart`, the destruction rage
+thunks and EP `32cf63c0`, `CreateGageData` `32d1b810`, `CalcVigorMpUpOnAttack` / `_Elesis` / `OnDamageReact`, the loader `3261aee0` (March's 28 keys),
+the sync field (+0x7ec0 written by CH1j's CommonFrameMoveFuture, +0x8160 read here). **CH0's replace row was wrong:** `CalcWayOfSwordPointOnDamageReact`
+`326106c0` and `CalcWayOfSwordPoint` `326105c0` are March's live branch (`flagprobe.py`: `BALANCE_PATCH_20120329` ON, game-mode constant 1.0; CH0 read
+the dead `#else`). Row 417 now says "no code"; its allow row is removed. New divergent rows (ported under `_WOS`): `GetDestRageWSPGain`, `_Elesis`,
+`GetFinalDamage_WayOfSword`, `Start_SwordmanVigor`, `DoStateDestructionRage`. `RNSI_P_SCA_MADNESS = 28420` is registered in `X2SkillTree.h` (`JUNE_ENUM_NAMES`).
+
+**Lua.** `luabind.py check WayOfSword DLG_Elsword_WayOfSword`: `0 unbound`, `RESULT: PASS`. `adopt-june --dry-run`: `WayOfSword.lua` 1 replaced,
+`DLG_Elsword_WayOfSword.lua` identical. June's 14 extra keys have no reader (the MP rates stay hard-coded 3 / 4 / 2): CH1 adopts it whole (kickoff amended).
+
+**Routed.** Not located by CH0, still March under `_WOS`: `m_bCured` / `CureExtraDamage`, `ResetAnimSpeed`'s vigor factor, `SAT_WAY_OF_SWORD_GAUGE_UP` -> CH4b;
+the skill-slot Vigor x0.7 MP requirement (`X2Game.cpp:14855`) -> CH1q2; `ElswordWSPCheat` and `RenderName`'s WSP text (no June counterpart) -> CH5;
+`GetActualMPConsume`'s x0.7 stays CH4b's. PHANTOM_BLADE keys are CH1g / CH3c's. Checklist §7 l.256, §7c l.352, §7an l.933 marked `(Elsword: CH1q)`.
+Elesis's class side stays char-elesis's (her shared sites change with `_WOS`, as June).
+
+**Gates.**
+- flagcheck `--worktree --files` (eight code files): `_WOS --with _WOS_DEBUG _CORE`: `files: 5 PASS, 0 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`, RESULT FAIL
+  only for the commented-out `#define` (OTHER = Always.h, the `_CORE` header lines, the `JUNE_ENUM_NAMES` enum line). `_CORE`: `2 PASS, 1 OTHER`, PASS.
+  `_WOS_DEBUG`: `2 PASS, 1 OTHER`, PASS. `JUNE_ENUM_NAMES` (`X2SkillTree.h`): `1 PASS~`, PASS. All: `0 deleted line(s), 0 non-ASCII inserted line(s),
+  0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`. `git diff --numstat`: +45 / +30 / +12 / +124 / +7 / +65 / +3 / +6, 0 deletions.
+- `junediverge.py --check` (seven files): `allow-listed: 8`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s) remain`; the shared
+  files: none in the changed lines.
+- One-file probes (`census.cl_cmd`, `/Zs /EHsc`): the class, `X2GUUser.cpp`, `X2DamageEffect.cpp`, `X2DamageManager.cpp` with no flag and with `_WOS`: exit 0, 0 errors
+  (8 runs); the class with `_LIVE` + `_WOS`: 0 errors; with `_LIVE` alone it stops at the new `#error` (`Always.h:11561`), which proves the probes read Always.h.
+- `DEPLOY OK: X2_offline.exe is 25,961,984 B, dated 2026-11-04 18:26:30, md5 0f26d9161b030073bab0a0a259b34138, equal to X2/US_SERVICE/x2.exe (2026-11-04 18:26:23); built at main 120a29d1 + 8 uncommitted code file(s).`
+  `EXESTR OK: 4 of 4 absent` (the four `_WOS_DEBUG` lines sit in `_WOS` code, which is off).
+
+**Nothing to play-test** (`_WOS` and `_LIVE` are off). Next: `/x2-phase char-elsword CH1q review` (Opus 5.5 high), then CH1q2.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.

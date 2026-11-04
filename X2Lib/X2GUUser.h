@@ -2914,6 +2914,9 @@ public:
 		virtual float		GetWayOfSwordPoint() const;
 		virtual void		SetWayOfSwordPoint( float fWayOfSwordPoint_ );
 		bool				IsActionActive( USER_ACTION_ID eUserActionID_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+		float				ApplyWayOfSwordPointGainRate( float fWSPGain_ );	/// June 31f86c13-31f86d0d / 32012d8c-32012e86 ( inlined at both AttackResult sites )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 #endif ELSWORD_WAY_OF_SWORD
 #ifdef ELSWORD_SHEATH_KNIGHT
 //		void				AddComboToBrutalSlayer();

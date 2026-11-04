@@ -4673,6 +4673,11 @@ float CX2DamageManager::CalcVigorMpUpOnDamageReact( int iWayOfSwordState )
 
 float CX2DamageManager::GetDestRageWSPGain()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+	/// June 32622600: the PvP rate in a PvP or PvE game ( 322cc1a0 )
+	const float fGameModeConst = ( true == g_pX2Game->GetIsNowPVPCorrectionGame() ? m_WayOfSwordConstTable.m_fGameModeConst_PVP_Hit : m_WayOfSwordConstTable.m_fGameModeConst_NPC_Hit );
+	return m_WayOfSwordConstTable.m_fConst_DestRageWSPGain * fGameModeConst;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 	float fGameModeConst = 1.f;
 	if(g_pX2Game->GetGameType() == CX2Game::GT_PVP)
 		fGameModeConst = m_WayOfSwordConstTable.m_fGameModeConst_PVP_Hit;
@@ -4680,9 +4685,15 @@ float CX2DamageManager::GetDestRageWSPGain()
 		fGameModeConst = m_WayOfSwordConstTable.m_fGameModeConst_NPC_Hit;
 
 	return m_WayOfSwordConstTable.m_fConst_DestRageWSPGain * fGameModeConst;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 }
 float CX2DamageManager::GetDestRageWSPGain_Elesis()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+	/// June 32622660: the PvP rate in a PvP or PvE game ( 322cc1a0 )
+	const float fGameModeConst = ( true == g_pX2Game->GetIsNowPVPCorrectionGame() ? m_WayOfSwordConstTable.m_fGameModeConst_PVP_Hit : m_WayOfSwordConstTable.m_fGameModeConst_NPC_Hit );
+	return m_WayOfSwordConstTable.m_fConst_DestRageWSPGain_Elesis * fGameModeConst;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 	float fGameModeConst = 1.f;
 	if(g_pX2Game->GetGameType() == CX2Game::GT_PVP)
 		fGameModeConst = m_WayOfSwordConstTable.m_fGameModeConst_PVP_Hit;
@@ -4690,6 +4701,7 @@ float CX2DamageManager::GetDestRageWSPGain_Elesis()
 		fGameModeConst = m_WayOfSwordConstTable.m_fGameModeConst_NPC_Hit;
 
 	return m_WayOfSwordConstTable.m_fConst_DestRageWSPGain_Elesis * fGameModeConst;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 }
 bool CX2DamageManager::OpenWayOfSwordScript( const WCHAR* wszFileName )
 {

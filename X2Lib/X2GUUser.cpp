@@ -3,6 +3,9 @@
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_GFX_GATES
 #include "KTDGGFXManager.h"
 #endif SERV_IRUHADEV_JUNE_GFX_GATES
@@ -14719,6 +14722,38 @@ void CX2GUUser::AttackResult()
 			float	fIncreaseSoulRate			= 1.0f;		// 피*타격시 각성 + 증가치
 
 #ifdef ELSWORD_WAY_OF_SWORD
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+			/// June 32012d3b-32013088: the gain takes the specialization and Madness rates
+			if( CX2Unit::UT_ELSWORD == GetUnit()->GetType() )
+			{
+				float fWSPGain = g_pData->GetDamageManager()->CalcWayOfSwordPoint( m_DamageData.m_WayofSwordType, m_DamageData.damage.GetAllDamage(), GetWayOfSwordState() );
+				fWSPGain = ApplyWayOfSwordPointGainRate( fWSPGain );
+				SetWayOfSwordPoint( GetWayOfSwordPoint() + fWSPGain );
+
+				fIncreaseMpRate *= g_pData->GetDamageManager()->CalcVigorMpUpOnAttack( m_DamageData.m_WayofSwordType, GetWayOfSwordState() );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+				static DWORD s_dwLastWayOfSwordGainLogTick = 0;
+				const DWORD dwTick = GetTickCount();
+				if ( dwTick - s_dwLastWayOfSwordGainLogTick >= 1000 )
+				{
+					s_dwLastWayOfSwordGainLogTick = dwTick;
+					CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD WOS attack gain %.2f ( type %d, state %d ): point %.1f, mp rate x%.2f",
+						fWSPGain, static_cast<int>( m_DamageData.m_WayofSwordType ), GetWayOfSwordState(), GetWayOfSwordPoint(), fIncreaseMpRate );
+				}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS_DEBUG
+			}
+#ifdef NEW_CHARACTER_EL
+			else if( CX2Unit::UT_ELESIS == GetUnit()->GetType() )
+			{
+				float fWSPGain = g_pData->GetDamageManager()->CalcWayOfSwordPoint( m_DamageData.m_WayofSwordType, m_DamageData.damage.GetAllDamage(), GetWayOfSwordState() );
+				// stand-in: CX2GUEL not ported ( June 32012f2e also multiplies by her vslot 0x720 rate, base 1.0 )
+				fWSPGain = ApplyWayOfSwordPointGainRate( fWSPGain );
+				SetWayOfSwordPoint( GetWayOfSwordPoint() + fWSPGain );
+
+				fIncreaseMpRate *= g_pData->GetDamageManager()->CalcVigorMpUpOnAttack_Elesis( m_DamageData.m_WayofSwordType, GetWayOfSwordState() );
+			}
+#endif NEW_CHARACTER_EL
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 			if( CX2Unit::UT_ELSWORD == GetUnit()->GetType() )
 			{
 				float fWSPGain = 0.f;
@@ -14737,6 +14772,7 @@ void CX2GUUser::AttackResult()
 				fIncreaseMpRate *= g_pData->GetDamageManager()->CalcVigorMpUpOnAttack_Elesis(m_DamageData.m_WayofSwordType, GetWayOfSwordState() );
 			}
 #endif // NEW_CHARACTER_EL
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 
 #endif ELSWORD_WAY_OF_SWORD
 
@@ -43101,6 +43137,35 @@ float CX2GUUser::GetMpUpRateBySkill()
 {
 	return;
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
+/// June 31f86c13-31f86d0d / 32012d8c-32012e86: x ( 1 - specialization B ) in vigor or destruction, else x ( specialization A + 1 ); x2 below the Madness HP rate
+float CX2GUUser::ApplyWayOfSwordPointGainRate( float fWSPGain_ )
+{
+	const int iWayOfSwordState = GetWayOfSwordState();
+	if ( WSS_VIGOR == iWayOfSwordState || WSS_DESTRUCTION == iWayOfSwordState )
+		fWSPGain_ *= ( 1.f - GetCharacterSpecializationB() );
+	else
+		fWSPGain_ *= static_cast<float>( GetCharacterSpecializationA() + 1.0 );
+
+	const int iMadnessLevel = GetSkillLevelValue( CX2SkillTree::RNSI_P_SCA_MADNESS );
+	if ( 0 < iMadnessLevel && NULL != g_pData && NULL != g_pData->GetSkillTree() )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_SCA_MADNESS );
+		if ( NULL != pSkillTemplet )
+		{
+			const float fMadnessHpRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DECREASE_REL, iMadnessLevel, false );
+			float fNowHpRate = 0.f;
+			if ( GetNowHp() > 0.f )
+				fNowHpRate = GetNowHp() / GetMaxHp();
+
+			if ( fMadnessHpRate > fNowHpRate )
+				fWSPGain_ += fWSPGain_;
+		}
+	}
+
+	return fWSPGain_;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_WOS
 #endif ELSWORD_WAY_OF_SWORD
 
 

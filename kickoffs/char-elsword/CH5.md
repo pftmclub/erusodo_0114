@@ -42,3 +42,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7t L592 June UnitTemplet.lua m_HyperCutIn / m_BerserkCutIn keys and the HQ_Cut; §7t L617-622 skill cut-in names -> June .gfx; replace s_SkillCutInSet and the InitS; §7ao L940-945 every class also brings: emulator allow-list id, LevelUpEvent TYPE row.
 - `STR_ID_4641` "Lord Knight", `4642` "Rune Slayer", `17425` "Infinity Sword" all exist (`StringID_def.lua`, `general.ess`). Row diff: `ch0_unittemplet_elsword.tsv` (178 key lines).
+
+## Amended by CH1q (2026-11-04)
+
+- Two March Way of the Sword dev pieces have no June counterpart (`ch0_wos.tsv` rows 85, 93): the `ElswordWSPCheat` Lua binder (`X2GameEdit.cpp:773`,
+  `X2Main.cpp:5191`) and `RenderName`'s `WSP: %d` text (`X2GUUser.cpp:29509`). Decide with the other dev cheats (June wins: drop, or keep as a dev tool
+  and say so in `MODS.md`).

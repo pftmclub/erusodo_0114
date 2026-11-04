@@ -53,3 +53,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - June's skill-use cooldown `32d0d8e0` (CH1k's `SpecialAttackCooldown`) asks `GetActualCoolTime( templet, 1, 0 )` (JUNE_BUGS 524) and no longer carries March's cool time extras: memo 22 Phoenix Talon -5 s, memo 6 Endurance -5 s, the Compact Counter cool time and `ST_ACTIVE` x `m_fIncreaseCoolTimeRel`. Read `32cf4df0` (`GetActualCoolTime`, vslot 0x6a4) for where June applies them.
 - CH1k's lookup `32d1bd10` applies Mind of Fighter (`m_iBrutalSlayerActivatedLevel` x `m_fMindOfFighterConsumeMpRate`) and the Vigor x 0.7 MP rule itself, after `GetActualMPConsume`: check that `32cf4b70` does not apply either again.
+
+## Amended by CH1q (2026-11-04)
+
+- Way of the Sword pieces CH0 did not locate in June (`ch0_wos.tsv` rows 83 / 84 / 87 / 95), still March under `_WOS`: the shock / frozen end
+  `m_bCured` branch (`X2GUUser.cpp:20093`, `:22310`) and `CureExtraDamage` (`X2GameUnit.cpp:9738`, June `3227d390` confirmed), `ResetAnimSpeed`'s vigor
+  factor (`X2GUUser.cpp:35094`), the `SAT_WAY_OF_SWORD_GAUGE_UP` reader (`X2ItemManager.cpp:1120`, `X2Game.cpp:11785`). Read June's for each and port
+  any change under `_WOS`.

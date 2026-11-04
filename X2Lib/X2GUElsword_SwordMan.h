@@ -482,6 +482,10 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		void				End_SwordmanVigor();
 		void				Start_SwordmanDestruction();
 		void				End_SwordmanDestruction();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+		void				StoreGageSnapshot();		/// June 32d058a0 ( user vslot 0x740, base 32009780 Crest of Time snapshot not ported )
+		void				RestoreGageSnapshot();		/// June 32d058d0 ( user vslot 0x744, base 3204da60 Crest of Time restore not ported )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 
 #endif ELSWORD_WAY_OF_SWORD
 #ifdef ELSWORD_SHEATH_KNIGHT
@@ -641,6 +645,9 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		CX2EffectSet::Handle							m_hEffectDestruction;
 		float											m_fDestructionRageTime;
 		float											m_fAnimSpeedUpByVigor;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
+		float											m_fSnapshotWayOfSwordPoint;	/// June +0x92b8 ( CX2GUUser snapshot region ): the point StoreGageSnapshot keeps
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 #endif ELSWORD_WAY_OF_SWORD
 
 #ifdef ELSWORD_SHEATH_KNIGHT
