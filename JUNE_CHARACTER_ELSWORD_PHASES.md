@@ -651,6 +651,26 @@ All 28 class-map rows of phase CH1d2 are written, all `inside`: June's body in M
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-elsword CH1d2 review` (Opus 5.5 high), then CH1e.
 
+### CH1d2 - Review (2026-11-04, Opus 5.5 high)
+
+**Verdict: PASS, no code change.** I read all 28 June listings (`charport_adis.py elsword --phase CH1d2`; `32cf7cb0` runs on into `32cf8110`, cut there) against the `_LIVE` bodies at `679a0bea`. Windows: `m_fEventTime[i]` is `0x8c10 + 0xc*i` (start / end / change); every flagged change is `change < t || IsAnimationEnd()`, every window `start <= t < end`.
+- **Dash Z1 `32cf7cb0`:** flag 0 on `[0]` to `0xad` (`ESSI_DASH_COMBO_Z2`), set by `oneZ` when unit data `+0x38` is neither 22 nor 112 (a NULL unit sets it, as `IsDataClass`). Flag 1 on `[1]` to `0xd7` ETK ZZ, set by `oneZ` with data class 22 / 112 (NULL skips). Flag 2 on `[2]` to `0xf1`, vslot 0x670 `( 1 )` tested before `oneX`. Flag 3 on `[3]` to `0xe0`, data class 112 then `oneX`. Then animation end (jump down `-= 45.0`), then the `_C` keys (12, no Z / X) with `0.9 < t`, `+0xde0 = 0.1`, WAIT.
+- **Dash Z2 `32cf8110`:** animation end first, then flag 0 on `[0]` to `0xae` (= March's `ESSI_DASH_COMBO_Z3`), set by `oneZ`.
+- **Sword-Knight dash Z2 `32cf8230`:** flags 0 / 1 on `[0]` / `[1]` to `0xae` / `0xaf`; flag 1 set by `oneX` with data class 11 / 101. Then `0 <= +0x8ca4 < t`, foot on line, `pureUp || pureDown` to WAIT; `SKILL_CANCEL_AFTER` (`0x8c90`, vslot 0x7f4, the awakening branch); back-walk / walk / dash (`0x8c94` / `0x8c98` / `0x8c9c`); pure Z / X on `0x8c8c` through vslots 0x4b0 / 0x4b4. The end-of-animation `if` is separate (jump down with `-= 45.0`). **Z3 `32cf8770`:** end (jump down with no y offset), then `_ZXC` keys with `1.0 < t`.
+- **Dash attack X `32cf8b30`:** templet `+0xaf0 -> +4 == 112` first: end, flag 0 to `0xe1` at `0.63`, set by `oneX` in `0.233 <= t < 0.63` (double `0.2329999953508377` = float `0.233f`), `_C` with `0.66666 < t`. Else end, then data class 100 (flag 0 on `[0]` to `0xf4`, `oneX`; skip keys Up Down Right Left **Z** A S D C Q W E R), 101 (flag 1 on `[1]` to `0xff`, `oneZ`; the same list with **X**), both at `0.66666`, else `_ZXC` at `0.6`. June tests the time before the keys; the port tests keys first. Nothing follows either test, so they are equal.
+- **Dash jump Z1 `32cf90d0` / Z2 `32cf9220`:** `oneZ` sets flag 0 every frame; landing to `USI_DASH_JUMP_LANDING`. Flag 1 on `[0]` to `0xf9` (`oneX` then job line 2) / `0x102` (`oneZ` then job line 3). At the end with flag 0: Z2 (`0xb4`) / job line 1 to `0xf2`, else `0xb5` Z3. **X1 `32cf9440`:** `oneX` writes flags 1,0,0 (word clear); `oneZ` with templet 11 writes 0,1,0, with templet 101 writes 0,0,1; landing, then at the end `0xb8` / `0xb9` / `0xc8`.
+- **Z3 landing `32d0fa10`:** jump down, double-direction dash, then `max / 6 < t` (`0x220 - 0x2b0` = `GetMaxAnimationTime()`): Z1, X1, walk, `USI_JUMP_READY`, `oneDown` with `CanDown`, end. June has no second dash test inside; March's is dead code, and the port leaves it out.
+- **The other 19 equal the port.** FrameMove thunks are vslot 0x7cc; Knight Z3 SF is 0x7c0 only; the three dash SFs are byte-identical (dash speed when pressing forward); the landing SFs use `*= 0.5`, Start copies hitCamera; Z3 FM `0.26 < t < 0.37` on `m_pXSkinAnim` (camera, reset, hit); X2 FMF `EventTimerOneshot( 0.23 )` to `fMaxGSpeed`; X2 FM `0.15 < t` (no camera copy); Z3 EP bHit to `0xb6` else dash-jump landing; X2 EP to `0xba`; X2 landing EP; X2 End `UpCrashCamera( 200, -3500 )`.
+- **Declared:** the seven `ESSI` appends without `= value` follow CH1d (names, not numbers). The `Always.h` UPDOWN guard is correct. CH0's scan counts 24 UPDOWN functions; the checklist's "25" is the old lead.
+
+**Hygiene.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE --range 679a0bea^..679a0bea`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR` (the OTHER row is the `.h`, which is `_CORE`); `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`. `RESULT: FAIL` only for the `//#define`. `--worktree` checks nothing, since the tree is clean.
+- `junediverge.py --check-all`: `allow-listed: 181`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: 0 A/B rows.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH) with `-DSERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`: exit 0, 0 errors. `cl /P`: `ESSI_ERS_XZ_CHARGE` 2 / `m_fUpDownCancelAfter` 4 with `_LIVE`, 1 / 2 without, so the flag took effect.
+- No build: there is no code change. CH1d2's `DEPLOY OK` (md5 `09774139...`) stands.
+
+Nothing to play-test (`_LIVE` is off). `kickoffs/char-elsword/CH1e.md` is ready as written. Next: `/x2-phase char-elsword CH1e` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
