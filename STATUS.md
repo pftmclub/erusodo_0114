@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1 | **done 2026-11-04, owes the user a play-test** (then "check logs"): `_LIVE` + `_WOS` defined, June's script + WayOfSword adopted, data036 copied | Opus 5.5 / high, Opus review, user play-test | CH1q2 review (done), CH0b | Always.h, data036 | `CH1.md`; review `CH1-review.md` |
+| CH1 | done 2026-11-04, play-test passed; **review ready** (asks the destruction-rage step once, retires `_WOS_DEBUG`) | Opus 5.5 / high, Opus review, user play-test | CH1q2 review (done), CH0b | Always.h, data036 | `CH1.md`; review `CH1-review.md` |
 | CH2a | blocked (CH1 review): Sword Man (1) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GUElsword_SwordMan.*`, `MODS.md` | `CH2a.md` |
 | CH2b | blocked (CH2a review): Sword Knight (10) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GUElsword_SwordMan.*` | `CH2b.md` |
 | CH2c | blocked (CH2b review): Magic Knight (11) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2b review | `X2GUElsword_SwordMan.*` | `CH2c.md` |

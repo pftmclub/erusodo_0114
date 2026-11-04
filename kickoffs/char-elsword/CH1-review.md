@@ -25,7 +25,8 @@ Review CH1 final against its Done gate (plan section "Phase CH1 - Deploy unit", 
   sub-states explained as in Chung's review), `wait_state_change 1`, a June `MOTION_ELSWORD*` device id, script `ELSWORD_SWORDMAN.lua`.
 - **START / WIN / LOSE:** the rolls pick real tables (no `list size 0` / `re-bind skipped` for `ESSI_` in the log).
 - **Way of the Sword:** `ELSWORD WOS vigor start` / `destruction start` / `destruction rage` / `attack gain` / `UI state` lines match the steps; the UI
-  state reaches 2 and -2. Then **retire `_WOS_DEBUG`** (comment out its `#define`; the lines go dark; the `_LIVE` include keeps `X2OfflineLog.h`),
+  state reaches 2 and -2 (CH1's run did). CH1's run had no `destruction rage` line: before retiring, ask the user once for it (enter destruction
+  mode in a dungeon, then take a hit from a monster) and read it. Then **retire `_WOS_DEBUG`** (comment out its `#define`; the lines go dark; the `_LIVE` include keeps `X2OfflineLog.h`),
   build, `exestr.py --absent` on the five `ELSWORD WOS` strings.
 - **Revenge counter** (CH1b): `ESSI_REVENGE_ATTACK` hits for a non-zero amount (no `DAMAGE_PHYSIC`, `NUMERICAL_DATA_INDEX` 1).
 - **ErrorLog** against `data\ErrorLog_pre_CH1_elsword.txt` (212,757 B, CH0b's run 2026-11-04 04:4x): no new `KEM_ERROR` / `Motion Error` / missing

@@ -1640,6 +1640,18 @@ Build: `DEPLOY OK: X2_offline.exe is 25,970,176 B, dated 2026-11-04 20:03:19, md
 damage and stand-up, a bounding hit, riding where a mount exists, the gauge into vigor and destruction, awakening, a village walk; `ELSWORD DATA` per class;
 ErrorLog against the pre-CH1 copy. Lord Knight's X at the end of Z-Z-Z-Z-Z is avoided (JUNE_BUGS 521). Skills are CH2-CH3's. No JUNE_BUGS row, no drift.
 
+**Play-test (2026-11-04, run 20:19-20:34 on md5 0e9c736f): user "all test passed".** `offline_server.log`:
+- `ELSWORD DATA` for all 7 classes, each `script ELSWORD_SWORDMAN.lua motion MOTION_ELSWORD.X wait_state_change 1`; states 1: 147, 10: 157, 11: 155,
+  22: 151, 100: 173, 101: 165, 112: 158 (the review checks them against `ch1m_reg_by_class.tsv`); each class the same count on every load.
+- `WOS`: `vigor start` x7 (anim speed x1.132, x1.200 on the second jobs), `destruction start` x3 (point -4800), `attack gain` x139 (types 1 and 4),
+  `UI state` x37 reaching 2 (x7) and -2 (x3). A `vigor start` right after a load is the gauge keeping its state (`32a348d0`, CH1q2).
+- **Open:** no `destruction rage` line (`DoStateDestructionRage`: a hit taken in destruction mode). The review asks for that step once before retiring `_WOS_DEBUG`.
+- START / WIN / LOSE: ErrorLog's `C3e-2 roll` / `rebind` lines pick `ESSI_*_START` / `_WIN` / `_WIN2` / `_LOSE` / `_LOSE2` for every job, none `list size 0`.
+ErrorLog against `ErrorLog_pre_CH1_elsword.txt`: `KEM_ERROR` 0 / 0, `Motion Error` 0 / 0, `[LUA_SRC]` 7 / 7, `lua error` 3 / 3, no missing animation.
+New lines are places and assets the earlier run never opened: optional `.XET` probes (Elsword effect / mesh names), Ruben field textures, the
+tutorial event-scene `.swf` / `.gfx` (quest 11010), local-map control names, `result : 47` on two sounds (as Chung's), and `HQ_CUTIN_ELSWORD_1.DDS.GFX`:
+March's cut-in table name plus `.gfx`, owned by CH5 (as Chung's). `AddGroupChainQuest` unbound x1 is pre-CH1 (Chung's review). No new routing.
+
 ## Phase CH2 - Skills: Sword Man and the first jobs (classes 1, 10, 11, 22)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`.
