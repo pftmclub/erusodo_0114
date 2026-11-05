@@ -1953,8 +1953,10 @@ Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKIL
 ### CH2d - Review (2026-11-05)
 
 Opus 5.5. **Verdict: passes, no code change.** Commit `3cb75440`; every address read with `charport_adis.py elsword --phase CH2d` (19 listings) plus Ghidra (`329cc340`, strings).
-- **Play-test: not run yet.** The only run after the 09:08 deploy (09:16, 50 s) has the seven `equip skill` lines (21221 / 21233 / 21234, B bank 21033 / 21036 / 21053) and no skill use.
-  `_SKILL_DEBUG` therefore **stays defined** (not retired): the deployed exe md5 1c3ad88f is the play-test build, and CH3a keeps the flag on.
+- **Play-test: passed (user, 2026-11-05).** Run 09:25 (exe 1c3ad88f): `sword shield: skill 21221 level 1 effective time 12.50` x4, `sword fall: upgraded skill 21033, two more
+  blades`, `crescent cut hit 1 / 2 / 3: skill 21036 life x 1.30 speed x 1.30`; Mirage Sting 21214 `ES_CREATE EffectSet_EIS_SA_SPIRALSTING`, `HIT ELSWORD_SA_SPIRALSTING_M01`, then
+  `DAMAGE_DATA_NEXT`. 2 `UNHANDLED` (`E_DISABLE_HB_CHECK_REQ`), 0 `EXCEPTION`. Two `OpenXET` misses (`ELSWORD_SA_SPIRALSTING_SHEATH.XET` / `_PHANTOMSWORD.XET`): neither March nor
+  June 14JUN17 ships them (only the `.X` meshes), so June misses them too; no work. `_SKILL_DEBUG` retired (`//#define`); build started, not awaited.
 - **Sword Fall FM `32d14100`:** 0.01 one-shot plays `EffectSet_SECOND_BLADE`, M01 at `Bip01` + y 60 ( 0 x dir ), tagged, the position stored to `+0x9644` unconditionally; M02-M05 at 0.03333 /
   0.06666 / 0.1 / 0.15 into `+0x9650-+0x965c`, the `_Memo` four at 0.05 / 0.08 / 0.125 / 0.17 into `+0x9660-+0x966c`, each `+0x19c = 1` (per-frame simulation) and `32296ee0`;
   **no memo test** (no `31fca9e0` / memo call in the listing). Power rate = vslot 0x204 once before the hits. Hits 1.0 / 1.16666 / 1.33333 / 1.5 then 0.917 / 1.083 / 1.25 / 1.416,
@@ -1976,7 +1978,8 @@ Opus 5.5. **Verdict: passes, no code change.** Commit `3cb75440`; every address 
 - **Gates:** `flagcheck JUNE_CHAR_ELSWORD_SKILL --with ..._SKILL_DEBUG --range 3cb75440^..3cb75440 --files` the four code files: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER
   (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`, `1 deleted line(s)` (the `//#define`), `RESULT: PASS`. `--numstat`: `.cpp` +363 -0, `.h` +6 -0, `X2SkillTree.h` +17 -0.
   `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check` the `.cpp`: `0 A/B row(s) remain`. One-file probe of `X2GUElsword_SwordMan.cpp`, with and
-  without `_LIVE`: exit 0, 0 errors. No build (no code change; the deployed exe is current).
+  without `_LIVE`: exit 0, 0 errors. Retirement: `flagcheck JUNE_CHAR_ELSWORD_SKILL --with ..._SKILL_DEBUG --worktree --files KTDXLIB/Always.h`: `1 DEFINE`, `1 deleted line(s)`,
+  `RESULT: PASS`. DEPLOY: not awaited (standing exception).
 
 ## Phase CH3 - Skills: second jobs (100, 101, 112), hyper actives, transcendence
 
