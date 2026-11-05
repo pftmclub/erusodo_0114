@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2d | ready (CH2c review done 2026-11-05; kickoff amended): Sheath Knight (22) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GUElsword_SwordMan.*` | `CH2d.md` |
+| CH2d | done 2026-11-05, owes the user a play-test (unit 70 SheathKnight99), then Opus review (`CH2d-review.md`): Sheath Knight (22) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GUElsword_SwordMan.*` | `CH2d.md` |
 | CH3a | blocked (CH2d review): Lord Knight (100) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GUElsword_SwordMan.*` | `CH3a.md` |
 | CH3b | blocked (CH3a review): Rune Slayer (101) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GUElsword_SwordMan.*` | `CH3b.md` |
 | CH3c | blocked (CH3b review): Infinity Sword (112) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GUElsword_SwordMan.*` | `CH3c.md` |

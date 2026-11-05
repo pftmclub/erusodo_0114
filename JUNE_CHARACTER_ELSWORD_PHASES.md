@@ -1915,6 +1915,41 @@ FAIL, 0 ERROR`, 1 deleted line (the `//#define`), `RESULT: PASS`; worktree after
 insertion (240 / 4 / 16), Always.h 7 / 1. `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check X2GUElsword_SwordMan.cpp`: `0 A/B row(s)
 remain`. One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`): exit 0, 0 errors. Build: not awaited (only change is the `_DEBUG` retirement).
 
+### CH2d - Done (2026-11-05)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (+ `_SKILL_DEBUG`, defined again in `Always.h` for this phase; the review retires it): Sheath Knight's six skills run June's registrations. All 19 class-map rows are read from `charport_adis.py elsword --phase CH2d` listings (+ Ghidra for the registration): **12 written** (10 inside March's functions under the flag with March in `#else`, 2 new), **7 are June = March** (no code). `funcmap.tsv` rows `Char Elsword CH2d`; `MODS.md` "Stage 7 Elsword, CH2d" has the March vs June damage table.
+
+| June | `CX2GUElsword_SwordMan::` | June differs from March |
+|---|---|---|
+| `32cfde50` `32cfdee0` `32cfdf70` | `ESSI_SI_SA_ETK_FINAL_STRIKE` / `_SWORD_FALL` / `_CRESCENT_CUT` `_EventProcess` | instruction-identical: end -> JUMP_DOWN / WAIT, then the walk cancel with the foot on a line (7h `ELSWORD_GROUND_WALK_CANCEL`, `+0x8c98`) |
+| `32cfe840` `32d005e0` `32d007e0` | `ESSI_SI_A_EIS_SPIRAL_STING` / `_FATAL_SLAP` / `ESSI_A_ETK_SWORD_SHIELD` `_EventProcess` | ground walk + dash cancels ( Spiral Sting: walk then dash; the other two dash then walk ), then `SKILL_CANCEL_AFTER` |
+| `32d14100` | `ESSI_SI_SA_ETK_SWORD_FALL_FrameMove` | March's body plus: the four `_Memo` blade meshes and the four last-hit blades always play ( March: memo 15 ), nine `TagEffectAlphaMesh` sites, no 0.6 power scale; the last hit adds two `BLADE4` at y + 80 / + 160 when `IsNowStateSkillUpgraded()` ( JUNE_BUGS 532 ). Helpers `CreateSwordFallBladeMesh` / `CreateSwordFallBladeDamage` carry the eight repeated blocks |
+| `32d15f80` | `..._SWORD_FALL_End` | the eight blade handles ( First-Fourth, then the _Memo four ), each destroyed only while its mesh lives |
+| `32d1b740` `32d16c00` | `ESSI_SI_SA_ETK_CRESCENT_CUT_UPGRADE_FrameMove` `CreateCrescentCutEffect` (new) | the upgraded Crescent Cut: cut-in, an else-if chain 0.4 / 0.9 / 1.48 calls the helper; it plays the hit's effect set and damage effect, then scales the main effect's life by the skill's `SA_EFFECTIVE_TIME` and multiplies its velocity by `SA_MOVE_SPEED` ( `32007c40`, type 1; JUNE_BUGS 526 ) |
+| `32d189a0` `32d18a60` | `ESSI_A_ETK_SWORD_SHIELD_StateStart` `_FrameMove` | the 21212 templet with the upgrade swap, level `max( 1, GetSkillLevel( id, false, 0, true ) )`, effective time from the numerical ability; no unit returns before `CommonStateStart`; the 0.68 s effect set is `Effectset_A_ETK_SWORD_SHIELD_ULTIMATE` when the state skill is upgraded |
+| = March | the five Inits ( `32cf4310` `32cf4370` `32cf4400` `32cf4890` `32cf48e0` ), Crescent Cut FrameMove `32d162d0` ( its third-hit memo test is false in March under `DIVERGE_SKILL_MEMO` ), Spiral Sting FrameMove `32d1f3a0` | `funcmap.tsv` says which |
+
+**Registration.** `SetEquippedSkillFuncBySkillSlotIndex` gains eight June cases ahead of the `default:`: Sword Fall ( 21019 / 21033: Init, FM, EP, End ), Crescent Cut ( 21020 ) and its upgrade ( 21036, `..._UPGRADE_FrameMove` ), Final Strike ( 21021 ) and its upgrade ( 21053: table `ESSI_SI_SA_ETK_FINAL_STRIKE_UPGRADE`, the same Init / EP ), Sword Shield ( 21212 / 21221 ), Fatal Slap ( 21213 / 21233 ), Mirage Sting ( 21214 / 21234 ). Final Strike registers no FrameMove / End ( March's black-hole and cut-in lines are the script's now ); the hyper state takes the normal table name ( June has no `_HYPER` table for these ). `X2SkillTree.h`: twelve `RNSI_*ETK*` names. Checklist rows marked `(Elsword: CH2d)` ( 51, 116, 117, 178, the 7c row ). `JUNE_BUGS.md` 532 ( Sword Fall's second blade set ); 526 ( velocity y / z zeroed ) is now reachable.
+
+**Judgement for the review.** The class map called Final Strike's upgrade state "new" with its own Init / EP; June registers the same `32cf4310` / `32cfde50` for both, so no `_UPGRADE_` copy exists. The two ability types of the Crescent Cut helper are written `SA_EFFECTIVE_TIME` ( 1 ) and `SA_MOVE_SPEED` ( 0x22 ), counted in the C++ enum as CH2c counted `SA_MP_CONSUME_REL` ( 0x1b ).
+
+**Left to later phases ( scope rule ).** None new: Mirage Sting's two numerical-only state tables and the damage effects run through the engine; `NUM use` comes from the play-test. Upgrade ids need no templet swap beyond the swap arguments June passes itself ( Sword Shield `GetSkillLevel` / `GetEquippedActiveSkillTemplet`, `IsNowStateSkillUpgraded` ).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_SKILL --with JUNE_CHAR_ELSWORD_SKILL_DEBUG --worktree --files` the four code files: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`; `1 deleted line(s)` ( the `//#define` ), `0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` the three source files: `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check` the `.cpp` / `.h`: `0 A/B row(s) remain`. `skillicons.py check 21019-21021 21033 21036 21053 21212-21214 21221 21233-21234`: `skills 12, misses 0, sheets 0`, `RESULT: PASS`. `luabind`: no Lua staged. One-file probe of `X2GUElsword_SwordMan.cpp` ( `/c /Zs /EHsc` ): exit 0, 0 errors.
+- DEPLOY OK: X2_offline.exe is 25,975,808 B, dated 2026-11-05 09:08:43, md5 1c3ad88f89ae8d5731883b3bb44d8ee3, equal to X2/US_SERVICE/x2.exe (2026-11-05 09:08:36); built at main 212cd1be + 4 uncommitted code file(s).
+- EXESTR OK: 3 of 3 found in X2_offline.exe, 25975808 B, md5 1c3ad88f ( `[JUNE_CHAR] ELSWORD SKILL sword fall`, `... sword shield`, `... crescent cut hit` ); wide: `Effectset_A_ETK_SWORD_SHIELD_ULTIMATE`, `elsword_A_swordFall_M05_Memo` 2 of 2.
+
+**Play-test hand-off.** Save: unit 70 `SheathKnight99` ( Sheath Knight, class 22, lv 99, SP 843; backups `db_backup\els_db_20261105_085816_pre_createchar.sql`, slots set after `...085846_pre_sql.sql` ). Slots: A Sword Shield ( 21212 ), S Fatal Slap ( 21213 ), D Mirage Sting ( 21214 ), C Mega Slash ( 21000 ); Q Sword Fall ( 21019 ), W Crescent Cut ( 21020 ), E Final Strike ( 21021 ); slots 4 and 9 empty. For the enhanced ids ( 21221 / 21233 / 21234 on A S D, 21033 / 21036 / 21053 on Q W E ) say "swap banks" ( I run the enhanced setup; the skills are already learned ).
+Dev console ( END key, auth 3 ): `/invin 0`, then a dungeon with enemies in front ( `/stage 1` ). Checks, enemies near:
+1. **A Sword Shield.** The shield effect appears at ~0.68 s and lasts the skill's effective time ( log `sword shield: skill 21212 level 1 effective time ...` ); enhanced: the _ULTIMATE effect; ends in wait / fall.
+2. **S Fatal Slap, D Mirage Sting.** June's motions and effects, damage on the hit ( Mirage Sting hits twice: the state's `DAMAGE_DATA` then `DAMAGE_DATA_NEXT` ); walk / dash cancel only on the ground.
+3. **Q Sword Fall.** Sheath and blade meshes, then eight blade hits between 0.9 and 1.5 s; enhanced: two more blades stack above the last one ( log `sword fall: upgraded skill 21033, two more blades` ). Ends in wait / fall.
+4. **W Crescent Cut.** Three slashes at 0.4 / 0.9 / 1.48 s; enhanced: log `crescent cut hit N: skill 21036 life x ... speed x ...` for each hit.
+5. **E Final Strike.** The black hole and the blast ( the script plays them ), ends in wait; enhanced uses the _UPGRADE table.
+Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKILL"` ) and `[JUNE_SKILL]` `NUM use`. Then say "check logs".
+
 ## Phase CH3 - Skills: second jobs (100, 101, 112), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.

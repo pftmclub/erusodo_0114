@@ -5825,3 +5825,21 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (CH2a's; the `..._SKILL_DEBUG` log 
 | Critical Sword (21209 / 21230) | `ESSI_SI_A_ERS_CRITICAL_SWORD` state table | 1481 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-11 ids fall back to the Mega Slash default; CH2a's and CH2b's ids too), `python tools/build.py --deploy`.
+
+## Stage 7 Elsword, CH2d: Sheath Knight skills (2026-11-05)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (CH2a's; the `..._SKILL_DEBUG` log is defined again until the CH2d review). Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` "CH2d - Done". Client only, no data change.
+- **What changes in game.** The class-22 skills run June's registrations: Sword Fall (21019 / 21033), Crescent Cut (21020; the upgrade 21036 is its own case), Final Strike (21021; the upgrade 21053 uses the `ESSI_SI_SA_ETK_FINAL_STRIKE_UPGRADE` table), Sword Shield (21212 / 21221), Fatal Slap (21213 / 21233) and Mirage Sting (21214 / 21234) each get a case in `SetEquippedSkillFuncBySkillSlotIndex` ahead of the Mega Slash default; the hyper state takes the normal table name. Twelve `RNSI_*ETK*` names join `X2SkillTree.h` under `JUNE_ENUM_NAMES`.
+- **Differs from March.** Final Strike, Sword Fall and Crescent Cut lose March's FrameMove / End (cut-in, black hole, particles: June's script plays them) except Sword Fall's blades; all six cancel into walk / dash on the ground only. Sword Fall plays both blade sets (March: the second set only with memo 15), so eight blade hits land instead of four, and the upgrade adds two more blades on the last hit; every blade mesh takes the effect-alpha tag. The upgraded Crescent Cut scales each hit's effect by the skill's effective time and move speed (`CreateCrescentCutEffect`; the velocity call zeroes y / z, JUNE_BUGS 526). Sword Shield reads the upgrade-swapped skill's level and effective time, and the upgrade plays `Effectset_A_ETK_SWORD_SHIELD_ULTIMATE`.
+- **Damage (level-1 value of the base id; June = `NewSkillTempletVer2.lua` NUMERICAL_DATA through the engine, from `c1a_numerical_blocks.tsv`; March = the shipped state / effect tables).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Sword Fall (21019 / 21033) | `ELSWORD_SWORDFALL_BLADE1-4` tables | 616 per blade ( 8 blades, 10 upgraded ) |
+| Crescent Cut (21020 / 21036) | `ELSWORD_CRESCENT_ONE / TWO / THREE` tables | 130 per hit ( 3 hits ) |
+| Final Strike (21021 / 21053) | `ELSWORD_FINALSTRIKE` + black hole tables | 1907 ( blast ) + 300 ( black hole ) |
+| Sword Shield (21212 / 21221) | `DAMAGE_EFFECT_SWORD_SHIELD` tables | 96 ( shield, also `_ULTIMATE` ) |
+| Fatal Slap (21213 / 21233) | `DamageEffect_EIS_Fatal_Slap` table | 1187 |
+| Mirage Sting (21214 / 21234) | `ESSI_SI_A_EIS_SPIRAL_STING` state tables | 206 ( numerical-only state tables DAMAGE_DATA / DAMAGE_DATA_NEXT through the engine ) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-22 ids fall back to the Mega Slash default; CH2a-CH2c's ids too), `python tools/build.py --deploy`.

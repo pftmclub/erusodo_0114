@@ -1702,6 +1702,12 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 	void ESSI_SI_SA_ETK_CRESCENT_CUT_FrameMove();
 	void ESSI_SI_SA_ETK_CRESCENT_CUT_EventProcess();
 	void ESSI_SI_SA_ETK_CRESCENT_CUT_End();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+	void ESSI_SI_SA_ETK_CRESCENT_CUT_UPGRADE_FrameMove();
+	void CreateCrescentCutEffect( const int iHitIndex_ );
+	void CreateSwordFallBladeMesh( const WCHAR* pwszMeshName_, CKTDGXMeshPlayer::CXMeshInstanceHandle& hHandle_ );
+	bool CreateSwordFallBladeDamage( const WCHAR* pwszEffectName_, CKTDGXMeshPlayer::CXMeshInstanceHandle& hHandle_, const float fPowerRate_, D3DXVECTOR3& vEffectPos_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 
 	void ESSI_SI_SA_ETK_PHANTOM_SWORD_Init();
 	void ESSI_SI_SA_ETK_PHANTOM_SWORD_FrameMove();

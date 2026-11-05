@@ -2255,6 +2255,23 @@ public:
 		RNSI_A_EMK_CRITICAL_SWORD_UPGRADE                     = 21230,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-05 // char-elsword CH2d
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Sheath Knight's skill switch cases spell ( values from June's Enum.lua )
+		RNSI_SA_ETK_SWORD_FALL                                = 21019,
+		RNSI_SA_ETK_CRESCENT_CUT                              = 21020,
+		RNSI_SA_ETK_FINAL_STRIKE                              = 21021,
+		RNSI_SA_ETK_SWORD_FALL_UPGRADE                        = 21033,
+		RNSI_SA_ETK_CRESCENT_CUT_UPGRADE                      = 21036,
+		RNSI_SA_ETK_FINAL_STRIKE_UPGRADE                      = 21053,
+		RNSI_A_ETK_SWORD_SHIELD                               = 21212,
+		RNSI_A_ETK_FATAL_SLAP                                 = 21213,
+		RNSI_A_ETK_MIRAGE_STING                               = 21214,
+		RNSI_A_ETK_SWORD_SHIELD_UPGRADE                       = 21221,
+		RNSI_A_ETK_FATAL_SLAP_UPGRADE                         = 21233,
+		RNSI_A_ETK_MIRAGE_STING_UPGRADE                       = 21234,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)
