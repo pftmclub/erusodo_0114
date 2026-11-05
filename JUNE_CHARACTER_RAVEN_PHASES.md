@@ -658,6 +658,38 @@ The preprocessed Z-Z-Z-X body expands `SKILL_CANCEL_AFTER` and the `RAVEN_GROUND
 
 CH1f kickoff checked: present. Its CH0 amendment lists 38 functions (29 inside, 9 new) and 17 states, and its CH1d amendment names the two members already added (211, 302). CH1e added none of CH1f's. Nothing to play-test. Next: `/x2-phase char-raven CH1f` (Sonnet 5.5 high).
 
+### CH1f - Done (2026-11-06)
+
+All 38 class-map rows of phase CH1f are written: 29 `inside` (June's body in March's own `CX2GURaven` function under `SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`, March's in `#else`) and 9 `new` (`_CORE`, compiled, referenced by nothing; one block before `//RSI_COMBO_ZZX`, declarations beside it in the `.h`). `_LIVE` stays `//#define`. 38 funcmap rows `Char Raven CH1f`; 1 `JUNE_BUGS` row (#539). Five `RAVEN_STATE_ID` members appended under `_CORE` (no `= value`): `RSI_OVER_TAKER_COMBO_XXfrontXX` 191, `..._XXfrontXX2` 192, `..._XXfrontXX3` 193, `..._XXfrontXX4` 194, `..._XXfrontXXdownX` 195 (`ch0_state_enum_names.tsv`; `RRF_COMBO_ZZZX` 211 and `RSI_OVER_TAKER_DASH_COMBO_ZX` 302 were CH1d's).
+
+| June | `CX2GURaven::` |
+|---|---|
+| `32c26390` `32c263a0` `32c30600` `32c30690` `32c306c0` | Over Taker dash-jump Z-X FrameMove, landing Start, FrameMoveFuture, EP, landing StartFuture (inside, = March) |
+| `32c26aa0` `32c26ac0` `32c26ae0` `32c26af0` `32c26b00` `32c26b20` `32c316a0` `32c31730` `32c317e0` `32c31830` `32c31860` | Reckless Fist dash-jump X / X-X / X-X landing, all rows (inside, = March) |
+| `32c26b30` `32c26b40` `32c26b50` `32c26b70` `32c31a20` | `RRF_COMBO_ZZXFRONTX` Start / FrameMove / End / FrameMoveFuture, `ZZXFRONTXX` FrameMove (inside, = March) |
+| `32c2ed70` `32c302e0` `32c30710` `32c47700` `32c47970` | X-X-front-X EP, X-X-down-X EP, dash-jump Z-X-X EP, Z-X landing EP, Z-X-X FrameMove (inside, differ) |
+| `32c31a80` `32c31ec0` `32c49ab0` | `RRF_COMBO_ZZXFRONTX` EP, `ZZXFRONTXX` EP, `RRF_DASH_JUMP_COMBO_X` FrameMove (inside, differ) |
+| `32c26360` `32c26370` `32c47160` `32c2d130` | X-X-front-X FrameMoveFuture, X-X-down-X Init / FrameMove, dash Z-X EP (new) |
+| `32c2f1b0` `32c2f6a0` `32c2fb90` `32c2ffb0` `32c32210` | `XXfrontXX` / `XX2` / `XX3` / `XX4` EP ( `32c2ffb0` is also the `XXfrontXXdownX` EP ), `RRF_COMBO_ZZZX` EP (new) |
+
+**Where June differs from March** (read from `charport_adis.py raven --phase CH1f`; 21 of the 29 inside rows equal March's body, numbers compared):
+- **The cancel chain** (`SKILL_CANCEL_AFTER( m_fSkillCancelAfter )`, back-walk, walk, dash, Z / X; CH1d's macros) runs in the dash Z-X, X-X-front-X family, X-X-down-X, dash-jump Z-X-X, `RRF_COMBO_ZZXFRONTX` / `XX` and `RRF_COMBO_ZZZX`. Order per row: fall then chain (`2ed70`, `2f1b0`..`2ffb0`), fall, end, chain (`302e0`, `30710`), end then chain then fall (`31ec0`, `32210`), end then fall / WAIT then chain (`2d130`).
+- **Over Taker X-X-front-X family** (event time 0 `+0x8c10` / `14` / `18`, event time 1 `+0x8c1c` / `20` / `24`): X-X-front-X flag 0 = X + forward -> `XXfrontXX` (change time or end), `t > +0x8c18` -> `XXfrontXX4`, end -> WAIT. `XXfrontXX` / `XX2`: flag 0 = X + down -> `XXfrontXXdownX`, flag 1 = X -> `XX2` / `XX3`, `t > +0x8c24` -> `XXfrontXX4`. `XX3`: no flag 1. `XX4` / `downX`: end -> WAIT. March's 0.85 s walk cancel is gone.
+- **X-X-down-X FrameMove** `32c47160`: March's X-X-front-X FrameMove with `FlushMp( 4.0f )` ( March 7 ) and `DamageEffect_RSI_OVER_TAKER_XX_DOWN_X`. **Z-X-X FrameMove** `32c47970`: `CommonFrameMove`, then `DamageEffect_RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX` at 0.31 s, 60 ahead. Both effects exist in the live `DamageEffect.lua`.
+- **Z-X landing** `32c47700`: fall, then flag 0 through event time 0 ( X ) -> Z-X-X, then the `> 0.4` ladder ( = March ); March's 0.1 - 0.3 s X test is gone.
+- **Reckless Fist** `32c31a80`: `0.6 s + flag 1` or end -> WAIT, fall, chain, dash without a foot test, flag 0 -> `ZZXFRONTXX` at 0.57 s or the end, set by X before 0.57 s for templet class 107 ( `IsTempletClass` ). `32c49ab0`: `FlushMp( 4.0f )` where March spends 10 ( effect-set path = March BALANCE ).
+- **`RRF_COMBO_ZZZX`** `32c32210` reads no `+0x8ca4`: the script sets `UPDOWN_CANCEL_AFTER = 1.95` but nothing consumes it ( `JUNE_BUGS` #539 ). CH0's "second reader" is the script key only; the checklist §7h row stays open for CH1 final.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE --with ..._CORE --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `.cpp` `PASS +643`, `.h` OTHER ( `_CORE` only ); `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). `git diff --patience --numstat`: `.cpp` 643 / 0, `.h` 16 / 0.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): exit 0, 0 errors with `_LIVE` off and with `-DSERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`. `cl /P` both ways: 682 `CX2GURaven::` definitions each; `FlushMp( 4.0f )` 1 off / 2 on, the `XXfrontXX4` push 3 / 4.
+- `junediverge.py --check X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 26,010,112 B, dated 2026-11-06 05:51:39, md5 6fc1c0178fc670a99ebc7c0fc9645302, equal to X2/US_SERVICE/x2.exe (2026-11-06 05:51:32); built at main 5cc1ec99 + 2 uncommitted code file(s).` No `exestr` line: `_LIVE` is off.
+
+**Routed.** CH1m: register the 9 new functions and the five members ( `kickoffs/char-raven/CH1m.md` amended ); June's `XXfrontX` registers no Init / FrameMove and `XXdownX` no FrameMoveFuture. CH1 final play-test: Over Taker X-X-front-X chain ( X + forward, X + down ), dash Z-X, dash-jump Z-X-X, Reckless Fist Z-Z-X-front-X and dash-jump X ( `FlushMp( 4 )` ).
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-raven CH1f review` (Opus 5.5 high), then CH1g.
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

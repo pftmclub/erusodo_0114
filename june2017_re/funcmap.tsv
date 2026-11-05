@@ -8042,3 +8042,41 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c459f0	CX2GURaven::RBM_DASH_JUMP_COMBO_X_FrameMove	PORTED	Char Raven CH1e: new; 0.195 s: FlushMp( 10 ) EffectSet_RST_DashJump_X, else particle at Bip01_L_Hand ( z - 45, y - 40 ); _CORE, referenced by nothing ( CH1m registers )
 32c45cc0	CX2GURaven::RBM_DASH_JUMP_COMBO_XZ_FrameMove	PORTED	Char Raven CH1e: new; 0.3 s: FlushMp( 10 ) EffectSet_RST_DashJump_XZ, else particle at Bip01_R_Hand ( z - 50 ); _CORE, referenced by nothing ( CH1m registers )
 32c49de0	CX2GURaven::RBM_COMBO_ZZZX_FrameMove	PORTED	Char Raven CH1e: inside; = March; _LIVE
+32c26390	CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_FrameMove	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c263a0	CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING_Start	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c26aa0	CX2GURaven::RRF_DASH_JUMP_COMBO_X_Init	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c26ac0	CX2GURaven::RRF_DASH_JUMP_COMBO_X_Start	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c26ae0	CX2GURaven::RRF_DASH_JUMP_COMBO_XX_Init	PORTED	Char Raven CH1f: inside; empty ( = March ); _LIVE
+32c26af0	CX2GURaven::RRF_DASH_JUMP_COMBO_XX_FrameMove	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c26b00	CX2GURaven::RRF_DASH_JUMP_COMBO_XX_LANDING_Start	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c26b20	CX2GURaven::RRF_DASH_JUMP_COMBO_XX_LANDING_FrameMove	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c26b30	CX2GURaven::RRF_COMBO_ZZXFRONTX_Start	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c26b40	CX2GURaven::RRF_COMBO_ZZXFRONTX_FrameMove	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c26b50	CX2GURaven::RRF_COMBO_ZZXFRONTX_End	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c26b70	CX2GURaven::RRF_COMBO_ZZXFRONTXX_FrameMove	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c2ed70	CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontX_EventProcess	PORTED	Char Raven CH1f: inside; fall, cancel chain, flag 0 ( X + forward ) -> XXfrontXX at event time 0, later than its change time -> XXfrontXX4, end -> WAIT; no 0.85 s walk cancel; _LIVE
+32c302e0	CX2GURaven::RSI_OVER_TAKER_COMBO_XXdownX_EventProcess	PORTED	Char Raven CH1f: inside; fall, end -> WAIT, then the cancel chain ( March had the X-X-down-X-down-X flag branch ); _LIVE
+32c30600	CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_FrameMoveFuture	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c30690	CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_EventProcess	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c306c0	CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING_StartFuture	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c30710	CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX_EventProcess	PORTED	Char Raven CH1f: inside; fall, end -> WAIT, then the cancel chain; _LIVE
+32c316a0	CX2GURaven::RRF_DASH_JUMP_COMBO_X_FrameMoveFuture	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c31730	CX2GURaven::RRF_DASH_JUMP_COMBO_X_EventProcess	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c317e0	CX2GURaven::RRF_DASH_JUMP_COMBO_XX_FrameMoveFuture	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c31830	CX2GURaven::RRF_DASH_JUMP_COMBO_XX_EventProcess	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c31860	CX2GURaven::RRF_DASH_JUMP_COMBO_XX_LANDING_EventProcess	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c31a20	CX2GURaven::RRF_COMBO_ZZXFRONTX_FrameMoveFuture	PORTED	Char Raven CH1f: inside; = March; _LIVE
+32c31a80	CX2GURaven::RRF_COMBO_ZZXFRONTX_EventProcess	PORTED	Char Raven CH1f: inside; 0.6 s + flag 1 or end -> WAIT, fall, cancel chain, dash, flag 0 -> RRF_COMBO_ZZXFRONTXX ( 0.57 s or end ), Reckless Fist ( templet class ) X before 0.57 s sets flag 0; _LIVE
+32c31ec0	CX2GURaven::RRF_COMBO_ZZXFRONTXX_EventProcess	PORTED	Char Raven CH1f: inside; end -> WAIT, cancel chain, then the fall; _LIVE
+32c47700	CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING_EventProcess	PORTED	Char Raven CH1f: inside; flag 0 window ( event time 0 ) -> ZXX replaces the 0.1 - 0.3 s X test, the > 0.4 s ladder = March; _LIVE
+32c47970	CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX_FrameMove	PORTED	Char Raven CH1f: inside; CommonFrameMove, then DamageEffect_RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX at 0.31 s ( 60 ahead ); _LIVE
+32c49ab0	CX2GURaven::RRF_DASH_JUMP_COMBO_X_FrameMove	PORTED	Char Raven CH1f: inside; FlushMp( 4 ) where March spends 10, the effect-set path ( = March BALANCE ); _LIVE
+32c26360	CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontX_FrameMoveFuture	PORTED	Char Raven CH1f: new; CommonFrameMoveFuture(); _CORE, referenced by nothing ( CH1m registers )
+32c26370	CX2GURaven::RSI_OVER_TAKER_COMBO_XXdownX_Init	PORTED	Char Raven CH1f: new; Raven_Iron_Attack01.X preload; _CORE, referenced by nothing ( CH1m registers )
+32c2d130	CX2GURaven::RSI_OVER_TAKER_DASH_COMBO_ZX_EventProcess	PORTED	Char Raven CH1f: new; end -> fall / WAIT, then the cancel chain; _CORE, referenced by nothing ( CH1m registers )
+32c2f1b0	CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontXX_EventProcess	PORTED	Char Raven CH1f: new; fall, cancel chain, flag 0 ( X + down ) -> XXfrontXXdownX, flag 1 ( X ) -> XXfrontXX2, time > event time 1 -> XXfrontXX4; _CORE, referenced by nothing ( CH1m registers )
+32c2f6a0	CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontXX2_EventProcess	PORTED	Char Raven CH1f: new; as XXfrontXX but flag 1 -> XXfrontXX3; _CORE, referenced by nothing ( CH1m registers )
+32c2fb90	CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontXX3_EventProcess	PORTED	Char Raven CH1f: new; no flag 1: flag 0 ( X + down ) -> XXfrontXXdownX, time > event time 1 -> XXfrontXX4; _CORE, referenced by nothing ( CH1m registers )
+32c2ffb0	CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontXX4_EventProcess	PORTED	Char Raven CH1f: new; fall, cancel chain, end -> WAIT; also the EventProcess of XXfrontXXdownX; _CORE, referenced by nothing ( CH1m registers )
+32c32210	CX2GURaven::RRF_COMBO_ZZZX_EventProcess	PORTED	Char Raven CH1f: new; end -> WAIT, cancel chain, fall; no UPDOWN_CANCEL_AFTER read ( JUNE_BUGS #539 ); _CORE, referenced by nothing ( CH1m registers )
+32c47160	CX2GURaven::RSI_OVER_TAKER_COMBO_XXdownX_FrameMove	PORTED	Char Raven CH1f: new; March X-X-front-X FrameMove with FlushMp( 4 ) and DamageEffect_RSI_OVER_TAKER_XX_DOWN_X; _CORE, referenced by nothing ( CH1m registers )

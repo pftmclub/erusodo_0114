@@ -262,6 +262,11 @@ class CX2GURaven : public CX2GUUser
 			RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ,	/// June script id 296 ( Sword Taker / Blade Master dash-jump Z-Z-Z )
 			RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing,	/// June script id 297 ( Sword Taker / Blade Master dash-jump Z-Z-Z landing )
 			RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZZ,	/// June script id 298 ( Sword Taker / Blade Master dash-jump Z-Z-Z-Z )
+			RSI_OVER_TAKER_COMBO_XXfrontXX,	/// June script id 191 ( Over Taker X-X-front-X-X )
+			RSI_OVER_TAKER_COMBO_XXfrontXX2,	/// June script id 192 ( Over Taker X-X-front-X-X 2 )
+			RSI_OVER_TAKER_COMBO_XXfrontXX3,	/// June script id 193 ( Over Taker X-X-front-X-X 3 )
+			RSI_OVER_TAKER_COMBO_XXfrontXX4,	/// June script id 194 ( Over Taker X-X-front-X-X 4 )
+			RSI_OVER_TAKER_COMBO_XXfrontXXdownX,	/// June script id 195 ( Over Taker X-X-front-X-X down-X ( shares the X-X-front-X-X 4 EventProcess ) )
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 
 		};
@@ -933,6 +938,17 @@ class CX2GURaven : public CX2GUUser
 		void RBM_DASH_JUMP_COMBO_XZ_FrameMove();	/// June 32c45cc0
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+		void RSI_OVER_TAKER_COMBO_XXfrontX_FrameMoveFuture();	/// June 32c26360
+		void RSI_OVER_TAKER_COMBO_XXdownX_Init();	/// June 32c26370
+		void RSI_OVER_TAKER_DASH_COMBO_ZX_EventProcess();	/// June 32c2d130
+		void RSI_OVER_TAKER_COMBO_XXfrontXX_EventProcess();	/// June 32c2f1b0
+		void RSI_OVER_TAKER_COMBO_XXfrontXX2_EventProcess();	/// June 32c2f6a0
+		void RSI_OVER_TAKER_COMBO_XXfrontXX3_EventProcess();	/// June 32c2fb90
+		void RSI_OVER_TAKER_COMBO_XXfrontXX4_EventProcess();	/// June 32c2ffb0
+		void RRF_COMBO_ZZZX_EventProcess();	/// June 32c32210
+		void RSI_OVER_TAKER_COMBO_XXdownX_FrameMove();	/// June 32c47160
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 		//RSI_COMBO_ZZX
 		void RSI_COMBO_ZZX_EventProcess();
 

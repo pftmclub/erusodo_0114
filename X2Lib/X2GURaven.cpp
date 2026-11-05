@@ -10047,6 +10047,232 @@ void CX2GURaven::RBM_DASH_JUMP_COMBO_XZ_FrameMove()
 }
 
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+/// June 32c26360
+void CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontX_FrameMoveFuture()
+{
+	CommonFrameMoveFuture();
+}
+
+/// June 32c26370
+void CX2GURaven::RSI_OVER_TAKER_COMBO_XXdownX_Init()
+{
+	XSkinMeshReadyInBackground( L"Raven_Iron_Attack01.X" );
+}
+
+/// June 32c2d130
+void CX2GURaven::RSI_OVER_TAKER_DASH_COMBO_ZX_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+}
+
+/// June 32c2f1b0
+void CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontXX_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, RSI_OVER_TAKER_COMBO_XXfrontXXdownX )
+	RAVEN_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneX && true == m_InputData.pureDown )
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 1, m_fEventTime[1].stateChange, RSI_OVER_TAKER_COMBO_XXfrontXX2 )
+	RAVEN_ELSE_IF_FLAG_SET_IN_WINDOW( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, true == m_InputData.oneX )
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > m_fEventTime[1].stateChange )
+	{
+		StateChange( RSI_OVER_TAKER_COMBO_XXfrontXX4 );
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32c2f6a0
+void CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontXX2_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, RSI_OVER_TAKER_COMBO_XXfrontXXdownX )
+	RAVEN_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneX && true == m_InputData.pureDown )
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 1, m_fEventTime[1].stateChange, RSI_OVER_TAKER_COMBO_XXfrontXX3 )
+	RAVEN_ELSE_IF_FLAG_SET_IN_WINDOW( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, true == m_InputData.oneX )
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > m_fEventTime[1].stateChange )
+	{
+		StateChange( RSI_OVER_TAKER_COMBO_XXfrontXX4 );
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32c2fb90
+void CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontXX3_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, RSI_OVER_TAKER_COMBO_XXfrontXXdownX )
+	RAVEN_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneX && true == m_InputData.pureDown )
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > m_fEventTime[1].stateChange )
+	{
+		StateChange( RSI_OVER_TAKER_COMBO_XXfrontXX4 );
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32c2ffb0
+void CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontXX4_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32c32210
+void CX2GURaven::RRF_COMBO_ZZZX_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32c47160
+void CX2GURaven::RSI_OVER_TAKER_COMBO_XXdownX_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+	{
+		D3DXVECTOR3 vPos = GetPos();
+		if( true == GetIsRight() )
+		{
+			vPos += 50.f * GetDirVector();
+		}
+		else
+		{
+			vPos -= 50.f * GetDirVector();
+		}
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq;
+		pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"Raven_attackX3Front_Particle01", vPos );
+		if( NULL != pSeq )
+		{
+			pSeq->SetAxisAngle( GetRotateDegree() );
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.3666f ) )
+	{
+		if( FlushMp( 4.0f ) == true )
+		{
+			D3DXVECTOR3 vPos = GetPos();
+
+			if( true == GetIsRight() )
+			{
+				vPos += 60.f * GetDirVector();
+			}
+			else
+			{
+				vPos -= 60.f * GetDirVector();
+			}
+
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RSI_OVER_TAKER_XX_DOWN_X", GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree() );
+		}
+		else
+		{
+			D3DXVECTOR3 vPos = GetPos();
+			if( true == GetIsRight() )
+			{
+				vPos += 60.f * GetDirVector();
+			}
+			else
+			{
+				vPos -= 60.f * GetDirVector();
+			}
+			vPos.y += 50.f;
+
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleCommonMajorParticleByEnum( COMMON_MAJOR_PII_MAGIC_FAIL ) );
+			if( pSeq != NULL )
+			{
+				D3DXVECTOR3 angle = GetRotateDegree();
+				angle.z = 45.0f;
+
+				PlaySequenceByTriggerCount( pSeq, vPos, 100, 100, 1 );
+
+				pSeq->SetAxisAngle( angle );
+				pSeq->SetAddRotate( angle );
+			}
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.4333f ) )
+	{
+		UpDownCrashCamera( 5.0f, 0.15f );
+	}
+
+	CommonFrameMove();
+}
+
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 //RSI_COMBO_ZZX
 void CX2GURaven::RSI_COMBO_ZZX_EventProcess()
 {
@@ -13703,6 +13929,25 @@ void CX2GURaven::RSI_OVER_TAKER_COMBO_XXdownX_FrameMoveFuture()
 
 void CX2GURaven::RSI_OVER_TAKER_COMBO_XXdownX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c302e0: the cancel chain replaces the X-X-down-X-down-X follow-up flags
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -13737,6 +13982,7 @@ void CX2GURaven::RSI_OVER_TAKER_COMBO_XXdownX_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RSI_OVER_TAKER_COMBO_XXdownXdownX_FrameMoveFuture()
 {
@@ -13916,6 +14162,32 @@ void CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontX_FrameMove()
 
 void CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c2ed70: the cancel chain and the X-X-front-X-X flag follow-ups replace the 0.85 s walk cancel
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, RSI_OVER_TAKER_COMBO_XXfrontXX )
+	RAVEN_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd,
+		true == m_InputData.oneX && ( ( true == m_FrameDataFuture.syncData.bIsRight && true == m_InputData.pureRight ) || ( false == m_FrameDataFuture.syncData.bIsRight && true == m_InputData.pureLeft ) ) )
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > m_fEventTime[0].stateChange )
+	{
+		StateChange( RSI_OVER_TAKER_COMBO_XXfrontXX4 );
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -13935,11 +14207,22 @@ void CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontX_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
 void CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c30600
+	if( m_pXSkinAnimFuture->EventTimerOneshot( 0.267f ) )
+	{
+		m_PhysicParam.nowSpeed = D3DXVECTOR2( 0, 0 );
+		m_PhysicParam.passiveSpeed = D3DXVECTOR2( 2200.f, -2200.f * 1.2f );
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnimFuture->EventTimerOneshot( 0.267f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -13951,21 +14234,37 @@ void CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_FrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26390
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c30690
 	if( true == IsOnSomethingFuture() )
 	{
 		StateChange( RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING );
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING );
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
@@ -13975,23 +14274,79 @@ void CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_EventProcess()
 
 void CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING_StartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c306c0
 	CommonStateStartFuture();
 
 	m_PhysicParam.nowSpeed = D3DXVECTOR2( 0.f, 0.f );
 	m_PhysicParam.passiveSpeed = D3DXVECTOR2( 0.f, 0.f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CommonStateStartFuture();
+
+	m_PhysicParam.nowSpeed = D3DXVECTOR2( 0.f, 0.f );
+	m_PhysicParam.passiveSpeed = D3DXVECTOR2( 0.f, 0.f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c263a0
+	CommonStateStart();
+
+	UpDownCrashCamera( 20.0f, 0.3f );
+	CreateStepDust();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStart();
 
 	UpDownCrashCamera( 20.0f, 0.3f );	
 	CreateStepDust();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 }
 
 void CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c47700: the X flag window and event time 0 replace the 0.1 - 0.3 s X test
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX )
+	RAVEN_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, true == m_InputData.oneX )
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.4f )
+	{
+		if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChange( USI_WALK );
+		}
+		else if( m_InputData.pureUp == true )
+		{
+			StateChange( USI_JUMP_READY );
+		}
+		else if( m_InputData.oneDown == true
+			&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+			LINE_RADIUS,
+			&m_FrameDataFuture.unitCondition.landPosition,
+			&m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -14034,16 +14389,56 @@ void CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
 void CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c47970: CommonFrameMove first, then the damage effect at 0.31 s
 	CommonFrameMove();
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.31f ) )
+	{
+		D3DXVECTOR3 vPos = GetPos();
+		if( true == GetIsRight() )
+		{
+			vPos += 60.f * GetDirVector();
+		}
+		else
+		{
+			vPos -= 60.f * GetDirVector();
+		}
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX", GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree() );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c30710: end test, then the cancel chain
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -14055,6 +14450,7 @@ void CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
@@ -18147,18 +18543,47 @@ void CX2GURaven::RSI_A_ROT_NUCLEAR_Hyper_EventProcess()
 
 void CX2GURaven::RRF_DASH_JUMP_COMBO_X_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26aa0
 	XSkinMeshReadyInBackground( L"Hand_FireImpact01.X" );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	XSkinMeshReadyInBackground( L"Hand_FireImpact01.X" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RRF_DASH_JUMP_COMBO_X_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26ac0
+	CommonStateStart();
+	m_DamageData.attackerType    = CX2DamageManager::AT_MANUAL_COLLISION_DATA;
+	m_DamageData.bCanRevenge    = false;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStart();
 	m_DamageData.attackerType	= CX2DamageManager::AT_MANUAL_COLLISION_DATA;
 	m_DamageData.bCanRevenge	= false;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RRF_DASH_JUMP_COMBO_X_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c316a0
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.21f && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.7f )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.26f && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.29f )
+		{
+			m_PhysicParam.nowSpeed.y = 1200.0f;
+		}
+		else
+		{
+			if( m_PhysicParam.nowSpeed.y < 0.0f )
+				m_PhysicParam.nowSpeed.y = 0.0f;
+		}
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.21f && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.7f )
 	{
 		if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.26f && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.29f )
@@ -18173,10 +18598,43 @@ void CX2GURaven::RRF_DASH_JUMP_COMBO_X_FrameMoveFuture()
 	}
 		
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RRF_DASH_JUMP_COMBO_X_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c49ab0: FlushMp( 4.0f ) where March spends 10
+	if( m_pXSkinAnim->EventTimerOneshot( 0.26f ) )
+	{
+		if( FlushMp( 4.0f ) == true )
+		{
+			if( m_hEffectDashJumpComboX != INVALID_EFFECTSET_HANDLE )
+				g_pX2Game->GetEffectSet()->StopEffectSet( m_hEffectDashJumpComboX );
+
+			m_hEffectDashJumpComboX = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_RRF_DashJumpX", (CX2GameUnit*)this, (CX2GameUnit*)this );
+			m_vecEffectSetToDeleteOnDamageReact.push_back( m_hEffectDashJumpComboX );
+
+			UpDownCrashCamera( 10.0f, 0.2f );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 vAngle = GetRotateDegree();
+			vAngle.z -= 50.f;
+
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleCommonMajorParticleByEnum( COMMON_MAJOR_PII_MAGIC_FAIL ) );
+			if( pSeq != NULL )
+			{
+				PlaySequenceByTriggerCount( pSeq, pos, 100, 100, 1 );
+				pSeq->SetAxisAngle( vAngle );
+				pSeq->SetAddRotate( vAngle );
+			}
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.26f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -18223,10 +18681,38 @@ void CX2GURaven::RRF_DASH_JUMP_COMBO_X_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RRF_DASH_JUMP_COMBO_X_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c31730
+	if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.39f
+		&& IsOnSomethingFuture() == false )
+	{
+		StateChange( RRF_DASH_JUMP_COMBO_XX );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( m_InputData.oneX == true && m_pXSkinAnimFuture->GetNowAnimationTime() <= 0.39f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( true == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.39f
 		&& IsOnSomethingFuture() == false )
 	{
@@ -18253,52 +18739,111 @@ void CX2GURaven::RRF_DASH_JUMP_COMBO_X_EventProcess()
 		
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
 void CX2GURaven::RRF_DASH_JUMP_COMBO_XX_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26ae0
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	//XSkinMeshReadyInBackground( L"Hand_FireImpact01.X" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RRF_DASH_JUMP_COMBO_XX_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c317e0
 	if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() <= 0.54f )
 	{
 		if( m_PhysicParam.nowSpeed.y < 0.0f )
 			m_PhysicParam.nowSpeed.y = 0.0f;
 	}
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() <= 0.54f )
+	{
+		if( m_PhysicParam.nowSpeed.y < 0.0f )
+			m_PhysicParam.nowSpeed.y = 0.0f;
+	}
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RRF_DASH_JUMP_COMBO_XX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26af0
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 		
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RRF_DASH_JUMP_COMBO_XX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c31830
 	if( true == IsOnSomethingFuture() )
 	{
 		StateChange( RRF_DASH_JUMP_COMBO_XX_LANDING );
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( RRF_DASH_JUMP_COMBO_XX_LANDING );
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RRF_DASH_JUMP_COMBO_XX_LANDING_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26b00
 	CommonStateStart();
 
 	CreateStepDust();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CommonStateStart();
+
+	CreateStepDust();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RRF_DASH_JUMP_COMBO_XX_LANDING_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26b20
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RRF_DASH_JUMP_COMBO_XX_LANDING_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c31860
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	IF_SKILL_CANCEL_AFTER( 0.4f )
+	ELSE_IF_ARROW_ZXASDC_PRESSED_AFTER( 0.4f )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		StateChange( USI_WAIT );
@@ -18326,15 +18871,35 @@ void CX2GURaven::RRF_DASH_JUMP_COMBO_XX_LANDING_EventProcess()
 #endif //SKILL_CANCEL_BY_HYPER_MODE
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RRF_COMBO_ZZXFRONTX_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26b30
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStart();
 	// To do...
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RRF_COMBO_ZZXFRONTX_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c31a20
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.27f )
+	{
+		m_PhysicParam.nowSpeed.x = 0.f;
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.33f )
+	{
+		m_PhysicParam.nowSpeed.x = 0.f;
+		m_PhysicParam.passiveSpeed.x = 0.f;
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.27f ) 
 	{			
 		m_PhysicParam.nowSpeed.x = 0.f;
@@ -18346,15 +18911,59 @@ void CX2GURaven::RRF_COMBO_ZZXFRONTX_FrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RRF_COMBO_ZZXFRONTX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26b40
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// To do...
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RRF_COMBO_ZZXFRONTX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c31a80: the cancel chain; Reckless Fist ( templet class ) X before 0.57 s sets flag 0
+	if( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) ||
+		( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false ) )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+	}
+
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.6f && m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 0, 0.57f, RRF_COMBO_ZZXFRONTXX )
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() < 0.57f && true == m_InputData.oneX && true == IsTempletClass( GetUnit(), CX2Unit::UC_RAVEN_RECKLESS_FIST ) )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// To do...		
 	if( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true) || 
 		( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false) )
@@ -18389,23 +18998,56 @@ void CX2GURaven::RRF_COMBO_ZZXFRONTX_EventProcess()
 	ELSE_IF_STATE_CHANGE_ON_( 0, 0.57f, 0.57f, m_InputData.oneX == true && GetUnit()->GetClass() == CX2Unit::UC_RAVEN_RECKLESS_FIST, RRF_COMBO_ZZXFRONTXX )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RRF_COMBO_ZZXFRONTX_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26b50
+	CommonStateEnd();
+
+	m_PhysicParam.nowSpeed.x = 0.f;
+	m_PhysicParam.passiveSpeed.x = 0.f;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateEnd();
 	
 	m_PhysicParam.nowSpeed.x = 0.f;
 	m_PhysicParam.passiveSpeed.x = 0.f;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RRF_COMBO_ZZXFRONTXX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26b70
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// To do...
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RRF_COMBO_ZZXFRONTXX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c31ec0: end test, the cancel chain, then the fall
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// To do...
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
@@ -18418,6 +19060,7 @@ void CX2GURaven::RRF_COMBO_ZZXFRONTXX_EventProcess()
 	}		
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RBM_Combo_XZ_EventProcess()

@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-05, play-test owed** (4,825 assets in 35 koms + 2 guide Lua copied, 6 walk units 72-77; user walks Raven per tier, then `check logs`) | Sonnet 5.5 / high, user play-test | CH0 (done) | koms, save | `CH0b.md` |
-| CH1f | **ready** (`/x2-phase char-raven CH1f` on Sonnet 5.5 / high): Over Taker + Reckless Fist lines | Sonnet 5.5 / high, Opus review | CH1e review (done) | `X2GURaven.*` | `CH1f.md` |
+| CH1f | **done 2026-11-06, review next** (`/x2-phase char-raven CH1f review` on Opus 5.5 / high): Over Taker + Reckless Fist lines = 29 `inside` + 9 `new` fns, 5 state-enum members, `_LIVE` off | Sonnet 5.5 / high, Opus review | CH1e review (done) | `X2GURaven.*` | `CH1f-review.md` |
 | CH1g | blocked (CH1f review): Weapon Taker line | Sonnet 5.5 / high, Opus review | CH1f review | `X2GURaven.*` | `CH1g.md` |
 | CH1g2 | blocked (CH1g review): Veteran Commander line (36 `RVC_` tables) + overheat states | Sonnet 5.5 / high, Opus review | CH1g review | `X2GURaven.*` | `CH1g2.md` |
 | CH1h | blocked (CH1g2 review): overrides below vslot 0x600, DamageReact, ctor / dtor map | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GURaven.*` | `CH1h.md` |
