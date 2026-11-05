@@ -5917,3 +5917,21 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the two event processes) and `SER
 - **Damage:** no change; the hyper actives' numbers are June's `NewSkillTempletVer2.lua`.
 - `data036` ( `LevelUpEvent.lua` level-70 transcendental event, `TYPE3` = Elsword's three classes, June's TYPE0 row byte for byte ): the user copies `data036` ( `PACK OK data036` ).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`; the extra `TYPE3` only adds the level-70 guide popup ( delete the `TYPE3` block, `luasrc.py refresh data036 LevelUpEvent.lua`, pack ).
+
+### June character: Elsword, the whole port (char-elsword, closed 2026-11-05)
+
+Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` (CH0-CH6, Z, about 91 commits from 2026-11-03); per-phase entries are the `Stage 7 Elsword` sections above. All seven classes (1, 10, 11, 22, 100, 101, 112) run on June's class core, Way of the Sword, skills, passives, cut-in table and transcendence rows. CH6 walk PASSED (first jobs, second jobs, the becoming-transcended transition on 100 / 101 / 112, skill cut-in sets 0-3, hyper cut-ins; 0 KEM_ERROR).
+
+| Flag (all in `KTDXLIB/Always.h`) | What it holds |
+|---|---|
+| `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE`, `_LIVE`, `_WOS` | class core (inert until LIVE); LIVE is the switch (June's bodies inside March's `CX2GUElsword_SwordMan` functions, March's in `#else`); WOS = Way of the Sword gain, rates and states (CH1q; the shared sites cover Elesis's March class too) |
+| `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL`, `_TRANSCEND` | skill states CH2 / CH3; Lord Knight / Rune Slayer / Infinity Sword transcended hyper actives, allow-list 100 / 101 / 112, pictures |
+| `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE`, `_UI` | CH4a-CH4c passives, overrides and Rune Slayer reflect; CH5 skill cut-in table |
+
+No `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_*_DEBUG` flag is defined (`_WOS_DEBUG`, `_SKILL_DEBUG`, `_PASSIVE_DEBUG` all commented out, retired in their reviews). JUNE_BUGS rows for Elsword: 140, 472, 473, 520-534.
+
+**Dev pieces kept (no June counterpart, shared with Elesis):** the `ElswordWSPCheat` Lua binder (`X2GameEdit.cpp:773`, `X2Main.cpp:5191`) and `RenderName`'s `WSP: %d` text (`X2GUUser.cpp:29563`); both stay as dev tools.
+
+**Data (one deploy unit):** the Elsword motion / mesh / texture / cut-in koms staged byte-exact by CH0b (4,848 files in 36 koms, 4,465 new, 383 replaced; backup `kom_backup_stage_june/20261104_043447`); data036 `Elsword_SwordMan.lua` = June's bytecode, `UnitTemplet.lua` (Elsword's 7 blocks, core-list source, CH5), `LevelUpEvent.lua` (`TYPE3`, CH3d) and the other core-list files carry June's Elsword rows / lines only; skill icon sheets (one June gap, `JUNE_BUGS` 520); the transcended portraits and `POPUP_TR_*` guide textures. Damage numbers per skill are in the `Stage 7 Elsword` sections.
+
+**Revert, in this order:** (1) comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE` (the other Elsword flags then compile March's code), (2) restore data036 files from the `kom_backup_tools` backups (`data036.kom.20261104_211841` is the pre-CH5 copy) and `kom.py copy data036`, (3) restore the replaced motion / texture files from `kom_backup_stage_june/20261104_043447` and `kom.py pack` / `copy` the koms, (4) `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Exe, data036 and the motion koms must change together. Save: unchanged (units 66-71 were added for the walk).

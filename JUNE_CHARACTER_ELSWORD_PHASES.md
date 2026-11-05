@@ -2607,3 +2607,7 @@ None open. Asked at planning (2026-11-03): the order against Lu/Ciel. **User: Lu
 (Order, above). Settled by standing rules, not decisions: the 2 `c1a` zero rows are June bugs kept verbatim (CH2a); Way of the Sword's shared
 pieces are ported whole with a stand-in comment where Elesis's unported class would break (CH1q); the brief's `DAMAGE_SKILL_ID` table job does
 not exist (Context). CH0 may raise one if the motion question finds a lost animation June's files no longer carry.
+
+### Z - Done (2026-11-05, Sonnet 5.5)
+
+Docs only: no code, no build, no flag, no kom. `MODS.md` section `June character: Elsword, the whole port` (flags, data, revert order: exe + data036 + motion koms together, the two kept dev pieces); checklist rows already carry `(Elsword: CHn)` marks (44); Elsword paragraph and lessons added to the Aisha plan's "Template for Stage 7"; backlog Stage 7 closing note; the `char-elsword` block moved to `STATUS_ARCHIVE.md` with a *Closed plans* row. `Always.h`: `JUNE_CHAR_ELSWORD_CORE / LIVE / WOS / UI / SKILL / TRANSCEND / PASSIVE` defined; every `_DEBUG` (`WOS`, `SKILL`, `PASSIVE`) is commented out. `char-raven`: CH0b and CH1a rows no longer wait on Elsword; both now wait on CH0 only (CH0 is not done, so CH1a is not yet ready). Left open and routed: cut-in item override `31fd8a50` (Stage 12), camera keys (Stage 9), Wind Slicer icon gap (June's own, JUNE_BUGS 520). User owes nothing.
