@@ -2418,6 +2418,32 @@ Opus 5.5. **Verdict: passes, no code change.** Commit `58e53890`; `disasm_range.
 `infinity sword open mind: conwell hit critical rate 1.0` on unit 34's Conwell combos (every Conwell hit a critical). All at most once a second.
 
 **Play-test PASS (user, 2026-11-05; run 16:30-16:33 on md5 `a08ac02d`; 0 EXCEPTION, 0 ErrorLog lines; known `E_DISABLE_HB_CHECK_REQ` UNHANDLED x3, one `AddGroupChainQuest`).** `fight god mp`: 21218 60.00 -> 50.00 (68 lines, about one a second from 16:31:04: the MP check is polled while the slot shows), 21044 250.00 -> 200.00 (9 lines, only while Iron Body was up); `active cool time`: 21218 base 15.00 x 1.000 -> 15.00 (4 casts); `infinity sword open mind: conwell hit critical rate 1.0` 9 lines (throttled; `applied skill 0` = combo hits) beside CH4a's 43 `conwell hit, buff` lines; 0 `infinity potential` lines (latent, JUNE_BUGS 534). The user saw the crits and the MP costs.
+
+### CH4b - Review (2026-11-05)
+
+Opus 5.5. **Verdict: passes, no code change.** Commit `e2eb3ad5`; listings `charport_adis.py elsword 32d1e0e0 32cf4b70 32cf4df0`, `funcdis.py --func 322b5320`, `disasm_range.py 32028af0 32028ba0`, `31ffe230 31ffe2b0`, `dispsweep.py 96e0 53c`.
+- **`SetDamageExceptionProcess` `32d1e0e0`:** base `32045340( dd, &rate )` first; `31fceab0( 0x53ab ) > 0` and `[dd+0x53c] == 0xf` -> `fld1; fstp [dd+0x510]`: the port's Open Mind block.
+  21420: `31fceab0( 0x53ac ) > 0`, `[dd+0x53c] == 0x10`, vslot `0x238( &ret, 0x53ac, 4, 1 )`; rate built at `@32d1e172`-`32d1e192` = `{ 1.0, 1.0, byte 0 }`; `322b5320( ptr, 31fceab0( 0x53ac ), 1, &rate )`.
+  `322b5320`: clear -> erase `+0x40` vector and `326309f0` (= `PushSocketAndTemporaryBuffFactor`) even for a null factor; null -> return; `32089f60` levelled clone, `32d4d670` = `SetGameUnitBuffFactor`
+  (attacker), push; rescale `32089ff0` only when the rate byte is 1 (here 0). March's `PushBuffFactor( GetClonePtr( level ), true )` does the same (its own plain clone of the levelled clone changes nothing).
+  `32028af0` already returns a levelled clone and returns null when the factor count <= index: index 4 of four is null. JUNE_BUGS 534 holds: June's `Enum.src.lua` is the only file under
+  `june_src_fixed/` naming `DTT_EIS_INFINITY_CHASER`, and no `.text` store writes an immediate 0x10 to `+0x53c`.
+- **`GetActualMPConsume` `32cf4b70`:** base `31fd1840( id, level, 1 )`; `id - 0x5210 <= 0xd2`, index bytes at `32cf4c1c`: `[0]` (21008) and `[0x24]` (21044) = 0 -> `32cf4ba4`, `[0xc1]` (21201) and
+  `[0xd2]` (21218) = 1 -> `32cf4be7`, rest 2 -> `32cf4c05` (decoded from the bytes under the jump table). Case 0: `HaveThisBuff( 0x12 )` before `31fceab0( 0x53a8 ) > 0`, then `32007b10( 0x8f, 0x53a8 )`,
+  `DE E1` = 1 - value, x base, returned. Case 1: 21416 learned -> base - `[33438088]` (double 10.0). No clamp. March's memo 19 and event rate only in `#else`.
+- **`GetActualCoolTime` `32cf4df0`:** null -> `fldz`; base `31fd1920( t, level, 0 )` (third argument unread, funcmap 7289); `[t+4] == 6` -> x `[this+0x96e0]`; `fcom 0.0; test ah,5; jp` replaces only a
+  value below 0 (NaN kept), as the port's `< 0.f`. `dispsweep 96e0` in Elsword's range `32ce0000`-`32d40000`: only the ctor `@32d09d7c` (fst) and this read. March's writers (`X2GUElsword_SwordMan.cpp:5121`-`5135`)
+  sit in `_PASSIVE`'s `#else` (from l.4736) and the reader `:9317` in `_LIVE`'s `#else` (from l.9087): the rate stays the ctor's 1.0.
+- **Way of the Sword spot-check, `ResetAnimSpeed` `31ffe262`-`31ffe2aa`:** `[[+0x867c]+0xaf0]` type == 1 (`UT_ELSWORD`), vslot `0x674` (way-of-sword state) == 2 -> x `+0x961c`: March's
+  `X2GUUser.cpp:35240`-`35248` (`WSS_VIGOR` x `GetAnimSpeedUpByVigor()`). Equal, as the Done note says.
+- **`#else` / flag off:** `GetActualMPConsume`'s March body is untouched in `#else`; the two overrides and their declarations are inside `_PASSIVE` (and `MODIFY_SET_DAMAGE_DATA`); `DTT_EIS_INFINITY_CHASER = 16`
+  under `JUNE_ENUM_NAMES` (`Enum.src.lua:7290`).
+- **Logs** (16:30-16:33, md5 `a08ac02d`): `fight god mp` 21218 60.00 -> 50.00 x68, 21044 250.00 -> 200.00 x9; `active cool time` 21218 15.00 x 1.000 -> 15.00 x4; `infinity sword open mind: conwell hit
+  critical rate 1.0` x9 beside 43 CH4a `conwell hit, buff` lines; 0 `infinity potential`. As the hand-off. (`logs.py --grep "JUNE_CHAR ELSWORD PASSIVE"` matches nothing because of the bracket; use `"ELSWORD PASSIVE"`.)
+- **Gates:** `flagcheck JUNE_CHAR_ELSWORD_PASSIVE --with JUNE_CHAR_ELSWORD_PASSIVE_DEBUG --range e2eb3ad5^..e2eb3ad5 --files` (4 files): `files: 1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`,
+  `1 deleted line(s)` (the `//#define`), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+  Retirement: `//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG` (bytepatch, CP949 / CRLF unchanged). Build started, not awaited. CH4c's kickoff checked: ready (CH3d review done).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI`. Sub-tag `UI`.
