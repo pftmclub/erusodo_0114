@@ -9560,6 +9560,36 @@ float CX2GUElsword_SwordMan::GetMagicReflectRate()
 	return fMagicReflectRate;
 }
 #endif NEW_SKILL_2010_11
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+/// June 32d0c820: Magic Coating 21418 with Iron Body up absorbs a reflectable hit for MP
+bool CX2GUElsword_SwordMan::ApplyMagicCoating()
+{
+	if ( false == HaveThisBuff( BTI_SI_A_ES_ENDURANCE ) )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_ERS_MAGIC_COATING );
+	if ( NULL == pSkillTemplet || NULL == GetUnit() || false == IsTranscendedUnit( GetUnit() )
+		|| CX2SkillTree::SPRT_HYPER_CLASS != pSkillTemplet->m_ePowerRateType )
+		return false;
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ERS_MAGIC_COATING, false, 0, true );
+	if ( iSkillLevel <= 0 )
+		return false;
+
+	const float fAddMp = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_REGENERATION_ABS, iSkillLevel );
+	UpNowMp( fAddMp );
+	g_pX2Game->DisplayAddMPInformation( fAddMp, GetPos(), GetDirVector() );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	static DWORD s_dwMagicCoatingLogTime = 0;
+	if ( timeGetTime() - s_dwMagicCoatingLogTime > 1000 )
+	{
+		s_dwMagicCoatingLogTime = timeGetTime();
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE magic coating: mp +%.1f ( level %d ), now %.1f", fAddMp, iSkillLevel, GetNowMp() );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	return true;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 
 
 

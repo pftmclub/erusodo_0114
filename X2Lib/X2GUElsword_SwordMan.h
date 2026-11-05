@@ -508,6 +508,7 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		void ApplyBuffToLordKnightOpenMind( const CX2DamageManager::DamageData& damageData_ );		/// June 32d0c180 ( thunk 32d27180, damage-react list )
 		void ApplyBuffToInfinitySwordOpenMind( const CX2DamageManager::DamageData& damageData_ );		/// June 32d05af0 ( thunk 32d26a40 )
 		void ApplyBuffToExtremeRuneBusterTarget( const CX2DamageManager::DamageData& damageData_ );		/// June 32d1a370 ( thunk 32d27470 )
+		bool ApplyMagicCoating();		/// June 32d0c820 ( called by CX2GUUser::DamageReact 320462a0 @32046a66 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 #ifdef RIDING_SYSTEM
 		virtual bool CanRidingState();

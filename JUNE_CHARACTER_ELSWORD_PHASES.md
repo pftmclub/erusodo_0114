@@ -2444,6 +2444,34 @@ Opus 5.5. **Verdict: passes, no code change.** Commit `e2eb3ad5`; listings `char
   `1 deleted line(s)` (the `//#define`), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
   Retirement: `//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG` (bytepatch, CP949 / CRLF unchanged). Build started, not awaited. CH4c's kickoff checked: ready (CH3d review done).
 
+### CH4c - Done (2026-11-05)
+**Landed.** Commit: see `git log`, "char-elsword Phase CH4c". Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE` (no new dependency); `_PASSIVE_DEBUG` re-opened for the log. Files: `X2GUUser.cpp`,
+`X2GUElsword_SwordMan.cpp` / `.h`, `Always.h`. Read from `disasm_range.py 320469c0 32046b40` and `charport_adis.py elsword 32d0c820 32d1b650 32cf4d00`; rows `(CH4c)` at the end of `june2017_re/funcmap.tsv`.
+- **Rune Slayer reflect, `DamageReact` `320462a0` @`32046a46`-`32046aa0`** (checklist 7j, divergent row 220), June's branch inside March's `NEW_SKILL_2010_11` block, March's roll in `#else`:
+  unit set and class `+0x38` == `UC_ELSWORD_RUNE_SLAYER`; DD `bCanReflexMagic` (`+0x447`) and `ApplyMagicCoating()` true -> `damage.fMagic` (`+0x3c`) = 0 and **no reflect roll**;
+  otherwise March's roll (`GetRandomFloat( 0 ) <= GetMagicReflectRate()`, `fcomp; test ah,1`: NaN skips, as March) sets `bReflexMagic` / `bDamageReactReflectMagic`. Elsword-only
+  (class-keyed), so `_PASSIVE`, not a `JUNE_DIVERGE_*` flag. The `RT_REFLECT` / `RT_REVENGE` choice after it (`@32046afc`-`32046b24`) and the reflect-by-buff test = March.
+- **`ApplyMagicCoating` = June `32d0c820`** (new, called only from `@32046a66`): Iron Body up (`HaveThisBuff( BTI_SI_A_ES_ENDURANCE )`, 18) -> templet `RNSI_P_ERS_MAGIC_COATING`
+  (21418), unit, transcended (`IsTranscendedUnit`, unit `+0x3c`), `SPRT_HYPER_CLASS` (templet `+0x174` == 5), `GetSkillLevel( 21418, false, 0, true ) > 0` -> MP `SA_MP_REGENERATION_ABS`
+  (43; June's templet: 5) via `UpNowMp` (vslot `0xf0`) and `DisplayAddMPInformation( v, GetPos(), GetDirVector() )` (`322d38f0`), true. June's tooltip: "Iron Body will now absorb
+  magical projectiles, negating its damage and gives MP recovery". No June quirk found, no `JUNE_BUGS` row.
+- **Equal to March, nothing to port:** `GetMagicReflectRate` `32d1b650` (`m_fMagicReflectRate` `+0x95c0` x 3.0 in `GT_DUNGEON` / `GT_BATTLE_FIELD`); Magic Resistance 21409's
+  writer is CH4a's `InitPassiveSkillState`; Elsword's two `RT_REFLECT` readers (his `DamageReact`, CH1's June body under `_LIVE`).
+- **`MemoConditionElsword`: n/a**, as Chung's. Decide `32cf4d00` = base `31fd4450( user )` != 0 (`xor al,al`: always false), parse `32cf4d20` = `jmp 31fc8cf0`; divergence
+  row `MemoCondition` (D1-1): March's `m_bApplyMemo` already gives June's answer. The ctor's `+0x7d10` object (CH1k amendment) is therefore not created.
+- **S3d memo consumers:** no code. Their `[JUNE_SKILL] MEMO` lines needed `SERV_IRUHADEV_JUNE_SKILL_DEBUG`, which no longer exists in `Always.h`, so the check is visual (hand-off
+  check 3); otherwise it stays a CH6 walk item (`plan_checklist_rows.md`, "S3d memo consumers").
+- **Tables:** checklist §7j L458 and §7ao L963 marked `(Elsword: CH4c)`; divergent row 220 filled (write_instead, guard, source); funcmap rows `(CH4c)` x4.
+**Hygiene.** One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GUElsword_SwordMan.cpp` and `X2GUUser.cpp` exit 0, 0 errors.
+`flagcheck.py JUNE_CHAR_ELSWORD_PASSIVE --with JUNE_CHAR_ELSWORD_PASSIVE_DEBUG --worktree --files` (4 files): `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (the deleted line is the `//#define ..._PASSIVE_DEBUG`).
+`junediverge.py --check` (Elsword .cpp / .h, `X2GUUser.cpp`): `allow-listed: 10`, `RESULT: PASS`. `enumscan.py --check X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,002,432 B, dated 2026-11-05 17:00:09, md5 6586b82f723fa9c55304ec35a09df8b7, equal to X2/US_SERVICE/x2.exe (2026-11-05 17:00:01); built at main 2fcb1acb + 4 uncommitted code file(s).`
+`EXESTR OK: 3 of 3 found in X2_offline.exe, 26002432 B, dated 2026-11-05 17:00:09, md5 6586b82f723fa9c55304ec35a09df8b7` (the two `magic coating` lines and `magic reflect: roll`, wide).
+**Save** (backups `els_db_20261105_165141_pre_sql.sql`, `..._165201_...`): unit 26 `jtRuneSlayer` (transcended) + Magic Coating 21418 level 1 (unsealed row) and Iron Body 21201 level 1 in slot 3 (21000 out).
+**In game:** `[JUNE_CHAR] ELSWORD PASSIVE magic coating: magic damage <m> -> 0, physic <p> kept` then `magic coating: mp +5.0 ( level 1 ), now <mp>` per magic projectile taken with Iron Body up
+(and the "+5" MP text at Elsword); without Iron Body, `magic reflect: roll <r> <= rate 0.360, reflectable <0|1>` (rate 0.12 x3 in a dungeon) and the projectile flies back when reflectable.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI`. Sub-tag `UI`.

@@ -9712,6 +9712,39 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 #ifdef NEW_SKILL_2010_11
 	bool bDamageReactReflectMagic = false;
 	//{{ oasis907 : ±è»óÀ± [2010.11.1] // ·é ½½·¹ÀÌ¾î - ¸¶¹ýÀúÇ× ¼ö·Ã
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+	/// June 320462a0 @32046a55: a reflectable hit Magic Coating absorbs loses its magic damage and skips the reflect roll
+	if ( NULL != GetUnit() && CX2Unit::UC_ELSWORD_RUNE_SLAYER == GetUnitClass() )
+	{
+		CX2GUElsword_SwordMan* pElsword = static_cast<CX2GUElsword_SwordMan*>( this );
+
+		if ( true == pDamageData->bCanReflexMagic && true == pElsword->ApplyMagicCoating() )
+		{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE magic coating: magic damage %.1f -> 0, physic %.1f kept", pDamageData->damage.fMagic, pDamageData->damage.fPhysic );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+			pDamageData->damage.fMagic = 0.f;
+		}
+		else
+		{
+			const float fReflectRoll = GetRandomFloat();
+			const float fReflectRate = pElsword->GetMagicReflectRate();
+			if ( fReflectRoll <= fReflectRate )
+			{
+				bReflexMagic = true;
+				bDamageReactReflectMagic = true;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+				static DWORD s_dwMagicReflectLogTime = 0;
+				if ( true == pDamageData->bCanReflexMagic || timeGetTime() - s_dwMagicReflectLogTime > 1000 )
+				{
+					s_dwMagicReflectLogTime = timeGetTime();
+					CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE magic reflect: roll %.3f <= rate %.3f, reflectable %d", fReflectRoll, fReflectRate, true == pDamageData->bCanReflexMagic ? 1 : 0 );
+				}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+			}
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 	if( CX2Unit::UC_ELSWORD_RUNE_SLAYER == GetUnitClass() )
 	{
 		CX2GUElsword_SwordMan* pElsword = (CX2GUElsword_SwordMan*) this;
@@ -9722,6 +9755,7 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			bDamageReactReflectMagic = true;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 	//}
 #endif NEW_SKILL_2010_11
 
