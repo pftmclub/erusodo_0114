@@ -215,6 +215,11 @@ CX2GUElsword_SwordMan::CX2GUElsword_SwordMan( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 , m_fSkillKeyHoldTime( 0.f )		/// June ctor 32d09490
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+, m_iExtremeRuneBusterSkillLevel( 0 )		/// @32d0b02b
+, m_iBrutalSlayerHitCount( 0 )		/// @32d0a12f
+, m_usOpenMindHitCount( 0 )		/// @32d0ad32
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 {
 	m_bReAttackZ1Right					= false;
 	m_fReAttackZ1Time					= 0.0f;
@@ -711,9 +716,61 @@ void CX2GUElsword_SwordMan::RestoreGageSnapshot()
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 #endif ELSWORD_WAY_OF_SWORD
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+namespace _CONST_ELSWORD_CH4A_
+{
+	const int		BRUTAL_SLAYER_HITS_PER_BUFF			= 5;		/// June 32d0c4e0: the count must pass 4
+	const int		SWORD_ENCHANT_FACTOR_COUNT			= 3;		/// June 32d0baf0: GetRandomInt() % 3 picks the factor
+	const double	AUTO_GUARD_RATE_BONUS				= 0.005;	/// June 33438ad8 ( a double, added before the float store )
+	const float		LIGHTNING_STEP_DASH_TIME			= 0.5f;		/// June 335211f8 ( March 1.0 )
+	const float		EXTREME_RUNE_BUSTER_WATER_RATE		= 0.67f;	/// June 334f1f44
+	const float		EXTREME_RUNE_BUSTER_FIRE_RATE		= 0.33f;	/// June 33483504
+
+	/// June 32205510: a special active skill type ( 7, 14-16 )
+	bool IsSpecialActiveSkillType( const int iSkillType_ )
+	{
+		return CX2SkillTree::ST_SPECIAL_ACTIVE == iSkillType_ ||
+			( CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1 <= iSkillType_ && iSkillType_ <= CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3 );
+	}
+}
+using namespace _CONST_ELSWORD_CH4A_;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 #ifdef ELSWORD_SHEATH_KNIGHT
 void CX2GUElsword_SwordMan::AddComboToBrutalSlayer( const CX2DamageManager::DamageData& damageData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+	/// June 32d0c4e0: every fifth hit with a combo after the cool time ( March: every fifth combo )
+	UNREFERENCED_PARAMETER( damageData_ );
+	if ( true == GetRidingOn() || m_fBrutalSlayerCoolTime > m_fBrutalSlayerElapsedTime )
+		return;
+
+	if ( NULL == GetComboManager() || GetComboManager()->GetCombo() <= 0 )
+		return;
+
+	++m_iBrutalSlayerHitCount;
+	if ( m_iBrutalSlayerHitCount < BRUTAL_SLAYER_HITS_PER_BUFF )
+		return;
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ETK_BRUTAL_SLAYER, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_ETK_BRUTAL_SLAYER );
+		if ( NULL != pSkillTemplet )
+			SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+	}
+
+	if ( 0 < m_iBrutalSlayerActivatedLevel )
+	{
+		++m_iBrutalSlayerActivatedLevel;
+		if ( _CONST_ELSWORD_::CONST_BRUTAL_SLAYER_LEVEL < m_iBrutalSlayerActivatedLevel )
+			m_iBrutalSlayerActivatedLevel = _CONST_ELSWORD_::CONST_BRUTAL_SLAYER_LEVEL;
+	}
+
+	RestartBrutalSlayerCoolTime();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE brutal slayer: buff ( skill level %d ), mind of fighter level %d", iSkillLevel, m_iBrutalSlayerActivatedLevel );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 	const int iComboNumber 
 		= ( NULL != GetComboManager() ? GetComboManager()->GetCombo() : 0 );
 
@@ -744,6 +801,7 @@ void CX2GUElsword_SwordMan::AddComboToBrutalSlayer( const CX2DamageManager::Dama
 				m_iBrutalSlayerActivatedLevel = _CONST_ELSWORD_::CONST_BRUTAL_SLAYER_LEVEL;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 
 
 }
@@ -4455,6 +4513,227 @@ void CX2GUElsword_SwordMan::InitStateCommon()
 
 /*virtual*/ void CX2GUElsword_SwordMan::InitPassiveSkillState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+	/// June 32d1c560 ( vslot 0x690 )
+	CX2GUUser::InitPassiveSkillState();
+
+	const CX2SkillTree* const pSkillTree = g_pData->GetSkillTree();
+	if ( NULL == pSkillTree )
+		return;
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = NULL;
+
+	m_fCreateEffectSetRate = 0.f;
+	m_iSkillLevelInduranceOfRevenge = 0;
+	int iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ELK_WIND_SLICER, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ELK_WIND_SLICER );
+		if ( NULL != pSkillTemplet )
+			m_fCreateEffectSetRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel );
+	}
+
+	m_fRollingHpConsumeRel = 0.f;
+	m_fRollingSpeedRel = 0.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_ES_ROLLING, false, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_A_ES_ROLLING );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fRollingHpConsumeRel	= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::HP_CONSUME_REL, min( iSkillLevel, 10 ) );
+			m_fRollingSpeedRel		= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_TELEPORT_SPEED_REL, min( iSkillLevel, 10 ) );
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ELK_STRONG_BONE, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ELK_STRONG_BONE );
+		if ( NULL != pSkillTemplet )
+			m_AdditionalFinalDefenceMultiplier.SetPassiveMultiple( m_AdditionalFinalDefenceMultiplier.GetPassiveMultiple() * pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGED_REL, iSkillLevel ) );
+	}
+
+	const int iSkillLevelSpellChain = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EMK_SPELL_CHAIN, true, 0, true );
+	if ( 0 < iSkillLevelSpellChain )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_EMK_SPELL_CHAIN );
+		if ( NULL != pSkillTemplet && false == pSkillTemplet->m_vecBuffFactorPtr.empty() )
+		{
+			const bool bMagicCoatingLearned = 0 < userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ERS_MAGIC_COATING, true, 0, true );
+			CreateAndInsertSkillAndSocketBuffFactorToList( pSkillTemplet->m_vecBuffFactorPtr[0]->GetClonePtr( iSkillLevelSpellChain ), bMagicCoatingLearned );
+		}
+	}
+
+	m_fAutoGuardRate = 0.f;
+	m_fAutoGuardElapsedTime = -1.f;
+	m_fAutoGuardCoolTime = -1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ESK_AUTO_GUARD, true, 0, true );
+	if ( 0 < iSkillLevel && ( CX2Unit::UC_ELSWORD_LORD_KNIGHT == GetUnit()->GetClass() || CX2Unit::UC_ELSWORD_KNIGHT == GetUnit()->GetClass() ) )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ESK_AUTO_GUARD );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fAutoGuardCoolTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, iSkillLevel );
+			m_fAutoGuardElapsedTime = m_fAutoGuardCoolTime;
+			float fAutoGuardRate = static_cast<float>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel ) + AUTO_GUARD_RATE_BONUS );
+			/// stand-in: June reads the game unchecked; no game counts as not PvP / PvE
+			if ( NULL != g_pX2Game && false == g_pX2Game->GetIsNowPVPCorrectionGame() )
+				fAutoGuardRate += fAutoGuardRate;
+			m_fAutoGuardRate = fAutoGuardRate;
+		}
+	}
+
+	m_fRuneProjectileRangeIncPercent = 1.f;
+	m_fRuneProjectileSizeIncPercent = 1.f;
+	m_fAttackPowerRateFireBall = 1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ERS_RUNE_MASTERY, true, 0, true );
+	if ( 0 < iSkillLevel && CX2Unit::UC_ELSWORD_RUNE_SLAYER == GetUnit()->GetClass() )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ERS_RUNE_MASTERY );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fRuneProjectileRangeIncPercent	= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel );
+			m_fRuneProjectileSizeIncPercent		= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_SIZE, iSkillLevel );
+			m_fAttackPowerRateFireBall			= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevelSpellChain );	/// June @32d1cc8a: Spell Chain's level ( JUNE_BUGS 533 )
+		}
+	}
+
+	m_fMagicReflectRate = 0.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ERS_MAGIC_RESISTANCE, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ERS_MAGIC_RESISTANCE );
+		if ( NULL != pSkillTemplet )
+			m_fMagicReflectRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_REFLECT_REL, iSkillLevel );
+	}
+
+	m_fBrutalSlayerCoolTime = -1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ETK_BRUTAL_SLAYER, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ETK_BRUTAL_SLAYER );
+		if ( NULL != pSkillTemplet && false == pSkillTemplet->m_vecBuffFactorPtr.empty() )
+		{
+			InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUElsword_SwordMan, AddComboToBrutalSlayer ) );
+			m_fBrutalSlayerCoolTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, iSkillLevel );
+			m_fBrutalSlayerElapsedTime = m_fBrutalSlayerCoolTime;
+		}
+	}
+
+	const int iSkillLevelHarshSlayer = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EIS_HARSH_SLAYER, true, 0, true );
+	m_fHarshSlayerElapsedTime = -1.f;
+	m_fHarshSlayerCoolTime = -1.f;
+	if ( 0 < iSkillLevelHarshSlayer && ( CX2Unit::UC_ELSWORD_SHEATH_KNIGHT == GetUnit()->GetClass() || CX2Unit::UC_ELSWORD_INFINITY_SWORD == GetUnit()->GetClass() ) )
+	{
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUElsword_SwordMan, ApplyBuffToHarshSlayer ) );
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_EIS_HARSH_SLAYER );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fHarshSlayerCoolTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, iSkillLevelHarshSlayer );
+			m_fHarshSlayerElapsedTime = m_fHarshSlayerCoolTime;
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EIS_CUTTING_SWORD, true, 0, true );
+	if ( 0 < iSkillLevel && CX2Unit::UC_ELSWORD_INFINITY_SWORD == GetUnit()->GetClass() )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_EIS_CUTTING_SWORD );
+		if ( NULL != pSkillTemplet && 1 < pSkillTemplet->m_vecBuffFactorPtr.size()
+			&& false == IsSpecialActiveSkillType( pSkillTemplet->m_eType ) && CX2SkillTree::ST_HYPER_ACTIVE_SKILL != pSkillTemplet->m_eType )
+		{
+			CreateAndInsertSkillAndSocketBuffFactorToList( pSkillTemplet->m_vecBuffFactorPtr[0]->GetClonePtr( iSkillLevel ), false );
+			CreateAndInsertSkillAndSocketBuffFactorToList( pSkillTemplet->m_vecBuffFactorPtr[1]->GetClonePtr( iSkillLevel ), false );
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EIS_LIGHTNING_STEP, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_EIS_LIGHTNING_STEP );
+		if ( NULL != pSkillTemplet )
+		{
+			const float fMoveSpeedUp = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MOVE_SPEED, iSkillLevel );
+			m_AdditionalWalkSpeed.SetPassiveMultiple( m_AdditionalWalkSpeed.GetPassiveMultiple() * fMoveSpeedUp );
+			m_AdditionalDashSpeed.SetPassiveMultiple( m_AdditionalDashSpeed.GetPassiveMultiple() * fMoveSpeedUp );
+			m_AdditionalAnimSpeed.SetPassiveMultiple( m_AdditionalAnimSpeed.GetPassiveMultiple() * pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, iSkillLevel ) );
+			InsertDelegateProcessToCommonFrameMove( SET_DELEGATE_PROCESS( CX2GUElsword_SwordMan, LightingStepFrameMove ) );
+		}
+	}
+
+	m_fSwordEnchantCoolTime = -1.f;
+	m_fSwordEnchantElapsedTime = -1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ERS_SWORD_ENCHANT, false, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ERS_SWORD_ENCHANT );
+		if ( NULL != pSkillTemplet )
+		{
+			InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUElsword_SwordMan, ApplyBuffToSwordEnchant ) );
+			m_fSwordEnchantCoolTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, iSkillLevel );
+			m_fSwordEnchantElapsedTime = m_fSwordEnchantCoolTime;
+		}
+	}
+
+	m_fShortTimeStrongAttackElapsedTime = -1.f;
+	m_fShortTimeStrongAttackCoolTime = -1.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ETK_SHORTTIME_STRONGATTACK, false, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ETK_SHORTTIME_STRONGATTACK );
+		if ( NULL != pSkillTemplet )
+		{
+			InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUElsword_SwordMan, ApplyBuffToShortTimeStrongAttack ) );
+			m_fShortTimeStrongAttackCoolTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, iSkillLevel );
+			m_fShortTimeStrongAttackElapsedTime = m_fShortTimeStrongAttackCoolTime;
+		}
+	}
+
+	m_iSkillLevelInduranceOfRevenge = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ELK_REDUCE_PAIN, false, 0, true );
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ELK_OPEN_MIND, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ELK_OPEN_MIND );
+		if ( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_ePowerRateType && true == IsTranscendedUnit( GetUnit() ) )
+		{
+			m_usOpenMindHitCount = 0;
+			InsertDelegateProcessWithDamageDataToDamageReact( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUElsword_SwordMan, ApplyBuffToLordKnightOpenMind ) );
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EIS_OPEN_MIND, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_EIS_OPEN_MIND );
+		if ( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_ePowerRateType && true == IsTranscendedUnit( GetUnit() ) )
+		{
+			m_usOpenMindHitCount = 0;
+			InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUElsword_SwordMan, ApplyBuffToInfinitySwordOpenMind ) );
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_SA_ERS_EXTREME_RUNE_BUSTER, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_SA_ERS_EXTREME_RUNE_BUSTER );
+		if ( NULL != pSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pSkillTemplet->m_ePowerRateType && true == IsTranscendedUnit( GetUnit() ) )
+		{
+			m_iExtremeRuneBusterSkillLevel = iSkillLevel;
+			m_vecExtremeRuneBusterTargetUnit.clear();
+			InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUElsword_SwordMan, ApplyBuffToExtremeRuneBusterTarget ) );
+		}
+	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE init ( unit %I64d class %d: wind slicer %.3f, rolling %.3f / %.3f, final defence x%.3f, auto guard %.3f cool %.1f, rune range x%.2f size x%.2f fireball x%.3f, magic reflect %.3f )",
+		GetUnitUID(), static_cast<int>( GetUnit()->GetClass() ), m_fCreateEffectSetRate, m_fRollingHpConsumeRel, m_fRollingSpeedRel, m_AdditionalFinalDefenceMultiplier.GetPassiveMultiple(),
+		m_fAutoGuardRate, m_fAutoGuardCoolTime, m_fRuneProjectileRangeIncPercent, m_fRuneProjectileSizeIncPercent, m_fAttackPowerRateFireBall, m_fMagicReflectRate );
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE init ( unit %I64d: cool brutal %.1f harsh %.1f enchant %.1f strong %.1f, walk x%.3f dash x%.3f anim x%.3f, reduce pain %d, extreme rune buster %d, buff factors %d )",
+		GetUnitUID(), m_fBrutalSlayerCoolTime, m_fHarshSlayerCoolTime, m_fSwordEnchantCoolTime, m_fShortTimeStrongAttackCoolTime, m_AdditionalWalkSpeed.GetPassiveMultiple(),
+		m_AdditionalDashSpeed.GetPassiveMultiple(), m_AdditionalAnimSpeed.GetPassiveMultiple(), m_iSkillLevelInduranceOfRevenge, m_iExtremeRuneBusterSkillLevel, static_cast<int>( GetBuffFactorList().size() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 	CX2GUUser::InitPassiveSkillState();
 
 #ifdef BALANCE_PATCH_20131107
@@ -4861,8 +5140,172 @@ void CX2GUElsword_SwordMan::InitStateCommon()
 #ifdef BALANCE_PATCH_20131107
 	m_iSkillLevelInduranceOfRevenge = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::SI_P_ELK_INDURANCE_OF_REVENGE, true );
 #endif //BALANCE_PATCH_20131107
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+bool CX2GUElsword_SwordMan::IsSwordEnchantCoolTimeEnd() const
+{
+	return !( m_fSwordEnchantCoolTime > m_fSwordEnchantElapsedTime );
+}
+
+bool CX2GUElsword_SwordMan::IsShortTimeStrongAttackCoolTimeEnd() const
+{
+	return !( m_fShortTimeStrongAttackCoolTime > m_fShortTimeStrongAttackElapsedTime );
+}
+
+void CX2GUElsword_SwordMan::RestartBrutalSlayerCoolTime()
+{
+	m_fBrutalSlayerElapsedTime = 0.f;
+	m_iBrutalSlayerHitCount = 0;
+}
+
+void CX2GUElsword_SwordMan::ApplyBuffToSwordEnchant( const CX2DamageManager::DamageData& damageData_ )
+{
+	if ( true == GetRidingOn() || NULL == GetUnit() || CX2DamageManager::AT_SPECIAL == damageData_.attackType || false == IsSwordEnchantCoolTimeEnd() )
+		return;
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ERS_SWORD_ENCHANT, false, 0, true );
+	if ( iSkillLevel <= 0 )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_ERS_SWORD_ENCHANT );
+	if ( NULL == pSkillTemplet )
+		return;
+
+	const float fRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel );
+	if ( false == ( GetRandomFloat() < fRate ) )
+		return;
+
+	const int iFactorIndex = GetRandomInt() % SWORD_ENCHANT_FACTOR_COUNT;
+	SetBuffFactorToGameUnit( pSkillTemplet, iFactorIndex );
+	m_fSwordEnchantElapsedTime = 0.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE sword enchant: factor %d ( rate %.2f, cool %.1f )", iFactorIndex, fRate, m_fSwordEnchantCoolTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+}
+
+void CX2GUElsword_SwordMan::ApplyBuffToShortTimeStrongAttack( const CX2DamageManager::DamageData& damageData_ )
+{
+	if ( true == GetRidingOn() || NULL == GetUnit() || CX2DamageManager::AT_SPECIAL == damageData_.attackType || false == IsShortTimeStrongAttackCoolTimeEnd() )
+		return;
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ETK_SHORTTIME_STRONGATTACK, false, 0, true );
+	if ( iSkillLevel <= 0 )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_ETK_SHORTTIME_STRONGATTACK );
+	if ( NULL == pSkillTemplet )
+		return;
+
+	const float fRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel );
+	if ( false == ( GetRandomFloat() < fRate ) )
+		return;
+
+	SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+	m_fShortTimeStrongAttackElapsedTime = 0.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE short time strong attack: buff ( rate %.2f, cool %.1f )", fRate, m_fShortTimeStrongAttackCoolTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+}
+
+void CX2GUElsword_SwordMan::ApplyBuffToLordKnightOpenMind( const CX2DamageManager::DamageData& damageData_ )
+{
+	if ( true == GetRidingOn() )
+		return;
+
+	/// June @32d0c1a0: at the stack limit, or in the cool time without the buff, the count starts over
+	if ( true == IsBuffAtAccumulationLimit( BTI_BUFF_ALL_DEFENCE_INCREASE_GET_HIT )
+		|| ( 0.f <= m_fOpenMindRemainCoolTime && false == HaveThisBuff( BTI_BUFF_ALL_DEFENCE_INCREASE_GET_HIT ) ) )
+	{
+		m_usOpenMindHitCount = 0;
+		return;
+	}
+
+	if ( NULL == GetUnit() )
+		return;
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ELK_OPEN_MIND, false, 0, true );
+	if ( iSkillLevel < 1 )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_ELK_OPEN_MIND );
+	if ( NULL == pSkillTemplet || CX2SkillTree::SPRT_HYPER_CLASS != pSkillTemplet->m_ePowerRateType || false == IsTranscendedUnit( GetUnit() ) )
+		return;
+
+	if ( CX2DamageManager::DT_BUFF == damageData_.damageType )
+		return;
+
+	const USHORT usHitsPerBuff = static_cast<USHORT>( static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel ) ) );
+	++m_usOpenMindHitCount;
+	/// June @32d0c3a1 also zeroes the byte +0x9794, which nothing reads
+	if ( usHitsPerBuff > m_usOpenMindHitCount )
+		return;
+
+	SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+	m_usOpenMindHitCount = 0;
+	m_fOpenMindRemainCoolTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, iSkillLevel );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE lord knight open mind: buff after %d hits, cool %.1f", static_cast<int>( usHitsPerBuff ), m_fOpenMindRemainCoolTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+}
+
+void CX2GUElsword_SwordMan::ApplyBuffToInfinitySwordOpenMind( const CX2DamageManager::DamageData& damageData_ )
+{
+	if ( true == GetRidingOn() || NULL == GetUnit() || CX2DamageManager::DTT_ETK_CONWELL_ATTACK != damageData_.m_eDamageTrigger )
+		return;
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EIS_OPEN_MIND, false, 0, true );
+	if ( iSkillLevel <= 0 )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_EIS_OPEN_MIND );
+	if ( NULL != pSkillTemplet )
+	{
+		SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE infinity sword open mind: conwell hit, buff ( level %d )", iSkillLevel );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	}
+}
+
+void CX2GUElsword_SwordMan::ApplyBuffToExtremeRuneBusterTarget( const CX2DamageManager::DamageData& damageData_ )
+{
+	if ( null == damageData_.optrDefenderGameUnit || NULL == g_pX2Game )
+		return;
+
+	CX2GameUnit* pDefenderUnit = damageData_.optrDefenderGameUnit.GetObservable();
+	if ( NULL == pDefenderUnit || CX2SkillTree::RNSI_SA_ERS_EXTREME_RUNE_BUSTER != damageData_.m_iAppliedSkillID
+		|| CX2DamageManager::DTT_EXTREME_RUNE_BUSTER_RANDOM_BUFF != damageData_.m_eDamageTrigger )
+		return;
+
+	const UidType uidDefender = pDefenderUnit->GetUnitUID();
+	for ( std::vector< CX2GameUnitoPtr >::const_iterator vit = m_vecExtremeRuneBusterTargetUnit.begin(); vit != m_vecExtremeRuneBusterTargetUnit.end(); ++vit )
+	{
+		const CX2GameUnit* pTargetUnit = ( null != *vit ? vit->GetObservable() : NULL );
+		if ( NULL != pTargetUnit && uidDefender == pTargetUnit->GetUnitUID() )
+			return;
+	}
+
+	m_vecExtremeRuneBusterTargetUnit.push_back( damageData_.optrDefenderGameUnit );
+	/// stand-in: June divides by the list size unchecked ( a divide fault on an empty list )
+	if ( true == m_vecExtremeRuneBusterRandom.empty() )
+		return;
+
+	const float fRandom = m_vecExtremeRuneBusterRandom[ m_vecExtremeRuneBusterTargetUnit.size() % m_vecExtremeRuneBusterRandom.size() ];
+	BUFF_FACTOR_ID eBuffFactorID = BFI_DEBUFF_POISON_SET_EQUIP_OPTION;
+	if ( EXTREME_RUNE_BUSTER_WATER_RATE < fRandom )
+		eBuffFactorID = BFI_DEBUFF_HENIR_WATER;
+	else if ( EXTREME_RUNE_BUSTER_FIRE_RATE < fRandom )
+		eBuffFactorID = BFI_DEBUFF_HENIR_FIRE;
+
+	pDefenderUnit->SetBuffFactorToGameUnitByBuffFactorID( eBuffFactorID, m_iExtremeRuneBusterSkillLevel, this, 0, false );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE extreme rune buster: target %d gets buff factor %d ( random %.2f, level %d )",
+		static_cast<int>( m_vecExtremeRuneBusterTargetUnit.size() ), static_cast<int>( eBuffFactorID ), fRandom, m_iExtremeRuneBusterSkillLevel );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 /*virtual*/ void CX2GUElsword_SwordMan::SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
@@ -28719,6 +29162,33 @@ bool CX2GUElsword_SwordMan::ShouldResetNotBusyTimer()
 #ifdef	SERV_ELSWORD_INFINITY_SWORD
 void CX2GUElsword_SwordMan::LightingStepFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+	/// June 32d08ba0: half a second of dash ( March: one ), June's skill id
+	if ( true == IsDashState() )
+	{
+		m_fDashStateTime += m_fElapsedTime;
+		if ( LIGHTNING_STEP_DASH_TIME < m_fDashStateTime )
+		{
+			const int iSkillLevelLightningStep = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_EIS_LIGHTNING_STEP, true, 0, true );
+			if ( 0 < iSkillLevelLightningStep )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_EIS_LIGHTNING_STEP );
+				if ( NULL != pSkillTemplet )
+				{
+					SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+					CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE lightning step: dash buff ( level %d )", iSkillLevelLightningStep );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+				}
+			}
+			m_fDashStateTime = 0.f;
+		}
+	}
+	else
+	{
+		m_fDashStateTime = 0.f;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 	if( IsDashState() == true )		/// DASH, DASH_END, DASH_JUMP, DASH_JUMP_LANDING ÀÎ °æ¿ì
 	{
 		m_fDashStateTime += m_fElapsedTime;
@@ -28749,6 +29219,7 @@ void CX2GUElsword_SwordMan::LightingStepFrameMove()
 	{
 		m_fDashStateTime = 0.f;	/// 
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 }
 #endif	SERV_ELSWORD_INFINITY_SWORD
 

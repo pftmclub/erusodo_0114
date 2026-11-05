@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, medium** effort, then type `/x2-phase char-elsword CH6` |
 | Plan doc | `JUNE_CHARACTER_ELSWORD_PHASES.md` (branch `main`) |
-| Depends on | CH3d, CH4c and CH5 reviews |
+| Depends on | CH3d, CH4a2 (added by CH4a), CH4c and CH5 reviews |
 | Flag | none (a defect goes back to its phase's flag) |
 | Log tag | `[JUNE_CHAR]` (`ELSWORD *`) |
 | Review | none (the user's walk is the gate) |

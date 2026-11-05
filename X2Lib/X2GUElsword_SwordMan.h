@@ -493,6 +493,16 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 #ifdef ELSWORD_SHEATH_KNIGHT
 		void				AddComboToBrutalSlayer( const CX2DamageManager::DamageData& damageData_ );
 #endif ELSWORD_SHEATH_KNIGHT
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+		bool IsSwordEnchantCoolTimeEnd() const;		/// June 32d05a00
+		bool IsShortTimeStrongAttackCoolTimeEnd() const;		/// June 32d05a50
+		void RestartBrutalSlayerCoolTime();		/// June 32d27190
+		void ApplyBuffToSwordEnchant( const CX2DamageManager::DamageData& damageData_ );		/// June 32d0baf0 ( thunk 32d27160 )
+		void ApplyBuffToShortTimeStrongAttack( const CX2DamageManager::DamageData& damageData_ );		/// June 32d0bc60 ( thunk 32d27170 )
+		void ApplyBuffToLordKnightOpenMind( const CX2DamageManager::DamageData& damageData_ );		/// June 32d0c180 ( thunk 32d27180, damage-react list )
+		void ApplyBuffToInfinitySwordOpenMind( const CX2DamageManager::DamageData& damageData_ );		/// June 32d05af0 ( thunk 32d26a40 )
+		void ApplyBuffToExtremeRuneBusterTarget( const CX2DamageManager::DamageData& damageData_ );		/// June 32d1a370 ( thunk 32d27470 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 #ifdef RIDING_SYSTEM
 		virtual bool CanRidingState();
 #endif //RIDING_SYSTEM
@@ -640,6 +650,11 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		std::vector< CX2GameUnitoPtr > m_vecExtremeRuneBusterTargetUnit;	/// June +0x97c4: cleared when Extreme Rune Buster starts ( a KObserverPtr list; the readers are CH4a's )
 		std::vector< float > m_vecExtremeRuneBusterRandom;	/// June +0x97d4: ten random numbers drawn when Extreme Rune Buster starts
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+		int m_iExtremeRuneBusterSkillLevel;		/// June +0x97c0: the level of Extreme Rune Buster's random debuffs ( set for a transcended Rune Slayer only )
+		int m_iBrutalSlayerHitCount;		/// June +0x9710: hits toward the next Brutal Slayer buff
+		USHORT m_usOpenMindHitCount;		/// June +0x977c ( KProtectedType<short> ): hits taken toward the next Lord Knight Open Mind buff
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 		bool m_bIsMagicKnightWinMotion2; 
 		bool m_bERS_DASH_JUMP_XZ_Rune_Created;
 		bool m_bERS_COMBO_XZ_Rune_Created;

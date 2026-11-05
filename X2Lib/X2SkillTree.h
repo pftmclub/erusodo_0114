@@ -2327,6 +2327,23 @@ public:
 		RNSI_A_EIS_COMPACT_COUNTER_UPGRADE                    = 21236,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-05 // char-elsword CH4a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Elsword's InitPassiveSkillState and its callbacks spell ( values from June's Enum.lua )
+		RNSI_P_ESK_AUTO_GUARD                                 = 21401,
+		RNSI_P_ELK_WIND_SLICER                                = 21402,
+		RNSI_P_ELK_STRONG_BONE                                = 21403,
+		RNSI_P_EMK_SPELL_CHAIN                                = 21406,
+		RNSI_P_ERS_SWORD_ENCHANT                              = 21407,
+		RNSI_P_ETK_BRUTAL_SLAYER                              = 21410,
+		RNSI_P_ETK_SHORTTIME_STRONGATTACK                     = 21411,
+		RNSI_P_EIS_CUTTING_SWORD                              = 21413,
+		RNSI_P_EIS_LIGHTNING_STEP                             = 21414,
+		RNSI_P_ELK_OPEN_MIND                                  = 21415,
+		RNSI_P_ERS_MAGIC_COATING                              = 21418,
+		RNSI_P_EIS_OPEN_MIND                                  = 21419,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

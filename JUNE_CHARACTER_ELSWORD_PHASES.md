@@ -2228,9 +2228,54 @@ Opus 5.5. **Verdict: passes, no code change.** Commit `be8b7806`; listings via `
 | CH4a | `InitPassiveSkillState` `32d1c560` (vslot 0x690) and Elsword's passive ids (types 1 / 8: 3 + 25 rows), their objects and readers; 7am's 8 delegate callbacks in `32d1c560`; the three `CreateAndInsertSkillAndSocketBuffFactorToList` calls (`322a25f0`; Spell Chain 21406's bool = Magic Coating 21418 learned); flag `_PASSIVE` |
 | CH4b | `SetDamageExceptionProcess` `32d1e0e0` whole (June-only, 7b: 21419 `RNSI_P_EIS_OPEN_MIND` with `ATTACK_TRIGGER_TYPE` 0xf -> `+0x510` = 1.0; 21420 `RNSI_P_EIS_INFINITY_POTENTIAL` with 0x10 -> vslot 0x238 and the `322b5320` push); the other overrides CH0 finds (`GetActualMPConsume` / `GetActualCoolTime` style); §7 l.281 power-rate socket range (`32d076f0`); the death-prevention snapshot override `32d058a0` unless CH0 gave it to CH1q |
 | CH4c | 7j Rune Slayer magic reflect: the engine branch in `320462a0` @`32046a55`-`32046aa0` (`X2GUUser.cpp`; divergent row `june_march_divergent.tsv:220`) and the class's `32d0c820` (Magic Coating 21418 as a transcended hyper-class skill: MP gain + effect), every class, own flag if the engine branch is not Elsword's; `MemoConditionElsword` (RTTI `3373d9b0`) and the memo readers; the S3d memo consumer lines that waited for his skill states (`STATUS_ARCHIVE.md` l.715) |
+| CH4a2 | (added by CH4a, 2026-11-05) the engine readers of Elsword's passives: the user state key `CREATE_EFFECT_SET` (parse `32057b80` @`320606b7`, play in `CommonFrameMove` `32063650` @`32063a6c`-`32063d06` at Wind Slicer's rate `+0x8e50`, doubled by Fight God 21416 with BTI 18), and `32610cb0` (21417 Rune Slayer Open Mind); kickoff `CH4a2.md` |
 
 **Done gate:** each passive's effect shows (CH0 names the stat or log line per passive); a Rune Slayer reflects magic as June, and a transcended
 one with Magic Coating takes 0 magic damage with the MP gain; 0 Elsword `no_state` rows left except passives with no state in June.
+
+### CH4a - Done (2026-11-05)
+
+**Landed.** Commit: see `git log`, "char-elsword Phase CH4a". Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE` (+ temporary `_PASSIVE_DEBUG`). Files: `X2GUElsword_SwordMan.*`,
+`X2GUUser.*` (one member + ctor), `X2SkillTree.h` / `X2BuffFactor.h` / `X2DamageManager.h` (names under `JUNE_ENUM_NAMES`). Read from `funcdis` / Ghidra listings of every address below.
+- **`InitPassiveSkillState` `32d1c560` whole** inside March's (March's in `#else`), June's order. All `GetSkillLevel( id, 1, 0, 1 )` except 21200 / 21407 / 21411 / 21404 ( `0` ):
+  Wind Slicer 21402 SA 5 -> new user `m_fCreateEffectSetRate` (`+0x8e50`, reset 0; reader = CH4a2); Rolling 21200 0x71 / 0x70 (min 10, reset 0 / 0); Strong Bone 21403 0x10 x final
+  defence passive; Spell Chain 21406 factor [0] clone with bool = Magic Coating 21418 learned; Auto Guard 21401 (class 10 / 100): rate 0 / both cool times -1, then
+  `SA_COOLTIME_1`, rate = SA 5 + 0.005 (double), **x2 when the game is not PvP / PvE**; Rune Mastery 21408 (class 101): range / size reset 1, fireball 1, then 0x1f / 0x20 and
+  fireball 0xf **at Spell Chain's level** (JUNE_BUGS 533); Magic Resistance 21409 0x53 -> `m_fMagicReflectRate` (no class gate); Brutal Slayer 21410 (factors non-empty) ->
+  A `AddComboToBrutalSlayer` + cool time; Harsh Slayer 21412 (22 / 112) -> A `ApplyBuffToHarshSlayer` (CH1h) before its templet test, cool time; Cutting Sword 21413 (112,
+  2+ factors, not special-active / type 13) -> factors [0] and [1], bool false; Lightning Step 21414 walk / dash x SA_MOVE_SPEED, **anim x SA_ANI_SPEED** (June-only), C
+  `LightingStepFrameMove`; Sword Enchant 21407 / Short Time Strong Attack 21411 -> A callbacks + cool times (reset -1 / -1); Reduce Pain 21404 level; Lord Knight Open Mind
+  21415 and Infinity Sword Open Mind 21419 (hyper-class + transcended) -> count 0, D / A callbacks; Extreme Rune Buster 21059 (hyper-class + transcended) -> level, list clear, A.
+  June drops March's Powerful Fireball, Mind of Fighter, guard skill, Intensive Attack and Indurance blocks (all stay in `#else`; their members keep their ctor values).
+- **Callbacks** (thunk targets checked: 32d272b0 / 32d27160 / 32d27170 / 32d27180 / 32d26a40 / 32d27470 / 32d27640 = push edx; call; 32d26fd0 = jmp 32d08ba0):
+  `AddComboToBrutalSlayer` = June `32d0c4e0` (not riding, cool time over, combo > 0, own count `+0x9710` reaches 5 -> buff, Mind of Fighter level +1 cap 5,
+  `RestartBrutalSlayerCoolTime` `32d27190`); `ApplyBuffToSwordEnchant` `32d0baf0` (not AT_SPECIAL, `IsSwordEnchantCoolTimeEnd` `32d05a00`, random < SA 5 -> factor
+  `GetRandomInt() % 3`); `ApplyBuffToShortTimeStrongAttack` `32d0bc60` (same, factor 0, `32d05a50`); `ApplyBuffToLordKnightOpenMind` `32d0c180` (damage react: at
+  BTI 824's stack limit or in the cool time without it -> count 0; else not DT_BUFF, count +1 to the truncated SA 5 -> buff, count 0, `m_fOpenMindRemainCoolTime` =
+  SA_COOLTIME_1); `ApplyBuffToInfinitySwordOpenMind` `32d05af0` (DTT 15 Conwell hits); `ApplyBuffToExtremeRuneBusterTarget` `32d1a370` (applied 21059 + DTT 42, a
+  defender not in the list -> pushed, random[count % 10] > 0.67 BFI 153 / > 0.33 152 / else 168 at `+0x97c0`'s level, creator = Elsword); `LightingStepFrameMove`
+  `32d08ba0` (**0.5 s** dash, March 1.0).
+- **Stand-ins (one line each in code):** no game -> Auto Guard not doubled (June reads the game unchecked); an empty random list -> no debuff (June divides by zero);
+  the write-only byte `+0x9794` (set 0 by `32d0c180`, no reader in the binary) is not kept.
+- **Names** (`JUNE_ENUM_NAMES`): 12 skill ids 21401-21403, 21406, 21407, 21410, 21411, 21413-21415, 21418, 21419; BTI 824; BFI 152 / 153 / 168; DTT 15 / 42.
+  Members: user `m_fCreateEffectSetRate`; Elsword `m_iExtremeRuneBusterSkillLevel` (`+0x97c0`), `m_iBrutalSlayerHitCount` (`+0x9710`), `m_usOpenMindHitCount` (`+0x977c`).
+  CH1j's cool-time pairings confirmed by the blocks (21410 `+0x96f8` / `+0x9704`, 21407 `+0x9740` / `+0x9734`, 21411 `+0x9758` / `+0x974c`).
+- **Divergence rows** (same commit): `CX2GUElsword_SwordMan::InitPassiveSkillState`, `::AddComboToBrutalSlayer`, `::LightingStepFrameMove` (all ported).
+- **Drift, own phase CH4a2 (this plan; subject = his passives' only readers):** the user state key `CREATE_EFFECT_SET` (parse `32057b80` @`320606b7`, play in
+  `CommonFrameMove` `32063650` @`32063a6c`-`32063d06` at `+0x8e50`'s rate, the Fight God 21416 bonus with BTI 18) and `32610cb0` (21417 Rune Slayer Open Mind).
+  Without it Wind Slicer only shows its rate in the init line. Elesis writes `+0x8e50` too (`32b74500`, `32b89260`): her port. Kickoff `CH4a2.md`.
+- **The 22 passive ids:** 16 read here; 106 / 21400 by the base engine; 21405 is a type-2 stat passive; 21416 / 21417 -> CH4a2; 21418 also CH4c; 21420 CH4b. No state in June.
+
+**Hygiene.** `flagprobe.py`: `_PASSIVE`, `_PASSIVE_DEBUG` and every dependency ON. One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GUElsword_SwordMan.cpp` exit 0, 0 errors.
+`flagcheck.py JUNE_CHAR_ELSWORD_PASSIVE --with JUNE_CHAR_ELSWORD_PASSIVE_DEBUG --worktree --files` (8 files): `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 1 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
+(OTHER = the three enum headers under `JUNE_ENUM_NAMES`; the EOL row is the `#endif` before `LightingStepFrameMove`'s LF-only `}`).
+`junediverge.py --check` (Elsword .cpp / .h, X2GUUser.*): `RESULT: PASS`. `enumscan.py --check X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,997,824 B, dated 2026-11-05 13:40:59, md5 18269c1218c387c05af87c734b4e912a, equal to X2/US_SERVICE/x2.exe (2026-11-05 13:40:52); built at main d3f055b6 + 8 uncommitted code file(s).`
+`EXESTR OK: 4 of 4 found in X2_offline.exe, 25997824 B, dated 2026-11-05 13:40:59, md5 18269c1218c387c05af87c734b4e912a` (the `init`, `lord knight open mind`, `extreme rune buster`, `sword enchant` lines).
+**Save** (backup `els_db_20261105_133049_pre_pre_ch4a.sql`): unit 26 `jtRuneSlayer` + 21409 level 4; unit 34 `InfinitySwordT` + 21414 level 3 and transcended (`settranscend 34 1`).
+**In game:** two `[JUNE_CHAR] ELSWORD PASSIVE init` lines per Elsword load; `brutal slayer`, `sword enchant`, `short time strong attack`, `lord knight open mind`,
+`infinity sword open mind`, `extreme rune buster`, `lightning step` lines when each fires.
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 

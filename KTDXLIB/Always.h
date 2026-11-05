@@ -11643,3 +11643,23 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND needs SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE, SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND ( the allow-list and picture switches it extends ), SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE and SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-05
+// Description: char-elsword CH4a - Elsword's passives: June's InitPassiveSkillState 32d1c560 whole ( June skill ids, resets, cool times, Lightning Step anim speed,
+//              Rune Mastery fireball rate at Spell Chain's level, Spell Chain's AT_SPECIAL bool = Magic Coating learned, Cutting Sword's two factors ) and its eight
+//              delegate callbacks ( Brutal Slayer hit count, Sword Enchant, Short Time Strong Attack, Lord Knight / Infinity Sword Open Mind, Extreme Rune Buster
+//              random debuffs, Harsh Slayer, Lightning Step 0.5 s ). Log [JUNE_CHAR] ELSWORD PASSIVE ( _DEBUG ). Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL ) || !defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY ) || !defined( SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TYPE ) || !defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE, _SKILL ( the Extreme Rune Buster lists ), SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY, SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF, SERV_IRUHADEV_JUNE_SKILL_TYPE and SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-05
+// Description: char-elsword CH4a - temporary [JUNE_CHAR] ELSWORD PASSIVE lines ( the init values per load, each callback's buff ). CH4a's review retires it.
+#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+//////////////////////////////////////////////////////////////////////////

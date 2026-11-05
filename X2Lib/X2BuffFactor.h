@@ -563,6 +563,12 @@ enum BUFF_TEMPLET_ID
 	BTI_BUFF_ARTILLERY_STRIKE_SCOPE       = 418,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-05 // char-elsword CH4a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	// June BTI name Lord Knight's Open Mind spells
+	BTI_BUFF_ALL_DEFENCE_INCREASE_GET_HIT = 824,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 };
 
 enum BUFF_FACTOR_ID
@@ -782,6 +788,14 @@ enum BUFF_FACTOR_ID
 //{{ Iruha : 2026-10-28 // June character Eve Phase CH4b2 (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 	BFI_BUFF_ECE_OPEN_MIND                = 877,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
+//{{ Iruha : 2026-11-05 // char-elsword CH4a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	// June BFI names Extreme Rune Buster's random debuffs spell
+	BFI_DEBUFF_HENIR_FIRE                 = 152,
+	BFI_DEBUFF_HENIR_WATER                = 153,
+	BFI_DEBUFF_POISON_SET_EQUIP_OPTION    = 168,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 };
