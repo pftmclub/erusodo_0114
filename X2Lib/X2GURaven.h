@@ -250,6 +250,14 @@ class CX2GURaven : public CX2GUUser
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 			RBM_DASH_JUMP_COMBO_X,		/// June script id 300 ( Blade Master dash-jump X; CH1e owns the state )
+			RSI_COMBO_ZZZX_FINISH,	/// June script id 170 ( the Z-Z-Z-X finish; CH1d )
+			RSI_RBM_COMBO_ZZZupZ,	/// June script id 299 ( Blade Master Z-Z-Z up-Z; CH1e owns the state )
+			RRF_COMBO_ZZZX,	/// June script id 211 ( Reckless Fist Z-Z-Z-X; CH1f owns the state )
+			RWT_COMBO_ZZZX,	/// June script id 304 ( Veteran Commander Z-Z-Z-X; CH1g owns the state )
+			RVC_DASH_COMBO_ZZ,	/// June script id 303 ( Weapon Taker / Veteran Commander dash Z-Z; CH1g2 owns the state )
+			RSI_OVER_TAKER_DASH_COMBO_ZX,	/// June script id 302 ( Over Taker dash Z-X; CH1f owns the state )
+			RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ,	/// June script id 294 ( Sword Taker / Blade Master dash-jump Z-Z; CH1e owns the state )
+			RBM_DASH_JUMP_COMBO_XZ,	/// June script id 301 ( Blade Master dash-jump X-Z; CH1e owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 
 		};
@@ -900,6 +908,12 @@ class CX2GURaven : public CX2GUUser
 		void RSI_COMBO_ZZZX_Start();
 		void RSI_COMBO_ZZZX_FrameMove();
 		void RSI_COMBO_ZZZX_EventProcess();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+		void RSI_COMBO_ZZZX_StateStartFuture();	/// June 32c25fe0
+		void RSI_COMBO_ZZZX_FINISH_StateStartFuture();	/// June 32c25ff0
+		void RSI_COMBO_ZZZX_FINISH_FrameMove();	/// June 32c26000
+		void RSI_COMBO_ZZZX_FINISH_EventProcess();	/// June 32c2abc0
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 
 		//RSI_COMBO_ZZX
 		void RSI_COMBO_ZZX_EventProcess();

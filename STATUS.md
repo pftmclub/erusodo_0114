@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-05, play-test owed** (4,825 assets in 35 koms + 2 guide Lua copied, 6 walk units 72-77; user walks Raven per tier, then `check logs`) | Sonnet 5.5 / high, user play-test | CH0 (done) | koms, save | `CH0b.md` |
-| CH1d | **ready** (`/x2-phase char-raven CH1d` on Sonnet 5.5 / high): Raven ground combos, 38 fns (34 inside, 4 new) | Sonnet 5.5 / high, Opus review | CH1c review (done) | `X2GURaven.*` | `CH1d.md` |
+| CH1d | **done 2026-11-05, review next** (`/x2-phase char-raven CH1d review` on Opus 5.5 / high): ground combos = 34 `inside` + 4 `new` fns, 8 state-enum members, `_LIVE` off | Sonnet 5.5 / high, Opus review | CH1c review (done) | `X2GURaven.*`, Always.h | `CH1d-review.md` |
 | CH1e | blocked (CH1d review): Sword Taker + Blade Master lines | Sonnet 5.5 / high, Opus review | CH1d review | `X2GURaven.*` | `CH1e.md` |
 | CH1f | blocked (CH1e review): Over Taker + Reckless Fist lines | Sonnet 5.5 / high, Opus review | CH1e review | `X2GURaven.*` | `CH1f.md` |
 | CH1g | blocked (CH1f review): Weapon Taker line | Sonnet 5.5 / high, Opus review | CH1f review | `X2GURaven.*` | `CH1g.md` |

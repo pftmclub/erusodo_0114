@@ -90,3 +90,5 @@ offset	kind	name	note
 0x97d4	field	m_eRavenCurrentStage	Raven; RBM_COMBO_ZZZXZ ( June id 0xd8 ) is reset to RSI_BASE ( June id 0x99 ) by Wait / Walk / DashEnd Start ( CH1a )
 0x95a0	field	m_fEmergencyEscapeElapsedTime	Raven; June KProtectedType<float> ( +0x95a4 / +0x95a8 ), March-side plain float; ctor -1.0 (CH1k), CommonFrameMove 32c42f90 adds the frame time while <= cool time (CH1j), Emergency Escape zeroes it ( CH1b )
 0x95ac	field	m_fEmergencyEscapeCoolTime	Raven; June KProtectedType<float> ( +0x95b0 / +0x95b4 ); ctor -1.0 (CH1k), InitPassiveSkillState 32c57660 @32c57c03 sets it from SA 0x94 of RNSI_P_RBM_EMERGENCY_ESCAPE (CH4a); Emergency Escape returns while it is above +0x95a0 ( CH1b )
+0x9634	field	m_iSuccessiveHit_OneZ	Raven (March member, plain int; offset by counting the handles after m_bZZZX); RSI_COMBO_XX EventProcess zeroes it before Sword Taker X-X-Z ( CH1d )
+0x9750	field	m_fDamageDataChangeTime	Raven (March member); RSI_DASH_COMBO_X FrameMove 32c5c230 reads it as the one-shot time of DAMAGE_DATA_NEXT ( CH1d )

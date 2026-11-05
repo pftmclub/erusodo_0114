@@ -544,6 +544,40 @@ line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag toke
 `junediverge.py --check-all`: `RESULT: PASS` (185 allow-listed). `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows. No build: the review changed no code.
 CH1d kickoff checked: present, CH0 amendment lists its 38 functions (34 inside, 4 new) and 20 states. Nothing to play-test. Next: `/x2-phase char-raven CH1d` (Sonnet 5.5 high).
 
+### CH1d - Done (2026-11-05)
+
+All 38 class-map rows of phase CH1d are written. 34 are `inside`: June's body in March's own `CX2GURaven` function under `SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`, March's in `#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`. 4 are `new` (`_CORE`, compiled, referenced by nothing): `32c25fe0` `RSI_COMBO_ZZZX_StateStartFuture`, `32c25ff0` `RSI_COMBO_ZZZX_FINISH_StateStartFuture`, `32c26000` `RSI_COMBO_ZZZX_FINISH_FrameMove`, `32c2abc0` `RSI_COMBO_ZZZX_FINISH_EventProcess`. `_LIVE` stays `//#define`. 38 funcmap rows `Char Raven CH1d`; 2 rows added to `ch1_offsets.tsv` (`+0x9634` `m_iSuccessiveHit_OneZ`, `+0x9750` `m_fDamageDataChangeTime`).
+
+| June | `CX2GURaven::` | June | `CX2GURaven::` |
+|---|---|---|---|
+| `32c297a0` `32c29bb0` `32c29fd0` `32c2a550` `32c2a880` | `RSI_COMBO_Z` / `ZZ` / `ZZZ` / `ZZZZ` / `ZZZX` EventProcess | `32c2aef0` `32c2b360` `32c2b6f0` `32c2bbb0` `32c2c070` | `ZZX` / `ZZXX` / `X` / `XX` / `XXX` EventProcess |
+| `32c3d800` `32c3d880` | `ZZZZ` / `ZZXX` FrameMoveFuture | `32c44f90` `32c45260` | `ZZZX` / `XXX` FrameMove |
+| `32c2c370` `32c2c810` `32c2d450` `32c5c230` | `RSI_DASH_COMBO_Z` / `ZZ` / `X` EventProcess, `X` FrameMove | `32c2d750` `32c26010` `32c2d860` `32c2d8b0` | `RSI_DASH_JUMP_COMBO_Z` EventProcess, `ZZ` StateStart / FrameMoveFuture / EventProcess |
+| `32c26020` `32c45f80` | `ZZ_Landing` StartFuture / EventProcess | `32c26050` `32c26070` `32c2d8e0` `32c46170` `32c2d930` | `RSI_DASH_JUMP_COMBO_X` Init / Start / FrameMoveFuture / FrameMove / EventProcess |
+| `32c3d8f0` `32c2da40` | `RSI_JUMP_COMBO_Z` FrameMoveFuture / EventProcess | `32c26090` `32c3d980` `32c2da80` | `RSI_JUMP_COMBO_X` StateStart / FrameMoveFuture / EventProcess |
+
+**Where June differs from March** (read from `charport_adis.py raven --phase CH1d`; everything not listed is March's logic written out whole):
+- **The cancel chain** replaces every `ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_*` branch: `SKILL_CANCEL_AFTER( m_fSkillCancelAfter )`, then back-walk `+0x8c94`, walk `+0x8c98`, dash `+0x8c9c` and the pure Z / X cancel `+0x8c8c`, each also needing the foot on a line (`RAVEN_GROUND_*` macros, like Elsword's). **`RSI_COMBO_Z` is the odd one**: Z / X first, then the three walk cancels with no foot test, each setting `m_fCanNotAttackTime = 0.1f` before `StateChange`.
+- **Z-Z-Z (`32c29fd0`)** stores only `m_bReAttackZ1Right` (no `m_fReAttackZ1Time`); classes come from the unit data (`+0x38`). Blade Master (106) with flag 2 goes to `RSI_RBM_COMBO_ZZZupZ` at 0.333 s; flag 0 to Z-Z-Z-Z (`<=`); flag 1 (`<`) to `RWT_COMBO_ZZZX` (115, front key) / `RSI_WEAPON_TAKER_COMBO_ZZZdownX` (115) / `RRF_COMBO_ZZZX` (107) / `RSI_COMBO_ZZZX`. The input window is 0.166 - 0.59 s; up + Z sets flag 2 for classes 16 and 106 (**`JUNE_BUGS` #536**: only 106 consumes it).
+- **Z-Z-Z-X** ends in the new `RSI_COMBO_ZZZX_FINISH` (the finish state's fall is `LINE_RADIUS`, not 1.5 x). Its FrameMove (`32c44f90`) lost the hand-held damage checks: at 0.49 s `FlushMp( 3.0f )` plays `EffectSet_A_RF_ZZZX`, else the March particle. `32c45260` (X-X-X) the same at 0.16 s with `EffectSet_A_RF_XXX`.
+- **Z-Z-X** (templet class 107, front key) goes to `RRF_COMBO_ZZXFRONTX`; **Z-Z-X-X** has the up / down cancel (`m_fUpDownCancelAfter`) before the skill cancel (checklist §7h `32c2b360`).
+- **X** (`32c2b6f0`): Sword Taker / Blade Master (templet class 16 / 106) set flag 1 below 0.48 s and take `RBM_COMBO_XZ` at 0.48 s or the animation end. **X-X** (`32c2bbb0`): Over Taker (17) / Reckless Fist (107) send **down to `RSI_OVER_TAKER_COMBO_XXdownX` and front to `XXfrontX`** (March had them the other way round); 16 / 106 take `RSI_SOUL_TAKER_COMBO_XXZ` (zeroing `m_iSuccessiveHit_OneZ`).
+- **Dash combo Z** (`32c2c370`): class 25 / 115 go to `RVC_DASH_COMBO_ZZ`; `m_fEventTime[0]` carries Over Taker / Reckless Fist X to `RSI_OVER_TAKER_DASH_COMBO_ZX`; the animation end tests the foot. **Dash combo ZZ / X** test the animation end first. **Dash-jump Z** (`32c2d750`): 16 / 106 own `RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ`; 25 / 115 share the Z-X follow-up. **Dash-jump X EventProcess** (`32c2d930`): `m_fEventTime[0]` carries Blade Master Z to `RBM_DASH_JUMP_COMBO_XZ`.
+- **Dash-jump X FrameMove** (`32c46170`): the damage effect position drops 10 along **z** where March drops y (**`JUNE_BUGS` #537**).
+- **= March after the macros:** Landing StartFuture / EventProcess (`GetMaxAnimationTime() / 3`), dash combo X FrameMove (`BALANCE_BLADE_MASTER_20130117` branch, `m_itNowStateData->first`), the four FrameMoveFuture, the Jump combo Z / X, Init / Start, dash-jump Z-Z. 3 thunks (`32c26000` and the two StartFuture).
+- Registered under `_CORE` (appended without `= value`, CH1m maps June's ids): `RSI_COMBO_ZZZX_FINISH` 170, `RSI_RBM_COMBO_ZZZupZ` 299, `RRF_COMBO_ZZZX` 211, `RWT_COMBO_ZZZX` 304, `RVC_DASH_COMBO_ZZ` 303, `RSI_OVER_TAKER_DASH_COMBO_ZX` 302, `RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ` 294, `RBM_DASH_JUMP_COMBO_XZ` 301. Compile-time asserts: `UC_RAVEN_*` 16 / 17 / 25 / 106 / 107 / 115, `AT_UNIT == 0`, `AT_MANUAL_COLLISION_DATA == 3`: 0 errors. CH1e / f / g / g2 / m kickoffs carry the amendment.
+- File-local: `_CONST_RAVEN_CH1D_` (`IsDataClass`, `IsTempletClass`) and the `RAVEN_*` macros, under `_CORE` (the new finish function uses them). `Always.h`: `_LIVE needs SERV_IRUHADEV_JUNE_UPDOWN_CANCEL`.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE --with ..._CORE --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). OTHER = `X2GURaven.h`, `flagcheck ..._CORE` on it: `RESULT: PASS`. `git diff --patience --numstat`: `.cpp` 973 / 0, `.h` 14 / 0, `Always.h` 3 / 0.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): `X2GURaven.cpp` exit 0, 0 errors with `_LIVE` off and with `-DSERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`; `cl /P` on: `EffectSet_A_RF_XXX` 0 lines off / 1 on, `RSI_RBM_COMBO_ZZZupZ` 1 / 2.
+- `junediverge.py --check X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,998,336 B, dated 2026-11-05 22:30:32, md5 61f41754fd6573503b9a6114ae29cec6, equal to X2/US_SERVICE/x2.exe (2026-11-05 22:30:25); built at main 026f87aa + 3 uncommitted code file(s).` `BUILD OK` 25,998,336 B. No `exestr` line: `_LIVE` is off and no string was added to a live path.
+
+**Routed.** CH1m: register the four new functions and the eight enum members; March's `RSI_COMBO_ZZZX_Start` / `m_bZZZX` are not June's. CH1 final play-test: June's Z-Z-Z no longer sets `m_fReAttackZ1Time` (March set 0.2 s there), so the Wait / Walk Z gate (CH1a) is not re-armed after a Z-Z-Z; check the Z re-attack after a full combo.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-raven CH1d review` (Opus 5.5 high), then CH1e.
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

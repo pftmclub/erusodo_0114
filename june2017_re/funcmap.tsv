@@ -7972,3 +7972,41 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c52480	CX2GURaven::ClearArcEnemyData	PORTED	Char Raven CH1b: CH0 row new ?; = March ClearArcEnemyData (ArcEnemyData dtor inlined: DestroyInstanceHandle if handle != -1, delete); nothing written, Die Front / Back Start call it
 32c4f350	CX2GURaven::CommonHyperModeFrameMove	PORTED	Char Raven CH1c: inside (CH0 row new ?: March has it, MODIFY_RIDING_PET_AWAKE); March + awakening stand-ins ( 32011d20 / 31fd66b0 / 32011f50 ), the trace only without the set, skill 24419 ( RNSI_P_RRF_OPEN_MIND ) learned -> SetSkillBuffFactors( 24419, 0, true ) ( 31fcac90 ) after ApplyHyperModeBuff, two independent timers, no sound in timer 1; _LIVE
 32c511a0	CX2GURaven::RidingHyperModeFrameMove	PORTED	Char Raven CH1c: inside; CommonHyperModeFrameMove( 0.f, 0.1f, true ) = 32c4f350 = March; _LIVE
+32c297a0	CX2GURaven::RSI_COMBO_Z_EventProcess	PORTED	Char Raven CH1d: inside; the walk, back-walk and dash cancels need no foot on a line and set the cool time; no skip-point branch; _LIVE
+32c29bb0	CX2GURaven::RSI_COMBO_ZZ_EventProcess	PORTED	Char Raven CH1d: inside; June's cancel chain, then the Z / X follow-ups at 0.39 s; _LIVE
+32c29fd0	CX2GURaven::RSI_COMBO_ZZZ_EventProcess	PORTED	Char Raven CH1d: inside; re-attack side only ( no time ); Blade Master up-Z, Veteran Commander and Reckless Fist branches; follow-up window 0.166 - 0.59 s; _LIVE
+32c3d800	CX2GURaven::RSI_COMBO_ZZZZ_FrameMoveFuture	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c2a550	CX2GURaven::RSI_COMBO_ZZZZ_EventProcess	PORTED	Char Raven CH1d: inside; the cancel chain replaces the skip-point branch; _LIVE
+32c44f90	CX2GURaven::RSI_COMBO_ZZZX_FrameMove	PORTED	Char Raven CH1d: inside; the hand-held damage checks are gone; with 3 mana the effect set EffectSet_A_RF_ZZZX plays at 0.49 s; _LIVE
+32c2a880	CX2GURaven::RSI_COMBO_ZZZX_EventProcess	PORTED	Char Raven CH1d: inside; the cancel chain; the animation end goes to the new finish state; _LIVE
+32c2aef0	CX2GURaven::RSI_COMBO_ZZX_EventProcess	PORTED	Char Raven CH1d: inside; Reckless Fist front X ( templet class ); no skip-point branch; _LIVE
+32c3d880	CX2GURaven::RSI_COMBO_ZZXX_FrameMoveFuture	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c2b360	CX2GURaven::RSI_COMBO_ZZXX_EventProcess	PORTED	Char Raven CH1d: inside; the up / down cancel ( m_fUpDownCancelAfter ) comes before the skill cancel; _LIVE
+32c2b6f0	CX2GURaven::RSI_COMBO_X_EventProcess	PORTED	Char Raven CH1d: inside; Sword Taker and Blade Master take X-Z at 0.48 s ( templet class ); no skip-point branch; _LIVE
+32c2bbb0	CX2GURaven::RSI_COMBO_XX_EventProcess	PORTED	Char Raven CH1d: inside; Over Taker / Reckless Fist: down X and front X are swapped against March; Sword Taker / Blade Master X-X-Z; follow-up window up to 0.55 s; _LIVE
+32c45260	CX2GURaven::RSI_COMBO_XXX_FrameMove	PORTED	Char Raven CH1d: inside; 3 mana plays the effect set EffectSet_A_RF_XXX at 0.16 s; _LIVE
+32c2c070	CX2GURaven::RSI_COMBO_XXX_EventProcess	PORTED	Char Raven CH1d: inside; the animation end is tested first; the cancel chain replaces the skip-point branch; _LIVE
+32c2c370	CX2GURaven::RSI_DASH_COMBO_Z_EventProcess	PORTED	Char Raven CH1d: inside; Weapon Taker / Veteran Commander take their own second hit; Over Taker / Reckless Fist X ( event time 0 ); the animation end tests the foot; _LIVE
+32c2c810	CX2GURaven::RSI_DASH_COMBO_ZZ_EventProcess	PORTED	Char Raven CH1d: inside; the animation end is tested first ( foot: wait, else fall ); the cancel chain replaces the skip-point branch; _LIVE
+32c5c230	CX2GURaven::RSI_DASH_COMBO_X_FrameMove	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c2d450	CX2GURaven::RSI_DASH_COMBO_X_EventProcess	PORTED	Char Raven CH1d: inside; the animation end is tested first; the cancel chain replaces the skip-point branch; _LIVE
+32c2d750	CX2GURaven::RSI_DASH_JUMP_COMBO_Z_EventProcess	PORTED	Char Raven CH1d: inside; Sword Taker / Blade Master take their own second hit; Weapon Taker and Veteran Commander share the Z-X follow-up; _LIVE
+32c26010	CX2GURaven::RSI_DASH_JUMP_COMBO_ZZ_StateStart	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c2d860	CX2GURaven::RSI_DASH_JUMP_COMBO_ZZ_FrameMoveFuture	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c2d8b0	CX2GURaven::RSI_DASH_JUMP_COMBO_ZZ_EventProcess	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c26020	CX2GURaven::RSI_DASH_JUMP_COMBO_ZZ_Landing_StartFuture	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c45f80	CX2GURaven::RSI_DASH_JUMP_COMBO_ZZ_Landing_EventProcess	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c26050	CX2GURaven::RSI_DASH_JUMP_COMBO_X_Init	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c26070	CX2GURaven::RSI_DASH_JUMP_COMBO_X_Start	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c2d8e0	CX2GURaven::RSI_DASH_JUMP_COMBO_X_FrameMoveFuture	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c46170	CX2GURaven::RSI_DASH_JUMP_COMBO_X_FrameMove	PORTED	Char Raven CH1d: inside; the effect position drops 10 along z where March drops it along y ( JUNE_BUGS ); _LIVE
+32c2d930	CX2GURaven::RSI_DASH_JUMP_COMBO_X_EventProcess	PORTED	Char Raven CH1d: inside; Blade Master dash-jump X-Z follow-up ( event time 0 ); _LIVE
+32c3d8f0	CX2GURaven::RSI_JUMP_COMBO_Z_FrameMoveFuture	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c2da40	CX2GURaven::RSI_JUMP_COMBO_Z_EventProcess	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c26090	CX2GURaven::RSI_JUMP_COMBO_X_StateStart	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c3d980	CX2GURaven::RSI_JUMP_COMBO_X_FrameMoveFuture	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c2da80	CX2GURaven::RSI_JUMP_COMBO_X_EventProcess	PORTED	Char Raven CH1d: inside; = March after the macros; _LIVE
+32c25fe0	CX2GURaven::RSI_COMBO_ZZZX_StateStartFuture	PORTED	Char Raven CH1d: new; CommonStateStartFuture(); _CORE, referenced by nothing (CH1m registers)
+32c25ff0	CX2GURaven::RSI_COMBO_ZZZX_FINISH_StateStartFuture	PORTED	Char Raven CH1d: new; CommonStateStartFuture(); _CORE, referenced by nothing (CH1m registers)
+32c26000	CX2GURaven::RSI_COMBO_ZZZX_FINISH_FrameMove	PORTED	Char Raven CH1d: new; CommonFrameMove(); _CORE, referenced by nothing (CH1m registers)
+32c2abc0	CX2GURaven::RSI_COMBO_ZZZX_FINISH_EventProcess	PORTED	Char Raven CH1d: new; cancel chain, the jump-down fall is LINE_RADIUS * 1.0 (30.0), the animation end is the last else-if -> WAIT; _CORE, referenced by nothing (CH1m registers)
