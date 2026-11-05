@@ -1,0 +1,46 @@
+# June character Raven (Stage 7) - Phase CH4c - Veteran Commander overheat and memo readers
+
+| | |
+|---|---|
+| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-raven CH4c` |
+| Plan doc | `JUNE_CHARACTER_RAVEN_PHASES.md` (branch `main`) |
+| Depends on | CH3c review and CH4b review. One at a time: `X2GURaven.*` |
+| Flag | `SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE` (+ `_DEBUG`) |
+| Log tag | `[JUNE_CHAR]` (`RAVEN PASSIVE`) |
+| Review | `kickoffs/char-raven/CH4c-review.md` (Opus 5.5 high; the phase writes it when done) |
+
+## Read first (and nothing else from the plan doc unless you need it)
+
+```sh
+python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md --no-sub "Rules" "Starting context" "Phase CH4 - Passives and class mechanics"
+python tools/docsection.py JUNE_CHARACTER_ELSWORD_PHASES.md "CH4c - Done" "CH4c - Review"
+```
+Then the Raven lines of the checklist rows named below (`june2017_re/char_raven/plan_checklist_rows.md` gives the line numbers), the
+`CH4c` rows of `ch0_*.tsv`, and Elsword's matching CH4 Done note as the worked example.
+
+## Task
+
+Veteran Commander overheat from `ch0_overheat.tsv`, as June: the mode passive (`SI_P_RVC_OVERHEAT_MODE`'s June id), `CreateOverHeatObject`
+(`X2GURaven.cpp:21337`), the `SA_OVERHEAT_HP` readers, `X2Game.cpp`'s VC slot texture / Shadow Step reads (`:14374-14442`, `:14949-14959`), the
+35-member extra-damage pack (`X2GameUnit.h:8-42`); the pieces CH1g2 / CH3c did not take. `MemoConditionRaven` (vtable `33511404`, ctor
+`32c3c780`) and the memo readers. The Specialization B readers `32c49410` / `32c507da` unless CH1q took them (7an).
+
+June's whole bodies, June quirks verbatim with `JUNE_BUGS.md` rows. You are on Opus: delegate the reads, greps and known-address Ghidra dumps (x2-phase, *When the phase is Opus*). CP949 files through
+`bytepatch.py`; `cl /P` each `#ifdef` you edit. Mark rows `(Raven: CH4c)`. Done gate: each item's effect visible in
+game or in a named log line.
+
+No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): an id that has a name in an Enum (June's
+`Enum.lua`, or a C++ enum) is never written as a number, in any new or touched code: use the member, and
+register it under a `SERV_IRUHADEV_` flag with June's value and name if C++ lacks it. A value with no Enum
+entry stays a number with a one-line comment. The one exception is a table whose rows are the data itself
+(a `.tsv` of ids), not code.
+
+No `June` prefix (user, 2026-10-28; CLAUDE.md): June's body goes inside March's own function under the flag,
+March's in `#else`. A function March lacks gets a name in the class's own pattern, never with `June` in it.
+Every name (locals and constants too) says what it is in context: no Ghidra address, phase tag or `June` in an identifier.
+Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
+Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
+
+## Amended by CH0
+
+(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)

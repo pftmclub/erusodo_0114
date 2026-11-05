@@ -1,0 +1,23 @@
+script: june_src_fixed/data036_kom/RAVEN_FIGHTER.src.lua
+top-level tables: 352 (INIT_*: 6)   distinct keys: 251   key occurrences: 9350
+verdicts: june-only=10  neither=6  march-only-site=6  both=229
+june-only keys (a port item):
+  BBT_CHANGE_NOW_HP_PER_SECOND             x6     damage-data            june=plain readers=none census=implemented/unassigned
+  BBT_DASH_IMPOSSIBLE                      x1     damage-data            june=plain readers=none census=implemented/unassigned
+  BBT_FROZEN                               x1     damage-data            june=plain readers=none census=implemented/unassigned
+  BBT_NEVER_MOVE                           x1     damage-data            june=plain readers=none census=implemented/unassigned
+  BBT_STUN                                 x3     damage-data            june=plain readers=none census=implemented/unassigned
+  BFT_HITTED_COUNT                         x3     damage-data            june=plain readers=none census=implemented/unassigned
+  BFT_TIME                                 x10    damage-data            june=plain readers=none census=implemented/unassigned
+  FORCE_DYNAMIC_CAMERA_INDEX               x15    state                  june=xor readers=32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+  IMMUNITY_EDT_LIST_AT_THIS_STATE          x5     state                  june=plain readers=none 
+  RETAIN_CAMERA_STATE                      x1     state                  june=xor readers=32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+neither (no reader found on either side):
+  ANUM_SPEED                               x1     state
+  HEAD_IK                                  x8     state
+  HEAD_IK_MAX_ANGLE                        x1     INIT_COMPONENT
+  STOP_RESERVE_TIME_ATT                    x1     damage-data
+  STOP_RESERVE_TIME_DEF                    x1     damage-data
+  STOP_TIME_ATK                            x8     damage-data
+note: March sites are grep-based literals; confirm the #ifdef branch with cl /P in the port phase.
+wrote char_raven/plan_charport_keys.tsv

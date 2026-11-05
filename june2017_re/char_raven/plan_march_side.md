@@ -1,0 +1,70 @@
+# Raven March-side facts (read-only survey, 2026-11-05)
+
+Paths relative to Trunk. KOM = `F:/elsword stuff/elsword_2014/els_2014/237311/24965799/kom_contents/`.
+Flag state method: uncommented line-start `#define` in `KTDXLIB/Always.h`, `KncWX2Server/Common/ServerDefine.h`, `KTDXLIB/*.h` (InHouse*, KTDX.h), `X2Lib/*.h`; no `cl /EP` probe run (nested #if not resolved).
+
+## 1. Class source
+- `X2Lib/X2GURaven.cpp` 23343 lines, non-UTF-8 (CP949), line endings MIXED: 1308 CRLF + 22034 bare-LF, 0 bare CR (bytepatch.py only). `X2Lib/X2GURaven.h` 1847 lines, CP949, 49 CRLF + 1797 LF, 0 CR. Class `CX2GURaven : public CX2GUUser` (.h:3).
+- Script `RAVEN_FIGHTER.LUA` (`X2UnitManager.cpp:413`); class-name map `X2UnitManager.cpp:171/179/180/189/190` has FIGHTER, SOUL_TAKER, OVER_TAKER, BLADE_MASTER, RECKLESS_FIST only (no WEAPON_TAKER / VETERAN_COMMANDER row). Square scripts named `X2SquareUnit.cpp:4186-4243`: `SQUARE_Raven_NasodHunter / SoulTaker / OverTaker / WeaponTaker / BladeMaster / Raven_RecklessFist (sic) / VeteranCommander .lua`.
+- .h: `RAVEN_STATE_ID` enum :6 (`RSI_BASE = USI_END + 1` :8; last member `RSI_A_RBM_SONIC_SLASH_FINISH` :248, no `RSI_END`; 96 lines starting `RSI_`, flag-guarded ones included; Veteran Commander members use `RVC_SI_*`, e.g. :190); `RAVEN_MAJOR_PARTICLE_INSTANCE_ID` :253 (GIGA_DRIVE_WIND_FIRST/SECOND/THIRD, `RAVEN_MAJOR_PII_END` :258); `RAVEN_MINOR_PARTICLE_INSTANCE_ID` :261 (`RAVEN_MINOR_PII_BASE`, `_END` :264). Major array init .cpp:4972, minor :5054; delete :4948/:4960.
+
+## 2. UNIT_TYPE / UNIT_CLASS (`X2Lib/X2Unit.h`)
+- `UT_RAVEN` = 4 (UT_NONE 0, ELSWORD 1, ARME 2, LIRE 3, RAVEN 4; :22-27).
+- UC_RAVEN_FIGHTER 4 (:51, base, unconditional); UC_RAVEN_SOUL_TAKER 16, UC_RAVEN_OVER_TAKER 17 (after `UC_ELSWORD_KNIGHT = 10`, unconditional).
+- UC_RAVEN_WEAPON_TAKER = 25 (explicit, `#ifdef RAVEN_WEAPON_TAKER`, live Always.h:3329).
+- UC_RAVEN_BLADE_MASTER 106, UC_RAVEN_RECKLESS_FIST 107 (after `UC_ELSWORD_LORD_KNIGHT = 100`, unconditional; RAVEN_SECOND_CLASS_CHANGE is live but does not guard them).
+- UC_RAVEN_VETERAN_COMMANDER 115 (`#ifdef SERV_RAVEN_VETERAN_COMMANDER` :129-131, live ServerDefine.h:3543; after IRON_PALADIN 110, DEADLY_CHASER 111, INFINITY_SWORD 112, DIMENSION_WITCH 113, NIGHT_WATCHER 114, all live).
+- Positional counts agree with the `// N` comments for all seven (no off-by-one found).
+- Class-change chains: `X2Unit.h:1820-1833` (VC stuff-class check: FIGHTER / WEAPON_TAKER / VC), :2444-2446 (first-class -> WEAPON_TAKER, second -> VETERAN_COMMANDER).
+
+## 3. Key locations in X2GURaven.cpp
+- FoolsDay cut-in :57 (`HQ_CutIn_Raven_Gura.dds`, SERV_APRIL_FOOLS_DAY); `s_SkillCutInSet[]` :61-94 (see 7). `_CONST_` namespace: not found.
+- ctor :101-304 (:117/:120 ShadowStepThrustEnhance / Punisher init 1.f; :187 `m_fAttackPowerRateShadowStepThrust = 1.f`; :264 `m_fShadowBusterPowerRate = 0.5f`); dtor :306-389; AppendDeviceToDeviceList :393; ReInit :399-425 (`syncData.m_CannonBallCount = GetNasodBall()` :420); DamageReact :427 (runs to about :549; Win :551, Lose :565, Draw :583; inner brace at :469); ParseCommonRandomState :599.
+- InitState :663-1101 (cut-in switch :669-693 sets `m_iSkillCutInSetIndex` 0/1/2/3; second switch :696 sets `m_iSkillCutInSetSubIndex`, SOUL_TAKER = 1 ...); InitStateID :1103; InitStateCommon :1117-1915 (about 800 lines); InitStateSwordTaker :1917; InitStateOverTaker :1971; InitStateWeaponTaker :2037.
+- InitPassiveSkillState :2114-2641 (`m_fAttackPowerRateShadowStepThrust` reset :2120, `*=` :2138/:2159; ThrustEnhance :2188/:2208; Punisher reset :2232, `*=` :2248; `m_fShadowBusterPowerRate =` :2566/:2568, the pair split by UPGRADE_SKILL_SYSTEM_2013).
+- SetEquippedSkillFuncBySkillSlotIndex :2645-4150. Signature `( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ )` (already the slot + SlotB model). 63 textual `case CX2SkillTree::SI_*` labels; first `SI_ETC_WS_COMMON_LOVE` :2693, last `SI_HA_RVC_BURNING_BUSTER` :4138.
+- SetEquippedSkillLevel :4154 (`( eSkillID_, bChangeAll_ )`, ends before :4886); AppendComponentToDeviceList :4886; InitComponent :4891-4916; InitEffect :4928; InitEnchantWeaponEffectUnitSpecific :4939.
+- CommonStateStartFuture :5093; CommonStateStart :5099; CommonFrameMoveFuture :5135 (`m_CannonBallCount` write :5149); CommonFrameMove :5153-5501; CommonRender_Prepare :5533.
+- SpecialAttackEventProcess :5574-5896 (`( ASUT_ONLY_ON_LINE )`). Own pressed-index decode: `iPressedSkillSlotIndex` :5586; `CountUsedSkill( iPressedSkillSlotIndex )` :5780; `> 3` / `-4` decode :5854-5871 (normal :5854-5860, hyper :5865-5871, SlotB arrays `[idx-4]`); `m_eSpecialAttackKeyPressed = (SPECIAL_ATTACK_KEY_PRESSED)( idx + 1 )` :5876 (Elsword's file has none); `m_iNowSpecialAttack = idx + 1` :5878. `GetSkillSlotIndexUsed` only at :10842 (inside a state, not the decode). SpecialAttackNoStageChange :5901.
+- NoStateChangeActionFrameMove :5912; HyperModeFrameMove :6772-6808.
+- SetEquippedSkillLevelStateData :23014; **SetSkillLevelStateData :23019-23214** (checklist said :22987; actual :23019). SetInvisibility :23215.
+- Shadow Step power-rate users: Thrust `m_fNowStatePowerRate` :14727-14734; Buster :20903-20905; ThrustEnhance :22908-22910; Punisher :22949-22956. SetShadowStepAttackSkill :20945; InitShadowStep :21035.
+- Other class functions: ClearArcEnemyData :13621, Init :13634, DoHyper :13658, ClearNasodBall :13662, CreateNasodBall :13686, CanParryingState :13827, DoParrying :13857, RestoreNasodBall :13909, AttackResultByType :13979, ChangePowerRateNasodBall :14090, AttackNasodBall :14132, DoFrameMoveNasodBall :14210, AddRageGuage :14440; CreateOverHeatObject :21337; DeleteOverHeatObject :21396; ShowActiveSkillCutInAndLight :21434; CheckAndDoReversalSoldier :21454; CheckAndDoServivalTechniqueOfMercenary :21493.
+
+## 4. Feature flags (distinct; count = #ifdef/#ifndef in .cpp / .h)
+Live (uncommented define found): UPGRADE_SKILL_SYSTEM_2013 95 (+5 ifndef)/6 (Always.h:1643); X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE 209/0 (KTDX.h:342); SERV_RAVEN_VETERAN_COMMANDER 50 (+3 ifndef)/8 (ServerDefine.h:3543; commented InHouse3.h:424); X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE 42 (+4)/3 (KTDX.h:328); BALANCE_BLADE_MASTER_20130117 26 (+2)/7 (Always.h:2082); RAVEN_SECOND_CLASS_CHANGE 26/4 (Always.h:3105); RAVEN_WEAPON_TAKER 22 (+1)/4 (Always.h:3329; commented InHouseEtc.h:25); SERV_SKILL_NOTE 21/1 (ServerDefine.h:222); ADD_MEMO_1ST_CLASS 20 (+2) (Always.h:554); BALANCE_PATCH_20131107 15 (+1) (Always.h:657); SKILL_CANCEL_BY_HYPER_MODE 15 (Always.h:103); RIDING_SYSTEM 12 (Always.h:1847); UPGRADE_RAVEN 12/5 (Always.h:3242); NEW_SKILL_2010_11 11 (+1)/7 (Always.h:2553); X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD 11/6 (KTDX.h:258); VERIFY_STAT_BY_BUFF 9 (Always.h:3378); FINALITY_SKILL_SYSTEM 8/3 (Always.h:1434); FIX_AFTER_IMAGE 1 (+8 ifndef)/(+1) (Always.h:2352); ADDITIONAL_MEMO 5 (Always.h:3257); BALANCE_PATCH_20110303 6/1; BALANCE_PATCH_20120329 3/1; PVP_SEASON2 3; MODIFY_RIDING_PET_AWAKE 3/1; WALL_JUMP_TEST 3; SKILL_30_TEST 3/2 (Always.h:2881); SKILL_CASH_10_TEST 2/1; HYPER_MODE_FIX 2; SPECIAL_USE_ITEM 2; SERV_PET_SYSTEM 2 (ServerDefine.h:460); NEW_SKILL_TREE 2 (+1 ifndef in .h) (Always.h:3022); BALANCE_ELEMENTAL_MASTER_20130117 2; X2OPTIMIZE_USER_DAMAGEEFFECT_SHOW_BY_GAMEOPTION 2; ADDED_RELATIONSHIP_SYSTEM, CONVERSION_VS, DIALOG_SHOW_TOGGLE, DUNGEON_ITEM, DUNGEON_RANK_NEW, SKILL_BALANCE_PATCH, X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION 1 each; X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR 0 (+1 ifndef)/4 (KTDX.h:340); UNIT_SLASH_TRACE_MANAGER_TEST 2 (Always.h:2857); SKILL_FOR_CANCEL 2/1 (only `InHouse2.h:9`, possibly nested under an in-house guard: needs cl /EP).
+No live define found (dead): RAVEN_LIMIT_AIR_COMBO 5/2 (commented InHouse3.h:415), OLD_HAND_SLASH_TRACE 3/1 (commented InHouseEtc.h:272), BOUNDING_COMBO_TEST 2 (commented InHouseEtc.h:76), TRANSFORMER_TEST 2 (commented InHouseEtc.h:44), SERV_APRIL_FOOLS_DAY 2 (commented ServerDefine.h:3170), ALWAYS_SCREEN_SHOT_TEST 10, SERV_BALANCE_FINALITY_SKILL_EVENT 4, SERV_SKILL_USE_SUBQUEST 1, TOGGLE_UNLIMITED_SKILL_USE 1; `_SERVICE_` (#ifndef) and `_IN_HOUSE_` (1) are compiler-level.
+- Existing SERV_IRUHADEV_ flags in the .cpp: JUNE_BUFF_NEW_SKILL 2, JUNE_BUFF_QUICKSLOT_ITEM 1, JUNE_BUFF_RIDING_KEY_WAIT 1, JUNE_RANDOM_MISSION 1, JUNE_SKILL_STATE_PTR 7 (pairs). None in the .h.
+- Dormant 2014 Raven flag: none found (only RAVEN_LIMIT_AIR_COMBO above is dead). Weapon Taker, Blade Master, Reckless Fist and Veteran Commander are all live.
+
+## 5. Class mechanics living outside the class
+- Nasod core / rage gauge: `m_fRageGauge` (KProtectedType<float>) X2GURaven.h:1679, `m_iNaosdBallLv` :1677, `m_bAttackNasodBall` :1674, `m_bDelayAttackNasodBall` :1675, getters :458-479. Rage fill from damage taken during hyper: `X2GUUser.cpp:12000-12011` (`fRage = fFinalDamage / fMaxHp * 500.f`, under UPGRADE_RAVEN). Nasod-ball guard/parry hooks `X2GUUser.cpp:10262-10265, :37195`; dev text overlay :29603-29610; sound `Raven_NasodCore_Guard.ogg` :10784. `DTT_RAVEN_RAGE_ATTACK` `X2DamageManager.h:36` (UPGRADE_RAVEN), used X2GURaven.cpp:14009.
+- Sync: the Nasod ball level rides `syncData.m_CannonBallCount` (X2GURaven.cpp:420, :5149, :13653; read :14276); no Raven-specific syncData field.
+- Left arm item: `m_RavenLeftArmItemID` (`X2Unit.h:349`, read `X2UnitManager.cpp:868`, used `X2BeginningGame.cpp:974`, `X2StateCreateUnit.cpp:3011`, `X2UnitViewerUI.cpp:3579`); `EP_RAVEN_LEFT_ARM` in `X2ItemManager.cpp:1768, :1891`; arm hiding `X2GUUser.cpp:41738-41760` (`bRavenLeftArmHidden`).
+- Overheat (Veteran Commander): `SI_P_RVC_OVERHEAT_MODE` X2SkillTree.h:450/:1120; `SA_OVERHEAT_HP` :2523, `SA_OVERHEAT_HP_PVP` :2554 ("June 145"); name tables X2SkillTree.cpp:492-493/:695-696/:1313/:1629. In the class: `m_fLimitOverHeatHP` .h:693, `m_hOverHeatObject` :709, fire effects :712-716, `m_fAddOverHeatBuffDurationTime` :627, `m_iAddOverHeatLevel` :628; `CreateOverHeatObject` .cpp:21337. Combo-tree ids `CTI_X_CONTINUE_OVERHEAT` / `CTI_PUSH_Z_OVERHEAT` X2ComboTree.h:112/:126, X2UIComboTree.cpp:610-1249. Weapon Taker has no separate gauge found.
+- Gauge UI: `CX2RavenMyGageUI` X2GageUI.h:496 (ctor decl :499); X2GageUI.cpp:3078 ctor, :3083 dtor, :3089 InitWakeOrb, :3116/:3118 OnFrameMove, :3130 UpdateHyperOrb (particle `raven_powrUp_UI_01` :3141); `PGUWO_ORB_RAVEN` X2GageUI.h:50. Created for all 7 classes at `X2GageManager.cpp:167-176`. No Raven code in X2GageData.*, X2GageManager.h.
+- Damage: `X2DamageManager.h:30-36, :1255, :1588` (UPGRADE_RAVEN), :809/:893 (VC); `.cpp` :760, :944, :2019 ... :3815 (UPGRADE_RAVEN x12), :4294-4299 (Blade Master special case). `X2DamageEffect.cpp` 40 hits (RAVEN_WEAPON_TAKER x13, VC x4, :244 WALK_SPEED note). `X2GameUnit.h:8-42` (NUM_OF_EXTRA_DAMAGE_PACK_MEMBER 35 for VC), :515, :688-722, :3381-3394, :5059-5069 (`m_iChangeDamageAttackType`, +0x4108); `X2GameUnit.cpp` :443, :533, :591-605, :1057, :3656, :11889, :12455-12733, :19357-19678 (UT_RAVEN switches).
+- Game: `X2Game.cpp:2159-2161` and :21413-21415 (`CX2GURaven::CreateGURaven`), :8513 (PVP hero NPC for UC_RAVEN_FIGHTER), :13472, :14374-14442 (VC skill-slot texture `DLG_SKILL_RavenActive_01.tga`), :14949-14959 (`GetActiveShadowStep()`). `X2GUUser.h:181, :1578, :2500, :2992, :3995, :4744, :4850, :5092`.
+
+## 6. Summons
+- X2GURaven.cpp / .h: `CreateNPC` 0, `CreateNpc` 0, `CreateNPCReq` 0, `NUI_` 0, `GetNearestNPCUnitUID` 0. Summon-like objects are DamageEffects (`GetDamageEffect()->CreateInstance` 131 sites in the .cpp) and effect sets (`PlayEffectSet` 34); Nasod balls are built in `CreateNasodBall` :13686.
+
+## 7. Cut-ins (`s_SkillCutInSet[]` :61-94, 3 SkillCutIn each; table order = index)
+- [0] Fighter / Soul Taker / Over Taker / Weapon Taker: `HQ_CutIn_Raven_1.dds`, `_2.dds`, `_3.dds`.
+- [1] Blade Master (RAVEN_SECOND_CLASS_CHANGE): `HQ_CutIn_Raven_Blade_Master_1.dds` x3. [2] Reckless Fist: `HQ_CutIn_Raven_Reckless_Fist_1.dds` x3. [3] Veteran Commander (SERV_RAVEN_VETERAN_COMMANDER): `HQ_CutIn_Raven_Veteran_Commander_1.dds` x3.
+- Assignment InitState :669-693 (0: FIGHTER/ST/OT/WT; 1: BM; 2: RF; 3: VC). Use: `ShowActiveSkillCutInAndLight` :21434-21447.
+
+## 8. March kom side (all `.lua` below start `1B 4B 4C 81` = bytecode; no BOM source found)
+- `data036_kom/RAVEN_FIGHTER.lua` 171064 B, bytecode.
+- `data033_kom` Motion_Raven.x 5941865, _BM 1524698, _Common 1195784, _Emotion 1303471 (+ _APINK 839623 / _APINK_LOVE 324989 / _BIGBANG 1018445 / _CRAYONPOP_Sorted 611529 / _DeepBow 423613), _Field 267057, _Lobby 1663672, _OT 1919264, _RF 1698603, _ST 1648914, _VC 2043055, _WT 1952491. No separate Reckless Fist motion file found.
+- Other: `data120_kom/Motion_Raven_RageMode_Nasod.x` 37132; `data012_kom/Motion_Raven_Buff_NPC.X` 425977; `data009_kom` Motion_ALTERA_RAVEN(.CLONE); `data010_kom` Motion_Raven_Boss.x / Motion_Nui_Raven_Clone.x; `data225_kom` Motion_Time_Raven(_Weapon); `data111_kom` MOTION_HAMEL_SUMMON_DUMMY_RAVEN.x; datai027 Halloween Raven motions.
+- `SQUARE_Raven_*` scripts: not found in any kom. `*Raven*Gage*` lua: not found (gauge UI is C++ over wake-orb pictures).
+- `data034_kom`: DLG_Transcendental_Change_Guide_Raven.lua 4475, DLG_Class_Change_Guide_Raven 2715, DLG_Class_Change_Raven_BM 1969, DLG_Class_Change_Raven_RF 1969 (no _ST / _OT / _WT / _VC file), DLG_PVP_Game_Damaged_Raven / _OT / _ST (972 / 964 / 965), DLG_Unit_Create_ClassChange_Button_Raven 5046, DLG_UI_JUMPING_EVENT_RAVEN 3941.
+- `data035_kom`: Dungeon_Training_Raven_0..6, Dungeon_Tutorial_Raven 20475, Dungeon_ElTutorial_Raven 23013, Dungeon_Battle_Field_Tutorial_Raven 13946. NPC/boss Raven scripts in data037_kom / datai016_kom (RAVEN_CLONE, NPC_Raven*, TIME_RAVEN*, ...). Core-list membership not checked.
+
+## 9. Offline save (`python tools/elsdb.py q`, 54 units; read-only)
+- uid 23 `ravbe`: class 106 (Blade Master), lv72, transcendence 0. uid 49 `Raven99`: class 106, lv99, transcendence 0.
+- No unit of class 4, 16, 17, 25, 107 or 115.
+
+## Not found
+- Dormant Raven 2014 flag; CreateNPC/NUI in Raven; `SQUARE_Raven*` and Raven gauge lua in KOM; `_CONST_` namespace in X2GURaven.cpp; Reckless Fist motion file; DamageReact exact end line.

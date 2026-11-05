@@ -21,7 +21,7 @@ Then Chung's Z Done note if it exists (the worked example).
 
 Do "Phase Z": the `MODS.md` section `June character: Elsword` (flags, files, data, revert order: exe + data036 + motion koms together); no
 `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_*_DEBUG` defined; checklist rows carry `(Elsword: CHn)`; an Elsword row and lessons in the Aisha plan's "Template for Stage 7" (what he took
-against this plan); backlog Stage 7 note; the `stage7-plan` STATUS row pointing at `char-raven` (`/x2-phase new-plan char-raven`); the
+against this plan); backlog Stage 7 note; `char-raven` is already planned (2026-11-05): set its CH1a row ready (CH0 / CH0b permitting) instead of touching the `stage7-plan` row; the
 `char-elsword` block moved to `STATUS_ARCHIVE.md` with a *Closed plans* row.
 
 No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): an id that has a name in an Enum (June's

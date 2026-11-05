@@ -1,0 +1,114 @@
+c1a_numerical_blocks.tsv_line	file	templet	block	skill_id	june_skill_name	lookup	result	L1_value	L1_x0.01	L1_pvp_rate	L1_tech_point	L1_hit_add_mp	skill_in_march_templets
+70	DamageEffect.lua	DAMAGE_EFFECT_A_RWT_FLAME_SWORD_MEMO	DAMAGE_DATA	24201	Flame Sword	INDEX 2	ok	81	0.81	0.4	13	0.19	False
+146	DamageEffect.lua	DAMAGE_EFFECT_DEADLY_FINISH_READY	DAMAGE_DATA	24024	Deadly Raid	INDEX 4	ok	850	8.5	0.4	248	1.25	False
+147	DamageEffect.lua	DAMAGE_EFFECT_DEADLY_FINISH_READY_LARGE	DAMAGE_DATA	24024	Deadly Raid	INDEX 5	ok	1182	11.82	0.4	248	1.25	False
+148	DamageEffect.lua	DAMAGE_EFFECT_DEADLY_RAID	DAMAGE_DATA	24024	Deadly Raid	INDEX 4	ok	850	8.5	0.4	248	1.25	False
+149	DamageEffect.lua	DAMAGE_EFFECT_DEADLY_RAID_FINISH	DAMAGE_DATA	24024	Deadly Raid	INDEX 4	ok	850	8.5	0.4	248	1.25	False
+150	DamageEffect.lua	DAMAGE_EFFECT_DEADLY_RAID_FINISH_LARGE	DAMAGE_DATA	24024	Deadly Raid	INDEX 5	ok	1182	11.82	0.4	248	1.25	False
+151	DamageEffect.lua	DAMAGE_EFFECT_DEADLY_RAID_LARGE	DAMAGE_DATA	24024	Deadly Raid	INDEX 5	ok	1182	11.82	0.4	248	1.25	False
+194	DamageEffect.lua	DAMAGE_EFFECT_IGNITION_CROW	DAMAGE_DATA	24022	Ignition Crow - Napalm	INDEX 1	ok	2118	21.18	0.4	750	10	False
+195	DamageEffect.lua	DAMAGE_EFFECT_IGNITION_CROW_GROUND	DAMAGE_DATA	24022	Ignition Crow - Napalm	INDEX 3	ok	103	1.03	0.28	47	1.25	False
+196	DamageEffect.lua	DAMAGE_EFFECT_IGNITION_CROW_GROUND_OVERHEAT	DAMAGE_DATA	24022	Ignition Crow - Napalm	INDEX 4	ok	143	1.43	0.28	47	1.25	False
+197	DamageEffect.lua	DAMAGE_EFFECT_IGNITION_CROW_INCINERATION_HIT_BIG_DAMAGE	DAMAGE_DATA	24023	Ignition Crow - Incinerator	INDEX 1	ok	3049	30.49	0.32	1500	20	False
+198	DamageEffect.lua	DAMAGE_EFFECT_IGNITION_CROW_INCINERATION_OVERHEAT_HIT_BIG_DAMAGE	DAMAGE_DATA	24023	Ignition Crow - Incinerator	INDEX 2	ok	4238	42.38	0.32	1500	20	False
+199	DamageEffect.lua	DAMAGE_EFFECT_IGNITION_CROW_OVERHEAT	DAMAGE_DATA	24022	Ignition Crow - Napalm	INDEX 2	ok	2944	29.44	0.4	750	10	False
+215	DamageEffect.lua	DAMAGE_EFFECT_POWER_ASSAULT_HYPER	DAMAGE_DATA	24002	Power Assault	INDEX 1	ok	488	4.88	0.4	188	2.5	False
+216	DamageEffect.lua	DAMAGE_EFFECT_POWER_ASSAULT_HYPER	DAMAGE_DATA_NEXT	24002	Power Assault	INDEX 1	ok	488	4.88	0.4	188	2.5	False
+218	DamageEffect.lua	DAMAGE_EFFECT_RRF_HELL_DIVE_FIRST_PUNCH	DAMAGE_DATA	24202	Hell Dive	INDEX 2	ok	384	3.84	0.4	75	0.5	False
+219	DamageEffect.lua	DAMAGE_EFFECT_RRF_HELL_DIVE_SECOND_PUNCH	DAMAGE_DATA	24202	Hell Dive	INDEX 2	ok	384	3.84	0.4	75	0.5	False
+220	DamageEffect.lua	DAMAGE_EFFECT_RRF_Infernal_Arms_Damage1	DAMAGE_DATA	24600	Infernal Arms	INDEX 1	ok	1362	13.62	0.24	375	5	False
+221	DamageEffect.lua	DAMAGE_EFFECT_RRF_Infernal_Arms_Damage2	DAMAGE_DATA	24600	Infernal Arms	INDEX 2	ok	2827	28.27	0.24	750	10	False
+222	DamageEffect.lua	DAMAGE_EFFECT_RRF_Infernal_Arms_Damage3	DAMAGE_DATA	24600	Infernal Arms	INDEX 3	ok	417	4.17	0.24	94	1.25	False
+223	DamageEffect.lua	DAMAGE_EFFECT_RRF_Infernal_Arms_Damage3_Blackhole	DAMAGE_DATA	24600	Infernal Arms	INDEX 4	ok	1565	15.65	0.24	375	5	False
+224	DamageEffect.lua	DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_DAMAGE	DAMAGE_DATA	24601	Extreme Blade	INDEX 1	ok	770	7.7	0.24	179	2.38	False
+225	DamageEffect.lua	DAMAGE_EFFECT_RSI_HA_RBM_EXTREM_BLADE_FINAL_DAMAGE	DAMAGE_DATA	24601	Extreme Blade	INDEX 2	ok	6215	62.15	0.24	1875	25	False
+228	DamageEffect.lua	DAMAGE_EFFECT_RVC_Flame_Buster_Crow	DAMAGE_DATA	24602	Burning Buster	INDEX 1	ok	1337	13.37	0.24	375	5	False
+258	DamageEffect.lua	DAMAGE_EFFECT_SHADOW_BURSTER_EXPLOSION	DAMAGE_DATA	24200	Shadow Step	INDEX 2	ok	6	0.06	1	0	0	False
+304	DamageEffect.lua	DUMMY_DAMAGE_MEMO	DAMAGE_DATA	24008	Archenemy	INDEX 1	ok	737	7.37	0.36	281	3.75	False
+305	DamageEffect.lua	DUMMY_DAMAGE_MEMO_HYPER	DAMAGE_DATA	24008	Archenemy	INDEX 1	ok	737	7.37	0.36	281	3.75	False
+641	DamageEffect.lua	DamageEffect_A_RRF_EnchantHand	DAMAGE_DATA	24206	Enchant Hand	INDEX 1	ok	1502	15.02	0.36	250	2	False
+648	DamageEffect.lua	DamageEffect_A_RVC_Flame_Sword_Another_Attack_Damage	DAMAGE_DATA	24226	Flame Sword: Flurry	INDEX 1	ok	464	4.64	0.4	50	0.5	False
+934	DamageEffect.lua	DamageEffect_RBM_ShockWave_Cutter	DAMAGE_DATA	24016	Shockwave - Cutter	INDEX 1	ok	203	2.03	0.4	100	2	False
+935	DamageEffect.lua	DamageEffect_RBM_Sonic_Slash	DAMAGE_DATA	24210	Sonic Slash	INDEX 1	ok	96	0.96	0.32	15	1	False
+936	DamageEffect.lua	DamageEffect_RBM_Sonic_Slash_UpGrade	DAMAGE_DATA	24234	#Cffcc00[Enhanced]#CX Sonic Slash	INDEX 1	ok	96	0.96	0.32	15	1	False
+937	DamageEffect.lua	DamageEffect_RBM_WolfFang_Hit	DAMAGE_DATA	24017	Wolf Fang	INDEX 2	ok	876	8.76	0.4	281	3.75	False
+944	DamageEffect.lua	DamageEffect_ROT_NUCLEAR_NEW_EXPLOSION	DAMAGE_DATA	24007	Nuclear	INDEX 2	ok	192	1.92	0.4	69	0.92	False
+945	DamageEffect.lua	DamageEffect_ROT_NUCLEAR_NEW_EXPLOSION	DAMAGE_DATA_NEXT	24007	Nuclear	INDEX 2	ok	192	1.92	0.4	69	0.92	False
+946	DamageEffect.lua	DamageEffect_ROT_NUCLEAR_NEW_Missile	DAMAGE_DATA	24007	Nuclear	INDEX 1	ok	564	5.64	0.4	188	2.5	False
+947	DamageEffect.lua	DamageEffect_ROT_VALKYRIESJAVELIN_EXPLOSION_NEW	DAMAGE_DATA	24004	Valkyrie's Javelin	INDEX 2	ok	235	2.35	0.4	107	1.43	False
+948	DamageEffect.lua	DamageEffect_ROT_VALKYRIESJAVELIN_NEW	DAMAGE_DATA	24004	Valkyrie's Javelin	INDEX 1	ok	1383	13.83	0.4	750	10	False
+949	DamageEffect.lua	DamageEffect_RRF_A_SPREAD_Damage	DAMAGE_DATA	24224	Spread	INDEX 1	ok	1159	11.59	0.4	100	1.5	False
+950	DamageEffect.lua	DamageEffect_RRF_ExplosiveHand_Impact_NEW	DAMAGE_DATA	24402	Exploding Nasod Hand	INDEX 1	ok	239	2.39	0.4	50	0	False
+951	DamageEffect.lua	DamageEffect_RRF_SA_POWER_BOMB	DAMAGE_DATA	24038	Power Bomb	INDEX 1	ok	3920	39.2	0.36	1500	20	False
+954	DamageEffect.lua	DamageEffect_RST_ShockWave	DAMAGE_DATA	24011	Shockwave - Divider	INDEX 1	ok	277	2.77	0.4	125	2	False
+955	DamageEffect.lua	DamageEffect_RST_ShockWave_Ultimate	DAMAGE_DATA	24011	Shockwave - Divider	INDEX 1	ok	277	2.77	0.4	125	2	False
+956	DamageEffect.lua	DamageEffect_RVC_Burning_Buster_Gust	DAMAGE_DATA	24602	Burning Buster	INDEX 3	ok	909	9.09	0.24	211	2.81	False
+957	DamageEffect.lua	DamageEffect_RVC_Burning_Buster_Punch	DAMAGE_DATA	24602	Burning Buster	INDEX 2	ok	2486	24.86	0.24	750	10	False
+958	DamageEffect.lua	DamageEffect_RVC_Napalm_Grenade_Explosion	DAMAGE_DATA	24213	Napalm Grenade	INDEX 1	ok	245	2.45	0.32	50	0.5	False
+966	DamageEffect.lua	DamageEffect_Raven_Armor_Break	DAMAGE_DATA	24209	Armor Crash	INDEX 1	ok	726	7.26	0.28	150	1.5	False
+967	DamageEffect.lua	DamageEffect_Raven_Mental_Break	DAMAGE_DATA	24214	Mental Crash	INDEX 1	ok	1376	13.76	0.32	225	1.5	False
+968	DamageEffect.lua	DamageEffect_Raven_Weapon_Break	DAMAGE_DATA	24204	Weapon Crash	INDEX 1	ok	934	9.34	0.28	150	1.5	False
+1393	DamageEffect.lua	DamageEffect_SA_RBM_BloodyAccel	DAMAGE_DATA	24014	Bloody Accel	INDEX 1	ok	4855	48.55	0.24	1875	25	False
+1394	DamageEffect.lua	DamageEffect_SA_RBM_Deadly_Blow_Damage	DAMAGE_DATA	24035	Flash	INDEX 1	ok	2731	27.31	0.4	750	10	False
+1395	DamageEffect.lua	DamageEffect_SA_RBM_GigaDrive_Explosion	DAMAGE_DATA	24015	Giga Drive - Limiter	INDEX 2	ok	2543	25.43	0.24	1163	20	False
+1396	DamageEffect_Character.lua	DamageEffect_SA_RBM_Shapt_Charge	DAMAGE_DATA	24056	Sharp Charge	INDEX 1	ok	5842	58.42	0.32	2250	30	False
+1397	DamageEffect.lua	DamageEffect_SA_RBM_Shootup_Genocide_Explosion_Damage	DAMAGE_DATA	24036	Shoot Up Genocide	INDEX 2	ok	647	6.47	0.4	119	1.59	False
+1505	DamageEffect.lua	DamageEffect_SA_ROT_GuardianStrike	DAMAGE_DATA	24006	Guardian Strike	INDEX 1	ok	408	4.08	0.4	188	3.33	False
+1506	DamageEffect.lua	DamageEffect_SA_ROT_GuardianStrike	DAMAGE_DATA_NEXT	24006	Guardian Strike	INDEX 1	ok	408	4.08	0.4	188	3.33	False
+1507	DamageEffect_Character.lua	DamageEffect_SA_RRF_Devastating_Strike_1Fst_Attack	DAMAGE_DATA	24057	Devastating Strike	INDEX 1	ok	8505	85.05	0.36	2250	25	False
+1508	DamageEffect.lua	DamageEffect_SA_RRF_WildCharge_Attack	DAMAGE_DATA	24009	Wild Charge	INDEX 1	ok	3060	30.6	0.36	1500	20	False
+1509	DamageEffect.lua	DamageEffect_SA_RRF_XCrash1_Damage	DAMAGE_DATA	24010	X Crash	INDEX 1	ok	529	5.29	0.4	188	2.5	False
+1510	DamageEffect.lua	DamageEffect_SA_RRF_XCrash2_Damage	DAMAGE_DATA	24010	X Crash	INDEX 1	ok	529	5.29	0.4	188	2.5	False
+1511	DamageEffect.lua	DamageEffect_SA_RRF_XCrash_Fire_Damage	DAMAGE_DATA	24010	X Crash	INDEX 2	ok	278	2.78	0.4	125	1.67	False
+1512	DamageEffect.lua	DamageEffect_SA_RRF_XCrash_Fire_Damage	DAMAGE_DATA_NEXT	24010	X Crash	INDEX 2	ok	278	2.78	0.4	125	1.67	False
+1544	DamageEffect.lua	DamageEffect_SA_RVC_BustingBlade_Damage_01	DAMAGE_DATA	24040	Bursting Blade	INDEX 1	ok	395	3.95	0.4	136	1.82	False
+1545	DamageEffect.lua	DamageEffect_SA_RVC_BustingBlade_Damage_02	DAMAGE_DATA	24040	Bursting Blade	INDEX 1	ok	395	3.95	0.4	136	1.82	False
+1546	DamageEffect.lua	DamageEffect_SA_RVC_Flame_Hell	DAMAGE_DATA	24039	Hellfire	INDEX 1	ok	627	6.27	0.4	188	2.5	False
+1547	DamageEffect.lua	DamageEffect_SA_RVC_Flame_Hell	DAMAGE_DATA_NEXT	24039	Hellfire	INDEX 1	ok	627	6.27	0.4	188	2.5	False
+1548	DamageEffect_Character.lua	DamageEffect_SA_RVC_Ifrit_Flame_Projectile_ExplosionFX	DAMAGE_DATA	24058	Ifrit Flame	INDEX 1	ok	764	7.64	0.28	150	3	False
+1579	DamageEffect.lua	DamageEffect_SA_RWT_HellFire	DAMAGE_DATA	24020	Hellfire Gatling	INDEX 1	ok	230	2.3	0.4	78	0.77	False
+1580	DamageEffect.lua	DamageEffect_SA_RWT_HellFire_Explosion	DAMAGE_DATA	24020	Hellfire Gatling	INDEX 1	ok	230	2.3	0.4	78	0.77	False
+1581	DamageEffect.lua	DamageEffect_SA_RWT_HellFire_Explosion_End	DAMAGE_DATA	24020	Hellfire Gatling	INDEX 1	ok	230	2.3	0.4	78	0.77	False
+1582	DamageEffect.lua	DamageEffect_SA_RWT_HellFire_Explosion_End_Bomb	DAMAGE_DATA	24020	Hellfire Gatling	INDEX 1	ok	230	2.3	0.4	78	0.77	False
+1583	DamageEffect.lua	DamageEffect_SA_RWT_HellFire_Explosion_End_OverHit	DAMAGE_DATA	24020	Hellfire Gatling	INDEX 2	ok	320	3.2	0.4	78	0.77	False
+1584	DamageEffect.lua	DamageEffect_SA_RWT_HellFire_Explosion_OverHit	DAMAGE_DATA	24020	Hellfire Gatling	INDEX 2	ok	320	3.2	0.4	78	0.77	False
+1585	DamageEffect.lua	DamageEffect_SA_Raven_CannonBlade_Attack	DAMAGE_DATA	24001	Cannon Blade	INDEX 1	ok	415	4.15	0.4	136	1.82	False
+1586	DamageEffect.lua	DamageEffect_SA_Raven_MaximumCannon	DAMAGE_DATA	24000	Maximum Cannon	INDEX 1	ok	263	2.63	0.36	94	1.25	False
+1587	DamageEffect.lua	DamageEffect_SA_Raven_MaximumCannon_Finish	DAMAGE_DATA	24000	Maximum Cannon	INDEX 1	ok	263	2.63	0.36	94	1.25	False
+1588	DamageEffect.lua	DamageEffect_SA_Raven_SevenBurst_Projectile	DAMAGE_DATA	24003	Seven Burst	INDEX 1	ok	643	6.43	0.32	225	3	False
+1589	DamageEffect.lua	DamageEffect_SA_Raven_SevenBurst_Projectile_Explosion	DAMAGE_DATA	24003	Seven Burst	INDEX 1	ok	643	6.43	0.32	225	3	False
+1712	DamageEffect.lua	DamageEffect_Sa_Maximum_Dive	DAMAGE_DATA	24037	Maximum Dive	INDEX 1	ok	822	8.22	0.4	250	3.33	False
+1857	DamageEffect.lua	RAVEN_BARRAGE_ATTACK_STAND	DAMAGE_DATA	24212	Haze Explosion	INDEX 1	ok	811	8.11	0.32	150	1.5	False
+1858	DamageEffect.lua	RAVEN_BREAKING_FIST	DAMAGE_DATA	24215	Breaking Fist	INDEX 1	ok	612	6.12	0.32	125	2	False
+1859	DamageEffect.lua	RAVEN_BREAKING_FIST_UpGrade	DAMAGE_DATA	24238	#Cffcc00[Enhanced]#CX Breaking Fist	INDEX 1	ok	612	6.12	0.32	125	2	False
+1860	DamageEffect.lua	RAVEN_GIGA_PROMINENCE_FINISH	DAMAGE_DATA	24021	Giga Prominence	INDEX 1	ok	850	8.5	0.4	321	3.33	False
+1861	DamageEffect.lua	RAVEN_GIGA_PROMINENCE_FINISH_OVERHEAT	DAMAGE_DATA	24021	Giga Prominence	INDEX 1	ok	850	8.5	0.4	321	3.33	False
+1862	DamageEffect.lua	RAVEN_GIGA_PROMINENCE_FINISH_SMOKE	DAMAGE_DATA	24021	Giga Prominence	INDEX 1	ok	850	8.5	0.4	321	3.33	False
+1863	DamageEffect.lua	RAVEN_GIGA_PROMINENCE_FLAME	DAMAGE_DATA	24021	Giga Prominence	INDEX 1	ok	850	8.5	0.4	321	3.33	False
+1864	DamageEffect.lua	RAVEN_GIGA_PROMINENCE_GROUND_HIT	DAMAGE_DATA	24021	Giga Prominence	INDEX 1	ok	850	8.5	0.4	321	3.33	False
+1865	DamageEffect.lua	RAVEN_GIGA_PROMINENCE_SMOKE	DAMAGE_DATA	24021	Giga Prominence	INDEX 1	ok	850	8.5	0.4	321	3.33	False
+1866	DamageEffect.lua	RAVEN_HARPOON_SPEAR_SHELL_EXPLOSION_END	DAMAGE_DATA	24018	Harpoon Spear	INDEX 1	ok	1435	14.35	0.4	450	1.67	False
+1867	DamageEffect.lua	RAVEN_HARPOON_SPEAR_SHELL_EXPLOSION_END_OVERHEAT	DAMAGE_DATA	24018	Harpoon Spear	INDEX 2	ok	1995	19.95	0.4	450	1.67	False
+1868	DamageEffect.lua	RAVEN_HARPOON_SPEAR_SHELL_EXPLOSION_Main_Damage_MEMO	DAMAGE_DATA	24018	Harpoon Spear	INDEX 3	ok	1279	12.79	0.4	600	10	False
+1869	DamageEffect.lua	RAVEN_HARPOON_SPEAR_SHELL_EXPLOSION_OVERHEAT_Main_Damage_MEMO	DAMAGE_DATA	24018	Harpoon Spear	INDEX 4	ok	1778	17.78	0.4	600	10	False
+1870	DamageEffect.lua	RAVEN_HARPOON_SPEAR_SHELL_EXPLOSION_OVERHEAT_Sub_Damage_MEMO	DAMAGE_DATA	24018	Harpoon Spear	INDEX 6	ok	209	2.09	0.4	56	1.67	False
+1871	DamageEffect.lua	RAVEN_HARPOON_SPEAR_SHELL_EXPLOSION_Sub_Damage_MEMO	DAMAGE_DATA	24018	Harpoon Spear	INDEX 5	ok	150	1.5	0.4	56	1.67	False
+1872	DamageEffect.lua	RAVEN_HARPOON_SPEAR_SHELL_EXPLOSION_Sub_Damage_Ultimate	DAMAGE_DATA	24018	Harpoon Spear	INDEX 5	ok	150	1.5	0.4	56	1.67	False
+1873	DamageEffect.lua	RAVEN_HARPOON_SPEAR_SHELL_MEMO	DAMAGE_DATA	24018	Harpoon Spear	INDEX 1	ok	1435	14.35	0.4	450	1.67	False
+1874	DamageEffect.lua	RAVEN_HARPOON_SPEAR_SHELL_OVERHEAT_MEMO	DAMAGE_DATA	24018	Harpoon Spear	INDEX 2	ok	1995	19.95	0.4	450	1.67	False
+1875	DamageEffect.lua	RAVEN_HARPOON_SPEAR_SHELL_OVERHEAT_Ultimate	DAMAGE_DATA	24018	Harpoon Spear	INDEX 2	ok	1995	19.95	0.4	450	1.67	False
+1876	DamageEffect.lua	RAVEN_HARPOON_SPEAR_SHELL_Ultimate	DAMAGE_DATA	24018	Harpoon Spear	INDEX 1	ok	1435	14.35	0.4	450	1.67	False
+1877	DamageEffect.lua	RAVEN_HELLFIRE_GATLING_IMPACT_OVERHEAT	DAMAGE_DATA	24020	Hellfire Gatling	INDEX 2	ok	320	3.2	0.4	78	0.77	False
+1878	DamageEffect.lua	RAVEN_HYPER_SONIC_STAB_Damage	DAMAGE_DATA	24013	Hypersonic Stab	INDEX 1	ok	2991	29.91	0.4	1125	15	False
+1879	DamageEffect.lua	RAVEN_HYPER_SONIC_STAB_HYPER_Damage	DAMAGE_DATA	24013	Hypersonic Stab	INDEX 2	ok	648	6.48	0.4	188	2.31	False
+1880	DamageEffect.lua	RAVEN_Harpoon_Spear_Shell_Explosion_Sub_Damage_Ultimate_Overheat	DAMAGE_DATA	24018	Harpoon Spear	INDEX 6	ok	209	2.09	0.4	56	1.67	False
+1881	DamageEffect.lua	RAVEN_OVER_TAKER_CHARGED_BOLT	DAMAGE_DATA	24005	Charged Bolt	INDEX 1	ok	407	4.07	0.36	188	1.5	False
+1882	DamageEffect.lua	RAVEN_OVER_TAKER_CHARGED_BOLT	DAMAGE_DATA_NEXT	24005	Charged Bolt	INDEX 1	ok	407	4.07	0.36	188	1.5	False
+1883	DamageEffect.lua	RAVEN_REVOLVER_CANNON_FINAL_SHELL	DAMAGE_DATA	24019	Revolver Cannon	INDEX 1	ok	760	7.6	0.4	281	2.5	False
+1884	DamageEffect.lua	RAVEN_REVOLVER_CANNON_FINAL_SHELL_OVERHEAT	DAMAGE_DATA	24019	Revolver Cannon	INDEX 2	ok	1057	10.57	0.4	281	2.5	False
+1885	DamageEffect.lua	RAVEN_REVOLVER_CANNON_SHELL	DAMAGE_DATA	24019	Revolver Cannon	INDEX 1	ok	760	7.6	0.4	281	2.5	False
+1886	DamageEffect.lua	RAVEN_REVOLVER_CANNON_SHELL_OVERHEAT	DAMAGE_DATA	24019	Revolver Cannon	INDEX 2	ok	1057	10.57	0.4	281	2.5	False
+1887	DamageEffect.lua	RAVEN_SOUL_TAKER_BERSERKER_BLADE	DAMAGE_DATA	24012	Berserker Blade	INDEX 1	ok	731	7.31	0.4	250	3.33	False
+1888	DamageEffect.lua	RAVEN_SOUL_TAKER_BERSERKER_BLADE_DOWN	DAMAGE_DATA	24012	Berserker Blade	INDEX 1	ok	731	7.31	0.4	250	3.33	False
+1889	DamageEffect.lua	RBM_ONE_FLASH_SUB	DAMAGE_DATA	24207	Finishing Slash	INDEX 1	ok	193	1.93	0.4	29	0.29	False
+1895	DamageEffect.lua	RRF_GROUND_IMPACT	DAMAGE_DATA	24216	Ground Impact	INDEX 1	ok	709	7.09	0.36	125	2	False
