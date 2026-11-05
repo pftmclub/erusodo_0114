@@ -11614,6 +11614,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER )
 #error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL needs SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER ( Rune of Fire's modifier tag 19 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL ) || !defined( SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL needs SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL and SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE ( CX2GUUser::RescaleBuffFactorByMemoRate, used by CX2GUUser::PushBuffFactorWithMemoRate )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -11624,5 +11627,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Revert: undefine the flag ( JUNE_CHAR_ELSWORD_SKILL_DEBUG ).
 //              CH3a ( 2026-11-05 ): defined again for the Lord Knight lines ( Armageddon Blade, Windmill, Rolling Smash, Grand Cross, Sonic Blade Crescent ). CH3a's review retires it.
 //              CH3b ( 2026-11-05 ): defined again for the Rune Slayer lines ( Counter Guard, Extreme Rune Buster, Rune of Fire ). CH3b's review retires it.
-//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
+//              CH3c ( 2026-11-05 ): defined again for the Infinity Sword lines ( Harsh Chaser, Compact Counter, Maelstrom Rage, Phantom Sword, Rage Cutter, Sword Blasting ). CH3c's review retires it.
+#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////

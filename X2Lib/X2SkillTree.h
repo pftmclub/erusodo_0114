@@ -2307,6 +2307,26 @@ public:
 		RNSI_A_ERS_COUNTER_UPGRADE                            = 21232,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-05 // char-elsword CH3c
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Infinity Sword's skill switch cases spell ( values from June's Enum.lua )
+		RNSI_SA_ETK_PHANTOM_SWORD                             = 21022,
+		RNSI_SA_EIS_RAGE_CUTTER                               = 21023,
+		RNSI_SA_EIS_MAELSTROM_RAGE                            = 21024,
+		RNSI_SA_EIS_SWORD_BLASTING                            = 21025,
+		RNSI_SA_EIS_INFINITY_CHASER                           = 21041,
+		RNSI_SA_EIS_BLADE_CIRCLE                              = 21042,
+		RNSI_SA_ETK_PHANTOM_SWORD_UPGRADE                     = 21054,
+		RNSI_SA_EIS_RAGE_CUTTER_UPGRADE                       = 21055,
+		RNSI_SA_EIS_MAELSTROM_RAGE_UPGRADE                    = 21056,
+		RNSI_SA_EIS_SWORD_BLASTING_UPGRADE                    = 21057,
+		RNSI_SA_EIS_INFINITY_STRIKE                           = 21060,
+		RNSI_A_EIS_HARSH_CHASER                               = 21215,
+		RNSI_A_EIS_ANOTHER_SWORD                              = 21224,
+		RNSI_A_EIS_HARSH_CHASER_UPGRADE                       = 21235,
+		RNSI_A_EIS_COMPACT_COUNTER_UPGRADE                    = 21236,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

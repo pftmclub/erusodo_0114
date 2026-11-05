@@ -6031,6 +6031,16 @@ void CX2EffectSet::ApplyDamageEffectModifiers( CX2DamageEffect::CEffect* pEffect
 					pMainEffect->SetMaxLifeTime( fLifeTime * modifier.m_vValue.x );
 				}
 			} break;
+		case 9:
+			{
+				// June 321db1b0 @321db77e-321db7cd: the damage effect's FORCE_DOWN ( +0x5f0 ) plus or times v, and every NEXT table takes the result
+				const float fForceDown = true == modifier.m_bAdd ? modifier.m_vValue.x + pEffect_->GetDamageData().fForceDownValue : modifier.m_vValue.x * pEffect_->GetDamageData().fForceDownValue;
+				pEffect_->GetDamageData().fForceDownValue = fForceDown;
+				std::vector<CX2DamageManager::DamageData*> vecTables;
+				pEffect_->GetNextTables( vecTables );
+				for ( size_t j = 0; j < vecTables.size(); j++ )
+					vecTables[j]->fForceDownValue = fForceDown;
+			} break;
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 		default:
 			{

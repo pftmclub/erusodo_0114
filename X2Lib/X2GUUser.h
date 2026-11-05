@@ -3119,6 +3119,10 @@ public:
 		/// June 32089ff0 on one buff factor ( CH3b, Aisha's Impact Hammer ): the time finalizer x fTime_, then the behaviors x fValue_
 		void						RescaleBuffFactorByMemoRate( CX2BuffFactor& refFactor_, const float fTime_, const float fValue_ );
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+			/// June 322b5320 ( DamageData::PushBuffFactor( factor, level, clear, Rate ), the Rate is 31fdbfc0 ): the levelled clone is pushed, then the skill's time ( MI_CHECK_AND_KILL_1 ) or value ( _2 ) memo rescales it ( 32089ff0 )
+			void																						PushBuffFactorWithMemoRate( CX2DamageManager::DamageData& damageData_, CX2BuffFactorPtr ptrBuffFactor_, const int iLevel_, const int iSkillID_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 		/// June CX2GUUser vslot 0x780 (empty 33093ad0 in the user vtable): the per-class hook ( DD, fPowerRate ), the last call of the user
 		/// layer. Only Ara overrides it (32bca010, the Ara port).
 		virtual void				DamageExceptionClassHook( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate_ ) {}

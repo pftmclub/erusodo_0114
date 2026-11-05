@@ -5887,3 +5887,25 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (CH2a's; the `..._SKILL_DEBUG` log 
 | Enchant Break (21223) | June only | 1855 ( numerical-only state table, index 1, magical ) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-101 ids fall back to the Mega Slash default; CH2a-CH3a's ids too), `python tools/build.py --deploy`.
+
+## Stage 7 Elsword, CH3c: Infinity Sword skills (2026-11-05)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (CH2a's; the `..._SKILL_DEBUG` log is defined again until the CH3c review). Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` "CH3c - Done". Client only, no data change.
+- **What changes in game.** The class-112 skills run June's registrations: Harsh Chaser (21215 / 21235, + its pull state), Compact Counter (21216 / 21236), Another Sword (June's "Infinite: Flurry", 21224), Phantom Sword (21022 / 21054), Rage Cutter (21023 / 21055), Maelstrom Rage (21024 / 21056), Sword Blasting (21025; 21057 has its own table), Infinite Chaser (21041), Blade Circle (21042) and Infinite Strike (21060) each get a case in `SetEquippedSkillFuncBySkillSlotIndex` ahead of the Mega Slash default; the hyper state takes the normal table name. Fifteen `RNSI_*EIS*` / `RNSI_*ETK*` names join `X2SkillTree.h` under `JUNE_ENUM_NAMES`.
+- **Differs from March.** Harsh Chaser and Compact Counter read the swapped 21215 / 21216 templets (range, power rate) and lose the memo bonuses (range x 1.1, 4 s defence time); the blade effect has no memo variant. The walk (and Rage Cutter's dash) cancels of Harsh Chaser's pull, Compact Counter, Phantom Sword, Maelstrom Rage and Rage Cutter need the foot on a line. Sword Blasting throws the `_UpGrade` swords when the state's skill is upgraded; Phantom Sword adds its second buff factor when upgraded; Maelstrom Rage's upgraded effect set pushes modifier tag 9 (new `case 9` in `ApplyDamageEffectModifiers`: the effect's force down -2). Rage Cutter pushes its first buff factor levelled with the skill memo's rate (new `CX2GUUser::PushBuffFactorWithMemoRate`, the shared home of the Arme / Chung copies). Compact Counter's and Phantom Sword's sheath meshes are alpha-tagged. Infinite Strike is a bare state: its EventProcess is the Counter Guard end's.
+- **Damage (level-1 value of the base id and of the enhanced id; June = `NewSkillTempletVer2.lua` NUMERICAL_DATA through the engine).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Harsh Chaser (21215 / 21235) | `ESSI_SI_SA_ETK_HARSH_CHASER` tables | 784 / 941; range 0.701 |
+| Compact Counter (21216 / 21236) | `ESSI_SI_A_ETK_COMPACT_COUNTER_ATTACK` tables | 153 / 184 ( numerical-only state tables, index 1, both tables ) |
+| Another Sword (21224) | June only | 776 + 186 ( numerical-only state tables ) |
+| Phantom Sword (21022 / 21054) | `ESSI_SI_SA_ETK_PHANTOM_SWORD` tables | 2314 / 2314 |
+| Rage Cutter (21023 / 21055) | `ESSI_SI_SA_EIS_RAGE_CUTTER` tables | 408 / 490 |
+| Maelstrom Rage (21024 / 21056) | `ESSI_SI_SA_ETK_MAELSTORM_RAGE` tables | 819 + 82, effect time 5 s |
+| Sword Blasting (21025 / 21057) | `ESSI_SI_SA_EIS_SWORD_BLASTING` tables | 466 + 580 ( numerical-only state tables ) |
+| Infinite Chaser (21041) | June only | 74 |
+| Blade Circle (21042) | June only | 328 + 2458 |
+| Infinite Strike (21060) | June only | 302 + 238 + 1152 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-112 ids fall back to the Mega Slash default; CH2a-CH3b's ids too), `python tools/build.py --deploy`.

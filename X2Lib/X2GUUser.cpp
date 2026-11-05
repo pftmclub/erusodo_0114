@@ -6289,6 +6289,23 @@ void CX2GUUser::RescaleBuffFactorByMemoRate( CX2BuffFactor& refFactor_, const fl
 	MemoRescaleBehaviors( refFactor_, fValue_ );
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+/// June 322b5320 ( DamageData::PushBuffFactor( factor, level, clear, Rate ), the Rate is 31fdbfc0 ): the levelled clone is pushed, then the skill's time ( MI_CHECK_AND_KILL_1 ) or value ( _2 ) memo rescales it ( 32089ff0 )
+void CX2GUUser::PushBuffFactorWithMemoRate( CX2DamageManager::DamageData& damageData_, CX2BuffFactorPtr ptrBuffFactor_, const int iLevel_, const int iSkillID_ )
+{
+	if ( NULL == ptrBuffFactor_ )
+		return;
+
+	damageData_.PushBuffFactor( ptrBuffFactor_->GetClonePtr( iLevel_ ) );
+
+	const SkillMemoEntry* pMemo = GetSkillMemoEntry( iSkillID_ );
+	if ( NULL == pMemo || ( CX2SkillTree::MI_CHECK_AND_KILL_1 != pMemo->m_iType && CX2SkillTree::MI_CHECK_AND_KILL_2 != pMemo->m_iType ) || true == damageData_.m_vecBuffFactorPtr.empty() || NULL == damageData_.m_vecBuffFactorPtr.back() )
+		return;
+
+	const float fMemoValue = pMemo->m_vecValue.empty() ? 0.f : pMemo->m_vecValue[0];
+	RescaleBuffFactorByMemoRate( *damageData_.m_vecBuffFactorPtr.back(), ( CX2SkillTree::MI_CHECK_AND_KILL_1 == pMemo->m_iType ) ? fMemoValue : 1.f, ( CX2SkillTree::MI_CHECK_AND_KILL_2 == pMemo->m_iType ) ? fMemoValue : 1.f );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 #endif SERV_IRUHADEV_JUNE_SKILL_MEMO_DAMAGE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
