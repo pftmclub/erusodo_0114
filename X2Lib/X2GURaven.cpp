@@ -10868,7 +10868,7 @@ void CX2GURaven::RSI_DASH_JUMP_COMBO_X_FrameMoveFuture()
 void CX2GURaven::RSI_DASH_JUMP_COMBO_X_FrameMove()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
-	// June 32c46170: the effect position drops 10 along z where March drops it along y ( JUNE_BUGS )
+	// June 32c46170
 	if( m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
 	{
 		if( FlushMp( 5.0f ) == true )
@@ -10878,7 +10878,7 @@ void CX2GURaven::RSI_DASH_JUMP_COMBO_X_FrameMove()
 				pos += 10.0f * m_FrameDataNow.unitCondition.dirVector;
 			else
 				pos -= 10.0f * m_FrameDataNow.unitCondition.dirVector;
-			pos.z -= 10.0f;
+			pos.y -= 10.0f;
 
 			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"RAVEN_DASH_JUMP_X", GetPowerRate(), pos, GetRotateDegree(), GetRotateDegree() );
 		}

@@ -578,6 +578,28 @@ All 38 class-map rows of phase CH1d are written. 34 are `inside`: June's body in
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-raven CH1d review` (Opus 5.5 high), then CH1e.
 
+### CH1d - Review (2026-11-05, Opus 5.5)
+
+**Verdict: PASS after one fix.** All 38 rows were read against `charport_adis.py raven --phase CH1d`. Each cancel test was checked by its x87 flag test: `test ah,0x41` / `jp` = `0 <=`, `test ah,5` / `jp` = `<`, `test ah,1` / `jne` = `<=`.
+- **Fixed: `32c46170` (dash-jump X FrameMove) lowers y, not z.** `pos` is at `[esp+0x1c..0x24]`. After z is stored (`@32c46296`), `push 0x33722a70` moves esp by 4, so `fsubr` / `fstp [esp+0x24]` work on `[old esp+0x20]` = y.
+  The fail branch has the same shape: three pushes, then `[esp+0x24]` = `vAngle.z - 50`. The `_LIVE` body now has `pos.y -= 10.0f` (= March). `JUNE_BUGS` #537 is withdrawn.
+- **The chain:** order `SKILL_CANCEL_AFTER`, back-walk `+0x8c94`, walk `+0x8c98`, dash `+0x8c9c`, Z / X `+0x8c8c`, each with the foot test, in every combo state. `32c297a0` alone runs Z / X first, then the three walk cancels with no foot test, each storing `0xde0` = 0.1 before the call. `32c2b360` has the up / down cancel (`+0x8ca4`, foot, up or down) first.
+  The end test is a separate `if` (all branches jump to it) in Z, ZZZZ, ZZZX, ZZX, ZZXX, X and XX. It is the last `else if` in ZZ, ZZZ and the finish. It comes first in XXX, dash ZZ and dash X, and last with a foot test in dash Z.
+- **Per function:** ZZ = 0.39 (`>` / `<=`) with the word clears. ZZZ: 106 + flag 2 at `0.333 <=`; flag 0 `<=`; flag 1 `<` -> 115 front `0x130` / 115 `0xe8` / 107 `0xd3` / `0xa8`. The window is `0.166 <= t < 0.59`, and the up-Z set is for classes 16 / 106 (+0x38).
+  ZZX 0.6 with templet `+0xaf0`->`+4` == 107 front -> `0xd1`. X: 0.53 / `0.48 < t || end` -> `0xd4`, set `t < 0.48` + templet 16 / 106. XX: 0.55; 17 / 107 down -> 196 `XXdownX`, front -> 190 `XXfrontX`; 16 / 106 flag 1 -> `+0x9634 = 0` then 186.
+  Dash Z: 0.397, 25 / 115 -> 303; event time 0 (`+0x8c10` / `+0x8c14` / `+0x8c18`) for 17 / 107 X -> 302. Dash-jump Z: 0.2; 16 / 106 -> 294, 17 / 107 -> 197, 25 / 115 -> 234. Dash-jump X EP: 106 Z -> 301.
+  The finish falls `LINE_RADIUS` (`d=30.0`). Landing: `(+0x220 - +0x2b0) / 3` = `GetMaxAnimationTime() / 3`. FrameMoveFutures 0.6 x1.3 / 0.35 / 0.23 x `fMaxGSpeed` 0.5 / 0.21-0.4 clamp. Jump Z needs down without up, jump X down only. 0xde4 = 0.2 on landing.
+  `32c44f90` / `32c45260`: `m_pXSkinAnim` timer 0.49 / 0.16, vslot 0xe4 `FlushMp( 3.0f )`, `PlayEffectSet( L"EffectSet_A_RF_ZZZX" / L"EffectSet_A_RF_XXX" )`, else the `Dummy2_Lhand` magic-fail particle. The thunks and Init / Start match.
+- **Enum:** the 8 members match `ch0_state_enum_names.tsv` (170 / 299 / 211 / 304 / 303 / 302 / 294 / 301, each with its reg site). `UC_RAVEN_*` 16 / 17 / 25 / 106 / 107 / 115 = June `Enum.src.lua`.
+- **`JUNE_BUGS` #536 confirmed:** flag 2 is read only under `cmp ecx, 0x6a` (`@32c2a352`).
+
+**Gates.** `cl /P` read for each branch; one-file `/Zs` probe 0 errors off and with `/D SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE` (on the commit; the fix is two ASCII lines in the `_LIVE` body).
+`flagcheck ..._LIVE --with ..._CORE --range 23e3a1ec^..23e3a1ec`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s)`. Review edit, `--worktree --files X2Lib/X2GURaven.cpp`: `1 PASS`, `0 non-ASCII inserted`, `0 encoding change(s)`.
+Its 2 "deleted" lines are the two CH1d-inserted lines replaced. `RESULT: FAIL` only for the commented `_LIVE` define. `junediverge.py --check-all`: `RESULT: PASS` (185 allow-listed). `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,998,336 B, dated 2026-11-05 22:43:07, md5 f5d250ac881ae974455660097f796d77, equal to X2/US_SERVICE/x2.exe (2026-11-05 22:43:00); built at main 23e3a1ec + 1 uncommitted code file(s).` No `exestr` line: `_LIVE` is off.
+
+CH1e kickoff checked: present; its CH0 amendment lists 32 functions (20 inside, 12 new) and 19 states, and the CH1d amendment names the three members already added. Lesson for later phases: count every `push` between a stack store and a reload. Nothing to play-test. Next: `/x2-phase char-raven CH1e` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.
