@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH4a | done 2026-11-05 (passives `32d1c560` whole + 8 callbacks, flag `_PASSIVE`, `_PASSIVE_DEBUG` on); owes user play-test, then Opus review | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4a-review.md` |
+| CH4a | done 2026-11-05 (passives `32d1c560` whole + 8 callbacks, flag `_PASSIVE`); play-test ran, all but Short Time Strong Attack seen; owes Opus review | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4a-review.md` |
 | CH4a2 | blocked (CH4a review): engine readers found by CH4a: state key `CREATE_EFFECT_SET` (Wind Slicer rate, Fight God bonus) + `32610cb0` (21417) | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GUUser.*` (not beside CH4b / CH4c) | `CH4a2.md` |
 | CH4b | blocked (CH4a review): June-only `SetDamageExceptionProcess` `32d1e0e0`, overrides, snapshot override | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4b.md` |
 | CH4c | blocked (CH4b, CH3d reviews): Rune Slayer magic reflect (7j), `MemoConditionElsword` | Opus 5.5 / high, Opus review, user play-test | CH4b review, CH3d review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4c.md` |

@@ -2277,6 +2277,13 @@ one with Magic Coating takes 0 magic damage with the MP gain; 0 Elsword `no_stat
 **Save** (backup `els_db_20261105_133049_pre_pre_ch4a.sql`): unit 26 `jtRuneSlayer` + 21409 level 4; unit 34 `InfinitySwordT` + 21414 level 3 and transcended (`settranscend 34 1`).
 **In game:** two `[JUNE_CHAR] ELSWORD PASSIVE init` lines per Elsword load; `brutal slayer`, `sword enchant`, `short time strong attack`, `lord knight open mind`,
 `infinity sword open mind`, `extreme rune buster`, `lightning step` lines when each fires.
+**Play-test ran (user, 2026-11-05; logs 14:05-14:12 and retest 14:18-14:19 on md5 `18269c12`; 0 EXCEPTION, 0 ErrorLog lines; known `E_DISABLE_HB_CHECK_REQ` UNHANDLED, one `AddGroupChainQuest`).**
+Init lines per class as the code: Lord Knight unit 25 wind slicer 0.200, final defence x0.940, auto guard 0.250 (= ( 0.12 + 0.005 ) x2 in a dungeon) cool 45; Rune Slayer unit 26 rune
+x1.27 / x1.53, fireball x1.000, magic reflect 0.120, enchant cool 20, extreme rune buster 1; Infinity Sword unit 34 walk / dash x1.120, anim x1.050. Seen: `lord knight open mind` after
+3 hits, three stacks then the 20 s cool time; `sword enchant` factors 0 / 2 / 0, 20 s apart; `extreme rune buster` 152 / 153 / 168 by the random, one per target per cast;
+`brutal slayer` every 5 hits with the 1 s cool time, Mind of Fighter 2 -> 5 (cap); `infinity sword open mind` on Conwell hits (units 70 / 71, the user's own 99s);
+`lightning step` every ~0.49 s of dash. **Not seen:** `short time strong attack` (9% per non-special hit at level 4, 2 s cool; the first run's hits were mostly skills,
+the retest's Sheath Knight run lasted ~15 s / ~10 hits). Left to the review: re-read `32d0bc60` and, if it holds, one longer plain-combo run.
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
