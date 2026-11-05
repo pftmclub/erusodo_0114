@@ -5243,6 +5243,7 @@ void CX2GUElsword_SwordMan::InitStateCommon()
 				stateData.Init();
 				stateData.stateID			= ESSI_SI1_ES_WIND_BLADE_ULTIMATE;
 				m_LuaManager.MakeTableReference( "ESSI_SI1_ES_WIND_BLADE_ULTIMATE", stateData.stateID );
+				stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericGroundComboEndEventProcess );	// June 329cb6d0 ( jumps to 31fcc350 )
 				m_StateList[stateData.stateID] = stateData;
 			}
 		} break;

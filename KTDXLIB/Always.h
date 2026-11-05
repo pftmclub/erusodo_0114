@@ -11608,6 +11608,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL ) && !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE )
 #error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE ( SkillSlotKey::IsKeyPressedOnce )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL ) && !defined( SERV_IRUHADEV_JUNE_GROUND_COMBO_END_EVENT )
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL needs SERV_IRUHADEV_JUNE_GROUND_COMBO_END_EVENT ( the ultimate state's EventProcess )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

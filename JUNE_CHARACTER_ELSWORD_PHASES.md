@@ -1864,6 +1864,8 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (+ `_SKILL_DEBUG`, defined again in
 
 **Judgement for the review.** The class map called the upgraded Wind Blade EP "inside" March's `ESSI_SI1_ES_WIND_BLADE_EventProcess`, but June registers two different functions (21013 -> `32cfa040` = March, 21035 -> `32cfa080`), so the second is a new function `ESSI_SI1_ES_WIND_BLADE_UPGRADE_EventProcess`. Rising Slash Init `32cf3c00` is "= March": June's memo preloads sit behind a stub that is false, and March's `GetEqippedSkillMemo` is false under `DIVERGE_SKILL_MEMO`.
 
+**Fix after the first play-test (2026-11-05).** The logs showed the transition (`wind blade ultimate: skill 21035 level 1 mp 50.0`) but the character then stood frozen: state 262 had no EventProcess. June gives it `329cb6d0` (a jump to `31fcc350` = `CX2GUUser::GenericGroundComboEndEventProcess`, Eve CH4c); CH0's `ch0_skill.tsv` row had the callback, the registration listing had lost its register name. The ultimate state now registers `GenericGroundComboEndEventProcess`; `Always.h` `#error`s without `SERV_IRUHADEV_JUNE_GROUND_COMBO_END_EVENT`. Re-built: DEPLOY OK md5 2f267087 (25,977,344 B, 2026-11-05 08:03:18); EXESTR OK. The first play-test passed for Big Burst, Sword Wave, Critical Sword, Rising Slash, Storm Blade (+ upgraded buff factor) and the Wind Blade cast; only the ultimate needs the retest.
+
 **Left to later phases (scope rule).** None new: the numerical-only Big Burst table and the damage effects run through the engine; `NUM use` comes from the play-test. Upgrade ids need no templet swap beyond the two swap arguments June passes itself.
 
 **Gates.**
