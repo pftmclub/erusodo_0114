@@ -2344,6 +2344,11 @@ public:
 		RNSI_P_EIS_OPEN_MIND                                  = 21419,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-05 // char-elsword CH4a2
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_P_ELK_FIGHT_GOD                                  = 21416,	// June's Enum.lua
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

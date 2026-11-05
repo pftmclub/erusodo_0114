@@ -4905,9 +4905,16 @@ public:
 	float		m_fMpGainOnHitAddRate;	/// June +0x93b8 ( ctor 0 ): added to AttackResult's MP scale; the base InitPassiveSkillState resets it, Chung's adds Iron Will
 	void		AddMpGainOnHitRate( const float fRate_ ) { m_fMpGainOnHitAddRate += ( 1.f <= fRate_ ? fRate_ - 1.f : fRate_ ); }	/// June 31fc94d0
 #endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+#ifdef SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
+	float		m_fCreateEffectSetRate;	/// June +0x8e50 ( ctor 0 @32040e15 ): the chance a state's CREATE_EFFECT_SET plays; Elsword's Wind Slicer sets it
+	wstring		m_wstrCreateEffectSetName;			/// June +0x8e2c: CREATE_EFFECT_SET [1]
+	float		m_fCreateEffectSetTime;				/// June +0x8e48: CREATE_EFFECT_SET [2], the now anim's time
+	float		m_fCreateEffectSetRotateDegreeZ;	/// June +0x8e4c: CREATE_EFFECT_SET [3], added to GetRotateDegree().z
+#else SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 	float		m_fCreateEffectSetRate;	/// June +0x8e50 ( ctor 0 @32040e15 ): the chance a state's CREATE_EFFECT_SET plays; Elsword's Wind Slicer sets it ( the reader is CH4a2's )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+#endif SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
 
 	float m_fSummonNpcCoolTime;
 #ifdef SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE

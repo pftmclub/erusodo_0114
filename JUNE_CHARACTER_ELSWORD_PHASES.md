@@ -2316,6 +2316,41 @@ Opus 5.5. **Verdict: passes, no code change.** Commit `85aa602e`; Ghidra decompi
   Build started, not awaited.
 - **Optional, no log line now:** a ~1 min plain-combo run on a Sheath Knight with Short Time Strong Attack shows its buff icon now and then (9 % per non-special hit, 2 s cool time).
 
+### CH4a2 - Done (2026-11-05)
+
+**Landed.** Commit: see `git log`, "char-elsword Phase CH4a2". New class-agnostic flag `SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET` (needs `JUNE_TRANSCEND_UNIT`, `JUNE_SKILL_TEMPLET`,
+`JUNE_SKILL_STATE_PTR`, `JUNE_ENUM_NAMES`, all checked ON with `flagprobe.py`); `_PASSIVE_DEBUG` re-opened for the log. Files: `X2GUUser.cpp` / `.h`, `X2SkillTree.h`, `X2BuffFactor.h`, `Always.h`.
+Read from `disasm_range.py` listings (Ghidra fails to decompile `32063650`); rows `(CH4a2)` at the end of `june2017_re/funcmap.tsv`.
+- **Members** (`X2GUUser.h`): `m_fCreateEffectSetRate` (`+0x8e50`) now under the new flag, CH4a's `_PASSIVE` line kept in its `#else`; new `m_wstrCreateEffectSetName` (`+0x8e2c`),
+  `m_fCreateEffectSetTime` (`+0x8e48`), `m_fCreateEffectSetRotateDegreeZ` (`+0x8e4c`). Ctor 0 / 0 (stand-in: June's ctor leaves the two floats unset).
+- **Parse** in March's `CommonStateStart` = June `32057b80` @`320606b5`-`32060736`: name = L"" first; `BeginTable( "CREATE_EFFECT_SET" )` (string `33478ecc`, whose only xref is this
+  parser: no NPC reads the key, so the PvP-hero NPC scripts' copies are inert in June too) -> `[1]` name (miss L""), `[2]` time (miss 0), `[3]` (miss 0). A state without the key keeps
+  the last time and `[3]` (unread, the name is empty). Placed after the skill-state-end stops and before `SPECIAL_OPTION_VALUE`, June's order. `3203a620` @`3203b66f` (the kickoff's
+  "clear") is the user dtor freeing the string.
+- **Play** in March's `CommonFrameMove` = June `32063650` @`32063a6c`-`32063d06`, after the buff resync and before March's `RIDING_SYSTEM` riding-wait block (June runs that at
+  `@32063d06`: state index 76, `+0x89d8`, `+0x921c`). Bonus = `m_fCreateEffectSetRate` when `HaveThisBuff( BTI_SI_A_ES_ENDURANCE )` (Iron Body, 21201 / enhanced 21218 both apply BTI 18),
+  Fight God 21416 templet is `SPRT_HYPER_CLASS`, `m_iUnitClassTran == 1` and `GetSkillLevel( 21416, true, 0, true ) > 0` (June's order). Then name non-empty, `GetRandomFloat( 0 ) <
+  rate + bonus`, `GetXSkinAnimPtr()->EventTimerOneshot( time )` -> `PlayEffectSet( name, this, NULL, now state m_bHyperState, GetPowerRate(), -1, scale x3, false, GetPos(),
+  GetRotateDegree() with z += [3], 0 )` (force-down 1.0 = the default). **The kickoff's "y offset" is the rotation's z**: June adds `+0x8e4c` to vslot `0x150` `GetRotateDegree`'s
+  third float; every June row (Elsword 39, Elesis 46) has 0 there.
+- **`32610cb0` (21417 Rune Slayer Open Mind):** no caller anywhere (no E8 / E9, no absolute pointer in the file, no Ghidra xref; the only other `push 0x53a9` is `32d0c780`
+  `ApplyBuffToOpenMind`, ported in CH1h). Dead in June: nothing to port. (It would also return true for a non-hyper-class templet.)
+- **Names** (`JUNE_ENUM_NAMES`): `RNSI_P_ELK_FIGHT_GOD` 21416, `BTI_SI_A_ES_ENDURANCE` 18 (June's `Enum.src.lua`).
+- **Routed:** Elesis' two rate writers (`32b74500` @`32b7471b`, `32b89260` @`32b8930d`) -> `char-elesis` (bullet in `kickoffs/june-backlog/stage7-plan.md`, row 7); until then her
+  `EffectSet_Elesis_SBH_Blaze_Wing_Soul_Ignition` rows play at rate 0. The block before June's (`@3206393c`-`32063a6c`, `+0x8e92` / `+0x8e91`, `3204df80` UpdateDuo) is Lu/Ciel's DU1.
+- **Checklist:** §2 L124 and §7ao's Elsword row marked `(Elsword: CH4a2)`. No JUNE_BUGS row (no quirk with an effect: the kept time / `[3]` are unread with an empty name).
+
+**Hygiene.** `flagcheck.py JUNE_USER_CREATE_EFFECT_SET --with JUNE_CHAR_ELSWORD_PASSIVE_DEBUG --worktree --files` (5 files): `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
+(OTHER = the two enum headers under `JUNE_ENUM_NAMES`; the deleted line is `//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG`, now `#define`d).
+`junediverge.py --check` (the 5 files): `allow-listed: 7`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUUser.cpp`: `0 A/B row(s)`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 25,999,360 B, dated 2026-11-05 15:00:15, md5 007afdce5353d295af8cdc4692afe75c, equal to X2/US_SERVICE/x2.exe (2026-11-05 15:00:07); built at main 732250f9 + 5 uncommitted code file(s).`
+`EXESTR OK: 3 of 3 found in X2_offline.exe, 25999360 B, dated 2026-11-05 15:00:15, md5 007afdce5353d295af8cdc4692afe75c` (the `played` / `missed` lines, `CREATE_EFFECT_SET`).
+**Save** (backup `els_db_20261105_145154_pre_sql.sql`): unit 25 `jtLordKnight` (transcended since CH3d, Wind Slicer 21402 level 4) + Fight God 21416 level 1 and Enhanced Iron Body
+21218 level 1 in slot 7 (B-3).
+**In game:** `[JUNE_CHAR] ELSWORD PASSIVE create effect set played: EffectSet_SI_P_ELK_WIND_SLICER ( ... roll r < rate 0.200 + fight god 0.000 )` / `... missed: ...` at each
+combo's event time; with Iron Body up, `fight god 0.200`.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI`. Sub-tag `UI`.

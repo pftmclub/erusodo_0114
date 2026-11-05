@@ -742,9 +742,15 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
 , m_fMpGainOnHitAddRate( 0.f )
 #endif SERV_IRUHADEV_JUNE_USER_MP_GAIN_ON_HIT
+#ifdef SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
+, m_fCreateEffectSetRate( 0.f )
+, m_fCreateEffectSetTime( 0.f )				/// stand-in: June's ctor leaves +0x8e48 / +0x8e4c unset
+, m_fCreateEffectSetRotateDegreeZ( 0.f )
+#else SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 , m_fCreateEffectSetRate( 0.f )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+#endif SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
 , m_fPassiveAnimSpeedRate( 1.f )
 #endif SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE
@@ -18085,6 +18091,19 @@ void CX2GUUser::CommonStateStart()
 	/// the state start. m_NowStateData is the new state's by now.
 	StopSoundOnSkillStateEnd( static_cast<int>( GetNowStateSkillID() ) );
 #endif SERV_IRUHADEV_JUNE_UNIT_SOUND
+#ifdef SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
+	m_wstrCreateEffectSetName = L"";		/// June 32057b80 @320606b5-32060736; a state without the key keeps the last time and z
+	if ( true == m_LuaManager.BeginTable( "CREATE_EFFECT_SET" ) )
+	{
+		if ( false == m_LuaManager.GetValue( 1, m_wstrCreateEffectSetName ) )
+			m_wstrCreateEffectSetName = L"";
+		if ( false == m_LuaManager.GetValue( 2, m_fCreateEffectSetTime ) )
+			m_fCreateEffectSetTime = 0.f;
+		if ( false == m_LuaManager.GetValue( 3, m_fCreateEffectSetRotateDegreeZ ) )
+			m_fCreateEffectSetRotateDegreeZ = 0.f;
+		m_LuaManager.EndTable();
+	}
+#endif SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 	m_vecSpecialOptionValue.resize( 0 );	/// June 32057b80 @320608a9-3206092e
 	if( true == m_LuaManager.BeginTable( "SPECIAL_OPTION_VALUE" ) )
@@ -18868,6 +18887,42 @@ void CX2GUUser::CommonFrameMove()
 	}
 
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
+#ifdef SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
+	{
+		/// June 32063650 @32063a6c-32063d06: Fight God doubles the rate under Endurance once transcended
+		float fFightGodBonusRate = 0.f;
+		if ( true == HaveThisBuff( BTI_SI_A_ES_ENDURANCE ) )
+		{
+			const CX2SkillTree::SkillTemplet* pFightGodSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_ELK_FIGHT_GOD );
+			if ( NULL != pFightGodSkillTemplet && CX2SkillTree::SPRT_HYPER_CLASS == pFightGodSkillTemplet->m_ePowerRateType
+				&& 1 == GetUnit()->GetUnitData().m_iUnitClassTran
+				&& 0 < GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ELK_FIGHT_GOD, true, 0, true ) )
+				fFightGodBonusRate = m_fCreateEffectSetRate;
+		}
+
+		if ( false == m_wstrCreateEffectSetName.empty() )
+		{
+			const float fCreateEffectSetRoll = GetRandomFloat( 0 );
+			if ( fCreateEffectSetRoll < m_fCreateEffectSetRate + fFightGodBonusRate && true == GetXSkinAnimPtr()->EventTimerOneshot( m_fCreateEffectSetTime ) )
+			{
+				const D3DXVECTOR3 vScale( GetScale(), GetScale(), GetScale() );
+				D3DXVECTOR3 vRotateDegree = GetRotateDegree();
+				vRotateDegree.z += m_fCreateEffectSetRotateDegreeZ;
+				g_pX2Game->GetEffectSet()->PlayEffectSet( m_wstrCreateEffectSetName, this, NULL, m_itNowStateData->second.m_bHyperState, GetPowerRate(), -1.f, vScale,
+					false, GetPos(), vRotateDegree, D3DXVECTOR3( 0.f, 0.f, 0.f ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+				CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE create effect set played: %s ( unit %I64d state %d at %.3f, roll %.3f < rate %.3f + fight god %.3f )",
+					m_wstrCreateEffectSetName.c_str(), GetUnitUID(), static_cast<int>( GetNowStateID() ), m_fCreateEffectSetTime, fCreateEffectSetRoll, m_fCreateEffectSetRate, fFightGodBonusRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+			}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+			else if ( true == GetXSkinAnimPtr()->EventTimerOneshot( m_fCreateEffectSetTime ) )
+				CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE create effect set missed: %s ( unit %I64d state %d at %.3f, roll %.3f >= rate %.3f + fight god %.3f )",
+					m_wstrCreateEffectSetName.c_str(), GetUnitUID(), static_cast<int>( GetNowStateID() ), m_fCreateEffectSetTime, fCreateEffectSetRoll, m_fCreateEffectSetRate, fFightGodBonusRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
 #ifdef RIDING_SYSTEM
 	if ( GetNowStateID() == USI_RIDING_WAIT && m_ePlayedEmotion == CX2Unit::ET_NONE  )
     {

@@ -11661,5 +11661,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Author: Iruha
 // Date: 2026-11-05
 // Description: char-elsword CH4a - temporary [JUNE_CHAR] ELSWORD PASSIVE lines ( the init values per load, each callback's buff ). CH4a's review retires it.
-//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-05
+// Description: char-elsword CH4a2 - the user state key CREATE_EFFECT_SET { name, time, rotate degree z } ( June CommonStateStart 32057b80 @320606b5 ) and its
+//              play in CommonFrameMove ( 32063650 @32063a6c-32063d06 ): at the time, with m_fCreateEffectSetRate's chance ( Elsword's Wind Slicer, Elesis writes
+//              it too ), doubled with BTI_SI_A_ES_ENDURANCE + Fight God 21416 learned, hyper-class and transcended. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
+#if defined( SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET ) && ( !defined( SERV_IRUHADEV_JUNE_TRANSCEND_UNIT ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TEMPLET ) || !defined( SERV_IRUHADEV_JUNE_SKILL_STATE_PTR ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) )
+#error SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET needs SERV_IRUHADEV_JUNE_TRANSCEND_UNIT, SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( GetSkillLevel's upgrade swap ), SERV_IRUHADEV_JUNE_SKILL_STATE_PTR and SERV_IRUHADEV_JUNE_ENUM_NAMES
+#endif SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
 //////////////////////////////////////////////////////////////////////////
