@@ -406,6 +406,34 @@ All 19 class-map rows of phase CH1a are written, all `inside`: June's body in Ma
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-raven CH1a review` (Opus 5.5 high), then CH1b.
 
+### CH1a - Review (2026-11-05, Opus 5.5)
+
+**Verdict: PASS, no code change.** Read against `charport_adis.py raven` listings (the `StateChange` pushes, `fcomp` / `test ah` idioms):
+- **DashJump EventProcess `32c3d3f0`:** branch for branch as written. X gate `0 < [+0x95d8]` skips (`m_fReDashJumpXTime <= 0`); class test
+  `[unit + 0x38]` 0x73 -> 0xfc, 0x6a -> 0x12c, else 0xb6. Both-keys branch: `oneRight && !bIsRight` or `oneLeft && bIsRight` -> clamp
+  `if( jumpY < nowY ) nowY = jumpY` (`fcompp` / `test ah, 5` / `jp`), then `0 < nowY` -> JUMP_UP else JUMP_DOWN; otherwise nothing. The tail
+  (`oneUp && nowY <= 0` flag, `oneDown` -> `nowY = fMaxGSpeed` with no negation, riding) is March's. Wall landing 0xc8 = `RSI_WALL_LANDING`, 0xb3 = `RSI_DASH_JUMP_COMBO_Z`.
+- **State ids** (`ch0_reg.tsv`): 0x12c = 300 = `RBM_DASH_JUMP_COMBO_X` (registrar `32c511c0` @524), 0xfc = 252 `RVC_DASH_JUMP_COMBO_X`, 0xb6 = 182
+  `RSI_DASH_JUMP_COMBO_X`. June's InitState also registers `RRF_DASH_JUMP_COMBO_X` at 182 for Reckless Fist, as March does (`X2GURaven.cpp:820`); CH1m keeps that.
+- **PowerLanding `32c25d60` / `32c25d90` / `32c44d80`:** `fmul 0.5`; Start = CommonStateStart + CreateStepDust; EventProcess gate
+  `(max - transition) / 6 < now` (`+0x220 - +0x2b0`, `fdiv 6.0`, vs `+0x214`) = `GetNowAnimationTime() > GetMaxAnimationTime() / 6`
+  (`GetMaxAnimationTime()` is `m_fAnimMaxTime - m_fTransitionTime`); key order, off-line `y -= 45`, WAIT on `+0x2ac` all match.
+- **DashEnd `32c448a0` / Start `32c40f50`:** Z gate `m_bReAttackZ1Right != bIsRight || !(0 < m_fReAttackZ1Time)`; Z and X split at `fmul 0.125` (`/ 8`);
+  `SpecialAttackEventProcess( 1 )`; dash on double / 3-key, walk, CanDown (March's 4-arg wrapper over the June signature), up, hyper, anim end, riding. Start: stage
+  0xd8 (`RBM_COMBO_ZZZXZ`) -> time 0, protected hit count 0, stage 0x99 (`RSI_BASE`), then CommonStateStart.
+- **JumpLanding `32c443f0`:** skip-point chain is the 15 keys in `ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS`'s order (Up Down Right Left Z X A S D C Q W E R LCtr),
+  joined with anim end to `StateChange( 0xd, false )`; pureUp -> JUMP_UP, `nowY = jumpY`, `y += 30`. Extra: Wait EventProcess `32c43f90` matches too.
+- **Offsets** (`ch1_offsets.tsv` rows 85-90): +0x95d0 byte vs `bIsRight`, +0x95d4 / +0x95d8 floats, +0x9674 `KProtectedType<int>` (value words +4 / +8),
+  +0x9680 float, +0x97d4 stage: all confirmed by the listings above. The protected hit count needs nothing until a reader goes through the protected type.
+- **Enum tail:** `RBM_DASH_JUMP_COMBO_X` is the last member of `RAVEN_STATE_ID` (`X2GURaven.h:252`); no END / count member, `m_StateList` is a map; no table indexes the tail.
+
+**Gates:** `flagcheck SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE --with ..._CORE --range 5264b64e^..5264b64e`: `files: 1 PASS, 0 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only for the
+commented-out `_LIVE` define (OTHER = the `_CORE` enum member). `junediverge.py --check-all`: `RESULT: PASS` (185 allow-listed). `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows.
+One-file `/Zs` probe of `X2GURaven.cpp`: 0 errors with `_LIVE` off and with `/D SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`.
+No build: the review changed no code. CH1a's refused deploy is harmless (the only compiled change is an unreferenced enum member); CH1b's `build.py --deploy` carries it.
+Nothing to play-test. Next: `/x2-phase char-raven CH1b` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.
