@@ -631,6 +631,33 @@ All 32 class-map rows of phase CH1e are written. 20 are `inside`: June's body in
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-raven CH1e review` (Opus 5.5 high), then CH1f.
 
+### CH1e - Review (2026-11-06, Opus 5.5)
+
+**Verdict: PASS, no code change.** All 32 rows were read against `charport_adis.py raven --phase CH1e`. Each float test was checked by its x87 flag test, as in CH1d.
+- **The chain** (`+0x8c90` skill cancel, back-walk `+0x8c94`, walk `+0x8c98`, dash `+0x8c9c`, Z / X `+0x8c8c`, each with the foot test) has the same order in all 10 listings that carry it. Where it sits:
+  dash-jump ZZZZ `32c2ccc0`: fall, end, chain. ZZZupZ `32c2dfe0`: end (fall / landing), chain. X-X-Z `32c2e2f0`: fall, chain, end, 8-hit, counter. 8-hit `32c2e700`: fall, chain, play count (`+0x248`) `> 4`. 8-hit Z `32c2ea40`: fall, chain, end.
+  X-Z `32c32560`: end, chain, fall, flag change, flag set. X-Z-Z `32c32970`: direction clear, end, chain, double-tap dash (no foot test), flag change, flag set, and **no fall at all** (the Done note's "chain before the fall" holds for X-Z). Explosion `32c32de0`: end, chain.
+  Z-Z-Z-X `32c413e0`: flag set, then the flag branch (when `t <= 0.94` it skips the rest, chain included), explosion, fall, chain. Z-Z-Z-X-Z `32c41a00`: fall, two explosions, `0.69` follow-up, chain, then the `< 0.69` flag set, which every branch reaches.
+- **Sword Taker:** X-X-Z 0.87 (`>` / `<`), and `+0x9634` is reset before `StateChange`. The 8-hit FrameMove plays at 0.047 / 0.276 with `PlaySound( name, true, false )` (= March's defaults). Start `32c26340` = March.
+  Dash Z-Z: 0.5 (`>` / `<`), data class `+0x38` != 115 in both branches, keys up / down / right / left / A / S / D / C / Q / W / E / R (= `ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_C`), `> 0.9`, `0xde0` = 0.1; the end test is a separate `if`.
+  Dash Z-Z-Z: `> 0.84`, and nothing is stored to `0xde0` (`JUNE_BUGS` #538 confirmed, @32c2df5e-32c2df7c).
+- **Dash-jump:** event time 0 is `keyInputStart` `+0x8c10`, `keyInputEnd` `+0x8c14`, `stateChange` `+0x8c18` (`X2GUUser.h:1229`). The flag change is `stateChange < t || end`; the flag set is `start <= t < end`, for data class 16 / 106 (ZZ, ZZZ landing) or 106 alone (Blade Master X).
+  ZZZ landing `StateStartFuture` calls `CommonStateStartFuture`, then zeroes `+0x304`-`+0x310`. Both landings test `t > ( +0x220 - +0x2b0 ) / 3`; down uses `CanDown( LINE_RADIUS )`, and a failed `CanDown` goes to the end test.
+- **Blade Master:** X-Z / X-Z-Z use 0.63 / 0.66 with templet `+0xaf0`->`+4` 16 / 106. X-Z-Z-Z: end -> jump-down (no offset) or landing.
+  Z-Z-Z-X: flag set for templet 106 at any time, `t > 0.94`, black hole count (`KProtectedType`) `> 0` and time `<= 0.9`; the fall zeroes the time, then the count.
+  Start: count, time, stage `0xd8`, `CommonStateStart`. FrameMove: oneshot 0.24; stop `+0x9684` if != -1; count 1; time `max - 0.24 + 1`; the handle = `PlayEffectSet`; `UpDownCrashCamera( 5, 0.2 )`.
+  Z-Z-Z-X-Z Start: `CommonStateStart` first; `count - 1 >= 4` -> explosion, `dirDegree.y += 180`, `bIsRight` flipped; else `++count`, 1.24; stage `0xd8` after both. EP: the fall also zeroes `nowSpeed.x`; the explosions need `<= 0.4` (the first also needs flag 0 clear); `0.69 <= t` with the flag set -> ZZZXZ, without clearing the flag.
+  Explosion FrameMove 0.3 / 0.4 = March (two compiler forms of the inline oneshot). Init = March's 4 textures.
+- **Blade Master dash-jump X / X-Z FrameMoves** (`FlushMp( 10.0f )`, vslot 0xe4). I counted the pushes, as the CH1d review asked. In `32c459f0`, `fstp [esp+0x24]` after two pushes is `vAngle.z - 45`, and `fstp [esp+0x4c]` after three pushes is `pos.y - 40`. In `32c45cc0`, `[esp+0x24]` after two pushes is `vAngle.z - 50`, and `pos` is not changed.
+- **Enum:** 295 / 296 / 297 / 298 = `ch0_state_enum_names.tsv` (reg `32c511c0`@350 / 393 / 437 / 480) = the listings' pushes `0x127`-`0x12a`.
+
+**Gates.** One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`): exit 0, 0 errors with `_LIVE` off and with `/DSERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`. `cl /P` was read for each branch: `1.24f` 0 off / 1 on, `0.94f` 2 / 1 (March's `ELSE_IF_STATE_CHANGE_ON_` pair / June's one), and `EffectSet_RST_DashJump_XZ` 1 / 1 (`_CORE`).
+The preprocessed Z-Z-Z-X body expands `SKILL_CANCEL_AFTER` and the `RAVEN_GROUND_*` macros as one `else if` chain behind the fall.
+`flagcheck ..._LIVE --with ..._CORE --range 123ef0a8^..123ef0a8`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s)`. `RESULT: FAIL` only for the commented `_LIVE` define.
+`junediverge.py --check-all`: `RESULT: PASS` (185 allow-listed). `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows. No build: the review changes no code.
+
+CH1f kickoff checked: present. Its CH0 amendment lists 38 functions (29 inside, 9 new) and 17 states, and its CH1d amendment names the two members already added (211, 302). CH1e added none of CH1f's. Nothing to play-test. Next: `/x2-phase char-raven CH1f` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.
