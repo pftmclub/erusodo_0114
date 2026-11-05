@@ -690,6 +690,34 @@ All 38 class-map rows of phase CH1f are written: 29 `inside` (June's body in Mar
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-raven CH1f review` (Opus 5.5 high), then CH1g.
 
+### CH1f - Review (2026-11-06, Opus 5.5)
+
+**Verdict: PASS, no code change.** All 38 rows were read against `charport_adis.py raven --phase CH1f`. Each float test was checked by its x87 flag test (`test ah, 5` / `0x41` / `1` with `jp` / `jnp` / `jne`), as in CH1d.
+- **The chain** (`+0x8c90` skill cancel, back-walk `+0x8c94`, walk `+0x8c98`, dash `+0x8c9c`, Z / X `+0x8c8c`, each with the foot test) has the same order in all 11 listings. Where it sits = the Done note:
+  fall, then chain: `2ed70`, `2f1b0`, `2f6a0`, `2fb90`, `2ffb0` (`2ffb0`: then the end). Fall, end, chain: `302e0`, `30710`. End (fall / WAIT inside it), then chain: `2d130`.
+  End, chain, fall: `31ec0`, `32210`. `31a80`: back-input sets flag 1; `t >= 0.6` with flag 1, or the end, goes to WAIT; then fall, chain, a bare double-tap dash (no foot test), flag 0, flag set.
+- **X-X-front-X family:** event time 0 = `+0x8c10` / `14` / `18`, event time 1 = `+0x8c1c` / `20` / `24`. `2ed70`: flag 0 (`+0x8c18 < t` or the end) -> 0xbf; the set needs `start <= t < end` + `oneX` + forward (`bIsRight` with `pureRight`, else `pureLeft`); `+0x8c18 < t` -> 0xc2; end -> WAIT.
+  `2f1b0` / `2f6a0`: flag 0 (X + `pureDown`) -> 0xc3, flag 1 (X) -> 0xc0 / 0xc1, `+0x8c24 < t` -> 0xc2, no end test. `2fb90`: no flag 1. The flag change and flag set macros match the listing operand for operand.
+- **X-X-down-X FrameMove `32c47160`:** oneshot 0.3 particle `Raven_attackX3Front_Particle01` at +-50, axis angle; else 0.3666 `FlushMp( 4.0f )` (vslot 0xe4); else 0.4333 `UpDownCrashCamera( 5, 0.15 )`; `CommonFrameMove` last.
+  I counted the 23 dwords of `CreateInstance` against `X2DamageEffect.h:1654`: bPet 0, bInsertFront 0, fHitAddMp -1, mesh 0, fHitGap -1, iHitCount -1, then fReserveTime -1 (the `-1.0` left on the FPU stack), fForceDown 1, fLifeTime 1, bReserve 0, fLandPos 0, both angles `GetRotateDegree()`. Pos is read at `[esp+0x6c / 0x70 / 0x80]` after 0x44 / 0x50 bytes of pushes = base `+0x28..0x30` = GetPos +-60.
+  Fail path: `y + 50` stored after two pushes = base `+0x2c`; `angle.z = 45` (a store, not a `-=`); trigger 100 / 100 / 1; axis and add-rotate both.
+- **Z-X-X FrameMove `32c47970`:** `CommonFrameMove` first, oneshot 0.31, +-60, the same default tail. **Z-X landing `32c47700`:** fall, then flag 0 -> 0xc7, the window with X, then `t > 0.4`: double-tap, walk, up, down + `CanDown( 30 )`, end. A failed `CanDown` goes to the end test (= March).
+- **Reckless Fist:** `32c49ab0`: `FlushMp( 4.0f )`, stop `+0x9700` if != -1, `PlayEffectSet`, push into the damage-react list, camera 10 / 0.2. June keeps only side-effect-free `GetCloneFrame` / `GetIsRight` calls of March's dead Dummy2 offset. The fail path is `vAngle.z - 50` at base `+0x1c` after two pushes.
+  `31a80`: flag 0 at `0.57 < t` or the end -> 0xd2; the set needs `t < 0.57` + X + templet `+0xaf0`->`+4` == 0x6b (107 = `UC_RAVEN_RECKLESS_FIST`, `X2Unit.h:112`).
+  `31730`: flag 0 + `t >= 0.39` + no foot -> 0xcf, else `oneX` + `t <= 0.39` sets it; the end test is a separate `if` (landing 0x12 / down 0x11). `31860`: end -> WAIT, then a separate `IF_SKILL_CANCEL_AFTER( 0.4 )` (hyper part included), then the key list up / down / right / left / Z / X / A / S / D / C / Q / W / E / R.
+  `316a0` 0.21 / 0.7 / 0.26 / 0.29 / 1200, `317e0` `0 <= t <= 0.54`, `31a20` `< 0.27` / `>= 0.33`, `30600` 0.267 -> (0, 0) / (2200, -2640).
+  Short rows: `26360` / `26370` (`Raven_Iron_Attack01.X`) / `26390` / `263a0` (20, 0.3) / `26aa0`-`26b70` / `30690` 0xc6 / `31830` 0xd0 / `306c0`. Each = its listing.
+- **Enum:** 191-195 = `ch0_state_enum_names.tsv` rows 150-154 (reg `32c51b70`@133 / 176 / 219 / 262 / 305) = the pushes 0xbf-0xc3. The other targets: 0xc6 198, 0xc7 199, 0xcf 207, 0xd0 208, 0xd2 210 = their rows.
+- **`JUNE_BUGS` #539 confirmed:** `32c32210` has no `+0x8ca4` operand, and `RAVEN_FIGHTER.src.lua` `RRF_COMBO_ZZZX` sets `UPDOWN_CANCEL_AFTER = 1.95`.
+- **The diff's 2 deleted lines** (`git diff --numstat` 645 / 2) are a Myers alignment artifact: the `ZX_LANDING_EventProcess()` header and `{` are byte-identical in both versions. `--patience` gives 643 / 0.
+
+**Gates.** One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`): exit 0, 0 errors with `_LIVE` off and with `/DSERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`. `cl /P` was read for each branch: `FlushMp( 4.0f )` 1 off / 2 on, `DamageEffect_RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX` 0 / 1, `IsTempletClass( ..., UC_RAVEN_RECKLESS_FIST )` 0 / 2.
+The expanded X-X-front-X body is one `else if` chain behind the fall.
+`flagcheck ..._LIVE --with ..._CORE --range c87e1148^..c87e1148`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s)`. `RESULT: FAIL` only for the commented `_LIVE` define.
+`junediverge.py --check-all`: `RESULT: PASS` (185 allow-listed). `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows. No build: the review changes no code.
+
+CH1g kickoff checked: present, CH0 amendment lists 35 functions and 11 Weapon Taker states, none of them CH1f's. Nothing to play-test. Next: `/x2-phase char-raven CH1g` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.
