@@ -2344,6 +2344,7 @@ Read from `disasm_range.py` listings (Ghidra fails to decompile `32063650`); row
 `in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
 (OTHER = the two enum headers under `JUNE_ENUM_NAMES`; the deleted line is `//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG`, now `#define`d).
 `junediverge.py --check` (the 5 files): `allow-listed: 7`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUUser.cpp`: `0 A/B row(s)`.
+**Range (commit `58e53890`):** `--range 58e53890^..58e53890`, same 5 files: `files: 2 PASS, 0 PASS~, 1 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; 1 deleted (the `//#define`); `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,999,360 B, dated 2026-11-05 15:00:15, md5 007afdce5353d295af8cdc4692afe75c, equal to X2/US_SERVICE/x2.exe (2026-11-05 15:00:07); built at main 732250f9 + 5 uncommitted code file(s).`
 `EXESTR OK: 3 of 3 found in X2_offline.exe, 25999360 B, dated 2026-11-05 15:00:15, md5 007afdce5353d295af8cdc4692afe75c` (the `played` / `missed` lines, `CREATE_EFFECT_SET`).
 **Save** (backup `els_db_20261105_145154_pre_sql.sql`): unit 25 `jtLordKnight` (transcended since CH3d, Wind Slicer 21402 level 4) + Fight God 21416 level 1 and Enhanced Iron Body
