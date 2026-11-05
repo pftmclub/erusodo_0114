@@ -26,6 +26,7 @@ UPDOWN cancels, the numerical-only tables, alpha-tag sites in its functions); it
 and added to `ch0_assets.tsv`). Upgrade ids reach their base through the templet's `m_iDeleteSkillIDByUpgrade` (June `32071720`): check the
 templet swap for every term that reads the id (the Aisha CH3b review defect). A function the map does not settle (new mechanism, unmapped
 callee) is "this needs Opus": stop.
+- An empty `hyper` or `reg` row in `ch0_skill_listing_rows.tsv` is not proof June fills nothing (CH3a review): read the case raw; `329cc2c0` copies all nine delegates, and a generic `329cbfc0` lands at `+0x48`.
 - `NUM use` lines for these skills; March vs June damage per skill in `MODS.md`.
 - CP949: `bytepatch.py` only. Mark the ported checklist rows `(Elsword: CH3b)`.
 - Hand-off: the unit and class, each skill id and its A / B slot (never slot 4 / 9 before transcendence), what June's motion and effect look like.

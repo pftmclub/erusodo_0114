@@ -11620,5 +11620,5 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              fire states with the charge time and the fire power rate, and the Rolling end HP gate. CH2a's review retires it.
 //              Revert: undefine the flag ( JUNE_CHAR_ELSWORD_SKILL_DEBUG ).
 //              CH3a ( 2026-11-05 ): defined again for the Lord Knight lines ( Armageddon Blade, Windmill, Rolling Smash, Grand Cross, Sonic Blade Crescent ). CH3a's review retires it.
-#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
