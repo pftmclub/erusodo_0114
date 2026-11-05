@@ -2588,7 +2588,7 @@ guide popup with that class's picture, the new skill-tree rows, the HUD portrait
 - 22 type-8 / 2 / 1 / 12 passives and common auras (21400-21420, 21405, 106, 900): no class state in June; read through `GetSkillLevelValue` / buff factors (CH4a-CH4c).
 
 **Walk units (in the save, all backed up).** First jobs 67 / 68 (class 1), 66 (10); second jobs 69 (11), 70 (22), 71 (112, transcended); 25 Lord Knight and 26 Rune Slayer (transcended); 34 Infinity Sword lv70. 66 / 69 / 70 are lv99, transcendence 0, no quest 42030 row: they take the transition test. Failures go back to the owning phase's flag (`JUNE_CHAR_ELSWORD_*`).
-**Gate status: OPEN.** Needs the user's walk (hand-off in the session), then "check logs".
+**Gate status: PASSED (2026-11-05).** User walk over classes 1 / 10 / 11 / 22 / 100 / 101 / 112, the transition on 100 / 101 / 112 (`/tc 0`, book 288493, quest 42030, relog). Logs: skill cut-in sets 0 / 1 / 2 / 3 (`HQ_CutIn_Elsword_01` / `_LK_01` / `_RS_01` / `_IS_01`); `ELSWORD UI hyper cut-in class 100 / 101 / 112 name HQ_Cutin_E{LK,RS,IS}_Transcendence`; `JUNE_TRANSCEND` book / quest / guide popup `DLG_Transcendental_Change_Guide_Elsowrd.lua` for 100 / 101 / 112, IMAGE `TR_{L_KNIGHT,R_SLAYER,I_SWORD}_{LARGE,STATE|FACE}`, awakening `BFI 845` for 101 / 112; `ErrorLog.txt` 0 `KEM_ERROR` (only the usual sound / UI-control noise). Not log-visible (no debug lines): Way of the Sword and Rune Slayer reflect; the user reported no defect. Seen, not Elsword: `AddGroupChainQuest` unbound in a June quest script (`luabind`), 9 `E_DISABLE_HB_CHECK_REQ` UNHANDLED (heartbeat, harmless offline).
 
 ## Phase Z - Close-out
 
