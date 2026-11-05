@@ -5,7 +5,7 @@
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-elsword CH4a2` |
 | Plan doc | `JUNE_CHARACTER_ELSWORD_PHASES.md` (branch `main`) |
 | Depends on | CH4a review. Touches `X2GUUser.*` (state parse, CommonFrameMove): not beside CH4b / CH4c, which touch it too |
-| Flag | new `SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET` (class-agnostic: Elesis writes the rate too) (+ `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG` if a log is needed) |
+| Flag | new `SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET` (class-agnostic: Elesis writes the rate too) (+ `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG` if a log is needed: `//#define`d since the CH4a review, uncomment it) |
 | Log tag | `[JUNE_CHAR]` (`ELSWORD PASSIVE`) |
 | Review | `kickoffs/char-elsword/CH4a2-review.md` (Opus 5.5 high; the phase writes it when done) |
 

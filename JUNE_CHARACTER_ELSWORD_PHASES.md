@@ -2285,6 +2285,37 @@ x1.27 / x1.53, fireball x1.000, magic reflect 0.120, enchant cool 20, extreme ru
 `lightning step` every ~0.49 s of dash. **Not seen:** `short time strong attack` (9% per non-special hit at level 4, 2 s cool; the first run's hits were mostly skills,
 the retest's Sheath Knight run lasted ~15 s / ~10 hits). Left to the review: re-read `32d0bc60` and, if it holds, one longer plain-combo run.
 
+### CH4a - Review (2026-11-05)
+
+Opus 5.5. **Verdict: passes, no code change.** Commit `85aa602e`; Ghidra decompiles plus `funcdis.py --func` listings of the 11 addresses, `charport_adis.py elsword 32d08ba0`.
+- **`32d1c560` block by block.** Every `32890620` push is `( id, 1, 0, 1 )`, and `( id, 0, 0, 1 )` for 21200 / 21407 / 21411 / 21404. SA ids land on the port's members: 5 on `+0x8e50` and Auto Guard, 0x71 / 0x70 on
+  `+0x9678` / `+0x9684` (min 10), 0x10 on `+0x57f8`+0x18 (final defence, the same member as March's Strong Bone), 0x1f / 0x20 / 0xf on `+0x96d4` / `+0x96d8` / `+0x959c`, 0x53 on `+0x95c0`, 0x94 on each cool time
+  (elapsed = cool), and 0x22 / 0x22 / 0x67 on walk `+0x4870` / dash `+0x4924` / anim `+0x47bc` (+0x18, per the Eve / Chung offset rows). The resets (0 / -1 / 1.0) come before each `GetSkillLevel`, and only the cool time is reset for Brutal Slayer.
+  The class gates are 10 / 100, 101, 22 / 112 and 112. Harsh Slayer registers before its templet test. Auto Guard adds a double 0.005 ( `fadd qword [33438ad8]` ) and doubles when `322cc1a0` is false ( `@32d1cbd4` ).
+  **JUNE_BUGS 533 holds:** `[esp+0x20]` is written only at `@32d1c832` (Spell Chain's level; the later `lea [esp+0x20]` sit two pushes deeper) and read at `@32d1cc8a`.
+  Spell Chain: the Magic Coating bool is pushed before `32089f60` (`ret 8`) and stays on the stack as `322a25f0`'s 2nd argument, which matches the port's `( clone, bMagicCoatingLearned )`. Cutting Sword
+  clones `[0]` and `[1]` with a `push 0`, after `32205510( &type )` and `type != 0xd`. The lists come from the `ecx` of `3207b770`: `+0x66ac` attack result for Brutal / Harsh / Sword Enchant /
+  Short Time / Infinity Sword Open Mind / Extreme Rune Buster, `+0x66cc` common frame move for Lightning Step, `+0x66dc` damage react for Lord Knight Open Mind. All match.
+- **Callbacks.** Brutal Slayer: riding, then `cool <= elapsed` (the `a < b != a == b` idiom), combo > 0, count +1, `> 4`, buff factor 0, Mind of Fighter +1 when > 0 (cap 5, `CONST_BRUTAL_SLAYER_LEVEL`),
+  then `32d27190` (elapsed `+0x9704` = 0, count `+0x9710` = 0). Sword Enchant / Short Time Strong Attack: riding, unit, `attackType != 1` (AT_SPECIAL), cool time over, `( id, 0, 0, 1 )`, then
+  `GetRandomFloat( 0 ) < SA 5` (`fcomp`, `test ah,5`, `jp`). The factor is `GetRandomInt( 0 ) % 3` or 0, then elapsed = 0. **`32d0bc60` holds**, so Short Time Strong Attack not showing up in the short runs is chance at 9 %.
+  Lord Knight Open Mind: `322a7c30( 824 )`, or `0 <= remain` and not `HaveThisBuff( 824 )`, gives count 0. Otherwise: level, hyper-class, transcended, `*damageData != 6` (DT_BUFF), threshold = `fistp` under
+  control word `| 0xc00` (truncated), `+0x9794` = 0, `count < threshold` returns, buff, count 0, cool time = SA 0x94 into `+0x9788`. Infinity Sword Open Mind: trigger `+0x53c == 0xf`.
+  Extreme Rune Buster: defender, game, skill `+0x5c4 == 21059`, trigger 0x2a; UID dedupe (vslot 0x54) over `+0x97c4`, then push; `size % randomSize`, `> 0.67` -> 153, `> 0.33` -> 152, else 168.
+  vslot 0x21c is `322a6960`; its June order `( BFI, creator, level, 0, 0 )` is March's ported overload `( BFI, level, creator, adjust 0, skip false )`. Lightning Step `32d08ba0`: `> 0.5`, the time reset after a fire, on a level / templet miss, and outside dash.
+- **Stand-ins** (each one line in code): no game -> Auto Guard is not doubled (June dereferences the game unchecked); an empty random list returns (June divides by zero); `+0x9794` dropped (no reader).
+- **Names / values.** A compile probe (`cl /Zs`, `typedef char[ ( X == v ) ? 1 : -1 ]`) checked 49 values: 11 SA, 5 ST / SPRT, 18 skill ids, 5 classes, BTI 824, BFI 152 / 153 / 168, DTT 15 / 42,
+  and AT_SPECIAL = 1, DT_BUFF = 6. The 18 new names are June's `Enum.src.lua` names at June's values.
+- **`#else`** keeps March's bodies whole (0 deleted lines); `m_fCreateEffectSetRate` (user `+0x8e50`, ctor 0) has no reader until CH4a2.
+- **Logs** (only the 14:17-14:19 retest is still on disk; the 14:05-14:12 run's lines are quoted in the Done note above): 26 lines. 12 `init` (six pairs, each written twice 0.05 s apart, values
+  equal: the base reset holds and no delegate doubles), 12 `lightning step`, 2 `brutal slayer` (Mind of Fighter 2 -> 3); 0 EXCEPTION; 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ` and one `AddGroupChainQuest` (baseline).
+- **Gates:** `flagcheck JUNE_CHAR_ELSWORD_PASSIVE --with ..._PASSIVE_DEBUG --range 85aa602e^..85aa602e --files` (8 files): `files: 4 PASS, 0 PASS~, 1 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s)`,
+  `1 EOL-mismatched` (the LF `}` after `LightingStepFrameMove`, as in the Done note), `RESULT: PASS`; no later commit touches the flag. `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`.
+  `enumscan.py --check X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`. Retirement: `//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG`. `flagcheck JUNE_CHAR_ELSWORD_PASSIVE_DEBUG --worktree --files KTDXLIB/Always.h`
+  gives `1 DEFINE`, `1 deleted line(s)` (the `//#define`), and `RESULT: FAIL` only because the flag is no longer `#define`d (the expected result of a retirement). `junediverge.py --check KTDXLIB/Always.h`: `RESULT: PASS`.
+  Build started, not awaited.
+- **Optional, no log line now:** a ~1 min plain-combo run on a Sheath Knight with Short Time Strong Attack shows its buff icon now and then (9 % per non-special hit, 2 s cool time).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI`. Sub-tag `UI`.

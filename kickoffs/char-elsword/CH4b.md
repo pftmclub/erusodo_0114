@@ -5,7 +5,7 @@
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-elsword CH4b` |
 | Plan doc | `JUNE_CHARACTER_ELSWORD_PHASES.md` (branch `main`) |
 | Depends on | CH4a review. One at a time: `X2GUElsword_SwordMan.*`, `X2GUUser.*` |
-| Flag | `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE` (+ `_DEBUG`) |
+| Flag | `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE` (+ `_DEBUG`: the CH4a review left it `//#define`d; uncomment it for this phase's log lines, its review retires it again) |
 | Log tag | `[JUNE_CHAR]` (`ELSWORD PASSIVE`) |
 | Review | `kickoffs/char-elsword/CH4b-review.md` (Opus 5.5 high; the phase writes it when done) |
 
