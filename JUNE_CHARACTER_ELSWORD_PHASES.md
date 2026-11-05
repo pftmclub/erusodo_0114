@@ -2571,6 +2571,25 @@ guide popup with that class's picture, the new skill-tree rows, the HUD portrait
 
 **Done gate:** the walk passes; 0 unexplained `no_state` rows; no new `KEM_ERROR`.
 
+### CH6 - Done (2026-11-05, Sonnet 5.5): scans PASSED, walk owed
+
+**No code change, no flag, no build** (deployed exe is CH4c's). Save backed up first: `data\db_backup` snapshot tag `pre_ch6_walk`.
+
+| Scan | Before | After |
+|---|---|---|
+| `census.py` | 26 PASS, 0 FAIL, `to-implement 0` | 26 PASS, 0 FAIL; `census.tsv` / KEY_MATRIX unchanged |
+| `charport_scan.py` (`C:/tmp/cps6e`) | `Elsword_SwordMan {'no NUMERICAL_DATA_INDEX': 87, 'no DAMAGE table': 20}` | identical |
+| `charport_keys.py Elsword_SwordMan` | 280 keys: june-only 5 / neither 5 / march-only-site 8 / both 262 | identical (left june-only: `BBT_CHANGE_NOW_HP_PER_SECOND`, `BFT_TIME` damage data; camera keys -> Stage 9; `IMMUNITY_EDT_LIST_AT_THIS_STATE` no reader) |
+| `s3_no_state.py --family X2GUElsword_SwordMan.cpp --preprocess` | 261 rows, 254 no_state | 261 rows, `no_state=78` (37 ids), **0 unexplained** |
+
+**The 37 `no_state` ids** (the generator resolves unqualified `case SI_*` only):
+- 13 actives / hyper whose March case is `case CX2SkillTree::RNSI_*` (21001, 21005, 21012, 21008, 21015, 21022, 21019, 21600, 21200, 21206, 21211, 21216); Mega Slash 21000 has `case SI_SA_ES_MEGASLASH` (`X2GUElsword_SwordMan.cpp:6406`) and June's default branch registers it (`:22707`).
+- 21026 (Mega Slash upgrade): an upgrade id, no state of its own (state is Mega Slash's).
+- 22 type-8 / 2 / 1 / 12 passives and common auras (21400-21420, 21405, 106, 900): no class state in June; read through `GetSkillLevelValue` / buff factors (CH4a-CH4c).
+
+**Walk units (in the save, all backed up).** First jobs 67 / 68 (class 1), 66 (10); second jobs 69 (11), 70 (22), 71 (112, transcended); 25 Lord Knight and 26 Rune Slayer (transcended); 34 Infinity Sword lv70. 66 / 69 / 70 are lv99, transcendence 0, no quest 42030 row: they take the transition test. Failures go back to the owning phase's flag (`JUNE_CHAR_ELSWORD_*`).
+**Gate status: OPEN.** Needs the user's walk (hand-off in the session), then "check logs".
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium. `MODS.md` "June character: Elsword" section (flags, files, data, revert order: exe + data036 + motion koms
