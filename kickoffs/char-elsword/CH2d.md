@@ -51,3 +51,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §1 L51 numerical-only DAMAGE_DATA table in state ESSI_SI_A_EIS_SPIRAL_STING (; §1 L51 numerical-only DAMAGE_DATA_NEXT table in state ESSI_SI_A_EIS_SPIRAL_ST; §1 L37-105 numerical-only DAMAGE_DATA + numerical override live (the 20 tables ab; §2 L116 APPLIED_SKILL_ID (parsed since 8c); §2 L117 NUMERICAL_DATA_INDEX; §4 L178 June-only members of tables March has (SKILL_ID names) fail silently; §7 L254 class code scales the cached state power rate (+0x7cc8); §7c L352 29 alpha-tag sites 32d0d660 .. 32d1ecc0; §7i L436-437 class code multiplies m_fNowStatePowerRate, never the entry's; §7ae L713-721 an id of a listed type with no case plays the class's first skill stat; §7ae L729-733 types 14-16 / 17 / 18 named in the class switch; ResetLeftSkillCoolTim.
 - `32d16c00` (Crescent Cut) calls June-only `31f76580`: CH1o writes it; call it by CH1o's name.
   (CH1o: it is the main effect's velocity, not its scale: `CX2DamageEffect::CEffect::ChangeMainEffectVelocity( 1, x )` @32d17062, `_CORE`; JUNE_BUGS 526.) Alpha tags (7c): `32d14100` x9 (Sword Fall FrameMove).
+
+## Amended by CH2c review (2026-11-05)
+
+- A `reg` row in `ch0_skill_listing_rows.tsv` with an empty callbacks column may have lost its register name (state 262 in CH2c froze the character). Read that state's block in `32d223e0` in Ghidra before registering it with no callbacks. CH2d's ids have no such row; CH3a's state 204 does.

@@ -56,3 +56,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1p (2026-11-04)
 
 - Held-key skills read `CX2GUUser::m_kSkillSlotKey` (June `+0x8b58`; `Set` `31fce6d0`, `IsKeyReleased` `31fc89a0`, `X2GUUser.h`, `_EVE_CORE`): Windmill start / loop StartFuture `32cf3da0` and EventProcess `32d11fd0` (inside March's `ESSI_SA_ESK_WINDMILL_EventProcess`), Grand Cross start / charge / end StartFuture `32cf4ec0` and charge EventProcess `32cf4f60`. March has no key reader there: port June's calls whole.
+
+## Amended by CH2c review (2026-11-05)
+
+- State 204 `ESSI_A_ELK_ROLLING_SMASH_LANDING` (21205 / 21227): its `ch0_skill_listing_rows.tsv` row has no callbacks because the extractor lost the register name (as state 262 in CH2c, which froze the character). June sets only its EventProcess, `329cbfc0` = a jump to `31fcc740` = `CX2GUUser::GenericSpecialActiveSkillEventProcess` (`32d223e0` @32d232a1). Register it.

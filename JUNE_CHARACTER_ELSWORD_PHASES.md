@@ -1884,6 +1884,37 @@ Dev console (END key, auth 3): `/invin 0`, then a dungeon with enemies in front 
 6. **E Storm Blade.** Storm blades and the damage; the enhanced one applies a buff at 0.3 s ( `storm blade: upgraded buff factor` ).
 Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKILL"` ) and `[JUNE_SKILL]` `NUM use`. Then say "check logs".
 
+### CH2c - Review (2026-11-05)
+
+Opus 5.5. **Verdict: passes, no code change.** Commits `41367178` + fix `fab34725`; every address read in Ghidra (decompile + disassembly) or `charport_adis.py elsword`.
+- **Play-test retest** (08:33, after the 08:03 deploy, md5 2f267087): all twelve ids equipped (`equip skill` lines, B bank 21032 / 21035 / 21048); `wind blade ultimate: skill 21035
+  level 1 mp 50.0` x3, each followed by `ES_CREATE EffectSet_SA_EMK_WindBlade_Ultimate` and the projectile's `HIT`, then more skills, a cut-in and kills: no freeze. 2
+  `UNHANDLED` (`E_DISABLE_HB_CHECK_REQ`, not this phase), 0 `EXCEPTION`.
+- **Wind Blade upgrade EP `32cfa080`:** `31fce670` on `+0x8b58` (FollowSlotSwap); end -> 0x11 / 0xd by `+0x7e1c`; flag `+0x7d85` and `+0x8c18 < t` -> vslot 0x524, `+0x867c`,
+  `32890620( id, 0, 0, 1 ) > 0`, `31fd1840( id, level, 1 )` (= the 2-argument virtual, slot 424 with true), `32007c40( 0x1b, id, 0, &rel )` (= `SA_MP_CONSUME_REL`, the helper
+  equals Chung's copy), `( 1 - rel ) x mp <= vslot 0xd8` -> `StateChange( 0x106 )` then vslot 0xf0 `( -mp )`; else `+0x8c10 <= t < +0x8c14` and `31fc8900` -> flag. A missing
+  ability skips the transition. The `+0x8e90` anim choice is read as `m_pXSkinAnimFuture` (CH1b). = port. **StartFuture `32cf3bd0`:** vslot 0x7c0, then `31fce6d0( +0x88bc - 1 )`. =
+  port. The separate function is right: the listing registers `32cfa040` for 21013 and `32cfa080` for 21035.
+- **Storm Blade FM `32cfa270`:** 0.3 one-shot; `31fca8e0( vslot 0x524, 1 )->+0x178` (= `IsNowStateSkillUpgraded`, 329cc340) around `31fca8e0( 0x5216 = 21014, 1 )`; vslot
+  0x228( templet, 0 ). **Critical Sword FM `32cffcf0`:** 0.333 one-shot, `31fca8e0( 0x52d9 = 21209, 1 )`, `+0xa0 != +0xa4` (buff list non-empty), vslot 0x228. **Big Burst FM
+  `32d123f0`:** 0.65 one-shot, `Dummy2_Lhand`, vslot 0x150 twice, land y `+0x80c4`, the one damage effect, defaults. All = port.
+- **Sword Wave / Critical Sword EP:** the two listings are instruction-identical (address-stripped diff); dash `+0x8c9c` and walk `+0x8c98` with the foot, then
+  `SKILL_CANCEL_AFTER( +0x8c90 )` (foot, then the awakening branch) = the macros. **Sword Wave Init `32cf45c0`:** the ten preloads in order.
+- **"= March" rows:** the five Inits (meshes / textures and order; Rising Slash's memo pair behind the `31fca9e0` stub), the three base EPs (0x11 / 0xd, CommonEventProcess), Big
+  Burst EP (14 keys, `1.06`) and FrameMoveFuture (0.2 dash speed, 0.65 `-= 1280.0` = `1600 x 0.8`): all equal March.
+- **Registration:** the 15 listing rows = the seven cases slot for slot (21035 normal: Init, StartFuture, EP; hyper: StartFuture + EP). State 262 in June (`@32d22ae7-32d22aff`)
+  gets only `+0x48 = 329cb6d0` (EP), so the fix is the whole registration.
+- **JUNE_BUGS 531:** `DamageEffect_SA_EMK_WindBlade_Ultimate_Projectile` has `APPLIED_SKILL_ID = RNSI_SA_EMK_WIND_BLADE` and `NUMERICAL_DATA_INDEX = 2`; 21013 has one block. Agreed.
+- **`#else`:** Storm Blade / Big Burst FM, Sword Wave Init / EP and Critical Sword FM / EP keep March's bodies; flag-off = base (flagcheck).
+- **Forward (CH3a):** the listing lost a register name on one more state, 204 `ESSI_A_ELK_ROLLING_SMASH_LANDING`: June gives it EP `329cbfc0` (a jump to `31fcc740` =
+  `GenericSpecialActiveSkillEventProcess`, CH1k), `@32d232a1`. Added to the CH3a kickoff, with a general check on CH2d's.
+- **`_SKILL_DEBUG` retired** (`Always.h:11622`, `//#define`): the `ELSWORD SKILL` lines go dark.
+
+**Gates.** flagcheck `_SKILL --with _SKILL_DEBUG --range 41367178^..fab34725 --files` the four code files: `4 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0
+FAIL, 0 ERROR`, 1 deleted line (the `//#define`), `RESULT: PASS`; worktree after the retirement `1 DEFINE`, `RESULT: PASS`. `git diff --patience --numstat`: code files pure
+insertion (240 / 4 / 16), Always.h 7 / 1. `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check X2GUElsword_SwordMan.cpp`: `0 A/B row(s)
+remain`. One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`): exit 0, 0 errors. Build: not awaited (only change is the `_DEBUG` retirement).
+
 ## Phase CH3 - Skills: second jobs (100, 101, 112), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.
