@@ -434,6 +434,37 @@ One-file `/Zs` probe of `X2GURaven.cpp`: 0 errors with `_LIVE` off and with `/D 
 No build: the review changed no code. CH1a's refused deploy is harmless (the only compiled change is an unreferenced enum member); CH1b's `build.py --deploy` carries it.
 Nothing to play-test. Next: `/x2-phase char-raven CH1b` (Sonnet 5.5 high).
 
+### CH1b - Done (2026-11-05)
+
+All 40 class-map rows of phase CH1b are handled. 37 are `inside`: June's body in March's own `CX2GURaven` function under `SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`, March's in `#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`.
+2 are `new` (`_CORE`, compiled, referenced by nothing). 1 needs no code: `32c52480`, CH0's `new ?`, is March's `ClearArcEnemyData` (the `ArcEnemyData` destructor inlined). CH0's other `new ?` row, `32c59550`, is March's `RBM_EMERGENCY_ESCAPE` (inside). `_LIVE` stays `//#define`. 40 funcmap rows `Char Raven CH1b`; 2 rows added to `june2017_re/char_raven/ch1_offsets.tsv`.
+
+| June | `CX2GURaven::` | June | `CX2GURaven::` |
+|---|---|---|---|
+| `32c28960` `32c55ee0` `32c25c50` `32c289c0` | DieFront StartFuture / Start / FrameMove / EventProcess (also `RSI_RIDING_DIE`) | `32c28a00` `32c55fe0` `32c25c70` `32c28a60` | DieBack StartFuture / Start / FrameMove / EventProcess |
+| `32c28bc0` `32c28c10` `32c28d90` `32c28dd0` `32c28f50` | DamageDownFront FrameMove / EventProcess, DamageDownBack FrameMove / EventProcess, AirDownLanding EventProcess | `32c33bd0` | RWT_LOSE2 FrameMove (14 win / lose states) |
+| `32c29190` `32c29210` `32c29290` `32c29310` + End `32c25db0` `32c25df0` `32c25e30` `32c25e70` | StandUpRolling FrontFront / FrontBack / BackFront / BackBack EventProcess + End | `32c25eb0` `32c25f00` `32c266d0` `32c26720` | StandUpAttack Front / Back / FrontNoDown / BackNoDown FrameMove |
+| `32c29390` `32c29410` `32c30f30` `32c30fb0` + End `32c25ec0` `32c25f10` `32c266e0` `32c26730` | the same four EventProcess + End | `32c5b6f0` `32c5b710` `32c59550` | DamageSmallBack / BigBack Start, `RBM_EMERGENCY_ESCAPE` |
+| `32c290d0` `32c29130` | **new** `RSI_DAMAGE_STANDUP_FRONT_StateStart` / `_StateStartFuture` | `32c52480` | = `ClearArcEnemyData` |
+
+**Where June differs from March** (everything else is March's logic written out whole; read from the listings, `charport_adis.py raven --phase CH1b`):
+- **Stand-up attack with no knock-down** (DamageDownFront `32c28c10`, DamageDownBack `32c28dd0`, AirDownLanding `32c28f50`): after the queued X, March rolls `GetRandomInt() < m_iNoDownDamageAtStandUpAttackPercent`. June tests `GetUnit()` and `GetSkillLevel( 0x5e88, false, 0, true ) > 0` (`RNSI_A_RF_SHADOW_STEP`, Shadow Step): `NO_DOWN` when learned, else `ATTACK`, no roll. Back keeps the double `0.66`.
+- **Emergency Escape** (`32c59550` = `RBM_EMERGENCY_ESCAPE`, called by DamageSmallBack / BigBack Start): June adds a cool-time gate. Two fields (June `KProtectedType<float>`, March-side plain `float`, both new members under `_CORE`): `m_fEmergencyEscapeCoolTime` (`+0x95ac`) above `m_fEmergencyEscapeElapsedTime` (`+0x95a0`) returns. The skill is `RNSI_P_RBM_EMERGENCY_ESCAPE` (24410, `GetSkillLevel( id, true, 0, true )`); the roll is `GetRandomInt( 0 ) < SA_EFFECTIVE_RATE x 100.0` (a double); on success `StateChange( RSI_SHADOW_STEP )` (June id 0xde, script `RSI_SI_A_RF_SHADOW_STEP`), `UpNowMp( -cost )`, then the elapsed time goes to 0. Roles read from `32c42f90` (CommonFrameMove helper: adds the frame time while `+0x95a0 <= +0x95ac`) and `32c57660 @32c57c03` (both set from SA 0x94).
+- **New stand-up Start pair** (`32c290d0` / `32c29130`, ten states share them: DamageStandUp Front / Back, the four StandUpRolling, the four StandUpAttack): `CommonStateStart` / `CommonStateStartFuture`, then with `RNSI_P_RBM_OPEN_MIND` (0x5f61 = 24417, Awakened Will: Blade Master) learned `ResetAnimSpeed( play speed x GetLearnedSkillAbilityValue( SA_ANI_SPEED = 103, id ), true, bFuture )`. March has no Start for those states. Names are CH0's.
+- **= March after the macros:** Die Front / Back (Start: `DyingStart`, play speed 0.5, `ClearArcEnemyData`, `ClearNasodBall` (`32c4f750`, body CH1q), rage gauge 0), DamageDown FrameMove (Front `EventTimerOneshot( 0.19f )`, Back `EventTimer( 0.32f ) == true`), the Rolling EventProcess / End, the Attack FrameMove / EventProcess / End, `32c33bd0` (`EventTimerOneshot( 1.55f )`, `UpDownCrashCamera( 20, 0.3 )`), SmallBack / BigBack Start. Checklist §7 L256 (`+0x7cc8`): no CH1b function touches the state power rate.
+- Three `SKILL_ID` names registered in `X2SkillTree.h` under `JUNE_ENUM_NAMES`: `RNSI_A_RF_SHADOW_STEP` 24200, `RNSI_P_RBM_EMERGENCY_ESCAPE` 24410, `RNSI_P_RBM_OPEN_MIND` 24417 (June `Enum.src.lua` 14579 / 14917 / 16006). `SA_ANI_SPEED` is 103 (counted in the enum; `s0a_templet_keys` row 142).
+- No `JUNE_BUGS` row: nothing here looks like a June defect.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE --with SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h X2Lib/X2SkillTree.h`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out and `Always.h` was left out of `--files` (a peer has it modified). OTHER = `X2GURaven.h` (`_CORE`: PASS on its own, `+8`) and `X2SkillTree.h` (`JUNE_ENUM_NAMES`). `git diff --patience --numstat`: `.cpp` 668 / 0, `.h` 8 / 0, `X2SkillTree.h` 7 / 0.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): `X2GURaven.cpp` exit 0, 0 errors with `_LIVE` off and with `/D SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`. `cl /P`: `m_fEmergencyEscapeCoolTime` 1 line off / 2 on, `RNSI_A_RF_SHADOW_STEP` 1 / 4, so the flag took effect.
+- `junediverge.py --check X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h X2Lib/X2SkillTree.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows.
+- `BUILD OK: X2/US_SERVICE/x2.exe 25,997,824 B, 2026-11-05 21:23:00` (X2Lib 0 errors; built with a peer's uncommitted `Always.h` / `X2StateDungeonGame.cpp` edits on disk). **`DEPLOY REFUSED`: `X2_offline.exe` was running (pid 14760).** Close the game, then `python tools/build.py --deploy-only`; the deployed exe is still the previous one until then. `_LIVE` is off and no string was added, so no `exestr` line.
+
+**Routed.** CH1k (ctor `32c3ece0`): `-1.0f` into `m_fEmergencyEscapeElapsedTime` (`@32c3ed40`) and `m_fEmergencyEscapeCoolTime` (`@32c3ef32`); until then both are uninitialised, which matters only with `_LIVE` on. CH1j: `32c42f90` (called by CommonFrameMove) adds the frame time to the elapsed time. CH4a: `InitPassiveSkillState` `32c57660` sets both fields from skill 24410, SA 0x94 (`@32c57c03`). CH1m: register `RSI_DAMAGE_STANDUP_FRONT_StateStart` / `_StateStartFuture` on the ten states, and map June's ids (0x9b..0x9f stand-up, 0xcc / 0xcd no-down, 0xde shadow step) to the C++ enum. CH1q: the `ClearNasodBall` body.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-raven CH1b review` (Opus 5.5 high), then CH1c.
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

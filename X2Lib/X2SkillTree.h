@@ -2349,6 +2349,13 @@ public:
 		RNSI_P_ELK_FIGHT_GOD                                  = 21416,	// June's Enum.lua
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-05 // char-raven CH1b
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_A_RF_SHADOW_STEP                                 = 24200,	// June's Enum.lua
+		RNSI_P_RBM_EMERGENCY_ESCAPE                           = 24410,
+		RNSI_P_RBM_OPEN_MIND                                  = 24417,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

@@ -7930,3 +7930,43 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c25d60	CX2GURaven::RSI_DASH_JUMP_POWER_LANDING_StartFuture	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; nowSpeed.x *= 0.5 ( March /= 2 )
 32c25d90	CX2GURaven::RSI_DASH_JUMP_POWER_LANDING_Start	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
 32c44d80	CX2GURaven::RSI_DASH_JUMP_POWER_LANDING_EventProcess	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March; (max - transition) / 6 gate
+32c28960	CX2GURaven::RSI_DIE_FRONT_StartFuture	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c55ee0	CX2GURaven::RSI_DIE_FRONT_Start	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March; DyingStart, SetPlaySpeed 0.5, ClearArcEnemyData (32c52480), ClearNasodBall (32c4f750, CH1q), rage gauge 0
+32c25c50	CX2GURaven::RSI_DIE_FRONT_FrameMove	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c289c0	CX2GURaven::RSI_DIE_FRONT_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c28a00	CX2GURaven::RSI_DIE_BACK_StartFuture	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c55fe0	CX2GURaven::RSI_DIE_BACK_Start	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March; same as Die Front Start
+32c25c70	CX2GURaven::RSI_DIE_BACK_FrameMove	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c28a60	CX2GURaven::RSI_DIE_BACK_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c28c10	CX2GURaven::RSI_DAMAGE_DOWN_FRONT_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March except the stand-up attack: Shadow Step (RNSI_A_RF_SHADOW_STEP) learned -> NO_DOWN, else ATTACK, no random roll
+32c28dd0	CX2GURaven::RSI_DAMAGE_DOWN_BACK_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March except the stand-up attack: Shadow Step learned -> NO_DOWN (0.66 is a double as in March)
+32c28f50	CX2GURaven::RSI_DAMAGE_AIR_DOWN_LANDING_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March except the stand-up attack: Shadow Step learned -> NO_DOWN
+32c28bc0	CX2GURaven::RSI_DAMAGE_DOWN_FRONT_FrameMove	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c28d90	CX2GURaven::RSI_DAMAGE_DOWN_BACK_FrameMove	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c29190	CX2GURaven::RSI_STANDUP_ROLLING_FRONT_FRONT_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c29210	CX2GURaven::RSI_STANDUP_ROLLING_FRONT_BACK_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c29290	CX2GURaven::RSI_STANDUP_ROLLING_BACK_FRONT_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c29310	CX2GURaven::RSI_STANDUP_ROLLING_BACK_BACK_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c25db0	CX2GURaven::RSI_STANDUP_ROLLING_FRONT_FRONT_End	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c25df0	CX2GURaven::RSI_STANDUP_ROLLING_FRONT_BACK_End	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c25e30	CX2GURaven::RSI_STANDUP_ROLLING_BACK_FRONT_End	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c25e70	CX2GURaven::RSI_STANDUP_ROLLING_BACK_BACK_End	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c25eb0	CX2GURaven::RSI_STANDUP_ATTACK_FRONT_FrameMove	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c29390	CX2GURaven::RSI_STANDUP_ATTACK_FRONT_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c25ec0	CX2GURaven::RSI_STANDUP_ATTACK_FRONT_End	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c25f00	CX2GURaven::RSI_STANDUP_ATTACK_BACK_FrameMove	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c29410	CX2GURaven::RSI_STANDUP_ATTACK_BACK_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c25f10	CX2GURaven::RSI_STANDUP_ATTACK_BACK_End	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c266d0	CX2GURaven::RSI_STANDUP_ATTACK_FRONT_NO_DOWN_FrameMove	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c30f30	CX2GURaven::RSI_STANDUP_ATTACK_FRONT_NO_DOWN_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c266e0	CX2GURaven::RSI_STANDUP_ATTACK_FRONT_NO_DOWN_End	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c26720	CX2GURaven::RSI_STANDUP_ATTACK_BACK_NO_DOWN_FrameMove	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c30fb0	CX2GURaven::RSI_STANDUP_ATTACK_BACK_NO_DOWN_EventProcess	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c26730	CX2GURaven::RSI_STANDUP_ATTACK_BACK_NO_DOWN_End	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c33bd0	CX2GURaven::RSI_RWT_LOSE2_FrameMove	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March; shared by 14 win / lose states
+32c5b6f0	CX2GURaven::RSI_DAMAGE_SMALL_BACK_Start	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c5b710	CX2GURaven::RSI_DAMAGE_BIG_BACK_Start	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c59550	CX2GURaven::RBM_EMERGENCY_ESCAPE	PORTED	Char Raven CH1b: inside, June body under JUNE_CHAR_RAVEN_LIVE (CH0 row was new ?; June 32c59550 is March RBM_EMERGENCY_ESCAPE); June adds the cool-time gate (V2 <= V1, +0x95ac / +0x95a0) and resets +0x95a0 to 0 after the escape; skill RNSI_P_RBM_EMERGENCY_ESCAPE 24410
+32c290d0	CX2GURaven::RSI_DAMAGE_STANDUP_FRONT_StateStart	PORTED	Char Raven CH1b: new, under JUNE_CHAR_RAVEN_CORE; CommonStateStart + ResetAnimSpeed( play speed x GetLearnedSkillAbilityValue( SA_ANI_SPEED ), true, false ) when RNSI_P_RBM_OPEN_MIND (24417) is learned; 10 stand-up states share it (CH1m registers)
+32c29130	CX2GURaven::RSI_DAMAGE_STANDUP_FRONT_StateStartFuture	PORTED	Char Raven CH1b: new, under JUNE_CHAR_RAVEN_CORE; Future twin of 32c290d0 (m_pXSkinAnimFuture, bFuture true)
+32c52480	CX2GURaven::ClearArcEnemyData	PORTED	Char Raven CH1b: CH0 row new ?; = March ClearArcEnemyData (ArcEnemyData dtor inlined: DestroyInstanceHandle if handle != -1, delete); nothing written, Die Front / Back Start call it

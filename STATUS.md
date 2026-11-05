@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-05, play-test owed** (4,825 assets in 35 koms + 2 guide Lua copied, 6 walk units 72-77; user walks Raven per tier, then `check logs`) | Sonnet 5.5 / high, user play-test | CH0 (done) | koms, save | `CH0b.md` |
-| CH1b | **ready** (`/x2-phase char-raven CH1b` on Sonnet 5.5 / high): reactions (damage 21, stand-up 8, die, start, win / lose, parrying) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GURaven.*` | `CH1b.md` |
+| CH1b | **done 2026-11-05, review next** (`/x2-phase char-raven CH1b review` on Opus 5.5 / high): reactions, 37 bodies + 2 new; no play-test (`_LIVE` off) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GURaven.*`, `X2SkillTree.h` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding 27, pepper, dance | Sonnet 5.5 / high, Opus review | CH1b review | `X2GURaven.*` | `CH1c.md` |
 | CH1d | blocked (CH1c review): Raven ground combos | Sonnet 5.5 / high, Opus review | CH1c review | `X2GURaven.*` | `CH1d.md` |
 | CH1e | blocked (CH1d review): Sword Taker + Blade Master lines | Sonnet 5.5 / high, Opus review | CH1d review | `X2GURaven.*` | `CH1e.md` |

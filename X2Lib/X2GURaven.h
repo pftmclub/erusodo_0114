@@ -562,6 +562,10 @@ class CX2GURaven : public CX2GUUser
 		virtual int GetComboZStateID() const { return RSI_COMBO_Z; }
 		virtual int GetComboXStateID() const { return RSI_COMBO_X; }
 	protected:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+		float								m_fEmergencyEscapeElapsedTime;	/// June +0x95a0: time since the last escape ( KProtectedType<float> in June; ctor -1.0f in CH1k, CommonFrameMove 32c42f90 in CH1j )
+		float								m_fEmergencyEscapeCoolTime;		/// June +0x95ac: cool time of the escape ( KProtectedType<float>; InitPassiveSkillState sets it from SA 0x94 in CH4a )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 		bool								m_bReAttackZ1Right;
 		float								m_fReAttackZ1Time;
 		float								m_fReDashJumpXTime;
@@ -1208,6 +1212,10 @@ class CX2GURaven : public CX2GUUser
 		void RSI_STANDUP_ATTACK_FRONT_NO_DOWN_FrameMove();
 		void RSI_STANDUP_ATTACK_FRONT_NO_DOWN_EventProcess();
 		void RSI_STANDUP_ATTACK_FRONT_NO_DOWN_End();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+		void RSI_DAMAGE_STANDUP_FRONT_StateStart();			/// June 32c290d0 ( ten stand-up states share it; CH1m registers )
+		void RSI_DAMAGE_STANDUP_FRONT_StateStartFuture();	/// June 32c29130
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 
 
 		void RSI_STANDUP_ATTACK_BACK_NO_DOWN_FrameMove();

@@ -5925,13 +5925,31 @@ RENDER_HINT CX2GURaven::CommonRender_Prepare()
 //RSI_DIE_FRONT
 void CX2GURaven::RSI_DIE_FRONT_StartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c28960
+CommonStateStartFuture();
+
+m_pXSkinAnimFuture->SetPlaySpeed( 0.5f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStartFuture();
 
 	m_pXSkinAnimFuture->SetPlaySpeed( 0.5f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_DIE_FRONT_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c55ee0
+CommonStateStart();
+DyingStart();
+
+m_pXSkinAnim->SetPlaySpeed( 0.5f );
+
+ClearArcEnemyData();	// June 32c52480: the handle list clear is March's ClearArcEnemyData
+ClearNasodBall();		// June 32c4f750: body in CH1q
+m_fRageGauge = 0.f;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStart();
 	DyingStart();
 
@@ -5944,18 +5962,34 @@ void CX2GURaven::RSI_DIE_FRONT_Start()
 	ClearNasodBall();
 	m_fRageGauge = 0.f;
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_DIE_FRONT_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25c50
+const float TIME_CREATE_STEP_DUST = 0.19f;		// animation time of the smoke
+const float TIME_SACRIFICE_OF_HERO = 1.12f;		// animation time of Sacrifice of Hero
+
+DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	const float TIME_CREATE_STEP_DUST = 0.19f;		// 연기가 발생되야하는 애니메이션 시간
 	const float TIME_SACRIFICE_OF_HERO = 1.12f;		// 영웅의 희생이 실행되어야 하는 애니메이션 시간
 
 	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_DIE_FRONT_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c289c0
+if( GetShowObject() == false && m_pXSkinAnim->IsAnimationEnd() == true )
+{
+	StateChange( GUSI_DIE );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 //{{ robobeg : 2008-10-21
 	//if( m_bShow == false && m_pXSkinAnim->IsAnimationEnd() == true )
     if( GetShowObject() == false && m_pXSkinAnim->IsAnimationEnd() == true )
@@ -5963,19 +5997,38 @@ void CX2GURaven::RSI_DIE_FRONT_EventProcess()
 	{
 		StateChange( GUSI_DIE );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
 //RSI_DIE_BACK
 void CX2GURaven::RSI_DIE_BACK_StartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c28a00
+CommonStateStartFuture();
+
+m_pXSkinAnimFuture->SetPlaySpeed( 0.5f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStartFuture();
 
 	m_pXSkinAnimFuture->SetPlaySpeed( 0.5f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_DIE_BACK_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c55fe0
+CommonStateStart();
+DyingStart();
+
+m_pXSkinAnim->SetPlaySpeed( 0.5f );
+
+ClearArcEnemyData();	// June 32c52480: the handle list clear is March's ClearArcEnemyData
+ClearNasodBall();		// June 32c4f750: body in CH1q
+m_fRageGauge = 0.f;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStart();
 	DyingStart();
 
@@ -5988,18 +6041,34 @@ void CX2GURaven::RSI_DIE_BACK_Start()
 	ClearNasodBall();
 	m_fRageGauge = 0.f;
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_DIE_BACK_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25c70
+const float TIME_CREATE_STEP_DUST = 0.32f;		// animation time of the smoke
+const float TIME_SACRIFICE_OF_HERO = 1.12f;		// animation time of Sacrifice of Hero
+
+DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	const float TIME_CREATE_STEP_DUST = 0.32f;		// 연기가 발생되야하는 애니메이션 시간
 	const float TIME_SACRIFICE_OF_HERO = 1.12f;		// 영웅의 희생이 실행되어야 하는 애니메이션 시간
 
 	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_DIE_BACK_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c28a60
+if( GetShowObject() == false && m_pXSkinAnim->IsAnimationEnd() == true )
+{
+	StateChange( GUSI_DIE );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 //{{ robobeg : 2008-10-21
 	//if( m_bShow == false && m_pXSkinAnim->IsAnimationEnd() == true )
     if ( GetShowObject() == false && m_pXSkinAnim->IsAnimationEnd() == true )
@@ -6007,6 +6076,7 @@ void CX2GURaven::RSI_DIE_BACK_EventProcess()
 	{
 		StateChange( GUSI_DIE );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 //RSI_WAIT
@@ -7522,9 +7592,16 @@ void CX2GURaven::RSI_DAMAGE_SMALL_FRONT_EventProcess()
 #ifdef NEW_SKILL_2010_11
 void CX2GURaven::RSI_DAMAGE_SMALL_BACK_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5b6f0
+CommonStateStart();
+
+RBM_EMERGENCY_ESCAPE();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStart();
 
 	RBM_EMERGENCY_ESCAPE();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 #endif NEW_SKILL_2010_11
 //}} JHKang / 강정훈 / 2010/11/02
@@ -7592,6 +7669,14 @@ void CX2GURaven::RSI_DAMAGE_BIG_FRONT_EventProcess()
 //RSI_DAMAGE_BIG_BACK
 void CX2GURaven::RSI_DAMAGE_BIG_BACK_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5b710
+CommonStateStart();
+
+CreateStepDust();
+
+RBM_EMERGENCY_ESCAPE();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStart();
 
 	CreateStepDust();
@@ -7601,6 +7686,7 @@ void CX2GURaven::RSI_DAMAGE_BIG_BACK_Start()
 	RBM_EMERGENCY_ESCAPE();
 #endif NEW_SKILL_2010_11
 	//}} JHKang / 강정훈 / 2010/11/01 / 긴급탈출 패시브 추가
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_DAMAGE_BIG_BACK_EventProcess()
@@ -7627,6 +7713,15 @@ void CX2GURaven::RSI_DAMAGE_BIG_BACK_EventProcess()
 //RSI_DAMAGE_DOWN_FRONT
 void CX2GURaven::RSI_DAMAGE_DOWN_FRONT_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c28bc0
+if( m_pXSkinAnim->EventTimerOneshot( 0.19f ) )
+{
+	CreateStepDust();
+}
+
+CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.19f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -7639,10 +7734,96 @@ void CX2GURaven::RSI_DAMAGE_DOWN_FRONT_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_DAMAGE_DOWN_FRONT_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c28c10
+if( false == IsOnSomethingFuture() )
+{
+	StateChange( USI_DAMAGE_AIR_FALL );
+	m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+}
+else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+{
+	if( m_FrameDataFuture.stateParam.bEventFlagList[4] == true )
+	{
+		if( NULL != GetUnit() && GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_RF_SHADOW_STEP, false, 0, true ) > 0 )
+		{
+			StateChange( RSI_STANDUP_ATTACK_FRONT_NO_DOWN );
+		}
+		else
+		{
+			StateChange( RSI_STANDUP_ATTACK_FRONT );
+		}
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+	{
+		StateChange( RSI_STANDUP_ATTACK_FRONT );
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true )
+		StateChange( RSI_STANDUP_ROLLING_FRONT_FRONT );
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[3] == true )
+		StateChange( RSI_STANDUP_ROLLING_FRONT_BACK );
+	else
+		StateChange( USI_DAMAGE_STANDUP_FRONT );
+}
+else if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.66f )
+{
+	if( m_InputData.oneX == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[4]	= true;
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[1]	= true;
+		m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+	}
+	else if( m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		if( m_InputData.pureRight == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_InputData.pureLeft == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+	}
+	else
+	{
+		if( m_InputData.pureRight == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_InputData.pureLeft == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+	}
+}
+
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DAMAGE_AIR_FALL );
@@ -7725,9 +7906,19 @@ void CX2GURaven::RSI_DAMAGE_DOWN_FRONT_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RSI_DAMAGE_DOWN_BACK_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c28d90
+if( m_pXSkinAnim->EventTimer( 0.32f ) == true )
+{
+	CreateStepDust();
+}
+
+CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnim->EventTimer( 0.32f ) == true )
 	{
 		CreateStepDust();
@@ -7735,10 +7926,96 @@ void CX2GURaven::RSI_DAMAGE_DOWN_BACK_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_DAMAGE_DOWN_BACK_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c28dd0
+if( false == IsOnSomethingFuture() )
+{
+	StateChange( USI_DAMAGE_AIR_FALL );
+	m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+}
+else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+{
+	if( m_FrameDataFuture.stateParam.bEventFlagList[4] == true )
+	{
+		if( NULL != GetUnit() && GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_RF_SHADOW_STEP, false, 0, true ) > 0 )
+		{
+			StateChange( RSI_STANDUP_ATTACK_BACK_NO_DOWN );
+		}
+		else
+		{
+			StateChange( RSI_STANDUP_ATTACK_BACK );
+		}
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+	{
+		StateChange( RSI_STANDUP_ATTACK_BACK );
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true )
+		StateChange( RSI_STANDUP_ROLLING_BACK_FRONT );
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[3] == true )
+		StateChange( RSI_STANDUP_ROLLING_BACK_BACK );
+	else
+		StateChange( USI_DAMAGE_STANDUP_BACK );
+}
+else if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.66 )
+{
+	if( m_InputData.oneX == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[4]	= true;
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[1]	= true;
+		m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+	}
+	else if( m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		if( m_InputData.pureRight == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_InputData.pureLeft == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+	}
+	else
+	{
+		if( m_InputData.pureRight == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_InputData.pureLeft == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+	}
+}
+
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DAMAGE_AIR_FALL );
@@ -7821,11 +8098,97 @@ void CX2GURaven::RSI_DAMAGE_DOWN_BACK_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 //RSI_DAMAGE_AIR_DOWN_LANDING
 void CX2GURaven::RSI_DAMAGE_AIR_DOWN_LANDING_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c28f50
+if( false == IsOnSomethingFuture() )
+{
+	StateChange( USI_DAMAGE_AIR_FALL );
+	m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+}
+else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+{
+	if( m_FrameDataFuture.stateParam.bEventFlagList[4] == true )
+	{
+		if( NULL != GetUnit() && GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_RF_SHADOW_STEP, false, 0, true ) > 0 )
+		{
+			StateChange( RSI_STANDUP_ATTACK_FRONT_NO_DOWN );
+		}
+		else
+		{
+			StateChange( RSI_STANDUP_ATTACK_FRONT );
+		}
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+	{
+		StateChange( RSI_STANDUP_ATTACK_FRONT );
+	}
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true )
+		StateChange( RSI_STANDUP_ROLLING_FRONT_FRONT );
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[3] == true )
+		StateChange( RSI_STANDUP_ROLLING_FRONT_BACK );
+	else
+		StateChange( USI_DAMAGE_STANDUP_FRONT );
+}
+else if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.66f )
+{
+	if( m_InputData.oneX == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[4]	= true;
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+		m_FrameDataFuture.stateParam.bEventFlagList[1]	= true;
+		m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+	}
+	else if( m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		if( m_InputData.pureRight == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_InputData.pureLeft == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+	}
+	else
+	{
+		if( m_InputData.pureRight == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_InputData.pureLeft == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+	}
+}
+
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DAMAGE_AIR_FALL );
@@ -7908,11 +8271,54 @@ void CX2GURaven::RSI_DAMAGE_AIR_DOWN_LANDING_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 //RSI_STANDUP_ROLLING_FRONT_FRONT
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+void CX2GURaven::RSI_DAMAGE_STANDUP_FRONT_StateStart()
+{
+	// June 32c290d0: shared by the stand-up and stand-up rolling Start callbacks
+	CommonStateStart();
+
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_RBM_OPEN_MIND ) > 0 )
+	{
+		ResetAnimSpeed( m_pXSkinAnim->GetPlaySpeed() * GetLearnedSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, CX2SkillTree::RNSI_P_RBM_OPEN_MIND ), true, false );
+	}
+}
+
+void CX2GURaven::RSI_DAMAGE_STANDUP_FRONT_StateStartFuture()
+{
+	// June 32c29130
+	CommonStateStartFuture();
+
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_RBM_OPEN_MIND ) > 0 )
+	{
+		ResetAnimSpeed( m_pXSkinAnimFuture->GetPlaySpeed() * GetLearnedSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, CX2SkillTree::RNSI_P_RBM_OPEN_MIND ), true, true );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 void CX2GURaven::RSI_STANDUP_ROLLING_FRONT_FRONT_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c29190
+if( false == IsOnSomethingFuture() )
+{
+	StateChange( USI_JUMP_DOWN );
+	m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+}
+else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+{
+	if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else
+		StateChange( USI_WAIT );
+}
+
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -7929,19 +8335,46 @@ void CX2GURaven::RSI_STANDUP_ROLLING_FRONT_FRONT_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_STANDUP_ROLLING_FRONT_FRONT_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25db0
+CommonStateEnd();
+SetForceInvincible( 0.3f );
+SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
 //RSI_STANDUP_ROLLING_FRONT_BACK
 void CX2GURaven::RSI_STANDUP_ROLLING_FRONT_BACK_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c29210
+if( false == IsOnSomethingFuture() )
+{
+	StateChange( USI_JUMP_DOWN );
+	m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+}
+else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+{
+	if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else
+		StateChange( USI_WAIT );
+}
+
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -7958,14 +8391,22 @@ void CX2GURaven::RSI_STANDUP_ROLLING_FRONT_BACK_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
 void CX2GURaven::RSI_STANDUP_ROLLING_FRONT_BACK_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25df0
+CommonStateEnd();
+SetForceInvincible( 0.3f );
+SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
@@ -7973,6 +8414,25 @@ void CX2GURaven::RSI_STANDUP_ROLLING_FRONT_BACK_End()
 //RSI_STANDUP_ROLLING_BACK_FRONT
 void CX2GURaven::RSI_STANDUP_ROLLING_BACK_FRONT_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c29290
+if( false == IsOnSomethingFuture() )
+{
+	StateChange( USI_JUMP_DOWN );
+	m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+}
+else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+{
+	if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else
+		StateChange( USI_WAIT );
+}
+
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -7989,13 +8449,21 @@ void CX2GURaven::RSI_STANDUP_ROLLING_BACK_FRONT_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_STANDUP_ROLLING_BACK_FRONT_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25e30
+CommonStateEnd();
+SetForceInvincible( 0.3f );
+SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
@@ -8003,6 +8471,25 @@ void CX2GURaven::RSI_STANDUP_ROLLING_BACK_FRONT_End()
 //RSI_STANDUP_ROLLING_BACK_BACK
 void CX2GURaven::RSI_STANDUP_ROLLING_BACK_BACK_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c29310
+if( false == IsOnSomethingFuture() )
+{
+	StateChange( USI_JUMP_DOWN );
+	m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+}
+else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+{
+	if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else
+		StateChange( USI_WAIT );
+}
+
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -8019,25 +8506,58 @@ void CX2GURaven::RSI_STANDUP_ROLLING_BACK_BACK_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_STANDUP_ROLLING_BACK_BACK_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25e70
+CommonStateEnd();
+SetForceInvincible( 0.3f );
+SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
 //RSI_STANDUP_ATTACK_FRONT
 void CX2GURaven::RSI_STANDUP_ATTACK_FRONT_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25eb0
+CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_STANDUP_ATTACK_FRONT_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c29390
+if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else
+	{
+		StateChange( USI_WAIT );
+	}
+}
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -8055,25 +8575,58 @@ void CX2GURaven::RSI_STANDUP_ATTACK_FRONT_EventProcess()
 		}
 	}
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_STANDUP_ATTACK_FRONT_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25ec0
+CommonStateEnd();
+SetForceInvincible( 0.3f );
+SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
 //RSI_STANDUP_ATTACK_BACK
 void CX2GURaven::RSI_STANDUP_ATTACK_BACK_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25f00
+CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_STANDUP_ATTACK_BACK_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c29410
+if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else
+	{
+		StateChange( USI_WAIT );
+	}
+}
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -8091,13 +8644,21 @@ void CX2GURaven::RSI_STANDUP_ATTACK_BACK_EventProcess()
 		}
 	}
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_STANDUP_ATTACK_BACK_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25f10
+CommonStateEnd();
+SetForceInvincible( 0.3f );
+SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 #ifdef SERV_SKILL_NOTE
@@ -15439,12 +16000,37 @@ void CX2GURaven::RSI_SHADOW_STEP_THRUST_EventProcess()
 
 void CX2GURaven::RSI_STANDUP_ATTACK_FRONT_NO_DOWN_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c266d0
+CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_STANDUP_ATTACK_FRONT_NO_DOWN_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c30f30
+if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else
+	{
+		StateChange( USI_WAIT );
+	}
+}
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -15462,24 +16048,57 @@ void CX2GURaven::RSI_STANDUP_ATTACK_FRONT_NO_DOWN_EventProcess()
 		}
 	}
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_STANDUP_ATTACK_FRONT_NO_DOWN_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c266e0
+CommonStateEnd();
+SetForceInvincible( 0.3f );
+SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
 void CX2GURaven::RSI_STANDUP_ATTACK_BACK_NO_DOWN_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26720
+CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_STANDUP_ATTACK_BACK_NO_DOWN_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c30fb0
+if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else
+	{
+		StateChange( USI_WAIT );
+	}
+}
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -15498,13 +16117,21 @@ void CX2GURaven::RSI_STANDUP_ATTACK_BACK_NO_DOWN_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_STANDUP_ATTACK_BACK_NO_DOWN_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26730
+CommonStateEnd();
+SetForceInvincible( 0.3f );
+SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 #ifdef SKILL_FOR_CANCEL
@@ -17008,6 +17635,37 @@ void CX2GURaven::SI_SA_RBM_WOLF_FANG_HITLANDING_EventProcess()
 #ifdef NEW_SKILL_2010_11
 void CX2GURaven::RBM_EMERGENCY_ESCAPE()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c59550
+if( m_fEmergencyEscapeCoolTime > m_fEmergencyEscapeElapsedTime )	// the cool time is still running
+	return;
+
+const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RBM_EMERGENCY_ESCAPE, true, 0, true );
+if( iSkillLevel <= 0 )
+	return;
+
+const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RBM_EMERGENCY_ESCAPE );
+if( NULL == pSkillTemplet )
+	return;
+
+if( GetRandomInt( 0 ) < pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel ) * 100.0 )
+{
+	const float fMPConsume = GetActualMPConsume( pSkillTemplet->m_eID, iSkillLevel );
+
+	if( GetNowMp() < fMPConsume )
+	{
+		g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( STR_ID_2549 ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+		return;
+	}
+
+	StateChange( RSI_SHADOW_STEP );
+
+	UpNowMp( -fMPConsume );
+
+	if( 0.f != m_fEmergencyEscapeElapsedTime )
+		m_fEmergencyEscapeElapsedTime = 0.f;
+}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	#ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
 
 	int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::SI_P_RBM_EMERGENCY_ESCAPE, true );
@@ -17074,6 +17732,7 @@ void CX2GURaven::RBM_EMERGENCY_ESCAPE()
 	}
 
 	#endif // UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RBM_EMERGENCY_ESCAPE_StartFuture()
@@ -17535,6 +18194,14 @@ CX2GURaven::ArcEnemyData::~ArcEnemyData()
 #ifdef RAVEN_WEAPON_TAKER
 void CX2GURaven::RSI_RWT_LOSE2_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c33bd0
+if( m_pXSkinAnim->EventTimerOneshot( 1.55f ) )
+{
+	UpDownCrashCamera( 20.0f, 0.3f );
+}
+CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 1.55f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -17544,6 +18211,7 @@ void CX2GURaven::RSI_RWT_LOSE2_FrameMove()
 		UpDownCrashCamera( 20.0f, 0.3f );
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 // 레이븐 웨폰 테이커 새 커맨드
