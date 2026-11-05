@@ -2351,6 +2351,9 @@ Read from `disasm_range.py` listings (Ghidra fails to decompile `32063650`); row
 21218 level 1 in slot 7 (B-3).
 **In game:** `[JUNE_CHAR] ELSWORD PASSIVE create effect set played: EffectSet_SI_P_ELK_WIND_SLICER ( ... roll r < rate 0.200 + fight god 0.000 )` / `... missed: ...` at each
 combo's event time; with Iron Body up, `fight god 0.200`.
+**Play-test PASS (user, 2026-11-05; run 15:30-15:31 on md5 `007afdce`; 0 EXCEPTION, 0 ErrorLog lines; known `E_DISABLE_HB_CHECK_REQ` UNHANDLED x2, one `AddGroupChainQuest`).**
+Init: unit 25 class 100 wind slicer 0.200. 43 event lines over 10 states (combos 117-120, 122, 126-128, 152): bonus 0 -> 6 played / 23 missed (0.21); bonus 0.200 (Iron Body up)
+-> 6 played / 8 missed (0.43); every line's played / missed agrees with its roll vs rate + bonus. The user saw the effect play.
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 

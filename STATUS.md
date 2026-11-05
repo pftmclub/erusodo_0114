@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH4a2 | done 2026-11-05 (`CREATE_EFFECT_SET` parse + play, Fight God bonus; `32610cb0` dead), DEPLOY OK 007afdce; owes user play-test, then Opus review | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GUUser.*` (not beside CH4b / CH4c) | `CH4a2.md`, `CH4a2-review.md` |
+| CH4a2 | done 2026-11-05 (`CREATE_EFFECT_SET` parse + play, Fight God bonus; `32610cb0` dead); play-test PASS (0.21 / 0.43); owes the Opus review | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GUUser.*` (not beside CH4b / CH4c) | `CH4a2.md`, `CH4a2-review.md` |
 | CH4b | ready (CH4a review PASS; one at a time with CH4a2, both touch `X2GUUser.*`): June-only `SetDamageExceptionProcess` `32d1e0e0`, overrides, snapshot override | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4b.md` |
 | CH4c | blocked (CH4b, CH3d reviews): Rune Slayer magic reflect (7j), `MemoConditionElsword` | Opus 5.5 / high, Opus review, user play-test | CH4b review, CH3d review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4c.md` |
 | CH6 | blocked (CH4a2, CH4c reviews): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4a2, CH4c, CH5 reviews | docs, save | `CH6.md` |
