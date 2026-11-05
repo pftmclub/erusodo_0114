@@ -2355,6 +2355,30 @@ combo's event time; with Iron Body up, `fight god 0.200`.
 Init: unit 25 class 100 wind slicer 0.200. 43 event lines over 10 states (combos 117-120, 122, 126-128, 152): bonus 0 -> 6 played / 23 missed (0.21); bonus 0.200 (Iron Body up)
 -> 6 played / 8 missed (0.43); every line's played / missed agrees with its roll vs rate + bonus. The user saw the effect play.
 
+### CH4a2 - Review (2026-11-05)
+
+Opus 5.5. **Verdict: passes, no code change.** Commit `58e53890`; `disasm_range.py --x87` listings `32063a40`-`32063d20`, `32060680`-`32060750`, the ctor `3203e850`-`32043400`, plus a byte scan of the exe.
+- **The play** `@32063a6c`-`32063d06`: bonus 0 (`fldz`), then `3227baf0( 0x12 )` HaveThisBuff, `32206450( 0x53a8, 1 )` GetSkillTemplet, `32205590` hyper-class, `[+0x867c]+0x3c == 1`,
+  `32890620( 0x53a8, 1, 0, 1 ) > 0` -> bonus = `+0x8e50`: the port's order. Name test `31c1c1a0` vs L"" (`je` skips when empty). Roll vslot `0x1cc( 0 )` is taken **before** the timer, as in the port;
+  `fld rate; fadd bonus; fcompp; test ah,0x41; jne skip` plays only when `rate + bonus > roll` (= `roll < rate + bonus`). `32071d80` then `31e4c230( +0x8e48 )`, result tested after the smart pointer's release.
+- **`PlayEffectSet` `321e1e60` by stack offset** (base = esp at `@32063bee`): hidden handle `+0x1e4`, name copy `+0x4b8`, this, NULL, bHyper = byte `+0x10` of the `+0x7cbc` now-state pointer
+  (`UserUnitStateData::m_bHyperState`, C9h-4d row; stored at `+0x34`, pushed from `[esp+0x5c]` 40 bytes deeper), vslot `0x204` power rate, life `[0x334380f0]` = -1.0 (read from `.text`), scale `+0xe0c` x3
+  (`m_fScale` = `GetScale()`), custom position 0, `GetPos( 0 )` vslot `0x138`, rotation vslot `0x150` copied to `+0x46c` with `+0x8e4c` added to its **z** (`+0x474`), direction `( 0, 0, 0 )` at `+0x1b4`, 1.0.
+  `322ceae0` is `GetEffectSet`. Every argument matches March's 12-argument `PlayEffectSet` (`X2EffectSet.h:1083`, force-down default 1.0). Placement before `RIDING_SYSTEM` = June's `@32063d06` block.
+- **The parse** `@320606b5`-`32060736`: `+0x8e2c` = L"" (`31f54a10`) first; `BeginTable( 33478ecc, 1 )` `cmp al,1`; `[1]` wstring miss L"", `[2]` / `[3]` float misses `fldz`; `EndTable`; nothing on
+  the absent-key path. June's order is `3228a490`, `32278200` sound stop, `3200bde0`, the parse, `31fce500`, ... `SPECIAL_OPTION_VALUE` `@320608a9`: the port sits after the sound stop and before
+  `SPECIAL_OPTION_VALUE` on the same table. Matches.
+- **`32610cb0` dead:** no `E8` / `E9` / `0F 8x` rel32 to it and no absolute pointer anywhere in the file. Of the six `a9 53 00 00` dwords, four are `push 0x53a9` inside `32610cb0` and `32d0c780`
+  (`ApplyBuffToOpenMind`, CH1h); `31de9c82` is `mov [esp+0x53a9], bl` (a stack offset) and `33078eb5` is misaligned bytes. Not ported, correctly.
+- **Ctor:** `3203e850`-`32043400` writes only `+0x8e2c` (the string ctor `@32040de2`) and `+0x8e50` (`@32040e15`); `+0x8e48` / `+0x8e4c` are unset, so the 0 / 0 stand-in is right.
+- **`#else` / flag off:** the members and the ctor line fall back to CH4a's `_PASSIVE` `m_fCreateEffectSetRate`; the parse and play are insert-only. **Names:** `RNSI_P_ELK_FIGHT_GOD = 21416`
+  (`Enum.src.lua:15672`), `BTI_SI_A_ES_ENDURANCE = 18` (`:12891`).
+- **Logs** (15:30-15:31, md5 `007afdce`): 43 lines in 9 states (117-120, 122, 126-128, 152; the Done note's "10" is one too many); bonus 0: 6 played / 23 missed (0.21), bonus 0.200: 6 / 8 (0.43);
+  0 lines disagree with `roll < rate + bonus`. The debug-only `missed` branch calls `EventTimerOneshot` a second time (a read of the anim time, no state), gone with the flag.
+- **Gates:** `flagcheck JUNE_USER_CREATE_EFFECT_SET --with JUNE_CHAR_ELSWORD_PASSIVE_DEBUG --range 58e53890^..58e53890 --files` (5 files): `files: 2 PASS, 0 PASS~, 1 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`,
+  `1 deleted line(s)` (the `//#define`), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUUser.cpp`: `0 A/B row(s)`.
+  Retirement: `//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG` (bytepatch, CP949 / CRLF unchanged). Build started, not awaited.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI`. Sub-tag `UI`.

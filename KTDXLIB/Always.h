@@ -11661,7 +11661,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Author: Iruha
 // Date: 2026-11-05
 // Description: char-elsword CH4a - temporary [JUNE_CHAR] ELSWORD PASSIVE lines ( the init values per load, each callback's buff ). CH4a's review retires it.
-#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
