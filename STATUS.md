@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH4c | done 2026-11-05, user play-test owed (Rune Slayer + Magic Coating, `_PASSIVE_DEBUG` on), then Opus review: reflect branch + `ApplyMagicCoating` `32d0c820`; `MemoConditionElsword` n/a | Opus 5.5 / high, Opus review, user play-test | CH4b review, CH3d review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4c-review.md` |
+| CH4c | done 2026-11-05, play-test PASS (absorb +5 MP, reflects at 0.360, memo as usual); owes the Opus review (`_PASSIVE_DEBUG` on): reflect branch + `ApplyMagicCoating` `32d0c820`; `MemoConditionElsword` n/a | Opus 5.5 / high, Opus review, user play-test | CH4b review, CH3d review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4c-review.md` |
 | CH6 | blocked (CH4c review): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4a2, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-raven` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 

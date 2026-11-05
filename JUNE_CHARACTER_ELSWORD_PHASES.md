@@ -2473,6 +2473,8 @@ Opus 5.5. **Verdict: passes, no code change.** Commit `e2eb3ad5`; listings `char
 **In game:** `[JUNE_CHAR] ELSWORD PASSIVE magic coating: magic damage <m> -> 0, physic <p> kept` then `magic coating: mp +5.0 ( level 1 ), now <mp>` per magic projectile taken with Iron Body up
 (and the "+5" MP text at Elsword); without Iron Body, `magic reflect: roll <r> <= rate 0.360, reflectable <0|1>` (rate 0.12 x3 in a dungeon) and the projectile flies back when reflectable.
 
+**Play-test PASS (user, 2026-11-05; run 17:01-17:05 on md5 `6586b82f`; 0 EXCEPTION, 0 ErrorLog lines; known `E_DISABLE_HB_CHECK_REQ` UNHANDLED x2, one `AddGroupChainQuest`).** `magic coating` x2 pairs (17:03:33, 17:03:49): `mp +5.0 ( level 1 ), now 22.5` / `now 195.2` with `magic damage 0.3 -> 0, physic 0.0 kept` (the DD's magic rate); `magic reflect` x5, rolls 0.126-0.228 <= 0.360 (3 reflectable, 2 not). The user saw the absorb, the +MP and the reflects; Sand Storm's memo looked as usual (check 3, visual).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI`. Sub-tag `UI`.
