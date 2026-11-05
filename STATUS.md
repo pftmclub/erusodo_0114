@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH3d | done, owes play-test + `/x2-kom-packed copy data036` (2026-11-05): hyper active EPs ground cancels, 100 / 101 / 112 transcend + TR pictures, LevelUpEvent TYPE3 | Opus 5.5 / high, Opus review, user play-test | CH3c review | `X2GUElsword_SwordMan.*`, `X2Data.cpp`, `Handlers_Quest.cpp`, data036 | `CH3d.md`, `CH3d-review.md` |
+| CH3d | done, play-test passed, data036 copied (2026-11-05); owes the Opus review: hyper active EPs ground cancels, 100 / 101 / 112 transcend + TR pictures, LevelUpEvent TYPE3 | Opus 5.5 / high, Opus review, user play-test | CH3c review | `X2GUElsword_SwordMan.*`, `X2Data.cpp`, `Handlers_Quest.cpp`, data036 | `CH3d.md`, `CH3d-review.md` |
 | CH4a | blocked (CH2d review): passives `32d1c560`, 7am delegates, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GUElsword_SwordMan.*` | `CH4a.md` |
 | CH4b | blocked (CH4a review): June-only `SetDamageExceptionProcess` `32d1e0e0`, overrides, snapshot override | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4b.md` |
 | CH4c | blocked (CH4b, CH3d reviews): Rune Slayer magic reflect (7j), `MemoConditionElsword` | Opus 5.5 / high, Opus review, user play-test | CH4b review, CH3d review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4c.md` |

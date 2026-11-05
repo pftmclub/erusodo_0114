@@ -2192,6 +2192,7 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the two event processes; `_SKILL_
 **Play-test set-up ( save, backed up as `pre_elsword_ch3d` ).** Unit 25 `jtLordKnight` 21600 Gigantic Slash, unit 26 `jtRuneSlayer` 21601 Shining Rune Buster, unit 71 `jtInfinitySword`
 21602 Blade Rain, each transcended, the hyper active in A-5 ( slot 4 ) and Grand Cross 21058 / Extreme Rune Buster 21059 / Infinite Strike 21060 moved to B-5 ( slot 9 ); upgrade ids not learned.
 **In game** ( after `/x2-kom-packed copy data036` ): the plan's hand-off; log lines `ELSWORD SKILL equip skill 2160x type 13 slot 4`, `[JUNE_TRANSCEND] IMAGE class 100 / 101 / 112`.
+**Play-test PASS ( user, 2026-11-05; `COPY OK data036` md5 8348bc0c ).** Logs ( run after the deploy, md5 2da608fe ): `equip skill 21600 / 21601 / 21602 type 13 slot 4` and `21058 / 21059 / 21060 type 16 slot 4 B`; `[JUNE_TRANSCEND] IMAGE` for 100 / 101 / 112: type 9 `list_TR_L_KNIGHT / R_SLAYER / I_SWORD`, type 2 Texture98 `TR_*_LARGE`, type 7 Texture97 `TR_L_KNIGHT_STATE`, `TR_R_SLAYER_STATE`, `TR_I_SWORD_FACE`; no EXCEPTION, no ErrorLog line of this phase. Not this phase: the `E_DISABLE_HB_CHECK_REQ` UNHANDLED baseline and one unbound `AddGroupChainQuest` from a June quest script. The user saw the ground-only cancels, the hyper actives in A-5 and B-5, the cut-in and the TR pictures.
 **Open for the review:** the ground test on both event processes, the `_FACE` row against June's table, and the "= March" Init claims.
 
 ## Phase CH4 - Passives and class mechanics
