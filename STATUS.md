@@ -176,8 +176,8 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2d | done 2026-11-05, owes the user a play-test (unit 70 SheathKnight99), then Opus review (`CH2d-review.md`): Sheath Knight (22) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GUElsword_SwordMan.*` | `CH2d.md` |
-| CH3a | blocked (CH2d review): Lord Knight (100) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GUElsword_SwordMan.*` | `CH3a.md` |
+| CH2d | review PASS 2026-11-05, no code change; owes the user the play-test (unit 70 SheathKnight99, exe 1c3ad88f); `_SKILL_DEBUG` kept on for it | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GUElsword_SwordMan.*` | `CH2d.md` |
+| CH3a | ready (CH2d review PASS): Lord Knight (100) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GUElsword_SwordMan.*` | `CH3a.md` |
 | CH3b | blocked (CH3a review): Rune Slayer (101) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GUElsword_SwordMan.*` | `CH3b.md` |
 | CH3c | blocked (CH3b review): Infinity Sword (112) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GUElsword_SwordMan.*` | `CH3c.md` |
 | CH3d | blocked (CH3c review): hyper actives + transcendence rows, skill icons PASS | Opus 5.5 / high, Opus review, user play-test | CH3c review | `X2GUElsword_SwordMan.*`, `X2GUUser.*`, `X2Offline*` | `CH3d.md` |

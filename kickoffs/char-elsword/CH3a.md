@@ -5,7 +5,7 @@
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-elsword CH3a` |
 | Plan doc | `JUNE_CHARACTER_ELSWORD_PHASES.md` (branch `main`) |
 | Depends on | CH2d review (and any Opus `CH3a0` helper phase CH0 wrote). One at a time: `X2GUElsword_SwordMan.*` |
-| Flag | `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (+ `..._SKILL_DEBUG`) |
+| Flag | `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (+ `..._SKILL_DEBUG`, still defined: the CH2d review kept it on for CH2d's play-test; leave it on) |
 | Log tag | `[JUNE_CHAR]` (`ELSWORD SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
 | Review | `kickoffs/char-elsword/CH3a-review.md` (Opus 5.5 high; the phase writes it when done) |
 

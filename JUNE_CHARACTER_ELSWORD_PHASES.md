@@ -1950,6 +1950,34 @@ Dev console ( END key, auth 3 ): `/invin 0`, then a dungeon with enemies in fron
 5. **E Final Strike.** The black hole and the blast ( the script plays them ), ends in wait; enhanced uses the _UPGRADE table.
 Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKILL"` ) and `[JUNE_SKILL]` `NUM use`. Then say "check logs".
 
+### CH2d - Review (2026-11-05)
+
+Opus 5.5. **Verdict: passes, no code change.** Commit `3cb75440`; every address read with `charport_adis.py elsword --phase CH2d` (19 listings) plus Ghidra (`329cc340`, strings).
+- **Play-test: not run yet.** The only run after the 09:08 deploy (09:16, 50 s) has the seven `equip skill` lines (21221 / 21233 / 21234, B bank 21033 / 21036 / 21053) and no skill use.
+  `_SKILL_DEBUG` therefore **stays defined** (not retired): the deployed exe md5 1c3ad88f is the play-test build, and CH3a keeps the flag on.
+- **Sword Fall FM `32d14100`:** 0.01 one-shot plays `EffectSet_SECOND_BLADE`, M01 at `Bip01` + y 60 ( 0 x dir ), tagged, the position stored to `+0x9644` unconditionally; M02-M05 at 0.03333 /
+  0.06666 / 0.1 / 0.15 into `+0x9650-+0x965c`, the `_Memo` four at 0.05 / 0.08 / 0.125 / 0.17 into `+0x9660-+0x966c`, each `+0x19c = 1` (per-frame simulation) and `32296ee0`;
+  **no memo test** (no `31fca9e0` / memo call in the listing). Power rate = vslot 0x204 once before the hits. Hits 1.0 / 1.16666 / 1.33333 / 1.5 then 0.917 / 1.083 / 1.25 / 1.416,
+  each gated on its mesh: `Dummy01` + y 42, -( -59 ) x dir, `BLADE1-4`, `DestroyInstanceHandle`. After the last hit's destroy: vslot 0x524 -> `31fca8e0( id, 1 )` +0x178 = June's
+  `IsNowStateSkillUpgraded` (`329cc340`, identical), then +80 -> `BLADE4`, +80 again -> `BLADE4`. = port. **End `32d15f80`:** `+0x9650` .. `+0x966c` in order, then vslot 0x7dc. = port.
+  JUNE_BUGS 532 agreed.
+- **`CreateCrescentCutEffect` `32d16c00`:** GetPos + y 80, +- 130 dir; `idx - 2 == 0` -> TWO, `- 1 == 0` -> THREE, else ONE (both names); damage effect at vslot 0x204; null -> out;
+  `32007c40( 1, id, 0, &v )` with `v = 1.0` -> main effect `+0x44c` x v; `32007c40( 0x22, id, 0, &v )` on the same buffer -> `ChangeMainEffectVelocity( 1, v )`. `SA_EFFECTIVE_TIME` = 1 and
+  `SA_MOVE_SPEED` = 34 counted in the C++ enum (no `#if` inside). The port's copy of the buffer after the first call gives the same value. = port. **`32d1b740`:** cut-in ( 0.01, 0 ), an
+  else-if chain 0.4 / 0.9 / 1.48 -> helper( 1 / 2 / 3 ), vslot 0x7cc. = port.
+- **Sword Shield `32d189a0`:** stop `+0x96e8`; `31fca8e0( 0x52dc = 21212, 1 )`; null -> CommonStateStart; no unit -> `ret`; `32890620( id, 0, 0, 1 )` < 1 -> 1, else the same call
+  again; `32206e50( 1, level, 0 )` -> `+0x96ec`. = port. **`32d18a60`:** 0.68 one-shot, upgraded -> `33523da8` `Effectset_A_ETK_SWORD_SHIELD_ULTIMATE`, else `33523d6c`. = port.
+- **The six EventProcesses:** `32cfde50` / `32cfdee0` / `32cfdf70` end -> 0x11 / 0xd by `+0x7e1c`, then the `+0x8c98` walk cancel with the foot on a line; `32cfe840` walk then dash
+  (vslot 0x668), `32d005e0` / `32d007e0` dash then walk, each then the `+0x8c90` skill cancel. = the macros.
+- **"= March":** Crescent Cut FM `32d162d0` = March's three independent one-shots ( GetPos + 80, 130 ); June's third hit has no memo branch, March's resolves to `ELSWORD_CRESCENT_THREE`
+  ( `GetEqippedSkillMemo` false, so `GetRandomFloat` is never called ). Inits and `32d1f3a0` per `funcmap.tsv`.
+- **Registration:** the eight cases match the listing rows ( 21036 -> `32d1b740`, 21020 -> `32d162d0`, Final Strike and its upgrade share `32cf4310` / `32cfde50`, no FM / End; hyper
+  rows = June's normal tables ).
+- **Gates:** `flagcheck JUNE_CHAR_ELSWORD_SKILL --with ..._SKILL_DEBUG --range 3cb75440^..3cb75440 --files` the four code files: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER
+  (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`, `1 deleted line(s)` (the `//#define`), `RESULT: PASS`. `--numstat`: `.cpp` +363 -0, `.h` +6 -0, `X2SkillTree.h` +17 -0.
+  `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check` the `.cpp`: `0 A/B row(s) remain`. One-file probe of `X2GUElsword_SwordMan.cpp`, with and
+  without `_LIVE`: exit 0, 0 errors. No build (no code change; the deployed exe is current).
+
 ## Phase CH3 - Skills: second jobs (100, 101, 112), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.
