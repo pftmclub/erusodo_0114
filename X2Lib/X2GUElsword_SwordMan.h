@@ -633,6 +633,10 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 
 
 		float m_fRollingSmashDuration;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+		float m_fGrandCrossChargeTime;		/// June +0x97b8: the seconds toward the next Grand Cross charge step
+		int m_iGrandCrossChargeCount;		/// June +0x97bc: the Grand Cross charge steps taken
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 		bool m_bIsMagicKnightWinMotion2; 
 		bool m_bERS_DASH_JUMP_XZ_Rune_Created;
 		bool m_bERS_COMBO_XZ_Rune_Created;
@@ -1707,6 +1711,21 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 	void CreateCrescentCutEffect( const int iHitIndex_ );
 	void CreateSwordFallBladeMesh( const WCHAR* pwszMeshName_, CKTDGXMeshPlayer::CXMeshInstanceHandle& hHandle_ );
 	bool CreateSwordFallBladeDamage( const WCHAR* pwszEffectName_, CKTDGXMeshPlayer::CXMeshInstanceHandle& hHandle_, const float fPowerRate_, D3DXVECTOR3& vEffectPos_ );
+	void ESSI_SA_ESK_WINDMILL_START_StateStartFuture();
+	void ESSI_SA_ESK_WINDMILL_FrameMoveFuture();
+	void ESSI_SA_ELK_SONIC_BLADE_CRESCENT_EventProcess();
+	void ESSI_SA_ELK_GRAND_CROSS_START_Init();
+	void ESSI_SA_ELK_GRAND_CROSS_START_StateStart();
+	void ESSI_SA_ELK_GRAND_CROSS_START_StateStartFuture();
+	void ESSI_SA_ELK_GRAND_CROSS_START_EventProcess();
+	void ESSI_SA_ELK_GRAND_CROSS_CHARGE_FrameMove();
+	void ESSI_SA_ELK_GRAND_CROSS_CHARGE_EventProcess();
+	void ESSI_SA_ELK_GRAND_CROSS_CHARGE_StateEnd();
+	void ESSI_SA_ELK_GRAND_CROSS_END_FrameMove();
+	void ESSI_SA_ELK_GRAND_CROSS_END_EventProcess();
+	void ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE_FrameMove();
+	void ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE_EventProcess();
+	void CreateGrandCrossDamageEffect( const bool bFullCharge_ );
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 
 	void ESSI_SI_SA_ETK_PHANTOM_SWORD_Init();

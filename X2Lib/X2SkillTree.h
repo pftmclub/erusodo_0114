@@ -2272,6 +2272,22 @@ public:
 		RNSI_A_ETK_MIRAGE_STING_UPGRADE                       = 21234,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-05 // char-elsword CH3a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Lord Knight's skill switch cases spell ( values from June's Enum.lua )
+		RNSI_SA_ELK_ARMAGEDON_BLADE                           = 21008,
+		RNSI_SA_ELK_SAND_STORM                                = 21009,
+		RNSI_SA_ELK_SONIC_BLADE                               = 21011,
+		RNSI_SA_ELK_SONIC_BLADE_CRESCENT                      = 21037,
+		RNSI_SA_ELK_IMPERIAL_CRUSHER                          = 21038,
+		RNSI_SA_ELK_ARMAGEDON_BLADE_UPGRADE                   = 21044,
+		RNSI_SA_ELK_SAND_STORM_UPGRADE                        = 21045,
+		RNSI_SA_ELK_WINDMILL_UPGRADE                          = 21046,
+		RNSI_SA_ELK_SONIC_BLADE_UPGRADE                       = 21047,
+		RNSI_A_ELK_POWER_SMASH                                = 21222,
+		RNSI_A_ELK_ROLLING_SMASH_UPGRADE                      = 21227,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

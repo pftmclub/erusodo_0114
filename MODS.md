@@ -5843,3 +5843,25 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (CH2a's; the `..._SKILL_DEBUG` log 
 | Mirage Sting (21214 / 21234) | `ESSI_SI_A_EIS_SPIRAL_STING` state tables | 206 ( numerical-only state tables DAMAGE_DATA / DAMAGE_DATA_NEXT through the engine ) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-22 ids fall back to the Mega Slash default; CH2a-CH2c's ids too), `python tools/build.py --deploy`.
+
+## Stage 7 Elsword, CH3a: Lord Knight skills (2026-11-05)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (CH2a's; the `..._SKILL_DEBUG` log is defined again until the CH3a review). Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` "CH3a - Done". Client only, no data change.
+- **What changes in game.** The class-100 skills run June's registrations: Armageddon Blade (21008 / 21044), Sand Storm (21009; the upgrade 21045 uses the `ESSI_SA_ELK_SAND_STORM_UPGRADE` table), Windmill (21010 / 21046), Sonic Blade (21011 / 21047), Sonic Blade: Crescent (21037), Imperial Crusher (21038), Grand Cross (21058), Rolling Smash (21205 / 21227), Counter (21206 / 21228) and Power Smash (21222) each get a case in `SetEquippedSkillFuncBySkillSlotIndex` ahead of the Mega Slash default; the hyper state takes the normal table name. Eleven `RNSI_*ELK*` names join `X2SkillTree.h` under `JUNE_ENUM_NAMES`.
+- **Differs from March.** Armageddon Blade, Sand Storm, Sonic Blade and Imperial Crusher lose March's cut-in and particle code (June's script plays it); Armageddon Blade applies its buff factor 0 (and 1 first when upgraded) at 0.01 s. Windmill plays the `_NEW` effect sets, ends with `EffectSet_ELSWORD_WINDMILL_LAND_END_NEW`, and past its duration keeps going while the skill key is held and mana lasts (up to 2.8 s, mana = elapsed x 100 / 2.8 per frame); the two `_HYPER` Windmill states are gone (June's hyper start enters the same state 190). Rolling Smash reads the upgrade-swapped templet and level and takes its range from the numerical data. The Counter's wait state has no memo branch. Grand Cross is new: a start, a charge that costs 10 mana per 0.5 s step (five steps = full charge, releasing the key or mana < 10 ends it), then five damage effects whose power rate is x (1 + 0.1 x steps) and whose scale is 1 + 0.2 x steps. Windmill end, Sand Storm, Grand Cross end and Sonic Blade: Crescent cancel into walk / dash / attack on the ground only.
+- **Damage (level-1 value of the base id; June = `NewSkillTempletVer2.lua` NUMERICAL_DATA through the engine; March = the shipped state / effect tables).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Armageddon Blade (21008 / 21044) | `ESSI_SI3_ES_ARMAGEDDON_BLADE` state table | 2669 ( numerical-only state table, index 1 ) |
+| Sand Storm (21009 / 21045) | `LORD_KNIGHT_SAND_STORM` damage effect | 1496 ( main ) + 164 ( sub ) |
+| Windmill (21010 / 21046) | `ELSWORD_WIND_MILL` tables | 259 |
+| Sonic Blade (21011 / 21047) | `ELSWORD_SONIC_BLADE` tables | 1050 |
+| Sonic Blade: Crescent (21037) | June only | 1201 per hit ( 2 hits ) |
+| Imperial Crusher (21038) | June only | 664 per hit ( 2 hits ) |
+| Grand Cross (21058) | June only | 351 ( start ), 405 per fire, 2108 ( big ), x power rate ( 1 + 0.1 x steps ) |
+| Rolling Smash (21205 / 21227) | `ESSI_A_ELK_ROLLING_SMASH` state tables | 115 ( state, index 1 ) + 547 ( landing ) |
+| Counter (21206 / 21228) | `ESSI_REVENGE_ATTACK` state table | 381 ( numerical-only counter strike, index 1, x the revenge damage ) |
+| Power Smash (21222) | June only | 1544 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-100 ids fall back to the Mega Slash default; CH2a-CH2d's ids too), `python tools/build.py --deploy`.
