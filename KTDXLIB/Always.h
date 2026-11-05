@@ -11707,3 +11707,11 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_RAVEN_VETERAN_COMMANDER
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-05
+// Description: Offline dungeon load no longer waits for the UDP self connect test before sending loading 100 ( the load froze at 80 % when the test never finished ); logs the UDP state when it was unfinished.
+//              Revert: comment out the #define.
+#define SERV_IRUHADEV_OFFLINE_LOAD_UDP_GATE
+//////////////////////////////////////////////////////////////////////////

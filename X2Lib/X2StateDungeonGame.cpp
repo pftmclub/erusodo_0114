@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 
 #include ".\x2statedungeongame.h"
+#ifdef SERV_IRUHADEV_OFFLINE_LOAD_UDP_GATE
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_OFFLINE_LOAD_UDP_GATE
 #ifdef SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
 #include "KTDGGFXManager.h"
 #endif SERV_IRUHADEV_JUNE_RESULT_STATE_RESET
@@ -1180,7 +1183,12 @@ HRESULT CX2StateDungeonGame::OnFrameMove( double fTime, float fElapsedTime )
 #endif HENIR_TEST
 			}
 
+#ifdef SERV_IRUHADEV_OFFLINE_LOAD_UDP_GATE
+			// offline: no remote peer, so the loopback UDP self test is not waited on ( it left the 100% request unsent )
+			if( m_bLoadingOK == true )
+#else SERV_IRUHADEV_OFFLINE_LOAD_UDP_GATE
 			if( g_pData->GetGameUDP()->ConnectTestResult() == true && m_bLoadingOK == true )
+#endif SERV_IRUHADEV_OFFLINE_LOAD_UDP_GATE
 			{
 				switch( m_ConnectType )
 				{
@@ -1189,6 +1197,15 @@ HRESULT CX2StateDungeonGame::OnFrameMove( double fTime, float fElapsedTime )
 
 				case CX2Game::CT_START_GAME:
 					{
+#ifdef SERV_IRUHADEV_OFFLINE_LOAD_UDP_GATE
+						if( g_pData->GetGameUDP()->ConnectTestResult() == false )
+						{
+							const CKTDNUDP::Peer* pMyPeer = g_pData->GetGameUDP()->GetPeer( g_pData->GetGameUDP()->GetMyUID() );
+							CX2OfflineLog::Server( L"[LOAD_UDP_GATE] 100 sent with the UDP self test unfinished: my peer %d, p2p type %d, relay %d, tests %d",
+								( NULL != pMyPeer ) ? 1 : 0, ( NULL != pMyPeer ) ? static_cast<int>( pMyPeer->m_eP2PConnectType ) : -1,
+								( NULL != pMyPeer && true == pMyPeer->m_bUseRelay ) ? 1 : 0, ( NULL != pMyPeer ) ? pMyPeer->m_ConnectTestCount : -1 );
+						}
+#endif SERV_IRUHADEV_OFFLINE_LOAD_UDP_GATE
 						if( g_pData->GetDungeonRoom()->GetIntrudeGame() == false )
 							GameLoadingReq( 100 );
 					}
