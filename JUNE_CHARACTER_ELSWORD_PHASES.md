@@ -2466,6 +2466,7 @@ Opus 5.5. **Verdict: passes, no code change.** Commit `e2eb3ad5`; listings `char
 `flagcheck.py JUNE_CHAR_ELSWORD_PASSIVE --with JUNE_CHAR_ELSWORD_PASSIVE_DEBUG --worktree --files` (4 files): `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
 `in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (the deleted line is the `//#define ..._PASSIVE_DEBUG`).
 `junediverge.py --check` (Elsword .cpp / .h, `X2GUUser.cpp`): `allow-listed: 10`, `RESULT: PASS`. `enumscan.py --check X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+**Range (commit `79dc1d25`):** `--range 79dc1d25^..79dc1d25`, same 4 files: `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; 1 deleted (the `//#define`); `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,002,432 B, dated 2026-11-05 17:00:09, md5 6586b82f723fa9c55304ec35a09df8b7, equal to X2/US_SERVICE/x2.exe (2026-11-05 17:00:01); built at main 2fcb1acb + 4 uncommitted code file(s).`
 `EXESTR OK: 3 of 3 found in X2_offline.exe, 26002432 B, dated 2026-11-05 17:00:09, md5 6586b82f723fa9c55304ec35a09df8b7` (the two `magic coating` lines and `magic reflect: roll`, wide).
 **Save** (backups `els_db_20261105_165141_pre_sql.sql`, `..._165201_...`): unit 26 `jtRuneSlayer` (transcended) + Magic Coating 21418 level 1 (unsealed row) and Iron Body 21201 level 1 in slot 3 (21000 out).
