@@ -213,7 +213,7 @@ CX2GUElsword_SwordMan::CX2GUElsword_SwordMan( int unitIndex, int teamNum,
 , m_bAfterImageSaved( false )		/// June after-image byte +0x1d1 starts false
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
-, m_fMegaSlashChargeTime( 0.f )		/// June ctor 32d09490
+, m_fSkillKeyHoldTime( 0.f )		/// June ctor 32d09490
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 {
 	m_bReAttackZ1Right					= false;
@@ -5617,6 +5617,173 @@ void CX2GUElsword_SwordMan::InitStateCommon()
 			m_LuaManager.MakeTableReference( "ESSI_A_ELK_POWER_SMASH", hyperStateData.stateID );
 			hyperStateData.m_bHyperState		= true;
 			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+	// June 32d223e0: Rune Slayer's cases ( the skill's raw id and its upgrade's ); where June has no _HYPER table the hyper state takes the normal state's table name
+	case CX2SkillTree::RNSI_SA_ERS_PHOENIX_TALON:
+		{
+			m_LuaManager.MakeTableReference( "ESSI_SA_EMK_PHOENIX_TALON", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_A_ESK_PHOENIX_TALON_Init );			// June 32cf4050
+			normalStateData.StateStart			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_A_ESK_PHOENIX_TALON_StateStart );	// June 32cf4080
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_A_ESK_PHOENIX_TALON_FrameMove );		// June 32d09290
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_A_ESK_PHOENIX_TALON_EventProcess );	// June 32cfc3f0
+
+			m_LuaManager.MakeTableReference( "ESSI_SA_EMK_PHOENIX_TALON", hyperStateData.stateID );
+			hyperStateData.m_bHyperState		= true;
+			hyperStateData.StateStart			= normalStateData.StateStart;
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_ERS_PHOENIX_TALON_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "ESSI_SA_EMK_PHOENIX_TALON_UPGRADE", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_A_ESK_PHOENIX_TALON_Init );			// June 32cf4050
+			normalStateData.StateStart			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_A_ESK_PHOENIX_TALON_StateStart );	// June 32cf4080
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_A_ESK_PHOENIX_TALON_FrameMove );		// June 32d09290
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_A_ESK_PHOENIX_TALON_EventProcess );	// June 32cfc3f0
+
+			m_LuaManager.MakeTableReference( "ESSI_SA_EMK_PHOENIX_TALON_UPGRADE", hyperStateData.stateID );
+			hyperStateData.m_bHyperState		= true;
+			hyperStateData.StateStart			= normalStateData.StateStart;
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_ERS_SWORD_FIRE:
+	case CX2SkillTree::RNSI_SA_ERS_SWORD_FIRE_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "ESSI_SA_EMK_SWORD_FIRE", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SA_EMK_SWORD_FIRE_Init );			// June 32cf3ea0
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SA_EMK_SWORD_FIRE_EventProcess );	// June 32cfad40
+			normalStateData.StateEndFuture		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SA_EMK_SWORD_FIRE_EndFuture );		// June 32cf3ec0
+
+			m_LuaManager.MakeTableReference( "ESSI_SA_EMK_SWORD_FIRE", hyperStateData.stateID );
+			hyperStateData.m_bHyperState		= true;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+			hyperStateData.StateEndFuture		= normalStateData.StateEndFuture;
+
+			{
+				UserUnitStateData stateData;
+
+				stateData.Init();
+				stateData.stateID			= ESSI_SA_EMK_SWORD_FIRE_LANDING;
+				m_LuaManager.MakeTableReference( "ESSI_SA_EMK_SWORD_FIRE_LANDING", stateData.stateID );
+				stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SA_EMK_SWORD_FIRE_LANDING_EventProcess );	// June 32cfad80
+				stateData.StateEnd			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SA_EMK_SWORD_FIRE_LANDING_End );			// June 32cf3ee0
+				m_StateList[stateData.stateID] = stateData;
+			}
+		} break;
+
+	case CX2SkillTree::RNSI_SA_ERS_LUNA_BLADE:
+	case CX2SkillTree::RNSI_SA_ERS_LUNA_BLADE_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "ESSI_SA_ERS_LUNA_BLADE", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SA_ERS_LUNA_BLADE_Init );			// June 32cf44d0
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SA_ERS_LUNA_BLADE_EventProcess );	// June 32cfec80
+
+			m_LuaManager.MakeTableReference( "ESSI_SA_ERS_LUNA_BLADE", hyperStateData.stateID );
+			hyperStateData.m_bHyperState		= true;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_ERS_SPLASH_EXPLOSION:
+	case CX2SkillTree::RNSI_SA_ERS_SPLASH_EXPLOSION_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "ESSI_SA_ERS_SPLASH_EXPLOSION", normalStateData.stateID );
+			normalStateData.StateStart			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SA_ERS_SPLASH_EXPLOSION_StateStart );	// June 32d135c0
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );							// June 329cba60 -> 31fcc9d0
+
+			m_LuaManager.MakeTableReference( "ESSI_SA_ERS_SPLASH_EXPLOSION", hyperStateData.stateID );
+			hyperStateData.m_bHyperState		= true;
+			hyperStateData.StateStart			= normalStateData.StateStart;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_ERS_TRIPLE_SABER:
+		{
+			m_LuaManager.MakeTableReference( "ESSI_SA_ERS_TRIPLE_SABER", normalStateData.stateID );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );	// June 329cbfc0 -> 31fcc740
+
+			m_LuaManager.MakeTableReference( "ESSI_SA_ERS_TRIPLE_SABER", hyperStateData.stateID );
+			hyperStateData.m_bHyperState		= true;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_ERS_OVERS_GEYSER:
+		{
+			m_LuaManager.MakeTableReference( "ESSI_SA_ERS_OVERS_GEYSER", normalStateData.stateID );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );	// June 329cbfc0 -> 31fcc740
+
+			m_LuaManager.MakeTableReference( "ESSI_SA_ERS_OVERS_GEYSER", hyperStateData.stateID );
+			hyperStateData.m_bHyperState		= true;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_A_ERS_ENCHANT_BREAK:
+		{
+			m_LuaManager.MakeTableReference( "ESSI_A_ERS_ENCHANT_BREAK", normalStateData.stateID );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );	// June 329cbfc0 -> 31fcc740
+
+			m_LuaManager.MakeTableReference( "ESSI_A_ERS_ENCHANT_BREAK", hyperStateData.stateID );
+			hyperStateData.m_bHyperState		= true;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_ERS_EXTREME_RUNE_BUSTER:
+		{
+			m_LuaManager.MakeTableReference( "ESSI_SA_ERS_EXTREME_RUNE_BUSTER", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SA_ERS_EXTREME_RUNE_BUSTER_Init );			// June 32cf4ff0
+			normalStateData.StateStart			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SA_ERS_EXTREME_RUNE_BUSTER_StateStart );		// June 32d09310
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SA_ERS_EXTREME_RUNE_BUSTER_EventProcess );	// June 32d068d0
+
+			m_LuaManager.MakeTableReference( "ESSI_SA_ERS_EXTREME_RUNE_BUSTER", hyperStateData.stateID );
+			hyperStateData.m_bHyperState		= true;
+			hyperStateData.StateInit			= normalStateData.StateInit;	// June 329cc2c0 copies every delegate
+			hyperStateData.StateStart			= normalStateData.StateStart;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_A_ERS_RUNE_OF_FIRE:
+	case CX2SkillTree::RNSI_A_ERS_RUNE_OF_FIRE_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "ESSI_SI_A_ERS_RUNE_OF_FIRE", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SI_A_ERS_RUNE_OF_FIRE_Init );		// June 32cf4770
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SI_A_ERS_RUNE_OF_FIRE_FrameMove );	// June 32d18230
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_SI_A_ERS_RUNE_OF_FIRE_EventProcess );	// June 32cfff60
+
+			m_LuaManager.MakeTableReference( "ESSI_SI_A_ERS_RUNE_OF_FIRE", hyperStateData.stateID );
+			hyperStateData.m_bHyperState		= true;
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_A_ERS_COUNTER:
+	case CX2SkillTree::RNSI_A_ERS_COUNTER_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "ESSI_ERS_COUNTER_GUARD_READY", normalStateData.stateID );
+			normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_COUNTER_GUARD_READY_StateStartFuture );	// June 32cf4e50
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_COUNTER_GUARD_READY_EventProcess );		// June 32d05500
+
+			m_LuaManager.MakeTableReference( "ESSI_ERS_COUNTER_GUARD_READY", hyperStateData.stateID );
+			hyperStateData.m_bHyperState		= true;
+			hyperStateData.StateStartFuture		= normalStateData.StateStartFuture;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+
+			{
+				UserUnitStateData stateData;
+
+				stateData.Init();
+				stateData.stateID			= ESSI_ERS_COUNTER_GUARD;
+				m_LuaManager.MakeTableReference( "ESSI_ERS_COUNTER_GUARD", stateData.stateID );
+				stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_COUNTER_GUARD_EventProcess );	// June 32cf4d70
+				m_StateList[stateData.stateID] = stateData;
+
+				stateData.Init();
+				stateData.stateID			= ESSI_ERS_COUNTER_GUARD_END;
+				m_LuaManager.MakeTableReference( "ESSI_ERS_COUNTER_GUARD_END", stateData.stateID );
+				stateData.OnEventProcess	= SET_CB_FUNC( CX2GUElsword_SwordMan, ESSI_ERS_COUNTER_GUARD_END_EventProcess );	// June 32d05b80
+				m_StateList[stateData.stateID] = stateData;
+			}
 		} break;
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
@@ -12325,6 +12492,14 @@ namespace _CONST_ELSWORD_CH3A_
 	}
 }
 using namespace _CONST_ELSWORD_CH3A_;
+
+namespace _CONST_ELSWORD_CH3B_
+{
+	const float COUNTER_GUARD_MAX_HOLD_TIME				= 5.f;		/// June 32cf4d70: the counter guard ends after 5 s even when the key is held
+	const int EXTREME_RUNE_BUSTER_RANDOM_COUNT			= 10;		/// June 32d09310: random numbers drawn when the state starts
+	const int EFFECT_MODIFIER_TAG_MAIN_LIFE_TIME_RATE	= 19;		/// June 321db1b0 modifier tag ( no Enum entry ): main effect life time rate, inherited by the children
+}
+using namespace _CONST_ELSWORD_CH3B_;
 
 /// June 32cfaa30: the Z and X attack cancels after the attack-cancel time, on the ground only
 #define ELSWORD_GROUND_ATTACK_CANCEL \
@@ -20485,10 +20660,18 @@ void CX2GUElsword_SwordMan::ESSI_SA_EMK_SWORD_FIRE_LANDING_EventProcess()
 
 void CX2GUElsword_SwordMan::ESSI_SA_EMK_SWORD_FIRE_LANDING_End()
 {				
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+	/// June 32cf3ee0: the buff comes from the raw skill id's templet with the upgrade swap
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ERS_SWORD_FIRE, true );
+	SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+
+	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::SI_SA_EMK_SWORD_FIRE );
 	SetBuffFactorToGameUnit( pSkillTemplet, 0 );
 
 	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 }
 
 
@@ -21948,7 +22131,7 @@ void CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_READY_StateStart()
 	/// June 32cf3950
 	CommonStateStart();
 
-	m_fMegaSlashChargeTime = 0.f;
+	m_fSkillKeyHoldTime = 0.f;
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
 	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD SKILL memo ready: slot %d, hyper %d", m_iNowSpecialAttack - 1, IsHyperState() ? 1 : 0 );
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
@@ -21985,7 +22168,7 @@ void CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_CHARGE_FrameMove()
 	/// June 32d0fe90
 	CommonFrameMove();
 
-	m_fMegaSlashChargeTime += m_fElapsedTime;
+	m_fSkillKeyHoldTime += m_fElapsedTime;
 
 	if( ELSWORD_EVENT_TIMER_ONESHOT( 0.5f ) )
 		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ELK_Gigantic_slash_FX1", this );
@@ -21996,7 +22179,7 @@ void CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_CHARGE_EventProcess()
 	/// June 32cf39b0: fire when the key is let go or after 1.1 s
 	m_kSkillSlotKey.FollowSlotSwap();
 
-	if( 1.1f <= m_fMegaSlashChargeTime || true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) )
+	if( 1.1f <= m_fSkillKeyHoldTime || true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) )
 		StateChange( ESSI_SI_A_MEGASLASH_MEMO_FIRE );
 
 	CommonEventProcess();
@@ -22010,11 +22193,11 @@ void CX2GUElsword_SwordMan::ESSI_SI_A_MEGASLASH_MEMO_FIRE_FrameMove()
 	if( ELSWORD_EVENT_TIMER_ONESHOT( 0.094f ) )
 	{
 		float fPowerRate = GetPowerRate();
-		if( 0.5f <= m_fMegaSlashChargeTime )
+		if( 0.5f <= m_fSkillKeyHoldTime )
 			fPowerRate *= 1.5f;
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
-		CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD SKILL memo fire: charge %.2f s, power rate %.2f, hyper %d", m_fMegaSlashChargeTime, fPowerRate, IsHyperState() ? 1 : 0 );
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD SKILL memo fire: charge %.2f s, power rate %.2f, hyper %d", m_fSkillKeyHoldTime, fPowerRate, IsHyperState() ? 1 : 0 );
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
 		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_Elsword_MegaSlash_Damage", this, NULL, IsHyperState(), fPowerRate );
 	}
@@ -23504,6 +23687,20 @@ void CX2GUElsword_SwordMan::ESSI_A_ERS_SWORD_ENCHANT_EventProcess()
 
 	void CX2GUElsword_SwordMan::ESSI_A_ESK_PHOENIX_TALON_FrameMove()
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+		/// June 32d09290: the buff comes from the raw skill id's templet with the upgrade swap; the hyper state runs this body too
+		ChangeWorldColorByHyperMode();
+
+		ShowActiveSkillCutInAndLight( 0.002f, 2 );
+
+		if( true == ELSWORD_EVENT_TIMER_ONESHOT( 1.75f ) )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ERS_PHOENIX_TALON, true );
+			SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+		}
+
+		CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 		ChangeWorldColorByHyperMode();
 
 		ShowActiveSkillCutInAndLight( 0.002f, 2 );
@@ -23519,6 +23716,7 @@ void CX2GUElsword_SwordMan::ESSI_A_ERS_SWORD_ENCHANT_EventProcess()
 		}
 
 		CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 	}
 
 	void CX2GUElsword_SwordMan::ESSI_A_ESK_PHOENIX_TALON_Hyper_FrameMove()
@@ -26962,6 +27160,93 @@ void CX2GUElsword_SwordMan::CreateGrandCrossDamageEffect( const bool bFullCharge
 	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD SKILL grand cross effects: full charge %d, steps %d, power %.2f, scale %.2f", ( true == bFullCharge_ ) ? 1 : 0, m_iGrandCrossChargeCount, fPowerRate, fScale );
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
 }
+
+void CX2GUElsword_SwordMan::ESSI_ERS_COUNTER_GUARD_READY_StateStartFuture()
+{
+	/// June 32cf4e50: the held key is the slot the skill was pressed from
+	m_fSkillKeyHoldTime = 0.f;
+	m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 );
+
+	CommonStateStartFuture();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ERS_COUNTER_GUARD_READY_EventProcess()
+{
+	/// June 32d05500
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+		StateChange( ESSI_ERS_COUNTER_GUARD );
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ERS_COUNTER_GUARD_EventProcess()
+{
+	/// June 32cf4d70: the guard ends when the key is let go or after 5 s
+	m_fSkillKeyHoldTime += m_fElapsedTime;
+	m_kSkillSlotKey.FollowSlotSwap();
+
+	if( true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) || COUNTER_GUARD_MAX_HOLD_TIME < m_fSkillKeyHoldTime )
+	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD SKILL counter guard end: held %.2f s", m_fSkillKeyHoldTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
+		StateChange( ESSI_ERS_COUNTER_GUARD_END );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_ERS_COUNTER_GUARD_END_EventProcess()
+{
+	/// June 32d05b80: an end in the air falls 1.5 line radii lower; the ground-only cancels ( 7h ) are Mortal Blow's
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	else if ( 0.f <= m_fUpDownCancelAfter && m_fUpDownCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( true == m_InputData.pureUp || true == m_InputData.pureDown ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSWORD_GROUND_BWALK_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	ELSWORD_GROUND_DASH_CANCEL
+	ELSWORD_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+}
+
+void CX2GUElsword_SwordMan::ESSI_SA_ERS_EXTREME_RUNE_BUSTER_Init()
+{
+	/// June 32cf4ff0: nothing to preload
+}
+
+void CX2GUElsword_SwordMan::ESSI_SA_ERS_EXTREME_RUNE_BUSTER_StateStart()
+{
+	/// June 32d09310: empties the observer list, redraws ten random numbers
+	m_vecExtremeRuneBusterTargetUnit.clear();
+	m_vecExtremeRuneBusterRandom.clear();
+	for( int i = 0; i < EXTREME_RUNE_BUSTER_RANDOM_COUNT; i++ )
+		m_vecExtremeRuneBusterRandom.push_back( GetRandomFloat( i ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD SKILL extreme rune buster: start, %d random numbers", static_cast<int>( m_vecExtremeRuneBusterRandom.size() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
+
+	CommonStateStart();
+}
+
+void CX2GUElsword_SwordMan::ESSI_SA_ERS_EXTREME_RUNE_BUSTER_EventProcess()
+{
+	/// June 32d068d0 is instruction for instruction the counter guard end's 32d05b80
+	ESSI_ERS_COUNTER_GUARD_END_EventProcess();
+}
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 void CX2GUElsword_SwordMan::ESSI_SI_SA_ETK_PHANTOM_SWORD_Init()
 {
@@ -28644,6 +28929,21 @@ void CX2GUElsword_SwordMan::ESSI_SI_A_ERS_RUNE_OF_FIRE_Init()
 }
 void CX2GUElsword_SwordMan::ESSI_SI_A_ERS_RUNE_OF_FIRE_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+	/// June 32cfff60: the dash, walk and skill cancels need the foot on a line ( 7h )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	ELSWORD_GROUND_DASH_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -28656,6 +28956,7 @@ void CX2GUElsword_SwordMan::ESSI_SI_A_ERS_RUNE_OF_FIRE_EventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 }
 void CX2GUElsword_SwordMan::ESSI_SI_A_ERS_RUNE_OF_FIRE_FrameMove()
 {
@@ -28671,6 +28972,9 @@ void CX2GUElsword_SwordMan::ESSI_SI_A_ERS_RUNE_OF_FIRE_FrameMove()
 		{
 			pEffectInstance->m_fLifeTime *= m_fRuneProjectileRangeIncPercent;
 			pEffectInstance->m_bDamageEffectScale = true;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+			g_pX2Game->GetEffectSet()->AddDamageEffectModifier( hEffectRune, EFFECT_MODIFIER_TAG_MAIN_LIFE_TIME_RATE, m_fRuneProjectileRangeIncPercent, false );	/// June 32d18230
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 		}
 	}
 

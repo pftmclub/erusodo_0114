@@ -5865,3 +5865,25 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (CH2a's; the `..._SKILL_DEBUG` log 
 | Power Smash (21222) | June only | 1544 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-100 ids fall back to the Mega Slash default; CH2a-CH2d's ids too), `python tools/build.py --deploy`.
+
+## Stage 7 Elsword, CH3b: Rune Slayer skills (2026-11-05)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (CH2a's; the `..._SKILL_DEBUG` log is defined again until the CH3b review). Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` "CH3b - Done". Client only, no data change.
+- **What changes in game.** The class-101 skills run June's registrations: Phoenix Talon (21015 / 21049, own `_UPGRADE` table), Sword Fire (21016 / 21050 + its landing state), Luna Blade (21017 / 21051), Splash Explosion (21018 / 21052), Triple Saber (21039), Overs Geyser (21040), Extreme Rune Buster (21059), Rune of Fire (21210 / 21231), Counter (21211 / 21232: ready, guard, end states) and Enchant Break (21223) each get a case in `SetEquippedSkillFuncBySkillSlotIndex` ahead of the Mega Slash default; the hyper state takes the normal table name. Fourteen `RNSI_*ERS*` names join `X2SkillTree.h` under `JUNE_ENUM_NAMES`. `ESSI_ERS_COUNTER_GUARD_END` (June state 261) joins the state enum.
+- **Differs from March.** Sword Fire's landing end and Phoenix Talon's 1.75 s buff read the raw skill id's templet with the upgrade swap (the hyper Phoenix Talon runs the same body); Luna Blade, Splash Explosion and Sword Fire lose March's frame code (June's script plays the effects); Rune of Fire's dash, walk and skill cancels need the foot on a line, and its rune effect set also pushes effect-set modifier tag 19 (the main effect's life time x the range rate, inherited by the children: new `case 19` in `ApplyDamageEffectModifiers`). The counter is a held-key skill: the guard ends when the skill key is let go or after 5 s, then the end state (back-walk / walk / dash / Z / X / skill cancels on the ground only). Extreme Rune Buster starts by emptying an observer list and drawing ten random numbers (June `+0x97c4` / `+0x97d4`; readers are CH4a's). `m_fMegaSlashChargeTime` is renamed `m_fSkillKeyHoldTime` (June `+0x96f4`, shared by the Mega Slash charge and the counter guard).
+- **Damage (level-1 value of the base id; June = `NewSkillTempletVer2.lua` NUMERICAL_DATA through the engine).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Phoenix Talon (21015 / 21049) | `ESSI_SA_EMK_PHOENIX_TALON` tables | 319 ( main ) + 1186 ( next ) |
+| Sword Fire (21016 / 21050) | `ESSI_SA_EMK_SWORD_FIRE` tables | 690 ( FireFX ) + 230 ( fire attack ) |
+| Luna Blade (21017 / 21051) | `SA_ERS_LUNA_BLADE` damage effect | 2758 |
+| Splash Explosion (21018 / 21052) | `ESSI_SA_ERS_SPLASH_EXPLOSION` tables | 478 + 1288 |
+| Triple Saber (21039) | June only | 2681 |
+| Overs Geyser (21040) | June only | 469 |
+| Extreme Rune Buster (21059) | June only | 122 ( weapon ) + 440 ( landing ) + 855 ( rune explosion, three colours ) |
+| Rune of Fire (21210 / 21231) | `RUNE_GUARD_FIRE` tables | 736 ( stop ) + 24 ( dummy ) |
+| Counter (21211 / 21232) | June only | no damage of its own ( the guard ) |
+| Enchant Break (21223) | June only | 1855 ( numerical-only state table, index 1, magical ) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-101 ids fall back to the Mega Slash default; CH2a-CH3a's ids too), `python tools/build.py --deploy`.

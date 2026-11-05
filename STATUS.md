@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH3b | ready (CH3a review done 2026-11-05): Rune Slayer (101) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GUElsword_SwordMan.*` | `CH3b.md` |
+| CH3b | done 2026-11-05, owes the user a play-test (unit 26 jtRuneSlayer), then Opus review (`CH3b-review.md`): Rune Slayer (101) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GUElsword_SwordMan.*` | `CH3b.md` |
 | CH3c | blocked (CH3b review): Infinity Sword (112) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GUElsword_SwordMan.*` | `CH3c.md` |
 | CH3d | blocked (CH3c review): hyper actives + transcendence rows, skill icons PASS | Opus 5.5 / high, Opus review, user play-test | CH3c review | `X2GUElsword_SwordMan.*`, `X2GUUser.*`, `X2Offline*` | `CH3d.md` |
 | CH4a | blocked (CH2d review): passives `32d1c560`, 7am delegates, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GUElsword_SwordMan.*` | `CH4a.md` |

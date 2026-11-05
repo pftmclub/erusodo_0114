@@ -11611,6 +11611,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL ) && !defined( SERV_IRUHADEV_JUNE_GROUND_COMBO_END_EVENT )
 #error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL needs SERV_IRUHADEV_JUNE_GROUND_COMBO_END_EVENT ( the ultimate state's EventProcess )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER )
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL needs SERV_IRUHADEV_JUNE_CHAR_EFFECTSET_MODIFIER ( Rune of Fire's modifier tag 19 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -11620,5 +11623,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              fire states with the charge time and the fire power rate, and the Rolling end HP gate. CH2a's review retires it.
 //              Revert: undefine the flag ( JUNE_CHAR_ELSWORD_SKILL_DEBUG ).
 //              CH3a ( 2026-11-05 ): defined again for the Lord Knight lines ( Armageddon Blade, Windmill, Rolling Smash, Grand Cross, Sonic Blade Crescent ). CH3a's review retires it.
-//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
+//              CH3b ( 2026-11-05 ): defined again for the Rune Slayer lines ( Counter Guard, Extreme Rune Buster, Rune of Fire ). CH3b's review retires it.
+#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////

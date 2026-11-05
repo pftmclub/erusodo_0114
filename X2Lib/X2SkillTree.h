@@ -2288,6 +2288,25 @@ public:
 		RNSI_A_ELK_ROLLING_SMASH_UPGRADE                      = 21227,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-05 // char-elsword CH3b
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Rune Slayer's skill switch cases spell ( values from June's Enum.lua )
+		RNSI_SA_ERS_PHOENIX_TALON                             = 21015,
+		RNSI_SA_ERS_LUNA_BLADE                                = 21017,
+		RNSI_SA_ERS_SPLASH_EXPLOSION                          = 21018,
+		RNSI_SA_ERS_TRIPLE_SABER                              = 21039,
+		RNSI_SA_ERS_OVERS_GEYSER                              = 21040,
+		RNSI_SA_ERS_PHOENIX_TALON_UPGRADE                     = 21049,
+		RNSI_SA_ERS_SWORD_FIRE_UPGRADE                        = 21050,
+		RNSI_SA_ERS_LUNA_BLADE_UPGRADE                        = 21051,
+		RNSI_SA_ERS_SPLASH_EXPLOSION_UPGRADE                  = 21052,
+		RNSI_SA_ERS_EXTREME_RUNE_BUSTER                       = 21059,
+		RNSI_A_ERS_RUNE_OF_FIRE                               = 21210,
+		RNSI_A_ERS_ENCHANT_BREAK                              = 21223,
+		RNSI_A_ERS_RUNE_OF_FIRE_UPGRADE                       = 21231,
+		RNSI_A_ERS_COUNTER_UPGRADE                            = 21232,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

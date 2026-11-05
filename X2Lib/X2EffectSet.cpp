@@ -6018,6 +6018,20 @@ void CX2EffectSet::ApplyDamageEffectModifiers( CX2DamageEffect::CEffect* pEffect
 			} break;
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+		case 19:
+			{
+				// June 321db1b0 @321dbb95-321dbbec: the children inherit the rate ( the gate is set at once ); the main effect's life time is multiplied by v, whatever the entry's b
+				pEffect_->m_bInheritMainEffectLifeTimeRate = true;
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pEffect_->GetMainEffect();
+				if ( NULL != pMainEffect )
+				{
+					const float fLifeTime = pMainEffect->GetMaxLifeTime();
+					pEffect_->m_fMainEffectLifeTimeRate = modifier.m_vValue.x;
+					pMainEffect->SetMaxLifeTime( fLifeTime * modifier.m_vValue.x );
+				}
+			} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 		default:
 			{
 				static bool s_abLogged[24] = { false };

@@ -196,6 +196,7 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 			ESSI_SI_A_MEGASLASH_MEMO_CHARGE,		/// June script id 234 ( Mega Slash memo charge; CH2a owns the state )
 			ESSI_SI_A_MEGASLASH_MEMO_FIRE,		/// June script id 235 ( Mega Slash memo fire; CH2a owns the state )
 			ESSI_ERS_COUNTER_GUARD,		/// June script id 259 ( Rune Slayer counter guard; CH3b owns the state )
+			ESSI_ERS_COUNTER_GUARD_END,		/// June script id 261 ( Rune Slayer counter guard end; CH3b state )
 			ESSI_SI1_ES_WIND_BLADE_ULTIMATE,		/// June script id 262 ( Wind Blade upgrade; CH2c owns the state )
 			ESSI_SA_ELK_GRAND_CROSS_CHARGE,		/// June script id 263 ( Grand Cross charge; CH3a owns the state )
 			ESSI_SA_ELK_GRAND_CROSS_END,		/// June script id 264 ( Grand Cross end; CH3a owns the state )
@@ -636,6 +637,8 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 		float m_fGrandCrossChargeTime;		/// June +0x97b8: the seconds toward the next Grand Cross charge step
 		int m_iGrandCrossChargeCount;		/// June +0x97bc: the Grand Cross charge steps taken
+		std::vector< CX2GameUnitoPtr > m_vecExtremeRuneBusterTargetUnit;	/// June +0x97c4: cleared when Extreme Rune Buster starts ( a KObserverPtr list; the readers are CH4a's )
+		std::vector< float > m_vecExtremeRuneBusterRandom;	/// June +0x97d4: ten random numbers drawn when Extreme Rune Buster starts
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 		bool m_bIsMagicKnightWinMotion2; 
 		bool m_bERS_DASH_JUMP_XZ_Rune_Created;
@@ -756,7 +759,7 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 		bool								m_bAfterImageSaved;	/// June after-image +0x1d1 ( 32d08d70 ): the enable flag kept while the wait states hide the after-image
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
-		float								m_fMegaSlashChargeTime;	/// June +0x96f4 ( ctor 32d09490 stores 0 ): the Mega Slash memo ready state zeroes it, the charge state adds the frame time, the fire state reads it
+		float								m_fSkillKeyHoldTime;	/// June +0x96f4 ( ctor 32d09490 stores 0 ): the seconds a held-key skill state has run, the Mega Slash memo charge and the Rune Slayer counter guard
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 
 	private:
@@ -1726,6 +1729,13 @@ class CX2GUElsword_SwordMan : public CX2GUUser
 	void ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE_FrameMove();
 	void ESSI_SA_ELK_GRAND_CROSS_FULL_CHARGE_EventProcess();
 	void CreateGrandCrossDamageEffect( const bool bFullCharge_ );
+	void ESSI_ERS_COUNTER_GUARD_READY_StateStartFuture();
+	void ESSI_ERS_COUNTER_GUARD_READY_EventProcess();
+	void ESSI_ERS_COUNTER_GUARD_EventProcess();
+	void ESSI_ERS_COUNTER_GUARD_END_EventProcess();
+	void ESSI_SA_ERS_EXTREME_RUNE_BUSTER_Init();
+	void ESSI_SA_ERS_EXTREME_RUNE_BUSTER_StateStart();
+	void ESSI_SA_ERS_EXTREME_RUNE_BUSTER_EventProcess();
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 
 	void ESSI_SI_SA_ETK_PHANTOM_SWORD_Init();
