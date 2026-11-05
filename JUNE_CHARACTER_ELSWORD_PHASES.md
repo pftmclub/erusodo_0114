@@ -2417,6 +2417,7 @@ Opus 5.5. **Verdict: passes, no code change.** Commit `58e53890`; `disasm_range.
 **In game:** `[JUNE_CHAR] ELSWORD PASSIVE fight god mp: skill 21044 mp 250.00 -> 200.00` (Iron Body up) / `skill 21218 mp 60.00 -> 50.00`; `active cool time: skill 21218 base ... x 1.000`;
 `infinity sword open mind: conwell hit critical rate 1.0` on unit 34's Conwell combos (every Conwell hit a critical). All at most once a second.
 
+**Play-test PASS (user, 2026-11-05; run 16:30-16:33 on md5 `a08ac02d`; 0 EXCEPTION, 0 ErrorLog lines; known `E_DISABLE_HB_CHECK_REQ` UNHANDLED x3, one `AddGroupChainQuest`).** `fight god mp`: 21218 60.00 -> 50.00 (68 lines, about one a second from 16:31:04: the MP check is polled while the slot shows), 21044 250.00 -> 200.00 (9 lines, only while Iron Body was up); `active cool time`: 21218 base 15.00 x 1.000 -> 15.00 (4 casts); `infinity sword open mind: conwell hit critical rate 1.0` 9 lines (throttled; `applied skill 0` = combo hits) beside CH4a's 43 `conwell hit, buff` lines; 0 `infinity potential` lines (latent, JUNE_BUGS 534). The user saw the crits and the MP costs.
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI`. Sub-tag `UI`.

@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH4b | done 2026-11-05, owes play-test then Opus review: Conwell crits (Open Mind), Fight God MP, active cool time; WoS sites = March; 21420 branch latent (JUNE_BUGS 534) | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4b.md` |
+| CH4b | play-test PASS 2026-11-05, owes Opus review: Conwell crits (Open Mind), Fight God MP, active cool time; WoS sites = March; 21420 branch latent (JUNE_BUGS 534) | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4b.md` |
 | CH4c | blocked (CH4b, CH3d reviews): Rune Slayer magic reflect (7j), `MemoConditionElsword` | Opus 5.5 / high, Opus review, user play-test | CH4b review, CH3d review | `X2GUElsword_SwordMan.*`, `X2GUUser.*` | `CH4c.md` |
 | CH6 | blocked (CH4c review): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4a2, CH4c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-raven` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
