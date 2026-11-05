@@ -11655,13 +11655,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL ) || !defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY ) || !defined( SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TYPE ) || !defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) )
 #error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE, _SKILL ( the Extreme Rune Buster lists ), SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY, SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF, SERV_IRUHADEV_JUNE_SKILL_TYPE and SERV_IRUHADEV_JUNE_SOCKET_PARITY
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE ) || !defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE ( CH4b: SetDamageExceptionProcess, GetActualMPConsume, GetActualCoolTime ) needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ( GetSkillBuffFactorPtr ), SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE and SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-11-05
 // Description: char-elsword CH4a - temporary [JUNE_CHAR] ELSWORD PASSIVE lines ( the init values per load, each callback's buff ). CH4a's review retires it.
-//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

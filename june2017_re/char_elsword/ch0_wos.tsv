@@ -80,11 +80,11 @@ class	X2GUUser.h:603-611	enum WSS_* in CX2GUUser	yes	constants -2..2		yes
 class	X2GUUser.cpp:1268-1270	m_iHoldStateID = USI_DAMAGE_AIR_FALL (ctor)	yes	not located		yes	
 class	X2GUUser.cpp:10870, X2GUNPC.cpp:10824	SetCriticalPercent_WayOfSword( type, crit )	yes	GameUnit vslot 0x78: call site 32048a4f (user), NPC side 327b36ef/327b371e	disasm 32048a4f: edx = [ebx+0x564]; call [eax+0x78]	yes	Elsword inherits the base 33093ad0 (no-op); Elesis override 32b4ef90 (March X2GUEl.h:852)
 class	X2GUUser.cpp:11586-11594	DamageReact: fIncreaseMpRate *= CalcVigorMpUpOnDamageReact( state ) for UT_ELSWORD	yes	32049bf4 in 320462a0 -> 326107e0	xref 326107e0	no	
-class	X2GUUser.cpp:20093-20123, 22310-22336	shock / frozen end: m_bCured -> StateChange( USI_DAMAGE_SMALL_FRONT ) else DOWN_FRONT	yes	not located		no	Elsword Destruction Rage cures via CureExtraDamage (GameUnit.cpp:9738)
-class	X2GameUnit.cpp:9729, 9737-9751, h:4310	CureExtraDamage( type ) (sets m_fTime 0.01, m_bCured)	yes	not located		yes	also called from X2Game.cpp:12153
+class	X2GUUser.cpp:20093-20123, 22310-22336	shock / frozen end: m_bCured -> StateChange( USI_DAMAGE_SMALL_FRONT ) else DOWN_FRONT	yes	320688a0 (shock, CommonFrameMove) / 31ff4642 (frozen, 31ff43c0)	CH4b: = March; m_bCured +0x2540 / +0x17f0; June state ids = March + 1	no	Elsword Destruction Rage cures via CureExtraDamage (GameUnit.cpp:9738)
+class	X2GameUnit.cpp:9729, 9737-9751, h:4310	CureExtraDamage( type ) (sets m_fTime 0.01, m_bCured)	yes	3227d390	CH4b: = March (funcmap row 7320)	yes	also called from X2Game.cpp:12153
 class	X2GUUser.cpp:29509-29522	RenderName: draws WSP: %d for Elsword/Elesis	yes	absent in June (no string found)		yes	dev text
 class	X2GUUser.cpp:29856-29871, h:998,2916	SyncData::IsActionActive / IsActionActive( USER_ACTION_ID )	yes	not located		yes	
-class	X2GUUser.cpp:35094-35103	ResetAnimSpeed: Elsword Vigor x m_fAnimSpeedUpByVigor	yes	not located		no	
+class	X2GUUser.cpp:35094-35103	ResetAnimSpeed: Elsword Vigor x m_fAnimSpeedUpByVigor	yes	31ffe190 @31ffe262-31ffe2aa	CH4b: = March; UT 1 && vslot 0x674 == 2 -> x +0x961c inside the item-speed branch	no	
 class	X2GameUnit.h:119-121	enum SFI_SPEED_8	yes	not located		yes	used by Start/End Vigor
 class	X2SocketItem.cpp:2700 + h:1767	CX2SocketItem::GetOptionRateCorrection (soft cap used by Vigor speed-up)	yes	not located		no	
 class	X2Game.cpp:12153	remove-frozen item effect: CureExtraDamage x3	yes	not located		yes	
@@ -92,7 +92,7 @@ class	X2Game.cpp:13458, 13534-13560 + h:1408	UpdateElswordSkillSlotEffect (skill
 class	X2Game.cpp:14855-14881, 15045	skill-slot MP requirement with Vigor x0.7	yes	not located (skill-slot window code 328dab10 / 328dfab0 also uses Static_EL_SKILL_*)		no	
 class	X2GameEdit.cpp:773, X2GameEdit.h:140, X2Main.cpp:5191	ElswordWSPCheat Lua binder (SetWayOfSwordPoint)	yes	absent in June	no plain string ElswordWSPCheat in the exe	yes	
 class	X2UISkillTree.cpp:771,1062,2395,3409,4165, X2UISkillTreeNew.cpp:1035,1325,3071,4879 (+h)	skill tree UI: WOS type / WSP tooltips (SA_WAY_OF_SWORD_TYPE, m_iWOSType)	yes	not located		yes	SA_WAY_OF_SWORD_POINT_MULTIPLIER exists in both (June 3221a33c / 3221bd23)
-class	X2ItemManager.cpp:1120, X2Game.cpp:11785	SAT_WAY_OF_SWORD_GAUGE_UP special ability (flag SPECIAL_ABILITY_WAY_OF_SWORD, live) -> SetWayOfSwordPoint( +Value1 )	yes	not located		yes	outside the main flag
+class	X2ItemManager.cpp:1120, X2Game.cpp:11785	SAT_WAY_OF_SWORD_GAUGE_UP special ability (flag SPECIAL_ABILITY_WAY_OF_SWORD, live) -> SetWayOfSwordPoint( +Value1 )	yes	322fbc60 case 33 @322fd29d	CH4b: = March; my unit -> SetWayOfSwordPoint( Get + Value1 )	yes	outside the main flag
 class	KTDGXRenderer.cpp:1764-1773	cartoon textures CTT_SKYBLUE / CTT_SCARLET	yes	31d3f480	CartoonSkyBlue.bmp 3344fa8c xref 31d3faf9, CartoonScarlet.bmp 3344fa64 xref 31d3fb24	no	
 lua	X2BuffTemplet.cpp:1227-1233	PHANTOM_BLADE_DAMAGE_DATA_NAME / _ATTACK_TIME_INDEX / _BACK_SPEED_X / _Y / _REACT_TYPE (CX2CustomFunctionByBuffPhantomSword::FunctionInCommonStateStart)	yes	32371180	xorstrings: 5 keys 3237121a / 32371448 / 3237166a / 3237183b / 32371a08 (flags 1,2,4,8,0x10)	no	Sheath Knight phantom-sword buff, not the WoS gauge
 lua	X2DamageManager.cpp:289	WAY_OF_SWORD_TYPE key reader	yes	32632390 @32634fd7 (SetDamageDataFromLUA), store DD+0x564	xorstrings.tsv:4171	yes	only reader in both builds; skill templets use SA_WAY_OF_SWORD_TYPE (X2SkillTree)

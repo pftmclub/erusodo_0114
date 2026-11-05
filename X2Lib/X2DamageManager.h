@@ -88,6 +88,11 @@ class CX2DamageManager
 			DTT_EXTREME_RUNE_BUSTER_RANDOM_BUFF   = 42,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-05 // char-elsword CH4b
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			DTT_EIS_INFINITY_CHASER               = 16,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 		};
 #endif
 

@@ -2379,6 +2379,43 @@ Opus 5.5. **Verdict: passes, no code change.** Commit `58e53890`; `disasm_range.
   `1 deleted line(s)` (the `//#define`), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUUser.cpp`: `0 A/B row(s)`.
   Retirement: `//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG` (bytepatch, CP949 / CRLF unchanged). Build started, not awaited.
 
+### CH4b - Done (2026-11-05)
+**Landed.** Commit: see `git log`, "char-elsword Phase CH4b". Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE` (new guard line: needs `JUNE_CHAR_EVE_PASSIVE` for `GetSkillBuffFactorPtr`,
+`JUNE_DIVERGE_SKILL_LEVEL_VALUE`, `JUNE_USER_SKILL_LEVEL_HELPERS`, all ON by `flagprobe.py`); `_PASSIVE_DEBUG` re-opened for the log. Files: `X2GUElsword_SwordMan.cpp` / `.h`,
+`X2DamageManager.h`, `Always.h`. Read from `charport_adis.py` / `funcdis.py` / `disasm_range.py` listings; rows `(CH4b)` at the end of `june2017_re/funcmap.tsv`.
+- **`SetDamageExceptionProcess` `32d1e0e0`** (new override, vslot 0x2b8, under `MODIFY_SET_DAMAGE_DATA` like Eve's): base `32045340` first; Infinity Sword Open Mind 21419
+  learned (`31fceab0` = `GetSkillLevelValue`) and `m_eDamageTrigger` (`+0x53c`) == `DTT_ETK_CONWELL_ATTACK` -> `m_fCriticalRate` (`+0x510`, the `CRITICAL_RATE` key) = 1.0:
+  every Conwell hit is a critical. Infinity Potential 21420 with trigger 16 -> `GetSkillBuffFactorPtr( 21420, 4, true )` (vslot 0x238 `32028af0`, 0-based) pushed by `322b5320`
+  ( factor, level, clear 1, rate `{ 1.0, 1.0, off }` ) = `PushBuffFactor( GetClonePtr( level ), true )`; a null factor still clears and re-adds the socket factors, as June.
+  **JUNE_BUGS 534 (latent):** no June script or `.text` store sets trigger 16, and 21420 has four buff factors, so index 4 is null. New name `DTT_EIS_INFINITY_CHASER` = 16
+  (`Enum.src.lua:7290`) under `JUNE_ENUM_NAMES`. Stand-in: a null damage data returns (June reads it unchecked).
+- **`GetActualMPConsume` `32cf4b70`** whole inside March's: base `( id, level )` (June's bool 1 = March's path); Armageddon Blade 21008 / 21044 with Iron Body's BTI 18 up and
+  Fight God 21416 learned -> `( 1 - SA_MP_CONSUMPTION( 21416 ) ) x MP` (0.2 in June's templet: 250 -> 200); Iron Body 21201 / 21218 with Fight God -> MP - 10.0 (a double
+  constant `33438088`, no ability value: 60 -> 50); no clamp. June has no Vigor x0.7 or Mind of Fighter here (CH1k's `32d1bd10` applies both), so nothing is applied twice.
+  March's memo 19 Sword Enchant -5 and the `SERV_BALANCE_FINALITY_SKILL_EVENT` rate stay in `#else`.
+- **`GetActualCoolTime` `32cf4df0`** (new override, vslot 0x6a4): null -> 0; base; `ST_ACTIVE` (templet `+4` == 6) x `m_fIncreaseCoolTimeRel` (`+0x96e0`); < 0 -> 0. June's only
+  writer of `+0x96e0` is the ctor `32d09490` @`32d09d7c` (1.0), and CH4a left March's Intensive Attack writer in `#else`, so the rate is 1.0: the cool time is the base.
+  This is where CH1k's question lands: March's memo 22 / 6 -5 s and Compact Counter cool times are gone in June; only the `ST_ACTIVE` rate is kept.
+- **The CH1q amendment's Way of the Sword sites (`ch0_wos.tsv` rows 83 / 84 / 87 / 95): all = March, nothing to port.** Shock end in `CommonFrameMove` `32063650`
+  @`32068874`-`320688fa` (`m_EnchantShock.m_bCured` `+0x2540`), frozen end `31ff43c0` @`31ff4642` (`m_Frozen.m_bCured` `+0x17f0`): the same three state choices as
+  March; June's user state ids are March's + 1 (26 / 27 / 30 / 85 / 86 vs March 25 / 26 / 29 / 84 / 85, compile probe). `CureExtraDamage` `3227d390` (funcmap 7320).
+  `ResetAnimSpeed` `31ffe190` @`31ffe262`-`31ffe2aa`: Elsword in Vigor x `+0x961c` inside the item-speed branch. `UseItemSpecialAbility` `322fbc60` case 33 @`322fd29d`:
+  my unit -> `SetWayOfSwordPoint( GetWayOfSwordPoint() + Value1 )`. Rows filled in `ch0_wos.tsv`.
+- **Side items:** §7 L281 power-rate socket range `32d076f0` = `RevengeAttackStart`, ported in CH1b; the death-prevention snapshot `32d058a0` went to CH1q (both rows
+  already marked). Checklist §7b row (L330) marked `(Elsword: CH4b)`. CH0's three CH4b functions are all done.
+- **Names / values** (compile probe, 18 values): `SA_MP_CONSUMPTION` 143, skills 21008 / 21044 / 21201 / 21218 / 21416 / 21419 / 21420, `ST_ACTIVE` 6, BTI 18, DTT 15,
+  `UT_ELSWORD` 1, `SAT_WAY_OF_SWORD_GAUGE_UP` 33. Numbers kept with a comment: the factor index 4 and the 10.0 MP (no Enum entry).
+**Hygiene.** One-file probe (`census.cl_cmd`, `/Zs /EHsc`): `X2GUElsword_SwordMan.cpp` exit 0, 0 errors.
+`flagcheck.py JUNE_CHAR_ELSWORD_PASSIVE --with JUNE_CHAR_ELSWORD_PASSIVE_DEBUG --worktree --files` (4 files): `files: 1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
+(OTHER = `X2DamageManager.h` under `JUNE_ENUM_NAMES`; PASS~ = the blank line before the new functions; the deleted line is `//#define ..._PASSIVE_DEBUG`, now `#define`d).
+`junediverge.py --check` (the 4 files): `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,001,408 B, dated 2026-11-05 16:25:35, md5 a08ac02df4ad051524267eabdbee0ca4, equal to X2/US_SERVICE/x2.exe (2026-11-05 16:25:28); built at main 988cae73 + 4 uncommitted code file(s).`
+`EXESTR OK: 4 of 4 found in X2_offline.exe, 26001408 B, dated 2026-11-05 16:25:35, md5 a08ac02df4ad051524267eabdbee0ca4` (the `fight god mp`, `active cool time`, `infinity sword open mind: conwell hit`, `infinity potential` lines, wide).
+**Save** (backup `els_db_20261105_161635_pre_sql.sql`): unit 25 `jtLordKnight` Armageddon Blade 21044 into slot 6 (B-2; 21038 out). Unit 34 `InfinitySwordT` already has 21419 and is transcended.
+**In game:** `[JUNE_CHAR] ELSWORD PASSIVE fight god mp: skill 21044 mp 250.00 -> 200.00` (Iron Body up) / `skill 21218 mp 60.00 -> 50.00`; `active cool time: skill 21218 base ... x 1.000`;
+`infinity sword open mind: conwell hit critical rate 1.0` on unit 34's Conwell combos (every Conwell hit a critical). All at most once a second.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI`. Sub-tag `UI`.

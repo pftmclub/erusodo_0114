@@ -30576,8 +30576,103 @@ void CX2GUElsword_SwordMan::SetSpecificValueByEnchant()
 }
 #endif //BALANCE_PATCH_20131107
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+//{{ Iruha : 2026-11-05 // char-elsword CH4b
+// June 32cf4df0 ( vslot 0x6a4 ): March's active-skill cool time rate on ST_ACTIVE ( June's ctor 1.0 is its only writer ), then clamped at 0
+/*virtual*/ float CX2GUElsword_SwordMan::GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const
+{
+	if ( NULL == pSkillTemplet_ )
+		return 0.f;
+
+	const float fBaseCoolTime = CX2GUUser::GetActualCoolTime( pSkillTemplet_, iSkillLevel );
+	float fSkillCoolTime = fBaseCoolTime;
+	if ( CX2SkillTree::ST_ACTIVE == pSkillTemplet_->m_eType )
+		fSkillCoolTime = m_fIncreaseCoolTimeRel * fSkillCoolTime;
+
+	if ( fSkillCoolTime < 0.f )
+		fSkillCoolTime = 0.f;
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	static DWORD s_dwCoolTimeLogTime = 0;
+	if ( CX2SkillTree::ST_ACTIVE == pSkillTemplet_->m_eType && timeGetTime() - s_dwCoolTimeLogTime > 1000 )
+	{
+		s_dwCoolTimeLogTime = timeGetTime();
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE active cool time: skill %d base %.2f x %.3f -> %.2f", static_cast<int>( pSkillTemplet_->m_eID ), fBaseCoolTime, m_fIncreaseCoolTimeRel, fSkillCoolTime );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	return fSkillCoolTime;
+}
+
+#ifdef MODIFY_SET_DAMAGE_DATA
+// June 32d1e0e0 ( vslot 0x2b8 ), June-only: Infinity Sword Open Mind makes a Conwell hit critical; Infinity Potential's trigger 16 is set by no June data ( JUNE_BUGS 534 )
+/*virtual*/ void CX2GUElsword_SwordMan::SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate )
+{
+	CX2GUUser::SetDamageExceptionProcess( pDamageData_, fPowerRate );
+	if ( NULL == pDamageData_ )	// June reads it unchecked
+		return;
+
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_EIS_OPEN_MIND ) > 0 && CX2DamageManager::DTT_ETK_CONWELL_ATTACK == pDamageData_->m_eDamageTrigger )
+	{
+		pDamageData_->m_fCriticalRate = 1.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+		static DWORD s_dwOpenMindLogTime = 0;
+		if ( timeGetTime() - s_dwOpenMindLogTime > 1000 )
+		{
+			s_dwOpenMindLogTime = timeGetTime();
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE infinity sword open mind: conwell hit critical rate 1.0 ( applied skill %d )", pDamageData_->m_iAppliedSkillID );
+		}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	}
+
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_EIS_INFINITY_POTENTIAL ) > 0 && CX2DamageManager::DTT_EIS_INFINITY_CHASER == pDamageData_->m_eDamageTrigger )
+	{
+		CX2BuffFactorPtr ptrBuffFactor = GetSkillBuffFactorPtr( CX2SkillTree::RNSI_P_EIS_INFINITY_POTENTIAL, 4, true );	// June asks factor index 4 of the skill's four: null
+		const int iSkillLevel = GetSkillLevelValue( CX2SkillTree::RNSI_P_EIS_INFINITY_POTENTIAL );
+		pDamageData_->PushBuffFactor( ( NULL != ptrBuffFactor ) ? ptrBuffFactor->GetClonePtr( static_cast<UINT>( iSkillLevel ) ) : ptrBuffFactor, true );	// June 322b5320 ( factor, level, clear, rate 1 / 1 off )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE infinity potential: trigger 16 hit, factor %s, %d factor(s) on the damage data", ( NULL != ptrBuffFactor ) ? L"found" : L"missing", static_cast<int>( pDamageData_->m_vecBuffFactorPtr.size() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	}
+}
+#endif MODIFY_SET_DAMAGE_DATA
+//}}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+
 /*virtual*/ float CX2GUElsword_SwordMan::GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
+	/// June 32cf4b70: Fight God 21416 cuts Armageddon Blade's MP while Iron Body is up and Iron Body's own; March's memo 19 case and event rate are gone
+	const float fBaseMpConsumption = CX2GUUser::GetActualMPConsume( eSkillID_, iSkillLevel_ );
+	float fMpConsumption = fBaseMpConsumption;
+
+	switch ( eSkillID_ )
+	{
+	case CX2SkillTree::RNSI_SA_ELK_ARMAGEDON_BLADE:
+	case CX2SkillTree::RNSI_SA_ELK_ARMAGEDON_BLADE_UPGRADE:
+		if ( true == const_cast<CX2GUElsword_SwordMan*>( this )->HaveThisBuff( BTI_SI_A_ES_ENDURANCE ) && GetSkillLevelValue( CX2SkillTree::RNSI_P_ELK_FIGHT_GOD ) > 0 )
+			fMpConsumption = ( 1.f - GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUMPTION, CX2SkillTree::RNSI_P_ELK_FIGHT_GOD ) ) * fBaseMpConsumption;
+		break;
+
+	case CX2SkillTree::RNSI_A_ES_ENDURANCE:
+	case CX2SkillTree::RNSI_A_ES_ENDURANCE_UPGRADE:
+		if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_ELK_FIGHT_GOD ) > 0 )
+			fMpConsumption = static_cast<float>( fBaseMpConsumption - 10.0 );	// June 33438088: a flat 10.0, not an ability value
+		break;
+
+	default:
+		break;
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	static DWORD s_dwMpConsumeLogTime = 0;
+	if ( fMpConsumption != fBaseMpConsumption && timeGetTime() - s_dwMpConsumeLogTime > 1000 )
+	{
+		s_dwMpConsumeLogTime = timeGetTime();
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ELSWORD PASSIVE fight god mp: skill %d mp %.2f -> %.2f", static_cast<int>( eSkillID_ ), fBaseMpConsumption, fMpConsumption );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG
+	return fMpConsumption;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 	float fMpConsumption = CX2GUUser::GetActualMPConsume( eSkillID_, iSkillLevel_ );
 
 
@@ -30603,4 +30698,5 @@ void CX2GUElsword_SwordMan::SetSpecificValueByEnchant()
 #else SERV_BALANCE_FINALITY_SKILL_EVENT
 	return fMpConsumption;
 #endif //SERV_BALANCE_FINALITY_SKILL_EVENT
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE
 }
