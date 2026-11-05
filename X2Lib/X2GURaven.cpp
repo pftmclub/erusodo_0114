@@ -24634,12 +24634,65 @@ void CX2GURaven::RSI_HA_RVC_BURNING_BUSTER_Init()
 
 
 #ifdef MODIFY_RIDING_PET_AWAKE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+namespace _CONST_RAVEN_CH1c_
+{
+	/// June 32011d20 / 31fd66b0 / 32011f50: the awakening effect-set family; stand-in: not ported ( Stage 12 ), June's empty-name default
+	void RavenAwakeningEffectBegin()		{}
+	bool RavenAwakeningEffectSetPresent()	{ return false; }
+	void RavenAwakeningEffectPlay()			{}
+}
+using namespace _CONST_RAVEN_CH1c_;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 void CX2GURaven::RidingHyperModeFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	/// June 32c511a0
+	CommonHyperModeFrameMove( 0.f, 0.1f, true );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonHyperModeFrameMove(0.f, 0.1f, true);
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bSound_ /*= false*/  )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	/// June 32c4f350: March's body plus the awakening stand-ins, the trace only without the awakening set, and Open Mind's buff factor
+	g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
+
+	if( true == m_pXSkinAnim->EventTimerOneshot( fTime1_ ) )
+	{
+		ShowMinorParticleHyperModeChange();
+	}
+
+	if( true == m_pXSkinAnim->EventTimerOneshot( fTime2_ ) )
+	{
+		RavenAwakeningEffectBegin();
+		if( true == RavenAwakeningEffectSetPresent() )
+			RavenAwakeningEffectPlay();
+
+		ShowMinorParticleHyperModeShock();
+
+		UpDownCrashCamera( 30.0f, 0.4f );
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+
+		if( false == RavenAwakeningEffectSetPresent() )
+			ShowMinorParticleHyperModeTrace();
+
+		ApplyHyperModeBuff();
+
+		if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RRF_OPEN_MIND ) )
+			SetSkillBuffFactors( CX2SkillTree::RNSI_P_RRF_OPEN_MIND, 0, true );	/// June 31fcac90 ( vslot 0x23c )
+
+		if( true == bSound_ )
+		{
+			PlaySound( L"Energy.ogg" );
+			PlaySound( L"Raven_Slash1.ogg" );
+			PlaySound( L"Break.ogg" );
+			PlaySound( L"Change.ogg" );
+		}
+	}
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
 	//g_pX2Game->GetWorld()->FadeWorldColor( g_pX2Game->GetWorld()->GetOriginColor(), 1.0f );
 
@@ -24676,5 +24729,6 @@ void CX2GURaven::CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bS
 		}
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 #endif // MODIFY_RIDING_PET_AWAKE

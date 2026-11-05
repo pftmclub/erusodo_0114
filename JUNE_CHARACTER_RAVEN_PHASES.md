@@ -496,6 +496,33 @@ commented-out `_LIVE` define (OTHER = `X2GURaven.h` `_CORE`, `X2SkillTree.h` `JU
 No build: the review changed no code. CH1b's refused deploy is harmless (`_LIVE` off, the new `_CORE` code is unreferenced); the next deploy carries it.
 Nothing to play-test. Next: `/x2-phase char-raven CH1c` (Sonnet 5.5 high).
 
+### CH1c - Done (2026-11-05)
+
+Both class-map rows of phase CH1c are written, both `inside`: June's body in March's own `CX2GURaven` function under `SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`, March's in `#else`. No `new` row, no `_CORE` code; `_LIVE` stays `//#define`. 2 funcmap rows `Char Raven CH1c`.
+CH0 listed `32c4f350` as `new ?`; March has `CommonHyperModeFrameMove` (`MODIFY_RIDING_PET_AWAKE`, on), so it is `inside` (class-map row corrected). The 35 riding / pepper / dance states have no other class-range function (CH0).
+
+| June | `CX2GURaven::` | Note |
+|---|---|---|
+| `32c511a0` | `RidingHyperModeFrameMove` | `CommonHyperModeFrameMove( 0.f, 0.1f, true )` = March |
+| `32c4f350` | `CommonHyperModeFrameMove( fTime1_, fTime2_, bSound_ )` | March + awakening stand-ins + Open Mind |
+
+**Where June differs from March** (read from the listing, `charport_adis.py raven 32c4f350 32c511a0`):
+- Two independent `EventTimerOneshot` tests (not `else if`), as March. World colour `0xff222222`; timer 1 `ShowMinorParticleHyperModeChange` with no sound (Elsword's plays `Stickslash1.ogg` there); timer 2 as below; then vslot 0x7cc `CommonFrameMove`.
+- Timer 2: the awakening effect-set family `32011d20` (begin) and `31fd66b0` (present test, `32011f50` play when true) before the Shock, and `ShowMinorParticleHyperModeTrace` only when the set is absent. Stand-ins in `_CONST_RAVEN_CH1c_` (no-op, `false`, no-op = June's empty-name default), the same as Chung's, Eve's and Elsword's (Stage 12 owns the reader).
+- **New for Raven:** after `ApplyHyperModeBuff`, `GetSkillLevelValue( RNSI_P_RRF_OPEN_MIND )` (`31fceab0( 0x5f63 )`, 24419, Awakened Will: Reckless Fist) `> 0` -> `SetSkillBuffFactors( RNSI_P_RRF_OPEN_MIND, 0, true )` (vslot 0x23c = `31fcac90`, pushes `1, 0, 0x5f63`). It runs whether or not `bSound_`. Both helpers already exist in `CX2GUUser` (Chung / Eve ports).
+- Sounds when `bSound_`: `Energy`, `Raven_Slash1`, `Break`, `Change` = March. No `JUNE_BUGS` row.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE --worktree --files X2Lib/X2GURaven.cpp KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because the `#define` is commented out (by design).
+- `Always.h`: one new dependency guard in `_LIVE`'s block, `#error ... needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ( SetSkillBuffFactors )`. `cl /EP` flag probe: `EVE_PASSIVE`, `MODIFY_RIDING_PET_AWAKE`, `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE`, `JUNE_DIVERGE_SKILL_LEVEL_VALUE`, `RAVEN_CORE` all ON.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): `X2GURaven.cpp` exit 0, 0 errors with `_LIVE` off and with `/DSERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`. `cl /P`: `RavenAwakeningEffectBegin` 0 lines off / 2 on, `SetSkillBuffFactors` 1 / 2, so the flag took effect.
+- `junediverge.py --check X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 25,997,824 B, dated 2026-11-05 21:50:36, md5 0f62b410a7c410d7050a0feb0ea5328f, equal to X2/US_SERVICE/x2.exe (2026-11-05 21:50:30); built at main 948f4a31 + 2 uncommitted code file(s).` X2Lib 0 errors. No `exestr` line: `_LIVE` is off and no string was added.
+
+**Routed.** CH1i: `HyperModeFrameMove` `32c4f640` calls this function with its own times (March: `0.05f, 0.83f`). Stage 12: the awakening reader behind the three stand-ins. CH3d (checklist §7ao L954): `HyperModeStart` `31ffd490` calls vslot 0x23c with `( 24419, 1, 1 )`, not this function's `( 24419, 0, 1 )`.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-raven CH1c review` (Opus 5.5 high), then CH1d.
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

@@ -613,7 +613,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c4edc0	state-fn	RSI_A_RVC_NAPALM_GRENADE.FrameMove	inside X2GURaven.cpp:3911 CX2GURaven::RSI_A_RVC_NAPALM_GRENADE_FrameMove	inside	-	CH2d	1 states	n
 32c4f030	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5704895104	n
 32c4f0a0	state-fn	RSI_HA_RBM_EXTREM_BLADE_ATTACK.FrameMove	inside X2GURaven.cpp:4110 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_FrameMove	inside	-	CH3d	1 states	y
-32c4f350	helper	called by 32c4f640 32c511a0	-	new	?	CH1c	name: called by 32c4f640(HyperModeFrameMove) 32c511a0(RSI_RIDING_HYPER_MODE.FrameM)	y
+32c4f350	helper	CommonHyperModeFrameMove (called by 32c4f640 32c511a0)	inside X2GURaven.cpp:24641 CX2GURaven::CommonHyperModeFrameMove	inside	-	CH1c	CH1c corrected: March has it (MODIFY_RIDING_PET_AWAKE)	y
 32c4f640	override 0x600	HyperModeFrameMove	X2GURaven.h:791 void HyperModeFrameMove(); (no virtual keyword; overrides the CX2GUUser pure virtual)	inside	-	CH1i	base 31aa1d30	n
 32c4f750	helper	-	-	inside	-	CH1q	helper: ClearNasodBall; ch0_rage.tsv; inside: X2GURaven.cpp:13662 (ch0_rage.tsv)	y
 32c4f7e0	helper	-	-	inside	-	CH1q	helper: CreateNasodBall (RAVEN_NASOD_BALL, EffectSet_BEED_UP); ch0_rage.tsv; inside: X2GURaven.cpp:13686 (ch0_rage.tsv)	y
