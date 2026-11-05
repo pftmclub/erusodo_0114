@@ -49,6 +49,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 2** (`awk -F'\t' '$7=="CH1c"' june2017_re/char_raven/ch0_class_map.tsv`; inside 1, new 1).
+  June addresses: `32c4f350`(new ?) `32c511a0`.
+- **States: 37** (`awk -F'\t' '$8=="CH1c"' june2017_re/char_raven/ch0_state_skill.tsv`): `RSI_PEPPER_RUN_READY`, `RSI_PEPPER_RUN`, `RSI_PEPPER_RUN_END`, `RSI_PEPPER_RUN_JUMP_UP`, `RSI_PEPPER_RUN_JUMP_DOWN`, `RSI_AMUSEMENT_ITEM_PHOENIX_RUN`, `RSI_AMUSEMENT_ITEM_PHOENIX_RUN_END`, `RSI_DANCE_Z`, `RSI_DANCE_X`, `RSI_DANCE_WAIT`, `RSI_RIDING_START`, `RSI_RIDING_ON`, `RSI_RIDING_OFF`, `RSI_RIDING_WAIT_HABIT`, `RSI_RIDING_WAIT`, `RSI_RIDING_WALK`, `RSI_RIDING_JUMP_UP`, `RSI_RIDING_JUMP_DOWN`, `RSI_RIDING_JUMP_LANDING`, `RSI_RIDING_DASH`, `RSI_RIDING_DASH_END`, `RSI_RIDING_DASH_JUMP`, `RSI_RIDING_DASH_JUMP_LANDING`, `RSI_RIDING_DAMAGE_FRONT`, `RSI_RIDING_DAMAGE_FRONT`, `RSI_RIDING_ATTACK_Z`, `RSI_RIDING_ATTACK_X`, `RSI_RIDING_JUMP_ATTACK_Z`, `RSI_RIDING_ATTACK_SPECIAL`, `RSI_RIDING_DIE`, `RSI_RIDING_SPECIAL_MOVE`, `RSI_RIDING_HYPER_MODE`, `RSI_RIDING_SPECIFIC`, `RSI_RIDING_ATTACK_X_READY`, `RSI_RIDING_ATTACK_X_READY_2`, `RSI_RIDING_ATTACK_X_END`, `RSI_RIDING_DAMAGE_BACK`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, RAVEN_STATE_ID).
+- Only 2 class functions: the riding / pepper / dance states use `CX2GUUser` callbacks. `RSI_RIDING_JUMP_READY` is dead data; `RSI_RIDING_DAMAGE_BACK` is registered with no script table.

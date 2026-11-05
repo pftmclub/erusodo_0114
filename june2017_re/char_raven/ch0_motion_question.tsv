@@ -1,0 +1,116 @@
+file	animation	in_march	in_june	played_by_march_code	played_by_june_script	note
+Motion_Raven.x	(no name dropped)	-	-	-	-	March 3824962 B, June 5941865 B; 10 new names
+Motion_Raven.x	ComboZZZX_Finish	no	yes	no	RAVEN_FIGHTER.src.lua:735	new in June
+Motion_Raven.x	ComboZZZX_Loop	no	yes	no	no	new in June
+Motion_Raven.x	ComboZZZX_Start	no	yes	no	RAVEN_FIGHTER.src.lua:709	new in June
+Motion_Raven.x	Dance_Wait	no	yes	no	RAVEN_FIGHTER.src.lua:9651	new in June
+Motion_Raven.x	Dance_X	no	yes	no	RAVEN_FIGHTER.src.lua:9646	new in June
+Motion_Raven.x	Dance_Z	no	yes	no	RAVEN_FIGHTER.src.lua:9641	new in June
+Motion_Raven.x	SI_A_RVC_BLEEDING_SLICER	no	yes	RAVEN_FIGHTER.lua bytecode const x2	RAVEN_FIGHTER.src.lua:4418,6223	new in June
+Motion_Raven.x	SI_A_RVC_SHADOW_BACK_SLIDE	no	yes	RAVEN_FIGHTER.lua bytecode const x1	RAVEN_FIGHTER.src.lua:4100	new in June
+Motion_Raven.x	SI_P_RVC_SHADOW_BUSTER	no	yes	RAVEN_FIGHTER.lua bytecode const x1	RAVEN_FIGHTER.src.lua:4249	new in June
+Motion_Raven.x	SI_SA_RF_SEVEN_BURST_MEMO	no	yes	no	RAVEN_FIGHTER.src.lua:4493	new in June
+Motion_Raven_BM.x	(no name dropped)	-	-	-	-	March 1524698 B, June 2565406 B; 5 new names
+Motion_Raven_BM.x	SI_A_RBM_HARTNESS_STILETTO	no	yes	no	RAVEN_FIGHTER.src.lua:15479	new in June
+Motion_Raven_BM.x	SI_A_RBM_SONIC_SLASH_FINISH	no	yes	no	RAVEN_FIGHTER.src.lua:6530,16851	new in June
+Motion_Raven_BM.x	SI_SA_RBM_DEADLY_BLOW	no	yes	no	RAVEN_FIGHTER.src.lua:15542	new in June
+Motion_Raven_BM.x	SI_SA_RBM_SHAPT_CHARGE	no	yes	no	RAVEN_FIGHTER.src.lua:17087	new in June
+Motion_Raven_BM.x	SI_SA_RBM_SHOOTUP_GENOCIDE	no	yes	no	RAVEN_FIGHTER.src.lua:15634	new in June
+Motion_Raven_Common.x	(no name dropped)	-	-	-	-	March 1195784 B, June 5807808 B; 21 new names
+Motion_Raven_Common.x	Cash1_DownLanding	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash1_Wait	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash1_WaitHabit	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash2_DownLanding	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash2_Wait	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash2_WaitHabit	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash3_DownLanding	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash3_Wait	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash3_WaitHabit	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash4_DownLanding	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash4_Wait	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash4_WaitHabit	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash5_DownLanding	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash5_Wait	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash5_WaitHabit	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash6_DownLanding	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash6_Wait	no	yes	no	no	new in June
+Motion_Raven_Common.x	Cash6_WaitHabit	no	yes	no	no	new in June
+Motion_Raven_Common.x	Event1_WaitHabit	no	yes	no	no	new in June
+Motion_Raven_Common.x	Ride_2	no	yes	no	no	new in June
+Motion_Raven_Common.x	Ride_3	no	yes	no	no	new in June
+Motion_Raven_Emotion.x	(no name dropped)	-	-	-	-	March 1303471 B, June 1835267 B; 0 new names
+Motion_Raven_Emotion_APINK.X	(no name dropped)	-	-	-	-	March 839623 B, June 839623 B; 0 new names; identical bytes
+Motion_Raven_Emotion_APINK_LOVE.X	(no name dropped)	-	-	-	-	March 324989 B, June 324989 B; 0 new names; identical bytes
+Motion_Raven_Emotion_BIGBANG.X	(no name dropped)	-	-	-	-	March 1018445 B, June 1018445 B; 0 new names; identical bytes
+Motion_Raven_Emotion_CRAYONPOP_Sorted.X	(no name dropped)	-	-	-	-	March 611529 B, June 611529 B; 0 new names; identical bytes
+Motion_Raven_Emotion_DeepBow.X	(no name dropped)	-	-	-	-	March 423613 B, June 423613 B; 0 new names; identical bytes
+Motion_Raven_Field.x	(no name dropped)	-	-	-	-	March 267057 B, June 404748 B; 2 new names
+Motion_Raven_Field.x	Ride_2	no	yes	no	no	new in June
+Motion_Raven_Field.x	Ride_3	no	yes	no	no	new in June
+Motion_Raven_Lobby.x	(no name dropped)	-	-	-	-	March 1663672 B, June 2323744 B; 0 new names
+Motion_Raven_OT.x	OT_ComboX3Down	yes	no	march RAVEN_FIGHTER.lua (decompiled) l.3600 (RSI_OVER_TAKER_COMBO_XXdownX); X2Lib/X2GURaven.cpp:1977 registers it	no (bare name unused); June plays OT_ComboX3Down_New at RAVEN_FIGHTER.src.lua:2360 (RSI_OVER_TAKER_COMBO_XXfrontX family); June has no RSI_OVER_TAKER_COMBO_XXdownX table	renamed to OT_ComboX3Down_New in June Motion_Raven_OT.x; March state dropped by June (no loss)
+Motion_Raven_OT.x	OT_ComboX4Down	yes	no	march RAVEN_FIGHTER.lua (decompiled) l.3639 (RSI_OVER_TAKER_COMBO_XXdownXdownX); X2Lib/X2GURaven.cpp:1984 registers it	no (bare name unused); June plays OT_ComboX4Down_New at RAVEN_FIGHTER.src.lua:2419 (RSI_OVER_TAKER_COMBO_XXfrontX family); June has no RSI_OVER_TAKER_COMBO_XXdownXdownX table	renamed to OT_ComboX4Down_New in June Motion_Raven_OT.x; March state dropped by June (no loss)
+Motion_Raven_OT.x	OT_ComboX5Down	yes	no	march RAVEN_FIGHTER.lua (decompiled) l.3677 (RSI_OVER_TAKER_COMBO_XXdownXdownXdownX); X2Lib/X2GURaven.cpp:1991 registers it	no (bare name unused); June plays OT_ComboX5Down_New at RAVEN_FIGHTER.src.lua:2480 (RSI_OVER_TAKER_COMBO_XXfrontX family); June has no RSI_OVER_TAKER_COMBO_XXdownXdownXdownX table	renamed to OT_ComboX5Down_New in June Motion_Raven_OT.x; March state dropped by June (no loss)
+Motion_Raven_OT.x	OT_SP1a_ChargedBolt	yes	no	march RAVEN_FIGHTER.lua (decompiled) l.4420 (RSI_SI1_OVER_TAKER_CHARGED_BOLT), l.4458 (_HYPER), l.13694 (RSI_SA_ROT_CHARGED_BOLT_BLOOD); X2Lib/X2GURaven.cpp:2887-2905, :4019-4024	RAVEN_FIGHTER.src.lua:15182 (RSI_SA_ROT_CHARGED_BOLT_BLOOD, still the bare name); RSI_SI1_OVER_TAKER_CHARGED_BOLT:4875 plays Raven_OT_SP1a_ChargedBolt	renamed Raven_OT_SP1a_ChargedBolt in June; the bare name is played only by June table RSI_SA_ROT_CHARGED_BOLT_BLOOD, which is dead data (name absent from June exe, ch0_state_skill.tsv row 317): no June bug, no JUNE_BUGS row. March still plays it until CH1: file held (ch1_held_motions.tsv)
+Motion_Raven_OT.x	OT_ComboX3Down_New	no	yes	no	RAVEN_FIGHTER.src.lua:2360	new in June
+Motion_Raven_OT.x	OT_ComboX3Front_New	no	yes	no	RAVEN_FIGHTER.src.lua:2699,2750	new in June
+Motion_Raven_OT.x	OT_ComboX4Down_New	no	yes	no	RAVEN_FIGHTER.src.lua:2419	new in June
+Motion_Raven_OT.x	OT_ComboX5Down_New	no	yes	no	RAVEN_FIGHTER.src.lua:2480	new in June
+Motion_Raven_OT.x	OT_ComboX6Down_New	no	yes	no	RAVEN_FIGHTER.src.lua:2546	new in June
+Motion_Raven_OT.x	OT_ComboX7Down_New	no	yes	no	RAVEN_FIGHTER.src.lua:2633	new in June
+Motion_Raven_OT.x	ROT_Dash_Combo_ZX	no	yes	no	RAVEN_FIGHTER.src.lua:3068	new in June
+Motion_Raven_OT.x	Raven_OT_SP1a_ChargedBolt	no	yes	no	RAVEN_FIGHTER.src.lua:4875	new in June
+Motion_Raven_OT.x	SI_A_RF_MEGADRILL_BREAK	no	yes	RAVEN_FIGHTER.lua bytecode const x1	RAVEN_FIGHTER.src.lua:4923,16607	new in June
+Motion_Raven_OT.x	SI_SA_ROT_STIGMA_OF_PAIN	no	yes	no	RAVEN_FIGHTER.src.lua:2937	new in June
+Motion_Raven_RF.x	(no name dropped)	-	-	-	-	March 1698603 B, June 3519311 B; 10 new names
+Motion_Raven_RF.x	SI_A_RF_MEGADRILL_BREAK	no	yes	RAVEN_FIGHTER.lua bytecode const x1	RAVEN_FIGHTER.src.lua:4923,16607	new in June
+Motion_Raven_RF.x	SI_A_RRF_ENCHANT_HAND	no	yes	no	RAVEN_FIGHTER.src.lua:5702,16788	new in June
+Motion_Raven_RF.x	SI_A_RRF_RAGENESS_CHARGED	no	yes	no	no	new in June
+Motion_Raven_RF.x	SI_RRF_A_SPREAD	no	yes	no	no	new in June
+Motion_Raven_RF.x	SI_RRF_SA_MAXIMUM_DIVE	no	yes	no	no	new in June
+Motion_Raven_RF.x	SI_RRF_SA_MAXIMUM_DIVE_AIR	no	yes	no	RAVEN_FIGHTER.src.lua:15832	new in June
+Motion_Raven_RF.x	SI_SA_RRF_DEVASTATING_STRIKE	no	yes	no	RAVEN_FIGHTER.src.lua:17165	new in June
+Motion_Raven_RF.x	SI_SA_RRF_NEGATIVE_UNIT	no	yes	no	RAVEN_FIGHTER.src.lua:15781	new in June
+Motion_Raven_RF.x	SI_SA_RRF_POWER_BOMBER_Air	no	yes	no	RAVEN_FIGHTER.src.lua:15909	new in June
+Motion_Raven_RF.x	SI_SA_RRF_POWER_BOMBER_Stand	no	yes	no	no	new in June
+Motion_Raven_ST.x	(no name dropped)	-	-	-	-	March 1648914 B, June 3020456 B; 10 new names
+Motion_Raven_ST.x	RBM_COMBO_XZ	no	yes	RAVEN_FIGHTER.lua bytecode const x2; X2Lib/X2GURaven.cpp:938	RAVEN_FIGHTER.src.lua:1448	new in June
+Motion_Raven_ST.x	RBM_COMBO_XZZ	no	yes	RAVEN_FIGHTER.lua bytecode const x2; X2Lib/X2GURaven.cpp:944	RAVEN_FIGHTER.src.lua:1496	new in June
+Motion_Raven_ST.x	RBM_COMBO_XZZZ	no	yes	RAVEN_FIGHTER.lua bytecode const x2; X2Lib/X2GURaven.cpp:950	RAVEN_FIGHTER.src.lua:1541	new in June
+Motion_Raven_ST.x	RST_Dash_Combo_Attack_XZ	no	yes	no	RAVEN_FIGHTER.src.lua:2305	new in June
+Motion_Raven_ST.x	RST_Dash_Jump_Combo_ZZZ	no	yes	no	RAVEN_FIGHTER.src.lua:1943	new in June
+Motion_Raven_ST.x	RST_Dash_Jump_Combo_ZZZZ	no	yes	no	RAVEN_FIGHTER.src.lua:2027	new in June
+Motion_Raven_ST.x	RST_Dash_Jump_Combo_ZZZ_Landing	no	yes	no	RAVEN_FIGHTER.src.lua:2005	new in June
+Motion_Raven_ST.x	SI_A_RBM_ONE_FLASH	no	yes	RAVEN_FIGHTER.lua bytecode const x2; X2Lib/X2GURaven.cpp:3206	RAVEN_FIGHTER.src.lua:5949	new in June
+Motion_Raven_ST.x	SI_A_RBM_SONIC_SLASH	no	yes	no	no	new in June
+Motion_Raven_ST.x	SI_A_ROT_WEAPON_BREAK	no	yes	RAVEN_FIGHTER.lua bytecode const x3	RAVEN_FIGHTER.src.lua:5094,6264,7796	new in June
+Motion_Raven_VC.x	(no name dropped)	-	-	-	-	March 2043055 B, June 3637421 B; 6 new names
+Motion_Raven_VC.x	SI_A_RVC_FLAME_SWORD_ANOTHER	no	yes	no	RAVEN_FIGHTER.src.lua:16005	new in June
+Motion_Raven_VC.x	SI_SA_RVC_BUSTING_BLADE	no	yes	no	RAVEN_FIGHTER.src.lua:16123	new in June
+Motion_Raven_VC.x	SI_SA_RVC_FLAME_HELL	no	yes	no	RAVEN_FIGHTER.src.lua:16048	new in June
+Motion_Raven_VC.x	SI_SA_RVC_IFRIT_FLAME	no	yes	no	RAVEN_FIGHTER.src.lua:17238	new in June
+Motion_Raven_VC.x	SI_SA_RVC_SHADOW_BOMBER_Air	no	yes	no	no	new in June
+Motion_Raven_VC.x	SI_SA_RVC_SHADOW_BOMBER_Stand	no	yes	no	no	new in June
+Motion_Raven_WT.x	(no name dropped)	-	-	-	-	March 1952491 B, June 3114727 B; 5 new names
+Motion_Raven_WT.x	SI_A_ROT_WEAPON_BREAK	no	yes	RAVEN_FIGHTER.lua bytecode const x3	RAVEN_FIGHTER.src.lua:5094,6264,7796	new in June
+Motion_Raven_WT.x	VC_DashCombo_ZZZ	no	yes	RAVEN_FIGHTER.lua bytecode const x1	RAVEN_FIGHTER.src.lua:3527	new in June
+Motion_Raven_WT.x	VC_DashCombo_ZZZZ	no	yes	RAVEN_FIGHTER.lua bytecode const x1	RAVEN_FIGHTER.src.lua:3572	new in June
+Motion_Raven_WT.x	VC_DashCombo_ZZZZ_Loop	no	yes	RAVEN_FIGHTER.lua bytecode const x1	RAVEN_FIGHTER.src.lua:3592	new in June
+Motion_Raven_WT.x	VC_DashCombo_ZZZZ_Over_Finish	no	yes	RAVEN_FIGHTER.lua bytecode const x1	RAVEN_FIGHTER.src.lua:3636	new in June
+# per file: March bytes, June bytes, dropped names, new names, identical
+# Motion_Raven.x	3824962	5941865	dropped=0	new=10	differs
+# Motion_Raven_BM.x	1524698	2565406	dropped=0	new=5	differs
+# Motion_Raven_Common.x	1195784	5807808	dropped=0	new=21	differs
+# Motion_Raven_Emotion.x	1303471	1835267	dropped=0	new=0	differs
+# Motion_Raven_Emotion_APINK.X	839623	839623	dropped=0	new=0	identical
+# Motion_Raven_Emotion_APINK_LOVE.X	324989	324989	dropped=0	new=0	identical
+# Motion_Raven_Emotion_BIGBANG.X	1018445	1018445	dropped=0	new=0	identical
+# Motion_Raven_Emotion_CRAYONPOP_Sorted.X	611529	611529	dropped=0	new=0	identical
+# Motion_Raven_Emotion_DeepBow.X	423613	423613	dropped=0	new=0	identical
+# Motion_Raven_Field.x	267057	404748	dropped=0	new=2	differs
+# Motion_Raven_Lobby.x	1663672	2323744	dropped=0	new=0	differs
+# Motion_Raven_OT.x	1919264	3151017	dropped=4	new=10	differs
+# Motion_Raven_RF.x	1698603	3519311	dropped=0	new=10	differs
+# Motion_Raven_ST.x	1648914	3020456	dropped=0	new=10	differs
+# Motion_Raven_VC.x	2043055	3637421	dropped=0	new=6	differs
+# Motion_Raven_WT.x	1952491	3114727	dropped=0	new=5	differs

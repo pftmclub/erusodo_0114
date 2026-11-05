@@ -1,0 +1,206 @@
+# Raven UnitTemplet rows: June june_src_fixed/data036_kom/UnitTemplet.src.lua vs March live kom_contents/data036_kom/UnitTemplet.lua (7 Raven rows March, 7 June)
+# string table = general.ess (live game-dir text table, 45160 ids, XOR 0x10 utf-16le); sd_live / sd_june = STR_ID_n defined in StringID_def.src.lua (March live 45160 ids / June 45160 ids)
+# UC_RAVEN_FIGHTER: March keys 25 (row at 295), June keys 26 (row at 298); same 25, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 10
+# UC_RAVEN_SOUL_TAKER: March keys 25 (row at 322), June keys 26 (row at 326); same 25, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 30
+# UC_RAVEN_OVER_TAKER: March keys 25 (row at 349), June keys 26 (row at 354); same 25, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 10
+# UC_RAVEN_BLADE_MASTER: March keys 25 (row at 621), June keys 27 (row at 631); same 25, changed 0, june-only 2, march-only 0
+#    m_HyperCutIn: - -> "HQ_Cutin_RBM_Transcendence"
+#    m_fLobbyRotationY: - -> 30
+# UC_RAVEN_RECKLESS_FIST: March keys 25 (row at 648), June keys 27 (row at 660); same 25, changed 0, june-only 2, march-only 0
+#    m_HyperCutIn: - -> "HQ_Cutin_RRF_Transcendence"
+#    m_fLobbyRotationY: - -> 20
+# UC_RAVEN_WEAPON_TAKER: March keys 25 (row at 918), June keys 26 (row at 933); same 25, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 1
+# UC_RAVEN_VETERAN_COMMANDER: March keys 25 (row at 1054), June keys 27 (row at 1072); same 24, changed 1, june-only 2, march-only 0
+#    m_HyperCutIn: - -> "HQ_Cutin_RVC_Transcendence"
+#    m_fLobbyRotationY: - -> 40
+#    name: STR_ID_617 -> STR_ID_17431
+unit_class	key	march_value	june_value	diff	string_check
+UC_RAVEN_FIGHTER	basicBodyItemID	30	30	same	
+UC_RAVEN_FIGHTER	basicFaceItemID	29	29	same	
+UC_RAVEN_FIGHTER	basicHairItemID	28	28	same	
+UC_RAVEN_FIGHTER	basicWeaponItemID	34	34	same	
+UC_RAVEN_FIGHTER	basicLegItemID	31	31	same	
+UC_RAVEN_FIGHTER	promotionBodyItemID	128073	128073	same	
+UC_RAVEN_FIGHTER	promotionWeaponItemID	128072	128072	same	
+UC_RAVEN_FIGHTER	m_CommonMotion	"Motion_Raven_Common.x"	"Motion_Raven_Common.x"	same	
+UC_RAVEN_FIGHTER	m_FieldMotion	"Motion_Raven_Field.x"	"Motion_Raven_Field.x"	same	
+UC_RAVEN_FIGHTER	m_LobbyMotion	"Motion_Raven_Lobby.x"	"Motion_Raven_Lobby.x"	same	
+UC_RAVEN_FIGHTER	m_EmotionMotion	"Motion_Raven_Emotion.x"	"Motion_Raven_Emotion.x"	same	
+UC_RAVEN_FIGHTER	m_GameMotion0	"Motion_Raven.x"	"Motion_Raven.x"	same	
+UC_RAVEN_FIGHTER	promotionLegItemID	128074	128074	same	
+UC_RAVEN_FIGHTER	m_GameMotion1	""	""	same	
+UC_RAVEN_FIGHTER	m_fLobbyRotationY	-	10	june-only	
+UC_RAVEN_FIGHTER	basicFootItemID	33	33	same	
+UC_RAVEN_FIGHTER	introMovieFIleName	"Movie_Create_Raven_Base.avi"	"Movie_Create_Raven_Base.avi"	same	
+UC_RAVEN_FIGHTER	m_RavenLeftArmItemID	129976	129976	same	
+UC_RAVEN_FIGHTER	basicHandItemID	32	32	same	
+UC_RAVEN_FIGHTER	m_GameMotion2	""	""	same	
+UC_RAVEN_FIGHTER	promotionHandItemID	128075	128075	same	
+UC_RAVEN_FIGHTER	promotionFootItemID	128076	128076	same	
+UC_RAVEN_FIGHTER	unitType	UNIT_TYPE.UT_RAVEN	UNIT_TYPE.UT_RAVEN	same	
+UC_RAVEN_FIGHTER	unitClass	UNIT_CLASS.UC_RAVEN_FIGHTER	UNIT_CLASS.UC_RAVEN_FIGHTER	same	
+UC_RAVEN_FIGHTER	name	STR_ID_617	STR_ID_617	same	STR_ID_617 general.ess=y sd_live=y sd_june=y "Raven"
+UC_RAVEN_FIGHTER	description	STR_ID_617	STR_ID_617	same	STR_ID_617 general.ess=y sd_live=y sd_june=y "Raven"
+UC_RAVEN_SOUL_TAKER	basicBodyItemID	30	30	same	
+UC_RAVEN_SOUL_TAKER	basicFaceItemID	29	29	same	
+UC_RAVEN_SOUL_TAKER	basicHairItemID	129980	129980	same	
+UC_RAVEN_SOUL_TAKER	basicWeaponItemID	34	34	same	
+UC_RAVEN_SOUL_TAKER	basicLegItemID	31	31	same	
+UC_RAVEN_SOUL_TAKER	promotionBodyItemID	129961	129961	same	
+UC_RAVEN_SOUL_TAKER	promotionWeaponItemID	130376	130376	same	
+UC_RAVEN_SOUL_TAKER	m_CommonMotion	"Motion_Raven_Common.x"	"Motion_Raven_Common.x"	same	
+UC_RAVEN_SOUL_TAKER	m_FieldMotion	"Motion_Raven_Field.x"	"Motion_Raven_Field.x"	same	
+UC_RAVEN_SOUL_TAKER	m_LobbyMotion	"Motion_Raven_Lobby.x"	"Motion_Raven_Lobby.x"	same	
+UC_RAVEN_SOUL_TAKER	m_EmotionMotion	"Motion_Raven_Emotion.x"	"Motion_Raven_Emotion.x"	same	
+UC_RAVEN_SOUL_TAKER	m_GameMotion0	"Motion_Raven.x"	"Motion_Raven.x"	same	
+UC_RAVEN_SOUL_TAKER	promotionLegItemID	129962	129962	same	
+UC_RAVEN_SOUL_TAKER	m_GameMotion1	"Motion_Raven_ST.x"	"Motion_Raven_ST.x"	same	
+UC_RAVEN_SOUL_TAKER	m_fLobbyRotationY	-	30	june-only	
+UC_RAVEN_SOUL_TAKER	basicFootItemID	33	33	same	
+UC_RAVEN_SOUL_TAKER	introMovieFIleName	"Movie_Create_Raven_BM.avi"	"Movie_Create_Raven_BM.avi"	same	
+UC_RAVEN_SOUL_TAKER	m_RavenLeftArmItemID	129977	129977	same	
+UC_RAVEN_SOUL_TAKER	basicHandItemID	32	32	same	
+UC_RAVEN_SOUL_TAKER	m_GameMotion2	""	""	same	
+UC_RAVEN_SOUL_TAKER	promotionHandItemID	129963	129963	same	
+UC_RAVEN_SOUL_TAKER	promotionFootItemID	129964	129964	same	
+UC_RAVEN_SOUL_TAKER	unitType	UNIT_TYPE.UT_RAVEN	UNIT_TYPE.UT_RAVEN	same	
+UC_RAVEN_SOUL_TAKER	unitClass	UNIT_CLASS.UC_RAVEN_SOUL_TAKER	UNIT_CLASS.UC_RAVEN_SOUL_TAKER	same	
+UC_RAVEN_SOUL_TAKER	name	STR_ID_617	STR_ID_617	same	STR_ID_617 general.ess=y sd_live=y sd_june=y "Raven"
+UC_RAVEN_SOUL_TAKER	description	STR_ID_4237	STR_ID_4237	same	STR_ID_4237 general.ess=y sd_live=y sd_june=y "Raven (Sword Taker)"
+UC_RAVEN_OVER_TAKER	basicBodyItemID	30	30	same	
+UC_RAVEN_OVER_TAKER	basicFaceItemID	29	29	same	
+UC_RAVEN_OVER_TAKER	basicHairItemID	129979	129979	same	
+UC_RAVEN_OVER_TAKER	basicWeaponItemID	34	34	same	
+UC_RAVEN_OVER_TAKER	basicLegItemID	31	31	same	
+UC_RAVEN_OVER_TAKER	promotionBodyItemID	129956	129956	same	
+UC_RAVEN_OVER_TAKER	promotionWeaponItemID	130377	130377	same	
+UC_RAVEN_OVER_TAKER	m_CommonMotion	"Motion_Raven_Common.x"	"Motion_Raven_Common.x"	same	
+UC_RAVEN_OVER_TAKER	m_FieldMotion	"Motion_Raven_Field.x"	"Motion_Raven_Field.x"	same	
+UC_RAVEN_OVER_TAKER	m_LobbyMotion	"Motion_Raven_Lobby.x"	"Motion_Raven_Lobby.x"	same	
+UC_RAVEN_OVER_TAKER	m_EmotionMotion	"Motion_Raven_Emotion.x"	"Motion_Raven_Emotion.x"	same	
+UC_RAVEN_OVER_TAKER	m_GameMotion0	"Motion_Raven.x"	"Motion_Raven.x"	same	
+UC_RAVEN_OVER_TAKER	promotionLegItemID	129957	129957	same	
+UC_RAVEN_OVER_TAKER	m_GameMotion1	"Motion_Raven_OT.x"	"Motion_Raven_OT.x"	same	
+UC_RAVEN_OVER_TAKER	m_fLobbyRotationY	-	10	june-only	
+UC_RAVEN_OVER_TAKER	basicFootItemID	33	33	same	
+UC_RAVEN_OVER_TAKER	introMovieFIleName	"Movie_Create_Raven_RF.avi"	"Movie_Create_Raven_RF.avi"	same	
+UC_RAVEN_OVER_TAKER	m_RavenLeftArmItemID	129978	129978	same	
+UC_RAVEN_OVER_TAKER	basicHandItemID	32	32	same	
+UC_RAVEN_OVER_TAKER	m_GameMotion2	""	""	same	
+UC_RAVEN_OVER_TAKER	promotionHandItemID	129958	129958	same	
+UC_RAVEN_OVER_TAKER	promotionFootItemID	129959	129959	same	
+UC_RAVEN_OVER_TAKER	unitType	UNIT_TYPE.UT_RAVEN	UNIT_TYPE.UT_RAVEN	same	
+UC_RAVEN_OVER_TAKER	unitClass	UNIT_CLASS.UC_RAVEN_OVER_TAKER	UNIT_CLASS.UC_RAVEN_OVER_TAKER	same	
+UC_RAVEN_OVER_TAKER	name	STR_ID_617	STR_ID_617	same	STR_ID_617 general.ess=y sd_live=y sd_june=y "Raven"
+UC_RAVEN_OVER_TAKER	description	STR_ID_4238	STR_ID_4238	same	STR_ID_4238 general.ess=y sd_live=y sd_june=y "Raven (Over Taker)"
+UC_RAVEN_BLADE_MASTER	basicBodyItemID	30	30	same	
+UC_RAVEN_BLADE_MASTER	basicFaceItemID	29	29	same	
+UC_RAVEN_BLADE_MASTER	basicHairItemID	52	52	same	
+UC_RAVEN_BLADE_MASTER	basicWeaponItemID	34	34	same	
+UC_RAVEN_BLADE_MASTER	basicLegItemID	31	31	same	
+UC_RAVEN_BLADE_MASTER	promotionBodyItemID	131632	131632	same	
+UC_RAVEN_BLADE_MASTER	promotionWeaponItemID	131631	131631	same	
+UC_RAVEN_BLADE_MASTER	m_CommonMotion	"Motion_Raven_Common.x"	"Motion_Raven_Common.x"	same	
+UC_RAVEN_BLADE_MASTER	m_FieldMotion	"Motion_Raven_Field.x"	"Motion_Raven_Field.x"	same	
+UC_RAVEN_BLADE_MASTER	m_LobbyMotion	"Motion_Raven_Lobby.x"	"Motion_Raven_Lobby.x"	same	
+UC_RAVEN_BLADE_MASTER	m_EmotionMotion	"Motion_Raven_Emotion.x"	"Motion_Raven_Emotion.x"	same	
+UC_RAVEN_BLADE_MASTER	m_GameMotion0	"Motion_Raven.x"	"Motion_Raven.x"	same	
+UC_RAVEN_BLADE_MASTER	promotionLegItemID	131633	131633	same	
+UC_RAVEN_BLADE_MASTER	m_GameMotion1	"Motion_Raven_ST.x"	"Motion_Raven_ST.x"	same	
+UC_RAVEN_BLADE_MASTER	m_HyperCutIn	-	"HQ_Cutin_RBM_Transcendence"	june-only	
+UC_RAVEN_BLADE_MASTER	basicFootItemID	33	33	same	
+UC_RAVEN_BLADE_MASTER	introMovieFIleName	"Movie_Create_Raven_BM.avi"	"Movie_Create_Raven_BM.avi"	same	
+UC_RAVEN_BLADE_MASTER	m_fLobbyRotationY	-	30	june-only	
+UC_RAVEN_BLADE_MASTER	m_RavenLeftArmItemID	131598	131598	same	
+UC_RAVEN_BLADE_MASTER	basicHandItemID	32	32	same	
+UC_RAVEN_BLADE_MASTER	m_GameMotion2	"Motion_Raven_BM.x"	"Motion_Raven_BM.x"	same	
+UC_RAVEN_BLADE_MASTER	promotionHandItemID	131634	131634	same	
+UC_RAVEN_BLADE_MASTER	promotionFootItemID	131635	131635	same	
+UC_RAVEN_BLADE_MASTER	unitType	UNIT_TYPE.UT_RAVEN	UNIT_TYPE.UT_RAVEN	same	
+UC_RAVEN_BLADE_MASTER	unitClass	UNIT_CLASS.UC_RAVEN_BLADE_MASTER	UNIT_CLASS.UC_RAVEN_BLADE_MASTER	same	
+UC_RAVEN_BLADE_MASTER	name	STR_ID_4847	STR_ID_4847	same	STR_ID_4847 general.ess=y sd_live=y sd_june=y "Blade Master"
+UC_RAVEN_BLADE_MASTER	description	STR_ID_4849	STR_ID_4849	same	STR_ID_4849 general.ess=y sd_live=y sd_june=y "Raven (Blade Master)"
+UC_RAVEN_RECKLESS_FIST	basicBodyItemID	30	30	same	
+UC_RAVEN_RECKLESS_FIST	basicFaceItemID	29	29	same	
+UC_RAVEN_RECKLESS_FIST	basicHairItemID	53	53	same	
+UC_RAVEN_RECKLESS_FIST	basicWeaponItemID	34	34	same	
+UC_RAVEN_RECKLESS_FIST	basicLegItemID	31	31	same	
+UC_RAVEN_RECKLESS_FIST	promotionBodyItemID	131637	131637	same	
+UC_RAVEN_RECKLESS_FIST	promotionWeaponItemID	131636	131636	same	
+UC_RAVEN_RECKLESS_FIST	m_CommonMotion	"Motion_Raven_Common.x"	"Motion_Raven_Common.x"	same	
+UC_RAVEN_RECKLESS_FIST	m_FieldMotion	"Motion_Raven_Field.x"	"Motion_Raven_Field.x"	same	
+UC_RAVEN_RECKLESS_FIST	m_LobbyMotion	"Motion_Raven_Lobby.x"	"Motion_Raven_Lobby.x"	same	
+UC_RAVEN_RECKLESS_FIST	m_EmotionMotion	"Motion_Raven_Emotion.x"	"Motion_Raven_Emotion.x"	same	
+UC_RAVEN_RECKLESS_FIST	m_GameMotion0	"Motion_Raven.x"	"Motion_Raven.x"	same	
+UC_RAVEN_RECKLESS_FIST	promotionLegItemID	131638	131638	same	
+UC_RAVEN_RECKLESS_FIST	m_GameMotion1	"Motion_Raven_OT.x"	"Motion_Raven_OT.x"	same	
+UC_RAVEN_RECKLESS_FIST	m_HyperCutIn	-	"HQ_Cutin_RRF_Transcendence"	june-only	
+UC_RAVEN_RECKLESS_FIST	basicFootItemID	33	33	same	
+UC_RAVEN_RECKLESS_FIST	introMovieFIleName	"Movie_Create_Raven_RF.avi"	"Movie_Create_Raven_RF.avi"	same	
+UC_RAVEN_RECKLESS_FIST	m_fLobbyRotationY	-	20	june-only	
+UC_RAVEN_RECKLESS_FIST	m_RavenLeftArmItemID	131599	131599	same	
+UC_RAVEN_RECKLESS_FIST	basicHandItemID	32	32	same	
+UC_RAVEN_RECKLESS_FIST	m_GameMotion2	"Motion_Raven_RF.x"	"Motion_Raven_RF.x"	same	
+UC_RAVEN_RECKLESS_FIST	promotionHandItemID	131639	131639	same	
+UC_RAVEN_RECKLESS_FIST	promotionFootItemID	131640	131640	same	
+UC_RAVEN_RECKLESS_FIST	unitType	UNIT_TYPE.UT_RAVEN	UNIT_TYPE.UT_RAVEN	same	
+UC_RAVEN_RECKLESS_FIST	unitClass	UNIT_CLASS.UC_RAVEN_RECKLESS_FIST	UNIT_CLASS.UC_RAVEN_RECKLESS_FIST	same	
+UC_RAVEN_RECKLESS_FIST	name	STR_ID_4848	STR_ID_4848	same	STR_ID_4848 general.ess=y sd_live=y sd_june=y "Reckless Fist"
+UC_RAVEN_RECKLESS_FIST	description	STR_ID_4850	STR_ID_4850	same	STR_ID_4850 general.ess=y sd_live=y sd_june=y "Raven (Reckless Fist)"
+UC_RAVEN_WEAPON_TAKER	basicBodyItemID	30	30	same	
+UC_RAVEN_WEAPON_TAKER	basicFaceItemID	29	29	same	
+UC_RAVEN_WEAPON_TAKER	basicHairItemID	40530	40530	same	
+UC_RAVEN_WEAPON_TAKER	basicWeaponItemID	34	34	same	
+UC_RAVEN_WEAPON_TAKER	basicLegItemID	31	31	same	
+UC_RAVEN_WEAPON_TAKER	promotionBodyItemID	40830	40830	same	
+UC_RAVEN_WEAPON_TAKER	promotionWeaponItemID	40820	40820	same	
+UC_RAVEN_WEAPON_TAKER	m_CommonMotion	"Motion_Raven_Common.x"	"Motion_Raven_Common.x"	same	
+UC_RAVEN_WEAPON_TAKER	m_FieldMotion	"Motion_Raven_Field.x"	"Motion_Raven_Field.x"	same	
+UC_RAVEN_WEAPON_TAKER	m_LobbyMotion	"Motion_Raven_Lobby.x"	"Motion_Raven_Lobby.x"	same	
+UC_RAVEN_WEAPON_TAKER	m_EmotionMotion	"Motion_Raven_Emotion.x"	"Motion_Raven_Emotion.x"	same	
+UC_RAVEN_WEAPON_TAKER	m_GameMotion0	"Motion_Raven.x"	"Motion_Raven.x"	same	
+UC_RAVEN_WEAPON_TAKER	promotionLegItemID	40850	40850	same	
+UC_RAVEN_WEAPON_TAKER	m_GameMotion1	"Motion_Raven_WT.x"	"Motion_Raven_WT.x"	same	
+UC_RAVEN_WEAPON_TAKER	m_fLobbyRotationY	-	1	june-only	
+UC_RAVEN_WEAPON_TAKER	basicFootItemID	33	33	same	
+UC_RAVEN_WEAPON_TAKER	introMovieFIleName	"Movie_Create_Raven_VC.avi"	"Movie_Create_Raven_VC.avi"	same	
+UC_RAVEN_WEAPON_TAKER	m_RavenLeftArmItemID	40940	40940	same	
+UC_RAVEN_WEAPON_TAKER	basicHandItemID	32	32	same	
+UC_RAVEN_WEAPON_TAKER	m_GameMotion2	""	""	same	
+UC_RAVEN_WEAPON_TAKER	promotionHandItemID	40840	40840	same	
+UC_RAVEN_WEAPON_TAKER	promotionFootItemID	40860	40860	same	
+UC_RAVEN_WEAPON_TAKER	unitType	UNIT_TYPE.UT_RAVEN	UNIT_TYPE.UT_RAVEN	same	
+UC_RAVEN_WEAPON_TAKER	unitClass	UNIT_CLASS.UC_RAVEN_WEAPON_TAKER	UNIT_CLASS.UC_RAVEN_WEAPON_TAKER	same	
+UC_RAVEN_WEAPON_TAKER	name	STR_ID_617	STR_ID_617	same	STR_ID_617 general.ess=y sd_live=y sd_june=y "Raven"
+UC_RAVEN_WEAPON_TAKER	description	STR_ID_15439	STR_ID_15439	same	STR_ID_15439 general.ess=y sd_live=y sd_june=y "Raven (Weapon Taker)"
+UC_RAVEN_VETERAN_COMMANDER	basicBodyItemID	30	30	same	
+UC_RAVEN_VETERAN_COMMANDER	basicFaceItemID	29	29	same	
+UC_RAVEN_VETERAN_COMMANDER	basicHairItemID	41280	41280	same	
+UC_RAVEN_VETERAN_COMMANDER	basicWeaponItemID	34	34	same	
+UC_RAVEN_VETERAN_COMMANDER	basicLegItemID	31	31	same	
+UC_RAVEN_VETERAN_COMMANDER	promotionBodyItemID	41110	41110	same	
+UC_RAVEN_VETERAN_COMMANDER	promotionWeaponItemID	41100	41100	same	
+UC_RAVEN_VETERAN_COMMANDER	m_CommonMotion	"Motion_Raven_Common.x"	"Motion_Raven_Common.x"	same	
+UC_RAVEN_VETERAN_COMMANDER	m_FieldMotion	"Motion_Raven_Field.x"	"Motion_Raven_Field.x"	same	
+UC_RAVEN_VETERAN_COMMANDER	m_LobbyMotion	"Motion_Raven_Lobby.x"	"Motion_Raven_Lobby.x"	same	
+UC_RAVEN_VETERAN_COMMANDER	m_EmotionMotion	"Motion_Raven_Emotion.x"	"Motion_Raven_Emotion.x"	same	
+UC_RAVEN_VETERAN_COMMANDER	m_GameMotion0	"Motion_Raven.x"	"Motion_Raven.x"	same	
+UC_RAVEN_VETERAN_COMMANDER	promotionLegItemID	41120	41120	same	
+UC_RAVEN_VETERAN_COMMANDER	m_GameMotion1	"Motion_Raven_WT.x"	"Motion_Raven_WT.x"	same	
+UC_RAVEN_VETERAN_COMMANDER	m_HyperCutIn	-	"HQ_Cutin_RVC_Transcendence"	june-only	
+UC_RAVEN_VETERAN_COMMANDER	basicFootItemID	33	33	same	
+UC_RAVEN_VETERAN_COMMANDER	introMovieFIleName	"Movie_Create_Raven_VC.avi"	"Movie_Create_Raven_VC.avi"	same	
+UC_RAVEN_VETERAN_COMMANDER	m_fLobbyRotationY	-	40	june-only	
+UC_RAVEN_VETERAN_COMMANDER	m_RavenLeftArmItemID	41330	41330	same	
+UC_RAVEN_VETERAN_COMMANDER	basicHandItemID	32	32	same	
+UC_RAVEN_VETERAN_COMMANDER	m_GameMotion2	"Motion_Raven_VC.x"	"Motion_Raven_VC.x"	same	
+UC_RAVEN_VETERAN_COMMANDER	promotionHandItemID	41130	41130	same	
+UC_RAVEN_VETERAN_COMMANDER	promotionFootItemID	41140	41140	same	
+UC_RAVEN_VETERAN_COMMANDER	unitType	UNIT_TYPE.UT_RAVEN	UNIT_TYPE.UT_RAVEN	same	
+UC_RAVEN_VETERAN_COMMANDER	unitClass	UNIT_CLASS.UC_RAVEN_VETERAN_COMMANDER	UNIT_CLASS.UC_RAVEN_VETERAN_COMMANDER	same	
+UC_RAVEN_VETERAN_COMMANDER	name	STR_ID_617	STR_ID_17431	changed	STR_ID_617 general.ess=y sd_live=y sd_june=y "Raven" | STR_ID_17431 general.ess=y sd_live=y sd_june=y "Veteran Commander"
+UC_RAVEN_VETERAN_COMMANDER	description	STR_ID_17430	STR_ID_17430	same	STR_ID_17430 general.ess=y sd_live=y sd_june=y "Raven (Veteran Commander)"

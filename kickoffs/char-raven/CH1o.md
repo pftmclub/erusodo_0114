@@ -40,6 +40,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 9** (`awk -F'\t' '$7=="CH1o"' june2017_re/char_raven/ch0_class_map.tsv`; new 9).
+  June addresses: `32c28100`(new ?) `32c28880`(new ?) `32c35fc0`(new ?) `32c3c7a0`(new ?) `32c3d1c0`(new ?) `32c4e5b0`(new ?) `32c69d80`(new ?) `32c69f40`(new ?) `32c69f50`(new ?).
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L286 SetSkillLevelStateData hoisted into CX2GUUser; March copy X2GURaven.cp; §7am L909 delegate-list registrations in InitPassiveSkillState: Raven 32c57660 p.
+- 9 triage functions: 8 unsettled callback targets (3 reached only through the `MemoConditionRaven` vtable `33511404`) and `32c3d1c0` (called from base `31fef53b`; AppendEnchantParticle). CanParryingState / AddRageGuage moved to CH1q.

@@ -49,6 +49,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 38** (`awk -F'\t' '$7=="CH1d"' june2017_re/char_raven/ch0_class_map.tsv`; inside 34, new 4).
+  June addresses: `32c25fe0`(new RSI_COMBO_ZZZX_StateStartFuture) `32c25ff0`(new RSI_COMBO_ZZZX_FINISH_StateStartFuture) `32c26000`(new RSI_COMBO_ZZZX_FINISH_FrameMove) `32c26010` `32c26020` `32c26050` `32c26070` `32c26090` `32c297a0` `32c29bb0` `32c29fd0` `32c2a550` `32c2a880` `32c2abc0`(new RSI_COMBO_ZZZX_FINISH_EventProcess) `32c2aef0` `32c2b360` `32c2b6f0` `32c2bbb0` `32c2c070` `32c2c370` `32c2c810` `32c2d450` `32c2d750` `32c2d860` `32c2d8b0` `32c2d8e0` `32c2d930` `32c2da40` `32c2da80` `32c3d800` `32c3d880` `32c3d8f0` `32c3d980` `32c44f90` `32c45260` `32c45f80` `32c46170` `32c5c230`.
+- **States: 20** (`awk -F'\t' '$8=="CH1d"' june2017_re/char_raven/ch0_state_skill.tsv`): `RSI_COMBO_Z`, `RSI_COMBO_ZZ`, `RSI_COMBO_ZZZ`, `RSI_COMBO_ZZZZ`, `RSI_COMBO_ZZZX`, `RSI_COMBO_ZZZX_FINISH`, `RSI_COMBO_ZZX`, `RSI_COMBO_ZZXX`, `RSI_COMBO_X`, `RSI_COMBO_XX`, `RSI_COMBO_XXX`, `RSI_DASH_COMBO_Z`, `RSI_DASH_COMBO_ZZ`, `RSI_DASH_COMBO_X`, `RSI_JUMP_COMBO_Z`, `RSI_JUMP_COMBO_X`, `RSI_DASH_JUMP_COMBO_Z`, `RSI_DASH_JUMP_COMBO_ZZ`, `RSI_DASH_JUMP_COMBO_ZZ_Landing`, `RSI_DASH_JUMP_COMBO_X`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, RAVEN_STATE_ID); §7h L422 Raven 32c2b360: UPDOWN_CANCEL_AFTER (+0x8ca4) up/down cancel branch in.
+- 7h: `32c2b360` is `RSI_COMBO_ZZXX` EventProcess (`UPDOWN_CANCEL_AFTER`, +0x8ca4).

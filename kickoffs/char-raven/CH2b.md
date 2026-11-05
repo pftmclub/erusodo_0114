@@ -44,6 +44,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 27** (`awk -F'\t' '$7=="CH2b"' june2017_re/char_raven/ch0_class_map.tsv`; inside 26, new 1).
+  June addresses: `32c263e0` `32c264a0`(new RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_Init) `32c26770` `32c26820` `32c26cb0` `32c27370` `32c27380` `32c27390` `32c273a0` `32c273b0` `32c27be0` `32c30a30` `32c30af0` `32c30b50` `32c31030` `32c31090` `32c33280` `32c33310` `32c37d90` `32c37dc0` `32c37fc0` `32c38030` `32c3aab0` `32c3e8a0` `32c4df80` `32c5ccc0` `32c5cd80`.
+- **States: 9** (`awk -F'\t' '$8=="CH2b"' june2017_re/char_raven/ch0_state_skill.tsv`): `SI_A_RBM_ONE_FLASH`, `RSI_SA_RST_SHOCKWAVE`, `RSI_SI1_SOUL_TAKER_BERSERKER_BLADE`, `RVC_SI_A_BLEEDING_SLICER`, `RVC_SI_A_BLEEDING_SLICER_GROUND`, `RSI_A_ROT_ARMOR_BREAK`, `RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB`, `RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_HYPER`, `RVC_SI_A_BLEEDING_SLICER_FLY`.
+- **Skills: 12** (part 2 of `ch0_state_skill.tsv`, col 6): 24011 RNSI_SA_RST_SHOCKWAVE, 24012 RNSI_SA_RST_BERSERKER_BLADE, 24013 RNSI_SA_RST_HYPER_SONIC_STAB, 24030 RNSI_SA_RST_SHOCKWAVE_UPGRADE, 24033 RNSI_SA_RST_BERSERKER_BLADE_UPGRADE, 24046 RNSI_SA_RST_HYPER_SONIC_STAB_UPGRADE, 24207 RNSI_A_RST_ONE_FLASH, 24208 RNSI_A_RST_BLEEDING_SLICER, 24209 RNSI_A_RST_ARMOR_BREAK, 24220 RNSI_A_RST_ONE_FLASH_UPGRADE, 24232 RNSI_A_RST_BLEEDING_SLICER_UPGRADE, 24233 RNSI_A_RST_ARMOR_BREAK_UPGRADE.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §1 L50 numerical-only DAMAGE_DATA table in state RVC_SI_A_BLEEDING_SLICER_GRO; §1 L50 numerical-only DAMAGE_DATA + numerical override live (the 25 tables ab; §2 L116 APPLIED_SKILL_ID (parsed since 8c); §2 L117 NUMERICAL_DATA_INDEX; §4 L178 June-only members of tables March has (SKILL_ID names, RAVEN_STATE_ID); §7i L436-437 class code multiplies m_fNowStatePowerRate, never the entry's; §7ae L714-722 an id of a listed type with no case plays the class's first state (Rav; §7ae L729-733 types 14-16 / 17 / 18 named in the class switch; §7ai L844 pass June's skip / adjust / level / creator at every ported BFI call.
+- Bleeding Slicer (24208 / 24232 `RNSI_A_RST_BLEEDING_SLICER`, tables `RVC_SI_A_BLEEDING_SLICER*`) moved here from CH1g2 by CH0.

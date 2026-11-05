@@ -49,6 +49,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 9** (`awk -F'\t' '$7=="CH1k"' june2017_re/char_raven/ch0_class_map.tsv`; inside 8, new 1).
+  June addresses: `32c25af0` `32c25ba0` `32c25c30` `32c25c40` `32c3e0e0`(new IsNotCommonMoveState) `32c3e770` `32c3ece0` `32c43bf0` `32c58c30`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L262 quick-slot special-item prefix at the top of SpecialAttackEventProcess; §7 L263 dev free-skill gate around the cool-time / MP / hyper-stone block of t; §7 L248-250 class skill-use function sets the cooldown then calls ApplySkillCoolTi; §7 L265 riding-key skill wait after CheckSkillUsePVPOfficial in the 510 lookup; §7 L262 every class's vslot 510 lookup (the Raven-named half: Phase 7d put the; §7ai L858 JuneShowSkillNameStateString callers; §7al L894 new CX2GUUser hooks for every class: 0x654, 0x850, 0x860, 512, UpdateE.
+- The ctor `32c3ece0`. SpecialAttackEventProcess `32c25af0` (uncarved) with parts `32c58c30` / `32c25ba0` / `32c43bf0` (`32c43bf0` keeps March's rage += MP / 3 in hyper, `:5831-5838`). Skill gate: no skill while parrying except Shadow Step (`:5653-5658`). Plus `ReservedSkillStart` (Rules).

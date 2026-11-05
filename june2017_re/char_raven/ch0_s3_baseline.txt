@@ -1,0 +1,261 @@
+# s3_no_state.py --family X2GURaven.cpp
+# mode: cl /P (live branches exact; line numbers are positions in the preprocessed stream)
+# enum SKILL_ID: 1071 enumerators, 0 unresolved initialisers
+# verdict: has_state = a case label resolves to the id (strict)
+# case labels not resolved (not in enum / consts): 40
+unit_class_name	unit_class_value	family_cpp_file	skill_id	skill_name	templet_name	skill_type	master_level	row	column	in_cpp_enum	cpp_case_in_family	verdict	march_value_of_name	march_names_at_same_id	cpp_any_token_in_family	case_in_X2GUUser_cpp	lookalike_march_name	lookalike_march_value	lookalike_case_in_family	evidence
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24000	RNSI_SA_RF_MAXIMUM_CANNON	Maximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24025	RNSI_SA_RF_MAXIMUM_CANNON_UPGRADE	#Cffcc00[Enhanced]#CX\nMaximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24200	RNSI_A_RF_SHADOW_STEP	Shadow Step	6	1	0	2	n	n	no_state			n	n	SI_A_RF_SHADOW_STEP	4205	y	
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24217	RNSI_A_RF_SHADOW_STEP_UPGRADE	#Cffcc00[Enhanced]#CX\nShadow Step	6	1	0	2	n	n	no_state			n	n				
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GURaven.cpp:2546
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24001	RNSI_SA_RF_CANNON_BLADE	Cannon Blade	15	1	1	1	n	n	no_state			n	n	SI_SA_RF_CANNON_BLADE	4001	y	
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24026	RNSI_SA_RF_CANNON_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nCannon Blade	15	1	1	1	n	n	no_state			n	n				
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24002	RNSI_SA_RF_POWER_ASSAULT	Power Assault	15	1	2	1	n	n	no_state			n	n	SI_SA_RF_POWER_ASSAULT	4000	y	
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24027	RNSI_SA_RF_POWER_ASSAULT_UPGRADE	#Cffcc00[Enhanced]#CX\nPower Assault	15	1	2	1	n	n	no_state			n	n				
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24201	RNSI_A_RF_FLAME_SWORD	Flame Sword	6	1	3	1	n	n	no_state			n	n				
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24218	RNSI_A_RF_FLAME_SWORD_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Sword	6	1	3	1	n	n	no_state			n	n				
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24003	RNSI_SA_RF_SEVEN_BURST	Seven Burst	16	1	4	1	n	n	no_state			n	n	SI_SA_RF_SEVEN_BURST	4002	y	
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24028	RNSI_SA_RF_SEVEN_BURST_UPGRADE	#Cffcc00[Enhanced]#CX\nSeven Burst	16	1	4	1	n	n	no_state			n	n				
+UC_RAVEN_FIGHTER	4	X2GURaven.cpp	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	Focus Strength	1	4	4	4	y	n	no_state	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24000	RNSI_SA_RF_MAXIMUM_CANNON	Maximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24025	RNSI_SA_RF_MAXIMUM_CANNON_UPGRADE	#Cffcc00[Enhanced]#CX\nMaximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24200	RNSI_A_RF_SHADOW_STEP	Shadow Step	6	1	0	2	n	n	no_state			n	n	SI_A_RF_SHADOW_STEP	4205	y	
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24217	RNSI_A_RF_SHADOW_STEP_UPGRADE	#Cffcc00[Enhanced]#CX\nShadow Step	6	1	0	2	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GURaven.cpp:2546
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24001	RNSI_SA_RF_CANNON_BLADE	Cannon Blade	15	1	1	1	n	n	no_state			n	n	SI_SA_RF_CANNON_BLADE	4001	y	
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24026	RNSI_SA_RF_CANNON_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nCannon Blade	15	1	1	1	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24002	RNSI_SA_RF_POWER_ASSAULT	Power Assault	15	1	2	1	n	n	no_state			n	n	SI_SA_RF_POWER_ASSAULT	4000	y	
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24027	RNSI_SA_RF_POWER_ASSAULT_UPGRADE	#Cffcc00[Enhanced]#CX\nPower Assault	15	1	2	1	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24201	RNSI_A_RF_FLAME_SWORD	Flame Sword	6	1	3	0	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24218	RNSI_A_RF_FLAME_SWORD_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Sword	6	1	3	0	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24207	RNSI_A_RST_ONE_FLASH	Finishing Slash	6	1	3	1	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24220	RNSI_A_RST_ONE_FLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nFinishing Slash	6	1	3	1	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24011	RNSI_SA_RST_SHOCKWAVE	Shockwave - Divider	15	1	3	2	n	n	no_state			n	n	SI_SA_RST_SHOCKWAVE	4004	y	
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24030	RNSI_SA_RST_SHOCKWAVE_UPGRADE	#Cffcc00[Enhanced]#CX\nShockwave - Divider	15	1	3	2	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24406	RNSI_P_RST_EXQUISITE_SWORDMANSHIP	Fine Swordsmanship	8	4	3	3	n	n	no_state			n	n	SI_P_RST_EXQUISITE_SWORDMANSHIP	4404	n	
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24003	RNSI_SA_RF_SEVEN_BURST	Seven Burst	16	1	4	1	n	n	no_state			n	n	SI_SA_RF_SEVEN_BURST	4002	y	
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24028	RNSI_SA_RF_SEVEN_BURST_UPGRADE	#Cffcc00[Enhanced]#CX\nSeven Burst	16	1	4	1	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	Focus Strength	1	4	4	4	y	n	no_state	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24012	RNSI_SA_RST_BERSERKER_BLADE	Berserker Blade	14	1	5	1	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24033	RNSI_SA_RST_BERSERKER_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nBerserker Blade	14	1	5	1	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24208	RNSI_A_RST_BLEEDING_SLICER	Fatal Wound	6	1	6	1	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24232	RNSI_A_RST_BLEEDING_SLICER_UPGRADE	#Cffcc00[Enhanced]#CX Fatal Wound	6	1	6	1	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24209	RNSI_A_RST_ARMOR_BREAK	Armor Crash	6	1	6	4	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24233	RNSI_A_RST_ARMOR_BREAK_UPGRADE	#Cffcc00[Enhanced]#CX Armor Crash	6	1	6	4	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24013	RNSI_SA_RST_HYPER_SONIC_STAB	Hypersonic Stab	16	1	7	1	n	n	no_state			n	n	SI_SA_RST_HYPER_SONIC_STAB	4003	y	
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24046	RNSI_SA_RST_HYPER_SONIC_STAB_UPGRADE	#Cffcc00[Enhanced]#CX Hypersonic Stab	16	1	7	1	n	n	no_state			n	n				
+UC_RAVEN_SOUL_TAKER	16	X2GURaven.cpp	24408	RNSI_P_RBM_PRIDE_VICTORY	Victor's Dignity	8	4	8	3	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24000	RNSI_SA_RF_MAXIMUM_CANNON	Maximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24025	RNSI_SA_RF_MAXIMUM_CANNON_UPGRADE	#Cffcc00[Enhanced]#CX\nMaximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24200	RNSI_A_RF_SHADOW_STEP	Shadow Step	6	1	0	2	n	n	no_state			n	n	SI_A_RF_SHADOW_STEP	4205	y	
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24217	RNSI_A_RF_SHADOW_STEP_UPGRADE	#Cffcc00[Enhanced]#CX\nShadow Step	6	1	0	2	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GURaven.cpp:2546
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24001	RNSI_SA_RF_CANNON_BLADE	Cannon Blade	15	1	1	1	n	n	no_state			n	n	SI_SA_RF_CANNON_BLADE	4001	y	
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24026	RNSI_SA_RF_CANNON_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nCannon Blade	15	1	1	1	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24002	RNSI_SA_RF_POWER_ASSAULT	Power Assault	15	1	2	1	n	n	no_state			n	n	SI_SA_RF_POWER_ASSAULT	4000	y	
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24027	RNSI_SA_RF_POWER_ASSAULT_UPGRADE	#Cffcc00[Enhanced]#CX\nPower Assault	15	1	2	1	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24201	RNSI_A_RF_FLAME_SWORD	Flame Sword	6	1	3	0	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24218	RNSI_A_RF_FLAME_SWORD_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Sword	6	1	3	0	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24202	RNSI_A_ROT_HELL_DIVE	Hell Dive	6	1	3	1	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24219	RNSI_A_ROT_HELL_DIVE_UPGRADE	#Cffcc00[Enhanced]#CX\nHell Dive	6	1	3	1	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24004	RNSI_SA_ROT_VALKYRIESJAVELIN	Valkyrie's Javelin	15	1	3	2	n	n	no_state			n	n	SI_SA_ROT_VALKYRIESJAVELIN	4012	y	
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24029	RNSI_SA_ROT_VALKYRIESJAVELIN_UPGRADE	#Cffcc00[Enhanced]#CX\nValkyrie's Javelin	15	1	3	2	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24401	RNSI_P_ROT_BURNING_NASOD_HAND	Burning Nasod Hand	8	4	3	3	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24003	RNSI_SA_RF_SEVEN_BURST	Seven Burst	16	1	4	1	n	n	no_state			n	n	SI_SA_RF_SEVEN_BURST	4002	y	
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24028	RNSI_SA_RF_SEVEN_BURST_UPGRADE	#Cffcc00[Enhanced]#CX\nSeven Burst	16	1	4	1	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	Focus Strength	1	4	4	4	y	n	no_state	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24005	RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG	Charged Bolt	14	1	5	1	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24032	RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG_UPGRADE	#Cffcc00[Enhanced]#CX\nCharged Bolt	14	1	5	1	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24203	RNSI_A_ROT_MEGADRILL_BREAK	Mega Drill Break	6	1	6	1	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24228	RNSI_A_ROT_MEGADRILL_BREAK_UPGRADE	#Cffcc00[Enhanced]#CX Mega Drill Break	6	1	6	1	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24204	RNSI_A_ROT_WEAPON_BREAK	Weapon Crash	6	1	6	4	n	n	no_state			n	n	SI_A_ROT_WEAPON_BREAK	4215	y	
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24229	RNSI_A_ROT_WEAPON_BREAK_UPGRADE	#Cffcc00[Enhanced]#CX Weapon Crash	6	1	6	4	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24006	RNSI_SA_ROT_GUARDIAN_STRIKE	Guardian Strike	16	1	7	1	n	n	no_state			n	n	SI_SA_ROT_GUARDIAN_STRIKE	4011	y	
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24041	RNSI_SA_ROT_GUARDIAN_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX Guardian Strike	16	1	7	1	n	n	no_state			n	n				
+UC_RAVEN_OVER_TAKER	17	X2GURaven.cpp	24403	RNSI_P_RRF_CONFIDENCE_VICTORY	Victor's Confidence	8	4	8	3	n	n	no_state			n	n	SI_P_RRF_CONFIDENCE_VICTORY	4412	n	
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24025	RNSI_SA_RF_MAXIMUM_CANNON_UPGRADE	#Cffcc00[Enhanced]#CX\nMaximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24000	RNSI_SA_RF_MAXIMUM_CANNON	Maximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24200	RNSI_A_RF_SHADOW_STEP	Shadow Step	6	1	0	2	n	n	no_state			n	n	SI_A_RF_SHADOW_STEP	4205	y	
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24217	RNSI_A_RF_SHADOW_STEP_UPGRADE	#Cffcc00[Enhanced]#CX\nShadow Step	6	1	0	2	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GURaven.cpp:2546
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24001	RNSI_SA_RF_CANNON_BLADE	Cannon Blade	15	1	1	1	n	n	no_state			n	n	SI_SA_RF_CANNON_BLADE	4001	y	
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24026	RNSI_SA_RF_CANNON_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nCannon Blade	15	1	1	1	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24027	RNSI_SA_RF_POWER_ASSAULT_UPGRADE	#Cffcc00[Enhanced]#CX\nPower Assault	15	1	2	1	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24002	RNSI_SA_RF_POWER_ASSAULT	Power Assault	15	1	2	1	n	n	no_state			n	n	SI_SA_RF_POWER_ASSAULT	4000	y	
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24218	RNSI_A_RF_FLAME_SWORD_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Sword	6	1	3	0	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24201	RNSI_A_RF_FLAME_SWORD	Flame Sword	6	1	3	0	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24212	RNSI_A_RWT_BARRAGE_ATTACK	Haze Explosion	6	1	3	1	n	n	no_state			n	n	SI_A_RWT_BARRAGE_ATTACK	4219	y	
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24221	RNSI_A_RWT_BARRAGE_ATTACK_UPGRADE	#Cffcc00[Enhanced]#CX\nHaze Explosion	6	1	3	1	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24018	RNSI_SA_RWT_HARPOON_SPEAR	Harpoon Spear	15	1	3	2	n	n	no_state			n	n	SI_SA_RWT_HARPOON_SPEAR	4018	y	
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24031	RNSI_SA_RWT_HARPOON_SPEAR_UPGRADE	#Cffcc00[Enhanced]#CX\nHarpoon Spear	15	1	3	2	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24411	RNSI_P_RWT_BEHAVIOR_OF_MERCENARY	Mercenary Behavior	8	4	3	3	n	n	no_state			n	n	SI_P_RWT_BEHAVIOR_OF_MERCENARY	4413	n	
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24003	RNSI_SA_RF_SEVEN_BURST	Seven Burst	16	1	4	1	n	n	no_state			n	n	SI_SA_RF_SEVEN_BURST	4002	y	
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24028	RNSI_SA_RF_SEVEN_BURST_UPGRADE	#Cffcc00[Enhanced]#CX\nSeven Burst	16	1	4	1	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	Focus Strength	1	4	4	4	y	n	no_state	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24019	RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR	Revolver Cannon	15	1	5	1	n	n	no_state			n	n	SI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR	4016	y	
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24034	RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR_UPGRADE	#Cffcc00[Enhanced]#CX\nRevolver Cannon	15	1	5	1	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24213	RNSI_A_RWT_NAPALM_GRENADE	Napalm Grenade	6	1	6	1	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24236	RNSI_A_RWT_NAPALM_GRENADE_UPGRADE	#Cffcc00[Enhanced]#CX Napalm Grenade	6	1	6	1	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24214	RNSI_A_RWT_MENTAL_BREAK	Mental Crash	6	1	6	4	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24237	RNSI_A_RWT_MENTAL_BREAK_UPGRADE	#Cffcc00[Enhanced]#CX Mental Crash	6	1	6	4	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24020	RNSI_SA_RWT_HELLFIRE_GATLING	Hellfire Gatling	16	1	7	1	n	n	no_state			n	n	SI_SA_RWT_HELLFIRE_GATLING	4019	y	
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24051	RNSI_SA_RWT_HELLFIRE_GATLING_UPGRADE	#Cffcc00[Enhanced]#CX Hellfire Gatling	16	1	7	1	n	n	no_state			n	n				
+UC_RAVEN_WEAPON_TAKER	25	X2GURaven.cpp	24413	RNSI_P_RVC_REVERSAL_SOLDIER	Veteran	8	4	8	3	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24000	RNSI_SA_RF_MAXIMUM_CANNON	Maximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24025	RNSI_SA_RF_MAXIMUM_CANNON_UPGRADE	#Cffcc00[Enhanced]#CX\nMaximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24200	RNSI_A_RF_SHADOW_STEP	Shadow Step	6	1	0	2	n	n	no_state			n	n	SI_A_RF_SHADOW_STEP	4205	y	
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24217	RNSI_A_RF_SHADOW_STEP_UPGRADE	#Cffcc00[Enhanced]#CX\nShadow Step	6	1	0	2	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GURaven.cpp:2546
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24001	RNSI_SA_RF_CANNON_BLADE	Cannon Blade	15	1	1	1	n	n	no_state			n	n	SI_SA_RF_CANNON_BLADE	4001	y	
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24026	RNSI_SA_RF_CANNON_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nCannon Blade	15	1	1	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24002	RNSI_SA_RF_POWER_ASSAULT	Power Assault	15	1	2	1	n	n	no_state			n	n	SI_SA_RF_POWER_ASSAULT	4000	y	
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24027	RNSI_SA_RF_POWER_ASSAULT_UPGRADE	#Cffcc00[Enhanced]#CX\nPower Assault	15	1	2	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24201	RNSI_A_RF_FLAME_SWORD	Flame Sword	6	1	3	0	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24218	RNSI_A_RF_FLAME_SWORD_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Sword	6	1	3	0	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24207	RNSI_A_RST_ONE_FLASH	Finishing Slash	6	1	3	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24220	RNSI_A_RST_ONE_FLASH_UPGRADE	#Cffcc00[Enhanced]#CX\nFinishing Slash	6	1	3	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24011	RNSI_SA_RST_SHOCKWAVE	Shockwave - Divider	15	1	3	2	n	n	no_state			n	n	SI_SA_RST_SHOCKWAVE	4004	y	
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24030	RNSI_SA_RST_SHOCKWAVE_UPGRADE	#Cffcc00[Enhanced]#CX\nShockwave - Divider	15	1	3	2	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24406	RNSI_P_RST_EXQUISITE_SWORDMANSHIP	Fine Swordsmanship	8	4	3	3	n	n	no_state			n	n	SI_P_RST_EXQUISITE_SWORDMANSHIP	4404	n	
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24003	RNSI_SA_RF_SEVEN_BURST	Seven Burst	16	1	4	1	n	n	no_state			n	n	SI_SA_RF_SEVEN_BURST	4002	y	
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24028	RNSI_SA_RF_SEVEN_BURST_UPGRADE	#Cffcc00[Enhanced]#CX\nSeven Burst	16	1	4	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	Focus Strength	1	4	4	4	y	n	no_state	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24012	RNSI_SA_RST_BERSERKER_BLADE	Berserker Blade	14	1	5	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24033	RNSI_SA_RST_BERSERKER_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nBerserker Blade	14	1	5	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24208	RNSI_A_RST_BLEEDING_SLICER	Fatal Wound	6	1	6	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24232	RNSI_A_RST_BLEEDING_SLICER_UPGRADE	#Cffcc00[Enhanced]#CX Fatal Wound	6	1	6	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24209	RNSI_A_RST_ARMOR_BREAK	Armor Crash	6	1	6	4	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24233	RNSI_A_RST_ARMOR_BREAK_UPGRADE	#Cffcc00[Enhanced]#CX Armor Crash	6	1	6	4	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24013	RNSI_SA_RST_HYPER_SONIC_STAB	Hypersonic Stab	16	1	7	0	n	n	no_state			n	n	SI_SA_RST_HYPER_SONIC_STAB	4003	y	
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24046	RNSI_SA_RST_HYPER_SONIC_STAB_UPGRADE	#Cffcc00[Enhanced]#CX Hypersonic Stab	16	1	7	0	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24014	RNSI_SA_RBM_BLOODY_ACCEL	Bloody Accel	16	1	7	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24047	RNSI_SA_RBM_BLOODY_ACCEL_UPGRADE	#Cffcc00[Enhanced]#CX Bloody Accel	16	1	7	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24210	RNSI_A_RBM_SONIC_SLASH	Sonic Slash	6	1	7	2	n	n	no_state			n	n	SI_A_RBM_SONIC_SLASH	4210	y	
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24234	RNSI_A_RBM_SONIC_SLASH_UPGRADE	#Cffcc00[Enhanced]#CX Sonic Slash	6	1	7	2	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24407	RNSI_P_RBM_BLADE_MASTERY	Blade Mastery	8	4	7	3	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24408	RNSI_P_RBM_PRIDE_VICTORY	Victor's Dignity	8	4	8	3	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24015	RNSI_SA_RBM_GIGA_DRIVE_LIMITER	Giga Drive - Limiter	15	1	9	1	n	n	no_state			n	n	SI_SA_RBM_GIGA_DRIVE_LIMITER	4008	y	
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24048	RNSI_SA_RBM_GIGA_DRIVE_LIMITER_UPGRADE	#Cffcc00[Enhanced]#CX Giga Drive - Limiter	15	1	9	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24016	RNSI_SA_RBM_SHOCKWAVE_FRONT	Shockwave - Cutter	15	1	9	4	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24049	RNSI_SA_RBM_SHOCKWAVE_FRONT_UPGRADE	#Cffcc00[Enhanced]#CX Shockwave - Cutter	15	1	9	4	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24211	RNSI_A_RBM_CUT_TENDON	Cut Tendon	6	1	10	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24235	RNSI_A_RBM_CUT_TENDON_UPGRADE	#Cffcc00[Enhanced]#CX Cut Tendon	6	1	10	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24017	RNSI_SA_RBM_WOLF_FANG	Wolf Fang	14	1	11	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24050	RNSI_SA_RBM_WOLF_FANG_UPGRADE	#Cffcc00[Enhanced]#CX Wolf Fang	14	1	11	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24409	RNSI_P_RBM_SURELY_VICTORY	Winning Strategy	8	4	12	3	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24410	RNSI_P_RBM_EMERGENCY_ESCAPE	Evacuation!	8	4	12	4	n	n	no_state			n	n	SI_P_RBM_EMERGENCY_ESCAPE	4407	n	
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24601	RNSI_HA_RBM_EXTREM_BLADE	Extreme Blade	13	1	13	1	n	n	no_state			n	n	SI_HA_RBM_EXTREM_BLADE	4600	y	
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24604	RNSI_HA_RBM_EXTREM_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nExtreme Blade	13	1	13	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24035	RNSI_SA_RBM_DEADLY_BLOW	Flash	14	1	14	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24417	RNSI_P_RBM_OPEN_MIND	Awakened Will: Blade Master	8	1	14	3	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24222	RNSI_A_RBM_POINTED_STILETTO	Rend	6	1	15	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	n	n	no_state			n	y				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24036	RNSI_SA_RBM_SHOOTUP_GENOCIDE	Shoot Up Genocide	15	1	16	1	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24418	RNSI_P_RBM_COUNTER	Counter Wave	8	1	16	4	n	n	no_state			n	n				
+UC_RAVEN_BLADE_MASTER	106	X2GURaven.cpp	24056	RNSI_SA_RBM_SHAPT_CHARGE	Sharp Charge	16	1	17	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24000	RNSI_SA_RF_MAXIMUM_CANNON	Maximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24025	RNSI_SA_RF_MAXIMUM_CANNON_UPGRADE	#Cffcc00[Enhanced]#CX\nMaximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24200	RNSI_A_RF_SHADOW_STEP	Shadow Step	6	1	0	2	n	n	no_state			n	n	SI_A_RF_SHADOW_STEP	4205	y	
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24217	RNSI_A_RF_SHADOW_STEP_UPGRADE	#Cffcc00[Enhanced]#CX\nShadow Step	6	1	0	2	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GURaven.cpp:2546
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24001	RNSI_SA_RF_CANNON_BLADE	Cannon Blade	15	1	1	1	n	n	no_state			n	n	SI_SA_RF_CANNON_BLADE	4001	y	
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24026	RNSI_SA_RF_CANNON_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nCannon Blade	15	1	1	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24002	RNSI_SA_RF_POWER_ASSAULT	Power Assault	15	1	2	1	n	n	no_state			n	n	SI_SA_RF_POWER_ASSAULT	4000	y	
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24027	RNSI_SA_RF_POWER_ASSAULT_UPGRADE	#Cffcc00[Enhanced]#CX\nPower Assault	15	1	2	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24201	RNSI_A_RF_FLAME_SWORD	Flame Sword	6	1	3	0	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24218	RNSI_A_RF_FLAME_SWORD_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Sword	6	1	3	0	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24202	RNSI_A_ROT_HELL_DIVE	Hell Dive	6	1	3	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24219	RNSI_A_ROT_HELL_DIVE_UPGRADE	#Cffcc00[Enhanced]#CX\nHell Dive	6	1	3	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24004	RNSI_SA_ROT_VALKYRIESJAVELIN	Valkyrie's Javelin	15	1	3	2	n	n	no_state			n	n	SI_SA_ROT_VALKYRIESJAVELIN	4012	y	
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24029	RNSI_SA_ROT_VALKYRIESJAVELIN_UPGRADE	#Cffcc00[Enhanced]#CX\nValkyrie's Javelin	15	1	3	2	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24401	RNSI_P_ROT_BURNING_NASOD_HAND	Burning Nasod Hand	8	4	3	3	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24003	RNSI_SA_RF_SEVEN_BURST	Seven Burst	16	1	4	1	n	n	no_state			n	n	SI_SA_RF_SEVEN_BURST	4002	y	
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24028	RNSI_SA_RF_SEVEN_BURST_UPGRADE	#Cffcc00[Enhanced]#CX\nSeven Burst	16	1	4	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	Focus Strength	1	4	4	4	y	n	no_state	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24005	RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG	Charged Bolt	14	1	5	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24032	RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG_UPGRADE	#Cffcc00[Enhanced]#CX\nCharged Bolt	14	1	5	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24203	RNSI_A_ROT_MEGADRILL_BREAK	Mega Drill Break	6	1	6	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24228	RNSI_A_ROT_MEGADRILL_BREAK_UPGRADE	#Cffcc00[Enhanced]#CX Mega Drill Break	6	1	6	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24204	RNSI_A_ROT_WEAPON_BREAK	Weapon Crash	6	1	6	4	n	n	no_state			n	n	SI_A_ROT_WEAPON_BREAK	4215	y	
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24229	RNSI_A_ROT_WEAPON_BREAK_UPGRADE	#Cffcc00[Enhanced]#CX Weapon Crash	6	1	6	4	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24006	RNSI_SA_ROT_GUARDIAN_STRIKE	Guardian Strike	16	1	7	0	n	n	no_state			n	n	SI_SA_ROT_GUARDIAN_STRIKE	4011	y	
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24041	RNSI_SA_ROT_GUARDIAN_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX Guardian Strike	16	1	7	0	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24007	RNSI_SA_RFF_NUCLEAR	Nuclear	16	1	7	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24042	RNSI_SA_RFF_NUCLEAR_UPGRADE	#Cffcc00[Enhanced]#CX Nuclear	16	1	7	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24205	RNSI_A_RRF_LIMIT_CRUSHER	Limit Crusher	6	1	7	2	n	n	no_state			n	n	SI_A_RRF_LIMIT_CRUSHER	4218	y	
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24230	RNSI_A_RRF_LIMIT_CRUSHER_UPGRADE	#Cffcc00[Enhanced]#CX Limit Crusher	6	1	7	2	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24402	RNSI_P_RRF_EXPLOSIVE_NASOD_HAND	Exploding Nasod Hand	8	4	7	3	n	n	no_state			n	n	SI_P_RRF_EXPLOSIVE_NASOD_HAND	4410	n	
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24403	RNSI_P_RRF_CONFIDENCE_VICTORY	Victor's Confidence	8	4	8	3	n	n	no_state			n	n	SI_P_RRF_CONFIDENCE_VICTORY	4412	n	
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24008	RNSI_SA_RFF_ARC_ENEMY	Archenemy	15	1	9	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24043	RNSI_SA_RFF_ARC_ENEMY_UPGRADE	#Cffcc00[Enhanced]#CX Archenemy	15	1	9	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24009	RNSI_SA_RRF_WILD_CHARGE	Wild Charge	15	1	9	4	n	n	no_state			n	n	SI_SA_RRF_WILD_CHARGE	4014	y	
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24044	RNSI_SA_RRF_WILD_CHARGE_UPGRADE	#Cffcc00[Enhanced]#CX Wild Charge	15	1	9	4	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24206	RNSI_A_RRF_ENCHANT_HAND	Enchant Hand	6	1	10	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24231	RNSI_A_RRF_ENCHANT_HAND_UPGRADE	#Cffcc00[Enhanced]#CX Enchant Hand	6	1	10	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24010	RNSI_SA_RRF_X_CRASH	X Crash	14	1	11	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24045	RNSI_SA_RRF_X_CRASH_UPGRADE	#Cffcc00[Enhanced]#CX X Crash	14	1	11	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24404	RNSI_P_RFF_HARDEN_BODY	Refined Physique	8	4	12	3	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24405	RNSI_P_RRF_SPIRITUALIZED_FURY	Subliminal Rage	8	4	12	4	y	n	no_state	24405	RNSI_P_RRF_SPIRITUALIZED_FURY	n	n	SI_P_RRF_SPIRITUALIZED_FURY	4409	n	
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24600	RNSI_HA_RRF_INFERNAL_ARMS	Infernal Arms	13	1	13	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24603	RNSI_HA_RRF_INFERNAL_ARMS_UPGRADE	#Cffcc00[Enhanced]#CX\nInfernal Arms	13	1	13	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24037	RNSI_SA_RRF_MAXIMUM_DIVE	Maximum Dive	14	1	14	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24419	RNSI_P_RRF_OPEN_MIND	Awakened Will: Reckless Fist	8	1	14	3	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24224	RNSI_A_RRF_SPREAD	Spread	6	1	15	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	n	n	no_state			n	y				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24038	RNSI_SA_RRF_POWER_BOMB	Power Bomb	15	1	16	1	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24420	RNSI_P_RRF_INFINITY_RAGE	Unending Rage	8	1	16	4	n	n	no_state			n	n				
+UC_RAVEN_RECKLESS_FIST	107	X2GURaven.cpp	24057	RNSI_SA_RRF_DEVASTATING_STRIKE	Devastating Strike	16	1	17	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24025	RNSI_SA_RF_MAXIMUM_CANNON_UPGRADE	#Cffcc00[Enhanced]#CX\nMaximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24000	RNSI_SA_RF_MAXIMUM_CANNON	Maximum Cannon	14	1	0	0	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24200	RNSI_A_RF_SHADOW_STEP	Shadow Step	6	1	0	2	n	n	no_state			n	n	SI_A_RF_SHADOW_STEP	4205	y	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24217	RNSI_A_RF_SHADOW_STEP_UPGRADE	#Cffcc00[Enhanced]#CX\nShadow Step	6	1	0	2	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GURaven.cpp:2546
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24001	RNSI_SA_RF_CANNON_BLADE	Cannon Blade	15	1	1	1	n	n	no_state			n	n	SI_SA_RF_CANNON_BLADE	4001	y	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24026	RNSI_SA_RF_CANNON_BLADE_UPGRADE	#Cffcc00[Enhanced]#CX\nCannon Blade	15	1	1	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24027	RNSI_SA_RF_POWER_ASSAULT_UPGRADE	#Cffcc00[Enhanced]#CX\nPower Assault	15	1	2	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24002	RNSI_SA_RF_POWER_ASSAULT	Power Assault	15	1	2	1	n	n	no_state			n	n	SI_SA_RF_POWER_ASSAULT	4000	y	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24218	RNSI_A_RF_FLAME_SWORD_UPGRADE	#Cffcc00[Enhanced]#CX\nFlame Sword	6	1	3	0	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24201	RNSI_A_RF_FLAME_SWORD	Flame Sword	6	1	3	0	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24212	RNSI_A_RWT_BARRAGE_ATTACK	Haze Explosion	6	1	3	1	n	n	no_state			n	n	SI_A_RWT_BARRAGE_ATTACK	4219	y	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24221	RNSI_A_RWT_BARRAGE_ATTACK_UPGRADE	#Cffcc00[Enhanced]#CX\nHaze Explosion	6	1	3	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24018	RNSI_SA_RWT_HARPOON_SPEAR	Harpoon Spear	15	1	3	2	n	n	no_state			n	n	SI_SA_RWT_HARPOON_SPEAR	4018	y	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24031	RNSI_SA_RWT_HARPOON_SPEAR_UPGRADE	#Cffcc00[Enhanced]#CX\nHarpoon Spear	15	1	3	2	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24411	RNSI_P_RWT_BEHAVIOR_OF_MERCENARY	Mercenary Behavior	8	4	3	3	n	n	no_state			n	n	SI_P_RWT_BEHAVIOR_OF_MERCENARY	4413	n	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24003	RNSI_SA_RF_SEVEN_BURST	Seven Burst	16	1	4	1	n	n	no_state			n	n	SI_SA_RF_SEVEN_BURST	4002	y	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24028	RNSI_SA_RF_SEVEN_BURST_UPGRADE	#Cffcc00[Enhanced]#CX\nSeven Burst	16	1	4	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	Focus Strength	1	4	4	4	y	n	no_state	24400	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24019	RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR	Revolver Cannon	15	1	5	1	n	n	no_state			n	n	SI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR	4016	y	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24034	RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR_UPGRADE	#Cffcc00[Enhanced]#CX\nRevolver Cannon	15	1	5	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24213	RNSI_A_RWT_NAPALM_GRENADE	Napalm Grenade	6	1	6	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24236	RNSI_A_RWT_NAPALM_GRENADE_UPGRADE	#Cffcc00[Enhanced]#CX Napalm Grenade	6	1	6	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24214	RNSI_A_RWT_MENTAL_BREAK	Mental Crash	6	1	6	4	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24237	RNSI_A_RWT_MENTAL_BREAK_UPGRADE	#Cffcc00[Enhanced]#CX Mental Crash	6	1	6	4	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24020	RNSI_SA_RWT_HELLFIRE_GATLING	Hellfire Gatling	16	1	7	0	n	n	no_state			n	n	SI_SA_RWT_HELLFIRE_GATLING	4019	y	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24051	RNSI_SA_RWT_HELLFIRE_GATLING_UPGRADE	#Cffcc00[Enhanced]#CX Hellfire Gatling	16	1	7	0	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24021	RNSI_SA_RVC_GIGA_PROMINENCE	Giga Prominence	16	1	7	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24052	RNSI_SA_RVC_GIGA_PROMINENCE_UPGRADE	#Cffcc00[Enhanced]#CX Giga Prominence	16	1	7	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24215	RNSI_A_RVC_BREAKING_FIST	Breaking Fist	6	1	7	2	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24238	RNSI_A_RVC_BREAKING_FIST_UPGRADE	#Cffcc00[Enhanced]#CX Breaking Fist	6	1	7	2	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24412	RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY	Victory Survival Strategy	8	4	7	3	n	n	no_state			n	n	SI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY	4416	n	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24413	RNSI_P_RVC_REVERSAL_SOLDIER	Veteran	8	4	8	3	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24022	RNSI_SA_RVC_IGNITION_CROW_NAPALM	Ignition Crow - Napalm	15	1	9	1	n	n	no_state			n	n	SI_SA_RVC_IGNITION_CROW_NAPALM	4022	y	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24053	RNSI_SA_RVC_IGNITION_CROW_NAPALM_UPGRADE	#Cffcc00[Enhanced]#CX Ignition Crow - Napalm	15	1	9	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24023	RNSI_SA_RVC_IGNITION_CROW_INCINERATION	Ignition Crow - Incinerator	15	1	9	4	n	n	no_state			n	n	SI_SA_RVC_IGNITION_CROW_INCINERATION	4023	y	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24054	RNSI_SA_RVC_IGNITION_CROW_INCINERATION_UPGRADE	#Cffcc00[Enhanced]#CX Ignition Crow - Incinerator	15	1	9	4	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24216	RNSI_A_RVC_GROUND_IMPACT	Ground Impact	6	1	10	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24239	RNSI_A_RVC_GROUND_IMPACT_UPGRADE	#Cffcc00[Enhanced]#CX Ground Impact	6	1	10	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24024	RNSI_SA_RVC_DEADLY_RAID	Deadly Raid	14	1	11	1	n	n	no_state			n	n	SI_SA_RVC_DEADLY_RAID	4021	y	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24055	RNSI_SA_RVC_DEADLY_RAID_UPGRADE	#Cffcc00[Enhanced]#CX Deadly Raid	14	1	11	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24414	RNSI_P_RVC_SURVIVAL_TECHNIQUE_OF_MERCENARY	Mercenary Survival Strategy	8	4	12	3	n	n	no_state			n	n	SI_P_RVC_SURVIVAL_TECHNIQUE_OF_MERCENARY	4415	n	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24415	RNSI_P_RVC_OVERHEAT_MODE	Overheat Mode Activated!	8	4	12	4	n	n	no_state			n	n	SI_P_RVC_OVERHEAT_MODE	4418	n	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24605	RNSI_HA_RVC_BURNING_BUSTER_UPGRADE	#Cffcc00[Enhanced]#CX\nBurning Buster	13	1	13	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24602	RNSI_HA_RVC_BURNING_BUSTER	Burning Buster	13	1	13	1	n	n	no_state			n	n	SI_HA_RVC_BURNING_BUSTER	4602	y	
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24039	RNSI_SA_RVC_FLAME_HELL	Hellfire	14	1	14	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24421	RNSI_P_RVC_OPEN_MIND	Awakened Will: Veteran Commander	8	1	14	3	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24226	RNSI_A_RVC_FLAME_SWORD_ANOTHER	Flame Sword: Flurry	6	1	15	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	n	n	no_state			n	y				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24040	RNSI_SA_RVC_BURSTING_BLADE	Bursting Blade	15	1	16	1	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24422	RNSI_P_RVC_WIN_AND_WIN	Flames of Victory	8	1	16	4	n	n	no_state			n	n				
+UC_RAVEN_VETERAN_COMMANDER	115	X2GURaven.cpp	24058	RNSI_SA_RVC_IFRIT_FLAME	Ifrit Flame	16	1	17	1	n	n	no_state			n	n				
+# totals	rows=254	no_state=247	has_state=7

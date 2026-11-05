@@ -176,9 +176,8 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0 | **ready** (start: `/x2-phase char-raven CH0`): map (class map + 28 uncarved overrides, states / ids, checklist, assets, rage + overheat maps, motion question, `data202` target); read-only | Opus 5.5 / high | - | `june2017_re/char_raven/`, funcmap, kickoffs | `CH0.md` |
-| CH0b | blocked (CH0; char-elsword CH6 walk passed 2026-11-05): every June Raven asset staged whole (motion koms held for CH1), 6 walk units, skill icons PASS | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy), save | `CH0b.md` |
-| CH1a | blocked (CH0 only; char-elsword Z done 2026-11-05): movement and slot-head states, `_CORE` / `_LIVE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GURaven.*`, Always.h | `CH1a.md` |
+| CH0b | **ready** (start: `/x2-phase char-raven CH0b`): 4,825 assets in 35 koms (new data202), `Motion_Raven_OT.x` held for CH1, 2 guide Lua adopted, 6 walk units, icons | Sonnet 5.5 / high, user play-test | CH0 (done) | koms (ask before copy), save | `CH0b.md` |
+| CH1a | **ready** (start: `/x2-phase char-raven CH1a`; beside CH0b): movement and slot-head states (19 fns), `_CORE` / `_LIVE` | Sonnet 5.5 / high, Opus review | CH0 (done) | `X2GURaven.*`, Always.h | `CH1a.md` |
 | CH1b | blocked (CH1a review): reactions (damage 21, stand-up 8, die, start, win / lose, parrying) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GURaven.*` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding 27, pepper, dance | Sonnet 5.5 / high, Opus review | CH1b review | `X2GURaven.*` | `CH1c.md` |
 | CH1d | blocked (CH1c review): Raven ground combos | Sonnet 5.5 / high, Opus review | CH1c review | `X2GURaven.*` | `CH1d.md` |
@@ -194,24 +193,26 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | CH1n | blocked (CH1m review): base callbacks + skill-slot head `32c641a0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GURaven.*`, `X2GUUser.*` | `CH1n.md` |
 | CH1o | blocked (CH1n review): virtuals under `_LIVE`, `SetSkillLevelStateData` term, routed gaps | Opus 5.5 / high, Opus review | CH1n review | `X2GURaven.*`, `X2GUUser.*` | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index, hooks, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GURaven.*`, `X2GUUser.*` | `CH1p.md` |
-| CH1q | blocked (CH1p review): Nasod core / rage gauge / hyper orbs, flag `_RAGE` | Opus 5.5 / high, Opus review | CH1p review | `X2GURaven.*`, `X2GUUser.*`, `X2Gage*`, `X2DamageManager.*`, `X2DamageEffect.cpp` | `CH1q.md` |
+| CH1q | blocked (CH1p review): Nasod core / rage gauge / hyper orbs + parrying (15 class fns, gauge UI, DamageReact hooks; `ch0_rage.tsv`), flag `_RAGE` | Opus 5.5 / high, Opus review | CH1p review | `X2GURaven.*`, `X2GUUser.*`, `X2Gage*`, `X2DamageManager.*`, `X2DamageEffect.cpp` | `CH1q.md` |
 | CH1 | blocked (CH1q review, CH0b): define `_LIVE`, adopt the script, copy the held motion koms, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | Always.h, data036, motion kom | `CH1.md` |
 | CH2a | blocked (CH1 review): Raven (4) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GURaven.*`, `MODS.md` | `CH2a.md` |
 | CH2b | blocked (CH2a review): Sword Taker (16) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GURaven.*` | `CH2b.md` |
-| CH2c | blocked (CH2b review): Over Taker (17) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2b review | `X2GURaven.*` | `CH2c.md` |
+| CH2c0 | blocked (CH2b review; added by CH0): June-only `CX2GUUser` left-hand bone scale setter `31fd9f40` (Megadrill Break) | Opus 5.5 / high, Opus review | CH2b review | `X2GUUser.*`, Always.h | `CH2c0.md` |
+| CH2c | blocked (CH2c0 review): Over Taker (17) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c0 review | `X2GURaven.*` | `CH2c.md` |
 | CH2d | blocked (CH2c review): Weapon Taker (25) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GURaven.*` | `CH2d.md` |
 | CH3a | blocked (CH2d review): Blade Master (106) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH3a.md` |
 | CH3b | blocked (CH3a review): Reckless Fist (107) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GURaven.*` | `CH3b.md` |
-| CH3c | blocked (CH3b review): Veteran Commander (115) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GURaven.*` | `CH3c.md` |
-| CH3d | blocked (CH3c review): hyper actives + transcendence rows, re-awakening 24419, skill icons PASS | Opus 5.5 / high, Opus review, user play-test | CH3c review | `X2GURaven.*`, `X2GUUser.*`, `X2Offline*` | `CH3d.md` |
+| CH3c | blocked (CH3b review): Veteran Commander (115) skills but Ignition Crow / Deadly Raid | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GURaven.*` | `CH3c.md` |
+| CH3c2 | blocked (CH3c review; split by CH0): Ignition Crow Napalm / Incineration + Deadly Raid with their overheat states (45 fns) | Sonnet 5.5 / high, Opus review, user play-test | CH3c review | `X2GURaven.*` | `CH3c2.md` |
+| CH3d | blocked (CH3c2 review): hyper actives + transcendence rows, re-awakening 24419, skill icons PASS | Opus 5.5 / high, Opus review, user play-test | CH3c2 review | `X2GURaven.*`, `X2GUUser.*`, `X2Offline*` | `CH3d.md` |
 | CH4a | blocked (CH2d review): passives `32c57660`, Burning Nasod Hand, 7am delegates, 0x73c / 0x748, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH4a.md` |
 | CH4b | blocked (CH4a review): June-only `SetDamageExceptionProcess` `32c5c080`, uncarved overrides | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GURaven.*`, `X2GUUser.*` | `CH4b.md` |
-| CH4c | blocked (CH4b, CH3c reviews): Veteran Commander overheat, `MemoConditionRaven`, Specialization B readers | Opus 5.5 / high, Opus review, user play-test | CH4b review, CH3c review | `X2GURaven.*`, `X2Game.cpp`, `X2GameUnit.*` | `CH4c.md` |
+| CH4c | blocked (CH4b, CH3c2 reviews): Veteran Commander overheat (`ch0_overheat.tsv`), `MemoConditionRaven`, left-arm readers | Opus 5.5 / high, Opus review, user play-test | CH4b review, CH3c2 review | `X2GURaven.*`, `X2Game.cpp`, `X2GameUnit.*` | `CH4c.md` |
 | CH5 | blocked (CH1 review): 7 `UnitTemplet` rows, cut-in table, flag `_UI`; beside CH2-CH4 | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, cut-in lines of the class `.cpp`, data036 | `CH5.md` |
 | CH6 | blocked (CH3d, CH4c, CH5 reviews): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4a-c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-rena` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: none yet.
+Done: CH0 (2026-11-05; read-only map, no build).
 
 ## char-luciel - June character port, Stage 8: Lu/Ciel (first new character)
 Plan `JUNE_CHARACTER_LUCIEL_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `LUCIEL <sub>`: `DATA`, `NEWUNIT`, `CREATE`, `DUO`, `CORE`, `SKILL`, `PASSIVE`, `UI`, `NUM`, `JOB`, `TUTORIAL`) · flags `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_*` (`_CORE`, `_LIVE`, `_DUO`, `_DATA`, `_STARTER_ITEMS`, `_SKILL`, `_PASSIVE`, `_UI`, `_CLASS_CHANGE`, `_TUTORIAL`, + `_DEBUG`) and class-agnostic `SERV_IRUHADEV_JUNE_CHAR_*` (`UNIT_TYPE_RANGE`, `UNIT_CLASS_WORD`, `MINOR_UNIT_TEMPLET`, `CREATE`, `DUO_BODY`, `EQUIP_VIEW`, `NESI_RENUMBER`, `DUO_VIEW`), `SERV_IRUHADEV_JUNE_USER_DAMAGE_STATE_GETTERS` · kickoffs `kickoffs/char-luciel/` · backlog Stage 8 · created 2026-11-02.

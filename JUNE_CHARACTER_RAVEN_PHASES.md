@@ -239,6 +239,64 @@ the map covers all three. Elsword's builders take a character argument or are co
 352 / 352 tables and 126 / 126 ids mapped; the 28 uncarved overrides have rows; assets union routes a / b / c and the motion kom is named;
 the motion question answered; the rage and overheat maps exist; kickoffs amended; open questions listed.
 
+### CH0 - Done (2026-11-05)
+
+Read-only: no flag, no build. Outputs in `june2017_re/char_raven/`; tables live in the tsvs.
+
+**Tooling.** Elsword's builders copied with Raven's range: `ch0_build_state_skill.py`, `ch0_build_class_map.py`, `ch0_make_hand_names.py`,
+`ch0_build_vtable.py`, `ch0_unmapped_callees.py`, `ch0_march_live_states.py`, `ch0_amend_kickoffs.py`; `ch0_skill_listing_emu.py` rewritten for
+`32c641a0`'s frame. New: `ch0_build_keys.py`, `ch0_build_checklist_rows.py`, `ch0_build_enum_names.py`, `ch0_build_state_enum_names.py`,
+`ch0_build_unittemplet.py`, `ch0_passive_ids.py`, `ch0_numtables.py`, `ch0_finalize_maps.py`, `ch0_funcmap_rows.py`. `charport_adis.py` gained `raven`
+(all 28 uncarved overrides disassemble); `char_eve/ch0_build_assets.py` gained `raven` (Eve / Chung / Elsword outputs byte-identical).
+**Fix:** `charport_states.py` let a column-0 `LAB_` label pop an if / else frame (stale callbacks on `RSI_COMBO_ZZZX`); Elsword, Eve, Luciel and
+Chung reproduce unchanged. Class-map run order: `NO_HAND_NAMES=1` map, hand names, map again.
+
+**Step 0.** InitStateCommon is `32c5d660`; InitState `32c66fe0`'s class switch calls three line registrars `32c511c0` (16 / 106), `32c51b70`
+(17 / 107), `32c63670` (25 / 115), and InitPassiveSkillState `32c57660` registers the 6 Shadow Step states.
+`charport_states.py init 32c5d660 32c66fe0 3202b110 32c511c0 32c51b70 32c63670 32c57660` -> `ch0_reg.tsv`; `ch0c_listing_check.py` **178 / 178**,
+no hand rows. Skill switch (all three switches) from the listing emulator: 181 rows, 126 ids (23 type 1 / 8 ids leave at the type switch).
+
+**Maps.**
+- `ch0_class_map.tsv`: 1,241 starts (440 carved, 801 uncarved); 525 state-fn, 489 thunk, 117 dead, 57 override, 49 helper, 4 registrar. All 28
+  uncarved overrides have rows. **634 to transcribe: 517 `inside`, 117 `new`** (37 `new` keep `?` with a hint). Per phase: CH1a 19, CH1b 40, CH1c 2,
+  CH1d 38, CH1e 32, CH1f 38, CH1g 35, CH1g2 33, CH1h 37, CH1i 2, CH1j 9, CH1k 9, CH1m 5, CH1n 2, CH1o 9, CH1q 15, CH2a 43, CH2b 27, CH2c 23, CH2d 41,
+  CH3a 34, CH3b 39, CH3c 34, **CH3c2 45**, CH3d 13, CH4a 7, CH4b 3. Hand routings: `ch0_hand_phases.tsv`.
+- `ch0_state_skill.tsv`: **352 / 352 tables** (317 mapped, 29 dead data, 6 `INIT_*`), **126 / 126 ids**. 26 March-only states dropped. All prefixes
+  map to the one C++ enum `RAVEN_STATE_ID`; 206 live June tables have no C++ member, and June's registered ids differ from C++ values for all 109
+  shared names (`ch0_state_enum_names.tsv`: register by June's id). No `UCHAR` state id in `X2GURaven.*`. Groups: `SUPER_DASH` (3), `TRANSFORMED`,
+  `FROZEN`, `RSI_P_RRF_SHADOW_PUNISHER` are dead data; PARRYING (2) -> CH1q; `SHADOW` (5 live) -> CH2a; `SI1` / `SI2` / `SI3` are the old skill tiers
+  (by skill); `*_OVERHEAT` (12): 9 VC -> CH3c2, 1 WT -> CH2d, 2 dead.
+- `ch0_vtable_slots.tsv`: 57 overrides. 0x9c / 0xa0 are March's inline `m_bHyperAura` pair (CH1h); 0x73c / 0x748 CH4a.
+- `ch0_checklist_rows.tsv`: 141 rows, 79 phase, 62 n/a. **L120 and L122 are stale** (engine readers ported: `DamageData::IsAttackTrigger`,
+  `X2GameUnit.cpp:3127`). §7 L256: none of March's three power-rate assigners survives in June; June's two `+0x7cc8` writers multiply (`*= 1.2`,
+  CH2a 24201 / CH2d 24212). 7h `32c2b360` = `RSI_COMBO_ZZXX` EventProcess (CH1d).
+- `ch0_keys.tsv`: no June-only key needs a Raven owner (7 `BBT_` / `BFT_` engine keys; camera pair Stage 9; `IMMUNITY_EDT` backlog Stage 2). The 6
+  march-only-site keys drop no March input. `BURNING_NASOD_HAND_POSSIBLE` is read in CommonStateStart `32c43380` (uncarved; funcmap row re-keyed from `32c43120`).
+- Item 9: `ch0_enum_names.tsv` (5 / 126 in the C++ enum by name, 59 in the core `Enum.lua`); `ch0_passive_ids.tsv`: **32 live March `SI_*` reads
+  whose June id differs** (CH4a); `ch0_unittemplet_raven.tsv`: `STR_ID_17431` exists. S3 baseline `ch0_s3_baseline.txt`: 254 rows, 247 `no_state`.
+
+**Assets.** `ch0_assets.tsv` 14,125 rows (routes a / b / c); **`ch0b_stage_list.tsv` 4,825 rows**: dry run `35 kom(s), 4825 staged (4490 new,
+335 replaced), 0 refused`, one new kom **data202** (53 June-only emotions + `Motion_Standard_Raven.X`); the 9 differing class motions go to data033.
+**Motion question:** only `Motion_Raven_OT.x` drops names (`OT_ComboX3-5Down` -> `_New`, `OT_SP1a_ChargedBolt` -> `Raven_OT_SP1a_ChargedBolt`). June's
+`RSI_SA_ROT_CHARGED_BOLT_BLOOD` is dead data (name absent from the exe), so June never plays the bare name: no June bug. March's live script still
+plays all four, so **`Motion_Raven_OT.x` alone is held for CH1** (`ch1_held_motions.tsv`). Effect closure `ch0_effect_closure.tsv`: 6,090 rows,
+68 missing names (49 sounds in the list, 19 June does not define). Skill icons: 30 misses in 4 sheets, all in the list.
+
+**Rage / overheat.** `ch0_rage.tsv` (79 rows; 59 CH1q): Nasod ball, parrying, AddRageGuage, gauge UI `CX2RavenMyGageUI` (vtable `3353348c`,
+UpdateHyperOrb `32e6d900`), DamageReact hooks; Specialization B readers sit inside DoParrying / DoFrameMoveNasodBall (CH1q). CH1q stays one phase
+(15 class functions). `ch0_overheat.tsv` (50 rows): Create / Delete / `_ShowOverheatIcon` -> CH1g2 (live WT states call them); 24 rows CH4c.
+**Left arm:** June's reader `329657d0` sits in `3295dfa0`, owned by june-engine R14c; arm hiding `3201c3a0` is already ported.
+
+**Item 6.** 248 out-of-class callees, 20 unmapped (`ch0_unmapped_identified.tsv`). `31e9cb70` / `31e9bb70` are DamageData's copy ctor / dtor
+(no phase). **`31fd9f40`** (June-only left-hand bone scale, Megadrill Break) -> new Opus phase **CH2c0**. `funcmap.tsv`: 50 rows `Char Raven CH0`.
+
+**Splits and kickoffs.** No CH1 group passes 45 after CH0's routing: parrying + Nasod chain CH1b -> CH1q; the `RVC_SI_*` skill states leave CH1g2
+for their skills (Bleeding Slicer CH2b; Ignition Crow / Deadly Raid **CH3c2**, split from CH3c). New kickoffs `CH2c0.md`, `CH3c2.md`; every
+kickoff CH0b-CH5 has its "Amended by CH0" section; STATUS rows added and Depends rewired (CH2c after CH2c0, CH3d / CH4c after CH3c2).
+
+**Drift:** `JUNE_PORT_BACKLOG_ORDER.md:236` named Raven for `32cb6290( 1 )`, which is Rena's (F7 case `UT_LIRE`): corrected in place. Left arm ->
+june-engine R14c (already owns `3295dfa0`). **Open for the user:** none.
+
 ## Phase CH0b - Every June Raven asset, whole, first
 
 **Run with:** Sonnet 5.5 high, then a user play-test. No C++ unless CH0 found a March reader a June asset breaks (then

@@ -49,6 +49,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 33** (`awk -F'\t' '$7=="CH1g2"' june2017_re/char_raven/ch0_class_map.tsv`; inside 32, new 1).
+  June addresses: `32c27250` `32c27270` `32c27280` `32c27290` `32c272d0` `32c35d30` `32c35e20` `32c35ed0` `32c35f90` `32c36020`(new RVC_DASH_COMBO_ZZ_EventProcess) `32c36420` `32c36440` `32c36790` `32c367b0` `32c367d0` `32c36ad0` `32c36af0` `32c42400` `32c424b0` `32c42550` `32c425f0` `32c4add0` `32c4c530` `32c4c910` `32c4cac0` `32c4dfe0` `32c4e3c0` `32c5a7f0` `32c5a860` `32c5a940` `32c5ac10` `32c61580` `32c619e0`.
+- **States: 9** (`awk -F'\t' '$8=="CH1g2"' june2017_re/char_raven/ch0_state_skill.tsv`): `RVC_DASH_COMBO_ZZ`, `RVC_DASH_COMBO_ZZZ`, `RVC_DASH_COMBO_ZZZPushZ_READY`, `RVC_DASH_COMBO_ZZZPushZ`, `RVC_DASH_COMBO_ZZZZ_FINISH`, `RVC_DASH_JUMP_COMBO_X`, `RVC_DASH_JUMP_COMBO_XX_START`, `RVC_DASH_JUMP_COMBO_XX_LOOP`, `RVC_DASH_JUMP_COMBO_XX_FINISH`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, RAVEN_STATE_ID).
+- **Scope changed by CH0:** the 9 `RVC_DASH*` combo tables (30 functions) + the overheat infrastructure `CreateOverHeatObject` `32c4dfe0`, `DeleteOverHeatObject` `32c4e3c0`, `_ShowOverheatIcon` `32c4add0` (`ch0_overheat.tsv`; March `_SetOverheat` is inlined into Create's 13 callers). The `RVC_SI_*` tables are skill states and follow their skills: Bleeding Slicer (24208 / 24232, Sword Taker) **CH2b**; Ignition Crow Napalm / Incineration and Deadly Raid (24022-24024, 24053-24055) **CH3c2**.

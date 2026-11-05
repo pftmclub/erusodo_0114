@@ -49,6 +49,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 9** (`awk -F'\t' '$7=="CH1j"' june2017_re/char_raven/ch0_class_map.tsv`; inside 8, new 1).
+  June addresses: `32c25ab0` `32c25ac0` `32c25ad0` `32c25ae0` `32c3d1e0` `32c40ce0` `32c42f90`(new ?) `32c43380` `32c55240`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7b L327 Burning Nasod Hand: 32c57660 (+0x9688 = skill 24401 learned); 32c43120.
+- CommonStateStart 0x7c4 `32c43380` (uncarved) holds the `BURNING_NASOD_HAND_POSSIBLE` read @32c43911 and the +0x4108 = 2 write @32c43ac4: write it whole. The write only bites with June's 46 `AT_COMMAND` tags and 24401 learned, so it pairs with CH4a's setter (checklist 7b). CommonFrameMove `32c55240` calls `DoFrameMoveNasodBall` (CH1q) and `DeleteOverHeatObject` (CH1g2): declare them. March's class-side hyper ball block (`:5321-5363`) and the `SA_OVERHEAT_HP` re-read (`:5446`) are absent in June.

@@ -42,6 +42,8 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 3** (`awk -F'\t' '$7=="CH4b"' june2017_re/char_raven/ch0_class_map.tsv`; inside 1, new 2).
+  June addresses: `32c38180` `32c382d0`(new GetActualCoolTime) `32c5c080`(new SetDamageExceptionProcess).
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §2 L120 "ADDITIONAL_ATTACK_TRIGGER_TYPE x7 in RAVEN_FIGHTER, status ""to-imple; §7b L330 per-class SetDamageExceptionProcess blocks: funcmap 32c5c080 (Raven).

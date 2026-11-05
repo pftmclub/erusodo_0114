@@ -1,0 +1,51 @@
+june_va	march_symbol	status	evidence
+32c5d660	CX2GURaven::InitStateCommon	confirmed	Char Raven CH0: called from InitState 32c66fe0 before base 3202b110; charport_states.py init + ch0c_listing_check 178 / 178 (char_raven/ch0_reg.tsv)
+32c511c0	CX2GURaven Sword Taker / Blade Master state registrar (none in March as a function)	confirmed	Char Raven CH0: InitState 32c66fe0 class switch, classes 16 / 106; rows in char_raven/ch0_reg.tsv; CH1m
+32c51b70	CX2GURaven Over Taker / Reckless Fist state registrar (none in March as a function)	confirmed	Char Raven CH0: InitState class switch, classes 17 / 107; CH1m
+32c63670	CX2GURaven Weapon Taker / Veteran Commander state registrar (none in March as a function)	confirmed	Char Raven CH0: InitState class switch, classes 25 / 115; CH1m
+32c43380	CX2GURaven::CommonStateStart (vslot 0x7c4, uncarved)	confirmed	Char Raven CH0: holds the BURNING_NASOD_HAND_POSSIBLE read @32c43911 and the +0x4108 = 2 write @32c43ac4 (the C8a row now keyed 32c43380 @32c43888-32c43ac4; 32c43120 is a separate dead helper); CH1j
+32c3e030	CX2GURaven::CanParryingState	candidate	Char Raven CH0: March X2GURaven.cpp:13827; base callers 31fd29f6 / DamageReact 32047385; CH1q (char_raven/ch0_rage.tsv)
+32c41170	CX2GURaven::AddRageGuage	candidate	Char Raven CH0: March X2GURaven.cpp:14440; base caller DamageReact 3204a674; June multiplies by (+0x6c50 + 1.0) and reads 24419 (0x5f63); CH1q
+32c491a0	CX2GURaven::DoParrying	candidate	Char Raven CH0: March X2GURaven.cpp:13857; called by RSI_PARRYING Start 32c4a9f0; Specialization B reader @32c49410 (7an); CH1q
+32c4f750	CX2GURaven::ClearNasodBall	candidate	Char Raven CH0: March X2GURaven.cpp:13662; CH1q
+32c4f7e0	CX2GURaven::CreateNasodBall	candidate	Char Raven CH0: March X2GURaven.cpp:13686; RAVEN_NASOD_BALL damage effect, June adds EffectSet_BEED_UP; CH1q
+32c4fd80	CX2GURaven::RestoreNasodBall	candidate	Char Raven CH0: March X2GURaven.cpp:13909; called by RSI_PARRYING End 32c50dd0; CH1q
+32c4ff90	CX2GURaven::ChangePowerRateNasodBall	candidate	Char Raven CH0: March X2GURaven.cpp:14090; CH1q
+32c50060	CX2GURaven::AttackNasodBall	candidate	Char Raven CH0: March X2GURaven.cpp:14132; CH1q
+32c50330	CX2GURaven::DoFrameMoveNasodBall	candidate	Char Raven CH0: March X2GURaven.cpp:14210; caller CommonFrameMove 32c55240; ball level synced in class int +0x7ec0 (no m_CannonBallCount); Specialization B readers @32c507da / @32c50b15 / @32c50c3d; CH1q
+32c56be0	CX2GURaven::AttackResultByType (vslot 0x4e0)	candidate	Char Raven CH0: March X2GURaven.cpp:13979 (rage fill from hits); CH1h
+32c54960	none in March: CX2GURaven Flying Impact arc helper	candidate	Char Raven CH0: called by AttackResultByType 32c56be0; CH1h
+32c4e7c0	CX2GURaven::HyperModeBuffEffectStart (vslot 0xc4)	candidate	Char Raven CH0: March X2GURaven.cpp:21541 (rage +40, hyper aura); the transcended return (7ao) is CH3d; CH1h
+32c50fb0	CX2GURaven::HyperModeBuffEffectEnd (vslot 0xc8)	candidate	Char Raven CH0: March X2GURaven.cpp:21570; CH1h
+32c69f60	CX2GURaven::IsFullHyperMode (vslot 0x9c, uncarved)	confirmed	Char Raven CH0: returns byte +0x97c8 = March m_bHyperAura (inline X2GURaven.h:483); CH1h
+32c68ff0	CX2GURaven::SetFullHyperMode (vslot 0xa0, uncarved)	confirmed	Char Raven CH0: writes byte +0x97c8 (X2GURaven.h:484); CH1h
+32c3c7f0	none in March: CX2GURaven vslot 0x73c (1.0 + protected float +0x95b8, MP rate on damage react)	candidate	Char Raven CH0: uncarved; only engine caller DamageReact; CH4a (7an)
+32c3c820	none in March: CX2GURaven vslot 0x748 GetIncreaseSoulRateOnDamageReact (1.0 + protected float +0x95c4)	candidate	Char Raven CH0: uncarved; base hook ported by Chung CH4b; CH4a (7an)
+32c4dfe0	CX2GURaven::CreateOverHeatObject	candidate	Char Raven CH0: March X2GURaven.cpp:21337; 13 callers (March _SetOverheat inlined); CH1g2 (char_raven/ch0_overheat.tsv)
+32c4e3c0	CX2GURaven::DeleteOverHeatObject	candidate	Char Raven CH0: sole caller CommonFrameMove 32c55240; CH1g2
+32c4add0	CX2GURaven::_ShowOverheatIcon	candidate	Char Raven CH0: Overlap_EDT_Emoticon_*_OverHeat / WeaponTaker_Overheat particles; callers RWT / RVC skill states; CH1g2
+32e6d890	CX2RavenMyGageUI::CX2RavenMyGageUI	candidate	Char Raven CH0: RTTI vtable 3353348c; no direct caller found (the X2GageManager.cpp:167-176 creation site is unlocated); CH1q
+32e72790	CX2RavenMyGageUI::~CX2RavenMyGageUI	candidate	Char Raven CH0: vtable 3353348c; CH1q
+32e6d6a0	CX2RavenMyGageUI::InitWakeOrb	candidate	Char Raven CH0: March X2GageUI.cpp:3078-3141; CH1q
+32e718a0	CX2RavenMyGageUI::OnFrameMove	candidate	Char Raven CH0: March X2GageUI.cpp; CH1q
+32e6d900	CX2RavenMyGageUI::UpdateHyperOrb	candidate	Char Raven CH0: the only reader of raven_powrUp_UI_01 (7aq; March X2GageUI.cpp:3130-3175 at 100, 120); CH1q
+32589220	std::vector<T> tidy / destroy (destroy range via 32ae2bd0, free the block, zero first / last / end)	candidate	Char Raven CH0: decompile: if first != 0 { ~_Container_base12; 32ae2bd0( first, last ); 32fe2300( first ) } first = last = end = 0; 11 Raven callers
+31fc9570	CX2GUUser four-field reset: 1.0 into +0xc44 and +0xc34, 0 into +0x8e64 and byte +0xc74	candidate	Char Raven CH0: decompile: four stores only; no funcmap row names these members together; read the members in the first caller before naming
+31c1a440	CKTDGXMeshPlayer::CXMeshInstance::SetScale( float x, float y, float z ) (writes +0x510..+0x518)	confirmed	Char Raven CH0: decompile: three dword stores at +0x510 / +0x514 / +0x518; funcmap row 31f8adb0 (Char Eve CH1l40) names +0x510 m_vScale "the field SetScale 31c1a440 writes"
+31fd9f40	none in March: CX2GUUser left-hand bone scale setter (+0x8e14..+0x8e1c times base +0x8e08..+0x8e10, Bip01_L_Hand)	candidate	Char Raven CH0: decompile: stores the triple, multiplies by the base, GetCloneFrame( Bip01_L_Hand ) on the now skin anim (32071d80); callers Megadrill Break 32c38710 / 32c5ce40; Opus phase CH2c0
+31c33ab0	KProtectedType<T> registry read (June form): index = (cell ^ cell[1]) low byte into the table at *(this+4)+0x500, entry 16 bytes, returns entry[1]	candidate	Char Raven CH0: decompile; sibling of funcmap row 31c2e4a0 (KProtectedType registry slot lookup / alloc, Char Luciel CH0)
+31cf7ed0	CX2UnitViewerUI::ClearAllParticle (walks the list at +0x98, releases the refcounted pointer at +0x17c, 31d28b60 = SAFE_DELETE_KTDGOBJECT)	candidate	Char Raven CH0: funcmap row 31f91f90 (Diverge D1-3c) cites "ClearAllParticle 31cf7ed0"; decompile releases +0x17c and calls 31d28b60
+31d40ea0	std::vector<unsigned char>::push_back( const T& ) with the alias-into-self test (reserve 31d10cf0)	confirmed	Char Raven CH0: decompile: argument inside [begin, end) is re-read after the reserve; stores one byte at end++; caller 32c3e130 pushes the flags 1, 2, 3 into the vector at +0x96e0
+31e582d0	std::copy for 12-byte elements { int, refcounted ptr, bool } (copy-assign, count at +4, bool = *ptr != 0)	candidate	Char Raven CH0: decompile: per element copies the dword, rebinds the refcounted pointer, releases the old one with 32fe2300; paired with 31e72340 (31e9bb70 calls both)
+31e72340	std::_Destroy_range for the 12-byte { int, refcounted ptr, bool } elements (release at +4, free at 0 via 32fe2300 operator delete)	candidate	Char Raven CH0: decompile: step 12 bytes, ptr = 0, count at +4 decremented, 32fe2300 at 0; funcmap row 32fe2300 cites 31e72340 as a release path
+31e9bb70	CX2DamageManager::DamageData::~DamageData	confirmed	Char Raven CH0: destroys the +0x450 vector and the +0x608 per-unit list (row 31e9cad7); pairs with 31e9cb70
+31e9cb70	CX2DamageManager::DamageData::DamageData( const DamageData& ) (copy ctor)	confirmed	Char Raven CH0: default member init, then 31e9c190 (body to 31e9cb6d, holds the DamageData copy row 31e9cad7); a local copy in 32c5fd90 (CH1g); C++: a by-value copy
+31f33bb0	particle create wrapper: takes a D3DXVECTOR3 by pointer, unpacks it to three floats and tail-calls 31f318d0 (CKTDGParticleSystem CreateSequenceHandle wrapper)	candidate	Char Raven CH0: decompile: 31f318d0( p1, p2, p3, v[0], v[1], v[2], ... ) return p1; funcmap row 31f318d0 = CreateSequenceHandle wrapper; funcmap row 32957980 cites 31f33bb0
+32071d20	CX2GUUser getter: copies the refcounted pointer at +0x87d4 into *out and bumps its count at +8	candidate	Char Raven CH0: decompile: *out = +0x87d4; if non-zero ++(*(p + 8)); no funcmap row names +0x87d4
+322753a0	CX2GameUnit getter: out = { 1, 1, 1 } when the vector +0x671c == +0x6720, else the last element decoded with the XOR-protected floats	candidate	Char Raven CH0: decompile: empty -> three 0x3f800000; else reads the last element pointer at [end - 4] and XOR-decodes three floats; caller 32c42eb0 (CH3d)
+3229ea50	CX2GameUnit buff-erase helper: calls virtual +0x238 with a stack out param, then 322ae0a0 and 3229d320 (= CX2GameUnit::EraseBuffTempletFromGameUnitByIterator) when found	candidate	Char Raven CH0: decompile: (**(this+0x238))( &out, a, b, c ); if out then 322ae0a0( begin, end, out->+0x28 ), 3229d320 when not end; refcount release with 31e920b0 (BUFF_FACTOR dtor) + 32fe2300
+322a8c80	scaled position getter: out = 322a8b80( obj + 0x90 ) * [33441b10], or { 0, 0, 0 } when obj == 0	candidate	Char Raven CH0: decompile: three multiplies by the float at 33441b10; null object -> zero vector
+325f3d20	std::vector<T*>::erase( iterator ) for 4-byte elements (memmove the tail down, end -= 4, returns the iterator)	confirmed	Char Raven CH0: decompile: memmove( pos, pos + 4, tail ), end -= 4, *out = pos; JUNE2017_EFFECT_COMPLETION_PHASES.md:7674 calls it "erase on a hit (325f3d20)"
+32b4ce90	move-assign of a refcounted pointer: *this = std::move( *src ), release the old one (count at 0, free via 32fe2300)	candidate	Char Raven CH0: decompile: tmp = *src; *src = 0; old = *this; *this = tmp; if old && --*old == 0 then 32fe2300( old )
+32fe2450	import thunk: indirect jump through [333bc9c4] (Ghidra: could not recover jumptable)	candidate	Char Raven CH0: decompile: (*_DAT_333bc9c4)(); caller 32c3dce0 (CH3a)
+33228fe0	PicChar DrawText gate wrapper (tests the object at +4 and the mode at +0x34 == 1, then 33228640 or 33227f20)	confirmed	Char Raven CH0: funcmap rows 32e857d0 and 322d39e0 name 33228fe0 "the PicChar DrawText the DRAIN_MP_REACT text also uses"

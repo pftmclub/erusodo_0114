@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-raven CH4c` |
 | Plan doc | `JUNE_CHARACTER_RAVEN_PHASES.md` (branch `main`) |
-| Depends on | CH3c review and CH4b review. One at a time: `X2GURaven.*` |
+| Depends on | CH3c2 review and CH4b review. One at a time: `X2GURaven.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE` (+ `_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`RAVEN PASSIVE`) |
 | Review | `kickoffs/char-raven/CH4c-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -41,6 +41,7 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7aa L701 m_RavenLeftArmItemID basic-item pair (every class): June reader 329657.
+- **Map: `june2017_re/char_raven/ch0_overheat.tsv`** (50 rows, col 7 owner: 24 CH4c). June reads `SA_OVERHEAT_HP` (slot 125) / `_PVP` (145) only in InitPassiveSkillState (24415 @32c58307); March's CommonFrameMove re-read has no twin. `_CanOverheat` / `_BurnOverheatHP` are not located; the extra-damage pack is 37 in June vs March's 35; the VC skill-slot icon swap is June `328e0aa0`. Left arm: June's reader `329657d0` is inside `3295dfa0` (june-engine R14c ports it whole); arm hiding `3201c3a0` is already ported; CH4c locates the viewer and skill-state readers.

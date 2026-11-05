@@ -125,6 +125,38 @@ CHARS = {
              'NPC / shadow / bot copy of the character'),
         ],
     ),
+    'raven': dict(
+        owner='char-raven',
+        script='RAVEN_FIGHTER', lo=0x32c25a20, hi=0x32c6a63d,
+        unit_type=4, unit_type_name='UT_RAVEN',
+        unit_classes=[4, 16, 17, 25, 106, 107, 115],
+        tokens=['raven'],
+        abbr=['RBM', 'RRF', 'RVC', 'RST', 'ROT', 'RWT'],             # Blade Master, Reckless Fist, Veteran Commander, Soul / Over / Weapon Taker
+        abbr_exclude=re.compile(r'(?i)(^|_)pet_|_EVENT_|^HQ_Shop_Pet|rose|^Motion_NPC_Event_'),      # Rose has an RST job too
+        short_re=re.compile(r'(?!)'),
+        job_re=re.compile(r'(?i)blade[_ ]?master|reckless[_ ]?fist|veteran[_ ]?commander|(soul|over|weapon)[_ ]?taker'),
+        lua_script='RAVEN_FIGHTER',
+        skill_lua=[],                                                # Raven summons no NPC (plan_june_side section 3)
+        extra_lua=['DLG_Transcendental_Change_Guide_Raven', 'DLG_1ST_Class_Change_Guide_Raven', 'DLG_2ND_Class_Change_Guide_Raven'],
+        skill_icon_ranges=[(106, 106), (900, 900), (24000, 24058), (24200, 24239), (24400, 24422), (24600, 24605)],
+        motion_glob=re.compile(r'(?i)^Motion_Raven'),
+        march_motion_koms=('data033', 'data012', 'data120', 'data010'),
+        tutorial_re=re.compile(r'(?i)^tuto'),
+        owner_rules=[
+            (r'(?i)^DLG_PVP_Game_Damaged_Raven|^DLG_UI_JUMPING_(EVENT|SYSTEM)_RAVEN|^DLG_Unit_(Create|Select)_|^DLG_Class_Change_',
+             'stage9-ui', '-', 'class-change / jumping / unit / PvP dialog'),
+            (r'(?i)^DLG_(1ST|2ND)_Class_Change_Guide_Raven', 'char-raven', 'CH5', 'class-change guide dialog (June-only; adopt-june, not stage-june)'),
+            (r'(?i)^DLG_Transcendental_Change_Guide_Raven', 'char-raven', 'CH3d', 'transcendence guide (Stage 6 pattern)'),
+            (r'(?i)^(PET_|Pet_|HQ_Shop_Pet)', 'stage17-pet', '-', 'pet asset'),
+            (r'(?i)^Motion_EVENT_', 'june-dungeons', '-', 'event NPC motion, not the character'),
+            (r'(?i)^POPUP_TR_(B_MASTER|R_FIST|V_COMMANDER)\.', 'char-raven', 'CH0b', 'transcendence guide picture named by DLG_Transcendental_Change_Guide_Raven'),
+            (r'(?i)^POPUP_TR_', 'stage6-transcendence', '-', 'transcendence job popup UI'),
+            (r'(?i)^(Dungeon_(Tutorial|Training|ElTutorial|Battle_Field_Tutorial)_Raven|Motion_(ALTERA_RAVEN|Nui_Raven_Clone|Time_Raven)|MOTION_HAMEL_SUMMON_DUMMY_RAVEN)',
+             'june-dungeons', '-', 'dungeon / boss / summon copy of the character'),
+            (r'(?i)^((NPC_|Npc_)Raven|RAVEN_CLONE|TIME_RAVEN|ALTERA_RAVEN|.*_SHADOW_RAVEN|PVP_BOT_RAVEN|APINK_ANGEL_\d+_RAVEN|EVENT_.*RAVEN|CSM_Raven)',
+             'npc-lua (check ledger)', '-', 'NPC / clone / shadow / bot copy of the character'),
+        ],
+    ),
     'luciel': dict(
         owner='char-luciel',
         script='Luciel_Duo', lo=0x32ae4080, hi=0x32b4e76f,

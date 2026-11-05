@@ -49,6 +49,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 35** (`awk -F'\t' '$7=="CH1g"' june2017_re/char_raven/ch0_class_map.tsv`; inside 32, new 3).
+  June addresses: `32c26eb0` `32c26ee0` `32c26ef0` `32c26f00` `32c26f10` `32c26f20` `32c26f30` `32c26f70` `32c26f80` `32c26fa0` `32c26fb0` `32c26fd0` `32c26fe0` `32c26ff0` `32c33c30` `32c33fd0` `32c342c0` `32c345f0` `32c34970` `32c34cc0` `32c35020` `32c35330` `32c35440` `32c42160` `32c4aab0` `32c4b290` `32c4b530` `32c526e0`(new ?) `32c528c0` `32c57150` `32c598c0`(new ?) `32c59b60` `32c5b740` `32c5fd90`(new ?) `32c60230`.
+- **States: 11** (`awk -F'\t' '$8=="CH1g"' june2017_re/char_raven/ch0_state_skill.tsv`): `RWT_COMBO_X`, `RSI_WEAPON_TAKER_COMBO_XX`, `RSI_WEAPON_TAKER_COMBO_XXX`, `RSI_WEAPON_TAKER_COMBO_XXX_LOOP`, `RSI_WEAPON_TAKER_COMBO_XXX_FINISH`, `RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZX`, `RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZXX`, `RWT_COMBO_ZZZX`, `RSI_WEAPON_TAKER_COMBO_ZZZXX`, `RSI_WEAPON_TAKER_COMBO_ZZZdownX`, `RSI_WEAPON_TAKER_COMBO_ZZZdownXX`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, RAVEN_STATE_ID).
+- `32c5fd90` (Weapon Taker X-X-X loop helper) copies a DamageData by value: `31e9cb70` / `31e9bb70` are `DamageData`'s copy ctor / dtor (funcmap): write a plain local copy. The WT combo states call `CreateOverHeatObject` `32c4dfe0` (CH1g2: declare it, `body in CH1g2`).

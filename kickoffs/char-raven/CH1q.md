@@ -43,6 +43,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 15** (`awk -F'\t' '$7=="CH1q"' june2017_re/char_raven/ch0_class_map.tsv`; inside 13, new 2).
+  June addresses: `32c26ea0` `32c33a60` `32c33b80`(new ?) `32c3e030` `32c41170` `32c491a0` `32c4a9f0` `32c4f750` `32c4f7e0` `32c4fd80` `32c4ff70`(new ?) `32c4ff90` `32c50060` `32c50330` `32c50dd0`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7an L935 GetCharacterSpecializationB() readers Raven 32c49410 / 32c507da; §7aq L992 three-orb ball on the own gauge UI: 32e6d900, raven_powrUp_UI_01 at (7.
+- **Map: `june2017_re/char_raven/ch0_rage.tsv`** (79 rows, col 7 owner: 59 CH1q; 55 paired incl. 6 June-only, 7 absent in June, 17 `?` to locate). No split: 15 class functions + the gauge UI + the engine sites.
+- Class: CanParryingState `32c3e030`, AddRageGuage `32c41170` (x (+0x6c50 + 1.0), reads 24419), DoParrying `32c491a0`, Clear / Create / Restore NasodBall `32c4f750` / `32c4f7e0` / `32c4fd80` (+ `32c4ff70`, `32c33b80`), ChangePowerRate `32c4ff90`, Attack `32c50060`, DoFrameMove `32c50330`, the 4 parrying state functions. Specialization B readers (7an) sit inside DoParrying @32c49410 and DoFrameMove @32c507da / @32c50b15 / @32c50c3d: roll on +0x6d04, skip the rage cost, `clock()` stamp +0x9778.
+- Engine: DamageReact hooks (`X2GUUser.cpp:10229-10270`, `:10757-10790`, rage fill `:12000-12011`, parry state change `:13499-13530` = June `31feabd0`, SetHold `:37186-37200` = `31fd29c0`), `DTT_RAVEN_RAGE_ATTACK` / `UPGRADE_RAVEN` blocks of `X2DamageManager.cpp` / `X2DamageEffect.cpp`. June syncs the ball level in the class int +0x7ec0 (no `m_CannonBallCount`). `CX2RavenMyGageUI` vtable `3353348c` (ctor `32e6d890`, dtor `32e72790`, InitWakeOrb `32e6d6a0`, OnFrameMove `32e718a0`, UpdateHyperOrb `32e6d900`, 7aq); its creation site (`X2GageManager.cpp:167-176`) is unlocated.

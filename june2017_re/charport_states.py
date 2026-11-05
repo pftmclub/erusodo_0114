@@ -174,7 +174,8 @@ def cmd_init(vas):
         for i, ln in enumerate(L):
             s = ln.strip()
             # branch entry: a case / else starts from the state at its switch / if (CH0c)
-            while frames and ind(ln) < frames[-1][0]:
+            lab = re.match(r'(LAB_[0-9a-f]+|code_r0x[0-9a-f]+):', s)   # a label sits at column 0 inside its block (Raven 32c67b72)
+            while frames and not lab and ind(ln) < frames[-1][0]:
                 frames.pop()
             if frames and ind(ln) == frames[-1][0]:
                 k, kind, scur, sids = frames[-1]

@@ -42,6 +42,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 2** (`awk -F'\t' '$7=="CH1n"' june2017_re/char_raven/ch0_class_map.tsv`; inside 1, new 1).
+  June addresses: `32c641a0` `32c69e30`(new ?).
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7b L328 skill-memo entry 31fdbbb0 and the class callers of 31fdbcc0; §7i L444 SetEquippedSkillFuncBySkillSlotIndex Raven 32c641a0: drop the snapshot; §7ae L729-733 types 14-16 / 17 / 18 named in the class switch.
+- `32c641a0` has three switches (skill type 0xd-0x10, the 6-case hyper switch 0xc / 0x6019-0x601d, the skill-id switch 0x5dc1-0x5eaf): `ch0_skill_listing_rows.tsv` (listing emulator) = 181 rows for 126 ids; 23 ids (106, 24400-24415, 24417-24422, types 1 / 8) leave at the type switch.

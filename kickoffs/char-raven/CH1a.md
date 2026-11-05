@@ -49,6 +49,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 19** (`awk -F'\t' '$7=="CH1a"' june2017_re/char_raven/ch0_class_map.tsv`; inside 19).
+  June addresses: `32c25c90` `32c25cc0` `32c25d60` `32c25d90` `32c28aa0` `32c28b80` `32c3d2b0` `32c3d3b0` `32c3d3f0` `32c40dd0` `32c40ea0` `32c40f50` `32c43f90` `32c441c0` `32c443f0` `32c446a0` `32c448a0` `32c44b60` `32c44d80`.
+- **States: 16** (`awk -F'\t' '$8=="CH1a"' june2017_re/char_raven/ch0_state_skill.tsv`): `RSI_WAIT_STATE_CHANGE`, `RSI_THROW_ITEM`, `RSI_WAIT`, `RSI_WALK`, `RSI_JUMP_READY`, `RSI_JUMP_UP`, `RSI_JUMP_DOWN`, `RSI_JUMP_LANDING`, `RSI_DASH`, `RSI_DASH_END`, `RSI_DASH_JUMP`, `RSI_DASH_JUMP_LANDING`, `RSI_DASH_JUMP_POWER_LANDING`, `RSI_HYPER_MODE`, `RSI_SI1_COMMON_BUFF`, `RSI_SI1_COMMON_BUFF_HYPER`.
+- **Skills: 1** (part 2 of `ch0_state_skill.tsv`, col 6): 900 SI_ETC_WS_COMMON_LOVE.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, RAVEN_STATE_ID); §7h L428 USI_WAIT_STATE_CHANGE registered in every class InitState.
+- The three `RSI_SUPER_DASH*` tables are dead data in June (no registration): nothing for `SUPER` here. `RSI_COMMON_BUFF` is here (skill type 12).

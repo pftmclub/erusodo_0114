@@ -42,6 +42,7 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §5 L184-198 per-character parser census; §7l L472 bounding user states USI_BOUNDING_DOWN / _LANDCRASH / _UP in every cla; §7x L669 combo hits carry June's AT_COMMAND tag; adopt the script with its tags; §7ag L806 pressed-index space 5 + 5: CommonSpecialAttackEventProcess and every >.
+- No June-only key is owned here: the 7 `BBT_*` / `BFT_*` keys are engine buff sub-table keys, the camera pair is Stage 9's, `IMMUNITY_EDT_LIST_AT_THIS_STATE` backlog Stage 2's (`ch0_keys.tsv`). The 6 march-only-site keys drop no March input.

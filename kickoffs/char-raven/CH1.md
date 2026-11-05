@@ -43,3 +43,8 @@ March's in `#else`. A function March lacks gets a name in the class's own patter
 Every name (locals and constants too) says what it is in context: no Ghidra address, phase tag or `June` in an identifier.
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
+
+## Amended by CH0 (2026-11-05)
+
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): intro L14 character script RAVEN_FIGHTER.lua feeds SetDamageDataFromLUA; §2 L120 "ADDITIONAL_ATTACK_TRIGGER_TYPE x7 in RAVEN_FIGHTER, status ""to-imple; §5 L184-198 key BURNING_NASOD_HAND_POSSIBLE x24; §7h L423 EFFECT_SET_LIST_* variants (_FINAL / _FINAL_ULTIMATE); §7h L427 USEFUL_VALUE rows and getters; §7o L507 SET_LIMIT_MAX_G_SPEED in <prefix>DAMAGE_BOUNDING_DOWN (-4000) and Rave; §7p L548 TIME_STOP_IMMUNE_STATE = TRUE in the class script; §7t L592 SHOW_HYPER_CUT_IN_TIME in the class script; §7ad L752 stage June Motion_Raven* files with the class script; Raven's OT_Combo.
+- Copy the held `Motion_Raven_OT.x` with the script (`kom.py stage-june june2017_re/char_raven/ch1_held_motions.tsv`, then pack and ask for data033). Adopt `RAVEN_FIGHTER.lua`. Its key typos `ANUM_SPEED` and `STOP_TIME_ATK` (8 tables) are in March's script too (no reader either side): `JUNE_BUGS.md` rows on adoption.

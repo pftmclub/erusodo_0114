@@ -49,6 +49,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 32** (`awk -F'\t' '$7=="CH1e"' june2017_re/char_raven/ch0_class_map.tsv`; inside 20, new 12).
+  June addresses: `32c26340` `32c26b80` `32c26b90` `32c26bd0` `32c2cb30`(new RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_EventProcess) `32c2cc40`(new RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_EventProcess) `32c2cc70`(new RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing_StateStartFuture) `32c2ccc0`(new RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZZ_EventProcess) `32c2cfe0`(new RBM_DASH_JUMP_COMBO_X_EventProcess) `32c2d0f0`(new RBM_DASH_JUMP_COMBO_XZ_EventProcess) `32c2dd50` `32c2dec0` `32c2df90`(new RSI_RBM_COMBO_ZZZupZ_FrameMoveFuture) `32c2dfe0`(new RSI_RBM_COMBO_ZZZupZ_EventProcess) `32c2e2f0` `32c2e6a0` `32c2e700` `32c2ea40` `32c32560` `32c32970` `32c32da0` `32c32de0` `32c41330` `32c413e0` `32c41890` `32c41a00` `32c41ef0` `32c45520`(new RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_Landing_EventProcess) `32c45710`(new RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing_EventProcess) `32c459f0`(new RBM_DASH_JUMP_COMBO_X_FrameMove) `32c45cc0`(new RBM_DASH_JUMP_COMBO_XZ_FrameMove) `32c49de0`.
+- **States: 19** (`awk -F'\t' '$8=="CH1e"' june2017_re/char_raven/ch0_state_skill.tsv`): `RBM_COMBO_XZ`, `RBM_COMBO_XZZ`, `RBM_COMBO_XZZZ`, `RSI_SOUL_TAKER_COMBO_XXZ`, `RSI_SOUL_TAKER_COMBO_XXZZ8`, `RSI_SOUL_TAKER_COMBO_XXZZ8Z`, `RSI_SOUL_TAKER_DASH_COMBO_ZZ`, `RSI_SOUL_TAKER_DASH_COMBO_ZZZ`, `RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ`, `RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_Landing`, `RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ`, `RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing`, `RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZZ`, `RSI_RBM_COMBO_ZZZupZ`, `RBM_COMBO_ZZZX`, `RBM_COMBO_ZZZX_EXPLOSION`, `RBM_COMBO_ZZZXZ`, `RBM_DASH_JUMP_COMBO_X`, `RBM_DASH_JUMP_COMBO_XZ`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, RAVEN_STATE_ID).

@@ -1,0 +1,1245 @@
+june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carved
+32c25a20	override 0x4dc	AttackResultPlayEffect	X2GURaven.h:392 virtual void AttackResultPlayEffect();	inside	-	CH1h	base 320142c0	n
+32c25a30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes b80d000000898188	n
+32c25a50	helper	-	-	-	-	n/a	one-instruction stub (ret) called from base code 31fedff4; nothing to port	y
+32c25a60	override 0x48	InitEffect	X2GURaven.h:399 virtual void InitEffect();	inside	-	CH1h	base 32012760	y
+32c25a90	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c3cccccccccccccc	n
+32c25aa0	override 0x548	CreateMinorParticleArray	X2GURaven.h:428 virtual void CreateMinorParticleArray();	inside	-	CH1h	base 32012920	n
+32c25ab0	override 0x7c0	CommonStateStartFuture	X2GURaven.h:511 virtual void CommonStateStartFuture();	inside	-	CH1j	base 320506f0	n
+32c25ac0	override 0x7d4	CommonEventProcess	X2GURaven.h:515 virtual void CommonEventProcess();	inside	-	CH1j	base 31fe7610	n
+32c25ad0	override 0x7d8	CommonStateEndFuture	X2GURaven.h:516 virtual void CommonStateEndFuture();	inside	-	CH1j	base 31fdd8e0	n
+32c25ae0	override 0x7dc	CommonStateEnd	X2GURaven.h:517 virtual void CommonStateEnd();	inside	-	CH1j	base 32015250	n
+32c25af0	override 0x7f4	SpecialAttackEventProcess	X2GURaven.h:523 virtual bool SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND );	inside	-	CH1k	base 31aa1d30	n
+32c25ba0	override 0x7fc	SpecialAttackEventProcess part: skill use (slot 511)	- (no virtual of that name in X2GURaven.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32c25c30	override 0x810	SpecialAttackNoStageChange	X2GURaven.h:452 virtual bool SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );	inside	-	CH1k	base 31aa1d30	n
+32c25c40	override 0x80c	NoStateChangeActionFrameMove	X2GURaven.h:524 virtual void NoStateChangeActionFrameMove();	inside	-	CH1k	base 32008e40	n
+32c25c50	state-fn	RSI_RIDING_DIE.FrameMove RSI_DIE_FRONT.FrameMove	inside X2GURaven.cpp:1768 CX2GURaven::RSI_DIE_FRONT_FrameMove ; inside X2GURaven.cpp:1127 CX2GURaven::RSI_DIE_FRONT_FrameMove	inside	-	CH1b	2 states	n
+32c25c70	state-fn	RSI_DIE_BACK.FrameMove	inside X2GURaven.cpp:1136 CX2GURaven::RSI_DIE_BACK_FrameMove	inside	-	CH1b	1 states	n
+32c25c90	state-fn	RSI_WAIT.StartFuture	inside X2GURaven.cpp:1151 CX2GURaven::RSI_WAIT_StartFuture	inside	-	CH1a	1 states	y
+32c25cc0	state-fn	RSI_JUMP_UP.EventProcess	inside X2GURaven.cpp:1176 CX2GURaven::RSI_JUMP_UP_EventProcess	inside	-	CH1a	1 states	y
+32c25d60	state-fn	RSI_DASH_JUMP_POWER_LANDING.StartFuture	inside X2GURaven.cpp:1236 CX2GURaven::RSI_DASH_JUMP_POWER_LANDING_StartFuture	inside	-	CH1a	1 states	y
+32c25d90	state-fn	RSI_DASH_JUMP_POWER_LANDING.Start	inside X2GURaven.cpp:1237 CX2GURaven::RSI_DASH_JUMP_POWER_LANDING_Start	inside	-	CH1a	1 states	y
+32c25db0	state-fn	RSI_STANDUP_ROLLING_FRONT_FRONT.End	inside X2GURaven.cpp:1381 CX2GURaven::RSI_STANDUP_ROLLING_FRONT_FRONT_End	inside	-	CH1b	1 states	y
+32c25df0	state-fn	RSI_STANDUP_ROLLING_FRONT_BACK.End	inside X2GURaven.cpp:1388 CX2GURaven::RSI_STANDUP_ROLLING_FRONT_BACK_End	inside	-	CH1b	1 states	y
+32c25e30	state-fn	RSI_STANDUP_ROLLING_BACK_FRONT.End	inside X2GURaven.cpp:1395 CX2GURaven::RSI_STANDUP_ROLLING_BACK_FRONT_End	inside	-	CH1b	1 states	y
+32c25e70	state-fn	RSI_STANDUP_ROLLING_BACK_BACK.End	inside X2GURaven.cpp:1402 CX2GURaven::RSI_STANDUP_ROLLING_BACK_BACK_End	inside	-	CH1b	1 states	y
+32c25eb0	state-fn	RSI_STANDUP_ATTACK_FRONT.FrameMove	inside X2GURaven.cpp:1408 CX2GURaven::RSI_STANDUP_ATTACK_FRONT_FrameMove	inside	-	CH1b	1 states	n
+32c25ec0	state-fn	RSI_STANDUP_ATTACK_FRONT.End	inside X2GURaven.cpp:1410 CX2GURaven::RSI_STANDUP_ATTACK_FRONT_End	inside	-	CH1b	1 states	y
+32c25f00	state-fn	RSI_STANDUP_ATTACK_BACK.FrameMove	inside X2GURaven.cpp:1416 CX2GURaven::RSI_STANDUP_ATTACK_BACK_FrameMove	inside	-	CH1b	1 states	n
+32c25f10	state-fn	RSI_STANDUP_ATTACK_BACK.End	inside X2GURaven.cpp:1418 CX2GURaven::RSI_STANDUP_ATTACK_BACK_End	inside	-	CH1b	1 states	y
+32c25f50	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c4	y
+32c25f90	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c25fd0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90c8070000	n
+32c25fe0	state-fn	RSI_COMBO_ZZZX.StartFuture	-	new	RSI_COMBO_ZZZX_StateStartFuture	CH1d	1 states	n
+32c25ff0	state-fn	RSI_COMBO_ZZZX_FINISH.StartFuture	-	new	RSI_COMBO_ZZZX_FINISH_StateStartFuture	CH1d	1 states	n
+32c26000	state-fn	RSI_COMBO_ZZZX_FINISH.FrameMove	-	new	RSI_COMBO_ZZZX_FINISH_FrameMove	CH1d	1 states	n
+32c26010	state-fn	RSI_DASH_JUMP_COMBO_ZZ.Start	inside X2GURaven.cpp:1534 CX2GURaven::RSI_DASH_JUMP_COMBO_ZZ_StateStart	inside	-	CH1d	1 states	n
+32c26020	state-fn	RSI_DASH_JUMP_COMBO_ZZ_Landing.StartFuture	inside X2GURaven.cpp:1542 CX2GURaven::RSI_DASH_JUMP_COMBO_ZZ_Landing_StartFuture	inside	-	CH1d	1 states	y
+32c26050	state-fn	RSI_DASH_JUMP_COMBO_X.Init	inside X2GURaven.cpp:806 CX2GURaven::RSI_DASH_JUMP_COMBO_X_Init	inside	-	CH1d	1 states	n
+32c26070	state-fn	RSI_DASH_JUMP_COMBO_X.Start	inside X2GURaven.cpp:807 CX2GURaven::RSI_DASH_JUMP_COMBO_X_Start	inside	-	CH1d	1 states	y
+32c26090	state-fn	RSI_JUMP_COMBO_X.Start	inside X2GURaven.cpp:1557 CX2GURaven::RSI_JUMP_COMBO_X_StateStart	inside	-	CH1d	1 states	n
+32c260a0	state-fn	RSI_SI1_MAXIMUM_CANNON.Init	inside X2GURaven.cpp:2726 CX2GURaven::RSI_SI1_MAXIMUM_CANNON_Init	inside	-	CH2a	1 states	n
+32c26130	state-fn	RSI_SI2_POWER_ASSAULT.Init	inside X2GURaven.cpp:2759 CX2GURaven::RSI_SI2_POWER_ASSAULT_Init	inside	-	CH2a	1 states	n
+32c261c0	state-fn	RSI_SI3_SEVEN_BURST.Init	inside X2GURaven.cpp:2821 CX2GURaven::RSI_SI3_SEVEN_BURST_Init	inside	-	CH2a	1 states	n
+32c26250	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c26280	state-fn	RSI_SI2_CANNON_BLADE.Init	inside X2GURaven.cpp:2789 CX2GURaven::RSI_SI2_CANNON_BLADE_Init	inside	-	CH2a	1 states	n
+32c26340	state-fn	RSI_SOUL_TAKER_COMBO_XXZZ8.Start	inside X2GURaven.cpp:1940 CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8_StateStart	inside	-	CH1e	1 states	y
+32c26360	state-fn	RSI_OVER_TAKER_COMBO_XXfrontX.FrameMoveFuture	-	new	RSI_OVER_TAKER_COMBO_XXfrontX_FrameMoveFuture	CH1f	1 states	n
+32c26370	state-fn	RSI_OVER_TAKER_COMBO_XXdownX.Init	-	new	RSI_OVER_TAKER_COMBO_XXdownX_Init	CH1f	1 states	n
+32c26390	state-fn	RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX.FrameMove	inside X2GURaven.cpp:2011 CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_FrameMove	inside	-	CH1f	1 states	n
+32c263a0	state-fn	RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING.Start	inside X2GURaven.cpp:2020 CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING_Start	inside	-	CH1f	1 states	y
+32c263e0	state-fn	RSI_SI1_SOUL_TAKER_BERSERKER_BLADE.Init	inside X2GURaven.cpp:2842 CX2GURaven::RSI_SI1_SOUL_TAKER_BERSERKER_BLADE_Init	inside	-	CH2b	1 states	n
+32c26470	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c264a0	state-fn	RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB.Init RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_HYPER.Init	-	new	RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_Init	CH2b	2 states	n
+32c26540	state-fn	RSI_SI1_OVER_TAKER_CHARGED_BOLT.Init	inside X2GURaven.cpp:2893 CX2GURaven::RSI_SI1_OVER_TAKER_CHARGED_BOLT_Init	inside	-	CH2c	1 states	n
+32c26570	state-fn	RSI_SI2_OVER_TAKER_ARC_ENEMY.Init RSI_SI2_OVER_TAKER_ARC_ENEMY_UPGRADE.Init	inside X2GURaven.cpp:2912 CX2GURaven::RSI_SI2_OVER_TAKER_ARC_ENEMY_Init	inside	-	CH3b	2 states	n
+32c265d0	state-fn	RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE.Init	inside X2GURaven.cpp:2924 CX2GURaven::RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_Init	inside	-	CH2c	1 states	n
+32c26660	state-fn	RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE.StartFuture	inside X2GURaven.cpp:2925 CX2GURaven::RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_StateStartFuture	inside	-	CH2c	1 states	n
+32c26680	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c20400cccccccccc	n
+32c26690	state-fn	RSI_SI_A_RF_SHADOW_STEP.Init	inside X2GURaven.cpp:2382 CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_Init	inside	-	CH2a	1 states	n
+32c266b0	state-fn	RSI_SHADOW_STEP_Z.Init	-	new	RSI_SHADOW_STEP_Z_Init	CH2a	1 states	n
+32c266d0	state-fn	RSI_STANDUP_ATTACK_FRONT_NO_DOWN.FrameMove	inside X2GURaven.cpp:1426 CX2GURaven::RSI_STANDUP_ATTACK_FRONT_NO_DOWN_FrameMove	inside	-	CH1b	1 states	n
+32c266e0	state-fn	RSI_STANDUP_ATTACK_FRONT_NO_DOWN.End	inside X2GURaven.cpp:1428 CX2GURaven::RSI_STANDUP_ATTACK_FRONT_NO_DOWN_End	inside	-	CH1b	1 states	y
+32c26720	state-fn	RSI_STANDUP_ATTACK_BACK_NO_DOWN.FrameMove	inside X2GURaven.cpp:1434 CX2GURaven::RSI_STANDUP_ATTACK_BACK_NO_DOWN_FrameMove	inside	-	CH1b	1 states	n
+32c26730	state-fn	RSI_STANDUP_ATTACK_BACK_NO_DOWN.End	inside X2GURaven.cpp:1436 CX2GURaven::RSI_STANDUP_ATTACK_BACK_NO_DOWN_End	inside	-	CH1b	1 states	y
+32c26770	state-fn	RSI_SA_RST_SHOCKWAVE.Init RSI_SA_RST_SHOCKWAVE_FRONT.Init	inside X2GURaven.cpp:3049 CX2GURaven::RSI_SA_RST_SHOCKWAVE_Init ; inside X2GURaven.cpp:3959 CX2GURaven::RSI_SA_RST_SHOCKWAVE_Init	inside	-	CH2b	2 states	n
+32c26820	state-fn	RSI_SA_RST_SHOCKWAVE.End	inside X2GURaven.cpp:3053 CX2GURaven::RSI_SA_RST_SHOCKWAVE_StateEnd	inside	-	CH2b	1 states	n
+32c26850	state-fn	RSI_SA_ROT_VALKYRIESJAVELIN.Init RSI_SA_ROT_VALKYRIESJAVELIN_LANDING.Init	inside X2GURaven.cpp:3069 CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_Init	inside	-	CH2c	2 states	n
+32c26880	state-fn	RSI_SA_ROT_VALKYRIESJAVELIN.End RSI_SA_ROT_VALKYRIESJAVELIN_LANDING.End	inside X2GURaven.cpp:3073 CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_StateEnd	inside	-	CH2c	2 states	n
+32c268a0	state-fn	RSI_A_RST_CUT_TENDON.Init	inside X2GURaven.cpp:3109 CX2GURaven::RSI_A_RST_CUT_TENDON_Init	inside	-	CH3a	1 states	n
+32c268e0	state-fn	RSI_A_ROT_WEAPON_BREAK.Init	inside X2GURaven.cpp:3124 CX2GURaven::RSI_A_ROT_WEAPON_BREAK_Init	inside	-	CH2c	1 states	n
+32c26970	state-fn	RSI_A_ROT_WEAPON_BREAK.Start	inside X2GURaven.cpp:3125 CX2GURaven::RSI_A_ROT_WEAPON_BREAK_StateStart	inside	-	CH2c	1 states	n
+32c26980	state-fn	RSI_A_RST_BLOODY_ACCEL.Init	inside X2GURaven.cpp:3144 CX2GURaven::RSI_A_RST_BLOODY_ACCEL_Init	inside	-	CH3a	1 states	n
+32c26a00	state-fn	RSI_A_ROT_NUCLEAR.Init	inside X2GURaven.cpp:3156 CX2GURaven::RSI_A_ROT_NUCLEAR_Init	inside	-	CH3b	1 states	n
+32c26aa0	state-fn	RRF_DASH_JUMP_COMBO_X.Init	inside X2GURaven.cpp:821 CX2GURaven::RRF_DASH_JUMP_COMBO_X_Init	inside	-	CH1f	1 states	n
+32c26ac0	state-fn	RRF_DASH_JUMP_COMBO_X.Start	inside X2GURaven.cpp:822 CX2GURaven::RRF_DASH_JUMP_COMBO_X_Start	inside	-	CH1f	1 states	y
+32c26ae0	state-fn	RRF_DASH_JUMP_COMBO_XX.Init	inside X2GURaven.cpp:978 CX2GURaven::RRF_DASH_JUMP_COMBO_XX_Init	inside	-	CH1f	1 states	n
+32c26af0	state-fn	RRF_DASH_JUMP_COMBO_XX.FrameMove	inside X2GURaven.cpp:980 CX2GURaven::RRF_DASH_JUMP_COMBO_XX_FrameMove	inside	-	CH1f	1 states	n
+32c26b00	state-fn	RRF_DASH_JUMP_COMBO_XX_LANDING.Start	inside X2GURaven.cpp:987 CX2GURaven::RRF_DASH_JUMP_COMBO_XX_LANDING_Start	inside	-	CH1f	1 states	y
+32c26b20	state-fn	RRF_DASH_JUMP_COMBO_XX_LANDING.FrameMove	inside X2GURaven.cpp:988 CX2GURaven::RRF_DASH_JUMP_COMBO_XX_LANDING_FrameMove	inside	-	CH1f	1 states	n
+32c26b30	state-fn	RRF_COMBO_ZZXFRONTX.Start	inside X2GURaven.cpp:995 CX2GURaven::RRF_COMBO_ZZXFRONTX_Start	inside	-	CH1f	1 states	n
+32c26b40	state-fn	RRF_COMBO_ZZXFRONTX.FrameMove	inside X2GURaven.cpp:997 CX2GURaven::RRF_COMBO_ZZXFRONTX_FrameMove	inside	-	CH1f	1 states	n
+32c26b50	state-fn	RRF_COMBO_ZZXFRONTX.End	inside X2GURaven.cpp:999 CX2GURaven::RRF_COMBO_ZZXFRONTX_End	inside	-	CH1f	1 states	y
+32c26b70	state-fn	RRF_COMBO_ZZXFRONTXX.FrameMove	inside X2GURaven.cpp:1005 CX2GURaven::RRF_COMBO_ZZXFRONTXX_FrameMove	inside	-	CH1f	1 states	n
+32c26b80	state-fn	RBM_COMBO_XZZZ.FrameMoveFuture	inside X2GURaven.cpp:951 CX2GURaven::RBM_Combo_XZZZ_FrameMoveFuture	inside	-	CH1e	1 states	n
+32c26b90	state-fn	RBM_COMBO_ZZZX.Init	inside X2GURaven.cpp:871 CX2GURaven::RBM_COMBO_ZZZX_Init	inside	-	CH1e	1 states	n
+32c26bd0	state-fn	RBM_COMBO_ZZZX_EXPLOSION.Start	inside X2GURaven.cpp:966 CX2GURaven::RBM_COMBO_ZZZX_EXPLOSION_StateStart	inside	-	CH1e	1 states	n
+32c26bf0	state-fn	SI_A_RRF_GROUND_IMPACT.Init	inside X2GURaven.cpp:3176 CX2GURaven::SI_A_RRF_GROUND_IMPACT_Init	inside	-	CH3c	1 states	n
+32c26c50	state-fn	SI_SA_RRF_X_CRASH.Init	inside X2GURaven.cpp:3193 CX2GURaven::SI_SA_RRF_X_CRASH_Init	inside	-	CH3b	1 states	n
+32c26c90	state-fn	SI_SA_RRF_X_CRASH.Start	-	new	SI_SA_RRF_X_CRASH_StateStart	CH3b	1 states	n
+32c26cb0	state-fn	SI_A_RBM_ONE_FLASH.Init	inside X2GURaven.cpp:3207 CX2GURaven::SI_A_RBM_ONE_FLASH_Init	inside	-	CH2b	1 states	n
+32c26d10	state-fn	SI_SA_RBM_WOLF_FANG_START.Init SI_SA_RBM_WOLF_FANG_STARTLANDING.Init SI_SA_RBM_WOLF_FANG_HIT.Init +1	inside X2GURaven.cpp:3224 CX2GURaven::SI_SA_RBM_WOLF_FANG_START_Init	inside	-	CH3a	4 states	n
+32c26d70	state-fn	SI_SA_RBM_WOLF_FANG_START.Start SI_SA_RBM_WOLF_FANG_STARTLANDING.Start SI_SA_RBM_WOLF_FANG_HIT.Start +1	inside X2GURaven.cpp:3225 CX2GURaven::SI_SA_RBM_WOLF_FANG_START_StateStart	inside	-	CH3a	4 states	n
+32c26d80	state-fn	RSI_SA_RBM_GIGA_DRIVE.Init	inside X2GURaven.cpp:3283 CX2GURaven::RSI_SA_RBM_GIGA_DRIVE_Init	inside	-	CH3a	1 states	n
+32c26e20	state-fn	RSI_SA_RRF_WILD_CHARGE_READY.Init RSI_SA_RRF_WILD_CHARGING.Init RSI_SA_RRF_WILD_CHARGE_DASH.Init	inside X2GURaven.cpp:3296 CX2GURaven::RSI_SA_RRF_WILD_CHARGE_READY_Init	inside	-	CH3b	3 states	n
+32c26ea0	state-fn	RSI_PARRYING.StartFuture RSI_PARRYING_SMALL.StartFuture	inside X2GURaven.cpp:1881 CX2GURaven::RSI_PARRYING_StartFuture ; inside X2GURaven.cpp:1872 CX2GURaven::RSI_PARRYING_StartFuture	inside	-	CH1q	state: RSI_PARRYING / _SMALL StartFuture (parry feeds the Nasod core; plan CH1b unless CH0 gives it to CH1q)	n
+32c26eb0	state-fn	RWT_COMBO_X.Init	inside X2GURaven.cpp:912 CX2GURaven::RWT_COMBO_X_Init	inside	-	CH1g	1 states	n
+32c26ee0	state-fn	RSI_WEAPON_TAKER_COMBO_XX.FrameMoveFuture	inside X2GURaven.cpp:2044 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XX_FrameMoveFuture	inside	-	CH1g	1 states	n
+32c26ef0	state-fn	RSI_WEAPON_TAKER_COMBO_XXX.FrameMove	inside X2GURaven.cpp:2052 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_FrameMove	inside	-	CH1g	1 states	n
+32c26f00	state-fn	RSI_WEAPON_TAKER_COMBO_XXX_LOOP.End	inside X2GURaven.cpp:2062 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_LOOP_StateEnd	inside	-	CH1g	1 states	n
+32c26f10	state-fn	RWT_COMBO_ZZZX.Start	inside X2GURaven.cpp:890 CX2GURaven::RWT_COMBO_ZZZX_Start	inside	-	CH1g	1 states	n
+32c26f20	state-fn	RWT_COMBO_ZZZX.FrameMove	inside X2GURaven.cpp:891 CX2GURaven::RWT_COMBO_ZZZX_FrameMove	inside	-	CH1g	1 states	n
+32c26f30	state-fn	RWT_COMBO_ZZZX.EndFuture	inside X2GURaven.cpp:893 CX2GURaven::RWT_COMBO_ZZZX_EndFuture	inside	-	CH1g	1 states	y
+32c26f70	state-fn	RSI_WEAPON_TAKER_COMBO_ZZZXX.FrameMoveFuture	inside X2GURaven.cpp:2076 CX2GURaven::RSI_WEAPON_TAKER_COMBO_ZZZXX_FrameMoveFuture	inside	-	CH1g	1 states	n
+32c26f80	state-fn	RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZX.Start	inside X2GURaven.cpp:2097 CX2GURaven::RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZX_StateStart	inside	-	CH1g	1 states	y
+32c26fa0	state-fn	RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZX.FrameMove	inside X2GURaven.cpp:2098 CX2GURaven::RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZX_FrameMove	inside	-	CH1g	1 states	n
+32c26fb0	state-fn	RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZX.End	inside X2GURaven.cpp:2100 CX2GURaven::RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZX_StateEnd	inside	-	CH1g	1 states	n
+32c26fd0	state-fn	RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZXX.Start	inside X2GURaven.cpp:2106 CX2GURaven::RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZXX_StateStart	inside	-	CH1g	1 states	n
+32c26fe0	state-fn	RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZXX.FrameMove	inside X2GURaven.cpp:2107 CX2GURaven::RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZXX_FrameMove	inside	-	CH1g	1 states	n
+32c26ff0	state-fn	RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZXX.End	inside X2GURaven.cpp:2109 CX2GURaven::RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZXX_StateEnd	inside	-	CH1g	1 states	n
+32c27000	state-fn	RSI_A_RF_BREAKING_FIST.Init RSI_A_RF_BREAKING_FIST_UPGRADE.Init	inside X2GURaven.cpp:3351 CX2GURaven::RSI_A_RF_BREAKING_FIST_Init	inside	-	CH3c	2 states	n
+32c27010	state-fn	RSI_A_RF_BREAKING_FIST.Start RSI_A_RF_BREAKING_FIST_UPGRADE.Start	inside X2GURaven.cpp:3352 CX2GURaven::RSI_A_RF_BREAKING_FIST_StateStart	inside	-	CH3c	2 states	y
+32c27030	state-fn	RSI_A_RF_BREAKING_FIST.FrameMove RSI_A_RF_BREAKING_FIST_UPGRADE.FrameMove	inside X2GURaven.cpp:3353 CX2GURaven::RSI_A_RF_BREAKING_FIST_FrameMove	inside	-	CH3c	2 states	n
+32c27040	state-fn	RSI_A_RF_BREAKING_FIST.EndFuture RSI_A_RF_BREAKING_FIST_UPGRADE.EndFuture	inside X2GURaven.cpp:3357 CX2GURaven::RSI_A_RF_BREAKING_FIST_StateEndFuture	inside	-	CH3c	2 states	n
+32c27060	state-fn	RSI_A_RWT_BARRAGE_ATTACK.Init RSI_A_RWT_BARRAGE_ATTACK_STAND.Init RSI_A_RWT_BARRAGE_ATTACK_AIR.Init	inside X2GURaven.cpp:3379 CX2GURaven::RSI_A_RWT_BARRAGE_ATTACK_Init	inside	-	CH2d	3 states	n
+32c27090	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c270e0	state-fn	RSI_SA_RWT_REVOLVER_CANNON.Init RSI_SA_RWT_REVOLVER_CANNON_LOOP.Init RSI_SA_RWT_REVOLVER_CANNON_FINISH.Init +2	inside X2GURaven.cpp:3453 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_Init	inside	-	CH2d	5 states	n
+32c27110	state-fn	RSI_SA_RWT_REVOLVER_CANNON.End RSI_SA_RWT_REVOLVER_CANNON_LOOP.End RSI_SA_RWT_REVOLVER_CANNON_FINISH.End +2	inside X2GURaven.cpp:3457 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_StateEnd ; inside X2GURaven.cpp:3474 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_StateEnd	inside	-	CH2d	5 states	n
+32c27120	state-fn	RSI_SA_RWT_REVOLVER_CANNON_LOOP.End	inside X2GURaven.cpp:3474 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_StateEnd	inside	-	CH2d	1 states	n
+32c27130	state-fn	RSI_SA_RWT_HARPOON_SPEAR.Init RSI_SA_RWT_HARPOON_SPEAR_FIRE.Init RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT.Init	inside X2GURaven.cpp:3499 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_Init	inside	-	CH2d	3 states	n
+32c27160	state-fn	RSI_SA_RWT_HELLFIRE_GATLING.Init RSI_SA_RWT_HELLFIRE_GATLING_LOOP.Init RSI_SA_RWT_HELLFIRE_GATLING_END.Init +1	inside X2GURaven.cpp:3535 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_Init	inside	-	CH2d	4 states	n
+32c27180	state-fn	RSI_SA_RWT_HELLFIRE_GATLING.End RSI_SA_RWT_HELLFIRE_GATLING_LOOP.End RSI_SA_RWT_HELLFIRE_GATLING_END.End +1	inside X2GURaven.cpp:3539 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_StateEnd ; inside X2GURaven.cpp:3556 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_LOOP_StateEnd	inside	-	CH2d	4 states	n
+32c27190	state-fn	RSI_SA_RWT_HELLFIRE_GATLING_LOOP.End	inside X2GURaven.cpp:3556 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_LOOP_StateEnd	inside	-	CH2d	1 states	n
+32c271a0	state-fn	RSI_SA_RWT_GIGA_PROMINENCE.Init RSI_SA_RWT_GIGA_PROMINENCE_LOOP.Init RSI_SA_RWT_GIGA_PROMINENCE_FINISH.Init +2	inside X2GURaven.cpp:3575 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_Init	inside	-	CH3c	5 states	n
+32c27230	state-fn	RSI_SA_RWT_GIGA_PROMINENCE.End RSI_SA_RWT_GIGA_PROMINENCE_LOOP.End RSI_SA_RWT_GIGA_PROMINENCE_FINISH.End +2	inside X2GURaven.cpp:3579 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_StateEnd ; inside X2GURaven.cpp:3597 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_StateEnd	inside	-	CH3c	5 states	n
+32c27240	state-fn	RSI_SA_RWT_GIGA_PROMINENCE_LOOP.End	inside X2GURaven.cpp:3597 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_StateEnd	inside	-	CH3c	1 states	n
+32c27250	state-fn	RVC_DASH_JUMP_COMBO_X.Init	inside X2GURaven.cpp:836 CX2GURaven::RVC_DASH_JUMP_COMBO_X_Init	inside	-	CH1g2	1 states	n
+32c27270	state-fn	RVC_DASH_JUMP_COMBO_XX_START.Start	inside X2GURaven.cpp:1017 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_StateStart	inside	-	CH1g2	1 states	n
+32c27280	state-fn	RVC_DASH_JUMP_COMBO_XX_START.FrameMove	inside X2GURaven.cpp:1019 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_FrameMove	inside	-	CH1g2	1 states	n
+32c27290	state-fn	RVC_DASH_JUMP_COMBO_XX_START.FrameMoveFuture	inside X2GURaven.cpp:1018 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_FrameMoveFuture	inside	-	CH1g2	1 states	n
+32c272c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90dc070000	n
+32c272d0	state-fn	RVC_DASH_JUMP_COMBO_XX_LOOP.FrameMoveFuture	inside X2GURaven.cpp:1027 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_FrameMoveFuture	inside	-	CH1g2	1 states	n
+32c272e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90dc070000	n
+32c272f0	state-fn	RVC_SI_SA_DEADLY_RAID.Init RVC_SI_SA_DEADLY_RAID_LOOP.Init RVC_SI_SA_DEADLY_RAID_LOOP_END.Init +5	inside X2GURaven.cpp:3635 CX2GURaven::RVC_SI_SA_DEADLY_RAID_Init	inside	-	CH3c2	8 states	n
+32c27300	state-fn	RVC_SI_SA_IGNITION_CROW.Init RVC_SI_SA_IGNITION_CROW_FIRE.Init RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT.Init +3	inside X2GURaven.cpp:3711 CX2GURaven::RVC_SI_SA_IGNITION_CROW_Init	inside	-	CH3c2	6 states	n
+32c27310	state-fn	RVC_SI_SA_IGNITION_CROW.End RVC_SI_SA_IGNITION_CROW_FIRE.End RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT.End +3	inside X2GURaven.cpp:3715 CX2GURaven::RVC_SI_SA_IGNITION_CROW_StateEnd	inside	-	CH3c2	6 states	n
+32c27320	state-fn	RSI_SHADOW_BACK_SLIDE_END_UPGRADE.FrameMoveFuture	-	new	RSI_SHADOW_BACK_SLIDE_END_UPGRADE_FrameMoveFuture	CH2a	1 states	n
+32c27330	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 682000513381c190	n
+32c27350	state-fn	RSI_SHADOW_STEP_X_UPGRADE.Init	-	new	RSI_SHADOW_STEP_X_UPGRADE_Init	CH2a	1 states	n
+32c27370	state-fn	RVC_SI_A_BLEEDING_SLICER.Init RVC_SI_A_BLEEDING_SLICER_GROUND.Init	inside X2GURaven.cpp:4058 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_Init	inside	-	CH2b	2 states	n
+32c27380	state-fn	RVC_SI_A_BLEEDING_SLICER.Start RVC_SI_A_BLEEDING_SLICER_GROUND.Start	inside X2GURaven.cpp:4059 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_StateStart ; inside X2GURaven.cpp:4073 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_GROUND_StateStart	inside	-	CH2b	2 states	n
+32c27390	state-fn	RVC_SI_A_BLEEDING_SLICER_GROUND.FrameMove	inside X2GURaven.cpp:4074 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_GROUND_FrameMove	inside	-	CH2b	1 states	n
+32c273a0	state-fn	RVC_SI_A_BLEEDING_SLICER_GROUND.End	inside X2GURaven.cpp:4076 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_GROUND_StateEnd	inside	-	CH2b	1 states	n
+32c273b0	state-fn	RVC_SI_A_BLEEDING_SLICER_FLY.FrameMove	inside X2GURaven.cpp:4084 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_AIR_FrameMove	inside	-	CH2b	1 states	n
+32c273c0	override 0xc0	ApplyHyperModeBuff	X2GURaven.h:486 virtual void ApplyHyperModeBuff();	inside	-	CH1h	base 32298590	y
+32c273f0	override 0x29c	?	- (name unsettled)	new	?	CH1h	base 3208dd70; name: virtual 0x29c (base 3208dd70); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32c27500	state-fn	RSI_A_RF_MEGADRILL_BREAK.Init RSI_A_RF_MEGADRILL_BREAK_UPGRADE.Init	inside X2GURaven.cpp:4037 CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_Init	inside	-	CH2c	2 states	n
+32c275a0	state-fn	RSI_A_RBM_SONIC_SLASH_LOOP.Init RSI_A_RBM_SONIC_SLASH_LOOP_UPGRADE.Init	inside X2GURaven.cpp:3980 CX2GURaven::RSI_A_RBM_SONIC_SLASH_LOOP_Init	inside	-	CH3a	2 states	n
+32c27630	state-fn	RSI_A_RBM_SONIC_SLASH_LOOP.Start RSI_A_RBM_SONIC_SLASH_LOOP_UPGRADE.Start	inside X2GURaven.cpp:3981 CX2GURaven::RSI_A_RBM_SONIC_SLASH_LOOP_StateStart	inside	-	CH3a	2 states	y
+32c27650	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c276d0	state-fn	RSI_SA_RST_SHOCKWAVE_FRONT.End	inside X2GURaven.cpp:3963 CX2GURaven::RSI_SA_RST_SHOCKWAVE_FRONT_StateEnd	inside	-	CH3a	1 states	n
+32c276f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c277b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c277e0	state-fn	RSI_A_RRF_LIMIT_CRUSHER_CHARGE.Init RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK.Init RSI_A_RRF_LIMIT_CRUSHER_AVOID_ATTACK.Init	inside X2GURaven.cpp:3860 CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_Init	inside	-	CH3b	3 states	n
+32c27860	state-fn	RSI_A_RRF_LIMIT_CRUSHER_CHARGE.StartFuture RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK.StartFuture RSI_A_RRF_LIMIT_CRUSHER_AVOID_ATTACK.StartFuture	inside X2GURaven.cpp:3861 CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_StateStartFuture	inside	-	CH3b	3 states	y
+32c27890	state-fn	RSI_A_RRF_LIMIT_CRUSHER_CHARGE.Start RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK.Start RSI_A_RRF_LIMIT_CRUSHER_AVOID_ATTACK.Start	inside X2GURaven.cpp:3862 CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_StateStart	inside	-	CH3b	3 states	n
+32c278b0	state-fn	RSI_A_RRF_LIMIT_CRUSHER_CHARGE.End RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK.End RSI_A_RRF_LIMIT_CRUSHER_AVOID_ATTACK.End	inside X2GURaven.cpp:3864 CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_StateEnd	inside	-	CH3b	3 states	n
+32c278d0	state-fn	RSI_A_RRF_ENCHANT_HAND.Init RSI_A_RRF_ENCHANT_HAND_UPGRADE.Init	-	new	RSI_A_RRF_ENCHANT_HAND_Init	CH3b	2 states	n
+32c27930	state-fn	RSI_A_RWT_MENTAL_BREAK.Init	-	new	RSI_A_RWT_MENTAL_BREAK_Init	CH2d	1 states	n
+32c27940	state-fn	RSI_A_RRF_HELL_DIVE.Init RSI_A_RRF_HELL_DIVE_UPGRADE.Init	inside X2GURaven.cpp:3893 CX2GURaven::RSI_A_RRF_HELL_DIVE_Init	inside	-	CH2c	2 states	n
+32c279a0	state-fn	RSI_A_RWT_FLAME_SWORD.Init RSI_A_RWT_FLAME_SWORD_GROUND.Init	inside X2GURaven.cpp:3926 CX2GURaven::RSI_A_RWT_FLAME_SWORD_Init	inside	-	CH2a	2 states	n
+32c27a20	state-fn	RSI_A_RWT_FLAME_SWORD.Start RSI_A_RWT_FLAME_SWORD_GROUND.Start	inside X2GURaven.cpp:3927 CX2GURaven::RSI_A_RWT_FLAME_SWORD_StateStart ; inside X2GURaven.cpp:3940 CX2GURaven::RSI_A_RWT_FLAME_SWORD_GROUND_StateStart	inside	-	CH2a	2 states	n
+32c27a30	state-fn	RSI_A_RVC_NAPALM_GRENADE.Init	inside X2GURaven.cpp:3909 CX2GURaven::RSI_A_RVC_NAPALM_GRENADE_Init	inside	-	CH2d	1 states	n
+32c27ad0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c27b20	state-fn	RVC_SI_SA_IGNITION_CROW_INCINERATION.Init RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE.Init RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT.Init +3	inside X2GURaven.cpp:3769 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_Init	inside	-	CH3c2	6 states	n
+32c27ba0	state-fn	RSI_SHADOW_STEP_Z_UPGRADE.Init	-	new	RSI_SHADOW_STEP_Z_UPGRADE_Init	CH2a	1 states	n
+32c27bc0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 68ac81503381c190	n
+32c27be0	state-fn	RSI_A_ROT_ARMOR_BREAK.Init	inside X2GURaven.cpp:3755 CX2GURaven::RSI_A_ROT_ARMOR_BREAK_Init	inside	-	CH2b	1 states	n
+32c27c00	state-fn	RSI_SA_RBM_DEADLY_BLOW.Init	-	new	RSI_SA_RBM_DEADLY_BLOW_Init	CH3a	1 states	n
+32c27c10	state-fn	RSI_SA_RBM_SHOOTUP_GENOCIDE.Init	-	new	RSI_SA_RBM_SHOOTUP_GENOCIDE_Init	CH3a	1 states	n
+32c27c20	state-fn	RSI_SA_RRF_MAXIMUM_DIVE.Init	-	new	RSI_SA_RRF_MAXIMUM_DIVE_Init	CH3b	1 states	n
+32c27c30	state-fn	RSI_SA_RRF_POWER_BOMB.Init	-	new	RSI_SA_RRF_POWER_BOMB_Init	CH3b	1 states	n
+32c27c40	state-fn	RSI_SA_RVC_FLAME_HELL.Init	-	new	RSI_SA_RVC_FLAME_HELL_Init	CH3c	1 states	n
+32c27c50	state-fn	RSI_SA_RVC_BURSTING_BLADE.Init	-	new	RSI_SA_RVC_BURSTING_BLADE_Init	CH3c	1 states	n
+32c27c60	state-fn	RSI_A_RBM_POINTED_STILETTO.Init	-	new	RSI_A_RBM_POINTED_STILETTO_Init	CH3a	1 states	n
+32c27c70	state-fn	RSI_A_RRF_SPREAD.Init	-	new	RSI_A_RRF_SPREAD_Init	CH3b	1 states	n
+32c27c80	state-fn	RSI_A_RVC_FLAME_SWORD_ANOTHER.Init	-	new	RSI_A_RVC_FLAME_SWORD_ANOTHER_Init	CH3c	1 states	n
+32c27c90	state-fn	RSI_HA_RRF_INFERNAL_ARM.Init	inside X2GURaven.cpp:4129 CX2GURaven::RSI_HA_RRF_INFERNAL_ARM_Init	inside	-	CH3d	1 states	n
+32c27d90	state-fn	RSI_HA_RBM_EXTREM_BLADE_READY.Init RSI_HA_RBM_EXTREM_BLADE_ATTACK.Init	inside X2GURaven.cpp:4096 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_READY_Init ; inside X2GURaven.cpp:4108 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_Init	inside	-	CH3d	2 states	n
+32c27e50	state-fn	RSI_HA_RBM_EXTREM_BLADE_ATTACK.Init	inside X2GURaven.cpp:4108 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_Init	inside	-	CH3d	1 states	n
+32c27f10	state-fn	RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH.Init	inside X2GURaven.cpp:4118 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH_Init	inside	-	CH3d	1 states	n
+32c27fe0	state-fn	RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH.StartFuture	inside X2GURaven.cpp:4119 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH_StartFuture	inside	-	CH3d	1 states	y
+32c28040	state-fn	RSI_HA_RVC_BURNING_BUSTER.Init	inside X2GURaven.cpp:4140 CX2GURaven::RSI_HA_RVC_BURNING_BUSTER_Init	inside	-	CH3d	1 states	n
+32c28100	helper	reached only through pointer @33511408	-	new	?	CH1o	phase unsettled: read it; name: called by 33511408(?)	n
+32c28120	thunk	jmp 31fc8cf0	-	-	-	n/a	not ported	n
+32c28130	state-fn	RSI_SA_RBM_SHAPT_CHARGE.Init	-	new	RSI_SA_RBM_SHAPT_CHARGE_Init	CH3a	1 states	n
+32c28140	state-fn	RSI_SA_RRF_DEVASTATING_STRIKE.Init	-	new	RSI_SA_RRF_DEVASTATING_STRIKE_Init	CH3b	1 states	n
+32c28150	state-fn	RSI_SA_RVC_IFRIT_FLAME.Init	-	new	RSI_SA_RVC_IFRIT_FLAME_Init	CH3c	1 states	n
+32c28160	helper	called by 32c68a40	-	new	?	CH4a	name: called by 32c68a40(helper)	y
+32c28180	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c085c974063b4c	n
+32c281a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53558b6c240c5650	n
+32c281f0	override 0x90	Win	X2GURaven.h:394 virtual void Win();	inside	-	CH1h	base 32014660	y
+32c28220	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b068b505c6a006a	n
+32c28230	override 0x98	Draw	X2GURaven.h:396 virtual void Draw();	inside	-	CH1h	base 31ff17c0	y
+32c28260	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b068b505c6a006a	n
+32c28270	override 0x7b8	SetEquippedSkillLevel	X2GURaven.h:506 virtual void SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_);	inside	-	CH1i	base 31aa1d30	y
+32c28810	override 0x54c	InitEnchantWeaponEffectUnitSpecific	X2GURaven.h:400 virtual void InitEnchantWeaponEffectUnitSpecific();	inside	-	CH1h	base 31aa1d30	y
+32c28860	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8b81b3aff	y
+32c28880	helper	reached only through callers with no phased caller 32c3d1c6	-	new	?	CH1o	phase unsettled: read it; name: called by 32c3d1c6(?)	y
+32c28940	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8b81b3aff	y
+32c28960	state-fn	RSI_RIDING_DIE.StartFuture RSI_DIE_FRONT.StartFuture	inside X2GURaven.cpp:1766 CX2GURaven::RSI_DIE_FRONT_StartFuture ; inside X2GURaven.cpp:1125 CX2GURaven::RSI_DIE_FRONT_StartFuture	inside	-	CH1b	2 states	y
+32c289c0	state-fn	RSI_RIDING_DIE.EventProcess RSI_DIE_FRONT.EventProcess	inside X2GURaven.cpp:1769 CX2GURaven::RSI_DIE_FRONT_EventProcess ; inside X2GURaven.cpp:1128 CX2GURaven::RSI_DIE_FRONT_EventProcess	inside	-	CH1b	2 states	y
+32c28a00	state-fn	RSI_DIE_BACK.StartFuture	inside X2GURaven.cpp:1134 CX2GURaven::RSI_DIE_BACK_StartFuture	inside	-	CH1b	1 states	y
+32c28a60	state-fn	RSI_DIE_BACK.EventProcess	inside X2GURaven.cpp:1137 CX2GURaven::RSI_DIE_BACK_EventProcess	inside	-	CH1b	1 states	y
+32c28aa0	state-fn	RSI_JUMP_DOWN.EventProcess	inside X2GURaven.cpp:1183 CX2GURaven::RSI_JUMP_DOWN_EventProcess	inside	-	CH1a	1 states	y
+32c28b80	state-fn	RSI_DASH_END.FrameMove	inside X2GURaven.cpp:1207 CX2GURaven::RSI_DASH_END_FrameMove	inside	-	CH1a	1 states	y
+32c28bc0	state-fn	RSI_DAMAGE_DOWN_FRONT.FrameMove	inside X2GURaven.cpp:1293 CX2GURaven::RSI_DAMAGE_DOWN_FRONT_FrameMove	inside	-	CH1b	1 states	y
+32c28c10	state-fn	RSI_DAMAGE_DOWN_FRONT.EventProcess	inside X2GURaven.cpp:1294 CX2GURaven::RSI_DAMAGE_DOWN_FRONT_EventProcess	inside	-	CH1b	1 states	y
+32c28d90	state-fn	RSI_DAMAGE_DOWN_BACK.FrameMove	inside X2GURaven.cpp:1300 CX2GURaven::RSI_DAMAGE_DOWN_BACK_FrameMove	inside	-	CH1b	1 states	y
+32c28dd0	state-fn	RSI_DAMAGE_DOWN_BACK.EventProcess	inside X2GURaven.cpp:1301 CX2GURaven::RSI_DAMAGE_DOWN_BACK_EventProcess	inside	-	CH1b	1 states	y
+32c28f50	state-fn	RSI_DAMAGE_AIR_DOWN_LANDING.EventProcess	inside X2GURaven.cpp:1342 CX2GURaven::RSI_DAMAGE_AIR_DOWN_LANDING_EventProcess	inside	-	CH1b	1 states	y
+32c290d0	state-fn	RSI_DAMAGE_STANDUP_FRONT.Start RSI_DAMAGE_STANDUP_BACK.Start RSI_STANDUP_ROLLING_FRONT_FRONT.Start +7	-	new	RSI_DAMAGE_STANDUP_FRONT_StateStart	CH1b	10 states	y
+32c29130	state-fn	RSI_DAMAGE_STANDUP_FRONT.StartFuture RSI_DAMAGE_STANDUP_BACK.StartFuture RSI_STANDUP_ROLLING_FRONT_FRONT.StartFuture +7	-	new	RSI_DAMAGE_STANDUP_FRONT_StateStartFuture	CH1b	10 states	y
+32c29190	state-fn	RSI_STANDUP_ROLLING_FRONT_FRONT.EventProcess	inside X2GURaven.cpp:1380 CX2GURaven::RSI_STANDUP_ROLLING_FRONT_FRONT_EventProcess	inside	-	CH1b	1 states	y
+32c29210	state-fn	RSI_STANDUP_ROLLING_FRONT_BACK.EventProcess	inside X2GURaven.cpp:1387 CX2GURaven::RSI_STANDUP_ROLLING_FRONT_BACK_EventProcess	inside	-	CH1b	1 states	y
+32c29290	state-fn	RSI_STANDUP_ROLLING_BACK_FRONT.EventProcess	inside X2GURaven.cpp:1394 CX2GURaven::RSI_STANDUP_ROLLING_BACK_FRONT_EventProcess	inside	-	CH1b	1 states	y
+32c29310	state-fn	RSI_STANDUP_ROLLING_BACK_BACK.EventProcess	inside X2GURaven.cpp:1401 CX2GURaven::RSI_STANDUP_ROLLING_BACK_BACK_EventProcess	inside	-	CH1b	1 states	y
+32c29390	state-fn	RSI_STANDUP_ATTACK_FRONT.EventProcess	inside X2GURaven.cpp:1409 CX2GURaven::RSI_STANDUP_ATTACK_FRONT_EventProcess	inside	-	CH1b	1 states	y
+32c29410	state-fn	RSI_STANDUP_ATTACK_BACK.EventProcess	inside X2GURaven.cpp:1417 CX2GURaven::RSI_STANDUP_ATTACK_BACK_EventProcess	inside	-	CH1b	1 states	y
+32c29490	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d9053c994533568b	n
+32c294d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32c296f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d905a06f4433568b	n
+32c29730	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf180be1c7e00	y
+32c297a0	state-fn	RSI_COMBO_Z.EventProcess	inside X2GURaven.cpp:1444 CX2GURaven::RSI_COMBO_Z_EventProcess	inside	-	CH1d	1 states	y
+32c29bb0	state-fn	RSI_COMBO_ZZ.EventProcess	inside X2GURaven.cpp:1450 CX2GURaven::RSI_COMBO_ZZ_EventProcess	inside	-	CH1d	1 states	y
+32c29fd0	state-fn	RSI_COMBO_ZZZ.EventProcess	inside X2GURaven.cpp:1456 CX2GURaven::RSI_COMBO_ZZZ_EventProcess	inside	-	CH1d	1 states	y
+32c2a550	state-fn	RSI_COMBO_ZZZZ.EventProcess	inside X2GURaven.cpp:1463 CX2GURaven::RSI_COMBO_ZZZZ_EventProcess	inside	-	CH1d	1 states	y
+32c2a880	state-fn	RSI_COMBO_ZZZX.EventProcess	inside X2GURaven.cpp:861 CX2GURaven::RSI_COMBO_ZZZX_EventProcess	inside	-	CH1d	1 states	y
+32c2abc0	state-fn	RSI_COMBO_ZZZX_FINISH.EventProcess	-	new	RSI_COMBO_ZZZX_FINISH_EventProcess	CH1d	1 states	y
+32c2aef0	state-fn	RSI_COMBO_ZZX.EventProcess	inside X2GURaven.cpp:1470 CX2GURaven::RSI_COMBO_ZZX_EventProcess	inside	-	CH1d	1 states	y
+32c2b360	state-fn	RSI_COMBO_ZZXX.EventProcess	inside X2GURaven.cpp:1477 CX2GURaven::RSI_COMBO_ZZXX_EventProcess	inside	-	CH1d	1 states	y
+32c2b6f0	state-fn	RSI_COMBO_X.EventProcess	inside X2GURaven.cpp:923 CX2GURaven::RSI_COMBO_X_EventProcess	inside	-	CH1d	1 states	y
+32c2bbb0	state-fn	RSI_COMBO_XX.EventProcess	inside X2GURaven.cpp:1491 CX2GURaven::RSI_COMBO_XX_EventProcess	inside	-	CH1d	1 states	y
+32c2c070	state-fn	RSI_COMBO_XXX.EventProcess	inside X2GURaven.cpp:1498 CX2GURaven::RSI_COMBO_XXX_EventProcess	inside	-	CH1d	1 states	n
+32c2c370	state-fn	RSI_DASH_COMBO_Z.EventProcess	inside X2GURaven.cpp:1504 CX2GURaven::RSI_DASH_COMBO_Z_EventProcess	inside	-	CH1d	1 states	y
+32c2c810	state-fn	RSI_DASH_COMBO_ZZ.EventProcess	inside X2GURaven.cpp:1511 CX2GURaven::RSI_DASH_COMBO_ZZ_EventProcess	inside	-	CH1d	1 states	y
+32c2cb30	state-fn	RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ.EventProcess	-	new	RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_EventProcess	CH1e	1 states	y
+32c2cc40	state-fn	RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ.EventProcess	-	new	RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_EventProcess	CH1e	1 states	y
+32c2cc70	state-fn	RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing.StartFuture	-	new	RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing_StateStartFuture	CH1e	1 states	y
+32c2ccc0	state-fn	RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZZ.EventProcess	-	new	RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZZ_EventProcess	CH1e	1 states	y
+32c2cfe0	state-fn	RBM_DASH_JUMP_COMBO_X.EventProcess	-	new	RBM_DASH_JUMP_COMBO_X_EventProcess	CH1e	1 states	y
+32c2d0f0	state-fn	RBM_DASH_JUMP_COMBO_XZ.EventProcess	-	new	RBM_DASH_JUMP_COMBO_XZ_EventProcess	CH1e	1 states	y
+32c2d130	state-fn	RSI_OVER_TAKER_DASH_COMBO_ZX.EventProcess	-	new	RSI_OVER_TAKER_DASH_COMBO_ZX_EventProcess	CH1f	1 states	y
+32c2d450	state-fn	RSI_DASH_COMBO_X.EventProcess	inside X2GURaven.cpp:1522 CX2GURaven::RSI_DASH_COMBO_X_EventProcess	inside	-	CH1d	1 states	y
+32c2d750	state-fn	RSI_DASH_JUMP_COMBO_Z.EventProcess	inside X2GURaven.cpp:1528 CX2GURaven::RSI_DASH_JUMP_COMBO_Z_EventProcess	inside	-	CH1d	1 states	y
+32c2d860	state-fn	RSI_DASH_JUMP_COMBO_ZZ.FrameMoveFuture	inside X2GURaven.cpp:1535 CX2GURaven::RSI_DASH_JUMP_COMBO_ZZ_FrameMoveFuture	inside	-	CH1d	1 states	y
+32c2d8b0	state-fn	RSI_DASH_JUMP_COMBO_ZZ.EventProcess	inside X2GURaven.cpp:1536 CX2GURaven::RSI_DASH_JUMP_COMBO_ZZ_EventProcess	inside	-	CH1d	1 states	y
+32c2d8e0	state-fn	RSI_DASH_JUMP_COMBO_X.FrameMoveFuture	inside X2GURaven.cpp:808 CX2GURaven::RSI_DASH_JUMP_COMBO_X_FrameMoveFuture	inside	-	CH1d	1 states	y
+32c2d930	state-fn	RSI_DASH_JUMP_COMBO_X.EventProcess	inside X2GURaven.cpp:810 CX2GURaven::RSI_DASH_JUMP_COMBO_X_EventProcess	inside	-	CH1d	1 states	y
+32c2da40	state-fn	RSI_JUMP_COMBO_Z.EventProcess	inside X2GURaven.cpp:1551 CX2GURaven::RSI_JUMP_COMBO_Z_EventProcess	inside	-	CH1d	1 states	y
+32c2da80	state-fn	RSI_JUMP_COMBO_X.EventProcess	inside X2GURaven.cpp:1559 CX2GURaven::RSI_JUMP_COMBO_X_EventProcess	inside	-	CH1d	1 states	y
+32c2dac0	state-fn	RSI_SI1_MAXIMUM_CANNON.EventProcess	inside X2GURaven.cpp:2729 CX2GURaven::RSI_SI1_MAXIMUM_CANNON_EventProcess	inside	-	CH2a	1 states	y
+32c2db00	state-fn	RSI_SI2_POWER_ASSAULT.FrameMoveFuture	inside X2GURaven.cpp:2760 CX2GURaven::RSI_SI2_POWER_ASSAULT_FrameMoveFuture	inside	-	CH2a	1 states	n
+32c2db90	state-fn	RSI_SI2_POWER_ASSAULT.EventProcess	inside X2GURaven.cpp:2763 CX2GURaven::RSI_SI2_POWER_ASSAULT_EventProcess	inside	-	CH2a	1 states	y
+32c2dbd0	state-fn	RSI_SI2_POWER_ASSAULT.End	-	new	RSI_SI2_POWER_ASSAULT_StateEnd	CH2a	1 states	y
+32c2dc40	state-fn	RSI_SI3_SEVEN_BURST.FrameMoveFuture	inside X2GURaven.cpp:2822 CX2GURaven::RSI_SI3_SEVEN_BURST_FrameMoveFuture	inside	-	CH2a	1 states	n
+32c2dc90	state-fn	RSI_SI3_SEVEN_BURST.EventProcess	inside X2GURaven.cpp:2825 CX2GURaven::RSI_SI3_SEVEN_BURST_EventProcess	inside	-	CH2a	1 states	y
+32c2dcd0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32c2dd10	state-fn	RSI_SI2_CANNON_BLADE.EventProcess	inside X2GURaven.cpp:2791 CX2GURaven::RSI_SI2_CANNON_BLADE_EventProcess	inside	-	CH2a	1 states	y
+32c2dd50	state-fn	RSI_SOUL_TAKER_DASH_COMBO_ZZ.EventProcess	inside X2GURaven.cpp:1089 CX2GURaven::RSI_SOUL_TAKER_DASH_COMBO_ZZ_EventProcess	inside	-	CH1e	1 states	y
+32c2dec0	state-fn	RSI_SOUL_TAKER_DASH_COMBO_ZZZ.EventProcess	inside X2GURaven.cpp:1958 CX2GURaven::RSI_SOUL_TAKER_DASH_COMBO_ZZZ_EventProcess	inside	-	CH1e	1 states	y
+32c2df90	state-fn	RSI_RBM_COMBO_ZZZupZ.FrameMoveFuture	-	new	RSI_RBM_COMBO_ZZZupZ_FrameMoveFuture	CH1e	1 states	y
+32c2dfe0	state-fn	RSI_RBM_COMBO_ZZZupZ.EventProcess	-	new	RSI_RBM_COMBO_ZZZupZ_EventProcess	CH1e	1 states	y
+32c2e010	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0200006a12ffd2e9	n
+32c2e2f0	state-fn	RSI_SOUL_TAKER_COMBO_XXZ.EventProcess	inside X2GURaven.cpp:1932 CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZ_EventProcess	inside	-	CH1e	1 states	y
+32c2e6a0	state-fn	RSI_SOUL_TAKER_COMBO_XXZZ8.FrameMove	inside X2GURaven.cpp:1942 CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8_FrameMove	inside	-	CH1e	1 states	y
+32c2e700	state-fn	RSI_SOUL_TAKER_COMBO_XXZZ8.EventProcess	inside X2GURaven.cpp:1943 CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8_EventProcess	inside	-	CH1e	1 states	y
+32c2ea40	state-fn	RSI_SOUL_TAKER_COMBO_XXZZ8Z.EventProcess	inside X2GURaven.cpp:1950 CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8Z_EventProcess	inside	-	CH1e	1 states	y
+32c2ed70	state-fn	RSI_OVER_TAKER_COMBO_XXfrontX.EventProcess	inside X2GURaven.cpp:2003 CX2GURaven::RSI_OVER_TAKER_COMBO_XXfrontX_EventProcess	inside	-	CH1f	1 states	y
+32c2f1b0	state-fn	RSI_OVER_TAKER_COMBO_XXfrontXX.EventProcess	-	new	RSI_OVER_TAKER_COMBO_XXfrontXX_EventProcess	CH1f	1 states	y
+32c2f6a0	state-fn	RSI_OVER_TAKER_COMBO_XXfrontXX2.EventProcess	-	new	RSI_OVER_TAKER_COMBO_XXfrontXX2_EventProcess	CH1f	1 states	y
+32c2fb90	state-fn	RSI_OVER_TAKER_COMBO_XXfrontXX3.EventProcess	-	new	RSI_OVER_TAKER_COMBO_XXfrontXX3_EventProcess	CH1f	1 states	y
+32c2ffb0	state-fn	RSI_OVER_TAKER_COMBO_XXfrontXX4.EventProcess RSI_OVER_TAKER_COMBO_XXfrontXXdownX.EventProcess	-	new	RSI_OVER_TAKER_COMBO_XXfrontXX4_EventProcess	CH1f	2 states	y
+32c302e0	state-fn	RSI_OVER_TAKER_COMBO_XXdownX.EventProcess	inside X2GURaven.cpp:1980 CX2GURaven::RSI_OVER_TAKER_COMBO_XXdownX_EventProcess	inside	-	CH1f	1 states	y
+32c30600	state-fn	RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX.FrameMoveFuture	inside X2GURaven.cpp:2010 CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_FrameMoveFuture	inside	-	CH1f	1 states	y
+32c30690	state-fn	RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX.EventProcess	inside X2GURaven.cpp:2012 CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_EventProcess	inside	-	CH1f	1 states	y
+32c306c0	state-fn	RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING.StartFuture	inside X2GURaven.cpp:2019 CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING_StartFuture	inside	-	CH1f	1 states	y
+32c30710	state-fn	RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX.EventProcess	inside X2GURaven.cpp:2029 CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX_EventProcess	inside	-	CH1f	1 states	y
+32c30a30	state-fn	RSI_SI1_SOUL_TAKER_BERSERKER_BLADE.EventProcess	inside X2GURaven.cpp:2844 CX2GURaven::RSI_SI1_SOUL_TAKER_BERSERKER_BLADE_EventProcess	inside	-	CH2b	1 states	y
+32c30a70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32c30ab0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32c30af0	state-fn	RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB.FrameMoveFuture RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_HYPER.FrameMoveFuture	inside X2GURaven.cpp:2875 CX2GURaven::RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_FrameMoveFuture ; inside X2GURaven.cpp:2880 CX2GURaven::RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_HYPER_FrameMoveFuture	inside	-	CH2b	2 states	n
+32c30b50	state-fn	RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB.EventProcess RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_HYPER.EventProcess	inside X2GURaven.cpp:2877 CX2GURaven::RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_EventProcess ; inside X2GURaven.cpp:2882 CX2GURaven::RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_HYPER_EventProcess	inside	-	CH2b	2 states	y
+32c30b90	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d90558c84433568b	n
+32c30bf0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32c30c30	state-fn	RSI_SI1_OVER_TAKER_CHARGED_BOLT.EventProcess	inside X2GURaven.cpp:2897 CX2GURaven::RSI_SI1_OVER_TAKER_CHARGED_BOLT_EventProcess	inside	-	CH2c	1 states	y
+32c30c70	state-fn	RSI_SI2_OVER_TAKER_ARC_ENEMY.EventProcess RSI_SI2_OVER_TAKER_ARC_ENEMY_UPGRADE.EventProcess	inside X2GURaven.cpp:2914 CX2GURaven::RSI_SI2_OVER_TAKER_ARC_ENEMY_EventProcess	inside	-	CH3b	2 states	y
+32c30cb0	state-fn	RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE.FrameMove	inside X2GURaven.cpp:2926 CX2GURaven::RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_FrameMove	inside	-	CH2c	1 states	n
+32c30d70	state-fn	RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE.EventProcess	inside X2GURaven.cpp:2927 CX2GURaven::RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_EventProcess	inside	-	CH2c	1 states	y
+32c30db0	state-fn	RSI_SI_A_RF_SHADOW_STEP.StartFuture	inside X2GURaven.cpp:2383 CX2GURaven::RBM_EMERGENCY_ESCAPE_StartFuture	inside	-	CH2a	1 states	y
+32c30e80	state-fn	RSI_SI_A_RF_SHADOW_STEP.FrameMove	inside X2GURaven.cpp:2385 CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_FrameMove	inside	-	CH2a	1 states	y
+32c30ee0	state-fn	RSI_SHADOW_STEP_Z.EventProcess	-	new	RSI_SHADOW_STEP_Z_EventProcess	CH2a	1 states	y
+32c30f30	state-fn	RSI_STANDUP_ATTACK_FRONT_NO_DOWN.EventProcess	inside X2GURaven.cpp:1427 CX2GURaven::RSI_STANDUP_ATTACK_FRONT_NO_DOWN_EventProcess	inside	-	CH1b	1 states	y
+32c30fb0	state-fn	RSI_STANDUP_ATTACK_BACK_NO_DOWN.EventProcess	inside X2GURaven.cpp:1435 CX2GURaven::RSI_STANDUP_ATTACK_BACK_NO_DOWN_EventProcess	inside	-	CH1b	1 states	y
+32c31030	state-fn	RSI_SA_RST_SHOCKWAVE.Start	inside X2GURaven.cpp:3050 CX2GURaven::RSI_SA_RST_SHOCKWAVE_StateStart	inside	-	CH2b	1 states	y
+32c31090	state-fn	RSI_SA_RST_SHOCKWAVE.EventProcess	inside X2GURaven.cpp:3052 CX2GURaven::RSI_SA_RST_SHOCKWAVE_EventProcess	inside	-	CH2b	1 states	y
+32c310d0	state-fn	RSI_SA_ROT_VALKYRIESJAVELIN.Start RSI_SA_ROT_VALKYRIESJAVELIN_LANDING.Start	inside X2GURaven.cpp:3070 CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_StateStart	inside	-	CH2c	2 states	y
+32c31130	state-fn	RSI_SA_ROT_VALKYRIESJAVELIN.EventProcess RSI_SA_ROT_VALKYRIESJAVELIN_LANDING.EventProcess	inside X2GURaven.cpp:3072 CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_EventProcess ; inside X2GURaven.cpp:3091 CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_LANDING_EventProcess	inside	-	CH2c	2 states	y
+32c31170	state-fn	RSI_SA_ROT_VALKYRIESJAVELIN_LANDING.EventProcess	inside X2GURaven.cpp:3091 CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_LANDING_EventProcess	inside	-	CH2c	1 states	y
+32c311b0	state-fn	RSI_A_RST_CUT_TENDON.EventProcess	inside X2GURaven.cpp:3111 CX2GURaven::RSI_A_RST_CUT_TENDON_EventProcess	inside	-	CH3a	1 states	y
+32c31280	state-fn	RSI_A_ROT_WEAPON_BREAK.EventProcess	inside X2GURaven.cpp:3126 CX2GURaven::RSI_A_ROT_WEAPON_BREAK_EventProcess	inside	-	CH2c	1 states	y
+32c31350	state-fn	RSI_A_RST_BLOODY_ACCEL.EventProcess	inside X2GURaven.cpp:3146 CX2GURaven::RSI_A_RST_BLOODY_ACCEL_EventProcess	inside	-	CH3a	1 states	n
+32c315c0	state-fn	RSI_A_ROT_NUCLEAR.EventProcess	inside X2GURaven.cpp:3158 CX2GURaven::RSI_A_ROT_NUCLEAR_EventProcess	inside	-	CH3b	1 states	y
+32c316a0	state-fn	RRF_DASH_JUMP_COMBO_X.FrameMoveFuture	inside X2GURaven.cpp:823 CX2GURaven::RRF_DASH_JUMP_COMBO_X_FrameMoveFuture	inside	-	CH1f	1 states	y
+32c31730	state-fn	RRF_DASH_JUMP_COMBO_X.EventProcess	inside X2GURaven.cpp:825 CX2GURaven::RRF_DASH_JUMP_COMBO_X_EventProcess	inside	-	CH1f	1 states	y
+32c317e0	state-fn	RRF_DASH_JUMP_COMBO_XX.FrameMoveFuture	inside X2GURaven.cpp:979 CX2GURaven::RRF_DASH_JUMP_COMBO_XX_FrameMoveFuture	inside	-	CH1f	1 states	n
+32c31830	state-fn	RRF_DASH_JUMP_COMBO_XX.EventProcess	inside X2GURaven.cpp:981 CX2GURaven::RRF_DASH_JUMP_COMBO_XX_EventProcess	inside	-	CH1f	1 states	y
+32c31860	state-fn	RRF_DASH_JUMP_COMBO_XX_LANDING.EventProcess	inside X2GURaven.cpp:989 CX2GURaven::RRF_DASH_JUMP_COMBO_XX_LANDING_EventProcess	inside	-	CH1f	1 states	n
+32c31a20	state-fn	RRF_COMBO_ZZXFRONTX.FrameMoveFuture	inside X2GURaven.cpp:996 CX2GURaven::RRF_COMBO_ZZXFRONTX_FrameMoveFuture	inside	-	CH1f	1 states	n
+32c31a80	state-fn	RRF_COMBO_ZZXFRONTX.EventProcess	inside X2GURaven.cpp:998 CX2GURaven::RRF_COMBO_ZZXFRONTX_EventProcess	inside	-	CH1f	1 states	n
+32c31ec0	state-fn	RRF_COMBO_ZZXFRONTXX.EventProcess	inside X2GURaven.cpp:1006 CX2GURaven::RRF_COMBO_ZZXFRONTXX_EventProcess	inside	-	CH1f	1 states	n
+32c32210	state-fn	RRF_COMBO_ZZZX.EventProcess	-	new	RRF_COMBO_ZZZX_EventProcess	CH1f	1 states	n
+32c32560	state-fn	RBM_COMBO_XZ.EventProcess	inside X2GURaven.cpp:939 CX2GURaven::RBM_Combo_XZ_EventProcess	inside	-	CH1e	1 states	y
+32c32970	state-fn	RBM_COMBO_XZZ.EventProcess	inside X2GURaven.cpp:945 CX2GURaven::RBM_Combo_XZZ_EventProcess	inside	-	CH1e	1 states	y
+32c32da0	state-fn	RBM_COMBO_XZZZ.EventProcess	inside X2GURaven.cpp:952 CX2GURaven::RBM_Combo_XZZZ_EventProcess	inside	-	CH1e	1 states	y
+32c32de0	state-fn	RBM_COMBO_ZZZX_EXPLOSION.EventProcess	inside X2GURaven.cpp:969 CX2GURaven::RBM_COMBO_ZZZX_EXPLOSION_EventProcess	inside	-	CH1e	1 states	y
+32c33100	state-fn	SI_A_RRF_GROUND_IMPACT.EventProcess	inside X2GURaven.cpp:3178 CX2GURaven::SI_A_RRF_GROUND_IMPACT_EventProcess	inside	-	CH3c	1 states	y
+32c331a0	state-fn	SI_SA_RRF_X_CRASH.FrameMove	inside X2GURaven.cpp:3194 CX2GURaven::SI_SA_RRF_X_CRASH_FrameMove	inside	-	CH3b	1 states	n
+32c33230	state-fn	SI_SA_RRF_X_CRASH.EventProcess	inside X2GURaven.cpp:3195 CX2GURaven::SI_SA_RRF_X_CRASH_EventProcess	inside	-	CH3b	1 states	y
+32c33280	state-fn	SI_A_RBM_ONE_FLASH.Start	inside X2GURaven.cpp:3208 CX2GURaven::SI_A_RBM_ONE_FLASH_StateStart	inside	-	CH2b	1 states	y
+32c33310	state-fn	SI_A_RBM_ONE_FLASH.EventProcess	inside X2GURaven.cpp:3209 CX2GURaven::SI_A_RBM_ONE_FLASH_EventProcess	inside	-	CH2b	1 states	y
+32c33420	state-fn	SI_SA_RBM_WOLF_FANG_START.EventProcess SI_SA_RBM_WOLF_FANG_STARTLANDING.EventProcess SI_SA_RBM_WOLF_FANG_HIT.EventProcess +1	inside X2GURaven.cpp:3227 CX2GURaven::SI_SA_RBM_WOLF_FANG_START_EventProcess ; inside X2GURaven.cpp:3242 CX2GURaven::SI_SA_RBM_WOLF_FANG_STARTLANDING_EventProcess ; inside X2GURaven.cpp:3254 CX2GURaven::SI_SA_RBM_WOLF_FANG_HIT_EventProcess ; inside X2GURaven.cpp:3266 CX2GURaven::SI_SA_RBM_WOLF_FANG_HITLANDING_EventProcess	inside	-	CH3a	4 states	n
+32c33480	state-fn	SI_SA_RBM_WOLF_FANG_HIT.EventProcess	inside X2GURaven.cpp:3254 CX2GURaven::SI_SA_RBM_WOLF_FANG_HIT_EventProcess	inside	-	CH3a	1 states	y
+32c334c0	state-fn	SI_SA_RBM_WOLF_FANG_HITLANDING.EventProcess	inside X2GURaven.cpp:3266 CX2GURaven::SI_SA_RBM_WOLF_FANG_HITLANDING_EventProcess	inside	-	CH3a	1 states	y
+32c33510	state-fn	RSI_SI_A_RF_SHADOW_STEP.StartFuture	inside X2GURaven.cpp:2383 CX2GURaven::RBM_EMERGENCY_ESCAPE_StartFuture	inside	-	CH2a	1 states	y
+32c335b0	state-fn	RSI_SA_RBM_GIGA_DRIVE.EventProcess	inside X2GURaven.cpp:3285 CX2GURaven::RSI_SA_RBM_GIGA_DRIVE_EventProcess	inside	-	CH3a	1 states	n
+32c33830	state-fn	RSI_SA_RRF_WILD_CHARGE_READY.Start RSI_SA_RRF_WILD_CHARGING.Start RSI_SA_RRF_WILD_CHARGE_DASH.Start	inside X2GURaven.cpp:3297 CX2GURaven::RSI_SA_RRF_WILD_CHARGE_READY_StateStart ; inside X2GURaven.cpp:3316 CX2GURaven::RSI_SA_RRF_WILD_CHARGING_StateStart	inside	-	CH3b	3 states	y
+32c33850	state-fn	RSI_SA_RRF_WILD_CHARGE_READY.StartFuture RSI_SA_RRF_WILD_CHARGING.StartFuture RSI_SA_RRF_WILD_CHARGE_DASH.StartFuture	inside X2GURaven.cpp:3298 CX2GURaven::RSI_SA_RRF_WILD_CHARGE_READY_StateStartFuture	inside	-	CH3b	3 states	y
+32c33930	state-fn	RSI_SA_RRF_WILD_CHARGE_READY.EventProcess RSI_SA_RRF_WILD_CHARGING.EventProcess RSI_SA_RRF_WILD_CHARGE_DASH.EventProcess	inside X2GURaven.cpp:3300 CX2GURaven::RSI_SA_RRF_WILD_CHARGE_READY_EventProcess ; inside X2GURaven.cpp:3318 CX2GURaven::RSI_SA_RRF_WILD_CHARGING_EventProcess ; inside X2GURaven.cpp:3326 CX2GURaven::RSI_SA_RRF_WILD_CHARGE_DASH_EventProcess	inside	-	CH3b	3 states	y
+32c33960	state-fn	RSI_SA_RRF_WILD_CHARGING.EventProcess	inside X2GURaven.cpp:3318 CX2GURaven::RSI_SA_RRF_WILD_CHARGING_EventProcess	inside	-	CH3b	1 states	y
+32c339a0	state-fn	RSI_SA_RRF_WILD_CHARGE_DASH.End	-	new	RSI_SA_RRF_WILD_CHARGE_DASH_StateEnd	CH3b	1 states	y
+32c33a10	state-fn	RSI_SA_RRF_WILD_CHARGE_DASH.EventProcess	inside X2GURaven.cpp:3326 CX2GURaven::RSI_SA_RRF_WILD_CHARGE_DASH_EventProcess	inside	-	CH3b	1 states	y
+32c33a60	state-fn	RSI_PARRYING.EventProcess RSI_PARRYING_SMALL.EventProcess	inside X2GURaven.cpp:1883 CX2GURaven::RSI_PARRYING_EventProcess ; inside X2GURaven.cpp:1874 CX2GURaven::RSI_PARRYING_EventProcess	inside	-	CH1q	state: RSI_PARRYING / _SMALL EventProcess	y
+32c33b80	helper	-	-	new	?	CH1q	helper: called by CreateNasodBall 32c4f7e0; ch0_rage.tsv; name: -; helper: called by CreateNasodBall 32c4f7e0; ch0_rage.tsv	y
+32c33bd0	state-fn	RSI_RVC_LOSE.FrameMove RSI_RVC_LOSE2.FrameMove RSI_LOSE.FrameMove +11	inside X2GURaven.cpp:753 CX2GURaven::RSI_RWT_LOSE2_FrameMove	inside	-	CH1b	14 states	y
+32c33c30	state-fn	RWT_COMBO_X.EventProcess	inside X2GURaven.cpp:914 CX2GURaven::RWT_COMBO_X_EventProcess	inside	-	CH1g	1 states	y
+32c33d20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0f8476020000578b	n
+32c33fd0	state-fn	RSI_WEAPON_TAKER_COMBO_XX.EventProcess	inside X2GURaven.cpp:2045 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XX_EventProcess	inside	-	CH1g	1 states	y
+32c342c0	state-fn	RSI_WEAPON_TAKER_COMBO_XXX_FINISH.EventProcess	inside X2GURaven.cpp:2069 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_FINISH_EventProcess	inside	-	CH1g	1 states	y
+32c345f0	state-fn	RWT_COMBO_ZZZX.EventProcess	inside X2GURaven.cpp:892 CX2GURaven::RWT_COMBO_ZZZX_EventProcess	inside	-	CH1g	1 states	y
+32c34970	state-fn	RSI_WEAPON_TAKER_COMBO_ZZZXX.EventProcess	inside X2GURaven.cpp:2077 CX2GURaven::RSI_WEAPON_TAKER_COMBO_ZZZXX_EventProcess	inside	-	CH1g	1 states	y
+32c34cc0	state-fn	RSI_WEAPON_TAKER_COMBO_ZZZdownX.EventProcess	inside X2GURaven.cpp:2084 CX2GURaven::RSI_WEAPON_TAKER_COMBO_ZZZdownX_EventProcess	inside	-	CH1g	1 states	y
+32c35020	state-fn	RSI_WEAPON_TAKER_COMBO_ZZZdownXX.EventProcess	inside X2GURaven.cpp:2091 CX2GURaven::RSI_WEAPON_TAKER_COMBO_ZZZdownXX_EventProcess	inside	-	CH1g	1 states	y
+32c35330	state-fn	RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZX.EventProcess	inside X2GURaven.cpp:2099 CX2GURaven::RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZX_EventProcess	inside	-	CH1g	1 states	y
+32c35440	state-fn	RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZXX.EventProcess	inside X2GURaven.cpp:2108 CX2GURaven::RSI_WEAPON_TAKER_DASH_JUMP_COMBO_ZXX_EventProcess	inside	-	CH1g	1 states	y
+32c35510	state-fn	RSI_A_RF_BREAKING_FIST.EventProcess RSI_A_RF_BREAKING_FIST_UPGRADE.EventProcess	inside X2GURaven.cpp:3354 CX2GURaven::RSI_A_RF_BREAKING_FIST_EventProcess	inside	-	CH3c	2 states	y
+32c355a0	state-fn	RSI_A_RWT_BARRAGE_ATTACK.StartFuture RSI_A_RWT_BARRAGE_ATTACK_STAND.StartFuture RSI_A_RWT_BARRAGE_ATTACK_AIR.StartFuture	inside X2GURaven.cpp:3380 CX2GURaven::RSI_A_RWT_BARRAGE_ATTACK_StateStartFuture	inside	-	CH2d	3 states	y
+32c355d0	state-fn	RSI_A_RWT_BARRAGE_ATTACK_STAND.EventProcess	inside X2GURaven.cpp:3390 CX2GURaven::RSI_A_RWT_BARRAGE_ATTACK_STAND_EventProcess	inside	-	CH2d	1 states	n
+32c35730	state-fn	RSI_A_RWT_BARRAGE_ATTACK_AIR.EventProcess	inside X2GURaven.cpp:3397 CX2GURaven::RSI_A_RWT_BARRAGE_ATTACK_AIR_EventProcess	inside	-	CH2d	1 states	y
+32c35770	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf180be1c7e00	y
+32c357a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32c357e0	state-fn	RSI_SA_RWT_REVOLVER_CANNON_FINISH.EventProcess	inside X2GURaven.cpp:3482 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_FINISH_EventProcess	inside	-	CH2d	1 states	n
+32c35820	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d9eed896988c0000	n
+32c359d0	state-fn	RSI_SA_RWT_REVOLVER_CANNON_END.EventProcess RSI_SA_RWT_REVOLVER_CANNON_OVER_END.EventProcess	inside X2GURaven.cpp:3487 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_END_EventProcess ; inside X2GURaven.cpp:3492 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_END_EventProcess	inside	-	CH2d	2 states	n
+32c35bc0	state-fn	RSI_SA_RWT_HARPOON_SPEAR_FIRE.EventProcess	inside X2GURaven.cpp:3519 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_FIRE_EventProcess	inside	-	CH2d	1 states	y
+32c35bf0	state-fn	RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT.EventProcess	inside X2GURaven.cpp:3527 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT_EventProcess	inside	-	CH2d	1 states	y
+32c35c20	state-fn	RSI_SA_RWT_HELLFIRE_GATLING_END.EventProcess RSI_SA_RWT_HELLFIRE_GATLING_OVER_END.EventProcess	inside X2GURaven.cpp:3562 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_END_EventProcess ; inside X2GURaven.cpp:3568 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_END_EventProcess	inside	-	CH2d	2 states	n
+32c35c50	state-fn	RSI_SA_RWT_GIGA_PROMINENCE_FINISH.EventProcess	inside X2GURaven.cpp:3604 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_FINISH_EventProcess	inside	-	CH3c	1 states	y
+32c35c80	state-fn	RSI_SA_RWT_GIGA_PROMINENCE_FINISH.EventProcess	inside X2GURaven.cpp:3604 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_FINISH_EventProcess	inside	-	CH3c	1 states	y
+32c35cb0	state-fn	RSI_SA_RWT_GIGA_PROMINENCE_END.EventProcess	inside X2GURaven.cpp:3618 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_END_EventProcess	inside	-	CH3c	1 states	y
+32c35cf0	state-fn	RSI_SA_RWT_GIGA_PROMINENCE_OVER_END.EventProcess	inside X2GURaven.cpp:3625 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_END_EventProcess	inside	-	CH3c	1 states	y
+32c35d30	state-fn	RVC_DASH_JUMP_COMBO_X.FrameMoveFuture	inside X2GURaven.cpp:838 CX2GURaven::RVC_DASH_JUMP_COMBO_X_FrameMoveFuture	inside	-	CH1g2	1 states	y
+32c35e20	state-fn	RVC_DASH_JUMP_COMBO_X.EventProcess	inside X2GURaven.cpp:840 CX2GURaven::RVC_DASH_JUMP_COMBO_X_EventProcess	inside	-	CH1g2	1 states	y
+32c35e50	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 389e1c7e00007507	n
+32c35ed0	state-fn	RVC_DASH_JUMP_COMBO_XX_FINISH.FrameMoveFuture	inside X2GURaven.cpp:1036 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_FrameMoveFuture	inside	-	CH1g2	1 states	y
+32c35f90	state-fn	RVC_DASH_JUMP_COMBO_XX_FINISH.EventProcess	inside X2GURaven.cpp:1038 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_EventProcess	inside	-	CH1g2	1 states	y
+32c35fc0	helper	reached only through pointer @3286f949	-	new	?	CH1o	phase unsettled: read it; name: called by 3286f949(?)	n
+32c36020	state-fn	RVC_DASH_COMBO_ZZ.EventProcess	-	new	RVC_DASH_COMBO_ZZ_EventProcess	CH1g2	1 states	y
+32c36420	state-fn	RVC_DASH_COMBO_ZZZ.Start	inside X2GURaven.cpp:1045 CX2GURaven::RVC_DASH_COMBO_ZZZ_StateStart	inside	-	CH1g2	1 states	y
+32c36440	state-fn	RVC_DASH_COMBO_ZZZ.EventProcess	inside X2GURaven.cpp:1046 CX2GURaven::RVC_DASH_COMBO_ZZZ_EventProcess	inside	-	CH1g2	1 states	y
+32c36790	state-fn	RVC_DASH_COMBO_ZZZ.End	inside X2GURaven.cpp:1047 CX2GURaven::RVC_DASH_COMBO_ZZZ_StateEnd	inside	-	CH1g2	1 states	y
+32c367b0	state-fn	RVC_DASH_COMBO_ZZZPushZ_READY.Start	inside X2GURaven.cpp:1053 CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_READY_StateStart	inside	-	CH1g2	1 states	y
+32c367d0	state-fn	RVC_DASH_COMBO_ZZZPushZ_READY.EventProcess	inside X2GURaven.cpp:1054 CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_READY_EventProcess	inside	-	CH1g2	1 states	y
+32c36ad0	state-fn	RVC_DASH_COMBO_ZZZPushZ_READY.End	inside X2GURaven.cpp:1055 CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_READY_StateEnd	inside	-	CH1g2	1 states	y
+32c36af0	state-fn	RVC_DASH_COMBO_ZZZZ_FINISH.EventProcess	inside X2GURaven.cpp:1070 CX2GURaven::RVC_DASH_COMBO_ZZZZ_FINISH_EventProcess	inside	-	CH1g2	1 states	y
+32c36b20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0200006a0dffd2e9	n
+32c36e00	state-fn	RVC_SI_SA_DEADLY_RAID_LOOP_END.EventProcess	inside X2GURaven.cpp:3669 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_EventProcess	inside	-	CH3c2	1 states	y
+32c36e50	state-fn	RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT.EventProcess	inside X2GURaven.cpp:3677 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT_EventProcess	inside	-	CH3c2	1 states	y
+32c36e80	state-fn	RVC_SI_SA_DEADLY_RAID_FINISH.EventProcess	inside X2GURaven.cpp:3685 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_EventProcess	inside	-	CH3c2	1 states	n
+32c37080	state-fn	RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT.EventProcess	inside X2GURaven.cpp:3693 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT_EventProcess	inside	-	CH3c2	1 states	n
+32c37270	state-fn	RVC_SI_SA_DEADLY_RAID_END.EventProcess	inside X2GURaven.cpp:3699 CX2GURaven::RVC_SI_SA_DEADLY_RAID_END_EventProcess	inside	-	CH3c2	1 states	n
+32c37470	helper	-	-	new	?	CH3c2	helper: called only by RVC_SI_SA_DEADLY_RAID_LOOP EventProcess 32c5be30; name: -; helper: called only by RVC_SI_SA_DEADLY_RAID_LOOP EventProcess 32c5be30	y
+32c374c0	state-fn	RVC_SI_SA_IGNITION_CROW_FIRE.EventProcess RVC_SI_SA_IGNITION_CROW_FIRE_UPGRADE.EventProcess	inside X2GURaven.cpp:3730 CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_EventProcess	inside	-	CH3c2	2 states	n
+32c376c0	state-fn	RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT.EventProcess RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_UPGRADE.EventProcess	inside X2GURaven.cpp:3738 CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_EventProcess	inside	-	CH3c2	2 states	y
+32c376f0	state-fn	RVC_SI_SA_IGNITION_CROW_OVERHEAT_END.EventProcess	inside X2GURaven.cpp:3744 CX2GURaven::RVC_SI_SA_IGNITION_CROW_OVERHEAT_END_EventProcess	inside	-	CH3c2	1 states	n
+32c378f0	state-fn	RSI_SHADOW_BACK_SLIDE_UPGRADE.StartFuture	-	new	RSI_SHADOW_BACK_SLIDE_UPGRADE_StateStartFuture	CH2a	1 states	y
+32c379b0	state-fn	RSI_SHADOW_BACK_SLIDE_UPGRADE.FrameMove	-	new	RSI_SHADOW_BACK_SLIDE_UPGRADE_FrameMove	CH2a	1 states	y
+32c37a10	state-fn	RSI_SHADOW_BACK_SLIDE_END_UPGRADE.EventProcess	-	new	RSI_SHADOW_BACK_SLIDE_END_UPGRADE_EventProcess	CH2a	1 states	y
+32c37a60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c0	y
+32c37b20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5180b9f780000000	n
+32c37b80	state-fn	RSI_SHADOW_STEP_X_UPGRADE.EventProcess	-	new	RSI_SHADOW_STEP_X_UPGRADE_EventProcess	CH2a	1 states	y
+32c37d90	state-fn	RVC_SI_A_BLEEDING_SLICER.EventProcess RVC_SI_A_BLEEDING_SLICER_GROUND.EventProcess	inside X2GURaven.cpp:4060 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_EventProcess ; inside X2GURaven.cpp:4075 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_GROUND_EventProcess	inside	-	CH2b	2 states	y
+32c37dc0	state-fn	RVC_SI_A_BLEEDING_SLICER_GROUND.EventProcess	inside X2GURaven.cpp:4075 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_GROUND_EventProcess	inside	-	CH2b	1 states	n
+32c37fc0	state-fn	RVC_SI_A_BLEEDING_SLICER_FLY.FrameMoveFuture	inside X2GURaven.cpp:4085 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_AIR_FrameMoveFuture	inside	-	CH2b	1 states	n
+32c38030	state-fn	RVC_SI_A_BLEEDING_SLICER_FLY.EventProcess	inside X2GURaven.cpp:4086 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_AIR_EventProcess	inside	-	CH2b	1 states	y
+32c38180	override 0x6a0	GetActualMPConsume	X2GURaven.h:453 virtual float GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;	inside	-	CH4b	base 31fd1840	n
+32c382d0	override 0x6a4	GetActualCoolTime	- (CX2GURaven does not declare it in March; X2GUUser.h:3240 virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;)	new	GetActualCoolTime	CH4b	base 31fd1920	n
+32c38340	override 0x24c	SetSpecificValueByBuffTempletID	- (CX2GURaven does not declare it in March; X2GUUser.h:3049 virtual void SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );)	new	SetSpecificValueByBuffTempletID	CH1h	base 3204b5e0	n
+32c383b0	override 0x250	UnSetSpecificValueByBuffTempletID	- (CX2GURaven does not declare it in March; X2GUUser.h:3050 virtual void UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );)	new	UnSetSpecificValueByBuffTempletID	CH1h	base 3202ed60	n
+32c38410	override 0x3a8	ApplyRenderParam	X2GURaven.h:526 virtual void ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ );	inside	-	CH1h	base 31fd4460	n
+32c38470	state-fn	RSI_A_RF_MEGADRILL_BREAK.FrameMoveFuture RSI_A_RF_MEGADRILL_BREAK_UPGRADE.FrameMoveFuture	inside X2GURaven.cpp:4038 CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_FrameMoveFuture	inside	-	CH2c	2 states	n
+32c38510	state-fn	RSI_A_RF_MEGADRILL_BREAK.EventProcess RSI_A_RF_MEGADRILL_BREAK_UPGRADE.EventProcess	inside X2GURaven.cpp:4040 CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_EventProcess	inside	-	CH2c	2 states	n
+32c38710	state-fn	RSI_A_RF_MEGADRILL_BREAK.End RSI_A_RF_MEGADRILL_BREAK_UPGRADE.End	inside X2GURaven.cpp:4041 CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_End	inside	-	CH2c	2 states	y
+32c38750	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 63ff6a0168e41351	n
+32c38770	state-fn	RSI_A_RBM_SONIC_SLASH_LOOP.FrameMove RSI_A_RBM_SONIC_SLASH_LOOP_UPGRADE.FrameMove	inside X2GURaven.cpp:3982 CX2GURaven::RSI_A_RBM_SONIC_SLASH_LOOP_FrameMove	inside	-	CH3a	2 states	n
+32c387d0	state-fn	RSI_A_RBM_SONIC_SLASH_LOOP.EventProcess RSI_A_RBM_SONIC_SLASH_LOOP_UPGRADE.EventProcess	inside X2GURaven.cpp:3983 CX2GURaven::RSI_A_RBM_SONIC_SLASH_LOOP_EventProcess	inside	-	CH3a	2 states	y
+32c38830	state-fn	RSI_A_RBM_SONIC_SLASH_FINISH.EventProcess	inside X2GURaven.cpp:3998 CX2GURaven::RSI_A_RBM_SONIC_SLASH_FINISH_EventProcess	inside	-	CH3a	1 states	n
+32c38a30	state-fn	RSI_SA_RST_SHOCKWAVE_FRONT.Start	inside X2GURaven.cpp:3960 CX2GURaven::RSI_SA_RST_SHOCKWAVE_FRONT_StateStart	inside	-	CH3a	1 states	y
+32c38b20	state-fn	RSI_SA_RST_SHOCKWAVE_FRONT.EventProcess	inside X2GURaven.cpp:3962 CX2GURaven::RSI_SA_RST_SHOCKWAVE_FRONT_EventProcess	inside	-	CH3a	1 states	y
+32c38b60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32c38d70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32c38f70	state-fn	RSI_A_RRF_LIMIT_CRUSHER_CHARGE.EventProcess RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK.EventProcess RSI_A_RRF_LIMIT_CRUSHER_AVOID_ATTACK.EventProcess	inside X2GURaven.cpp:3863 CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_EventProcess ; inside X2GURaven.cpp:3877 CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK_EventProcess ; inside X2GURaven.cpp:3883 CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_AVOID_ATTACK_EventProcess	inside	-	CH3b	3 states	n
+32c391f0	state-fn	RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK.EventProcess RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK_UPGRADE.EventProcess	inside X2GURaven.cpp:3877 CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK_EventProcess	inside	-	CH3b	2 states	n
+32c393f0	state-fn	RSI_A_RRF_LIMIT_CRUSHER_AVOID_ATTACK.EventProcess	inside X2GURaven.cpp:3883 CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_AVOID_ATTACK_EventProcess	inside	-	CH3b	1 states	n
+32c395f0	state-fn	RSI_A_RRF_ENCHANT_HAND.EventProcess RSI_A_RRF_ENCHANT_HAND_UPGRADE.EventProcess	-	new	RSI_A_RRF_ENCHANT_HAND_EventProcess	CH3b	2 states	y
+32c39630	state-fn	RSI_A_RWT_MENTAL_BREAK.EventProcess	-	new	RSI_A_RWT_MENTAL_BREAK_EventProcess	CH2d	1 states	y
+32c39670	state-fn	RSI_A_RRF_HELL_DIVE.EventProcess RSI_A_RRF_HELL_DIVE_UPGRADE.EventProcess	inside X2GURaven.cpp:3895 CX2GURaven::RSI_A_RRF_HELL_DIVE_EventProcess	inside	-	CH2c	2 states	n
+32c39880	state-fn	RSI_A_RWT_FLAME_SWORD.EventProcess RSI_A_RWT_FLAME_SWORD_GROUND.EventProcess	inside X2GURaven.cpp:3928 CX2GURaven::RSI_A_RWT_FLAME_SWORD_EventProcess ; inside X2GURaven.cpp:3941 CX2GURaven::RSI_A_RWT_FLAME_SWORD_GROUND_EventProcess	inside	-	CH2a	2 states	y
+32c398b0	state-fn	RSI_A_RWT_FLAME_SWORD_GROUND.EventProcess	inside X2GURaven.cpp:3941 CX2GURaven::RSI_A_RWT_FLAME_SWORD_GROUND_EventProcess	inside	-	CH2a	1 states	n
+32c39ab0	state-fn	RSI_A_RWT_FLAME_SWORD_FLY.FrameMoveFuture	inside X2GURaven.cpp:3949 CX2GURaven::RSI_A_RWT_FLAME_SWORD_AIR_FrameMoveFuture	inside	-	CH2a	1 states	n
+32c39b20	state-fn	RSI_A_RWT_FLAME_SWORD_FLY.EventProcess	inside X2GURaven.cpp:3950 CX2GURaven::RSI_A_RWT_FLAME_SWORD_AIR_EventProcess	inside	-	CH2a	1 states	y
+32c39c70	state-fn	RSI_A_RVC_NAPALM_GRENADE.EventProcess	inside X2GURaven.cpp:3910 CX2GURaven::RSI_A_RVC_NAPALM_GRENADE_EventProcess	inside	-	CH2d	1 states	n
+32c39e70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32c3a070	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32c3a260	state-fn	RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE.EventProcess RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_UPGRADE.EventProcess	inside X2GURaven.cpp:3788 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_EventProcess	inside	-	CH3c2	2 states	n
+32c3a460	state-fn	RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT.EventProcess RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_UPGRADE.EventProcess	inside X2GURaven.cpp:3796 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_EventProcess	inside	-	CH3c2	2 states	y
+32c3a490	state-fn	RVC_SI_SA_IGNITION_CROW_INCINERATION_OVERHEAT_END.EventProcess	inside X2GURaven.cpp:3802 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_OVERHEAT_END_EventProcess	inside	-	CH3c2	1 states	n
+32c3a690	state-fn	RSI_SHADOW_STEP_Z_UPGRADE.EventProcess	-	new	RSI_SHADOW_STEP_Z_UPGRADE_EventProcess	CH2a	1 states	y
+32c3a8a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32c3aab0	state-fn	RSI_A_ROT_ARMOR_BREAK.EventProcess	inside X2GURaven.cpp:3756 CX2GURaven::RSI_A_ROT_ARMOR_BREAK_EventProcess	inside	-	CH2b	1 states	n
+32c3ad00	state-fn	RSI_SA_RBM_DEADLY_BLOW.EventProcess	-	new	RSI_SA_RBM_DEADLY_BLOW_EventProcess	CH3a	1 states	n
+32c3b040	state-fn	RSI_SA_RBM_SHOOTUP_GENOCIDE.EventProcess	-	new	RSI_SA_RBM_SHOOTUP_GENOCIDE_EventProcess	CH3a	1 states	y
+32c3b0a0	state-fn	RSI_SA_RRF_MAXIMUM_DIVE.EventProcess	-	new	RSI_SA_RRF_MAXIMUM_DIVE_EventProcess	CH3b	1 states	n
+32c3b3e0	state-fn	RSI_SA_RRF_POWER_BOMB.EventProcess	-	new	RSI_SA_RRF_POWER_BOMB_EventProcess	CH3b	1 states	n
+32c3b720	state-fn	RSI_SA_RVC_FLAME_HELL.EventProcess	-	new	RSI_SA_RVC_FLAME_HELL_EventProcess	CH3c	1 states	n
+32c3b750	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0200006a0dffd2e9	n
+32c3ba30	state-fn	RSI_SA_RVC_BURSTING_BLADE.EventProcess	-	new	RSI_SA_RVC_BURSTING_BLADE_EventProcess	CH3c	1 states	n
+32c3ba60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0200006a0dffd2e9	n
+32c3bd40	state-fn	RSI_A_RBM_POINTED_STILETTO.EventProcess	-	new	RSI_A_RBM_POINTED_STILETTO_EventProcess	CH3a	1 states	n
+32c3bd70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0200006a0dffd2e9	n
+32c3c050	state-fn	RSI_A_RRF_SPREAD.EventProcess	-	new	RSI_A_RRF_SPREAD_EventProcess	CH3b	1 states	n
+32c3c080	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0200006a0dffd2e9	n
+32c3c360	state-fn	RSI_A_RVC_FLAME_SWORD_ANOTHER.EventProcess	-	new	RSI_A_RVC_FLAME_SWORD_ANOTHER_EventProcess	CH3c	1 states	n
+32c3c390	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0200006a0dffd2e9	n
+32c3c670	state-fn	RSI_HA_RRF_INFERNAL_ARM.EventProcess	inside X2GURaven.cpp:4130 CX2GURaven::RSI_HA_RRF_INFERNAL_ARM_EventProcess	inside	-	CH3d	1 states	y
+32c3c6b0	state-fn	RSI_HA_RBM_EXTREM_BLADE_READY.EventProcess RSI_HA_RBM_EXTREM_BLADE_ATTACK.EventProcess	inside X2GURaven.cpp:4097 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_READY_EventProcess ; inside X2GURaven.cpp:4111 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_EventProcess	inside	-	CH3d	2 states	y
+32c3c6e0	state-fn	RSI_HA_RBM_EXTREM_BLADE_ATTACK.EventProcess	inside X2GURaven.cpp:4111 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_EventProcess	inside	-	CH3d	1 states	n
+32c3c730	state-fn	RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH.EventProcess	inside X2GURaven.cpp:4120 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH_EventProcess	inside	-	CH3d	1 states	y
+32c3c780	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e848c538ff	y
+32c3c7a0	helper	reached only through callers with no phased caller 32c69670	-	new	?	CH1o	phase unsettled: read it; name: called by 32c69670(thunk)	y
+32c3c7f0	override 0x73c	?	- (name unsettled)	new	?	CH4a	base 3208dd70; name: user vslot 0x73c (uncarved, 13 insns, no calls): the passive delegate pair with 0x748 (plan CH4a); name by the delegate pattern	n
+32c3c820	override 0x748	?	- (name unsettled)	new	?	CH4a	base 3208e1b0; name: user vslot 0x748 (uncarved, 13 insns, no calls): the passive delegate pair with 0x73c (plan CH4a); name by the delegate pattern	n
+32c3c850	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec088b91a49500	y
+32c3c8a0	state-fn	RSI_SA_RBM_SHAPT_CHARGE.EventProcess	-	new	RSI_SA_RBM_SHAPT_CHARGE_EventProcess	CH3a	1 states	y
+32c3c8e0	state-fn	RSI_SA_RRF_DEVASTATING_STRIKE.End	-	new	RSI_SA_RRF_DEVASTATING_STRIKE_StateEnd	CH3b	1 states	n
+32c3c8f0	state-fn	RSI_SA_RRF_DEVASTATING_STRIKE.EventProcess	-	new	RSI_SA_RRF_DEVASTATING_STRIKE_EventProcess	CH3b	1 states	y
+32c3c930	state-fn	RSI_SA_RVC_IFRIT_FLAME.EventProcess	-	new	RSI_SA_RVC_IFRIT_FLAME_EventProcess	CH3c	1 states	y
+32c3c970	override 0x94	Lose	X2GURaven.h:395 virtual void Lose();	inside	-	CH1h	base 31ff15d0	n
+32c3ca00	override 0x3c	InitComponent	X2GURaven.h:502 virtual void InitComponent();	inside	-	CH1h	base 31fee090	y
+32c3ca30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0f853c070000841d	n
+32c3cf10	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e07a3380f333885c	n
+32c3d1c0	helper	-	-	new	?	CH1o	helper: Raven member called from base code 31fef53b (calls 32c28880 and CX2GameUnit::Weapon::AppendEnchantParticle); CH1o triage; name: -; helper: Raven member called from base code 31fef53b (calls 32c28880 and CX2GameUnit::Weapon::AppendEnchantParticle); CH1o triage	y
+32c3d1e0	override 0x7e8	CommonRender_Prepare	X2GURaven.h:520 virtual RENDER_HINT CommonRender_Prepare();	inside	-	CH1j	base 31fd07b0	n
+32c3d2b0	state-fn	RSI_JUMP_READY.EventProcess	inside X2GURaven.cpp:1169 CX2GURaven::RSI_JUMP_READY_EventProcess	inside	-	CH1a	1 states	y
+32c3d3b0	state-fn	RSI_DASH_END.StartFuture	inside X2GURaven.cpp:1205 CX2GURaven::RSI_DASH_END_StartFuture	inside	-	CH1a	1 states	y
+32c3d3f0	state-fn	RSI_DASH_JUMP.EventProcess	inside X2GURaven.cpp:1217 CX2GURaven::RSI_DASH_JUMP_EventProcess	inside	-	CH1a	1 states	y
+32c3d730	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51568bf18b068b90	n
+32c3d800	state-fn	RSI_COMBO_ZZZZ.FrameMoveFuture	inside X2GURaven.cpp:1462 CX2GURaven::RSI_COMBO_ZZZZ_FrameMoveFuture	inside	-	CH1d	1 states	y
+32c3d880	state-fn	RSI_COMBO_ZZXX.FrameMoveFuture	inside X2GURaven.cpp:1476 CX2GURaven::RSI_COMBO_ZZXX_FrameMoveFuture	inside	-	CH1d	1 states	y
+32c3d8f0	state-fn	RSI_JUMP_COMBO_Z.FrameMoveFuture	inside X2GURaven.cpp:1550 CX2GURaven::RSI_JUMP_COMBO_Z_FrameMoveFuture	inside	-	CH1d	1 states	y
+32c3d980	state-fn	RSI_JUMP_COMBO_X.FrameMoveFuture	inside X2GURaven.cpp:1558 CX2GURaven::RSI_JUMP_COMBO_X_FrameMoveFuture	inside	-	CH1d	1 states	y
+32c3da10	override 0x5f0	COMMON_BUFF_FrameMove	X2GURaven.h:1019 virtual void COMMON_BUFF_FrameMove();	inside	-	CH1h	base 31aa1d30	y
+32c3db60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0700008bce5e83c4	n
+32c3db70	override 0xb4	GetHyperModeTime	X2GURaven.h:537 virtual float GetHyperModeTime() const;	inside	-	CH1h	base 31fd1c00	y
+32c3dce0	state-fn	SI_SA_RBM_WOLF_FANG_STARTLANDING.EventProcess	inside X2GURaven.cpp:3242 CX2GURaven::SI_SA_RBM_WOLF_FANG_STARTLANDING_EventProcess	inside	-	CH3a	1 states	n
+32c3deb0	override 0x314	ApplyRenderParamOnEmptyRenderParamByBuff	X2GURaven.h:527 virtual void ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );	inside	-	CH1h	base 3226e190	n
+32c3df50	helper	called by 32c69e10	-	new	?	CH4a	name: called by 32c69e10(helper)	y
+32c3e030	helper	-	-	inside	-	CH1q	helper: CanParryingState (base callers 31fd29f6 / DamageReact 32047385); Nasod core / parry (ch0_rage.tsv); inside: X2GURaven.cpp:13827 (ch0_rage.tsv)	y
+32c3e0e0	override 0x828	IsNotCommonMoveState	- (CX2GURaven does not declare it in March; X2GUUser.h:3422 virtual bool IsNotCommonMoveState();)	new	IsNotCommonMoveState	CH1k	base 31fd7640	y
+32c3e130	helper	called by 32c4bcd0	-	new	?	CH3c	name: called by 32c4bcd0(RSI_SA_RWT_GIGA_PROMINENCE_L)	y
+32c3e2c0	override 0x540	CreateMajorParticleArray	X2GURaven.h:403 virtual void CreateMajorParticleArray();	inside	-	CH1h	base 32012800	n
+32c3e450	helper	-	-	new	?	CH3a	helper: live caller RSI_SA_RST_SHOCKWAVE_FRONT FrameMove 32c3e680 (CH3a); its other callers are dead; name: -; helper: live caller RSI_SA_RST_SHOCKWAVE_FRONT FrameMove 32c3e680 (CH3a); its other callers are dead	y
+32c3e680	state-fn	RSI_SA_RST_SHOCKWAVE_FRONT.FrameMove	inside X2GURaven.cpp:3961 CX2GURaven::RSI_SA_RST_SHOCKWAVE_FRONT_FrameMove	inside	-	CH3a	1 states	y
+32c3e6b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8a82d3cff	y
+32c3e6e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8782d3cff	y
+32c3e710	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8482d3cff	y
+32c3e740	state-fn	RVC_SI_SA_IGNITION_CROW_INCINERATION.FrameMove RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE.FrameMove RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT.FrameMove +3	inside X2GURaven.cpp:3771 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FrameMove ; inside X2GURaven.cpp:3795 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_FrameMove	inside	-	CH3c2	6 states	y
+32c3e770	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GURaven.h:1656 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	inside	-	CH1k	base 33093ad0	n
+32c3e7a0	state-fn	RSI_SI2_POWER_ASSAULT.FrameMove	inside X2GURaven.cpp:2761 CX2GURaven::RSI_SI2_POWER_ASSAULT_FrameMove	inside	-	CH2a	1 states	y
+32c3e8a0	state-fn	RSI_SA_RST_SHOCKWAVE.FrameMove	inside X2GURaven.cpp:3051 CX2GURaven::RSI_SA_RST_SHOCKWAVE_FrameMove	inside	-	CH2b	1 states	y
+32c3e8d0	state-fn	RSI_A_ROT_NUCLEAR.FrameMove	inside X2GURaven.cpp:3157 CX2GURaven::RSI_A_ROT_NUCLEAR_FrameMove	inside	-	CH3b	1 states	y
+32c3e950	state-fn	SI_SA_RBM_WOLF_FANG_START.FrameMove SI_SA_RBM_WOLF_FANG_STARTLANDING.FrameMove SI_SA_RBM_WOLF_FANG_HIT.FrameMove +1	inside X2GURaven.cpp:3226 CX2GURaven::SI_SA_RBM_WOLF_FANG_START_FrameMove	inside	-	CH3a	4 states	y
+32c3e980	state-fn	RSI_SA_RWT_REVOLVER_CANNON.FrameMove RSI_SA_RWT_REVOLVER_CANNON_LOOP.FrameMove RSI_SA_RWT_REVOLVER_CANNON_FINISH.FrameMove +2	inside X2GURaven.cpp:3455 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_FrameMove ; inside X2GURaven.cpp:3472 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_FrameMove ; inside X2GURaven.cpp:3481 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_FrameMove	inside	-	CH2d	5 states	y
+32c3e9b0	state-fn	RSI_SA_RWT_HARPOON_SPEAR.FrameMove RSI_SA_RWT_HARPOON_SPEAR_FIRE.FrameMove RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT.FrameMove	inside X2GURaven.cpp:3501 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_FrameMove ; inside X2GURaven.cpp:3526 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT_FrameMove	inside	-	CH2d	3 states	y
+32c3e9e0	state-fn	RSI_SA_RWT_HELLFIRE_GATLING.FrameMove RSI_SA_RWT_HELLFIRE_GATLING_LOOP.FrameMove RSI_SA_RWT_HELLFIRE_GATLING_END.FrameMove +1	inside X2GURaven.cpp:3537 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_FrameMove ; inside X2GURaven.cpp:3554 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_LOOP_FrameMove	inside	-	CH2d	4 states	y
+32c3ea10	state-fn	RSI_SA_RWT_GIGA_PROMINENCE.FrameMove RSI_SA_RWT_GIGA_PROMINENCE_LOOP.FrameMove RSI_SA_RWT_GIGA_PROMINENCE_FINISH.FrameMove +2	inside X2GURaven.cpp:3577 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_FrameMove ; inside X2GURaven.cpp:3596 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_FrameMove ; inside X2GURaven.cpp:3603 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_FINISH_FrameMove	inside	-	CH3c	5 states	y
+32c3ea40	state-fn	RVC_SI_SA_IGNITION_CROW.FrameMove RVC_SI_SA_IGNITION_CROW_FIRE.FrameMove RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT.FrameMove +3	inside X2GURaven.cpp:3713 CX2GURaven::RVC_SI_SA_IGNITION_CROW_FrameMove ; inside X2GURaven.cpp:3729 CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_FrameMove ; inside X2GURaven.cpp:3737 CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_FrameMove	inside	-	CH3c2	6 states	y
+32c3ea70	override 0x27c	AddUnitSlashData	X2GURaven.h:489 virtual void AddUnitSlashData( const CX2UnitSlashTraceManager::SLASH_TRACE_CONDITION eSlashTraceCondition_ );	inside	-	CH1h	base 3208ddc0	y
+32c3ece0	helper	-	-	inside	-	CH1k	ctor: CX2GURaven::CX2GURaven (vtable store 32c3ed50, body 32c3ece0-32c409a6); its only caller 3230f309 is outside the class; inside: X2GURaven.h:355 constructor (vtable store 32c3ed50, body 32c3ece0-32c409a6); caller 3230f309 is outside the class	y
+32c3f690	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8d0cc3894c24608b	n
+32c409b0	override 0x44	ReInit	X2GURaven.h:389 virtual void ReInit( bool bRandom = false, int startPosIndex = -1 );	inside	-	CH1h	base 32022380	y
+32c40b20	override 0x60	DamageReact	X2GURaven.h:391 virtual void DamageReact( CX2DamageManager::DamageData* pDamageData );	inside	-	CH1h	base 320462a0	y
+32c40ce0	override 0x7c8	CommonFrameMoveFuture	X2GURaven.h:513 virtual void CommonFrameMoveFuture();	inside	-	CH1j	base 32061bf0	y
+32c40dd0	state-fn	RSI_WAIT.Start	inside X2GURaven.cpp:1152 CX2GURaven::RSI_WAIT_Start	inside	-	CH1a	1 states	y
+32c40ea0	state-fn	RSI_WALK.Start	inside X2GURaven.cpp:1160 CX2GURaven::RSI_WALK_Start	inside	-	CH1a	1 states	y
+32c40f50	state-fn	RSI_DASH_END.Start	inside X2GURaven.cpp:1206 CX2GURaven::RSI_DASH_END_Start	inside	-	CH1a	1 states	y
+32c41000	override 0x40	Init	X2GURaven.h:456 virtual void Init( bool bUseTeamPos_, int iStartPosIndex_ );	inside	-	CH1h	base 3204ea20	y
+32c41170	helper	-	-	inside	-	CH1q	helper: AddRageGuage (base caller DamageReact 3204a674; x (+0x6c50 + 1.0) and 24419 level); rage fill (ch0_rage.tsv); inside: X2GURaven.cpp:14440 (ch0_rage.tsv)	y
+32c41330	state-fn	RBM_COMBO_ZZZX.Start	inside X2GURaven.cpp:873 CX2GURaven::RBM_COMBO_ZZZX_StateStart	inside	-	CH1e	1 states	y
+32c413e0	state-fn	RBM_COMBO_ZZZX.EventProcess	inside X2GURaven.cpp:876 CX2GURaven::RBM_COMBO_ZZZX_EventProcess	inside	-	CH1e	1 states	y
+32c41890	state-fn	RBM_COMBO_ZZZXZ.Start	inside X2GURaven.cpp:958 CX2GURaven::RBM_COMBO_ZZZXZ_Start	inside	-	CH1e	1 states	y
+32c41a00	state-fn	RBM_COMBO_ZZZXZ.EventProcess	inside X2GURaven.cpp:959 CX2GURaven::RBM_COMBO_ZZZXZ_EventProcess	inside	-	CH1e	1 states	y
+32c41ef0	state-fn	RBM_COMBO_ZZZX_EXPLOSION.FrameMove	inside X2GURaven.cpp:968 CX2GURaven::RBM_COMBO_ZZZX_EXPLOSION_FrameMove	inside	-	CH1e	1 states	y
+32c42010	state-fn	RSI_SA_RBM_GIGA_DRIVE.FrameMove	inside X2GURaven.cpp:3284 CX2GURaven::RSI_SA_RBM_GIGA_DRIVE_FrameMove	inside	-	CH3a	1 states	y
+32c42160	state-fn	RSI_WEAPON_TAKER_COMBO_XXX_FINISH.FrameMove	inside X2GURaven.cpp:2068 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_FINISH_FrameMove	inside	-	CH1g	1 states	y
+32c42200	state-fn	RSI_SA_RWT_HARPOON_SPEAR.Start RSI_SA_RWT_HARPOON_SPEAR_FIRE.Start RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT.Start	inside X2GURaven.cpp:3500 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_StateStart ; inside X2GURaven.cpp:3525 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT_StateStart	inside	-	CH2d	3 states	y
+32c422e0	state-fn	RSI_SA_RWT_HARPOON_SPEAR.End RSI_SA_RWT_HARPOON_SPEAR_FIRE.End RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT.End	inside X2GURaven.cpp:3503 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_StateEnd	inside	-	CH2d	3 states	y
+32c42370	state-fn	RSI_SA_RWT_GIGA_PROMINENCE_LOOP.Start	inside X2GURaven.cpp:3594 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_StateStart	inside	-	CH3c	1 states	n
+32c42400	state-fn	RVC_DASH_JUMP_COMBO_X.Start	inside X2GURaven.cpp:837 CX2GURaven::RVC_DASH_JUMP_COMBO_X_Start	inside	-	CH1g2	1 states	y
+32c424b0	state-fn	RVC_DASH_JUMP_COMBO_XX_LOOP.Start	inside X2GURaven.cpp:1026 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_StateStart	inside	-	CH1g2	1 states	y
+32c42550	state-fn	RVC_DASH_JUMP_COMBO_XX_FINISH.Start	inside X2GURaven.cpp:1035 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_StateStart	inside	-	CH1g2	1 states	y
+32c425f0	state-fn	RVC_DASH_JUMP_COMBO_XX_FINISH.End	inside X2GURaven.cpp:1039 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_StateEnd	inside	-	CH1g2	1 states	y
+32c42690	state-fn	RVC_SI_SA_DEADLY_RAID.Start RVC_SI_SA_DEADLY_RAID_LOOP.Start RVC_SI_SA_DEADLY_RAID_LOOP_END.Start +5	inside X2GURaven.cpp:3636 CX2GURaven::RVC_SI_SA_DEADLY_RAID_StateStart ; inside X2GURaven.cpp:3651 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_StateStart ; inside X2GURaven.cpp:3667 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_StateStart ; inside X2GURaven.cpp:3683 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_StateStart ; inside X2GURaven.cpp:3659 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_StateStart ; inside X2GURaven.cpp:3675 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT_StateStart ; inside X2GURaven.cpp:3691 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT_StateStart	inside	-	CH3c2	8 states	y
+32c427b0	state-fn	RVC_SI_SA_DEADLY_RAID_LOOP.Start	inside X2GURaven.cpp:3651 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_StateStart	inside	-	CH3c2	1 states	y
+32c42850	state-fn	RVC_SI_SA_DEADLY_RAID_LOOP_END.Start	inside X2GURaven.cpp:3667 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_StateStart	inside	-	CH3c2	1 states	y
+32c428f0	state-fn	RVC_SI_SA_DEADLY_RAID_FINISH.Start	inside X2GURaven.cpp:3683 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_StateStart	inside	-	CH3c2	1 states	y
+32c42990	state-fn	RVC_SI_SA_IGNITION_CROW.Start RVC_SI_SA_IGNITION_CROW_FIRE.Start RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT.Start +3	inside X2GURaven.cpp:3712 CX2GURaven::RVC_SI_SA_IGNITION_CROW_StateStart ; inside X2GURaven.cpp:3736 CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_StateStart	inside	-	CH3c2	6 states	y
+32c42a30	state-fn	RSI_SHADOW_BACK_SLIDE_UPGRADE.Start	-	new	RSI_SHADOW_BACK_SLIDE_UPGRADE_StateStart	CH2a	1 states	y
+32c42b10	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec14568bf18b06	n
+32c42c30	state-fn	RVC_SI_SA_IGNITION_CROW_INCINERATION.Start RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE.Start RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT.Start +3	inside X2GURaven.cpp:3770 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_StateStart ; inside X2GURaven.cpp:3794 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_StateStart	inside	-	CH3c2	6 states	y
+32c42cd0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec1053568bf18b	y
+32c42e10	state-fn	RSI_HA_RBM_EXTREM_BLADE_ATTACK.Start	inside X2GURaven.cpp:4109 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_StateStart	inside	-	CH3d	1 states	y
+32c42eb0	state-fn	RSI_HA_RBM_EXTREM_BLADE_ATTACK.End	inside X2GURaven.cpp:4112 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_StateEnd	inside	-	CH3d	1 states	y
+32c42f90	helper	called by 32c55240	-	new	?	CH1j	name: called by 32c55240(CommonFrameMove)	y
+32c43080	helper	called by 32c54c10	-	new	?	CH1h	name: called by 32c54c10(helper)	y
+32c430e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e818cb3aff	y
+32c43120	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff6874cc333364	y
+32c43250	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff6897cc333364	y
+32c43380	override 0x7c4	CommonStateStart	X2GURaven.h:512 virtual void CommonStateStart();	inside	-	CH1j	base 32057b80	n
+32c43bf0	override 0x800	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	- (no virtual of that name in X2GURaven.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32c43f90	state-fn	RSI_WAIT.EventProcess	inside X2GURaven.cpp:1153 CX2GURaven::RSI_WAIT_EventProcess	inside	-	CH1a	1 states	y
+32c44180	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 752a8b068b505c6a	n
+32c441c0	state-fn	RSI_WALK.EventProcess	inside X2GURaven.cpp:1163 CX2GURaven::RSI_WALK_EventProcess	inside	-	CH1a	1 states	y
+32c443f0	state-fn	RSI_JUMP_LANDING.EventProcess	inside X2GURaven.cpp:1190 CX2GURaven::RSI_JUMP_LANDING_EventProcess	inside	-	CH1a	1 states	y
+32c446a0	state-fn	RSI_DASH.EventProcess	inside X2GURaven.cpp:1199 CX2GURaven::RSI_DASH_EventProcess	inside	-	CH1a	1 states	y
+32c44870	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 750d6a006a498bce	n
+32c448a0	state-fn	RSI_DASH_END.EventProcess	inside X2GURaven.cpp:1208 CX2GURaven::RSI_DASH_END_EventProcess	inside	-	CH1a	1 states	y
+32c44af0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 74538b86d0870000	n
+32c44b60	state-fn	RSI_DASH_JUMP_LANDING.EventProcess	inside X2GURaven.cpp:1230 CX2GURaven::RSI_DASH_JUMP_LANDING_EventProcess	inside	-	CH1a	1 states	y
+32c44d80	state-fn	RSI_DASH_JUMP_POWER_LANDING.EventProcess	inside X2GURaven.cpp:1238 CX2GURaven::RSI_DASH_JUMP_POWER_LANDING_EventProcess	inside	-	CH1a	1 states	y
+32c44f90	state-fn	RSI_COMBO_ZZZX.FrameMove	inside X2GURaven.cpp:860 CX2GURaven::RSI_COMBO_ZZZX_FrameMove	inside	-	CH1d	1 states	y
+32c45260	state-fn	RSI_COMBO_XXX.FrameMove	inside X2GURaven.cpp:1497 CX2GURaven::RSI_COMBO_XXX_FrameMove	inside	-	CH1d	1 states	y
+32c45520	state-fn	RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_Landing.EventProcess	-	new	RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_Landing_EventProcess	CH1e	1 states	y
+32c45710	state-fn	RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing.EventProcess	-	new	RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing_EventProcess	CH1e	1 states	y
+32c459f0	state-fn	RBM_DASH_JUMP_COMBO_X.FrameMove	-	new	RBM_DASH_JUMP_COMBO_X_FrameMove	CH1e	1 states	y
+32c45cc0	state-fn	RBM_DASH_JUMP_COMBO_XZ.FrameMove	-	new	RBM_DASH_JUMP_COMBO_XZ_FrameMove	CH1e	1 states	y
+32c45f80	state-fn	RSI_DASH_JUMP_COMBO_ZZ_Landing.EventProcess	inside X2GURaven.cpp:1543 CX2GURaven::RSI_DASH_JUMP_COMBO_ZZ_Landing_EventProcess	inside	-	CH1d	1 states	y
+32c46170	state-fn	RSI_DASH_JUMP_COMBO_X.FrameMove	inside X2GURaven.cpp:809 CX2GURaven::RSI_DASH_JUMP_COMBO_X_FrameMove	inside	-	CH1d	1 states	y
+32c46490	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec34a1800f7433	n
+32c46af0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b50048b4008	n
+32c47160	state-fn	RSI_OVER_TAKER_COMBO_XXdownX.FrameMove	-	new	RSI_OVER_TAKER_COMBO_XXdownX_FrameMove	CH1f	1 states	y
+32c47700	state-fn	RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING.EventProcess	inside X2GURaven.cpp:2021 CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZX_LANDING_EventProcess	inside	-	CH1f	1 states	y
+32c47970	state-fn	RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX.FrameMove	inside X2GURaven.cpp:2028 CX2GURaven::RSI_OVER_TAKER_DASH_JUMP_COMBO_ZXX_FrameMove	inside	-	CH1f	1 states	y
+32c47b60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff687dcd333364	y
+32c47e10	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8964244089016870	n
+32c47f90	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90dc	y
+32c47fe0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff68b6cd333364	y
+32c48290	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8964244089016870	n
+32c48410	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90dc	y
+32c48460	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec2ca1800f7433	y
+32c48de0	state-fn	RSI_SI1_OVER_TAKER_CHARGED_BOLT.FrameMove	inside X2GURaven.cpp:2896 CX2GURaven::RSI_SI1_OVER_TAKER_CHARGED_BOLT_FrameMove	inside	-	CH2c	1 states	y
+32c491a0	helper	-	-	inside	-	CH1q	helper: DoParrying (holds Specialization B reader @32c49410); ch0_rage.tsv; inside: X2GURaven.cpp:13857 (ch0_rage.tsv)	y
+32c49590	state-fn	RSI_SI_A_RF_SHADOW_STEP.Start	inside X2GURaven.cpp:2384 CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_Start	inside	-	CH2a	1 states	y
+32c49730	state-fn	RSI_SA_ROT_VALKYRIESJAVELIN.FrameMove RSI_SA_ROT_VALKYRIESJAVELIN_LANDING.FrameMove	inside X2GURaven.cpp:3071 CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_FrameMove ; inside X2GURaven.cpp:3090 CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_LANDING_FrameMove	inside	-	CH2c	2 states	y
+32c49930	state-fn	RSI_A_RST_BLOODY_ACCEL.FrameMove	inside X2GURaven.cpp:3145 CX2GURaven::RSI_A_RST_BLOODY_ACCEL_FrameMove	inside	-	CH3a	1 states	y
+32c49ab0	state-fn	RRF_DASH_JUMP_COMBO_X.FrameMove	inside X2GURaven.cpp:824 CX2GURaven::RRF_DASH_JUMP_COMBO_X_FrameMove	inside	-	CH1f	1 states	y
+32c49de0	state-fn	RBM_COMBO_ZZZX.FrameMove	inside X2GURaven.cpp:875 CX2GURaven::RBM_COMBO_ZZZX_FrameMove	inside	-	CH1e	1 states	y
+32c4a080	state-fn	SI_A_RRF_GROUND_IMPACT.FrameMove	inside X2GURaven.cpp:3177 CX2GURaven::SI_A_RRF_GROUND_IMPACT_FrameMove	inside	-	CH3c	1 states	y
+32c4a2a0	state-fn	RSI_SA_RRF_WILD_CHARGE_READY.FrameMove RSI_SA_RRF_WILD_CHARGING.FrameMove RSI_SA_RRF_WILD_CHARGE_DASH.FrameMove	inside X2GURaven.cpp:3299 CX2GURaven::RSI_SA_RRF_WILD_CHARGE_READY_FrameMove ; inside X2GURaven.cpp:3317 CX2GURaven::RSI_SA_RRF_WILD_CHARGING_FrameMove ; inside X2GURaven.cpp:3325 CX2GURaven::RSI_SA_RRF_WILD_CHARGE_DASH_FrameMove	inside	-	CH3b	3 states	y
+32c4a490	state-fn	RSI_SA_RRF_WILD_CHARGING.FrameMove	inside X2GURaven.cpp:3317 CX2GURaven::RSI_SA_RRF_WILD_CHARGING_FrameMove	inside	-	CH3b	1 states	y
+32c4a670	state-fn	RSI_SA_RRF_WILD_CHARGING.End	inside X2GURaven.cpp:3319 CX2GURaven::RSI_SA_RRF_WILD_CHARGING_StateEnd	inside	-	CH3b	1 states	y
+32c4a6c0	state-fn	RSI_SA_RRF_WILD_CHARGE_DASH.FrameMove	inside X2GURaven.cpp:3325 CX2GURaven::RSI_SA_RRF_WILD_CHARGE_DASH_FrameMove	inside	-	CH3b	1 states	y
+32c4a9f0	state-fn	RSI_PARRYING.Start RSI_PARRYING_SMALL.Start	inside X2GURaven.cpp:1882 CX2GURaven::RSI_PARRYING_Start ; inside X2GURaven.cpp:1873 CX2GURaven::RSI_PARRYING_Start	inside	-	CH1q	state: RSI_PARRYING / _SMALL Start (calls DoParrying)	y
+32c4aa70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 837918ff568d7118	n
+32c4aab0	state-fn	RWT_COMBO_X.FrameMove	inside X2GURaven.cpp:913 CX2GURaven::RWT_COMBO_X_FrameMove	inside	-	CH1g	1 states	y
+32c4add0	helper	-	-	inside	-	CH1g2	helper: _ShowOverheatIcon (callers RWT / RVC skill states CH2d / CH3c); ch0_overheat.tsv; inside: X2GURaven.cpp:17095 (ch0_overheat.tsv)	y
+32c4b290	state-fn	RSI_WEAPON_TAKER_COMBO_ZZZdownX.FrameMove	inside X2GURaven.cpp:2083 CX2GURaven::RSI_WEAPON_TAKER_COMBO_ZZZdownX_FrameMove	inside	-	CH1g	1 states	y
+32c4b530	state-fn	RSI_WEAPON_TAKER_COMBO_ZZZdownXX.FrameMove	inside X2GURaven.cpp:2090 CX2GURaven::RSI_WEAPON_TAKER_COMBO_ZZZdownXX_FrameMove	inside	-	CH1g	1 states	y
+32c4b660	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b50048b4008	n
+32c4b7d0	state-fn	RSI_A_RWT_BARRAGE_ATTACK_STAND.FrameMove	inside X2GURaven.cpp:3391 CX2GURaven::RSI_A_RWT_BARRAGE_ATTACK_STAND_FrameMove	inside	-	CH2d	1 states	y
+32c4b9e0	state-fn	RSI_A_RWT_BARRAGE_ATTACK_AIR.FrameMove	inside X2GURaven.cpp:3398 CX2GURaven::RSI_A_RWT_BARRAGE_ATTACK_AIR_FrameMove	inside	-	CH2d	1 states	y
+32c4bc70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1578d8e2002	y
+32c4bcd0	state-fn	RSI_SA_RWT_GIGA_PROMINENCE_LOOP.FrameMove	inside X2GURaven.cpp:3596 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_FrameMove	inside	-	CH3c	1 states	y
+32c4c070	state-fn	RSI_SA_RWT_GIGA_PROMINENCE_FINISH.FrameMove	inside X2GURaven.cpp:3603 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_FINISH_FrameMove	inside	-	CH3c	1 states	n
+32c4c3d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 050000d9e0d998cc	n
+32c4c4e0	override 0x4c	DeleteMinorParticle	X2GURaven.h:450 virtual void DeleteMinorParticle();	inside	-	CH1h	base 31fc87c0	y
+32c4c530	state-fn	RVC_DASH_JUMP_COMBO_X.FrameMove	inside X2GURaven.cpp:839 CX2GURaven::RVC_DASH_JUMP_COMBO_X_FrameMove	inside	-	CH1g2	1 states	y
+32c4c910	state-fn	RVC_DASH_JUMP_COMBO_XX_FINISH.FrameMove	inside X2GURaven.cpp:1037 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_FrameMove	inside	-	CH1g2	1 states	y
+32c4cac0	state-fn	RVC_DASH_COMBO_ZZZPushZ.End	inside X2GURaven.cpp:1064 CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_StateEnd	inside	-	CH1g2	1 states	y
+32c4cba0	state-fn	RVC_SI_SA_DEADLY_RAID.FrameMove RVC_SI_SA_DEADLY_RAID_LOOP.FrameMove RVC_SI_SA_DEADLY_RAID_LOOP_END.FrameMove +5	inside X2GURaven.cpp:3637 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FrameMove ; inside X2GURaven.cpp:3652 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_FrameMove ; inside X2GURaven.cpp:3668 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_FrameMove ; inside X2GURaven.cpp:3684 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_FrameMove ; inside X2GURaven.cpp:3660 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_FrameMove ; inside X2GURaven.cpp:3676 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT_FrameMove ; inside X2GURaven.cpp:3692 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT_FrameMove	inside	-	CH3c2	8 states	y
+32c4cf30	state-fn	RVC_SI_SA_DEADLY_RAID_LOOP.FrameMove	inside X2GURaven.cpp:3652 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_FrameMove	inside	-	CH3c2	1 states	y
+32c4d350	state-fn	RVC_SI_SA_DEADLY_RAID_LOOP_END.FrameMove	inside X2GURaven.cpp:3668 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_FrameMove	inside	-	CH3c2	1 states	y
+32c4d770	state-fn	RVC_SI_SA_DEADLY_RAID_FINISH.FrameMove	inside X2GURaven.cpp:3684 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_FrameMove	inside	-	CH3c2	1 states	y
+32c4db90	state-fn	RVC_SI_SA_IGNITION_CROW_FIRE.FrameMove RVC_SI_SA_IGNITION_CROW_FIRE_UPGRADE.FrameMove	inside X2GURaven.cpp:3729 CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_FrameMove	inside	-	CH3c2	2 states	n
+32c4dcc0	state-fn	RSI_SHADOW_STEP_X_UPGRADE.FrameMove	-	new	RSI_SHADOW_STEP_X_UPGRADE_FrameMove	CH2a	1 states	y
+32c4de60	helper	called by 32c50d50 32c50e00 32c50e80 32c50ef0	-	new	?	CH2a	name: called by 32c50d50(RSI_SI_A_RF_SHADOW_STEP.End) 32c50e00(RSI_SHADOW_BACK_SLIDE_UPGRAD) 32c50e80(dead) 32c50ef0(helper)	y
+32c4df80	state-fn	RVC_SI_A_BLEEDING_SLICER_FLY.End	inside X2GURaven.cpp:4087 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_AIR_StateEnd	inside	-	CH2b	1 states	y
+32c4dfe0	helper	-	-	inside	-	CH1g2	helper: CreateOverHeatObject (13 callers incl. CH1g WT states; _SetOverheat inlined); overheat infrastructure (ch0_overheat.tsv); inside: X2GURaven.cpp:21337 (ch0_overheat.tsv)	y
+32c4e060	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5604895104	n
+32c4e320	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5604895104	n
+32c4e3c0	helper	-	-	inside	-	CH1g2	helper: DeleteOverHeatObject (sole caller CommonFrameMove 32c55240); ch0_overheat.tsv; inside: X2GURaven.cpp:21396 (ch0_overheat.tsv)	y
+32c4e5b0	helper	reached only through callers with no phased caller 32c6a2f0	-	new	?	CH1o	phase unsettled: read it; name: called by 32c6a2f0(thunk)	y
+32c4e7c0	override 0xc4	HyperModeBuffEffectStart	X2GURaven.h:487 virtual void HyperModeBuffEffectStart();	inside	-	CH1h	base 31fd5cb0	y
+32c4edc0	state-fn	RSI_A_RVC_NAPALM_GRENADE.FrameMove	inside X2GURaven.cpp:3911 CX2GURaven::RSI_A_RVC_NAPALM_GRENADE_FrameMove	inside	-	CH2d	1 states	n
+32c4f030	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5704895104	n
+32c4f0a0	state-fn	RSI_HA_RBM_EXTREM_BLADE_ATTACK.FrameMove	inside X2GURaven.cpp:4110 CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_FrameMove	inside	-	CH3d	1 states	y
+32c4f350	helper	called by 32c4f640 32c511a0	-	new	?	CH1c	name: called by 32c4f640(HyperModeFrameMove) 32c511a0(RSI_RIDING_HYPER_MODE.FrameM)	y
+32c4f640	override 0x600	HyperModeFrameMove	X2GURaven.h:791 void HyperModeFrameMove(); (no virtual keyword; overrides the CX2GUUser pure virtual)	inside	-	CH1i	base 31aa1d30	n
+32c4f750	helper	-	-	inside	-	CH1q	helper: ClearNasodBall; ch0_rage.tsv; inside: X2GURaven.cpp:13662 (ch0_rage.tsv)	y
+32c4f7e0	helper	-	-	inside	-	CH1q	helper: CreateNasodBall (RAVEN_NASOD_BALL, EffectSet_BEED_UP); ch0_rage.tsv; inside: X2GURaven.cpp:13686 (ch0_rage.tsv)	y
+32c4fd20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e83727390083c444	n
+32c4fd80	helper	-	-	inside	-	CH1q	helper: RestoreNasodBall; ch0_rage.tsv; inside: X2GURaven.cpp:13909 (ch0_rage.tsv)	y
+32c4ff70	helper	-	-	new	?	CH1q	helper: called only by RestoreNasodBall 32c4fd80; ch0_rage.tsv; name: -; helper: called only by RestoreNasodBall 32c4fd80; ch0_rage.tsv	n
+32c4ff90	helper	-	-	inside	-	CH1q	helper: Nasod ball ChangePowerRate; ch0_rage.tsv; inside: X2GURaven.cpp:14090 (ch0_rage.tsv)	y
+32c50030	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e84bfdffff66c786	n
+32c50060	helper	-	-	inside	-	CH1q	helper: AttackNasodBall; ch0_rage.tsv; inside: X2GURaven.cpp:14132 (ch0_rage.tsv)	y
+32c50330	helper	-	-	inside	-	CH1q	helper: DoFrameMoveNasodBall (CommonFrameMove caller; Specialization B readers @32c507da / @32c50b15 / @32c50c3d); ch0_rage.tsv; inside: X2GURaven.cpp:14210 (ch0_rage.tsv)	y
+32c50500	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 0300008b8ec49700	n
+32c50c50	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 010000538bceffd2	n
+32c50d50	state-fn	RSI_SI_A_RF_SHADOW_STEP.End	inside X2GURaven.cpp:2387 CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_End	inside	-	CH2a	1 states	y
+32c50dd0	state-fn	RSI_PARRYING.End RSI_PARRYING_SMALL.End	inside X2GURaven.cpp:1884 CX2GURaven::RSI_PARRYING_StateEnd ; inside X2GURaven.cpp:1875 CX2GURaven::RSI_PARRYING_StateEnd	inside	-	CH1q	state: RSI_PARRYING / _SMALL End (calls RestoreNasodBall)	y
+32c50e00	state-fn	RSI_SHADOW_BACK_SLIDE_UPGRADE.End	-	new	RSI_SHADOW_BACK_SLIDE_UPGRADE_StateEnd	CH2a	1 states	y
+32c50e80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90dc	y
+32c50ef0	helper	called by 32c52550 32c54290	-	new	?	CH2a	name: called by 32c52550(RSI_SI_A_RF_SHADOW_STEP.Even) 32c54290(dead)	y
+32c50fb0	override 0xc8	HyperModeBuffEffectEnd	X2GURaven.h:488 virtual void HyperModeBuffEffectEnd();	inside	-	CH1h	base 31fd5d70	y
+32c50fd0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 970000ff8dbecc97	n
+32c511a0	state-fn	RSI_RIDING_HYPER_MODE.FrameMove	inside X2GURaven.cpp:1835 CX2GURaven::RidingHyperModeFrameMove	inside	-	CH1c	1 states	y
+32c511c0	registrar	class registrar (classes 16 / 106; 12 combo states)	X2GURaven.cpp InitState	inside	-	CH1m		y
+32c51b70	registrar	class registrar (classes 17 / 107; 11 combo states)	X2GURaven.cpp InitState	inside	-	CH1m		y
+32c52480	helper	called by 32c54960 32c54c10 32c55240 32c55ee0	-	new	?	CH1b	name: called by 32c54960(helper) 32c54c10(helper) 32c55240(CommonFrameMove) 32c55ee0(RSI_RIDING_DIE.Start RSI_DIE)	y
+32c52550	state-fn	RSI_SI_A_RF_SHADOW_STEP.EventProcess	inside X2GURaven.cpp:2386 CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_EventProcess	inside	-	CH2a	1 states	y
+32c526e0	helper	called by 32c528c0 32c52b30 32c52cc0 32c53110	-	new	?	CH1g	name: called by 32c528c0(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c52b30(RSI_SA_RWT_REVOLVER_CANNON.S) 32c52cc0(RSI_SA_RWT_REVOLVER_CANNON_L) 32c53110(RSI_SA_RWT_HELLFIRE_GATLING.)	y
+32c528c0	state-fn	RSI_WEAPON_TAKER_COMBO_XXX_LOOP.Start	inside X2GURaven.cpp:2059 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_LOOP_StateStart	inside	-	CH1g	1 states	y
+32c52b30	state-fn	RSI_SA_RWT_REVOLVER_CANNON.Start RSI_SA_RWT_REVOLVER_CANNON_LOOP.Start RSI_SA_RWT_REVOLVER_CANNON_FINISH.Start +2	inside X2GURaven.cpp:3454 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_StateStart ; inside X2GURaven.cpp:3471 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_StateStart ; inside X2GURaven.cpp:3480 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_StateStart	inside	-	CH2d	5 states	n
+32c52cc0	state-fn	RSI_SA_RWT_REVOLVER_CANNON_LOOP.Start RSI_SA_RWT_REVOLVER_CANNON_FINISH.Start	inside X2GURaven.cpp:3471 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_StateStart ; inside X2GURaven.cpp:3480 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_StateStart	inside	-	CH2d	2 states	y
+32c52f30	state-fn	RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT.Start	inside X2GURaven.cpp:3525 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT_StateStart	inside	-	CH2d	1 states	y
+32c53110	state-fn	RSI_SA_RWT_HELLFIRE_GATLING.Start RSI_SA_RWT_HELLFIRE_GATLING_LOOP.Start RSI_SA_RWT_HELLFIRE_GATLING_END.Start +1	inside X2GURaven.cpp:3536 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_StateStart ; inside X2GURaven.cpp:3553 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_LOOP_StateStart	inside	-	CH2d	4 states	y
+32c532f0	state-fn	RSI_SA_RWT_HELLFIRE_GATLING_LOOP.Start	inside X2GURaven.cpp:3553 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_LOOP_StateStart	inside	-	CH2d	1 states	y
+32c53560	state-fn	RSI_SA_RWT_GIGA_PROMINENCE.Start RSI_SA_RWT_GIGA_PROMINENCE_LOOP.Start RSI_SA_RWT_GIGA_PROMINENCE_FINISH.Start +2	inside X2GURaven.cpp:3576 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_StateStart ; inside X2GURaven.cpp:3594 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_StateStart ; inside X2GURaven.cpp:3610 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_FINISH_StateStart ; inside X2GURaven.cpp:3624 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_END_StateStart	inside	-	CH3c	5 states	n
+32c536c0	state-fn	RSI_SA_RWT_GIGA_PROMINENCE_FINISH.Start	inside X2GURaven.cpp:3610 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_FINISH_StateStart	inside	-	CH3c	1 states	y
+32c538a0	state-fn	RSI_SA_RWT_GIGA_PROMINENCE_OVER_END.Start	inside X2GURaven.cpp:3624 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_END_StateStart	inside	-	CH3c	1 states	n
+32c538c0	state-fn	RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT.Start	inside X2GURaven.cpp:3659 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_StateStart	inside	-	CH3c2	1 states	y
+32c539e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 7e068d4d728d6921	n
+32c53b10	state-fn	RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT.Start	inside X2GURaven.cpp:3675 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT_StateStart	inside	-	CH3c2	1 states	y
+32c53c30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 7e068d4d728d6921	n
+32c53d60	state-fn	RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT.Start	inside X2GURaven.cpp:3691 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT_StateStart	inside	-	CH3c2	1 states	y
+32c53e80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 7e068d4d728d6921	n
+32c53fb0	state-fn	RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT.Start RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_UPGRADE.Start	inside X2GURaven.cpp:3736 CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_StateStart	inside	-	CH3c2	2 states	y
+32c54190	state-fn	RSI_SHADOW_BACK_SLIDE_UPGRADE.EventProcess	-	new	RSI_SHADOW_BACK_SLIDE_UPGRADE_EventProcess	CH2a	1 states	y
+32c54290	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d9ee568bf1d89e30	n
+32c54380	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec0c55568bf18b	y
+32c54510	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff68d1d3333364	y
+32c54780	state-fn	RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT.Start RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_UPGRADE.Start	inside X2GURaven.cpp:3794 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_StateStart	inside	-	CH3c2	2 states	y
+32c54960	helper	called by 32c56be0	none in March: CX2GURaven Flying Impact arc helper	inside	-	CH1h		y
+32c54c10	helper	called by 32c6a620	-	inside	-	CH1h	inside: X2GURaven.h:362 destructor body (ctor store 32c3ed50 / dtor store 32c54c3d; the scalar deleting dtor 32c6a620 calls it, then the delete helper 32fe2300)	y
+32c55240	override 0x7cc	CommonFrameMove	X2GURaven.h:514 virtual void CommonFrameMove();	inside	-	CH1j	base 32063650	y
+32c55ee0	state-fn	RSI_RIDING_DIE.Start RSI_DIE_FRONT.Start	inside X2GURaven.cpp:1767 CX2GURaven::RSI_DIE_FRONT_Start ; inside X2GURaven.cpp:1126 CX2GURaven::RSI_DIE_FRONT_Start	inside	-	CH1b	2 states	y
+32c55fe0	state-fn	RSI_DIE_BACK.Start	inside X2GURaven.cpp:1135 CX2GURaven::RSI_DIE_BACK_Start	inside	-	CH1b	1 states	y
+32c560e0	state-fn	RSI_SI2_OVER_TAKER_ARC_ENEMY.FrameMove RSI_SI2_OVER_TAKER_ARC_ENEMY_UPGRADE.FrameMove	inside X2GURaven.cpp:2913 CX2GURaven::RSI_SI2_OVER_TAKER_ARC_ENEMY_FrameMove	inside	-	CH3b	2 states	n
+32c56210	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b50048b4008	n
+32c56be0	override 0x4e0	AttackResultByType	X2GURaven.h:546 virtual void AttackResultByType( CX2DamageManager::DamageData &pDamageData );	inside	-	CH1h	base 320144d0	y
+32c57150	state-fn	RSI_WEAPON_TAKER_COMBO_XXX.Start	inside X2GURaven.cpp:2051 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_StateStart	inside	-	CH1g	1 states	y
+32c57270	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec1453558bd98b	y
+32c57660	override 0x690	InitPassiveSkillState	X2GURaven.h:504 virtual void InitPassiveSkillState();	inside	-	CH4a	base 31fe19d0	y
+32c57b70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes ff3bc37e488b1560	n
+32c57e50	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 742c8bf883c00483	n
+32c57ff0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes ff8bf83bfb0f8ecf	n
+32c580e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes ff3bc37e07c68634	n
+32c58c30	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	- (no virtual of that name in X2GURaven.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32c59550	helper	called by 32c5b6f0 32c5b710	-	new	?	CH1b	name: called by 32c5b6f0(RSI_DAMAGE_SMALL_BACK.Start) 32c5b710(RSI_DAMAGE_BIG_BACK.Start)	y
+32c598c0	helper	called by 32c59b60 32c59f30 32c5a020 32c5a1e0	-	new	?	CH1g	name: called by 32c59b60(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c59f30(RSI_SA_RWT_REVOLVER_CANNON.E) 32c5a020(RSI_SA_RWT_REVOLVER_CANNON_L) 32c5a1e0(RSI_SA_RWT_HARPOON_SPEAR.Eve)	y
+32c59ac0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5424508951	n
+32c59ae0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5424508951	n
+32c59b60	state-fn	RSI_WEAPON_TAKER_COMBO_XXX_LOOP.EventProcess	inside X2GURaven.cpp:2061 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_LOOP_EventProcess	inside	-	CH1g	1 states	y
+32c59f30	state-fn	RSI_SA_RWT_REVOLVER_CANNON.EventProcess RSI_SA_RWT_REVOLVER_CANNON_LOOP.EventProcess RSI_SA_RWT_REVOLVER_CANNON_FINISH.EventProcess +2	inside X2GURaven.cpp:3456 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_EventProcess ; inside X2GURaven.cpp:3473 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_EventProcess ; inside X2GURaven.cpp:3482 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_FINISH_EventProcess ; inside X2GURaven.cpp:3487 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_END_EventProcess ; inside X2GURaven.cpp:3492 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_END_EventProcess	inside	-	CH2d	5 states	y
+32c5a020	state-fn	RSI_SA_RWT_REVOLVER_CANNON_LOOP.EventProcess	inside X2GURaven.cpp:3473 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_EventProcess	inside	-	CH2d	1 states	y
+32c5a1e0	state-fn	RSI_SA_RWT_HARPOON_SPEAR.EventProcess RSI_SA_RWT_HARPOON_SPEAR_FIRE.EventProcess RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT.EventProcess	inside X2GURaven.cpp:3502 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_EventProcess ; inside X2GURaven.cpp:3519 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_FIRE_EventProcess ; inside X2GURaven.cpp:3527 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT_EventProcess	inside	-	CH2d	3 states	n
+32c5a310	state-fn	RSI_SA_RWT_HELLFIRE_GATLING.EventProcess RSI_SA_RWT_HELLFIRE_GATLING_LOOP.EventProcess RSI_SA_RWT_HELLFIRE_GATLING_END.EventProcess +1	inside X2GURaven.cpp:3538 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_EventProcess ; inside X2GURaven.cpp:3555 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_LOOP_EventProcess ; inside X2GURaven.cpp:3562 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_END_EventProcess ; inside X2GURaven.cpp:3568 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_END_EventProcess	inside	-	CH2d	4 states	y
+32c5a400	state-fn	RSI_SA_RWT_HELLFIRE_GATLING_LOOP.EventProcess	inside X2GURaven.cpp:3555 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_LOOP_EventProcess	inside	-	CH2d	1 states	y
+32c5a5d0	state-fn	RSI_SA_RWT_GIGA_PROMINENCE.EventProcess RSI_SA_RWT_GIGA_PROMINENCE_LOOP.EventProcess RSI_SA_RWT_GIGA_PROMINENCE_FINISH.EventProcess +2	inside X2GURaven.cpp:3578 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_EventProcess ; inside X2GURaven.cpp:3595 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_EventProcess ; inside X2GURaven.cpp:3604 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_FINISH_EventProcess ; inside X2GURaven.cpp:3618 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_END_EventProcess ; inside X2GURaven.cpp:3625 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_END_EventProcess	inside	-	CH3c	5 states	y
+32c5a6c0	state-fn	RSI_SA_RWT_GIGA_PROMINENCE_LOOP.EventProcess	inside X2GURaven.cpp:3595 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_EventProcess	inside	-	CH3c	1 states	y
+32c5a7f0	state-fn	RVC_DASH_JUMP_COMBO_XX_START.EventProcess	inside X2GURaven.cpp:1020 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_EventProcess	inside	-	CH1g2	1 states	y
+32c5a860	state-fn	RVC_DASH_JUMP_COMBO_XX_LOOP.EventProcess	inside X2GURaven.cpp:1029 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_EventProcess	inside	-	CH1g2	1 states	y
+32c5a940	state-fn	RVC_DASH_COMBO_ZZZPushZ.Start	inside X2GURaven.cpp:1061 CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_StateStart	inside	-	CH1g2	1 states	y
+32c5abf0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c68620970000018b	n
+32c5ac10	state-fn	RVC_DASH_COMBO_ZZZPushZ.EventProcess	inside X2GURaven.cpp:1063 CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_EventProcess	inside	-	CH1g2	1 states	y
+32c5af90	helper	-	-	new	?	CH3c2	helper: called only by the Deadly Raid EventProcess states 32c5bb40 / 32c5be30 / 32c5bf80; name: -; helper: called only by the Deadly Raid EventProcess states 32c5bb40 / 32c5be30 / 32c5bf80	y
+32c5b0a0	state-fn	RVC_SI_SA_IGNITION_CROW.EventProcess RVC_SI_SA_IGNITION_CROW_FIRE.EventProcess RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT.EventProcess +3	inside X2GURaven.cpp:3714 CX2GURaven::RVC_SI_SA_IGNITION_CROW_EventProcess ; inside X2GURaven.cpp:3730 CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_EventProcess ; inside X2GURaven.cpp:3738 CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_EventProcess	inside	-	CH3c2	6 states	y
+32c5b230	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec0c568bf18b8e	y
+32c5b320	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec0c568bf18b8e	y
+32c5b560	state-fn	RVC_SI_SA_IGNITION_CROW_INCINERATION.EventProcess RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE.EventProcess RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT.EventProcess +3	inside X2GURaven.cpp:3772 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_EventProcess ; inside X2GURaven.cpp:3788 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_EventProcess ; inside X2GURaven.cpp:3796 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_EventProcess	inside	-	CH3c2	6 states	y
+32c5b6f0	state-fn	RSI_DAMAGE_SMALL_BACK.Start	inside X2GURaven.cpp:1270 CX2GURaven::RSI_DAMAGE_SMALL_BACK_Start	inside	-	CH1b	1 states	y
+32c5b710	state-fn	RSI_DAMAGE_BIG_BACK.Start	inside X2GURaven.cpp:1286 CX2GURaven::RSI_DAMAGE_BIG_BACK_Start	inside	-	CH1b	1 states	y
+32c5b740	state-fn	RSI_WEAPON_TAKER_COMBO_XXX.EventProcess	inside X2GURaven.cpp:2053 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_EventProcess	inside	-	CH1g	1 states	y
+32c5bb40	state-fn	RVC_SI_SA_DEADLY_RAID.EventProcess RVC_SI_SA_DEADLY_RAID_LOOP.EventProcess RVC_SI_SA_DEADLY_RAID_LOOP_END.EventProcess +5	inside X2GURaven.cpp:3638 CX2GURaven::RVC_SI_SA_DEADLY_RAID_EventProcess ; inside X2GURaven.cpp:3653 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_EventProcess ; inside X2GURaven.cpp:3669 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_EventProcess ; inside X2GURaven.cpp:3685 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_EventProcess ; inside X2GURaven.cpp:3699 CX2GURaven::RVC_SI_SA_DEADLY_RAID_END_EventProcess ; inside X2GURaven.cpp:3661 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_EventProcess ; inside X2GURaven.cpp:3677 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT_EventProcess ; inside X2GURaven.cpp:3693 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT_EventProcess	inside	-	CH3c2	8 states	y
+32c5be30	state-fn	RVC_SI_SA_DEADLY_RAID_LOOP.EventProcess	inside X2GURaven.cpp:3653 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_EventProcess	inside	-	CH3c2	1 states	y
+32c5bf80	state-fn	RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT.EventProcess	inside X2GURaven.cpp:3661 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_EventProcess	inside	-	CH3c2	1 states	y
+32c5c080	override 0x2b8	SetDamageExceptionProcess	- (CX2GURaven does not declare it in March; X2GUUser.h:3087 virtual void SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate);)	new	SetDamageExceptionProcess	CH4b	base 32045340	y
+32c5c230	state-fn	RSI_DASH_COMBO_X.FrameMove	inside X2GURaven.cpp:1521 CX2GURaven::RSI_DASH_COMBO_X_FrameMove	inside	-	CH1d	1 states	y
+32c5c4a0	state-fn	RSI_A_RST_CUT_TENDON.Start	inside X2GURaven.cpp:3110 CX2GURaven::RSI_A_RST_CUT_TENDON_StateStart	inside	-	CH3a	1 states	y
+32c5c5a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec14535556578b	y
+32c5ccc0	state-fn	RVC_SI_A_BLEEDING_SLICER_GROUND.Start	inside X2GURaven.cpp:4073 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_GROUND_StateStart	inside	-	CH2b	1 states	n
+32c5cd80	state-fn	RVC_SI_A_BLEEDING_SLICER_FLY.Start	inside X2GURaven.cpp:4083 CX2GURaven::RVC_SI_A_BLEEDING_SLICER_AIR_StateStart	inside	-	CH2b	1 states	y
+32c5ce40	state-fn	RSI_A_RF_MEGADRILL_BREAK.FrameMove RSI_A_RF_MEGADRILL_BREAK_UPGRADE.FrameMove	inside X2GURaven.cpp:4039 CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_FrameMove	inside	-	CH2c	2 states	y
+32c5d240	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 890168702a7233b9	n
+32c5d330	state-fn	RSI_A_RWT_FLAME_SWORD_GROUND.Start	inside X2GURaven.cpp:3940 CX2GURaven::RSI_A_RWT_FLAME_SWORD_GROUND_StateStart	inside	-	CH2a	1 states	y
+32c5d3f0	state-fn	RSI_A_RWT_FLAME_SWORD_FLY.Start	inside X2GURaven.cpp:3948 CX2GURaven::RSI_A_RWT_FLAME_SWORD_AIR_StateStart	inside	-	CH2a	1 states	y
+32c5d540	helper	called by 32c63660	-	new	?	CH1h	name: called by 32c63660(?)	y
+32c5d660	registrar	InitStateCommon (registers the common states, ids 7-286)	X2GURaven.cpp InitState	inside	-	CH1m		y
+32c5fd90	helper	called by 32c60230 32c607a0 32c609c0 32c60b30	-	new	?	CH1g	name: called by 32c60230(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c607a0(dead) 32c609c0(RSI_SA_RWT_HARPOON_SPEAR_FIR) 32c60b30(RSI_SA_RWT_HELLFIRE_GATLING_)	y
+32c60230	state-fn	RSI_WEAPON_TAKER_COMBO_XXX_LOOP.FrameMove	inside X2GURaven.cpp:2060 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_LOOP_FrameMove	inside	-	CH1g	1 states	y
+32c60510	state-fn	RSI_SA_RWT_REVOLVER_CANNON_LOOP.FrameMove RSI_SA_RWT_REVOLVER_CANNON_FINISH.FrameMove	inside X2GURaven.cpp:3472 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_FrameMove ; inside X2GURaven.cpp:3481 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_FrameMove	inside	-	CH2d	2 states	y
+32c607a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8911d94424448b57	n
+32c609c0	state-fn	RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT.FrameMove	inside X2GURaven.cpp:3526 CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT_FrameMove	inside	-	CH2d	1 states	n
+32c60b30	state-fn	RSI_SA_RWT_HELLFIRE_GATLING_LOOP.FrameMove	inside X2GURaven.cpp:3554 CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_LOOP_FrameMove	inside	-	CH2d	1 states	y
+32c60fc0	state-fn	RSI_SA_RWT_GIGA_PROMINENCE_FINISH.FrameMove	inside X2GURaven.cpp:3603 CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_FINISH_FrameMove	inside	-	CH3c	1 states	y
+32c61580	state-fn	RVC_DASH_JUMP_COMBO_XX_LOOP.FrameMove	inside X2GURaven.cpp:1028 CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_FrameMove	inside	-	CH1g2	1 states	y
+32c619e0	state-fn	RVC_DASH_COMBO_ZZZPushZ.FrameMove	inside X2GURaven.cpp:1062 CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_FrameMove	inside	-	CH1g2	1 states	y
+32c61fa0	state-fn	RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT.FrameMove	inside X2GURaven.cpp:3660 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_FrameMove	inside	-	CH3c2	1 states	y
+32c623c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e89700380083c478	n
+32c623d0	state-fn	RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT.FrameMove	inside X2GURaven.cpp:3676 CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT_FrameMove	inside	-	CH3c2	1 states	y
+32c627f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e867fc370083c478	n
+32c62800	state-fn	RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT.FrameMove	inside X2GURaven.cpp:3692 CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT_FrameMove	inside	-	CH3c2	1 states	y
+32c62c20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes e837f8370083c478	n
+32c62c30	state-fn	RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT.FrameMove RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_UPGRADE.FrameMove	inside X2GURaven.cpp:3737 CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_FrameMove	inside	-	CH3c2	2 states	n
+32c62d00	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5304895104	n
+32c63490	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b50048b4008	n
+32c634f0	state-fn	RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT.FrameMove RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_UPGRADE.FrameMove	inside X2GURaven.cpp:3795 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_FrameMove	inside	-	CH3c2	2 states	n
+32c63660	override 0x300	?	- (name unsettled)	new	?	CH1h	base 3208ddc0; name: user vslot 0x300 (uncarved): 5-byte jmp thunk to 32c5d540 (80 lines, no state registration); read 32c5d540	n
+32c63670	registrar	class registrar (classes 25 / 115; 13 combo states)	X2GURaven.cpp InitState	inside	-	CH1m		y
+32c641a0	override 0x7b4 + registrar	SetEquippedSkillFuncBySkillSlotIndex	X2GURaven.h:505 virtual void SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ );	inside	-	CH1n	base 31aa1d30	y
+32c66fe0	override 0x7a4 + registrar	InitState	X2GURaven.h:493 virtual void InitState();	inside	-	CH1m	base 31aa1d30	y
+32c685f0	thunk	jmp 32c26aa0	-	-	-	n/a	not ported	n
+32c68600	thunk	jmp 32c26ac0	-	-	-	n/a	not ported	n
+32c68610	thunk	jmp 32c27250	-	-	-	n/a	not ported	n
+32c68620	thunk	jmp 32c26050	-	-	-	n/a	not ported	n
+32c68630	thunk	jmp 32c26070	-	-	-	n/a	not ported	n
+32c68640	thunk	jmp 32c26b90	-	-	-	n/a	not ported	n
+32c68650	thunk	jmp 32c25fe0	-	-	-	n/a	not ported	n
+32c68660	thunk	jmp 32c26f10	-	-	-	n/a	not ported	n
+32c68670	thunk	jmp 32c26f20	-	-	-	n/a	not ported	n
+32c68680	thunk	jmp 32c26f30	-	-	-	n/a	not ported	n
+32c68690	thunk	jmp 32c26eb0	-	-	-	n/a	not ported	n
+32c686a0	thunk	jmp 32c26b80	-	-	-	n/a	not ported	n
+32c686b0	thunk	jmp 32c26bd0	-	-	-	n/a	not ported	n
+32c686c0	thunk	jmp 32c26ae0	-	-	-	n/a	not ported	n
+32c686d0	thunk	jmp 32c26af0	-	-	-	n/a	not ported	n
+32c686e0	thunk	jmp 32c26b00	-	-	-	n/a	not ported	n
+32c686f0	thunk	jmp 32c26b20	-	-	-	n/a	not ported	n
+32c68700	thunk	jmp 32c26b30	-	-	-	n/a	not ported	n
+32c68710	thunk	jmp 32c26b40	-	-	-	n/a	not ported	n
+32c68720	thunk	jmp 32c26b50	-	-	-	n/a	not ported	n
+32c68730	thunk	jmp 32c26b70	-	-	-	n/a	not ported	n
+32c68740	thunk	jmp 32c27270	-	-	-	n/a	not ported	n
+32c68750	thunk	jmp 32c27290	-	-	-	n/a	not ported	n
+32c68760	thunk	jmp 32c27280	-	-	-	n/a	not ported	n
+32c68770	thunk	jmp 32c272d0	-	-	-	n/a	not ported	n
+32c68780	thunk	jmp 32c25c50	-	-	-	n/a	not ported	n
+32c68790	thunk	jmp 32c25c70	-	-	-	n/a	not ported	n
+32c687a0	thunk	jmp 32c25c90	-	-	-	n/a	not ported	n
+32c687b0	thunk	jmp 32c25cc0	-	-	-	n/a	not ported	n
+32c687c0	thunk	jmp 32c25d60	-	-	-	n/a	not ported	n
+32c687d0	thunk	jmp 32c25d90	-	-	-	n/a	not ported	n
+32c687e0	thunk	jmp 32c25db0	-	-	-	n/a	not ported	n
+32c687f0	thunk	jmp 32c25df0	-	-	-	n/a	not ported	n
+32c68800	thunk	jmp 32c25e30	-	-	-	n/a	not ported	n
+32c68810	thunk	jmp 32c25e70	-	-	-	n/a	not ported	n
+32c68820	thunk	jmp 32c25eb0	-	-	-	n/a	not ported	n
+32c68830	thunk	jmp 32c25ec0	-	-	-	n/a	not ported	n
+32c68840	thunk	jmp 32c25f00	-	-	-	n/a	not ported	n
+32c68850	thunk	jmp 32c25f10	-	-	-	n/a	not ported	n
+32c68860	thunk	jmp 32c266d0	-	-	-	n/a	not ported	n
+32c68870	thunk	jmp 32c266e0	-	-	-	n/a	not ported	n
+32c68880	thunk	jmp 32c26720	-	-	-	n/a	not ported	n
+32c68890	thunk	jmp 32c26730	-	-	-	n/a	not ported	n
+32c688a0	thunk	jmp 32c26010	-	-	-	n/a	not ported	n
+32c688b0	thunk	jmp 32c26020	-	-	-	n/a	not ported	n
+32c688c0	thunk	jmp 32c26090	-	-	-	n/a	not ported	n
+32c688d0	thunk	jmp 32c25ff0	-	-	-	n/a	not ported	n
+32c688e0	thunk	jmp 32c26000	-	-	-	n/a	not ported	n
+32c688f0	thunk	jmp 32c26ea0	-	-	-	n/a	not ported	n
+32c68900	thunk	jmp 32c26340	-	-	-	n/a	not ported	n
+32c68910	thunk	jmp 32c26360	-	-	-	n/a	not ported	n
+32c68920	thunk	jmp 32c26370	-	-	-	n/a	not ported	n
+32c68930	thunk	jmp 32c26390	-	-	-	n/a	not ported	n
+32c68940	thunk	jmp 32c263a0	-	-	-	n/a	not ported	n
+32c68950	thunk	jmp 32c26ee0	-	-	-	n/a	not ported	n
+32c68960	thunk	jmp 32c26ef0	-	-	-	n/a	not ported	n
+32c68970	thunk	jmp 32c26f00	-	-	-	n/a	not ported	n
+32c68980	thunk	jmp 32c26f70	-	-	-	n/a	not ported	n
+32c68990	thunk	jmp 32c26f80	-	-	-	n/a	not ported	n
+32c689a0	thunk	jmp 32c26fa0	-	-	-	n/a	not ported	n
+32c689b0	thunk	jmp 32c26fb0	-	-	-	n/a	not ported	n
+32c689c0	thunk	jmp 32c26fd0	-	-	-	n/a	not ported	n
+32c689d0	thunk	jmp 32c26fe0	-	-	-	n/a	not ported	n
+32c689e0	thunk	jmp 32c26ff0	-	-	-	n/a	not ported	n
+32c689f0	thunk	jmp 32c26690	-	-	-	n/a	not ported	n
+32c68a00	thunk	jmp 32c266b0	-	-	-	n/a	not ported	n
+32c68a10	thunk	jmp 32c27ba0	-	-	-	n/a	not ported	n
+32c68a20	thunk	jmp 32c27320	-	-	-	n/a	not ported	n
+32c68a30	thunk	jmp 32c27350	-	-	-	n/a	not ported	n
+32c68a40	helper	called by 32c57660	-	new	?	CH4a	name: called by 32c57660(InitPassiveSkillState)	n
+32c68a50	thunk	jmp 32c260a0	-	-	-	n/a	not ported	n
+32c68a60	thunk	jmp 32c26130	-	-	-	n/a	not ported	n
+32c68a70	thunk	jmp 32c26280	-	-	-	n/a	not ported	n
+32c68a80	thunk	jmp 32c261c0	-	-	-	n/a	not ported	n
+32c68a90	thunk	jmp 32c263e0	-	-	-	n/a	not ported	n
+32c68aa0	thunk	jmp 32c264a0	-	-	-	n/a	not ported	n
+32c68ab0	thunk	jmp 32c26540	-	-	-	n/a	not ported	n
+32c68ac0	thunk	jmp 32c26570	-	-	-	n/a	not ported	n
+32c68ad0	thunk	jmp 32c265d0	-	-	-	n/a	not ported	n
+32c68ae0	thunk	jmp 32c26660	-	-	-	n/a	not ported	n
+32c68af0	thunk	jmp 32c26770	-	-	-	n/a	not ported	n
+32c68b00	thunk	jmp 32c26820	-	-	-	n/a	not ported	n
+32c68b10	thunk	jmp 32c26850	-	-	-	n/a	not ported	n
+32c68b20	thunk	jmp 32c26880	-	-	-	n/a	not ported	n
+32c68b30	thunk	jmp 32c268a0	-	-	-	n/a	not ported	n
+32c68b40	thunk	jmp 32c268e0	-	-	-	n/a	not ported	n
+32c68b50	thunk	jmp 32c26970	-	-	-	n/a	not ported	n
+32c68b60	thunk	jmp 32c26980	-	-	-	n/a	not ported	n
+32c68b70	thunk	jmp 32c26a00	-	-	-	n/a	not ported	n
+32c68b80	thunk	jmp 32c26bf0	-	-	-	n/a	not ported	n
+32c68b90	thunk	jmp 32c26c50	-	-	-	n/a	not ported	n
+32c68ba0	thunk	jmp 32c26c90	-	-	-	n/a	not ported	n
+32c68bb0	thunk	jmp 32c26cb0	-	-	-	n/a	not ported	n
+32c68bc0	thunk	jmp 32c26d10	-	-	-	n/a	not ported	n
+32c68bd0	thunk	jmp 32c26d70	-	-	-	n/a	not ported	n
+32c68be0	thunk	jmp 32c26d80	-	-	-	n/a	not ported	n
+32c68bf0	thunk	jmp 32c26e20	-	-	-	n/a	not ported	n
+32c68c00	thunk	jmp 32c27000	-	-	-	n/a	not ported	n
+32c68c10	thunk	jmp 32c27010	-	-	-	n/a	not ported	n
+32c68c20	thunk	jmp 32c27030	-	-	-	n/a	not ported	n
+32c68c30	thunk	jmp 32c27040	-	-	-	n/a	not ported	n
+32c68c40	thunk	jmp 32c27060	-	-	-	n/a	not ported	n
+32c68c50	thunk	jmp 32c270e0	-	-	-	n/a	not ported	n
+32c68c60	thunk	jmp 32c27110	-	-	-	n/a	not ported	n
+32c68c70	thunk	jmp 32c27120	-	-	-	n/a	not ported	n
+32c68c80	thunk	jmp 32c27130	-	-	-	n/a	not ported	n
+32c68c90	thunk	jmp 32c27160	-	-	-	n/a	not ported	n
+32c68ca0	thunk	jmp 32c27180	-	-	-	n/a	not ported	n
+32c68cb0	thunk	jmp 32c27190	-	-	-	n/a	not ported	n
+32c68cc0	thunk	jmp 32c271a0	-	-	-	n/a	not ported	n
+32c68cd0	thunk	jmp 32c27230	-	-	-	n/a	not ported	n
+32c68ce0	thunk	jmp 32c27240	-	-	-	n/a	not ported	n
+32c68cf0	thunk	jmp 32c272f0	-	-	-	n/a	not ported	n
+32c68d00	thunk	jmp 32c27300	-	-	-	n/a	not ported	n
+32c68d10	thunk	jmp 32c27310	-	-	-	n/a	not ported	n
+32c68d20	thunk	jmp 32c27be0	-	-	-	n/a	not ported	n
+32c68d30	thunk	jmp 32c27b20	-	-	-	n/a	not ported	n
+32c68d40	thunk	jmp 32c277e0	-	-	-	n/a	not ported	n
+32c68d50	thunk	jmp 32c27860	-	-	-	n/a	not ported	n
+32c68d60	thunk	jmp 32c27890	-	-	-	n/a	not ported	n
+32c68d70	thunk	jmp 32c278b0	-	-	-	n/a	not ported	n
+32c68d80	thunk	jmp 32c278d0	-	-	-	n/a	not ported	n
+32c68d90	thunk	jmp 32c27940	-	-	-	n/a	not ported	n
+32c68da0	thunk	jmp 32c27a30	-	-	-	n/a	not ported	n
+32c68db0	thunk	jmp 32c27930	-	-	-	n/a	not ported	n
+32c68dc0	thunk	jmp 32c279a0	-	-	-	n/a	not ported	n
+32c68dd0	thunk	jmp 32c27a20	-	-	-	n/a	not ported	n
+32c68de0	thunk	jmp 32c276d0	-	-	-	n/a	not ported	n
+32c68df0	thunk	jmp 32c275a0	-	-	-	n/a	not ported	n
+32c68e00	thunk	jmp 32c27630	-	-	-	n/a	not ported	n
+32c68e10	thunk	jmp 32c27500	-	-	-	n/a	not ported	n
+32c68e20	thunk	jmp 32c27370	-	-	-	n/a	not ported	n
+32c68e30	thunk	jmp 32c27380	-	-	-	n/a	not ported	n
+32c68e40	thunk	jmp 32c27390	-	-	-	n/a	not ported	n
+32c68e50	thunk	jmp 32c273a0	-	-	-	n/a	not ported	n
+32c68e60	thunk	jmp 32c273b0	-	-	-	n/a	not ported	n
+32c68e70	thunk	jmp 32c27c00	-	-	-	n/a	not ported	n
+32c68e80	thunk	jmp 32c27c10	-	-	-	n/a	not ported	n
+32c68e90	thunk	jmp 32c27c20	-	-	-	n/a	not ported	n
+32c68ea0	thunk	jmp 32c27c30	-	-	-	n/a	not ported	n
+32c68eb0	thunk	jmp 32c27c40	-	-	-	n/a	not ported	n
+32c68ec0	thunk	jmp 32c27c50	-	-	-	n/a	not ported	n
+32c68ed0	thunk	jmp 32c27c60	-	-	-	n/a	not ported	n
+32c68ee0	thunk	jmp 32c27c70	-	-	-	n/a	not ported	n
+32c68ef0	thunk	jmp 32c27c80	-	-	-	n/a	not ported	n
+32c68f00	thunk	jmp 32c27d90	-	-	-	n/a	not ported	n
+32c68f10	thunk	jmp 32c27e50	-	-	-	n/a	not ported	n
+32c68f20	thunk	jmp 32c27f10	-	-	-	n/a	not ported	n
+32c68f30	thunk	jmp 32c27fe0	-	-	-	n/a	not ported	n
+32c68f40	thunk	jmp 32c27c90	-	-	-	n/a	not ported	n
+32c68f50	thunk	jmp 32c28040	-	-	-	n/a	not ported	n
+32c68f60	thunk	jmp 32c28130	-	-	-	n/a	not ported	n
+32c68f70	thunk	jmp 32c28140	-	-	-	n/a	not ported	n
+32c68f80	thunk	jmp 32c28150	-	-	-	n/a	not ported	n
+32c68f90	helper	called by 32c38340 32c383b0	-	new	?	CH1h	name: called by 32c38340(SetSpecificValueByBuffTemple) 32c383b0(UnSetSpecificValueByBuffTemp)	y
+32c68ff0	override 0xa0	SetFullHyperMode	X2GURaven.h:484 virtual void SetFullHyperMode( const bool bFullHyperMode_ ) { m_bHyperAura = bFullHyperMode_; }	inside	-	CH1h	base 3208ddc0	n
+32c69000	thunk	jmp 32c33bd0	-	-	-	n/a	not ported	n
+32c69010	thunk	jmp 32c316a0	-	-	-	n/a	not ported	n
+32c69020	thunk	jmp 32c31730	-	-	-	n/a	not ported	n
+32c69030	thunk	jmp 32c35d30	-	-	-	n/a	not ported	n
+32c69040	thunk	jmp 32c35e20	-	-	-	n/a	not ported	n
+32c69050	thunk	jmp 32c34cc0	-	-	-	n/a	not ported	n
+32c69060	thunk	jmp 32c35020	-	-	-	n/a	not ported	n
+32c69070	thunk	jmp 32c2d8e0	-	-	-	n/a	not ported	n
+32c69080	thunk	jmp 32c2d930	-	-	-	n/a	not ported	n
+32c69090	thunk	jmp 32c2a880	-	-	-	n/a	not ported	n
+32c690a0	thunk	jmp 32c345f0	-	-	-	n/a	not ported	n
+32c690b0	thunk	jmp 32c33c30	-	-	-	n/a	not ported	n
+32c690c0	thunk	jmp 32c2b6f0	-	-	-	n/a	not ported	n
+32c690d0	thunk	jmp 32c32560	-	-	-	n/a	not ported	n
+32c690e0	thunk	jmp 32c32970	-	-	-	n/a	not ported	n
+32c690f0	thunk	jmp 32c32da0	-	-	-	n/a	not ported	n
+32c69100	thunk	jmp 32c32de0	-	-	-	n/a	not ported	n
+32c69110	thunk	jmp 32c317e0	-	-	-	n/a	not ported	n
+32c69120	thunk	jmp 32c31830	-	-	-	n/a	not ported	n
+32c69130	thunk	jmp 32c31860	-	-	-	n/a	not ported	n
+32c69140	thunk	jmp 32c31a20	-	-	-	n/a	not ported	n
+32c69150	thunk	jmp 32c31a80	-	-	-	n/a	not ported	n
+32c69160	thunk	jmp 32c31ec0	-	-	-	n/a	not ported	n
+32c69170	thunk	jmp 32c32210	-	-	-	n/a	not ported	n
+32c69180	thunk	jmp 32c35ed0	-	-	-	n/a	not ported	n
+32c69190	thunk	jmp 32c35f90	-	-	-	n/a	not ported	n
+32c691a0	thunk	jmp 32c2dd50	-	-	-	n/a	not ported	n
+32c691b0	thunk	jmp 32c28960	-	-	-	n/a	not ported	n
+32c691c0	thunk	jmp 32c289c0	-	-	-	n/a	not ported	n
+32c691d0	thunk	jmp 32c28a00	-	-	-	n/a	not ported	n
+32c691e0	thunk	jmp 32c28a60	-	-	-	n/a	not ported	n
+32c691f0	thunk	jmp 32c28aa0	-	-	-	n/a	not ported	n
+32c69200	thunk	jmp 32c28b80	-	-	-	n/a	not ported	n
+32c69210	thunk	jmp 32c28bc0	-	-	-	n/a	not ported	n
+32c69220	thunk	jmp 32c28c10	-	-	-	n/a	not ported	n
+32c69230	thunk	jmp 32c28d90	-	-	-	n/a	not ported	n
+32c69240	thunk	jmp 32c28dd0	-	-	-	n/a	not ported	n
+32c69250	thunk	jmp 32c290d0	-	-	-	n/a	not ported	n
+32c69260	thunk	jmp 32c29130	-	-	-	n/a	not ported	n
+32c69270	thunk	jmp 32c28f50	-	-	-	n/a	not ported	n
+32c69280	thunk	jmp 32c29190	-	-	-	n/a	not ported	n
+32c69290	thunk	jmp 32c29210	-	-	-	n/a	not ported	n
+32c692a0	thunk	jmp 32c29290	-	-	-	n/a	not ported	n
+32c692b0	thunk	jmp 32c29310	-	-	-	n/a	not ported	n
+32c692c0	thunk	jmp 32c29390	-	-	-	n/a	not ported	n
+32c692d0	thunk	jmp 32c29410	-	-	-	n/a	not ported	n
+32c692e0	thunk	jmp 32c30f30	-	-	-	n/a	not ported	n
+32c692f0	thunk	jmp 32c30fb0	-	-	-	n/a	not ported	n
+32c69300	thunk	jmp 32c297a0	-	-	-	n/a	not ported	n
+32c69310	thunk	jmp 32c29bb0	-	-	-	n/a	not ported	n
+32c69320	thunk	jmp 32c29fd0	-	-	-	n/a	not ported	n
+32c69330	thunk	jmp 32c2a550	-	-	-	n/a	not ported	n
+32c69340	thunk	jmp 32c2aef0	-	-	-	n/a	not ported	n
+32c69350	thunk	jmp 32c2b360	-	-	-	n/a	not ported	n
+32c69360	thunk	jmp 32c2bbb0	-	-	-	n/a	not ported	n
+32c69370	thunk	jmp 32c2c070	-	-	-	n/a	not ported	n
+32c69380	thunk	jmp 32c2c370	-	-	-	n/a	not ported	n
+32c69390	thunk	jmp 32c2c810	-	-	-	n/a	not ported	n
+32c693a0	thunk	jmp 32c2d450	-	-	-	n/a	not ported	n
+32c693b0	thunk	jmp 32c2d750	-	-	-	n/a	not ported	n
+32c693c0	thunk	jmp 32c2d860	-	-	-	n/a	not ported	n
+32c693d0	thunk	jmp 32c2d8b0	-	-	-	n/a	not ported	n
+32c693e0	thunk	jmp 32c2da40	-	-	-	n/a	not ported	n
+32c693f0	thunk	jmp 32c2da80	-	-	-	n/a	not ported	n
+32c69400	thunk	jmp 32c2abc0	-	-	-	n/a	not ported	n
+32c69410	thunk	jmp 32c33a60	-	-	-	n/a	not ported	n
+32c69420	thunk	jmp 32c2df90	-	-	-	n/a	not ported	n
+32c69430	thunk	jmp 32c2dfe0	-	-	-	n/a	not ported	n
+32c69440	thunk	jmp 32c2e2f0	-	-	-	n/a	not ported	n
+32c69450	thunk	jmp 32c2e6a0	-	-	-	n/a	not ported	n
+32c69460	thunk	jmp 32c2e700	-	-	-	n/a	not ported	n
+32c69470	thunk	jmp 32c2ea40	-	-	-	n/a	not ported	n
+32c69480	thunk	jmp 32c2dec0	-	-	-	n/a	not ported	n
+32c69490	thunk	jmp 32c2cb30	-	-	-	n/a	not ported	n
+32c694a0	thunk	jmp 32c2cc40	-	-	-	n/a	not ported	n
+32c694b0	thunk	jmp 32c2cc70	-	-	-	n/a	not ported	n
+32c694c0	thunk	jmp 32c2ccc0	-	-	-	n/a	not ported	n
+32c694d0	thunk	jmp 32c2cfe0	-	-	-	n/a	not ported	n
+32c694e0	thunk	jmp 32c2d0f0	-	-	-	n/a	not ported	n
+32c694f0	thunk	jmp 32c2ed70	-	-	-	n/a	not ported	n
+32c69500	thunk	jmp 32c2f1b0	-	-	-	n/a	not ported	n
+32c69510	thunk	jmp 32c2f6a0	-	-	-	n/a	not ported	n
+32c69520	thunk	jmp 32c2fb90	-	-	-	n/a	not ported	n
+32c69530	thunk	jmp 32c2ffb0	-	-	-	n/a	not ported	n
+32c69540	thunk	jmp 32c302e0	-	-	-	n/a	not ported	n
+32c69550	thunk	jmp 32c30600	-	-	-	n/a	not ported	n
+32c69560	thunk	jmp 32c30690	-	-	-	n/a	not ported	n
+32c69570	thunk	jmp 32c306c0	-	-	-	n/a	not ported	n
+32c69580	thunk	jmp 32c30710	-	-	-	n/a	not ported	n
+32c69590	thunk	jmp 32c2d130	-	-	-	n/a	not ported	n
+32c695a0	thunk	jmp 32c33fd0	-	-	-	n/a	not ported	n
+32c695b0	thunk	jmp 32c342c0	-	-	-	n/a	not ported	n
+32c695c0	thunk	jmp 32c36020	-	-	-	n/a	not ported	n
+32c695d0	thunk	jmp 32c36420	-	-	-	n/a	not ported	n
+32c695e0	thunk	jmp 32c36440	-	-	-	n/a	not ported	n
+32c695f0	thunk	jmp 32c36790	-	-	-	n/a	not ported	n
+32c69600	thunk	jmp 32c367b0	-	-	-	n/a	not ported	n
+32c69610	thunk	jmp 32c367d0	-	-	-	n/a	not ported	n
+32c69620	thunk	jmp 32c36ad0	-	-	-	n/a	not ported	n
+32c69630	thunk	jmp 32c36af0	-	-	-	n/a	not ported	n
+32c69640	thunk	jmp 32c34970	-	-	-	n/a	not ported	n
+32c69650	thunk	jmp 32c35330	-	-	-	n/a	not ported	n
+32c69660	thunk	jmp 32c35440	-	-	-	n/a	not ported	n
+32c69670	thunk	jmp 32c3c7a0	-	-	-	n/a	not ported	n
+32c69680	thunk	jmp 32c33510	-	-	-	n/a	not ported	n
+32c69690	thunk	jmp 32c30e80	-	-	-	n/a	not ported	n
+32c696a0	thunk	jmp 32c30ee0	-	-	-	n/a	not ported	n
+32c696b0	thunk	jmp 32c3a690	-	-	-	n/a	not ported	n
+32c696c0	thunk	jmp 32c378f0	-	-	-	n/a	not ported	n
+32c696d0	thunk	jmp 32c379b0	-	-	-	n/a	not ported	n
+32c696e0	thunk	jmp 32c37a10	-	-	-	n/a	not ported	n
+32c696f0	thunk	jmp 32c37b80	-	-	-	n/a	not ported	n
+32c69700	thunk	jmp 32c2dac0	-	-	-	n/a	not ported	n
+32c69710	thunk	jmp 32c2db00	-	-	-	n/a	not ported	n
+32c69720	thunk	jmp 32c2db90	-	-	-	n/a	not ported	n
+32c69730	thunk	jmp 32c2dbd0	-	-	-	n/a	not ported	n
+32c69740	thunk	jmp 32c2dd10	-	-	-	n/a	not ported	n
+32c69750	thunk	jmp 32c2dc40	-	-	-	n/a	not ported	n
+32c69760	thunk	jmp 32c2dc90	-	-	-	n/a	not ported	n
+32c69770	thunk	jmp 32c30a30	-	-	-	n/a	not ported	n
+32c69780	thunk	jmp 32c30af0	-	-	-	n/a	not ported	n
+32c69790	thunk	jmp 32c30b50	-	-	-	n/a	not ported	n
+32c697a0	thunk	jmp 32c30c30	-	-	-	n/a	not ported	n
+32c697b0	thunk	jmp 32c30c70	-	-	-	n/a	not ported	n
+32c697c0	thunk	jmp 32c30cb0	-	-	-	n/a	not ported	n
+32c697d0	thunk	jmp 32c30d70	-	-	-	n/a	not ported	n
+32c697e0	thunk	jmp 32c30db0	-	-	-	n/a	not ported	n
+32c697f0	thunk	jmp 32c31030	-	-	-	n/a	not ported	n
+32c69800	thunk	jmp 32c31090	-	-	-	n/a	not ported	n
+32c69810	thunk	jmp 32c310d0	-	-	-	n/a	not ported	n
+32c69820	thunk	jmp 32c31130	-	-	-	n/a	not ported	n
+32c69830	thunk	jmp 32c31170	-	-	-	n/a	not ported	n
+32c69840	thunk	jmp 32c311b0	-	-	-	n/a	not ported	n
+32c69850	thunk	jmp 32c31280	-	-	-	n/a	not ported	n
+32c69860	thunk	jmp 32c31350	-	-	-	n/a	not ported	n
+32c69870	thunk	jmp 32c315c0	-	-	-	n/a	not ported	n
+32c69880	thunk	jmp 32c33100	-	-	-	n/a	not ported	n
+32c69890	thunk	jmp 32c331a0	-	-	-	n/a	not ported	n
+32c698a0	thunk	jmp 32c33230	-	-	-	n/a	not ported	n
+32c698b0	thunk	jmp 32c33280	-	-	-	n/a	not ported	n
+32c698c0	thunk	jmp 32c33310	-	-	-	n/a	not ported	n
+32c698d0	thunk	jmp 32c33420	-	-	-	n/a	not ported	n
+32c698e0	thunk	jmp 32c33480	-	-	-	n/a	not ported	n
+32c698f0	thunk	jmp 32c334c0	-	-	-	n/a	not ported	n
+32c69900	thunk	jmp 32c335b0	-	-	-	n/a	not ported	n
+32c69910	thunk	jmp 32c33830	-	-	-	n/a	not ported	n
+32c69920	thunk	jmp 32c33850	-	-	-	n/a	not ported	n
+32c69930	thunk	jmp 32c33930	-	-	-	n/a	not ported	n
+32c69940	thunk	jmp 32c33960	-	-	-	n/a	not ported	n
+32c69950	thunk	jmp 32c33a10	-	-	-	n/a	not ported	n
+32c69960	thunk	jmp 32c339a0	-	-	-	n/a	not ported	n
+32c69970	thunk	jmp 32c35510	-	-	-	n/a	not ported	n
+32c69980	thunk	jmp 32c355a0	-	-	-	n/a	not ported	n
+32c69990	thunk	jmp 32c355d0	-	-	-	n/a	not ported	n
+32c699a0	thunk	jmp 32c35730	-	-	-	n/a	not ported	n
+32c699b0	thunk	jmp 32c357e0	-	-	-	n/a	not ported	n
+32c699c0	thunk	jmp 32c359d0	-	-	-	n/a	not ported	n
+32c699d0	thunk	jmp 32c35bc0	-	-	-	n/a	not ported	n
+32c699e0	thunk	jmp 32c35bf0	-	-	-	n/a	not ported	n
+32c699f0	thunk	jmp 32c35c20	-	-	-	n/a	not ported	n
+32c69a00	thunk	jmp 32c35c50	-	-	-	n/a	not ported	n
+32c69a10	thunk	jmp 32c35c80	-	-	-	n/a	not ported	n
+32c69a20	thunk	jmp 32c35cb0	-	-	-	n/a	not ported	n
+32c69a30	thunk	jmp 32c35cf0	-	-	-	n/a	not ported	n
+32c69a40	thunk	jmp 32c36e00	-	-	-	n/a	not ported	n
+32c69a50	thunk	jmp 32c36e50	-	-	-	n/a	not ported	n
+32c69a60	thunk	jmp 32c36e80	-	-	-	n/a	not ported	n
+32c69a70	thunk	jmp 32c37080	-	-	-	n/a	not ported	n
+32c69a80	thunk	jmp 32c37270	-	-	-	n/a	not ported	n
+32c69a90	thunk	jmp 32c374c0	-	-	-	n/a	not ported	n
+32c69aa0	thunk	jmp 32c376c0	-	-	-	n/a	not ported	n
+32c69ab0	thunk	jmp 32c376f0	-	-	-	n/a	not ported	n
+32c69ac0	thunk	jmp 32c3aab0	-	-	-	n/a	not ported	n
+32c69ad0	thunk	jmp 32c3a260	-	-	-	n/a	not ported	n
+32c69ae0	thunk	jmp 32c3a460	-	-	-	n/a	not ported	n
+32c69af0	thunk	jmp 32c3a490	-	-	-	n/a	not ported	n
+32c69b00	thunk	jmp 32c38f70	-	-	-	n/a	not ported	n
+32c69b10	thunk	jmp 32c391f0	-	-	-	n/a	not ported	n
+32c69b20	thunk	jmp 32c393f0	-	-	-	n/a	not ported	n
+32c69b30	thunk	jmp 32c395f0	-	-	-	n/a	not ported	n
+32c69b40	thunk	jmp 32c39670	-	-	-	n/a	not ported	n
+32c69b50	thunk	jmp 32c39c70	-	-	-	n/a	not ported	n
+32c69b60	thunk	jmp 32c39630	-	-	-	n/a	not ported	n
+32c69b70	thunk	jmp 32c39880	-	-	-	n/a	not ported	n
+32c69b80	thunk	jmp 32c398b0	-	-	-	n/a	not ported	n
+32c69b90	thunk	jmp 32c39ab0	-	-	-	n/a	not ported	n
+32c69ba0	thunk	jmp 32c39b20	-	-	-	n/a	not ported	n
+32c69bb0	thunk	jmp 32c38a30	-	-	-	n/a	not ported	n
+32c69bc0	thunk	jmp 32c38b20	-	-	-	n/a	not ported	n
+32c69bd0	thunk	jmp 32c38770	-	-	-	n/a	not ported	n
+32c69be0	thunk	jmp 32c387d0	-	-	-	n/a	not ported	n
+32c69bf0	thunk	jmp 32c38830	-	-	-	n/a	not ported	n
+32c69c00	thunk	jmp 32c38470	-	-	-	n/a	not ported	n
+32c69c10	thunk	jmp 32c38510	-	-	-	n/a	not ported	n
+32c69c20	thunk	jmp 32c38710	-	-	-	n/a	not ported	n
+32c69c30	thunk	jmp 32c37d90	-	-	-	n/a	not ported	n
+32c69c40	thunk	jmp 32c37dc0	-	-	-	n/a	not ported	n
+32c69c50	thunk	jmp 32c37fc0	-	-	-	n/a	not ported	n
+32c69c60	thunk	jmp 32c38030	-	-	-	n/a	not ported	n
+32c69c70	thunk	jmp 32c3ad00	-	-	-	n/a	not ported	n
+32c69c80	thunk	jmp 32c3b040	-	-	-	n/a	not ported	n
+32c69c90	thunk	jmp 32c3b0a0	-	-	-	n/a	not ported	n
+32c69ca0	thunk	jmp 32c3b3e0	-	-	-	n/a	not ported	n
+32c69cb0	thunk	jmp 32c3b720	-	-	-	n/a	not ported	n
+32c69cc0	thunk	jmp 32c3ba30	-	-	-	n/a	not ported	n
+32c69cd0	thunk	jmp 32c3bd40	-	-	-	n/a	not ported	n
+32c69ce0	thunk	jmp 32c3c050	-	-	-	n/a	not ported	n
+32c69cf0	thunk	jmp 32c3c360	-	-	-	n/a	not ported	n
+32c69d00	thunk	jmp 32c3c6b0	-	-	-	n/a	not ported	n
+32c69d10	thunk	jmp 32c3c6e0	-	-	-	n/a	not ported	n
+32c69d20	thunk	jmp 32c3c730	-	-	-	n/a	not ported	n
+32c69d30	thunk	jmp 32c3c670	-	-	-	n/a	not ported	n
+32c69d40	thunk	jmp 32c3c8a0	-	-	-	n/a	not ported	n
+32c69d50	thunk	jmp 32c3c8e0	-	-	-	n/a	not ported	n
+32c69d60	thunk	jmp 32c3c8f0	-	-	-	n/a	not ported	n
+32c69d70	thunk	jmp 32c3c930	-	-	-	n/a	not ported	n
+32c69d80	helper	reached only through pointer @334720bc	-	new	?	CH1o	phase unsettled: read it; name: MemoConditionRaven vtable 33511404 slot 0 (RTTI .?AVMemoConditionRaven@CX2GURaven@@; also the entry of the base vtable 334720bc, so shared with the base memo condition); name by the memo-condition pattern (CH1h / CH4a decision)	n
+32c69da0	thunk	jmp 32c3d2b0	-	-	-	n/a	not ported	n
+32c69db0	thunk	jmp 32c3d3b0	-	-	-	n/a	not ported	n
+32c69dc0	thunk	jmp 32c3d3f0	-	-	-	n/a	not ported	n
+32c69dd0	thunk	jmp 32c3d800	-	-	-	n/a	not ported	n
+32c69de0	thunk	jmp 32c3d880	-	-	-	n/a	not ported	n
+32c69df0	thunk	jmp 32c3d8f0	-	-	-	n/a	not ported	n
+32c69e00	thunk	jmp 32c3d980	-	-	-	n/a	not ported	n
+32c69e10	helper	called by 32c57660	-	new	?	CH4a	name: called by 32c57660(InitPassiveSkillState)	n
+32c69e20	thunk	jmp 32c3dce0	-	-	-	n/a	not ported	n
+32c69e30	helper	called by 32c641a0	-	new	?	CH1n	name: called by 32c641a0(SetEquippedSkillFuncBySkillS)	y
+32c69e90	thunk	jmp 32c3e740	-	-	-	n/a	not ported	n
+32c69ea0	thunk	jmp 32c3e680	-	-	-	n/a	not ported	n
+32c69eb0	thunk	jmp 32c3e7a0	-	-	-	n/a	not ported	n
+32c69ec0	thunk	jmp 32c3e8a0	-	-	-	n/a	not ported	n
+32c69ed0	thunk	jmp 32c3e8d0	-	-	-	n/a	not ported	n
+32c69ee0	thunk	jmp 32c3e950	-	-	-	n/a	not ported	n
+32c69ef0	thunk	jmp 32c3e980	-	-	-	n/a	not ported	n
+32c69f00	thunk	jmp 32c3e9b0	-	-	-	n/a	not ported	n
+32c69f10	thunk	jmp 32c3e9e0	-	-	-	n/a	not ported	n
+32c69f20	thunk	jmp 32c3ea10	-	-	-	n/a	not ported	n
+32c69f30	thunk	jmp 32c3ea40	-	-	-	n/a	not ported	n
+32c69f40	helper	reached only through pointer @33511444	-	new	?	CH1o	phase unsettled: read it; name: MemoConditionRaven vtable 33511404 slot 4 (pointer @33511444); name by the memo-condition pattern (CH1h / CH4a decision)	n
+32c69f50	helper	reached only through pointer @3351144c	-	new	?	CH1o	phase unsettled: read it; name: MemoConditionRaven vtable 33511404 slot 6 (pointer @3351144c); name by the memo-condition pattern (CH1h / CH4a decision)	n
+32c69f60	override 0x9c	IsFullHyperMode	X2GURaven.h:483 virtual bool IsFullHyperMode() const { return m_bHyperAura; }	inside	-	CH1h	base 31e4c550	n
+32c69f70	override 0x4b0	GetComboZStateID	X2GURaven.h:558 virtual int GetComboZStateID() const { return RSI_COMBO_Z; }	inside	-	CH1h	base 3208df10	n
+32c69f80	override 0x4b4	GetComboXStateID	X2GURaven.h:559 virtual int GetComboXStateID() const { return RSI_COMBO_X; }	inside	-	CH1h	base 3208df10	n
+32c69f90	thunk	jmp 32c42400	-	-	-	n/a	not ported	n
+32c69fa0	thunk	jmp 32c41330	-	-	-	n/a	not ported	n
+32c69fb0	thunk	jmp 32c413e0	-	-	-	n/a	not ported	n
+32c69fc0	thunk	jmp 32c41890	-	-	-	n/a	not ported	n
+32c69fd0	thunk	jmp 32c41a00	-	-	-	n/a	not ported	n
+32c69fe0	thunk	jmp 32c41ef0	-	-	-	n/a	not ported	n
+32c69ff0	thunk	jmp 32c424b0	-	-	-	n/a	not ported	n
+32c6a000	thunk	jmp 32c42550	-	-	-	n/a	not ported	n
+32c6a010	thunk	jmp 32c425f0	-	-	-	n/a	not ported	n
+32c6a020	thunk	jmp 32c40dd0	-	-	-	n/a	not ported	n
+32c6a030	thunk	jmp 32c40ea0	-	-	-	n/a	not ported	n
+32c6a040	thunk	jmp 32c40f50	-	-	-	n/a	not ported	n
+32c6a050	thunk	jmp 32c42160	-	-	-	n/a	not ported	n
+32c6a060	thunk	jmp 32c42a30	-	-	-	n/a	not ported	n
+32c6a070	thunk	jmp 32c42010	-	-	-	n/a	not ported	n
+32c6a080	thunk	jmp 32c42200	-	-	-	n/a	not ported	n
+32c6a090	thunk	jmp 32c422e0	-	-	-	n/a	not ported	n
+32c6a0a0	thunk	jmp 32c42370	-	-	-	n/a	not ported	n
+32c6a0b0	thunk	jmp 32c42690	-	-	-	n/a	not ported	n
+32c6a0c0	thunk	jmp 32c427b0	-	-	-	n/a	not ported	n
+32c6a0d0	thunk	jmp 32c42850	-	-	-	n/a	not ported	n
+32c6a0e0	thunk	jmp 32c428f0	-	-	-	n/a	not ported	n
+32c6a0f0	thunk	jmp 32c42990	-	-	-	n/a	not ported	n
+32c6a100	thunk	jmp 32c42c30	-	-	-	n/a	not ported	n
+32c6a110	thunk	jmp 32c42e10	-	-	-	n/a	not ported	n
+32c6a120	thunk	jmp 32c42eb0	-	-	-	n/a	not ported	n
+32c6a130	thunk	jmp 32c49ab0	-	-	-	n/a	not ported	n
+32c6a140	thunk	jmp 32c4c530	-	-	-	n/a	not ported	n
+32c6a150	thunk	jmp 32c4b290	-	-	-	n/a	not ported	n
+32c6a160	thunk	jmp 32c4b530	-	-	-	n/a	not ported	n
+32c6a170	thunk	jmp 32c46170	-	-	-	n/a	not ported	n
+32c6a180	thunk	jmp 32c49de0	-	-	-	n/a	not ported	n
+32c6a190	thunk	jmp 32c44f90	-	-	-	n/a	not ported	n
+32c6a1a0	thunk	jmp 32c4aab0	-	-	-	n/a	not ported	n
+32c6a1b0	thunk	jmp 32c4c910	-	-	-	n/a	not ported	n
+32c6a1c0	thunk	jmp 32c43f90	-	-	-	n/a	not ported	n
+32c6a1d0	thunk	jmp 32c441c0	-	-	-	n/a	not ported	n
+32c6a1e0	thunk	jmp 32c443f0	-	-	-	n/a	not ported	n
+32c6a1f0	thunk	jmp 32c446a0	-	-	-	n/a	not ported	n
+32c6a200	thunk	jmp 32c448a0	-	-	-	n/a	not ported	n
+32c6a210	thunk	jmp 32c44b60	-	-	-	n/a	not ported	n
+32c6a220	thunk	jmp 32c44d80	-	-	-	n/a	not ported	n
+32c6a230	thunk	jmp 32c45260	-	-	-	n/a	not ported	n
+32c6a240	thunk	jmp 32c45f80	-	-	-	n/a	not ported	n
+32c6a250	thunk	jmp 32c4a9f0	-	-	-	n/a	not ported	n
+32c6a260	thunk	jmp 32c45520	-	-	-	n/a	not ported	n
+32c6a270	thunk	jmp 32c45710	-	-	-	n/a	not ported	n
+32c6a280	thunk	jmp 32c459f0	-	-	-	n/a	not ported	n
+32c6a290	thunk	jmp 32c45cc0	-	-	-	n/a	not ported	n
+32c6a2a0	thunk	jmp 32c47160	-	-	-	n/a	not ported	n
+32c6a2b0	thunk	jmp 32c47700	-	-	-	n/a	not ported	n
+32c6a2c0	thunk	jmp 32c47970	-	-	-	n/a	not ported	n
+32c6a2d0	thunk	jmp 32c4cac0	-	-	-	n/a	not ported	n
+32c6a2e0	thunk	jmp 32c49590	-	-	-	n/a	not ported	n
+32c6a2f0	thunk	jmp 32c4e5b0	-	-	-	n/a	not ported	n
+32c6a300	thunk	jmp 32c4dcc0	-	-	-	n/a	not ported	n
+32c6a310	thunk	jmp 32c48de0	-	-	-	n/a	not ported	n
+32c6a320	thunk	jmp 32c49730	-	-	-	n/a	not ported	n
+32c6a330	thunk	jmp 32c49930	-	-	-	n/a	not ported	n
+32c6a340	thunk	jmp 32c4a080	-	-	-	n/a	not ported	n
+32c6a350	thunk	jmp 32c4a2a0	-	-	-	n/a	not ported	n
+32c6a360	thunk	jmp 32c4a490	-	-	-	n/a	not ported	n
+32c6a370	thunk	jmp 32c4a670	-	-	-	n/a	not ported	n
+32c6a380	thunk	jmp 32c4a6c0	-	-	-	n/a	not ported	n
+32c6a390	thunk	jmp 32c4b7d0	-	-	-	n/a	not ported	n
+32c6a3a0	thunk	jmp 32c4b9e0	-	-	-	n/a	not ported	n
+32c6a3b0	thunk	jmp 32c4bcd0	-	-	-	n/a	not ported	n
+32c6a3c0	thunk	jmp 32c4c070	-	-	-	n/a	not ported	n
+32c6a3d0	thunk	jmp 32c4cba0	-	-	-	n/a	not ported	n
+32c6a3e0	thunk	jmp 32c4cf30	-	-	-	n/a	not ported	n
+32c6a3f0	thunk	jmp 32c4d350	-	-	-	n/a	not ported	n
+32c6a400	thunk	jmp 32c4d770	-	-	-	n/a	not ported	n
+32c6a410	thunk	jmp 32c4db90	-	-	-	n/a	not ported	n
+32c6a420	thunk	jmp 32c4edc0	-	-	-	n/a	not ported	n
+32c6a430	thunk	jmp 32c4df80	-	-	-	n/a	not ported	n
+32c6a440	thunk	jmp 32c4f0a0	-	-	-	n/a	not ported	n
+32c6a450	helper	called by 32c54960	-	new	?	CH1h	name: called by 32c54960(helper)	y
+32c6a4a0	thunk	jmp 32c511a0	-	-	-	n/a	not ported	n
+32c6a4b0	thunk	jmp 32c50dd0	-	-	-	n/a	not ported	n
+32c6a4c0	thunk	jmp 32c50d50	-	-	-	n/a	not ported	n
+32c6a4d0	thunk	jmp 32c50e00	-	-	-	n/a	not ported	n
+32c6a4e0	thunk	jmp 32c528c0	-	-	-	n/a	not ported	n
+32c6a4f0	thunk	jmp 32c52550	-	-	-	n/a	not ported	n
+32c6a500	thunk	jmp 32c54190	-	-	-	n/a	not ported	n
+32c6a510	thunk	jmp 32c52b30	-	-	-	n/a	not ported	n
+32c6a520	thunk	jmp 32c52cc0	-	-	-	n/a	not ported	n
+32c6a530	thunk	jmp 32c52f30	-	-	-	n/a	not ported	n
+32c6a540	thunk	jmp 32c53110	-	-	-	n/a	not ported	n
+32c6a550	thunk	jmp 32c532f0	-	-	-	n/a	not ported	n
+32c6a560	thunk	jmp 32c53560	-	-	-	n/a	not ported	n
+32c6a570	thunk	jmp 32c536c0	-	-	-	n/a	not ported	n
+32c6a580	thunk	jmp 32c538a0	-	-	-	n/a	not ported	n
+32c6a590	thunk	jmp 32c538c0	-	-	-	n/a	not ported	n
+32c6a5a0	thunk	jmp 32c53b10	-	-	-	n/a	not ported	n
+32c6a5b0	thunk	jmp 32c53d60	-	-	-	n/a	not ported	n
+32c6a5c0	thunk	jmp 32c53fb0	-	-	-	n/a	not ported	n
+32c6a5d0	thunk	jmp 32c54780	-	-	-	n/a	not ported	n
+32c6a5e0	thunk	jmp 32c55ee0	-	-	-	n/a	not ported	n
+32c6a5f0	thunk	jmp 32c55fe0	-	-	-	n/a	not ported	n
+32c6a600	thunk	jmp 32c57150	-	-	-	n/a	not ported	n
+32c6a610	thunk	jmp 32c560e0	-	-	-	n/a	not ported	n
+32c6a620	override 0x0	~CX2GURaven (scalar deleting dtor)	X2GURaven.h:362 virtual ~CX2GURaven(void);	inside	-	CH1h	base 3208f650	y
+# totals kind: dead=117, helper=49, override=57, registrar=4, state-fn=525, thunk=489; functions in range 1241; carved 440; uncarved 801 (thunks 497)
+# totals per phase (to transcribe): CH1a=19, CH1b=40, CH1c=2, CH1d=38, CH1e=32, CH1f=38, CH1g=35, CH1g2=33, CH1h=37, CH1i=2, CH1j=9, CH1k=9, CH1m=5, CH1n=2, CH1o=9, CH1q=15, CH2a=43, CH2b=27, CH2c=23, CH2d=41, CH3a=34, CH3b=39, CH3c=34, CH3c2=45, CH3d=13, CH4a=7, CH4b=3, n/a=1
+# inside/new per phase: CH1a inside=19, CH1b inside=36, CH1b new=4, CH1c inside=1, CH1c new=1, CH1d inside=34, CH1d new=4, CH1e inside=20, CH1e new=12, CH1f inside=29, CH1f new=9, CH1g inside=32, CH1g new=3, CH1g2 inside=32, CH1g2 new=1, CH1h inside=29, CH1h new=8, CH1i inside=2, CH1j inside=8, CH1j new=1, CH1k inside=8, CH1k new=1, CH1m inside=5, CH1n inside=1, CH1n new=1, CH1o new=9, CH1q inside=13, CH1q new=2, CH2a inside=26, CH2a new=17, CH2b inside=26, CH2b new=1, CH2c inside=23, CH2d inside=39, CH2d new=2, CH3a inside=25, CH3a new=9, CH3b inside=26, CH3b new=13, CH3c inside=25, CH3c new=9, CH3c2 inside=43, CH3c2 new=2, CH3d inside=13, CH4a inside=1, CH4a new=6, CH4b inside=1, CH4b new=2, n/a -=1

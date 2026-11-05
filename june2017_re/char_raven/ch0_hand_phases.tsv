@@ -1,0 +1,27 @@
+fn	phase	why
+32c3ece0	CH1k	ctor: CX2GURaven::CX2GURaven (vtable store 32c3ed50, body 32c3ece0-32c409a6); its only caller 3230f309 is outside the class
+32c25a50	n/a	one-instruction stub (ret) called from base code 31fedff4; nothing to port
+32c3d1c0	CH1o	helper: Raven member called from base code 31fef53b (calls 32c28880 and CX2GameUnit::Weapon::AppendEnchantParticle); CH1o triage
+32c3e030	CH1o	helper: Raven member called from base code 31fd29f6 / 32047385 (tests +0x80bc / +0x7e1c flags, walks the list at +0x7cbc); CH1o triage
+32c41170	CH1o	helper: Raven member called from base code 3204a674 (reads skill level of 0x5f63 = 24419 RNSI_P_RRF_OPEN_MIND); CH1o triage
+32c3e030	CH1q	helper: CanParryingState (base callers 31fd29f6 / DamageReact 32047385); Nasod core / parry (ch0_rage.tsv)
+32c41170	CH1q	helper: AddRageGuage (base caller DamageReact 3204a674; x (+0x6c50 + 1.0) and 24419 level); rage fill (ch0_rage.tsv)
+32c491a0	CH1q	helper: DoParrying (holds Specialization B reader @32c49410); ch0_rage.tsv
+32c4f750	CH1q	helper: ClearNasodBall; ch0_rage.tsv
+32c4f7e0	CH1q	helper: CreateNasodBall (RAVEN_NASOD_BALL, EffectSet_BEED_UP); ch0_rage.tsv
+32c4fd80	CH1q	helper: RestoreNasodBall; ch0_rage.tsv
+32c4ff70	CH1q	helper: called only by RestoreNasodBall 32c4fd80; ch0_rage.tsv
+32c4ff90	CH1q	helper: Nasod ball ChangePowerRate; ch0_rage.tsv
+32c50060	CH1q	helper: AttackNasodBall; ch0_rage.tsv
+32c50330	CH1q	helper: DoFrameMoveNasodBall (CommonFrameMove caller; Specialization B readers @32c507da / @32c50b15 / @32c50c3d); ch0_rage.tsv
+32c33b80	CH1q	helper: called by CreateNasodBall 32c4f7e0; ch0_rage.tsv
+32c26ea0	CH1q	state: RSI_PARRYING / _SMALL StartFuture (parry feeds the Nasod core; plan CH1b unless CH0 gives it to CH1q)
+32c4a9f0	CH1q	state: RSI_PARRYING / _SMALL Start (calls DoParrying)
+32c33a60	CH1q	state: RSI_PARRYING / _SMALL EventProcess
+32c50dd0	CH1q	state: RSI_PARRYING / _SMALL End (calls RestoreNasodBall)
+32c4dfe0	CH1g2	helper: CreateOverHeatObject (13 callers incl. CH1g WT states; _SetOverheat inlined); overheat infrastructure (ch0_overheat.tsv)
+32c4e3c0	CH1g2	helper: DeleteOverHeatObject (sole caller CommonFrameMove 32c55240); ch0_overheat.tsv
+32c4add0	CH1g2	helper: _ShowOverheatIcon (callers RWT / RVC skill states CH2d / CH3c); ch0_overheat.tsv
+32c37470	CH3c2	helper: called only by RVC_SI_SA_DEADLY_RAID_LOOP EventProcess 32c5be30
+32c5af90	CH3c2	helper: called only by the Deadly Raid EventProcess states 32c5bb40 / 32c5be30 / 32c5bf80
+32c3e450	CH3a	helper: live caller RSI_SA_RST_SHOCKWAVE_FRONT FrameMove 32c3e680 (CH3a); its other callers are dead

@@ -43,6 +43,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 5** (`awk -F'\t' '$7=="CH1m"' june2017_re/char_raven/ch0_class_map.tsv`; inside 5).
+  June addresses: `32c511c0` `32c51b70` `32c5d660` `32c63670` `32c66fe0`.
+- **States: 5** (`awk -F'\t' '$8=="CH1m"' june2017_re/char_raven/ch0_state_skill.tsv`): `USI_EVENT_PROTON_BOMB_CONTROL_FIRE`, `USI_EVENT_PROTON_BOMB_CONTROL_IDLE`, `USI_EVENT_SNIPER_CONTROL_FIRE`, `USI_EVENT_SNIPER_CONTROL_IDLE`, `USI_EVENT_SNIPER_END`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7h L428 USI_WAIT_STATE_CHANGE registered in every class InitState; §7l L472 bounding user states USI_BOUNDING_DOWN / _LANDCRASH / _UP in every cla; §7ao L940-945 every class also brings: emulator allow-list id, LevelUpEvent TYPE row.
+- Registrars: InitStateCommon **`32c5d660`** (called from InitState `32c66fe0` before base `3202b110`), the class switch's three line registrars `32c511c0` (16 / 106), `32c51b70` (17 / 107), `32c63670` (25 / 115), and InitPassiveSkillState `32c57660` (6 Shadow Step states; the function is CH4a's). `charport_states.py init 32c5d660 32c66fe0 3202b110 32c511c0 32c51b70 32c63670 32c57660` -> `ch0_reg.tsv`; `ch0c_listing_check.py` **178 / 178**, no hand rows (START / WIN / LOSE rows 9 / 11 / 12 and the hyper row read through the call reader). State ids: one C++ enum `RAVEN_STATE_ID` holds every prefix; 206 live June tables have no C++ member (raw id + comment, as Eve) and June's registered ids differ from the C++ values for all 109 shared names: register by June's id (`ch0_state_enum_names.tsv`). 26 March-only states dropped.

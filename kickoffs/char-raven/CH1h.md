@@ -49,6 +49,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-05)
 
-(CH0 fills this: filters with real column numbers, function counts, addresses, any split.)
+- **Functions: 37** (`awk -F'\t' '$7=="CH1h"' june2017_re/char_raven/ch0_class_map.tsv`; inside 29, new 8).
+  June addresses: `32c25a20` `32c25a60` `32c25aa0` `32c273c0` `32c273f0`(new ?) `32c281f0` `32c28230` `32c28810` `32c38340`(new SetSpecificValueByBuffTempletID) `32c383b0`(new UnSetSpecificValueByBuffTempletID) `32c38410` `32c3c970` `32c3ca00` `32c3da10` `32c3db70` `32c3deb0` `32c3e2c0` `32c3ea70` `32c409b0` `32c40b20` `32c41000` `32c43080`(new ?) `32c4c4e0` `32c4e7c0` `32c50fb0` `32c54960` `32c54c10` `32c56be0` `32c5d540`(new ?) `32c63660`(new ?) `32c68f90`(new ?) `32c68ff0` `32c69f60` `32c69f70` `32c69f80` `32c6a450`(new ?) `32c6a620`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7ao L966 transcend: Raven hyper effect start 32c4e7c0 (vslot 49) returns at onc.
+- 0x9c / 0xa0 (`32c69f60` / `32c68ff0`, uncarved) are March's inline `m_bHyperAura` pair (`X2GURaven.h:483-484`, byte +0x97c8): stay here. 0x73c / 0x748 are CH4a. HyperModeBuffEffectStart / End `32c4e7c0` / `32c50fb0` and AttackResultByType `32c56be0` (+ June-only arc helper `32c54960`) hold rage lines: call CH1q's functions (declared). The transcended return in `32c4e7c0` (7ao) is CH3d's to check. The dtor `32c54c10` calls ClearNasodBall. June ReInit `32c409b0` has no overheat cleanup (March's is dropped).

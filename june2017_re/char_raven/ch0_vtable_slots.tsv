@@ -1,0 +1,60 @@
+slot_off	vt_entry	fn	base_fn	name	src	march
+0x0	33511454	32c6a620	3208f650	~CX2GURaven (scalar deleting dtor)	CONF: sibling class maps slot 0x0; ctor 32c3ece0, dtor body 32c54c10, slot-0 dtor 32c6a620	X2GURaven.h:362 virtual ~CX2GURaven(void);
+0x3c	33511490	32c3ca00	31fee090	InitComponent	CONF: char_chung class map 0x3c	X2GURaven.h:502 virtual void InitComponent();
+0x40	33511494	32c41000	3204ea20	Init	CONF: char_chung class map 0x40	X2GURaven.h:456 virtual void Init( bool bUseTeamPos_, int iStartPosIndex_ );
+0x44	33511498	32c409b0	32022380	ReInit	CONF: char_chung class map 0x44	X2GURaven.h:389 virtual void ReInit( bool bRandom = false, int startPosIndex = -1 );
+0x48	3351149c	32c25a60	32012760	InitEffect	CONF: char_chung class map 0x48	X2GURaven.h:399 virtual void InitEffect();
+0x4c	335114a0	32c4c4e0	31fc87c0	DeleteMinorParticle	CONF: char_chung class map 0x4c	X2GURaven.h:450 virtual void DeleteMinorParticle();
+0x60	335114b4	32c40b20	320462a0	DamageReact	CONF: char_chung class map 0x60	X2GURaven.h:391 virtual void DamageReact( CX2DamageManager::DamageData* pDamageData );
+0x90	335114e4	32c281f0	32014660	Win	CONF: char_chung class map 0x90	X2GURaven.h:394 virtual void Win();
+0x94	335114e8	32c3c970	31ff15d0	Lose	CONF: char_chung class map 0x94	X2GURaven.h:395 virtual void Lose();
+0x98	335114ec	32c28230	31ff17c0	Draw	CONF: char_chung class map 0x98	X2GURaven.h:396 virtual void Draw();
+0x9c	335114f0	32c69f60	31e4c550	IsFullHyperMode	CONF: char_chung class map 0x9c	X2GURaven.h:483 virtual bool IsFullHyperMode() const { return m_bHyperAura; }
+0xa0	335114f4	32c68ff0	3208ddc0	SetFullHyperMode	CONF: char_chung class map 0xa0	X2GURaven.h:484 virtual void SetFullHyperMode( const bool bFullHyperMode_ ) { m_bHyperAura = bFullHyperMode_; }
+0xb4	33511508	32c3db70	31fd1c00	GetHyperModeTime	CONF: funcmap 31fd1c00 CX2GUUser::GetHyperModeTime	X2GURaven.h:537 virtual float GetHyperModeTime() const;
+0xc0	33511514	32c273c0	32298590	ApplyHyperModeBuff	CONF: char_chung class map 0xc0	X2GURaven.h:486 virtual void ApplyHyperModeBuff();
+0xc4	33511518	32c4e7c0	31fd5cb0	HyperModeBuffEffectStart	CONF: char_chung class map 0xc4	X2GURaven.h:487 virtual void HyperModeBuffEffectStart();
+0xc8	3351151c	32c50fb0	31fd5d70	HyperModeBuffEffectEnd	CONF: char_chung class map 0xc8	X2GURaven.h:488 virtual void HyperModeBuffEffectEnd();
+0x24c	335116a0	32c38340	3204b5e0	SetSpecificValueByBuffTempletID	CONF: char_chung class map 0x24c	- (CX2GURaven does not declare it in March; X2GUUser.h:3049 virtual void SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );)
+0x250	335116a4	32c383b0	3202ed60	UnSetSpecificValueByBuffTempletID	CONF: char_chung class map 0x250	- (CX2GURaven does not declare it in March; X2GUUser.h:3050 virtual void UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );)
+0x27c	335116d0	32c3ea70	3208ddc0	AddUnitSlashData	CONF: char_eve class map 0x27c	X2GURaven.h:489 virtual void AddUnitSlashData( const CX2UnitSlashTraceManager::SLASH_TRACE_CONDITION eSlashTraceCondition_ );
+0x29c	335116f0	32c273f0	3208dd70	?	HINT: base 3208dd70; 14 insns; calls -	- (name unsettled)
+0x2b8	3351170c	32c5c080	32045340	SetDamageExceptionProcess	CONF: char_chung class map 0x2b8	- (CX2GURaven does not declare it in March; X2GUUser.h:3087 virtual void SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate);)
+0x300	33511754	32c63660	3208ddc0	?	HINT: base 3208ddc0; 299 insns; calls 31fc93d0 32078bc0 31fd89b0	- (name unsettled)
+0x314	33511768	32c3deb0	3226e190	ApplyRenderParamOnEmptyRenderParamByBuff	CONF: char_chung class map 0x314	X2GURaven.h:527 virtual void ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );
+0x3a8	335117fc	32c38410	31fd4460	ApplyRenderParam	CONF: char_chung class map 0x3a8	X2GURaven.h:526 virtual void ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ );
+0x4b0	33511904	32c69f70	3208df10	GetComboZStateID	CONF: char_chung class map 0x4b0	X2GURaven.h:558 virtual int GetComboZStateID() const { return RSI_COMBO_Z; }
+0x4b4	33511908	32c69f80	3208df10	GetComboXStateID	CONF: char_chung class map 0x4b4	X2GURaven.h:559 virtual int GetComboXStateID() const { return RSI_COMBO_X; }
+0x4dc	33511930	32c25a20	320142c0	AttackResultPlayEffect	CONF: char_eve class map 0x4dc	X2GURaven.h:392 virtual void AttackResultPlayEffect();
+0x4e0	33511934	32c56be0	320144d0	AttackResultByType	CONF: char_eve class map 0x4e0	X2GURaven.h:546 virtual void AttackResultByType( CX2DamageManager::DamageData &pDamageData );
+0x540	33511994	32c3e2c0	32012800	CreateMajorParticleArray	CONF: char_chung class map 0x540	X2GURaven.h:403 virtual void CreateMajorParticleArray();
+0x548	3351199c	32c25aa0	32012920	CreateMinorParticleArray	CONF: char_chung class map 0x548	X2GURaven.h:428 virtual void CreateMinorParticleArray();
+0x54c	335119a0	32c28810	31aa1d30	InitEnchantWeaponEffectUnitSpecific	CONF: char_chung class map 0x54c	X2GURaven.h:400 virtual void InitEnchantWeaponEffectUnitSpecific();
+0x5f0	33511a44	32c3da10	31aa1d30	COMMON_BUFF_FrameMove	CONF: char_chung class map 0x5f0	X2GURaven.h:1019 virtual void COMMON_BUFF_FrameMove();
+0x600	33511a54	32c4f640	31aa1d30	HyperModeFrameMove	CONF: char_chung class map 0x600	X2GURaven.h:791 void HyperModeFrameMove(); (no virtual keyword; overrides the CX2GUUser pure virtual)
+0x690	33511ae4	32c57660	31fe19d0	InitPassiveSkillState	CONF: char_chung class map 0x690	X2GURaven.h:504 virtual void InitPassiveSkillState();
+0x6a0	33511af4	32c38180	31fd1840	GetActualMPConsume	CONF: char_chung class map 0x6a0	X2GURaven.h:453 virtual float GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;
+0x6a4	33511af8	32c382d0	31fd1920	GetActualCoolTime	CONF: char_chung class map 0x6a4	- (CX2GURaven does not declare it in March; X2GUUser.h:3240 virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;)
+0x73c	33511b90	32c3c7f0	3208dd70	?	HINT: base 3208dd70; 13 insns; calls -	- (name unsettled)
+0x748	33511b9c	32c3c820	3208e1b0	?	HINT: base 3208e1b0; 13 insns; calls -	- (name unsettled)
+0x7a4	33511bf8	32c66fe0	31aa1d30	InitState	CONF: char_chung class map 0x7a4	X2GURaven.h:493 virtual void InitState();
+0x7b4	33511c08	32c641a0	31aa1d30	SetEquippedSkillFuncBySkillSlotIndex	CONF: char_chung class map 0x7b4	X2GURaven.h:505 virtual void SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ );
+0x7b8	33511c0c	32c28270	31aa1d30	SetEquippedSkillLevel	CONF: char_chung class map 0x7b8	X2GURaven.h:506 virtual void SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_);
+0x7c0	33511c14	32c25ab0	320506f0	CommonStateStartFuture	CONF: char_chung class map 0x7c0	X2GURaven.h:511 virtual void CommonStateStartFuture();
+0x7c4	33511c18	32c43380	32057b80	CommonStateStart	CONF: char_chung class map 0x7c4	X2GURaven.h:512 virtual void CommonStateStart();
+0x7c8	33511c1c	32c40ce0	32061bf0	CommonFrameMoveFuture	CONF: char_chung class map 0x7c8	X2GURaven.h:513 virtual void CommonFrameMoveFuture();
+0x7cc	33511c20	32c55240	32063650	CommonFrameMove	CONF: char_chung class map 0x7cc	X2GURaven.h:514 virtual void CommonFrameMove();
+0x7d4	33511c28	32c25ac0	31fe7610	CommonEventProcess	CONF: char_eve class map 0x7d4	X2GURaven.h:515 virtual void CommonEventProcess();
+0x7d8	33511c2c	32c25ad0	31fdd8e0	CommonStateEndFuture	CONF: char_chung class map 0x7d8	X2GURaven.h:516 virtual void CommonStateEndFuture();
+0x7dc	33511c30	32c25ae0	32015250	CommonStateEnd	CONF: char_chung class map 0x7dc	X2GURaven.h:517 virtual void CommonStateEnd();
+0x7e8	33511c3c	32c3d1e0	31fd07b0	CommonRender_Prepare	CONF: char_chung class map 0x7e8	X2GURaven.h:520 virtual RENDER_HINT CommonRender_Prepare();
+0x7f4	33511c48	32c25af0	31aa1d30	SpecialAttackEventProcess	CONF: char_chung class map 0x7f4	X2GURaven.h:523 virtual bool SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND );
+0x7f8	33511c4c	32c58c30	31aa1d30	SpecialAttackEventProcess part: skill lookup (slot 510)	CONF: char_chung vtable names, same slot (funcmap 32bd8790 note: slot 510 / 511 / 512 parts of SpecialAttackEventProcess)	- (no virtual of that name in X2GURaven.h / X2GUUser.h / X2GameUnit.h)
+0x7fc	33511c50	32c25ba0	31aa1d30	SpecialAttackEventProcess part: skill use (slot 511)	CONF: char_chung vtable names, same slot (funcmap 32bd8790 note: slot 510 / 511 / 512 parts of SpecialAttackEventProcess)	- (no virtual of that name in X2GURaven.h / X2GUUser.h / X2GameUnit.h)
+0x800	33511c54	32c43bf0	31aa1d30	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	CONF: char_chung vtable names, same slot (funcmap 32bd8790 note: slot 510 / 511 / 512 parts of SpecialAttackEventProcess)	- (no virtual of that name in X2GURaven.h / X2GUUser.h / X2GameUnit.h)
+0x80c	33511c60	32c25c40	32008e40	NoStateChangeActionFrameMove	CONF: char_chung class map 0x80c	X2GURaven.h:524 virtual void NoStateChangeActionFrameMove();
+0x810	33511c64	32c25c30	31aa1d30	SpecialAttackNoStageChange	CONF: char_chung class map 0x810	X2GURaven.h:452 virtual bool SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );
+0x828	33511c7c	32c3e0e0	31fd7640	IsNotCommonMoveState	CONF: char_luciel class map 0x828	- (CX2GURaven does not declare it in March; X2GUUser.h:3422 virtual bool IsNotCommonMoveState();)
+0x834	33511c88	32c3e770	33093ad0	ShowActiveSkillCutInAndLightByScript	CONF: char_chung class map 0x834	X2GURaven.h:1656 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );
+# Raven vtable CX2GURaven 33511454: 544 slots (0x0-0x87c); in-range entries (target in 32c25a20-32c6a63f): 57 (overrides 57, unnamed 4)
+# base_fn = CX2GUUser vtable 334781f4 (544 slots)

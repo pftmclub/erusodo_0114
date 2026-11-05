@@ -1,0 +1,130 @@
+# skill ids: 126 distinct (Raven tree rows of the s3 run, family X2GURaven.cpp); June names: Enum.src.lua SKILL_ID (2407 names); March C++: X2SkillTree.h SKILL_ID live branch via cl /P (1125 names); core: live data036_kom/Enum.lua SKILL_ID (805 names)
+# tally: core:absent 67, core:name 59, lookalike 30, name 5, none 91
+# cpp_enum: name = same name+value live; lookalike = RNSI_ -> SI_ name live; value-only = other live name at the value; none = no live member at the value. cpp_state: live / DEAD-BRANCH / COMMENTED / absent
+kind	june_name	june_value	june_enum_line	cpp_enum	cpp_h_line	cpp_state	core_enum_lua	core_line	skill_type	tree_classes	templet_name	note
+skill	RNSI_P_COMMON_HYPER_AURA	106	15375	name	1918	live	absent		1	106,107,115	Awakened One	march live names at value: RNSI_P_COMMON_HYPER_AURA
+skill	SI_ETC_WS_COMMON_LOVE	900	16050	name	132	live	absent		12	4,16,17,25,106,107,115	Extreme Heavenly Love	march live names at value: SI_ETC_WS_COMMON_LOVE
+skill	RNSI_SA_RF_MAXIMUM_CANNON	24000	14768	none		absent	name	12664	14	4,16,17,25,106,107,115	Maximum Cannon	
+skill	RNSI_SA_RF_CANNON_BLADE	24001	14481	lookalike		absent	name	12663	15	4,16,17,25,106,107,115	Cannon Blade	
+skill	RNSI_SA_RF_POWER_ASSAULT	24002	16152	lookalike		absent	name	12665	15	4,16,17,25,106,107,115	Power Assault	
+skill	RNSI_SA_RF_SEVEN_BURST	24003	16342	lookalike		absent	name	12666	16	4,16,17,25,106,107,115	Seven Burst	
+skill	RNSI_SA_ROT_VALKYRIESJAVELIN	24004	15796	lookalike		absent	name	12704	15	17,107	Valkyrie's Javelin	
+skill	RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG	24005	15013	none		absent	name	12702	14	17,107	Charged Bolt	
+skill	RNSI_SA_ROT_GUARDIAN_STRIKE	24006	15418	lookalike		absent	name	12703	16	17,107	Guardian Strike	
+skill	RNSI_SA_RFF_NUCLEAR	24007	16363	none		absent	name	12654	16	107	Nuclear	
+skill	RNSI_SA_RFF_ARC_ENEMY	24008	16395	none		absent	name	12653	15	107	Archenemy	
+skill	RNSI_SA_RRF_WILD_CHARGE	24009	15715	lookalike		absent	name	12708	15	107	Wild Charge	
+skill	RNSI_SA_RRF_X_CRASH	24010	15234	none		absent	name	12709	14	107	X Crash	
+skill	RNSI_SA_RST_SHOCKWAVE	24011	15369	lookalike		absent	name	12722	15	16,106	Shockwave - Divider	
+skill	RNSI_SA_RST_BERSERKER_BLADE	24012	14524	none		absent	name	12720	14	16,106	Berserker Blade	
+skill	RNSI_SA_RST_HYPER_SONIC_STAB	24013	16218	lookalike		absent	name	12721	16	16,106	Hypersonic Stab	
+skill	RNSI_SA_RBM_BLOODY_ACCEL	24014	15948	none		absent	name	12632	16	106	Bloody Accel	
+skill	RNSI_SA_RBM_GIGA_DRIVE_LIMITER	24015	14479	lookalike		absent	name	12634	15	106	Giga Drive - Limiter	
+skill	RNSI_SA_RBM_SHOCKWAVE_FRONT	24016	16331	none		absent	name	12636	15	106	Shockwave - Cutter	
+skill	RNSI_SA_RBM_WOLF_FANG	24017	15930	none		absent	name	12638	14	106	Wolf Fang	
+skill	RNSI_SA_RWT_HARPOON_SPEAR	24018	15469	lookalike		absent	name	12745	15	25,115	Harpoon Spear	
+skill	RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR	24019	16534	lookalike		absent	name	12747	15	25,115	Revolver Cannon	
+skill	RNSI_SA_RWT_HELLFIRE_GATLING	24020	16352	lookalike		absent	name	12746	16	25,115	Hellfire Gatling	
+skill	RNSI_SA_RVC_GIGA_PROMINENCE	24021	14457	none		absent	name	12729	16	115	Giga Prominence	
+skill	RNSI_SA_RVC_IGNITION_CROW_NAPALM	24022	16086	lookalike		absent	name	12732	15	115	Ignition Crow - Napalm	
+skill	RNSI_SA_RVC_IGNITION_CROW_INCINERATION	24023	15060	lookalike		absent	name	12731	15	115	Ignition Crow - Incinerator	
+skill	RNSI_SA_RVC_DEADLY_RAID	24024	15324	lookalike		absent	name	12727	14	115	Deadly Raid	
+skill	RNSI_SA_RF_MAXIMUM_CANNON_UPGRADE	24025	16539	none		absent	absent		14	4,16,17,25,106,107,115	#Cffcc00[Enhanced]#CX\nMaximum Cannon	
+skill	RNSI_SA_RF_CANNON_BLADE_UPGRADE	24026	14371	none		absent	absent		15	4,16,17,25,106,107,115	#Cffcc00[Enhanced]#CX\nCannon Blade	
+skill	RNSI_SA_RF_POWER_ASSAULT_UPGRADE	24027	14665	none		absent	absent		15	4,16,17,25,106,107,115	#Cffcc00[Enhanced]#CX\nPower Assault	
+skill	RNSI_SA_RF_SEVEN_BURST_UPGRADE	24028	16632	none		absent	absent		16	4,16,17,25,106,107,115	#Cffcc00[Enhanced]#CX\nSeven Burst	
+skill	RNSI_SA_ROT_VALKYRIESJAVELIN_UPGRADE	24029	14806	none		absent	absent		15	17,107	#Cffcc00[Enhanced]#CX\nValkyrie's Javelin	
+skill	RNSI_SA_RST_SHOCKWAVE_UPGRADE	24030	15636	none		absent	absent		15	16,106	#Cffcc00[Enhanced]#CX\nShockwave - Divider	
+skill	RNSI_SA_RWT_HARPOON_SPEAR_UPGRADE	24031	16255	none		absent	absent		15	25,115	#Cffcc00[Enhanced]#CX\nHarpoon Spear	
+skill	RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG_UPGRADE	24032	15858	none		absent	absent		14	17,107	#Cffcc00[Enhanced]#CX\nCharged Bolt	
+skill	RNSI_SA_RST_BERSERKER_BLADE_UPGRADE	24033	16007	none		absent	absent		14	16,106	#Cffcc00[Enhanced]#CX\nBerserker Blade	
+skill	RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR_UPGRADE	24034	14860	none		absent	absent		15	25,115	#Cffcc00[Enhanced]#CX\nRevolver Cannon	
+skill	RNSI_SA_RBM_DEADLY_BLOW	24035	14325	none		absent	name	12633	14	106	Flash	
+skill	RNSI_SA_RBM_SHOOTUP_GENOCIDE	24036	15853	none		absent	name	12637	15	106	Shoot Up Genocide	
+skill	RNSI_SA_RRF_MAXIMUM_DIVE	24037	15222	none		absent	name	12706	14	107	Maximum Dive	
+skill	RNSI_SA_RRF_POWER_BOMB	24038	14935	none		absent	name	12707	15	107	Power Bomb	
+skill	RNSI_SA_RVC_FLAME_HELL	24039	15578	none		absent	name	12728	14	115	Hellfire	
+skill	RNSI_SA_RVC_BURSTING_BLADE	24040	14637	none		absent	name	12726	15	115	Bursting Blade	
+skill	RNSI_SA_ROT_GUARDIAN_STRIKE_UPGRADE	24041	14821	none		absent	absent		16	17,107	#Cffcc00[Enhanced]#CX Guardian Strike	
+skill	RNSI_SA_RFF_NUCLEAR_UPGRADE	24042	14767	none		absent	absent		16	107	#Cffcc00[Enhanced]#CX Nuclear	
+skill	RNSI_SA_RFF_ARC_ENEMY_UPGRADE	24043	16631	none		absent	absent		15	107	#Cffcc00[Enhanced]#CX Archenemy	
+skill	RNSI_SA_RRF_WILD_CHARGE_UPGRADE	24044	15414	none		absent	absent		15	107	#Cffcc00[Enhanced]#CX Wild Charge	
+skill	RNSI_SA_RRF_X_CRASH_UPGRADE	24045	16488	none		absent	absent		14	107	#Cffcc00[Enhanced]#CX X Crash	
+skill	RNSI_SA_RST_HYPER_SONIC_STAB_UPGRADE	24046	16590	none		absent	absent		16	16,106	#Cffcc00[Enhanced]#CX Hypersonic Stab	
+skill	RNSI_SA_RBM_BLOODY_ACCEL_UPGRADE	24047	16457	none		absent	absent		16	106	#Cffcc00[Enhanced]#CX Bloody Accel	
+skill	RNSI_SA_RBM_GIGA_DRIVE_LIMITER_UPGRADE	24048	15333	none		absent	absent		15	106	#Cffcc00[Enhanced]#CX Giga Drive - Limiter	
+skill	RNSI_SA_RBM_SHOCKWAVE_FRONT_UPGRADE	24049	15619	none		absent	absent		15	106	#Cffcc00[Enhanced]#CX Shockwave - Cutter	
+skill	RNSI_SA_RBM_WOLF_FANG_UPGRADE	24050	14502	none		absent	absent		14	106	#Cffcc00[Enhanced]#CX Wolf Fang	
+skill	RNSI_SA_RWT_HELLFIRE_GATLING_UPGRADE	24051	14372	none		absent	absent		16	25,115	#Cffcc00[Enhanced]#CX Hellfire Gatling	
+skill	RNSI_SA_RVC_GIGA_PROMINENCE_UPGRADE	24052	16044	none		absent	absent		16	115	#Cffcc00[Enhanced]#CX Giga Prominence	
+skill	RNSI_SA_RVC_IGNITION_CROW_NAPALM_UPGRADE	24053	15992	none		absent	absent		15	115	#Cffcc00[Enhanced]#CX Ignition Crow - Napalm	
+skill	RNSI_SA_RVC_IGNITION_CROW_INCINERATION_UPGRADE	24054	16157	none		absent	absent		15	115	#Cffcc00[Enhanced]#CX Ignition Crow - Incinerator	
+skill	RNSI_SA_RVC_DEADLY_RAID_UPGRADE	24055	14946	none		absent	absent		14	115	#Cffcc00[Enhanced]#CX Deadly Raid	
+skill	RNSI_SA_RBM_SHAPT_CHARGE	24056	15154	none		absent	name	12635	16	106	Sharp Charge	
+skill	RNSI_SA_RRF_DEVASTATING_STRIKE	24057	16102	none		absent	name	12705	16	107	Devastating Strike	
+skill	RNSI_SA_RVC_IFRIT_FLAME	24058	15155	none		absent	name	12730	16	115	Ifrit Flame	
+skill	RNSI_A_RF_SHADOW_STEP	24200	14579	lookalike		absent	name	12207	6	4,16,17,25,106,107,115	Shadow Step	
+skill	RNSI_A_RF_FLAME_SWORD	24201	15403	none		absent	name	12206	6	4,16,17,25,106,107,115	Flame Sword	
+skill	RNSI_A_ROT_HELL_DIVE	24202	15503	none		absent	name	12225	6	17,107	Hell Dive	
+skill	RNSI_A_ROT_MEGADRILL_BREAK	24203	15505	none		absent	name	12818	6	17,107	Mega Drill Break	
+skill	RNSI_A_ROT_WEAPON_BREAK	24204	15301	lookalike		absent	name	12226	6	17,107	Weapon Crash	
+skill	RNSI_A_RRF_LIMIT_CRUSHER	24205	16094	lookalike		absent	name	12819	6	107	Limit Crusher	
+skill	RNSI_A_RRF_ENCHANT_HAND	24206	15426	none		absent	name	12227	6	107	Enchant Hand	
+skill	RNSI_A_RST_ONE_FLASH	24207	16312	none		absent	name	12238	6	16,106	Finishing Slash	
+skill	RNSI_A_RST_BLEEDING_SLICER	24208	15867	none		absent	name	12820	6	16,106	Fatal Wound	
+skill	RNSI_A_RST_ARMOR_BREAK	24209	15259	none		absent	name	12237	6	16,106	Armor Crash	
+skill	RNSI_A_RBM_SONIC_SLASH	24210	16257	lookalike		absent	name	12190	6	106	Sonic Slash	
+skill	RNSI_A_RBM_CUT_TENDON	24211	16080	none		absent	name	12816	6	106	Cut Tendon	
+skill	RNSI_A_RWT_BARRAGE_ATTACK	24212	16414	lookalike		absent	name	12252	6	25,115	Haze Explosion	
+skill	RNSI_A_RWT_NAPALM_GRENADE	24213	14900	none		absent	name	12254	6	25,115	Napalm Grenade	
+skill	RNSI_A_RWT_MENTAL_BREAK	24214	16406	none		absent	name	12253	6	25,115	Mental Crash	
+skill	RNSI_A_RVC_BREAKING_FIST	24215	14739	none		absent	name	12243	6	115	Breaking Fist	
+skill	RNSI_A_RVC_GROUND_IMPACT	24216	15611	none		absent	name	12246	6	115	Ground Impact	
+skill	RNSI_A_RF_SHADOW_STEP_UPGRADE	24217	16634	none		absent	absent		6	4,16,17,25,106,107,115	#Cffcc00[Enhanced]#CX\nShadow Step	
+skill	RNSI_A_RF_FLAME_SWORD_UPGRADE	24218	15430	none		absent	absent		6	4,16,17,25,106,107,115	#Cffcc00[Enhanced]#CX\nFlame Sword	
+skill	RNSI_A_ROT_HELL_DIVE_UPGRADE	24219	16111	none		absent	absent		6	17,107	#Cffcc00[Enhanced]#CX\nHell Dive	
+skill	RNSI_A_RST_ONE_FLASH_UPGRADE	24220	16187	none		absent	absent		6	16,106	#Cffcc00[Enhanced]#CX\nFinishing Slash	
+skill	RNSI_A_RWT_BARRAGE_ATTACK_UPGRADE	24221	15592	none		absent	absent		6	25,115	#Cffcc00[Enhanced]#CX\nHaze Explosion	
+skill	RNSI_A_RBM_POINTED_STILETTO	24222	15991	none		absent	absent		6	106	Rend	
+skill	RNSI_A_RRF_SPREAD	24224	15546	none		absent	name	12228	6	107	Spread	
+skill	RNSI_A_RVC_FLAME_SWORD_ANOTHER	24226	15881	none		absent	name	12245	6	115	Flame Sword: Flurry	
+skill	RNSI_A_ROT_MEGADRILL_BREAK_UPGRADE	24228	14265	none		absent	absent		6	17,107	#Cffcc00[Enhanced]#CX Mega Drill Break	
+skill	RNSI_A_ROT_WEAPON_BREAK_UPGRADE	24229	16528	none		absent	absent		6	17,107	#Cffcc00[Enhanced]#CX Weapon Crash	
+skill	RNSI_A_RRF_LIMIT_CRUSHER_UPGRADE	24230	16126	none		absent	absent		6	107	#Cffcc00[Enhanced]#CX Limit Crusher	
+skill	RNSI_A_RRF_ENCHANT_HAND_UPGRADE	24231	15030	none		absent	absent		6	107	#Cffcc00[Enhanced]#CX Enchant Hand	
+skill	RNSI_A_RST_BLEEDING_SLICER_UPGRADE	24232	15334	none		absent	absent		6	16,106	#Cffcc00[Enhanced]#CX Fatal Wound	
+skill	RNSI_A_RST_ARMOR_BREAK_UPGRADE	24233	15364	none		absent	absent		6	16,106	#Cffcc00[Enhanced]#CX Armor Crash	
+skill	RNSI_A_RBM_SONIC_SLASH_UPGRADE	24234	16548	none		absent	name	12191	6	106	#Cffcc00[Enhanced]#CX Sonic Slash	
+skill	RNSI_A_RBM_CUT_TENDON_UPGRADE	24235	16496	none		absent	absent		6	106	#Cffcc00[Enhanced]#CX Cut Tendon	
+skill	RNSI_A_RWT_NAPALM_GRENADE_UPGRADE	24236	16555	none		absent	absent		6	25,115	#Cffcc00[Enhanced]#CX Napalm Grenade	
+skill	RNSI_A_RWT_MENTAL_BREAK_UPGRADE	24237	15927	none		absent	absent		6	25,115	#Cffcc00[Enhanced]#CX Mental Crash	
+skill	RNSI_A_RVC_BREAKING_FIST_UPGRADE	24238	16637	none		absent	name	12244	6	115	#Cffcc00[Enhanced]#CX Breaking Fist	
+skill	RNSI_A_RVC_GROUND_IMPACT_UPGRADE	24239	15914	none		absent	absent		6	115	#Cffcc00[Enhanced]#CX Ground Impact	
+skill	RNSI_P_RF_PHYSIC_MAGIC_ATTACK	24400	15990	name	1923	live	absent		1	4,16,17,25,106,107,115	Focus Strength	march live names at value: RNSI_P_RF_PHYSIC_MAGIC_ATTACK
+skill	RNSI_P_ROT_BURNING_NASOD_HAND	24401	16321	none		absent	absent		8	17,107	Burning Nasod Hand	
+skill	RNSI_P_RRF_EXPLOSIVE_NASOD_HAND	24402	15454	lookalike		absent	name	12315	8	107	Exploding Nasod Hand	
+skill	RNSI_P_RRF_CONFIDENCE_VICTORY	24403	14890	lookalike		absent	absent		8	17,107	Victor's Confidence	
+skill	RNSI_P_RFF_HARDEN_BODY	24404	15019	none		absent	absent		8	107	Refined Physique	
+skill	RNSI_P_RRF_SPIRITUALIZED_FURY	24405	15368	name	1924	live	absent		8	107	Subliminal Rage	march live names at value: RNSI_P_RRF_SPIRITUALIZED_FURY
+skill	RNSI_P_RST_EXQUISITE_SWORDMANSHIP	24406	15280	lookalike		absent	absent		8	16,106	Fine Swordsmanship	
+skill	RNSI_P_RBM_BLADE_MASTERY	24407	15373	none		absent	absent		8	106	Blade Mastery	
+skill	RNSI_P_RBM_PRIDE_VICTORY	24408	16200	none		absent	absent		8	16,106	Victor's Dignity	
+skill	RNSI_P_RBM_SURELY_VICTORY	24409	15532	none		absent	absent		8	106	Winning Strategy	
+skill	RNSI_P_RBM_EMERGENCY_ESCAPE	24410	14917	lookalike		absent	absent		8	106	Evacuation!	
+skill	RNSI_P_RWT_BEHAVIOR_OF_MERCENARY	24411	14437	lookalike		absent	absent		8	25,115	Mercenary Behavior	
+skill	RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY	24412	15962	lookalike		absent	absent		8	115	Victory Survival Strategy	
+skill	RNSI_P_RVC_REVERSAL_SOLDIER	24413	15711	none		absent	absent		8	25,115	Veteran	
+skill	RNSI_P_RVC_SURVIVAL_TECHNIQUE_OF_MERCENARY	24414	15515	lookalike		absent	absent		8	115	Mercenary Survival Strategy	
+skill	RNSI_P_RVC_OVERHEAT_MODE	24415	16510	lookalike		absent	absent		8	115	Overheat Mode Activated!	
+skill	RNSI_P_RBM_OPEN_MIND	24417	16006	none		absent	absent		8	106	Awakened Will: Blade Master	
+skill	RNSI_P_RBM_COUNTER	24418	14959	none		absent	absent		8	106	Counter Wave	
+skill	RNSI_P_RRF_OPEN_MIND	24419	15500	name	2116	live	absent		8	107	Awakened Will: Reckless Fist	march live names at value: RNSI_P_RRF_OPEN_MIND
+skill	RNSI_P_RRF_INFINITY_RAGE	24420	15940	none		absent	absent		8	107	Unending Rage	
+skill	RNSI_P_RVC_OPEN_MIND	24421	15413	none		absent	absent		8	115	Awakened Will: Veteran Commander	
+skill	RNSI_P_RVC_WIN_AND_WIN	24422	14816	none		absent	absent		8	115	Flames of Victory	
+skill	RNSI_HA_RRF_INFERNAL_ARMS	24600	16455	none		absent	name	12300	13	107	Infernal Arms	
+skill	RNSI_HA_RBM_EXTREM_BLADE	24601	15559	lookalike		absent	name	12294	13	106	Extreme Blade	
+skill	RNSI_HA_RVC_BURNING_BUSTER	24602	16421	lookalike		absent	name	12302	13	115	Burning Buster	
+skill	RNSI_HA_RRF_INFERNAL_ARMS_UPGRADE	24603	16540	none		absent	absent		13	107	#Cffcc00[Enhanced]#CX\nInfernal Arms	
+skill	RNSI_HA_RBM_EXTREM_BLADE_UPGRADE	24604	15330	none		absent	absent		13	106	#Cffcc00[Enhanced]#CX\nExtreme Blade	
+skill	RNSI_HA_RVC_BURNING_BUSTER_UPGRADE	24605	16154	none		absent	absent		13	115	#Cffcc00[Enhanced]#CX\nBurning Buster	

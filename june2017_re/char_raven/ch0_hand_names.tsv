@@ -1,0 +1,52 @@
+fn	proposed_name	why
+32c273f0	?	virtual 0x29c (base 3208dd70); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32c28100	?	called by 33511408(?)
+32c28160	?	called by 32c68a40(helper)
+32c28880	?	called by 32c3d1c6(?)
+32c33b80	?	-; helper: called by CreateNasodBall 32c4f7e0; ch0_rage.tsv
+32c35fc0	?	called by 3286f949(?)
+32c37470	?	-; helper: called only by RVC_SI_SA_DEADLY_RAID_LOOP EventProcess 32c5be30
+32c3c7a0	?	called by 32c69670(thunk)
+32c3c7f0	?	user vslot 0x73c (uncarved, 13 insns, no calls): the passive delegate pair with 0x748 (plan CH4a); name by the delegate pattern
+32c3c820	?	user vslot 0x748 (uncarved, 13 insns, no calls): the passive delegate pair with 0x73c (plan CH4a); name by the delegate pattern
+32c3d1c0	?	-; helper: Raven member called from base code 31fef53b (calls 32c28880 and CX2GameUnit::Weapon::AppendEnchantParticle); CH1o triage
+32c3df50	?	called by 32c69e10(helper)
+32c3e030	CanParryingState	inside: X2GURaven.cpp:13827 (ch0_rage.tsv)
+32c3e130	?	called by 32c4bcd0(RSI_SA_RWT_GIGA_PROMINENCE_L)
+32c3e450	?	-; helper: live caller RSI_SA_RST_SHOCKWAVE_FRONT FrameMove 32c3e680 (CH3a); its other callers are dead
+32c3ece0	CX2GURaven	inside: X2GURaven.h:355 constructor (vtable store 32c3ed50, body 32c3ece0-32c409a6); caller 3230f309 is outside the class
+32c41170	AddRageGuage	inside: X2GURaven.cpp:14440 (ch0_rage.tsv)
+32c42f90	?	called by 32c55240(CommonFrameMove)
+32c43080	?	called by 32c54c10(helper)
+32c491a0	DoParrying	inside: X2GURaven.cpp:13857 (ch0_rage.tsv)
+32c4add0	_ShowOverheatIcon	inside: X2GURaven.cpp:17095 (ch0_overheat.tsv)
+32c4de60	?	called by 32c50d50(RSI_SI_A_RF_SHADOW_STEP.End) 32c50e00(RSI_SHADOW_BACK_SLIDE_UPGRAD) 32c50e80(dead) 32c50ef0(helper)
+32c4dfe0	CreateOverHeatObject	inside: X2GURaven.cpp:21337 (ch0_overheat.tsv)
+32c4e3c0	DeleteOverHeatObject	inside: X2GURaven.cpp:21396 (ch0_overheat.tsv)
+32c4e5b0	?	called by 32c6a2f0(thunk)
+32c4f350	?	called by 32c4f640(HyperModeFrameMove) 32c511a0(RSI_RIDING_HYPER_MODE.FrameM)
+32c4f750	ClearNasodBall	inside: X2GURaven.cpp:13662 (ch0_rage.tsv)
+32c4f7e0	CreateNasodBall	inside: X2GURaven.cpp:13686 (ch0_rage.tsv)
+32c4fd80	RestoreNasodBall	inside: X2GURaven.cpp:13909 (ch0_rage.tsv)
+32c4ff70	?	-; helper: called only by RestoreNasodBall 32c4fd80; ch0_rage.tsv
+32c4ff90	ChangePowerRateNasodBall	inside: X2GURaven.cpp:14090 (ch0_rage.tsv)
+32c50060	AttackNasodBall	inside: X2GURaven.cpp:14132 (ch0_rage.tsv)
+32c50330	DoFrameMoveNasodBall	inside: X2GURaven.cpp:14210 (ch0_rage.tsv)
+32c50ef0	?	called by 32c52550(RSI_SI_A_RF_SHADOW_STEP.Even) 32c54290(dead)
+32c52480	?	called by 32c54960(helper) 32c54c10(helper) 32c55240(CommonFrameMove) 32c55ee0(RSI_RIDING_DIE.Start RSI_DIE)
+32c526e0	?	called by 32c528c0(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c52b30(RSI_SA_RWT_REVOLVER_CANNON.S) 32c52cc0(RSI_SA_RWT_REVOLVER_CANNON_L) 32c53110(RSI_SA_RWT_HELLFIRE_GATLING.)
+32c54c10	~CX2GURaven	inside: X2GURaven.h:362 destructor body (ctor store 32c3ed50 / dtor store 32c54c3d; the scalar deleting dtor 32c6a620 calls it, then the delete helper 32fe2300)
+32c59550	?	called by 32c5b6f0(RSI_DAMAGE_SMALL_BACK.Start) 32c5b710(RSI_DAMAGE_BIG_BACK.Start)
+32c598c0	?	called by 32c59b60(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c59f30(RSI_SA_RWT_REVOLVER_CANNON.E) 32c5a020(RSI_SA_RWT_REVOLVER_CANNON_L) 32c5a1e0(RSI_SA_RWT_HARPOON_SPEAR.Eve)
+32c5af90	?	-; helper: called only by the Deadly Raid EventProcess states 32c5bb40 / 32c5be30 / 32c5bf80
+32c5d540	?	called by 32c63660(?)
+32c5fd90	?	called by 32c60230(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c607a0(dead) 32c609c0(RSI_SA_RWT_HARPOON_SPEAR_FIR) 32c60b30(RSI_SA_RWT_HELLFIRE_GATLING_)
+32c63660	?	user vslot 0x300 (uncarved): 5-byte jmp thunk to 32c5d540 (80 lines, no state registration); read 32c5d540
+32c68a40	?	called by 32c57660(InitPassiveSkillState)
+32c68f90	?	called by 32c38340(SetSpecificValueByBuffTemple) 32c383b0(UnSetSpecificValueByBuffTemp)
+32c69d80	?	MemoConditionRaven vtable 33511404 slot 0 (RTTI .?AVMemoConditionRaven@CX2GURaven@@; also the entry of the base vtable 334720bc, so shared with the base memo condition); name by the memo-condition pattern (CH1h / CH4a decision)
+32c69e10	?	called by 32c57660(InitPassiveSkillState)
+32c69e30	?	called by 32c641a0(SetEquippedSkillFuncBySkillS)
+32c69f40	?	MemoConditionRaven vtable 33511404 slot 4 (pointer @33511444); name by the memo-condition pattern (CH1h / CH4a decision)
+32c69f50	?	MemoConditionRaven vtable 33511404 slot 6 (pointer @3351144c); name by the memo-condition pattern (CH1h / CH4a decision)
+32c6a450	?	called by 32c54960(helper)
