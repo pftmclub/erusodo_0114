@@ -10,7 +10,8 @@ Skills (June skill system S3): June's tree has no default skills; the unit gets 
 tree its level allows (tools/data/june_skill_autolearn.tsv, the rows the v17 migration and the emulator's
 SeedJuneAutoLearn grant), castable ones in the free A slots. SP defaults to June's rule: the 1 SP a new
 character starts with plus GetCalcInitSkillPoint(level) (tools/data/june_skill_init_sp.tsv).
-Items: the class's promotion costume (PROMO, the GBase_Item rows) is worn in the fashion slots, and the class's
+Items: the class's own promotion costume (the create screen's job preview: promotion*ItemID of its row in the live
+UnitTemplet.lua; PROMO, the base class's GBase_Item set, only when the row is missing) is worn in the fashion slots, and the class's
 top-tier weapon + a complete 4-piece armor set go into the equip bag at +10 (top_gear: highest item_level / grade /
 use_level in item.kim that the job can wear, use level <= 99). --no-costume / --no-gear / --enchant N / --kim X adjust it.
 It does NOT seed hotkeys or the beginner gear. Gear is bagged, not worn: equip it in game once the level allows.
@@ -148,7 +149,7 @@ def lineage(cls):
     return out
 
 
-# The five-piece promotional costume per base class: weapon, body, leg, hand, foot. Transcribed from
+# Fallback: the five-piece promotional costume per base class: weapon, body, leg, hand, foot. Transcribed from
 # X2OfflineInventory.cpp GBASE_ITEM (the live dbo.GBase_Item rows); class 9 is unreachable in the real create path
 # (gup_create_unit rejects it) but its ids resolve in June's kim, so a test Add gets them too.
 PROMO = {
@@ -158,6 +159,42 @@ PROMO = {
     7: (41460, 41470, 41480, 41490, 41500), 8: (41720, 41721, 41722, 41723, 41724),
     9: (41757, 41758, 41759, 41760, 41761),
 }
+# The create screen previews a job in its own promotion costume (CX2StateCreateUnit::EquipPromotionItemByUnitTemplet reads
+# promotion*ItemID off the class's UnitTemplet row), so the worn costume comes from the same live file.
+UNIT_TEMPLET = os.path.join(os.path.dirname(DATA), 'kom_contents', 'data036_kom', 'UnitTemplet.lua')
+PROMO_FIELDS = ('promotionWeaponItemID', 'promotionBodyItemID', 'promotionLegItemID', 'promotionHandItemID',
+                'promotionFootItemID')
+
+
+def templet_promo(cls, path=UNIT_TEMPLET):
+    """(weapon, body, leg, hand, foot) of the class's own UnitTemplet row, or None if the file / row / a field is absent."""
+    try:
+        with open(path, 'rb') as f:
+            text = f.read().decode('utf-8-sig', 'replace')
+    except OSError:
+        return None
+    want = 'UC_' + CLASSES[cls]
+    for block in re.findall(r'AddUnitTemplet\(\{(.*?)\n\}\)', text.replace('\r\n', '\n'), re.S):
+        m = re.search(r'unitClass\s*=\s*UNIT_CLASS\.(\w+)', block)
+        if not m or m.group(1) != want:
+            continue
+        ids = []
+        for field in PROMO_FIELDS:
+            v = re.search(r'\b%s\s*=\s*(\d+)' % field, block)
+            ids.append(int(v.group(1)) if v else 0)
+        return tuple(ids) if all(ids) else None
+    return None
+
+
+def promo_costume(cls):
+    """(ids, source): the job's own costume from UnitTemplet.lua, else its base class's PROMO set."""
+    own = templet_promo(cls)
+    if own:
+        return own, 'UnitTemplet.lua row UC_' + CLASSES[cls]
+    base = lineage(cls)[-1]
+    return PROMO[base], "base class %s PROMO fallback (no complete UnitTemplet row)" % CLASSES[base]
+
+
 # NESI_*_FASHION worn slots in the same order (X2Unit.h): weapon 10, body 2, leg 4, hand 6, foot 8.
 COSTUME_SLOTS = (10, 2, 4, 6, 8)
 WORN, BAG_EQUIP = 9, 1
@@ -288,11 +325,11 @@ def main():
     if not (a.no_costume and a.no_gear):
         k, kimmod = load_kim(a.kim)
     if not a.no_costume:
-        costume = PROMO[lineage(cls)[-1]]
+        costume, src = promo_costume(cls)
         missing = [i for i in costume if k.record(i) is None]
         if missing:
             die('promotion costume ids %s are not in kim %s (try --kim june, or --no-costume)' % (missing, a.kim))
-        print('costume (worn):')
+        print('costume (worn, from %s):' % src)
         for i in costume:
             print('  ' + describe(k, i))
     if not a.no_gear:

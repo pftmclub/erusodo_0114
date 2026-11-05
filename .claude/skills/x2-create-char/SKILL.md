@@ -26,9 +26,12 @@ and the script prints it. If the user gave something that is clearly a uid, ask 
 What it does (mirrors `CX2OfflineDB::CreateUnit`): one `unit` row on the first account, the default
 `inventory_size` rows copied from a level-1 unit, the class's free June skills, and (new) items:
 
-- **Promotion costume, worn.** The base class's five-piece promotion set (`PROMO` in the script, the
-  `GBase_Item` rows from `X2OfflineInventory.cpp`) goes into the fashion slots 10/2/4/6/8, infinite (endurance -1),
-  exactly as the in-game create path seeds it. A job uses its base class's set (Grand Master -> Elesis's).
+- **Promotion costume, worn.** The class's **own** five-piece promotion set goes into the fashion slots 10/2/4/6/8,
+  infinite (endurance -1). The ids are the `promotion*ItemID` fields of the class's row in the live
+  `kom_contents/data036_kom/UnitTemplet.lua` - the same table the create screen's job preview reads
+  (`CX2StateCreateUnit::EquipPromotionItemByUnitTemplet`), so Grand Master wears the Grand Master costume, not Elesis's.
+  The base class's set (`PROMO` in the script, the `GBase_Item` rows) is only the fallback when the file or the row is
+  missing; the dry run names the source line (`from UnitTemplet.lua row UC_...`).
 - **Top-tier gear, +10, in the equip bag** (category 1, slots 0-4, not worn): a weapon plus a complete 4-piece
   armor set. `top_gear` picks from `item.kim` (`--kim`, default `staged`) the highest item_level / grade / use_level
   the job can wear: enchantable, not fashion / pc-bang / test / `[event]` / untranslated, use level <= 99.
