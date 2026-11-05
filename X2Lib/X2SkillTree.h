@@ -2239,6 +2239,22 @@ public:
 		RNSI_A_ESK_ARMOR_BREAK_UPGRADE                        = 21226,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-05 // char-elsword CH2c
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		// June SKILL_ID names Magic Knight's skill switch cases spell ( values from June's Enum.lua )
+		RNSI_SA_EMK_RISING_SLASH                              = 21012,
+		RNSI_SA_EMK_WIND_BLADE                                = 21013,
+		RNSI_SA_EMK_STORM_BLADE                               = 21014,
+		RNSI_SA_EMK_RISING_SLASH_UPGRADE                      = 21032,
+		RNSI_SA_EMK_STORM_BLADE_UPGRADE                       = 21048,
+		RNSI_A_EMK_BIG_BURST                                  = 21207,
+		RNSI_A_EMK_SWORD_WAVE                                 = 21208,
+		RNSI_A_EMK_CRITICAL_SWORD                             = 21209,
+		RNSI_A_EMK_BIG_BURST_UPGRADE                          = 21220,
+		RNSI_A_EMK_SWORD_WAVE_UPGRADE                         = 21229,
+		RNSI_A_EMK_CRITICAL_SWORD_UPGRADE                     = 21230,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

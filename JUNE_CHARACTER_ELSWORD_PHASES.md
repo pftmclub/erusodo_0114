@@ -1846,6 +1846,42 @@ JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`, 1 deleted line (the `//#define`), `RESULT: P
 `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check X2GUElsword_SwordMan.cpp`: `0 A/B row(s) remain`. One-file probe (`census.cl_cmd`, `/c /Zs
 /EHsc`): exit 0, 0 errors. Build: not awaited (only change is the `_DEBUG` retirement). CH2c kickoff amended (below the CH1p block).
 
+### CH2c - Done (2026-11-05)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (+ `_SKILL_DEBUG`, defined again in `Always.h` for this phase; the review retires it): Magic Knight's six skills run June's registrations. All 18 class-map rows are read from `charport_adis.py elsword --phase CH2c` listings: **8 written** (7 inside March's functions under the flag with March in `#else`, 2 new incl. the registration cases), **10 are June = March** (no code). `funcmap.tsv` rows `Char Elsword CH2c`; `MODS.md` "Stage 7 Elsword, CH2c" has the March vs June damage table.
+
+| June | `CX2GUElsword_SwordMan::` | June differs from March |
+|---|---|---|
+| `32cf3bd0` `32cfa080` | `ESSI_SI1_ES_WIND_BLADE_StateStartFuture` `_UPGRADE_EventProcess` (new) | upgraded Wind Blade (21035): StartFuture = `CommonStateStartFuture` + `m_kSkillSlotKey.Set( slot )`; EventProcess: `FollowSlotSwap`, end, then flag 0 + `stateChange < t`: MP x ( 1 - `SA_MP_CONSUME_REL` ) (June `32007c40`) paid with `UpNowMp` and `StateChange( ESSI_SI1_ES_WIND_BLADE_ULTIMATE )`; else a key press (`IsKeyPressedOnce`) inside the input window sets flag 0 |
+| `32cfa270` | `ESSI_SI3_ES_STORM_BLADE_FrameMove` | 0.3 s one-shot: upgraded skill (`IsNowStateSkillUpgraded`) applies the base skill's buff factor; no cut-in, effect set or particles |
+| `32d123f0` | `ESSI_SA_EMK_BIG_BURST_FrameMove` | only the 0.65 s damage effect; no memo 12 branch, no particles |
+| `32cf45c0` | `ESSI_A_ES_SWORD_WAVE_Init` | six more preloads |
+| `32cfef60` `32cffd60` | `ESSI_A_ES_SWORD_WAVE_EventProcess` `ESSI_SI_A_ERS_CRITICAL_SWORD_EventProcess` | dash / walk cancels need the foot on a line (7h) |
+| `32cffcf0` | `ESSI_SI_A_ERS_CRITICAL_SWORD_FrameMove` | the equipped skill's templet is read with the upgrade swap |
+| = March | Wind Blade Init / EP, Rising Slash Init / EP, Storm Blade Init / EP, Big Burst Init / FrameMoveFuture / EP, Critical Sword Init | `funcmap.tsv` says which |
+
+**Registration.** `SetEquippedSkillFuncBySkillSlotIndex` gains the June cases for 21012 / 21032, 21013, 21035, 21014 / 21048, 21207 / 21220, 21208 / 21229 and 21209 / 21230 ahead of the `default:`; the hyper state takes the normal table name and the callbacks June fills (Wind Blade 21013: Init + EP, hyper EP; 21035 also StartFuture and the callback-less state 262). March's Rising Slash / Wind Blade FrameMoves (cut-in, meshes, damage effects) are not in June's case: June wins, the script plays them. `X2SkillTree.h`: eleven `RNSI_*EMK*` names (values checked against `Enum.src.lua`; 21035 existed). `Always.h`: new `#error` for `JUNE_CHAR_CHUNG_CORE` (`IsKeyPressedOnce`). New helper `TryGetAcquiredSkillAbilityValue` in `_CONST_ELSWORD_CH2C_` (June `32007c40`, as Chung's and Arme's copies). Checklist rows marked `(Elsword: CH2c)` (51, 116, 117, 178). `JUNE_BUGS.md` 531 (the 21013 zero row).
+
+**Judgement for the review.** The class map called the upgraded Wind Blade EP "inside" March's `ESSI_SI1_ES_WIND_BLADE_EventProcess`, but June registers two different functions (21013 -> `32cfa040` = March, 21035 -> `32cfa080`), so the second is a new function `ESSI_SI1_ES_WIND_BLADE_UPGRADE_EventProcess`. Rising Slash Init `32cf3c00` is "= March": June's memo preloads sit behind a stub that is false, and March's `GetEqippedSkillMemo` is false under `DIVERGE_SKILL_MEMO`.
+
+**Left to later phases (scope rule).** None new: the numerical-only Big Burst table and the damage effects run through the engine; `NUM use` comes from the play-test. Upgrade ids need no templet swap beyond the two swap arguments June passes itself.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ELSWORD_SKILL --with JUNE_CHAR_ELSWORD_SKILL_DEBUG --worktree --files` the four code files: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`; `1 deleted line(s)` (the `//#define`), `0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` the three source files: `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check` the `.cpp` / `.h`: `0 A/B row(s) remain`. `skillicons.py check` the 12 ids: `skills 12, misses 0, sheets 0`, `RESULT: PASS`. `luabind`: no Lua staged. One-file probe of `X2GUElsword_SwordMan.cpp` (`/Zs /EHsc`): exit 0. The six new preloads are in `ch0_assets.tsv` (CH0b).
+- DEPLOY OK: X2_offline.exe is 25,976,832 B, dated 2026-11-05 07:30:07, md5 e6c899c7f755588e9443d21f94cb87e0, equal to X2/US_SERVICE/x2.exe (2026-11-05 07:30:00); built at main cdc684b7 + 4 uncommitted code file(s).
+- EXESTR OK: 3 of 3 found in X2_offline.exe, 25976832 B, md5 e6c899c7 ( `[JUNE_CHAR] ELSWORD SKILL wind blade ultimate`, `[JUNE_CHAR] ELSWORD SKILL storm blade`, `A_ES_SWORD_WAVE_BLADE_Projectile_NEW.X`, wide ).
+
+**Play-test hand-off.** Save: unit 69 `MagicKnight99` (Magic Knight, class 11, lv 99, SP 843; backup `db_backup\els_db_20261105_072024_pre_createchar.sql`, slots set after `...072039_pre_sql.sql`). Slots: A Big Burst (21207), S Sword Wave (21208), D Critical Sword (21209); Q Rising Slash (21012), W Wind Blade (21013), E Storm Blade (21014); C and slots 4 / 9 empty. For the B bank and the enhanced ids (21220, 21229, 21230 / 21032, 21035, 21048) say "swap banks" (I run the enhanced setup).
+Dev console (END key, auth 3): `/invin 0`, then a dungeon with enemies in front (`/stage 1`). Checks, enemies near:
+1. **A Big Burst.** June's dash-and-punch motion, the explosion damage at ~0.65 s; any direction / attack / skill key cancels to wait from ~1.06 s; ends in wait / fall.
+2. **S Sword Wave.** The sword-wave projectile flies; on the ground walk or dash cancels it late in the motion; ends in wait / fall.
+3. **D Critical Sword.** Sword enchant, a buff at 0.333 s ( enhanced version: the upgraded buff ); the same ground-only cancels.
+4. **Q Rising Slash.** June's slash and magic square; ends in wait ( no March flare lines: the script plays the effects ).
+5. **W Wind Blade.** Wind blades and the damage; ends in wait. Enhanced ( swap banks ): hold the W key through the motion and press it again inside the window: the ultimate state starts and the MP is paid once; log `wind blade ultimate: skill 21035 ...`.
+6. **E Storm Blade.** Storm blades and the damage; the enhanced one applies a buff at 0.3 s ( `storm blade: upgraded buff factor` ).
+Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKILL"` ) and `[JUNE_SKILL]` `NUM use`. Then say "check logs".
+
 ## Phase CH3 - Skills: second jobs (100, 101, 112), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.

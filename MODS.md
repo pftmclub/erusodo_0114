@@ -5807,3 +5807,21 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (CH2a's; the `..._SKILL_DEBUG` log 
 | Armor Break (21204 / 21226) | `ESSI_A_ESK_ARMOR_BREAK` state table | 897 ( 1077 ) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-10 ids fall back to the Mega Slash default; CH2a's class-1 ids too), `python tools/build.py --deploy`.
+
+## Stage 7 Elsword, CH2c: Magic Knight skills (2026-11-05)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (CH2a's; the `..._SKILL_DEBUG` log is defined again until the CH2c review). Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` "CH2c - Done". Client only, no data change.
+- **What changes in game.** The class-11 skills run June's registrations: Rising Slash (21012 / 21032), Wind Blade (21013; the upgrade 21035 is its own case), Storm Blade (21014 / 21048), Big Burst (21207 / 21220), Sword Wave (21208 / 21229) and Critical Sword (21209 / 21230) each get a case in `SetEquippedSkillFuncBySkillSlotIndex` ahead of the Mega Slash default; the hyper state takes the normal table name. Eleven `RNSI_*EMK*` names join `X2SkillTree.h` under `JUNE_ENUM_NAMES`; `Always.h` gains an `#error` for `JUNE_CHAR_CHUNG_CORE` (`SkillSlotKey::IsKeyPressedOnce`).
+- **Differs from March.** The upgraded Wind Blade (21035) holds its key slot, and a key press inside the input window pays the skill's MP (x (1 - `SA_MP_CONSUME_REL`)) and starts the new state `ESSI_SI1_ES_WIND_BLADE_ULTIMATE` (June script id 262; the script drives it). Storm Blade, Rising Slash, Wind Blade and Big Burst lose March's FrameMove cut-in / particle lines (June's script plays them); Big Burst keeps only its 0.65 s damage effect (no memo branch). Sword Wave and Critical Sword cancel into walk / dash on the ground only, Sword Wave preloads six more files, and Critical Sword reads its buff factor from the equipped (possibly upgraded) skill. Storm Blade's upgrade applies the base skill's buff factor at 0.3 s.
+- **Damage (level-1 value of the base id; June = `NewSkillTempletVer2.lua` NUMERICAL_DATA through the engine, x0.01 from `c1a_numerical_blocks.tsv`; March = the shipped state table).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Rising Slash (21012 / 21032) | `ESSI_SI2_ES_RISING_SLASH` state / effect tables | 592 |
+| Wind Blade (21013 / 21035) | `ESSI_SI1_ES_WIND_BLADE` state / effect tables | 1518; the ultimate projectile reads index 2 of 21013 which June does not have: zero row ( JUNE_BUGS 531 ) |
+| Storm Blade (21014 / 21048) | `ESSI_SI3_ES_STORM_BLADE` state / effect tables | 164 ( centre and blades ) |
+| Big Burst (21207 / 21220) | `ESSI_SA_EMK_BIG_BURST` state / effect tables | 762 + 116 ( numerical-only state table through the engine ) |
+| Sword Wave (21208 / 21229) | `ESSI_A_ES_SWORD_WAVE` state / effect tables | 854 |
+| Critical Sword (21209 / 21230) | `ESSI_SI_A_ERS_CRITICAL_SWORD` state table | 1481 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-11 ids fall back to the Mega Slash default; CH2a's and CH2b's ids too), `python tools/build.py --deploy`.
