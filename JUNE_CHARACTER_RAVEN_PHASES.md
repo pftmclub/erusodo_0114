@@ -718,6 +718,43 @@ The expanded X-X-front-X body is one `else if` chain behind the fall.
 
 CH1g kickoff checked: present, CH0 amendment lists 35 functions and 11 Weapon Taker states, none of them CH1f's. Nothing to play-test. Next: `/x2-phase char-raven CH1g` (Sonnet 5.5 high).
 
+### CH1g - Done (2026-11-06)
+
+All 35 class-map rows of phase CH1g are written, all `inside` (June's body in March's own `CX2GURaven` function under `SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`, March's in `#else`); no `new` row, no `.h` change. CH0 had three rows as `new ?` helpers: `32c526e0`, `32c598c0` and `32c5fd90` are June's one-argument bodies of March's own `_SetOverheat`, `_CanOverheat` and `_BurnOverheatHP` (CH0's overheat map said "`_SetOverheat` inlined, absent": June has both an out-of-line copy and an inlined one in `32c528c0`). `ch0_class_map.tsv` is corrected, 35 funcmap rows `Char Raven CH1g`, 1 `JUNE_BUGS` row (#540). `_LIVE` stays `//#define`.
+
+| June | `CX2GURaven::` |
+|---|---|
+| `32c26eb0` `32c4aab0` `32c33c30` | `RWT_COMBO_X` Init (= March), FrameMove (= March), EventProcess (differs) |
+| `32c26ee0` `32c33fd0` | X-X FrameMoveFuture (= March), EventProcess (differs) |
+| `32c57150` `32c26ef0` `32c5b740` | X-X-X Start (= March, one-argument `_SetOverheat`), FrameMove (= March), EventProcess (differs) |
+| `32c528c0` `32c60230` `32c59b60` `32c26f00` | X-X-X loop Start, FrameMove, EventProcess (differ), StateEnd (= March) |
+| `32c42160` `32c342c0` | X-X-X finish FrameMove (= March), EventProcess (differs) |
+| `32c26f10` `32c26f20` `32c345f0` `32c26f30` | Z-Z-Z-X Start, FrameMove, EndFuture (= March), EventProcess (differs) |
+| `32c26f70` `32c34970` | Z-Z-Z-X-X FrameMoveFuture (= March), EventProcess (differs) |
+| `32c4b290` `32c34cc0` `32c4b530` `32c35020` | Z-Z-Z-down-X and -XX FrameMove (= March), EventProcess (differ) |
+| `32c26f80` `32c26fa0` `32c35330` `32c26fb0` | dash-jump Z-X Start, FrameMove, StateEnd (= March), EventProcess (differs) |
+| `32c26fd0` `32c26fe0` `32c35440` `32c26ff0` | dash-jump Z-X-X Start, FrameMove, StateEnd (= March), EventProcess (differs) |
+| `32c526e0` `32c598c0` `32c5fd90` | `_SetOverheat`, `_CanOverheat`, `_BurnOverheatHP` (differ) |
+
+**Where June differs from March** (read from `charport_adis.py raven --phase CH1g` plus a Ghidra decompile of `32c5fd90` for the x87 stack; 19 rows equal March's body, 16 differ):
+- **The cancel chain** is `SKILL_CANCEL_AFTER( m_fSkillCancelAfter )`, back-walk `+0x8c94`, walk `+0x8c98`, dash `+0x8c9c`, Z / X `+0x8c8c` (CH1d's `RAVEN_GROUND_*` macros, foot test) in X `33c30`, X-X-X `5b740`, loop `59b60`, finish `342c0`, Z-Z-Z-X `345f0`, Z-Z-Z-X-X `34970`, Z-Z-Z-down-XX `35020`. Where it sits: fall, flag window, `> 0.702` branch, chain, then the end test (X); fall, end -> WAIT, chain, then the `0.66` loop branch (X-X-X); end -> LOOP / FINISH, then chain (loop); fall, chain, `else` end -> WAIT (finish); flag window, branch, end, chain (Z-Z-Z-X); fall zeroes `speed.x`, chain, end (Z-Z-Z-X-X); no fall, chain, end (down-XX).
+- **X-X `33fd0` and Z-Z-Z-down-X `34cc0` cancel without a foot test** and clear the X flag after each action (new macros `RAVEN_FLAG_BWALK_CANCEL` / `_WALK_` / `_DASH_` / `_ATTACK_CANCEL`, `_CORE`, beside CH1d's). X-X: end test, dash, walk, back-walk, Z / X, then the A-S-D-C-Q-W-E-R skill cancel (`ground` or `ASUT_AIR` by the foot, no hyper branch). Down-X: skill with hyper (needs the foot, flag kept), back-walk, walk, dash, Z / X, then the end test (WAIT or `JUMP_DOWN` and `y - 45`).
+- **Dash-jump Z-X `35330` / Z-X-X `35440`:** June adds `StateChange( USI_JUMP_DOWN )`: after 0.635 s in the air with no X flag (March only cleared `m_bDisableGravity`, set first), and at the end of Z-X-X in the air.
+- **`_CanOverheat`:** limit 0.25, or `m_fLimitOverHeatHP` for Survival Technique ( both flags ) or `m_fOverheatDamageLimitedRate > 0`; the message only for `IsMyUnit()` ( March: any unit ).
+- **`_BurnOverheatHP`:** one argument ( the loop FrameMove passes no `0.5` ). Penalty 1.0 in a PvP or PvE game ( `GetIsNowPVPCorrectionGame()`, June `322cc1a0` ), else 0.2; 0 when `HP / max < m_fOverheatDamageLimitedRate`. The damage is clamped to `[0, HP - max * limit rate]`, and to `HP - 1` when it would end at 0 or below, with no Survival Technique test ( March tested it ).
+- **`_SetOverheat( bOn )`:** one argument ( March's `fDuration` is ignored: stand-in for unported callers ). On: `GetSkillLevelValue( RNSI_P_RVC_OPEN_MIND )` > 0 takes that skill's buff factor ( `GetSkillBuffFactorPtr`, index 0, learned only ); `BFI_BUFF_OVER_HEAT` / `BTI_BUFF_OVER_HEAT`, or the `_ENHANCE` pair when `m_iAddOverHeatLevel > 0`, applied with `m_iAddOverHeatLevel` as the level ( JUNE_BUGS #540 ); the buff's first finalizer value is the duration ( -1 if none ); the passive's factor gets it as a `BFT_TIME` finalizer ( `SetFinalizerValue`, set ), is stamped ( `SetGameUnitBuffFactor( this, -1, true )` ) and applied; duration > 0 -> `m_fOverheatBuffTime`; `CreateOverHeatObject()`.
+- **Enum members** ( `SERV_IRUHADEV_JUNE_ENUM_NAMES`, June's values ): `RNSI_P_RVC_OPEN_MIND` 24421 ( `X2SkillTree.h` ), `BTI_BUFF_OVER_HEAT` 103 and `BTI_BUFF_OVER_HEAT_ENHANCE` 250 ( `X2BuffFactor.h` ). `ch1_offsets.tsv` gains the 11 Raven members the listings use ( `+0x9668`-`+0x9738` ).
+
+**Gates.**
+- `flagcheck ..._LIVE --with ..._CORE --with SERV_IRUHADEV_JUNE_ENUM_NAMES --worktree --files` the three files: `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out. `git diff --patience --numstat`: `X2GURaven.cpp` 725 / 0, `X2SkillTree.h` 5 / 0, `X2BuffFactor.h` 6 / 0.
+- One-file probe ( `census.cl_cmd`, `/c /Zs /EHsc`, no PCH ): exit 0, 0 errors with `_LIVE` off and with `/DSERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`. `cl /P` both ways: 1442 `CX2GURaven::` lines each; `RNSI_P_RVC_OPEN_MIND` 1 off / 3 on, `GetIsNowPVPCorrectionGame` 1 / 2, `SetFinalizerValue( BFT_TIME` 1 / 2.
+- `junediverge.py --check X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h X2Lib/X2SkillTree.h X2Lib/X2BuffFactor.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 26,010,112 B, dated 2026-11-06 06:32:04, md5 ece17aaa8e5b9c41228d99e19adab428, equal to X2/US_SERVICE/x2.exe (2026-11-06 06:31:58); built at main 650ad8f2 + 3 uncommitted code file(s).` No `exestr` line: `_LIVE` is off.
+
+**Routed.** CH1g2: the overheat object pieces ( `CreateOverHeatObject`, `DeleteOverHeatObject`, `_ShowOverheatIcon` ) are still March's; the three setters above are done, so its states call them with June's arguments. CH2d: the Weapon Taker skill states ( Revolver Cannon, Hellfire Gatling, Harpoon Spear ) call `_SetOverheat` / `_BurnOverheatHP` with March's extra arguments in `#else` only; their June bodies call the one-argument forms. CH4a: `RNSI_P_RVC_OPEN_MIND` is read here; its `InitPassiveSkillState` row stays CH4a's. CH1 final play-test: X-X-X-X overheat ( HP share, buff icon, burn damage ), X-X in the air, Z-Z-Z-down-X cancels, dash-jump Z-X at 0.635 s without the X key.
+
+**Nothing to play-test** ( `_LIVE` is off; nothing registers a June body ). Next: `/x2-phase char-raven CH1g review` ( Opus 5.5 high ), then CH1g2.
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

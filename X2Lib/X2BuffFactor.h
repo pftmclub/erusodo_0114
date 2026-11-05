@@ -524,6 +524,12 @@ enum BUFF_TEMPLET_ID
 	BTI_BUFF_ELPIERCE_INNERRAY            = 1003,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-06 // char-raven CH1g
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	BTI_BUFF_OVER_HEAT                    = 103,	// June's Enum.lua
+	BTI_BUFF_OVER_HEAT_ENHANCE            = 250,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-26 // June character port Phase CH1l3 (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 	// June BTI names the Eve skill use spells

@@ -638,7 +638,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c51b70	registrar	class registrar (classes 17 / 107; 11 combo states)	X2GURaven.cpp InitState	inside	-	CH1m		y
 32c52480	helper	called by 32c54960 32c54c10 32c55240 32c55ee0	-	new	?	CH1b	name: called by 32c54960(helper) 32c54c10(helper) 32c55240(CommonFrameMove) 32c55ee0(RSI_RIDING_DIE.Start RSI_DIE)	y
 32c52550	state-fn	RSI_SI_A_RF_SHADOW_STEP.EventProcess	inside X2GURaven.cpp:2386 CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_EventProcess	inside	-	CH2a	1 states	y
-32c526e0	helper	called by 32c528c0 32c52b30 32c52cc0 32c53110	-	new	?	CH1g	name: called by 32c528c0(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c52b30(RSI_SA_RWT_REVOLVER_CANNON.S) 32c52cc0(RSI_SA_RWT_REVOLVER_CANNON_L) 32c53110(RSI_SA_RWT_HELLFIRE_GATLING.)	y
+32c526e0	helper	called by 32c528c0 32c52b30 32c52cc0 32c53110	inside X2GURaven.cpp:20901 CX2GURaven::_SetOverheat	inside	-	CH1g	name: called by 32c528c0(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c52b30(RSI_SA_RWT_REVOLVER_CANNON.S) 32c52cc0(RSI_SA_RWT_REVOLVER_CANNON_L) 32c53110(RSI_SA_RWT_HELLFIRE_GATLING.) | CH1g: June 1-argument body of March _SetOverheat (CH0 had it as new)	y
 32c528c0	state-fn	RSI_WEAPON_TAKER_COMBO_XXX_LOOP.Start	inside X2GURaven.cpp:2059 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_LOOP_StateStart	inside	-	CH1g	1 states	y
 32c52b30	state-fn	RSI_SA_RWT_REVOLVER_CANNON.Start RSI_SA_RWT_REVOLVER_CANNON_LOOP.Start RSI_SA_RWT_REVOLVER_CANNON_FINISH.Start +2	inside X2GURaven.cpp:3454 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_StateStart ; inside X2GURaven.cpp:3471 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_StateStart ; inside X2GURaven.cpp:3480 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_StateStart	inside	-	CH2d	5 states	n
 32c52cc0	state-fn	RSI_SA_RWT_REVOLVER_CANNON_LOOP.Start RSI_SA_RWT_REVOLVER_CANNON_FINISH.Start	inside X2GURaven.cpp:3471 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_StateStart ; inside X2GURaven.cpp:3480 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_StateStart	inside	-	CH2d	2 states	y
@@ -677,7 +677,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c580e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes ff3bc37e07c68634	n
 32c58c30	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	- (no virtual of that name in X2GURaven.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
 32c59550	helper	called by 32c5b6f0 32c5b710	-	new	?	CH1b	name: called by 32c5b6f0(RSI_DAMAGE_SMALL_BACK.Start) 32c5b710(RSI_DAMAGE_BIG_BACK.Start)	y
-32c598c0	helper	called by 32c59b60 32c59f30 32c5a020 32c5a1e0	-	new	?	CH1g	name: called by 32c59b60(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c59f30(RSI_SA_RWT_REVOLVER_CANNON.E) 32c5a020(RSI_SA_RWT_REVOLVER_CANNON_L) 32c5a1e0(RSI_SA_RWT_HARPOON_SPEAR.Eve)	y
+32c598c0	helper	called by 32c59b60 32c59f30 32c5a020 32c5a1e0	inside X2GURaven.cpp:20792 CX2GURaven::_CanOverheat	inside	-	CH1g	name: called by 32c59b60(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c59f30(RSI_SA_RWT_REVOLVER_CANNON.E) 32c5a020(RSI_SA_RWT_REVOLVER_CANNON_L) 32c5a1e0(RSI_SA_RWT_HARPOON_SPEAR.Eve) | CH1g: June 1-argument body of March _CanOverheat (CH0 had it as new)	y
 32c59ac0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5424508951	n
 32c59ae0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b5424508951	n
 32c59b60	state-fn	RSI_WEAPON_TAKER_COMBO_XXX_LOOP.EventProcess	inside X2GURaven.cpp:2061 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_LOOP_EventProcess	inside	-	CH1g	1 states	y
@@ -716,7 +716,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c5d3f0	state-fn	RSI_A_RWT_FLAME_SWORD_FLY.Start	inside X2GURaven.cpp:3948 CX2GURaven::RSI_A_RWT_FLAME_SWORD_AIR_StateStart	inside	-	CH2a	1 states	y
 32c5d540	helper	called by 32c63660	-	new	?	CH1h	name: called by 32c63660(?)	y
 32c5d660	registrar	InitStateCommon (registers the common states, ids 7-286)	X2GURaven.cpp InitState	inside	-	CH1m		y
-32c5fd90	helper	called by 32c60230 32c607a0 32c609c0 32c60b30	-	new	?	CH1g	name: called by 32c60230(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c607a0(dead) 32c609c0(RSI_SA_RWT_HARPOON_SPEAR_FIR) 32c60b30(RSI_SA_RWT_HELLFIRE_GATLING_)	y
+32c5fd90	helper	called by 32c60230 32c607a0 32c609c0 32c60b30	inside X2GURaven.cpp:20830 CX2GURaven::_BurnOverheatHP	inside	-	CH1g	name: called by 32c60230(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c607a0(dead) 32c609c0(RSI_SA_RWT_HARPOON_SPEAR_FIR) 32c60b30(RSI_SA_RWT_HELLFIRE_GATLING_) | CH1g: June 1-argument body of March _BurnOverheatHP (CH0 had it as new)	y
 32c60230	state-fn	RSI_WEAPON_TAKER_COMBO_XXX_LOOP.FrameMove	inside X2GURaven.cpp:2060 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_LOOP_FrameMove	inside	-	CH1g	1 states	y
 32c60510	state-fn	RSI_SA_RWT_REVOLVER_CANNON_LOOP.FrameMove RSI_SA_RWT_REVOLVER_CANNON_FINISH.FrameMove	inside X2GURaven.cpp:3472 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_FrameMove ; inside X2GURaven.cpp:3481 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_FrameMove	inside	-	CH2d	2 states	y
 32c607a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8911d94424448b57	n
