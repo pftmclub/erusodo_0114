@@ -2195,6 +2195,30 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the two event processes; `_SKILL_
 **Play-test PASS ( user, 2026-11-05; `COPY OK data036` md5 8348bc0c ).** Logs ( run after the deploy, md5 2da608fe ): `equip skill 21600 / 21601 / 21602 type 13 slot 4` and `21058 / 21059 / 21060 type 16 slot 4 B`; `[JUNE_TRANSCEND] IMAGE` for 100 / 101 / 112: type 9 `list_TR_L_KNIGHT / R_SLAYER / I_SWORD`, type 2 Texture98 `TR_*_LARGE`, type 7 Texture97 `TR_L_KNIGHT_STATE`, `TR_R_SLAYER_STATE`, `TR_I_SWORD_FACE`; no EXCEPTION, no ErrorLog line of this phase. Not this phase: the `E_DISABLE_HB_CHECK_REQ` UNHANDLED baseline and one unbound `AddGroupChainQuest` from a June quest script. The user saw the ground-only cancels, the hyper actives in A-5 and B-5, the cut-in and the TR pictures.
 **Open for the review:** the ground test on both event processes, the `_FACE` row against June's table, and the "= March" Init claims.
 
+### CH3d - Review (2026-11-05)
+
+Opus 5.5. **Verdict: passes, no code change.** Commit `be8b7806`; listings via `funcann.py`, the picture rows in Ghidra (string xrefs and the paired `PUSH`es).
+- **Logs.** The 12:56-13:00 run (exe 2da608fe): the six equip lines (21600 / 21601 / 21602 type 13 slot 4, 21058 / 21059 / 21060 type 16 slot 4 B), the `IMAGE` lines for 100 / 101 / 112
+  (types 9 / 2 / 7, `TR_I_SWORD_FACE` on type 7), the guide dialog for 100, the three `HQ_Cutin_*_Transcendence.gfx` plays; 0 `EXCEPTION`, `ErrorLog.txt` no phase line; 4 UNHANDLED
+  `E_DISABLE_HB_CHECK_REQ` and one unbound `AddGroupChainQuest` (baseline, not this phase).
+- **EventProcess `32d00be0`.** Anim end ( `+0x87d0` `+0x2ac` ) -> `StateChange( +0x7e1c ? 0xd : 0x11 )`; else dash ( `+0x8c9c`, the future-anim accessor `+0x8e90 / +0x8e84`, `+0x7e1c`, `+0x86e0 / +0x86dc`,
+  vslot `0x668` ) before walk ( `+0x8c98`, `+0x7e1c`, `+0x86de / +0x86da`, `StateChange( 0xd )` ); then `+0x8c90` with `+0x7e1c` and vslot `0x7f4`, else the awakening branch
+  ( `IsThereEffectiveBlackHoleDamageEffect`, `+0x8723`, the encrypted hyper count, vslot `0x560`, `32070d60`, `+0x8d4c = 1`, `StateChange( vslot 0x6b8 )` ); tail vslot `0x7d4`. = `ELSWORD_GROUND_DASH_CANCEL`,
+  `ELSWORD_GROUND_WALK_CANCEL` (`X2GUElsword_SwordMan.cpp:12618-12626`) and the live `SKILL_CANCEL_AFTER` ( `X2GUUser.h:113`, buff 7c's June expansion ), `CommonEventProcess`. = port.
+  `32d00de0` vs `32d00be0`, address-stripped: 156 instructions each, identical.
+- **Pictures.** June has every piece for all three classes: `TR_L_KNIGHT / R_SLAYER _STATE`, `TR_I_SWORD_FACE` (no `TR_I_SWORD_STATE` string exists), `_LARGE`, `_LARGE_GRAY`, `_MEDIUM`, `_ICON`, `_PARTY`,
+  `list_TR_*`, `list_TR_*_GRAY`. Paired files: gauge Texture97 ( `@33371f37`, `@33370955` ), large `Texture98_NEW` ( `@33377182`, `@33375ba0` ), gray `Texture98_GRAY` ( `@3337c3cd` ), medium / icon / party
+  `Texture100_NEW` ( `@3338161d`, `@3338686d`, `@3339620d` ), unit slot `GUI_character_01` / `_gray` ( `@3339b45d`, `@333a163d` ). = the port's rows, `_FACE` for 112 only.
+- **Allow-list.** `TranscendCheck`: Chung's guard, then Elsword's, then March / Eve's `return` (brace-less, each an `if` of the next), so any of the 12 classes passes. `LevelUpEvent.lua` `TYPE3`
+  = June's `TYPE0` (`LevelUpEvent.src.lua:453-471`) line for line.
+- **"= March".** The three Inits ( `32cf4930` / `32cf49d0` / `32cf4ab0` ): 12 / 17 / 14 preloads, same names, order and loader (Texture vs XSkinMesh) as March. `32d17ea0` = CH1h's port per the Done note's listing.
+- **`#else`.** Both event processes keep March's two macros in `#else`; `CIT_MyGage` keeps March's `_STATE` row in `#else`; the allow-list and prefix rows are insert-only.
+- **Gates:** `flagcheck JUNE_CHAR_ELSWORD_TRANSCEND --range be8b7806^..be8b7806 --files` the four code files: `files: 2 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s)`, `RESULT: PASS`.
+  `flagcheck JUNE_CHAR_ELSWORD_SKILL --with ..._SKILL_DEBUG` same range: `files: 1 PASS, 0 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s)`, `RESULT: PASS` (the OTHER rows are the
+  `_TRANSCEND` files and `Always.h`'s other blocks; `Always.h -1` = the `//#define _SKILL_DEBUG` made live). `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check` the three
+  `.cpp`: `4 A/B row(s)`, all outside the CH3d lines (X2Data.cpp 104 / 105 / 113 and the `< 100` bound, pre-existing). Retirement: `flagcheck JUNE_CHAR_ELSWORD_SKILL_DEBUG --worktree --files KTDXLIB/Always.h`:
+  `1 DEFINE`, `1 deleted line(s)` (the `//#define`). `_SKILL_DEBUG` retired; build started, not awaited.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

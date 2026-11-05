@@ -11629,7 +11629,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH3b ( 2026-11-05 ): defined again for the Rune Slayer lines ( Counter Guard, Extreme Rune Buster, Rune of Fire ). CH3b's review retires it.
 //              CH3c ( 2026-11-05 ): defined again for the Infinity Sword lines ( Harsh Chaser, Compact Counter, Maelstrom Rage, Phantom Sword, Rage Cutter, Sword Blasting ). CH3c's review retires it.
 //              CH3d ( 2026-11-05 ): defined again for the hyper actives ( the equip line, type 13 in slot 4 / 9 ). CH3d's review retires it.
-#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
