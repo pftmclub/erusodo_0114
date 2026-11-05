@@ -600,6 +600,37 @@ Its 2 "deleted" lines are the two CH1d-inserted lines replaced. `RESULT: FAIL` o
 
 CH1e kickoff checked: present; its CH0 amendment lists 32 functions (20 inside, 12 new) and 19 states, and the CH1d amendment names the three members already added. Lesson for later phases: count every `push` between a stack store and a reload. Nothing to play-test. Next: `/x2-phase char-raven CH1e` (Sonnet 5.5 high).
 
+### CH1e - Done (2026-11-05)
+
+All 32 class-map rows of phase CH1e are written. 20 are `inside`: June's body in March's own `CX2GURaven` function under `SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`, March's in `#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`. 12 are `new` (`_CORE`, compiled, referenced by nothing; one block before `//RSI_COMBO_ZZX`, declarations beside CH1d's). `_LIVE` stays `//#define`. 32 funcmap rows `Char Raven CH1e`; 1 `JUNE_BUGS` row (#538). Four `RAVEN_STATE_ID` members appended under `_CORE` (no `= value`): `RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_Landing` 295, `_ZZZ` 296, `_ZZZ_Landing` 297, `_ZZZZ` 298 (ids from `ch0_state_skill.tsv`; `RBM_DASH_JUMP_COMBO_X` 300, `RSI_RBM_COMBO_ZZZupZ` 299, `..._DASH_JUMP_COMBO_ZZ` 294 and `RBM_DASH_JUMP_COMBO_XZ` 301 were CH1d's).
+
+| June | `CX2GURaven::` | June | `CX2GURaven::` |
+|---|---|---|---|
+| `32c2e2f0` `32c2e6a0` `32c2e700` `32c2ea40` `32c26340` | Sword Taker `COMBO_XXZ` EP, `XXZZ8` FM / EP, `XXZZ8Z` EP, `XXZZ8` Start (inside) | `32c2dd50` `32c2dec0` | `SOUL_TAKER_DASH_COMBO_ZZ` / `ZZZ` EP (inside) |
+| `32c32560` `32c32970` `32c32da0` `32c26b80` | `RBM_Combo_XZ` / `XZZ` / `XZZZ` EP, `XZZZ` FrameMoveFuture (inside) | `32c26b90` `32c41330` `32c49de0` `32c413e0` | `RBM_COMBO_ZZZX` Init / Start / FrameMove / EP (inside) |
+| `32c41890` `32c41a00` | `RBM_COMBO_ZZZXZ` Start / EP (inside) | `32c26bd0` `32c41ef0` `32c32de0` | `RBM_COMBO_ZZZX_EXPLOSION` Start / FM / EP (inside) |
+| `32c2cb30` `32c2cc40` `32c2cc70` `32c2ccc0` | Sword Taker `DASH_JUMP_COMBO_ZZ` EP, `ZZZ` EP, `ZZZ_Landing` StateStartFuture, `ZZZZ` EP (new) | `32c45520` `32c45710` | `DASH_JUMP_COMBO_ZZ_Landing` / `ZZZ_Landing` EP (new) |
+| `32c2cfe0` `32c2d0f0` `32c459f0` `32c45cc0` | `RBM_DASH_JUMP_COMBO_X` EP / FM, `XZ` EP / FM (new) | `32c2df90` `32c2dfe0` | `RSI_RBM_COMBO_ZZZupZ` FrameMoveFuture / EP (new) |
+
+**Where June differs from March** (read from `charport_adis.py raven --phase CH1e`; the rest is March's logic written out whole):
+- **The cancel chain** (`SKILL_CANCEL_AFTER( m_fSkillCancelAfter )`, back-walk, walk, dash, Z / X; CH1d's `RAVEN_GROUND_*` macros) runs in Sword Taker X-X-Z, 8-hit and 8-hit Z, in Blade Master X-Z, X-Z-Z, Z-Z-Z-X, Z-Z-Z-X-Z, the explosion and Z-Z-Z up-Z, and in the dash-jump Z-Z-Z-Z. It replaces the `DASH_CANCEL_AFTER` / `WALK_CANCEL_AFTER` / `SKILL_CANCEL_AFTER` BALANCE lines and the `ELSE_IF_KEY_PRESSED` branches.
+- **X-X-Z** `32c2e2f0`: fall, chain, then the end test, then 8-hit follow-up (`>= 2` hits and `> 0.87`) and the hit counter (`< 0.87`). **8-hit** `32c2e700`: fall, chain, `GetNowPlayCount() > 4`; the non-BALANCE Z counter branches are gone. **8-hit Z** `32c2ea40`: fall, chain, end -> WAIT (March had a 0.43 s skill cancel).
+- **Dash Z-Z** `32c2dd50`: flag 0 needs the foot on a line and **data class != 115** (Veteran Commander has its own dash Z-Z); the key cancel after 0.9 s keeps the cool time. **Dash Z-Z-Z** `32c2dec0`: the key cancel after 0.84 s has **no cool time** (`JUNE_BUGS` #538).
+- **X-Z / X-Z-Z / X-Z-Z-Z** `32c32560` / `32c32970` / `32c32da0`: Sword Taker and Blade Master (**templet class** 16 / 106, `+0xaf0`) set flag 0 below 0.63 / 0.66 s and the follow-up needs `0.63 < t` or the animation end; X-Z-Z clears flag 0 on a direction change, takes a double-tap dash without the foot test, and the chain comes before the fall; X-Z-Z-Z ends in jump-down (no y offset) or landing = March.
+- **Z-Z-Z-X (Blade Master black hole)** `32c413e0`: **templet 106 + Z sets flag 0 at any time**, and `t > 0.94` takes `RBM_COMBO_ZZZXZ` before the black-hole explosion (hit count `> 0`, time `<= 0.9`) and the fall; then the chain. `32c41890` Start waits 1.24 s and writes the stage after both branches. `32c41a00` EP: fall (also zeroes `nowSpeed.x`), explosion tests (`<= 0.4`), `0.69 <=` follow-up, chain, then the `< 0.69` flag set. Explosion EP `32c32de0`: end -> fall / WAIT, then the chain. Start / FM / Init / thunks = March.
+- **Dash-jump** (new): Sword Taker / Blade Master (data class 16 / 106) use event time 0 (`+0x8c10` / `+0x8c14` / `+0x8c18`) to chain ZZ -> ZZZ -> ZZZZ; landings reuse the `max / 3` ladder (`RSI_COMBO_Z` / `X`, dash, walk, jump-ready, down, end) of CH1d's ZZ landing; ZZZ landing `StateStartFuture` zeroes `nowSpeed` and `passiveSpeed`. Blade Master X / X-Z: `FlushMp( 10.0f )` (vslot 0xe4) plays `EffectSet_RST_DashJump_X` at 0.195 s / `..._XZ` at 0.3 s, else the magic-fail particle at `Bip01_L_Hand` (`z - 45`, `y - 40`) / `Bip01_R_Hand` (`z - 50`).
+- **`RSI_RBM_COMBO_ZZZupZ`** `32c2df90` / `32c2dfe0`: 0.5 s `nowSpeed.y = 1500`; EP end -> fall / landing, then the chain (March's `SOUL_TAKER_COMBO_ZZZupZ` had none). The listing `32c2cc70` runs on into `32c2ccc0` (no int3): read as two functions.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE --with ..._CORE --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h KTDXLIB/Always.h`: `.cpp` `PASS +676`, `.h` OTHER (`_CORE` only: `PASS +18`); `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). `git diff --patience --numstat`: `.cpp` 676 / 0, `.h` 18 / 0.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): exit 0, 0 errors with `_LIVE` off and with `-DSERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`. `cl /P` both ways: the same 638 `CX2GURaven::` definitions; `1.24f` 0 off / 1 on; `IsTempletClass( GetUnit(), CX2Unit::UC_RAVEN_BLADE_MASTER )` 0 / 4 (so the BALANCE branches are live).
+- `junediverge.py --check X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 26,003,456 B, dated 2026-11-05 23:18:40, md5 9c69dbd619f5e511a21e813e26669a13, equal to X2/US_SERVICE/x2.exe (2026-11-05 23:18:33); built at main d73d1e54 + 2 uncommitted code file(s).` `BUILD OK` 26,003,456 B. No `exestr` line: `_LIVE` is off.
+
+**Routed.** CH1m: register the 12 new functions and the four members (June ids above). CH1 final play-test: Sword Taker / Blade Master dash-jump Z-Z-Z-Z chain, X-X-Z-Z 8-hit and Blade Master black hole (Z held early), and Z-Z-Z up-Z for Blade Master; Veteran Commander dash Z-Z (CH1g2) is separate from `32c2dd50`.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-raven CH1e review` (Opus 5.5 high), then CH1f.
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

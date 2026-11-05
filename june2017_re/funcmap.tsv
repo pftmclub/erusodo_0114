@@ -8010,3 +8010,35 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c25ff0	CX2GURaven::RSI_COMBO_ZZZX_FINISH_StateStartFuture	PORTED	Char Raven CH1d: new; CommonStateStartFuture(); _CORE, referenced by nothing (CH1m registers)
 32c26000	CX2GURaven::RSI_COMBO_ZZZX_FINISH_FrameMove	PORTED	Char Raven CH1d: new; CommonFrameMove(); _CORE, referenced by nothing (CH1m registers)
 32c2abc0	CX2GURaven::RSI_COMBO_ZZZX_FINISH_EventProcess	PORTED	Char Raven CH1d: new; cancel chain, the jump-down fall is LINE_RADIUS * 1.0 (30.0), the animation end is the last else-if -> WAIT; _CORE, referenced by nothing (CH1m registers)
+32c26340	CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8_StateStart	PORTED	Char Raven CH1e: inside; = March; CommonStateStart then bSuperArmorNotRed = false; _LIVE
+32c26b80	CX2GURaven::RBM_Combo_XZZZ_FrameMoveFuture	PORTED	Char Raven CH1e: inside; = March thunk; _LIVE
+32c26b90	CX2GURaven::RBM_COMBO_ZZZX_Init	PORTED	Char Raven CH1e: inside; = March ( four textures ); _LIVE
+32c26bd0	CX2GURaven::RBM_COMBO_ZZZX_EXPLOSION_StateStart	PORTED	Char Raven CH1e: inside; = March; stage written before CommonStateStart; _LIVE
+32c2cb30	CX2GURaven::RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_EventProcess	PORTED	Char Raven CH1e: new; landing; flag 0 to dash-jump ZZZ by event time 0; data class 16 / 106; _CORE, referenced by nothing ( CH1m registers )
+32c2cc40	CX2GURaven::RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_EventProcess	PORTED	Char Raven CH1e: new; landing only; _CORE, referenced by nothing ( CH1m registers )
+32c2cc70	CX2GURaven::RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing_StateStartFuture	PORTED	Char Raven CH1e: new; speed and passive speed zeroed; _CORE, referenced by nothing ( CH1m registers )
+32c2ccc0	CX2GURaven::RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZZ_EventProcess	PORTED	Char Raven CH1e: new; fall, end -> WAIT, cancel chain; _CORE, referenced by nothing ( CH1m registers )
+32c2cfe0	CX2GURaven::RBM_DASH_JUMP_COMBO_X_EventProcess	PORTED	Char Raven CH1e: new; dash-jump landing; flag 0 to dash-jump X-Z by event time 0; data class 106; _CORE, referenced by nothing ( CH1m registers )
+32c2d0f0	CX2GURaven::RBM_DASH_JUMP_COMBO_XZ_EventProcess	PORTED	Char Raven CH1e: new; end + ground -> JUMP_LANDING; _CORE, referenced by nothing ( CH1m registers )
+32c2dd50	CX2GURaven::RSI_SOUL_TAKER_DASH_COMBO_ZZ_EventProcess	PORTED	Char Raven CH1e: inside; class 115 excluded by data class; key cancel after 0.9 s sets the cool time; _LIVE
+32c2dec0	CX2GURaven::RSI_SOUL_TAKER_DASH_COMBO_ZZZ_EventProcess	PORTED	Char Raven CH1e: inside; key cancel after 0.84 s sets no cool time ( JUNE_BUGS 538 ); _LIVE
+32c2df90	CX2GURaven::RSI_RBM_COMBO_ZZZupZ_FrameMoveFuture	PORTED	Char Raven CH1e: new; 0.5 s nowSpeed.y = 1500; _CORE, referenced by nothing ( CH1m registers )
+32c2dfe0	CX2GURaven::RSI_RBM_COMBO_ZZZupZ_EventProcess	PORTED	Char Raven CH1e: new; end -> fall / landing, cancel chain; _CORE, referenced by nothing ( CH1m registers )
+32c2e2f0	CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZ_EventProcess	PORTED	Char Raven CH1e: inside; cancel chain before the end test; 0.87 s follow-up to XXZZ8; _LIVE
+32c2e6a0	CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8_FrameMove	PORTED	Char Raven CH1e: inside; = March; _LIVE
+32c2e700	CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8_EventProcess	PORTED	Char Raven CH1e: inside; cancel chain; play count > 4 to XXZZ8Z; no Z re-attack counter; _LIVE
+32c2ea40	CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8Z_EventProcess	PORTED	Char Raven CH1e: inside; cancel chain replaces the 0.43 s skill cancel; _LIVE
+32c32560	CX2GURaven::RBM_Combo_XZ_EventProcess	PORTED	Char Raven CH1e: inside; cancel chain; flag 0 set by templet class 16 / 106 Z before 0.63 s; _LIVE
+32c32970	CX2GURaven::RBM_Combo_XZZ_EventProcess	PORTED	Char Raven CH1e: inside; direction change clears flag 0; non-ground dash; flag 0 set by templet class 16 / 106 Z before 0.66 s; _LIVE
+32c32da0	CX2GURaven::RBM_Combo_XZZZ_EventProcess	PORTED	Char Raven CH1e: inside; = March; _LIVE
+32c32de0	CX2GURaven::RBM_COMBO_ZZZX_EXPLOSION_EventProcess	PORTED	Char Raven CH1e: inside; cancel chain replaces the BALANCE dash / walk / skill cancels; _LIVE
+32c41330	CX2GURaven::RBM_COMBO_ZZZX_StateStart	PORTED	Char Raven CH1e: inside; = March ( BALANCE branch ); _LIVE
+32c413e0	CX2GURaven::RBM_COMBO_ZZZX_EventProcess	PORTED	Char Raven CH1e: inside; Blade Master Z sets flag 0 at any time, acted on after 0.94 s; explosion before the fall; cancel chain; _LIVE
+32c41890	CX2GURaven::RBM_COMBO_ZZZXZ_Start	PORTED	Char Raven CH1e: inside; wait time 1.24 s; stage written after both branches; _LIVE
+32c41a00	CX2GURaven::RBM_COMBO_ZZZXZ_EventProcess	PORTED	Char Raven CH1e: inside; cancel chain replaces the dash / walk / skill cancels; _LIVE
+32c41ef0	CX2GURaven::RBM_COMBO_ZZZX_EXPLOSION_FrameMove	PORTED	Char Raven CH1e: inside; = March; _LIVE
+32c45520	CX2GURaven::RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_Landing_EventProcess	PORTED	Char Raven CH1e: new; = the dash-jump Z-Z landing ladder ( after max / 3 ); _CORE, referenced by nothing ( CH1m registers )
+32c45710	CX2GURaven::RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing_EventProcess	PORTED	Char Raven CH1e: new; flag 0 to dash-jump ZZZZ; landing ladder; _CORE, referenced by nothing ( CH1m registers )
+32c459f0	CX2GURaven::RBM_DASH_JUMP_COMBO_X_FrameMove	PORTED	Char Raven CH1e: new; 0.195 s: FlushMp( 10 ) EffectSet_RST_DashJump_X, else particle at Bip01_L_Hand ( z - 45, y - 40 ); _CORE, referenced by nothing ( CH1m registers )
+32c45cc0	CX2GURaven::RBM_DASH_JUMP_COMBO_XZ_FrameMove	PORTED	Char Raven CH1e: new; 0.3 s: FlushMp( 10 ) EffectSet_RST_DashJump_XZ, else particle at Bip01_R_Hand ( z - 50 ); _CORE, referenced by nothing ( CH1m registers )
+32c49de0	CX2GURaven::RBM_COMBO_ZZZX_FrameMove	PORTED	Char Raven CH1e: inside; = March; _LIVE

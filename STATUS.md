@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-05, play-test owed** (4,825 assets in 35 koms + 2 guide Lua copied, 6 walk units 72-77; user walks Raven per tier, then `check logs`) | Sonnet 5.5 / high, user play-test | CH0 (done) | koms, save | `CH0b.md` |
-| CH1e | **ready** (`/x2-phase char-raven CH1e` on Sonnet 5.5 / high): Sword Taker + Blade Master lines | Sonnet 5.5 / high, Opus review | CH1d review (done) | `X2GURaven.*` | `CH1e.md` |
+| CH1e | **done 2026-11-05, review next** (`/x2-phase char-raven CH1e review` on Opus 5.5 / high): Sword Taker + Blade Master lines = 20 `inside` + 12 `new` fns, 4 state-enum members, `_LIVE` off | Sonnet 5.5 / high, Opus review | CH1d review (done) | `X2GURaven.*` | `CH1e-review.md` |
 | CH1f | blocked (CH1e review): Over Taker + Reckless Fist lines | Sonnet 5.5 / high, Opus review | CH1e review | `X2GURaven.*` | `CH1f.md` |
 | CH1g | blocked (CH1f review): Weapon Taker line | Sonnet 5.5 / high, Opus review | CH1f review | `X2GURaven.*` | `CH1g.md` |
 | CH1g2 | blocked (CH1g review): Veteran Commander line (36 `RVC_` tables) + overheat states | Sonnet 5.5 / high, Opus review | CH1g review | `X2GURaven.*` | `CH1g2.md` |

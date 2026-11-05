@@ -258,6 +258,10 @@ class CX2GURaven : public CX2GUUser
 			RSI_OVER_TAKER_DASH_COMBO_ZX,	/// June script id 302 ( Over Taker dash Z-X; CH1f owns the state )
 			RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ,	/// June script id 294 ( Sword Taker / Blade Master dash-jump Z-Z; CH1e owns the state )
 			RBM_DASH_JUMP_COMBO_XZ,	/// June script id 301 ( Blade Master dash-jump X-Z; CH1e owns the state )
+			RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_Landing,	/// June script id 295 ( Sword Taker / Blade Master dash-jump Z-Z landing )
+			RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ,	/// June script id 296 ( Sword Taker / Blade Master dash-jump Z-Z-Z )
+			RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing,	/// June script id 297 ( Sword Taker / Blade Master dash-jump Z-Z-Z landing )
+			RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZZ,	/// June script id 298 ( Sword Taker / Blade Master dash-jump Z-Z-Z-Z )
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 
 		};
@@ -913,6 +917,20 @@ class CX2GURaven : public CX2GUUser
 		void RSI_COMBO_ZZZX_FINISH_StateStartFuture();	/// June 32c25ff0
 		void RSI_COMBO_ZZZX_FINISH_FrameMove();	/// June 32c26000
 		void RSI_COMBO_ZZZX_FINISH_EventProcess();	/// June 32c2abc0
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+		void RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_EventProcess();	/// June 32c2cb30
+		void RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_EventProcess();	/// June 32c2cc40
+		void RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing_StateStartFuture();	/// June 32c2cc70
+		void RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZZ_EventProcess();	/// June 32c2ccc0
+		void RBM_DASH_JUMP_COMBO_X_EventProcess();	/// June 32c2cfe0
+		void RBM_DASH_JUMP_COMBO_XZ_EventProcess();	/// June 32c2d0f0
+		void RSI_RBM_COMBO_ZZZupZ_FrameMoveFuture();	/// June 32c2df90
+		void RSI_RBM_COMBO_ZZZupZ_EventProcess();	/// June 32c2dfe0
+		void RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_Landing_EventProcess();	/// June 32c45520
+		void RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing_EventProcess();	/// June 32c45710
+		void RBM_DASH_JUMP_COMBO_X_FrameMove();	/// June 32c459f0
+		void RBM_DASH_JUMP_COMBO_XZ_FrameMove();	/// June 32c45cc0
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 
 		//RSI_COMBO_ZZX

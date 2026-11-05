@@ -9775,6 +9775,278 @@ void CX2GURaven::RSI_COMBO_ZZZX_FINISH_EventProcess()
 }
 
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+/// June 32c2cb30
+void CX2GURaven::RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_Landing );
+	}
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ )
+	RAVEN_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd,
+		true == m_InputData.oneZ && ( true == IsDataClass( GetUnit(), CX2Unit::UC_RAVEN_SOUL_TAKER ) || true == IsDataClass( GetUnit(), CX2Unit::UC_RAVEN_BLADE_MASTER ) ) )
+
+	CommonEventProcess();
+}
+
+/// June 32c2cc40
+void CX2GURaven::RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing );
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32c2cc70
+void CX2GURaven::RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing_StateStartFuture()
+{
+	CommonStateStartFuture();
+
+	m_PhysicParam.nowSpeed = D3DXVECTOR2( 0.f, 0.f );
+	m_PhysicParam.passiveSpeed = D3DXVECTOR2( 0.f, 0.f );
+}
+
+/// June 32c2ccc0
+void CX2GURaven::RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZZ_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+}
+
+/// June 32c2cfe0
+void CX2GURaven::RBM_DASH_JUMP_COMBO_X_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, RBM_DASH_JUMP_COMBO_XZ )
+	RAVEN_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd,
+		true == m_InputData.oneZ && true == IsDataClass( GetUnit(), CX2Unit::UC_RAVEN_BLADE_MASTER ) )
+
+	CommonEventProcess();
+}
+
+/// June 32c2d0f0
+void CX2GURaven::RBM_DASH_JUMP_COMBO_XZ_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() && true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32c2df90
+void CX2GURaven::RSI_RBM_COMBO_ZZZupZ_FrameMoveFuture()
+{
+	if( m_pXSkinAnimFuture->EventTimerOneshot( 0.5f ) )
+	{
+		m_PhysicParam.nowSpeed.y = 1500.f;
+	}
+
+	CommonFrameMoveFuture();
+}
+
+/// June 32c2dfe0
+void CX2GURaven::RSI_RBM_COMBO_ZZZupZ_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+		else
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+}
+
+/// June 32c45520
+void CX2GURaven::RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZ_Landing_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > m_pXSkinAnimFuture->GetMaxAnimationTime() / 3.0f )
+	{
+		if( m_InputData.oneZ == true )
+		{
+			StateChange( RSI_COMBO_Z );
+		}
+		else if( m_InputData.oneX == true )
+		{
+			StateChange( RSI_COMBO_X );
+		}
+		else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChange( USI_WALK );
+		}
+		else if( m_InputData.pureUp == true )
+		{
+			StateChange( USI_JUMP_READY );
+		}
+		else if( m_InputData.oneDown == true
+			&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+			LINE_RADIUS,
+			&m_FrameDataFuture.unitCondition.landPosition,
+			&m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32c45710
+void CX2GURaven::RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZ_Landing_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 0, m_fEventTime[0].stateChange, RSI_SOUL_TAKER_DASH_JUMP_COMBO_ZZZZ )
+	RAVEN_ELSE_IF_FLAG_SET_IN_WINDOW( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd,
+		true == m_InputData.oneZ && ( true == IsDataClass( GetUnit(), CX2Unit::UC_RAVEN_SOUL_TAKER ) || true == IsDataClass( GetUnit(), CX2Unit::UC_RAVEN_BLADE_MASTER ) ) )
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > m_pXSkinAnimFuture->GetMaxAnimationTime() / 3.0f )
+	{
+		if( m_InputData.oneZ == true )
+		{
+			StateChange( RSI_COMBO_Z );
+		}
+		else if( m_InputData.oneX == true )
+		{
+			StateChange( RSI_COMBO_X );
+		}
+		else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+		{
+			StateChangeDashIfPossible();
+		}
+		else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+		{
+			StateChange( USI_WALK );
+		}
+		else if( m_InputData.pureUp == true )
+		{
+			StateChange( USI_JUMP_READY );
+		}
+		else if( m_InputData.oneDown == true
+			&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+			LINE_RADIUS,
+			&m_FrameDataFuture.unitCondition.landPosition,
+			&m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+/// June 32c459f0
+void CX2GURaven::RBM_DASH_JUMP_COMBO_X_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.195f ) )
+	{
+		if( FlushMp( 10.0f ) == true )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_RST_DashJump_X", this );
+		}
+		else
+		{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01_L_Hand" );
+		D3DXVECTOR3 vAngle = GetRotateDegree();
+		vAngle.z -= 45.f;
+		pos.y -= 40.f;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleCommonMajorParticleByEnum( COMMON_MAJOR_PII_MAGIC_FAIL ) );
+		if( pSeq != NULL )
+		{
+			PlaySequenceByTriggerCount( pSeq, pos, 100, 100, 1 );
+			pSeq->SetAxisAngle( vAngle );
+			pSeq->SetAddRotate( vAngle );
+		}
+		}
+	}
+
+	CommonFrameMove();
+}
+
+/// June 32c45cc0
+void CX2GURaven::RBM_DASH_JUMP_COMBO_XZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+	{
+		if( FlushMp( 10.0f ) == true )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_RST_DashJump_XZ", this );
+		}
+		else
+		{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01_R_Hand" );
+		D3DXVECTOR3 vAngle = GetRotateDegree();
+		vAngle.z -= 50.f;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleCommonMajorParticleByEnum( COMMON_MAJOR_PII_MAGIC_FAIL ) );
+		if( pSeq != NULL )
+		{
+			PlaySequenceByTriggerCount( pSeq, pos, 100, 100, 1 );
+			pSeq->SetAxisAngle( vAngle );
+			pSeq->SetAddRotate( vAngle );
+		}
+		}
+	}
+
+	CommonFrameMove();
+}
+
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 //RSI_COMBO_ZZX
 void CX2GURaven::RSI_COMBO_ZZX_EventProcess()
 {
@@ -13061,6 +13333,43 @@ void CX2GURaven::RSI_SI3_MAGNUM_BLASTER_HYPER_End()
 
 void CX2GURaven::RSI_SOUL_TAKER_DASH_COMBO_ZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c2dd50: Veteran Commander ( data class ) has its own dash Z-Z; the key cancel after 0.9 s
+	if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.5f
+		&& true == IsOnSomethingFuture() && false == IsDataClass( GetUnit(), CX2Unit::UC_RAVEN_VETERAN_COMMANDER ) )
+	{
+		StateChange( RSI_SOUL_TAKER_DASH_COMBO_ZZZ );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if( true == m_InputData.oneZ && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.5f
+		&& false == IsDataClass( GetUnit(), CX2Unit::UC_RAVEN_VETERAN_COMMANDER ) )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_C
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.9f )
+		{
+			m_fCanNotAttackTime = 0.1f;
+			StateChange( USI_WAIT );
+		}
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef SERV_RAVEN_VETERAN_COMMANDER
 	if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.5f 
 		&& true == IsOnSomethingFuture() && CX2Unit::UC_RAVEN_VETERAN_COMMANDER != GetUnit()->GetUnitData().m_UnitClass )
@@ -13106,11 +13415,33 @@ void CX2GURaven::RSI_SOUL_TAKER_DASH_COMBO_ZZ_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
 void CX2GURaven::RSI_SOUL_TAKER_DASH_COMBO_ZZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c2dec0: the key cancel after 0.84 s sets no cool time
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_C
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.84f )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -13130,6 +13461,7 @@ void CX2GURaven::RSI_SOUL_TAKER_DASH_COMBO_ZZZ_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
@@ -13164,6 +13496,34 @@ void CX2GURaven::RSI_SOUL_TAKER_COMBO_ZZZupZ_EventProcess()
 
 void CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c2e2f0: the cancel chain comes before the end test and the X-X-Z-Z 8-hit follow-up
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( m_iSuccessiveHit_OneZ >= 2 && m_pXSkinAnimFuture->GetNowAnimationTime() > 0.87f )
+	{
+		m_iSuccessiveHit_OneZ = 0;
+		StateChange( RSI_SOUL_TAKER_COMBO_XXZZ8 );
+	}
+	else if( m_InputData.oneZ == true && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.87f )
+	{
+		m_iSuccessiveHit_OneZ++;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -13184,18 +13544,38 @@ void CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZ_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 #ifdef BALANCE_BLADE_MASTER_20130117		/// 슈퍼아머 색상 변경 때문에 추가
 void CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26340
 	CommonStateStart();
 	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CommonStateStart();
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 #endif BALANCE_BLADE_MASTER_20130117
 
 void CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c2e6a0
+	if( m_pXSkinAnim->EventTimer( 0.047f ) == true )
+	{
+		PlaySound( L"Raven_Slash1.ogg" );
+	}
+	else if( m_pXSkinAnim->EventTimer( 0.276f ) == true )
+	{
+		PlaySound( L"Raven_Slash2.ogg" );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnim->EventTimer( 0.047f ) == true /*&& EventCheck( 0.047f, false ) == true*/ )
 	{
 		PlaySound( L"Raven_Slash1.ogg" );
@@ -13207,10 +13587,30 @@ void CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8_FrameMove()
 
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c2e700: the cancel chain replaces the Z re-attack counter
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	else if( m_pXSkinAnimFuture->GetNowPlayCount() > 4 )
+	{
+		StateChange( RSI_SOUL_TAKER_COMBO_XXZZ8Z );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 	if( false == IsOnSomethingFuture() )
 	{
@@ -13237,10 +13637,30 @@ void CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8_EventProcess()
 #endif BALANCE_BLADE_MASTER_20130117
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8Z_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c2ea40: the cancel chain replaces the 0.43 s skill cancel
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -13262,6 +13682,7 @@ void CX2GURaven::RSI_SOUL_TAKER_COMBO_XXZZ8Z_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 }
 
@@ -18001,6 +18422,30 @@ void CX2GURaven::RRF_COMBO_ZZXFRONTXX_EventProcess()
 
 void CX2GURaven::RBM_Combo_XZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c32560: Sword Taker / Blade Master ( templet class ) Z at 0.63 s starts X-Z-Z
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 0, 0.63f, RBM_COMBO_XZZ )
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() < 0.63f && true == m_InputData.oneZ && ( true == IsTempletClass( GetUnit(), CX2Unit::UC_RAVEN_SOUL_TAKER ) || true == IsTempletClass( GetUnit(), CX2Unit::UC_RAVEN_BLADE_MASTER ) ) )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// To do...
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
@@ -18014,9 +18459,39 @@ void CX2GURaven::RBM_Combo_XZ_EventProcess()
 	ELSE_IF_STATE_CHANGE_ON_( 0, 0.63f, 0.63f, m_InputData.oneZ == true && GetUnit()->GetClass() == CX2Unit::UC_RAVEN_BLADE_MASTER, RBM_COMBO_XZZ )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RBM_Combo_XZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c32970: a direction change clears flag 0; Blade Master Z at 0.66 s starts X-Z-Z-Z
+	if( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight )
+		|| ( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	else if( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 0, 0.66f, RBM_COMBO_XZZZ )
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() < 0.66f && true == m_InputData.oneZ && ( true == IsTempletClass( GetUnit(), CX2Unit::UC_RAVEN_SOUL_TAKER ) || true == IsTempletClass( GetUnit(), CX2Unit::UC_RAVEN_BLADE_MASTER ) ) )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// To do...
 	CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 )	
 
@@ -18038,17 +18513,39 @@ void CX2GURaven::RBM_Combo_XZZ_EventProcess()
 	ELSE_IF_STATE_CHANGE_ON_( 0, 0.66f, 0.66f, m_InputData.oneZ == true && GetUnit()->GetClass() == CX2Unit::UC_RAVEN_BLADE_MASTER, RBM_COMBO_XZZZ )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RBM_Combo_XZZZ_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26b80
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	/*if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() <= 0.43f )
 	{			
 		m_PhysicParam.nowSpeed.y = 0.0f;
 	}*/
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RBM_Combo_XZZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c32da0
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+		else
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// To do...
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
@@ -18064,29 +18561,63 @@ void CX2GURaven::RBM_Combo_XZZZ_EventProcess()
 	}		
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RBM_COMBO_ZZZX_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26b90
 	TextureReadyInBackground( L"Gate_Light02_Gray.dds" );
 	TextureReadyInBackground( L"SpreadLight02_Gray.dds" );
 	TextureReadyInBackground( L"GuideArrow01.dds" );
 	TextureReadyInBackground( L"Condense_Pulse02.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	TextureReadyInBackground( L"Gate_Light02_Gray.dds" );
+	TextureReadyInBackground( L"SpreadLight02_Gray.dds" );
+	TextureReadyInBackground( L"GuideArrow01.dds" );
+	TextureReadyInBackground( L"Condense_Pulse02.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 #ifdef BALANCE_BLADE_MASTER_20130117
 void CX2GURaven::RBM_COMBO_ZZZX_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c41330
+	m_iBlackHoleHitCount = 0;
+	m_fBlackHoleTime = 0.f;
+	m_eRavenCurrentStage = RBM_COMBO_ZZZXZ;
+
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	m_iBlackHoleHitCount = 0;
 	m_fBlackHoleTime	 = 0.f;
 	m_eRavenCurrentStage = RBM_COMBO_ZZZXZ;		/// 블레이드 마스터 ZZZXZZZ 콤보 캔슬시 클라간 동기화를 맞추기 위해, 캔슬시 스테이트를 저장
 
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 #endif BALANCE_BLADE_MASTER_20130117
 
 void CX2GURaven::RBM_COMBO_ZZZX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c49de0
+	if( m_pXSkinAnim->EventTimerOneshot( 0.24f ) )
+	{
+		if( m_hBlackHoleEffectSet != INVALID_EFFECTSET_HANDLE )
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hBlackHoleEffectSet );
+
+		m_iBlackHoleHitCount = 1;
+		m_fBlackHoleTime = ( m_pXSkinAnim->GetMaxAnimationTime() - 0.24f ) + 1.f;
+		m_hBlackHoleEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_RBM_BLACKHOLE", this );
+
+		UpDownCrashCamera( 5.0f, 0.2f );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// To do...
 		
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -18106,9 +18637,46 @@ void CX2GURaven::RBM_COMBO_ZZZX_FrameMove()
 	}		
 		
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RBM_COMBO_ZZZX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c413e0: Blade Master ( templet class ) Z sets flag 0 at any time; the black hole explosion comes before the fall
+	if( true == m_InputData.oneZ && true == IsTempletClass( GetUnit(), CX2Unit::UC_RAVEN_BLADE_MASTER ) )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.94f )
+		{
+			StateChange( RBM_COMBO_ZZZXZ );
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+		}
+	}
+	else if( m_iBlackHoleHitCount > 0 && m_fBlackHoleTime <= 0.9f )
+	{
+		m_iBlackHoleHitCount = 0;
+		m_fBlackHoleTime = 1.0f;
+		StateChange( RBM_COMBO_ZZZX_EXPLOSION );
+	}
+	else if( false == IsOnSomethingFuture() )
+	{
+		m_fBlackHoleTime = 0.f;
+		m_iBlackHoleHitCount = 0;
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// To do...
 	if( m_iBlackHoleHitCount > 0 && m_fBlackHoleTime <= 0.9f )
 	{
@@ -18133,9 +18701,31 @@ void CX2GURaven::RBM_COMBO_ZZZX_EventProcess()
 #endif BALANCE_BLADE_MASTER_20130117
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RBM_COMBO_ZZZXZ_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c41890
+	CommonStateStart();
+
+	if( m_iBlackHoleHitCount - 1 >= 4 )
+	{
+		m_iBlackHoleHitCount = 0;
+		m_fBlackHoleTime = 1.0f;
+		StateChange( RBM_COMBO_ZZZX_EXPLOSION );
+
+		m_FrameDataFuture.syncData.bIsRight = !m_FrameDataFuture.syncData.bIsRight;
+		m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+	}
+	else
+	{
+		++m_iBlackHoleHitCount;
+		m_fBlackHoleTime = 1.24f;
+	}
+
+	m_eRavenCurrentStage = RBM_COMBO_ZZZXZ;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStart();
 	// To do...		
 	if(m_iBlackHoleHitCount-1 >= 4)
@@ -18156,10 +18746,50 @@ void CX2GURaven::RBM_COMBO_ZZZXZ_Start()
 #ifdef BALANCE_BLADE_MASTER_20130117
 	m_eRavenCurrentStage = RBM_COMBO_ZZZXZ;		/// 블레이드 마스터 ZZZXZZZ 콤보 캔슬시 클라간 동기화를 맞추기 위해, 캔슬시 스테이트를 저장
 #endif BALANCE_BLADE_MASTER_20130117
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 }
 void CX2GURaven::RBM_COMBO_ZZZXZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c41a00: the cancel chain replaces the dash / walk / skill cancels
+	if( false == IsOnSomethingFuture() )
+	{
+		m_fBlackHoleTime = 0.f;
+		m_iBlackHoleHitCount = 0;
+		StateChange( USI_JUMP_DOWN );
+		m_PhysicParam.nowSpeed.x = 0.f;
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_iBlackHoleHitCount > 0 && m_fBlackHoleTime <= 0.4f && m_FrameDataFuture.stateParam.bEventFlagList[0] == false )
+	{
+		m_iBlackHoleHitCount = 0;
+		m_fBlackHoleTime = 1.0f;
+		StateChange( RBM_COMBO_ZZZX_EXPLOSION );
+	}
+	else if( m_iBlackHoleHitCount - 1 >= 4 && m_fBlackHoleTime <= 0.4f )
+	{
+		m_iBlackHoleHitCount = 0;
+		m_fBlackHoleTime = 1.0f;
+		StateChange( RBM_COMBO_ZZZX_EXPLOSION );
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.69f && m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+	{
+		StateChange( RBM_COMBO_ZZZXZ );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() < 0.69f && m_InputData.oneZ == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// To do...
 	if( false == IsOnSomethingFuture() )
 	{
@@ -18200,19 +18830,41 @@ void CX2GURaven::RBM_COMBO_ZZZXZ_EventProcess()
 	}		
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }	
 
 #ifdef BALANCE_BLADE_MASTER_20130117
 void CX2GURaven::RBM_COMBO_ZZZX_EXPLOSION_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c26bd0
+	m_eRavenCurrentStage = RBM_COMBO_ZZZXZ;
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	m_eRavenCurrentStage = RBM_COMBO_ZZZXZ;		/// 블레이드 마스터 ZZZXZZZ 콤보 캔슬시 클라간 동기화를 맞추기 위해, 캔슬시 스테이트를 저장
 
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 #endif BALANCE_BLADE_MASTER_20130117
 
 void CX2GURaven::RBM_COMBO_ZZZX_EXPLOSION_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c41ef0
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+	{
+		UpDownCrashCamera( 10.0f, 0.2f );
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.4f ) )
+	{
+		m_iBlackHoleHitCount = 0;
+		m_fBlackHoleTime = 0.f;
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// To do...
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -18238,9 +18890,32 @@ void CX2GURaven::RBM_COMBO_ZZZX_EXPLOSION_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RBM_COMBO_ZZZX_EXPLOSION_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c32de0
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// To do...
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
@@ -18268,6 +18943,7 @@ void CX2GURaven::RBM_COMBO_ZZZX_EXPLOSION_EventProcess()
 #endif BALANCE_BLADE_MASTER_20130117
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
