@@ -2475,6 +2475,26 @@ Opus 5.5. **Verdict: passes, no code change.** Commit `e2eb3ad5`; listings `char
 
 **Play-test PASS (user, 2026-11-05; run 17:01-17:05 on md5 `6586b82f`; 0 EXCEPTION, 0 ErrorLog lines; known `E_DISABLE_HB_CHECK_REQ` UNHANDLED x2, one `AddGroupChainQuest`).** `magic coating` x2 pairs (17:03:33, 17:03:49): `mp +5.0 ( level 1 ), now 22.5` / `now 195.2` with `magic damage 0.3 -> 0, physic 0.0 kept` (the DD's magic rate); `magic reflect` x5, rolls 0.126-0.228 <= 0.360 (3 reflectable, 2 not). The user saw the absorb, the +MP and the reflects; Sand Storm's memo looked as usual (check 3, visual).
 
+### CH4c - Review (2026-11-05)
+
+Opus 5.5. **Verdict: passes, no code change.** Commit `79dc1d25`; listings `charport_adis.py elsword 32d0c820 32d1b650 32cf4d00`, `disasm_range.py 320469c0 32046b40`.
+- **Reflect branch `320462a0` @`32046a46`-`32046aa0`:** `[esp+0x2e]` (= `bDamageReactReflectMagic`) cleared at `@32046a4c`, then `[ebp+0x867c]` null -> skip, `[unit+0x38] == 0x65` (`UC_ELSWORD_RUNE_SLAYER`);
+  `[ebx+0x447] == 1` (`bCanReflexMagic`: the same byte the revenge test reads at `@32046aeb`, `+0x446` = `bCanRevenge`) before `call 32d0c820`; `al == 1` -> `fldz; fstp [ebx+0x3c]`, `jmp` past the roll.
+  `+0x3c` = `damage.fMagic`: `GetAllDamage` at `@32046b09` adds `+0x3c` and `+0x38`, and `ch1_offsets.tsv` (CH1b) has `+0x3d8` = `m_DamageData.damage.fPhysic` with the DD at `+0x3a0`, so `+0x38` = `fPhysic`, `+0x3c` = `fMagic`.
+  Else: vslot `0x1cc( 0 )` (`GetRandomFloat`) stored as a double first, then `32d1b650`; `fcomp; test ah,1; jne` skips when rate < roll or NaN = the port's `fReflectRoll <= fReflectRate`, same call order.
+  True sets `[esp+0x2d]` (`bReflexMagic`) and `[esp+0x2e]`. `RT_REFLECT` (0x11) / `RT_REVENGE` (6) at `@32046afc`-`32046b24` and the reflect-by-buff test `@32046aa5` = March.
+- **`ApplyMagicCoating` `32d0c820`:** `HaveThisBuff( 0x12 )` (`BTI_SI_A_ES_ENDURANCE` = 18), `GetSkillTemplet( 0x53aa, 1 )` (21418; the house's 1-arg overload, funcmap: callers pass `( id, 1 )`),
+  unit, unit `+0x3c` (`IsTranscendedUnit`), templet `+0x174 == 5` (`SPRT_HYPER_CLASS`, `C_ASSERT` in `X2SkillTree.cpp`), `GetSkillLevel( 0x53aa, 0, 0, 1 ) > 0` (`false, 0, true`): same order.
+  `32206e50( 0x2b, level, 0, 0.f )` = the 2-arg `GetSkillAbilityValue( SA_MP_REGENERATION_ABS, level )` (non-PvP, numerical first; the log's 5.0 = June's templet), vslot `0xf0` `UpNowMp` before
+  vslot `0x16c` (dir, into `edi`) and `0xfc` (pos, return buffer); pushes: dir copied first (last argument), pos second, value last -> `DisplayAddMPInformation( v, pos, dir )` = March's signature. True / false as the port.
+- **`32d1b650`** = March's `GetMagicReflectRate` (`+0x95c0`, x 3.0 when the game type is 2 or 3). **`32cf4d00`** = `31fd4450( arg ) != 0`, always false: `MemoConditionElsword` n/a holds.
+- **`#else` / flag off:** the diff only inserts; March's roll sits whole in `_PASSIVE`'s `#else`; `ApplyMagicCoating` and its declaration are inside `_PASSIVE`.
+- **Logs** (17:01-17:05, md5 `6586b82f`): `magic coating` 2 pairs (`magic damage 0.3 -> 0, physic 0.0 kept` + `mp +5.0 ( level 1 )`, MP 22.5 / 195.2), `magic reflect` x5 rolls 0.126-0.228 <= 0.360
+  (3 reflectable, 2 not). As the hand-off.
+- **Gates:** `flagcheck JUNE_CHAR_ELSWORD_PASSIVE --with JUNE_CHAR_ELSWORD_PASSIVE_DEBUG --range 79dc1d25^..79dc1d25 --files` (4 files): `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`,
+  `1 deleted line(s)` (the `//#define`), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+  Retirement: `//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_PASSIVE_DEBUG` (bytepatch, CP949 / CRLF unchanged). Build started, not awaited. CH6's kickoff checked: ready (CH3d, CH4a2, CH4c, CH5 reviews done).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_UI`. Sub-tag `UI`.
