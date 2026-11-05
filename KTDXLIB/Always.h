@@ -11628,5 +11628,18 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH3a ( 2026-11-05 ): defined again for the Lord Knight lines ( Armageddon Blade, Windmill, Rolling Smash, Grand Cross, Sonic Blade Crescent ). CH3a's review retires it.
 //              CH3b ( 2026-11-05 ): defined again for the Rune Slayer lines ( Counter Guard, Extreme Rune Buster, Rune of Fire ). CH3b's review retires it.
 //              CH3c ( 2026-11-05 ): defined again for the Infinity Sword lines ( Harsh Chaser, Compact Counter, Maelstrom Rage, Phantom Sword, Rage Cutter, Sword Blasting ). CH3c's review retires it.
-//#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
+//              CH3d ( 2026-11-05 ): defined again for the hyper actives ( the equip line, type 13 in slot 4 / 9 ). CH3d's review retires it.
+#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-05
+// Description: char-elsword CH3d - Lord Knight ( 100 ), Rune Slayer ( 101 ) and Infinity Sword ( 112 ) join the transcendence allow-list ( TranscendCheck ) and the transcended class
+//              pictures ( T6c rows TR_L_KNIGHT / TR_R_SLAYER / TR_I_SWORD: 160by160 and gray in Texture98, 50by50, 20by20, gauge, party, unit slot; Infinity Sword's gauge piece is _FACE ).
+//              Log [JUNE_TRANSCEND] IMAGE. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND ) || !defined( SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ) || !defined( SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND needs SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE, SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND ( the allow-list and picture switches it extends ), SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE and SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND
 //////////////////////////////////////////////////////////////////////////

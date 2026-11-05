@@ -2153,6 +2153,47 @@ Opus 5.5. **Verdict: passes, no code change.** Commit `82973434`; every address 
 - **`#else`.** Every June body sits in `#ifdef _SKILL` with March in `#else`; the eleven cases sit ahead of the `_LIVE` default; the three new functions and case 9 are inside existing `_SKILL` blocks.
 - **Gates:** `flagcheck JUNE_CHAR_ELSWORD_SKILL --with ..._SKILL_DEBUG --range 82973434^..82973434 --files` the seven code files: `files: 5 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`, `1 deleted line(s)` (the CH3b `//#define`, replaced by the `#define`), `0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`. `--numstat`: `Always.h` +5 -1, `X2EffectSet.cpp` +10, `.cpp` +486, `.h` +3, `X2GUUser.cpp` +17, `X2GUUser.h` +4, `X2SkillTree.h` +20. `junediverge.py --check-all`: `allow-listed: 185`, `RESULT: PASS`. `enumscan.py --check` the three `.cpp`: `0 A/B row(s) remain in 3 file(s) (C 0, D 13, X 3 ignored)`. One-file probes of `X2GUElsword_SwordMan.cpp`, `X2EffectSet.cpp`, `X2GUUser.cpp` (`/c /Zs /EHsc`): exit 0, 0 errors each. Retirement: `flagcheck ... --worktree --files KTDXLIB/Always.h`: `1 DEFINE`, `1 deleted line(s)`, `RESULT: PASS`. `_SKILL_DEBUG` retired (`//#define`); build started, not awaited.
 
+### CH3d - Done (2026-11-05)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the two event processes; `_SKILL_DEBUG` defined again for the equip line) and new `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND`
+(needs `_ELSWORD_LIVE`, `_EVE_TRANSCEND`, `JUNE_TRANSCEND_CHANGE`, `JUNE_TRANSCEND_IMAGE`; `flagprobe` ON for all). MODS entry "Stage 7 Elsword, CH3d". funcmap rows `Char Elsword CH3d`.
+
+**The 5 functions** (`ch0_class_map.tsv` phase CH3d, listings via `funcann.py`); the registrations ( 21600-21605 ) are in the head since CH1n.
+- Init `32cf4930` / `32cf49d0` / `32cf4ab0`: 12 / 17 / 14 preloads, March's names in March's order. No change.
+- EventProcess `32d00be0` (Shining Rune Buster) and `32d00de0` (Blade Rain), identical to each other: anim end -> `USI_JUMP_DOWN` (0x11) off the ground, else `USI_WAIT` (0xd);
+  then the dash ( `+0x8c9c`, `pureDoubleRight / Left` `+0x86e0 / +0x86dc`, vslot `0x668` ) and walk ( `+0x8c98`, `+0x86de / +0x86da` ) cancels **both test `+0x7e1c` IsOnSomethingFuture**,
+  then June's `SKILL_CANCEL_AFTER`, `CommonEventProcess`. Ported inside March's functions with the CH1d `ELSWORD_GROUND_DASH_CANCEL` / `_WALK_CANCEL` macros, March's two macros in `#else`.
+  Gigantic Slash keeps `GenericSpecialActiveSkillEventProcess` ( `31fcc740` ).
+- 7ao hyper effect start `32d17ea0` (uncarved, `charport_adis.py`): base call, skip for `unit +0x3c != 0` or the awakening set test `31fd66b0`, four handles. Equal to CH1h's port, no change.
+  The four base helpers: only `31fceab0` has Elsword callers ( `32d1c560` / `32d1e0e0` / `32cf4b70` ), all CH4a. 7ag ( A-5 / B-5 pressed index ) is CH1p's.
+
+**Transcendence rows (7ao).**
+- Allow-list: `TranscendCheck` takes 100 / 101 / 112 ( one brace-less guard after Chung's, same shape ).
+- `LevelUpEvent.lua` (data036, BOM source) gets `TYPE3` = June's `TYPE0` row ( `LevelUpEvent.src.lua:453-471`: LEVEL 70, the three classes, `DLG_Transcendental_Change_Guide_Elsowrd.lua`,
+  `ElswordVoice_ClassUpReady01.ogg` ( data093 ) ). Appended, as Aisha / Eve / Chung were ( June's order is Elsword first ). `luasrc.py refresh`, `ledger --check` PASS. `PACK OK data036`
+  ( only `LevelUpEvent.lua` changed ); the copy waits for the user's yes.
+- Pictures: `GetCharacterImageName` prefixes `L_KNIGHT` / `R_SLAYER` / `I_SWORD`. June's row table ( string refs at `@33370955` `TR_L_KNIGHT_STATE`, `@33371f37` `TR_I_SWORD_FACE`,
+  `@33377182` `TR_I_SWORD_LARGE`, each paired with its file ): large + gray in **Texture98** ( Texture99 has no Elsword piece, so the existing `else` serves ), MEDIUM / ICON / PARTY in Texture100,
+  gauge in Texture97, but **Infinity Sword's gauge piece is `TR_I_SWORD_FACE`** ( its TET has no `_STATE` ): a class test on the `CIT_MyGage` suffix. Unit slot `list_TR_*` in `GUI_character_01`
+  ( + `_gray` ). Every piece name was found in the staged TETs ( data215, data057, datai021 ).
+- Already June's, verified: the guide dialog ( data034, adopted whole by june-transcend T2: `adopt-june --dry-run` 1 identical; `stage-june` says "replaced" because it compares raw June bytes ) and
+  `POPUP_TR_L_KNIGHT / R_SLAYER / I_SWORD` ( data215 ); `HQ_Cutin_ELK / ERS / EIS_Transcendence.gfx` ( data195, CH0b ) and the CH5 `m_HyperCutIn` rows; `GetHyperModeTableName` ( CH1m );
+  the 18 `SPRT_HYPER_CLASS` ids ( 21037-21042, 21058-21060, 21222-21224, 21415-21420 ) and the 12 `TRANSCENDENTAL_SKILL_DATA` rows: `NewSkillTempletVer2.lua` and
+  `SkillCommandDescriptionData.lua` are June's bytes ( `adopt-june --dry-run`: identical ).
+- **Skill icon gate:** `skillicons.py check 21000-21999`: `skills 125, misses 1, sheets 1`, `RESULT: FAIL` on exactly 21402 Wind Slicer `NO_PIECE` in `DLG_Elsword_SKILL_ScreenShot_04`,
+  June's own gap (JUNE_BUGS 520, CH0b; `stage-june --dry-run`: 2 identical). Nothing to stage; the passive is CH4a's.
+
+**Hygiene.** `flagcheck JUNE_CHAR_ELSWORD_TRANSCEND --worktree --files <4 code files>`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted,
+0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `flagcheck JUNE_CHAR_ELSWORD_SKILL --worktree`: `1 PASS, 3 OTHER, 0 FAIL`, `RESULT: PASS`. The one
+`Always.h` deleted line is the `//#define ..._SKILL_DEBUG` toggle. `junediverge --check` ( 5 files ): `RESULT: PASS`. `enumscan`: no new literal ( the 4 rows left are the T6 `104 / 105 / 113` cases and the `< 100` bound ).
+**Deploy.** `DEPLOY OK: X2_offline.exe is 25,998,336 B, dated 2026-11-05 12:54:59, md5 2da608fe88f4ccbb7e5245d246f61e8e, equal to X2/US_SERVICE/x2.exe (2026-11-05 12:54:52); built at main 24b8fe5a + 4 uncommitted code file(s).`
+`EXESTR OK: 4 of 4 found in X2_offline.exe, 25998336 B, dated 2026-11-05 12:54:59, md5 2da608fe88f4ccbb7e5245d246f61e8e` ( `R_SLAYER`, `I_SWORD`, `_FACE`, the equip debug line ).
+
+**Play-test set-up ( save, backed up as `pre_elsword_ch3d` ).** Unit 25 `jtLordKnight` 21600 Gigantic Slash, unit 26 `jtRuneSlayer` 21601 Shining Rune Buster, unit 71 `jtInfinitySword`
+21602 Blade Rain, each transcended, the hyper active in A-5 ( slot 4 ) and Grand Cross 21058 / Extreme Rune Buster 21059 / Infinite Strike 21060 moved to B-5 ( slot 9 ); upgrade ids not learned.
+**In game** ( after `/x2-kom-packed copy data036` ): the plan's hand-off; log lines `ELSWORD SKILL equip skill 2160x type 13 slot 4`, `[JUNE_TRANSCEND] IMAGE class 100 / 101 / 112`.
+**Open for the review:** the ground test on both event processes, the `_FACE` row against June's table, and the "= March" Init claims.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

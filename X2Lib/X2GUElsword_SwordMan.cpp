@@ -29906,9 +29906,15 @@ void CX2GUElsword_SwordMan::ESSI_HA_ERS_Shining_Rune_Buster_EventProcess()
 		else
 			StateChange( USI_WAIT );
 	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+	/// June 32d00be0: the dash and walk cancels also need the foot on a line
+	ELSWORD_GROUND_DASH_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )	
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
@@ -29946,9 +29952,15 @@ void CX2GUElsword_SwordMan::ESSI_HA_EIS_Blade_Rain_EventProcess()
 		else
 			StateChange( USI_WAIT );
 	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
+	/// June 32d00de0: the dash and walk cancels also need the foot on a line
+	ELSWORD_GROUND_DASH_CANCEL
+	ELSWORD_GROUND_WALK_CANCEL
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )	
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();

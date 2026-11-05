@@ -5909,3 +5909,11 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (CH2a's; the `..._SKILL_DEBUG` log 
 | Infinite Strike (21060) | June only | 302 + 238 + 1152 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the class-112 ids fall back to the Mega Slash default; CH2a-CH3b's ids too), `python tools/build.py --deploy`.
+
+## Stage 7 Elsword, CH3d: hyper actives and Elsword on the transcendence list (2026-11-05)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL` (the two event processes) and `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND` (needs `_ELSWORD_LIVE`, `_EVE_TRANSCEND`, `JUNE_TRANSCEND_CHANGE`, `JUNE_TRANSCEND_IMAGE`). Plan `JUNE_CHARACTER_ELSWORD_PHASES.md` "CH3d - Done". Client, emulator and data036.
+- **What changes in game.** Lord Knight ( 100 ), Rune Slayer ( 101 ) and Infinity Sword ( 112 ) can transcend (the emulator's allow-list, `CX2OfflineServer::TranscendCheck`); a transcended Elsword shows June's TR pictures ( `TR_L_KNIGHT` / `TR_R_SLAYER` / `TR_I_SWORD`: Texture98 large, Texture100 medium / icon / party, Texture97 gauge ( Infinity Sword's is `TR_I_SWORD_FACE` ), `list_TR_*` unit slot ). Shining Rune Buster's and Blade Rain's walk and dash cancels need the foot on a line ( June `32d00be0` / `32d00de0` ).
+- **Damage:** no change; the hyper actives' numbers are June's `NewSkillTempletVer2.lua`.
+- `data036` ( `LevelUpEvent.lua` level-70 transcendental event, `TYPE3` = Elsword's three classes, June's TYPE0 row byte for byte ): the user copies `data036` ( `PACK OK data036` ).
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND`, `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`; the extra `TYPE3` only adds the level-70 guide popup ( delete the `TYPE3` block, `luasrc.py refresh data036 LevelUpEvent.lua`, pack ).

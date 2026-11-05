@@ -3015,6 +3015,11 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 	case CX2Unit::UC_CHUNG_DEADLY_CHASER:	pwszPrefix = L"D_CHASER";	break;
 	case CX2Unit::UC_CHUNG_TACTICAL_TROOPER:	pwszPrefix = L"T_TROOPER";	break;
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND
+	case CX2Unit::UC_ELSWORD_LORD_KNIGHT:	pwszPrefix = L"L_KNIGHT";	break;
+	case CX2Unit::UC_ELSWORD_RUNE_SLAYER:	pwszPrefix = L"R_SLAYER";	break;
+	case CX2Unit::UC_ELSWORD_INFINITY_SWORD:	pwszPrefix = L"I_SWORD";	break;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	default:	return true;
 	}
@@ -3047,7 +3052,12 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	case CIT_50by50:		pwszFile = L"DLG_UI_Common_Texture100_NEW.tga";		pwszSuffix = L"_MEDIUM";	break;
 	case CIT_20by20:		pwszFile = L"DLG_UI_Common_Texture100_NEW.tga";		pwszSuffix = L"_ICON";		break;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND
+	/// June @33371f37: Infinity Sword's gauge row is TR_I_SWORD_FACE ( the other classes' are _STATE )
+	case CIT_MyGage:		pwszFile = L"DLG_UI_Common_Texture97_NEW.tga";		pwszSuffix = ( CX2Unit::UC_ELSWORD_INFINITY_SWORD == eUnitClass ) ? L"_FACE" : L"_STATE";		break;
+#else SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND
 	case CIT_MyGage:		pwszFile = L"DLG_UI_Common_Texture97_NEW.tga";		pwszSuffix = L"_STATE";		break;
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND
 	case CIT_Party:			pwszFile = L"DLG_UI_Common_Texture100_NEW.tga";		pwszSuffix = L"_PARTY";		break;
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 	case CIT_UnitSlot:		pwszFile = L"DLG_UI_Common_Texture_GUI_character_01.tga";		pwszSuffix = L"";		pwszLead = L"list_";	break;
