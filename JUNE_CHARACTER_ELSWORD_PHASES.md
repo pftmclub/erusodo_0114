@@ -2410,6 +2410,7 @@ Opus 5.5. **Verdict: passes, no code change.** Commit `58e53890`; `disasm_range.
 `in this flag's files: 1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
 (OTHER = `X2DamageManager.h` under `JUNE_ENUM_NAMES`; PASS~ = the blank line before the new functions; the deleted line is `//#define ..._PASSIVE_DEBUG`, now `#define`d).
 `junediverge.py --check` (the 4 files): `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+**Range (commit `e2eb3ad5`):** `--range e2eb3ad5^..e2eb3ad5`, same 4 files: `files: 1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`; 1 deleted (the `//#define`); `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,001,408 B, dated 2026-11-05 16:25:35, md5 a08ac02df4ad051524267eabdbee0ca4, equal to X2/US_SERVICE/x2.exe (2026-11-05 16:25:28); built at main 988cae73 + 4 uncommitted code file(s).`
 `EXESTR OK: 4 of 4 found in X2_offline.exe, 26001408 B, dated 2026-11-05 16:25:35, md5 a08ac02df4ad051524267eabdbee0ca4` (the `fight god mp`, `active cool time`, `infinity sword open mind: conwell hit`, `infinity potential` lines, wide).
 **Save** (backup `els_db_20261105_161635_pre_sql.sql`): unit 25 `jtLordKnight` Armageddon Blade 21044 into slot 6 (B-2; 21038 out). Unit 34 `InfinitySwordT` already has 21419 and is transcended.
