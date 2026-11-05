@@ -2271,6 +2271,7 @@ one with Magic Coating takes 0 magic damage with the MP gain; 0 Elsword `no_stat
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 1 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
 (OTHER = the three enum headers under `JUNE_ENUM_NAMES`; the EOL row is the `#endif` before `LightingStepFrameMove`'s LF-only `}`).
 `junediverge.py --check` (Elsword .cpp / .h, X2GUUser.*): `RESULT: PASS`. `enumscan.py --check X2GUElsword_SwordMan.cpp`: `0 A/B row(s)`.
+**Range (commit `85aa602e`):** `--range 85aa602e^..85aa602e`, same 8 files: `files: 4 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`; 0 deleted, 1 EOL-mismatched; `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 25,997,824 B, dated 2026-11-05 13:40:59, md5 18269c1218c387c05af87c734b4e912a, equal to X2/US_SERVICE/x2.exe (2026-11-05 13:40:52); built at main d3f055b6 + 8 uncommitted code file(s).`
 `EXESTR OK: 4 of 4 found in X2_offline.exe, 25997824 B, dated 2026-11-05 13:40:59, md5 18269c1218c387c05af87c734b4e912a` (the `init`, `lord knight open mind`, `extreme rune buster`, `sword enchant` lines).
 **Save** (backup `els_db_20261105_133049_pre_pre_ch4a.sql`): unit 26 `jtRuneSlayer` + 21409 level 4; unit 34 `InfinitySwordT` + 21414 level 3 and transcended (`settranscend 34 1`).
