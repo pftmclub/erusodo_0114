@@ -312,6 +312,31 @@ PASS (stage what it lists; the shared `DLG_SKILL_Passive_*` sheets included).
 **Done gate:** the stage list re-runs 0 `missing` / `march-copy`; in game one Raven per job tier, village and dungeon, no new `KEM_ERROR` /
 `Motion Error` / missing texture or mesh against the pre-CH0b log; a costume, a weapon and three skills look right.
 
+### CH0b - Done (2026-11-05)
+
+Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Assets, two guide Lua and the save only.
+- **Reference:** `ErrorLog.txt` (362,024 B, last run 2026-11-05 19:32) saved as `data\ErrorLog_pre_CH0b_raven.txt` before any copy.
+- **Staged:** `kom.py stage-june --jobs 8 june2017_re/char_raven/ch0b_stage_list.tsv`: `STAGE-JUNE OK: 35 kom(s), 4825 staged (4490 new, 335 replaced, 0 identical), 0 refused, 28s`
+  (the dry run matched CH0's numbers). Replaced March files are backed up under `24965799\kom_backup_stage_june\20261105_201955`.
+  `Motion_Raven_OT.x` is not in the list (held for CH1 final, `ch1_held_motions.tsv`); the March copy in data033 is untouched.
+- **Lua:** `luasrc.py adopt-june DLG_1ST_Class_Change_Guide_Raven.lua DLG_2ND_Class_Change_Guide_Raven.lua`: `ADOPT-JUNE OK (bytecode): 2 staged, 0 refused`
+  (data034, 2 new; record `june2017_re/june_adopt_20261105_202539.tsv`). `luabind.py check` over those two and the two guides already June's: 21 / 22 / 22 / 20 methods, 0 unbound, `RESULT: PASS`.
+  `luasrc.py ledger --check` PASS (0 FAIL, 0 WARN), `core --check` PASS.
+- **Packed:** `kom.py pack` x36 (35 + data034), 36 `PACK OK`, 0 refusals. No removed entries in any.
+- **Copied (user approved, 2026-11-05):** `kom.py copy` x36, 36 `COPY OK`: data002 010 016 019 020 021 023 033 034 044 052 063 067 069 078 097 120 128 130 143 151 191
+  192 198 202 215 222 226 datai007 011 019 020 023 027 029 031. No motion kom held back: the only name March plays that June's file drops is in `Motion_Raven_OT.x`,
+  which was never staged. data033 carries the 9 differing class motions (none drops a name), new data202 the 54 June-only motions. `kom.py status`: 0 `COPY NEEDED`.
+- **Done-gate re-run:** `stage-june --dry-run` over the same list: `4825 staged (0 new, 0 replaced, 4825 identical), 0 refused`. 0 `missing` / `march-copy`.
+- **Skill icons:** `skillicons.py check 106 900 24000-24058 24200-24239 24400-24422 24600-24605`: 126 skills, **4 misses** (was 30), `RESULT: FAIL` on four `NO_PIECE` rows:
+  24206 / 24231 `SI_A_RRF_ENHANCE_HAND` (`DLG_Raven_SKILL_ScreenShot_03`), 24417 `RNSI_P_RBM_OPEN_MIND`, 24421 `RNSI_P_RVC_OPEN_MIND` (`DLG_SKILL_Passive_12`). June's own `.TET` files
+  lack those piece names (checked in the bytes); both sheets are `4 identical` on a re-stage. June's gap, kept: `JUNE_BUGS.md` row 535. The icons are fine. Nothing left to stage.
+- **Save:** backup `db_backup\els_db_20261105_202257_pre_manual.sql`; added with `createchar.py` (lv 99, class costume + top gear +10, 4 skills on the bar):
+  unit 72 RavenFighterT (Raven 4), 73 SwordTakerT (16), 74 OverTakerT (17), 75 WeaponTakerT (25), 76 RecklessFistT (107), 77 VetCommanderT (115).
+  Existing: 23 ravbe (106 lv72), 49 Raven99 (106 lv99).
+- **Play-test (user) is the gate.** Log tag `[JUNE_CHAR]` has no lines (no code); the check is `ErrorLog.txt` against `ErrorLog_pre_CH0b_raven.txt`
+  (`KEM_ERROR`, `Motion Error`, missing texture / mesh). Class script and motions are still March's, so Raven plays as before; his new meshes / textures / sounds load.
+- **Drift:** none new.
+
 ## Phase CH1 - Deploy unit: June script, motions and the class core
 
 **Groups** (CH0's map fills the counts and the exact function lists; the kickoffs carry the filters):

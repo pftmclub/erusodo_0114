@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0b | **ready** (start: `/x2-phase char-raven CH0b`): 4,825 assets in 35 koms (new data202), `Motion_Raven_OT.x` held for CH1, 2 guide Lua adopted, 6 walk units, icons | Sonnet 5.5 / high, user play-test | CH0 (done) | koms (ask before copy), save | `CH0b.md` |
+| CH0b | **done 2026-11-05, play-test owed** (4,825 assets in 35 koms + 2 guide Lua copied, 6 walk units 72-77; user walks Raven per tier, then `check logs`) | Sonnet 5.5 / high, user play-test | CH0 (done) | koms, save | `CH0b.md` |
 | CH1a | **ready** (start: `/x2-phase char-raven CH1a`; beside CH0b): movement and slot-head states (19 fns), `_CORE` / `_LIVE` | Sonnet 5.5 / high, Opus review | CH0 (done) | `X2GURaven.*`, Always.h | `CH1a.md` |
 | CH1b | blocked (CH1a review): reactions (damage 21, stand-up 8, die, start, win / lose, parrying) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GURaven.*` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding 27, pepper, dance | Sonnet 5.5 / high, Opus review | CH1b review | `X2GURaven.*` | `CH1c.md` |
