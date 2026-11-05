@@ -2034,6 +2034,8 @@ Dev console ( END key, auth 3 ): `/invin 0`, then a dungeon with enemies in fron
 4. **Bank 3**: Sonic Blade: Crescent ( log `sonic blade crescent` only in the air ), Imperial Crusher, **Grand Cross**: hold E: charge steps every 0.5 s ( log `grand cross charge: step N`, mana -10 each ), release or 5 steps ends it, the five damage effects follow ( log `grand cross effects: full charge 0/1, steps N, power ..., scale ...` ).
 Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKILL"` ) and `[JUNE_SKILL]` `NUM use`. Then say "check logs".
 
+**Play-test (user, 2026-11-05): passed.** Run 10:09 (exe b4c119c2): Windmill held to the 2.8 s limit and released early, Armageddon Blade 21044 `buff factor 0 and 1`, Rolling Smash 21227 `duration 0.50 speed 1860.00`; Grand Cross `start`, five charge steps (-10 mana each), `full charge 1, steps 5, power 1.50, scale 2.00`, and at 0 mana `steps 0, power 1.00, scale 1.00`; Sonic Blade: Crescent in the air at 0.93 (useful value 0.90). 2 `UNHANDLED` (`E_DISABLE_HB_CHECK_REQ`), 0 `EXCEPTION`, `ErrorLog.txt` clean apart from `OpenXET` misses on mesh `.XET` files (review: check June ships none). One refusal, "This skill cannot be used. Please equip another skill": a save-setup error (base and enhanced ids both learned; fixed by level 0 on the enhanced ids); every skill then cast. No `NUM use` lines (the numerical debug is retired). `_SKILL_DEBUG` stays on for the review.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
