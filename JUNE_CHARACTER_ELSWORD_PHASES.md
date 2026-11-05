@@ -2139,6 +2139,8 @@ Dev console ( END key, auth 3 ): `/invin 0`, then a dungeon with enemies in fron
 4. **Bank 3**: Infinite Chaser, Blade Circle, **Infinite Strike** ( no log of its own; it ends in the wait / fall and cancels into walk / dash / Z / X on the ground ).
 Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKILL"` ) and `[JUNE_SKILL]` `NUM use`. Then say "check logs".
 
+**Play-test (user, 2026-11-05): ran.** Runs 12:02 and 12:05 (exe a180e7f4), enhanced banks. Seen: `harsh chaser: skill 21235 level 1, range 0.70`, `compact counter: start, skill level 1, physic damage 1.84` x5, `phantom sword: buff factor 0 and 1`, `rage cutter: skill 21055 level 1, buff factor pushed`, `maelstrom rage: effective time 5.00, upgraded 0` ( the base 21024 was slotted, so tag 9 did not run ), `sword blasting: effect ..._UpGrade` x4; bank 3: Infinite Chaser ( `DamageEffect_SA_EIS_Inpinity_Chacer` ), Blade Circle ( `_1` / `_2` ), Infinite Strike ( Body_Attack, SwordSpearFX ) and Infinite: Flurry ( 21224, `DamageEffect_A_Compact_Counter_Continue` ) created their effects. 2 `UNHANDLED` ( `E_DISABLE_HB_CHECK_REQ` ), 0 `EXCEPTION`, `ErrorLog.txt` has no new CH3c lines. `JUNE_FX unsupported APPLIED_SKILL_ID ... applied-skill-ID system absent` x83 for these ids ( the engine's known log; no `NUM use` lines, the debug is retired ). Not seen: Maelstrom Rage upgraded ( tag 9 ) and the Infinite Strike ground cancels; 21056 is now learned on unit 71, unslotted. `_SKILL_DEBUG` stays on for the review.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
