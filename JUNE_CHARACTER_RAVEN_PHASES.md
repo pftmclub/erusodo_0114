@@ -523,6 +523,27 @@ CH0 listed `32c4f350` as `new ?`; March has `CommonHyperModeFrameMove` (`MODIFY_
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-raven CH1c review` (Opus 5.5 high), then CH1d.
 
+### CH1c - Review (2026-11-05, Opus 5.5)
+
+**Verdict: PASS, no code change.** Both rows read against `charport_adis.py raven 32c4f350 32c511a0`:
+- **`32c511a0`:** `fld 0.1`, `push 1`, `fldz` -> `CommonHyperModeFrameMove( 0.f, 0.1f, true )` = March.
+- **`32c4f350`, in order:** world colour = the inline `SetWorldColor( 0xff222222 )` (`0.1333` x3 + `1.0` into `+0xb4..+0xc0` / `+0xc4..+0xd0`, `+0xd4 = 0`); timer 1 = inlined
+  `EventTimerOneshot` (`+0x24c` `m_fAnimOneshotTimer` `<` time, then `EventTimer`), `ShowMinorParticleHyperModeChange( L"Dummy1_Rhand" )` (= March's default / bone), no sound;
+  timer 2 a separate `if`: `32011d20`, `31fd66b0` `== 1` -> `32011f50`, `Shock( L"Dummy1_Rhand" )`, `UpDownCrashCamera( 30, 0.4 )`, the inline `ClearScreen()` (`+0xa8 = 1`,
+  colour 1,1,1,1 = March's defaults `( 1, 0xffffffff )`), `31fd66b0` `== 0` -> `Trace`, vslot 0xc0 (slot 48, funcmap 1490) `ApplyHyperModeBuff`,
+  `31fceab0( 0x5f63 )` `jle` -> vslot 0x23c pushes `1, 0, 0x5f63` = `SetSkillBuffFactors( 24419, 0, true )` (`X2GUUser.h:3780`, `iSkillID_, iIndex_, bCheckLearned_`), and the
+  `bSound_` test (`cmp [esp+0x44], 1`) comes **after** it, so it runs either way; four `PlaySound( name, 1, 0 )` = March's defaults; vslot 0x7cc `CommonFrameMove`.
+- 0x5f63 = 24419 = `RNSI_P_RRF_OPEN_MIND` (June `Enum.src.lua:15500`; `X2SkillTree.h:2116`, live in the `cl /P` output). `31fceab0` = `GetSkillLevelValue` (divergent row 246, replaced
+  under `JUNE_DIVERGE_SKILL_LEVEL_VALUE`).
+- Stand-ins (no-op, `false`, no-op) match Elsword's (`X2GUElsword_SwordMan.cpp:30486`), Chung's (`X2GUChung.cpp:40786`) and Eve's (`X2GuEve.cpp:208`).
+
+**Gates:** `cl /P` of `X2GURaven.cpp` read for each branch: off = March's body, on = June's (stand-ins, Open Mind) and the riding wrapper. One-file `/Zs` probe: 0 errors off and with
+`/D SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`; the `on` run reaches the new `Always.h` `#error` guard without firing, so `EVE_PASSIVE` is defined at that line.
+`flagcheck SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE --range b125dcf0^..b125dcf0`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted
+line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only for the commented-out `_LIVE` define.
+`junediverge.py --check-all`: `RESULT: PASS` (185 allow-listed). `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows. No build: the review changed no code.
+CH1d kickoff checked: present, CH0 amendment lists its 38 functions (34 inside, 4 new) and 20 states. Nothing to play-test. Next: `/x2-phase char-raven CH1d` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.
