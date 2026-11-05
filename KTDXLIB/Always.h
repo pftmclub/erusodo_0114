@@ -11678,3 +11678,32 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET needs SERV_IRUHADEV_JUNE_TRANSCEND_UNIT, SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( GetSkillLevel's upgrade swap ), SERV_IRUHADEV_JUNE_SKILL_STATE_PTR and SERV_IRUHADEV_JUNE_ENUM_NAMES
 #endif SERV_IRUHADEV_JUNE_USER_CREATE_EFFECT_SET
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-05
+// Description: June character port ( Raven ) Phase CH1a - June-only class-core names that March's CX2GURaven lacks ( the Blade Master dash-jump X state id ),
+//              compiled in every build and referenced by nothing until CH1e / CH1m register them.
+//              Revert: undefine the flag ( JUNE_CHAR_RAVEN_CORE ).
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-05
+// Description: June character port ( Raven ) Phase CH1a - Raven runs on June's class core: June's bodies inside March's own CX2GURaven functions.
+//              Stays commented out until CH1's final sub-phase ships it with June's RAVEN_FIGHTER.lua and motions ( one deploy unit ).
+//              Revert: comment out the #define ( JUNE_CHAR_RAVEN_LIVE ).
+//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE needs SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+#ifndef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE needs SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK ( TryHyperModeStateChange )
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#ifndef SERV_RAVEN_VETERAN_COMMANDER
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE needs SERV_RAVEN_VETERAN_COMMANDER ( RVC_DASH_JUMP_COMBO_X )
+#endif SERV_RAVEN_VETERAN_COMMANDER
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+//////////////////////////////////////////////////////////////////////////

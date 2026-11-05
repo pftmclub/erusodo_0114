@@ -373,6 +373,39 @@ and his class range `0x32c25a20`-`0x32c6a63d`: `inside` rows inside March's func
 the rage gauge fills, the Nasod balls attack and the hyper orbs show as June; each skill cast twice shows its cool time and spends MP;
 `charport_scan.py` / `charport_keys.py RAVEN_FIGHTER` show nothing new.
 
+### CH1a - Done (2026-11-05)
+
+All 19 class-map rows of phase CH1a are written, all `inside`: June's body in March's own `CX2GURaven` function under `SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`, March's in `#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`.
+`_LIVE` is in `Always.h` as `//#define` with its `#error` guards (`_CORE`, `JUNE_BUFF_AWAKE_LOCK`, `SERV_RAVEN_VETERAN_COMMANDER`). `SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE` is defined too: its only content is
+`RBM_DASH_JUMP_COMBO_X` ("June script id 300", CH1e owns the state) appended to `RAVEN_STATE_ID`, the one state name a CH1a body spells that March lacks. 19 funcmap rows `Char Raven CH1a`.
+`june2017_re/char_raven/ch1_offsets.tsv` is new (Elsword's base rows, class fields dropped, plus six Raven rows); the review confirms them.
+
+| June | `CX2GURaven::` | June | `CX2GURaven::` |
+|---|---|---|---|
+| `32c25c90` `32c40dd0` `32c43f90` | RSI_WAIT StartFuture / Start / EventProcess | `32c40ea0` `32c441c0` | RSI_WALK Start / EventProcess |
+| `32c3d2b0` `32c25cc0` `32c28aa0` `32c443f0` | RSI_JUMP_READY / UP / DOWN / LANDING EventProcess | `32c446a0` | RSI_DASH EventProcess |
+| `32c3d3b0` `32c40f50` `32c28b80` `32c448a0` | RSI_DASH_END StartFuture / Start / FrameMove / EventProcess | `32c3d3f0` `32c44b60` | RSI_DASH_JUMP / DASH_JUMP_LANDING EventProcess |
+| `32c25d60` `32c25d90` `32c44d80` | RSI_DASH_JUMP_POWER_LANDING StartFuture / Start / EventProcess | | |
+
+**Where June differs from March** (everything else is March's logic written out whole; read from the listings, `charport_adis.py raven`):
+- **DashJump EventProcess `32c3d3f0`: Blade Master.** After the Veteran Commander test (`[unit + 0x38]` = 115 -> `RVC_DASH_JUMP_COMBO_X`) June tests 106 `UC_RAVEN_BLADE_MASTER` -> `RBM_DASH_JUMP_COMBO_X` (state 0x12c); else `RSI_DASH_JUMP_COMBO_X`. March has no Blade Master branch.
+- **DashJump, both keys held** (`pureRight && pureLeft`): when `oneRight` against a left facing or `oneLeft` against a right facing, the jump speed is clamped and the state goes to JUMP_UP / JUMP_DOWN; otherwise nothing. March sends the held-both case into the `pureRight` branch.
+- **PowerLanding StartFuture `32c25d60`:** `nowSpeed.x *= 0.5` (March `/= 2.0f`; same value).
+- **Z keeps the re-attack gate** in Wait / Walk / JumpLanding / DashEnd (June tests `m_bReAttackZ1Right` +0x95d0 and `m_fReAttackZ1Time` +0x95d4 as March does), unlike Elsword's; DashEnd splits at `(max - transition) / 8`, PowerLanding at `/ 6`.
+- **= March after the macros:** Wait / Walk / DashEnd Start (the Black Hole reset at `RBM_COMBO_ZZZXZ`; June's hit count is a `KProtectedType<int>`, March's a plain `int`), the other Wait / Walk / Dash / JumpReady / JumpUp / JumpDown / JumpLanding / DashEnd / DashJumpLanding functions, and the PowerLanding pair. The hyper macro is June's own `TryHyperModeStateChange( USI_HYPER_MODE )` call; `SpecialAttackEventProcess` is passed `ASUT_GROUND` / `ASUT_AIR` (1 / 2) as June pushes; `GetEnableDash( EDS_END )` is March's default.
+- `JumpLanding`'s skip-point chain is `ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS` (the 15 keys in June's order). DashJumpLanding's off-line test is a separate `if`, as March. No `JUNE_BUGS` row: nothing here is a June defect.
+- State ids are written by name (`USI_*` / `RSI_*` / `RVC_*`); June's registered ids differ from the C++ enum values, which CH1m maps. Checklist §7 L256 (`+0x7cc8` power rate): no CH1a function touches it.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE --with SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). The OTHER row is `X2GURaven.h` (the `_CORE` enum member).
+- `flagcheck.py` now diffs with `--minimal`: plain `git diff -U0` showed 20 false deletions (Myers pairing of the March lines that June's bodies repeat); `--selftest` PASS, `git diff --patience --numstat`: 669 inserted, 0 deleted in `X2GURaven.cpp`; 4 / 0 in `X2GURaven.h`; 29 / 0 in `Always.h`.
+- `cl /P` of `X2GURaven.cpp` with `_LIVE` undefined: 0 differing non-blank lines against the pre-change output except the new enum member (and `#line` / `__COUNTER__` names); with `/D SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`, DashJump has the Blade Master and both-keys branches.
+- One-file probe (`census.cl_cmd` with `/Zs`, no PCH): 0 errors with `_LIVE` off and 0 with `/D SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE` (this also evaluates the `Always.h` guards).
+- `junediverge.py --check X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows.
+- `BUILD OK: X2/US_SERVICE/x2.exe 25,997,312 B, 2026-11-05 20:48:49` (KTDXLIB, X2Lib and X2 all rebuilt, 0 errors). **`DEPLOY REFUSED`: `X2_offline.exe` was running (pid 22040).** Close the game, then `python tools/build.py --deploy-only`; the deployed exe is still the previous one until then. No new string in the exe, so no `exestr` line.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-raven CH1a review` (Opus 5.5 high), then CH1b.
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

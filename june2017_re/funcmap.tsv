@@ -7911,3 +7911,22 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32b4ce90	move-assign of a refcounted pointer: *this = std::move( *src ), release the old one (count at 0, free via 32fe2300)	candidate	Char Raven CH0: decompile: tmp = *src; *src = 0; old = *this; *this = tmp; if old && --*old == 0 then 32fe2300( old )
 32fe2450	import thunk: indirect jump through [333bc9c4] (Ghidra: could not recover jumptable)	candidate	Char Raven CH0: decompile: (*_DAT_333bc9c4)(); caller 32c3dce0 (CH3a)
 33228fe0	PicChar DrawText gate wrapper (tests the object at +4 and the mode at +0x34 == 1, then 33228640 or 33227f20)	confirmed	Char Raven CH0: funcmap rows 32e857d0 and 322d39e0 name 33228fe0 "the PicChar DrawText the DRAIN_MP_REACT text also uses"
+32c25c90	CX2GURaven::RSI_WAIT_StartFuture	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c40dd0	CX2GURaven::RSI_WAIT_Start	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March (Black Hole reset at RBM_COMBO_ZZZXZ; June KProtectedType<int> hit count, March plain int)
+32c43f90	CX2GURaven::RSI_WAIT_EventProcess	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March; TryHyperModeStateChange for the hyper macro
+32c40ea0	CX2GURaven::RSI_WALK_Start	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c441c0	CX2GURaven::RSI_WALK_EventProcess	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March; Z keeps the re-attack gate
+32c3d2b0	CX2GURaven::RSI_JUMP_READY_EventProcess	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c25cc0	CX2GURaven::RSI_JUMP_UP_EventProcess	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March; GetEnableDash( EDS_END )
+32c28aa0	CX2GURaven::RSI_JUMP_DOWN_EventProcess	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March; wall landing, no cliff branch
+32c443f0	CX2GURaven::RSI_JUMP_LANDING_EventProcess	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March; skip-point key chain as the macro
+32c446a0	CX2GURaven::RSI_DASH_EventProcess	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c3d3b0	CX2GURaven::RSI_DASH_END_StartFuture	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c40f50	CX2GURaven::RSI_DASH_END_Start	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c28b80	CX2GURaven::RSI_DASH_END_FrameMove	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c448a0	CX2GURaven::RSI_DASH_END_EventProcess	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March; Z keeps the re-attack gate; (max - transition) / 8 split
+32c3d3f0	CX2GURaven::RSI_DASH_JUMP_EventProcess	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; June adds RBM_DASH_JUMP_COMBO_X for Blade Master after the VC test and a both-keys-held branch ( oneRight against a left facing or oneLeft against a right facing: clamp to the jump speed, JUMP_UP / JUMP_DOWN )
+32c44b60	CX2GURaven::RSI_DASH_JUMP_LANDING_EventProcess	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March; the off-line test is a separate if, as March
+32c25d60	CX2GURaven::RSI_DASH_JUMP_POWER_LANDING_StartFuture	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; nowSpeed.x *= 0.5 ( March /= 2 )
+32c25d90	CX2GURaven::RSI_DASH_JUMP_POWER_LANDING_Start	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March
+32c44d80	CX2GURaven::RSI_DASH_JUMP_POWER_LANDING_EventProcess	PORTED	Char Raven CH1a: inside, June body under JUNE_CHAR_RAVEN_LIVE; = March; (max - transition) / 6 gate

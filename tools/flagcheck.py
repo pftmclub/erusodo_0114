@@ -332,9 +332,9 @@ def enc_class(data):
 def diff_stats(old, new, rev_old, rev_new, path):
     """Deleted lines, inserted non-ASCII lines, EOL mismatches; from git's own diff (raw bytes)."""
     if rev_new is None:
-        raw = git_bytes("diff", "--no-color", "--no-ext-diff", "-U0", rev_old, "--", path)
+        raw = git_bytes("diff", "--no-color", "--no-ext-diff", "--minimal", "-U0", rev_old, "--", path)
     else:
-        raw = git_bytes("diff", "--no-color", "--no-ext-diff", "-U0", rev_old, rev_new, "--", path)
+        raw = git_bytes("diff", "--no-color", "--no-ext-diff", "--minimal", "-U0", rev_old, rev_new, "--", path)
     old_lines = split_lines(old or b"")
     dels = ins = nonascii = eolbad = 0
     anchor_eol = None

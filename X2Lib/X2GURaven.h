@@ -248,6 +248,10 @@ class CX2GURaven : public CX2GUUser
 			RSI_A_RBM_SONIC_SLASH_FINISH,
 #endif // UPGRADE_SKILL_SYSTEM_2013
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+			RBM_DASH_JUMP_COMBO_X,		/// June script id 300 ( Blade Master dash-jump X; CH1e owns the state )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+
 		};
 
 		enum RAVEN_MAJOR_PARTICLE_INSTANCE_ID

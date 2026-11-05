@@ -1,0 +1,90 @@
+offset	kind	name	note
+0x2b0	field	m_fElapsedTime	CX2GameUnit
+0x304	field	m_PhysicParam.nowSpeed.x
+0x308	field	m_PhysicParam.nowSpeed.y
+0x314	field	m_PhysicParam.fDownAccel	FLY_DOWN StartFuture: = fGAccel * -0.8
+0x31c	field	m_PhysicParam.fGAccel
+0x320	field	m_PhysicParam.fMaxGSpeed
+0x3e59	field	m_bAbsoluteInvisibility	GetAbsoluteInvisibility()
+0x423c	field	m_fRunJumpSpeedRate	GetWalkSpeed / GetDashSpeed multiply it
+0x4910	field	walk speed triple ( +0x4910 ^ +0x4914 ^ &+0x4918 )	GetWalkSpeed()
+0x49c4	field	dash speed triple	GetDashSpeed() ( also called as 32071a80 )
+0x4a78	field	jump speed triple	GetJumpSpeed()
+0x4b2c	field	dash jump speed triple	GetDashJumpSpeed()
+0x7d14	field	m_FrameDataFuture
+0x7d85	field	m_FrameDataFuture.stateParam.bEventFlagList[0]
+0x7de8	field	m_FrameDataFuture.unitCondition.fStateTime
+0x7e1c	field	m_FrameDataFuture.unitCondition.bFootOnLine	IsOnSomethingFuture()
+0x7e20	field	m_FrameDataFuture.unitCondition.landPosition
+0x7e31	field	m_FrameDataFuture.unitCondition.bFootOnWall
+0x7e3c	field	m_FrameDataFuture.syncData.position.x	+4 y, +8 z
+0x7e54	field	m_FrameDataFuture.syncData.lastTouchLineIndex	ushort
+0x7e56	field	m_FrameDataFuture.syncData.bIsRight
+0x7fb4	field	m_FrameDataNow
+0x80c4	field	m_FrameDataNow.unitCondition.landPosition.y
+0x80f6	field	m_FrameDataNow.syncData.bIsRight
+0x84f3	field	m_bDisableGravity
+0x867c	field	GetUnit()	CX2Unit*
+0x86da	field	m_InputData.pureLeft	groups of 4 ( pure, one, pureDouble, oneDouble ) in March's key order; 0x8722 pureLCtr, 0x8726 pureSit, 0x8727 oneSit
+0x87d0	field	m_pXSkinAnimFuture	anim +0x214 now time, +0x220 max time, +0x2ac IsAnimationEnd, +0x2b0 transition time
+0x87d4	field	m_pXSkinAnim
+0x89d8	field	m_ePlayedEmotion	GetNowEmotionId(); Wait EventProcess 32bf5de0 tests == ET_NONE ( CH1a review )
+0x8a60	field	m_pComboGuide
+0x8bf8	field	m_bDownForce
+0x8d4c	field	m_bHyperModeStartedByInput	set by SKILL_CANCEL_AFTER ( CH1a review )
+0x5c	vslot	StateChange( int, bool )
+0x84	vslot	GetBonePos( wstring )
+0xd8	vslot	GetNowMp()
+0x150	vslot	GetRotateDegree()
+0x16c	vslot	GetDirVector()
+0x170	vslot	GetIsRight()
+0x1cc	vslot	GetRandomFloat( int )	( CH1a review )
+0x200	vslot	GetRidingOn()
+0x55c	vslot	TryHyperModeStateChange( int )
+0x5f4	vslot	COMMON_RELATIONSHIP_SKILL_FrameMove()
+0x5f8	vslot	COMMON_RELATIONSHIP_SKILL_EventProcess()
+0x5fc	vslot	DashStartFuture()	Eve override 32965f80
+0x668	vslot	StateChangeDashIfPossible()
+0x6b8	vslot	GetHyperModeStateID()	Eve 32968470 returns 0x17 USI_HYPER_MODE
+0x7c0	vslot	CommonStateStartFuture()
+0x7c4	vslot	CommonStateStart()
+0x7c8	vslot	CommonFrameMoveFuture()
+0x7cc	vslot	CommonFrameMove()
+0x7d4	vslot	CommonEventProcess()
+0x7d8	vslot	CommonStateEndFuture()
+0x7dc	vslot	CommonStateEnd()
+0x7ec	vslot	CreateStepDust()
+0x7f4	vslot	SpecialAttackEventProcess( ASUT )	1 = ASUT_GROUND, 2 = ASUT_AIR
+0x8e84	field	alternate future animation	CX2GUUser: +0x8e90 ? +0x8e84 : m_pXSkinAnimFuture ( 32070cf0 ); read as m_pXSkinAnimFuture ( CH1b )
+0x4088	field	m_CommonState.m_Wait	Leap StartFuture / EventProcess push it to StateChange ( CH1a review )
+0x7e04	field	m_FrameDataFuture.unitCondition.dirDegree	Leap FrameMoveFuture ( CH1a review )
+0x7e10	field	m_FrameDataFuture.unitCondition.dirVector	Leap FrameMoveFuture ( CH1a review )
+0x8088	field	m_FrameDataNow.unitCondition.fStateTime	Wait EventProcess sword-wait test ( CH1a review )
+0x899d	field	m_bLeaping	CX2GUUser; Leap StartFuture = 1, End = 0 ( CH1a review )
+0x138	vslot	GetPos()	( CH1a review )
+0x674	vslot	GetWayOfSwordState()	base 31fc8770, Elsword 32cf50f0 ( CH1a review )
+0x3d8	field	m_DamageData.damage.fPhysic	CX2GameUnit; +0x3c4 m_DamageData.reActType, +0x77c m_DamageData.backSpeed ( CH1b )
+0x9e0	field	m_fRevengeAddDamage	CX2GameUnit ( CH1b )
+0x7d86	field	m_FrameDataFuture.stateParam.bEventFlagList[1]	+0x7d87 [2], +0x7d88 [3], +0x7d89 [4] ( CH1b )
+0x8025	field	m_FrameDataNow.stateParam.bEventFlagList[0]	+0x8018 normalCamera ( CH1b )
+0x8c10	field	m_fEventTime[0].keyInputStart	+0x8c14 keyInputEnd, +0x8c18 stateChange; m_fEventTime[1] at +0x8c1c / +0x8c20 / +0x8c24 ( CH1g review )
+0x8c88	field	m_fAttackCancelAfterEx	Future set: +0x8c8c m_fAttackCancelAfter, +0x8c90 m_fSkillCancelAfter, +0x8c94 m_fBWalkCancelAfter, +0x8c98 m_fWalkCancelAfter, +0x8c9c m_fDashCancelAfter, +0x8ca4 m_fUpDownCancelAfter ( CH1g review )
+0x8d38	field	m_fDashCancelAfter	Now set ( +0x8d24 Ex .. +0x8d38 Dash, same order as +0x8c88 ); March keeps one set ( funcmap 32057b80 C9h-4c ); the sheath FrameMoves read it ( CH1g review )
+0x8040	field	m_FrameDataNow.stateParam.bSuperArmorNotRed	COMBO_XXX_LOOP / XXX_END StateStart = 0, XXX_LOOP StateEnd = 1 ( CH1g review )
+0x411c	field	m_bApplyMotionOffset	CX2GameUnit; Compact Counter StartFuture sets it false ( CH1g2 )
+0x80bc	field	m_FrameDataNow.unitCondition.bFootOnLine	CX2GUUser; DamageReact tests it ( CH1h ); GetFrameData( false ) + 0x108 is the same byte
+0x8be8	field	m_iHoldStateID	CX2GUUser; DamageReact stores USI_DAMAGE_AIR_FALL ( CH1h )
+0x8ea0	field	m_iChosenSkillID	CX2GUUser; the skill the lookup 32d1bd10 chose, kept by 32cf3290 across the use ( CH1k )
+0x8ea4	field	m_iChosenSkillSlotIndex	CX2GUUser; its slot index, used by the use 32cf5760 and the cooldown 32d0d8e0 ( CH1k )
+0x8ea8	field	m_fReservedSkillMp	CX2GUUser; the MP a reserved skill keeps until its state starts ( CH1k )
+0x8eb0	field	m_fChosenSkillMp	CX2GUUser; the MP the chosen skill costs, set by the lookup, spent by the cooldown ( CH1k )
+0x88bc	field	m_iNowSpecialAttack	CX2GUUser; slot index + 1, set by 32cf3290 ( CH1k )
+0x8ac4	field	m_bSpecialAttackEventProcessedAtThisFrame	CX2GUUser; set by the use 32cf5760 ( CH1k )
+0x8ac8	field	m_iSkillCutInSetIndex	CX2GUUser; +0x8acc m_iSkillCutInSetSubIndex ( the index 32d09270 hands to 32d09050 ) ( CH1k )
+0x6754	field	m_pAfterImage	CX2GameUnit; +0x6758 is June's second after-image ( not ported ); AfterImageFrameMove 32d08d70 keeps byte +0x1d1 = the enable flag it hid ( CH1k )
+0x95d0	field	m_bReAttackZ1Right	Raven (March member); Wait / Walk / JumpLanding / DashEnd Z gate tests it against bIsRight ( CH1a )
+0x95d4	field	m_fReAttackZ1Time	Raven; the same Z gate ( 0 < time skips ) ( CH1a )
+0x95d8	field	m_fReDashJumpXTime	Raven; DashJump X gate ( 0 < time skips ) ( CH1a )
+0x9674	field	m_iBlackHoleHitCount	Raven; June KProtectedType<int> ( +0x9678 / +0x967c ), March plain int; Wait / Walk / DashEnd Start zero it ( CH1a )
+0x9680	field	m_fBlackHoleTime	Raven; zeroed with the hit count ( CH1a )
+0x97d4	field	m_eRavenCurrentStage	Raven; RBM_COMBO_ZZZXZ ( June id 0xd8 ) is reset to RSI_BASE ( June id 0x99 ) by Wait / Walk / DashEnd Start ( CH1a )
