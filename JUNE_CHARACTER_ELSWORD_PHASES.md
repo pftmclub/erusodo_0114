@@ -2085,6 +2085,8 @@ Dev console ( END key, auth 3 ): `/invin 0`, then a dungeon with enemies in fron
 3. **Bank 3**: Triple Saber and Overs Geyser play June's motion and end in wait; **Extreme Rune Buster**: logs `extreme rune buster: start, 10 random numbers`; the end cancels work on the ground only.
 Log tag `[JUNE_CHAR] ELSWORD SKILL` ( `python tools/logs.py --grep "ELSWORD SKILL"` ) and `[JUNE_SKILL]` `NUM use`. Then say "check logs".
 
+**Play-test (user, 2026-11-05): ran, no faults.** Run 10:56 (exe 29a03fb1, bank 1 / 2): Sword Fire x3 ( `SwordFire_Ready`, `_Fire`, `_Buff` effect sets; the buff glow is faint because June's data draws it so, user confirmed ), Phoenix Talon upgrade, Luna Blade, Splash Explosion, Rune of Fire, Counter guard end x3 ( taps: held 0.04 / 0.01 / 0.07 s ). Run 11:03 ( bank 3 ): Triple Saber x3 ( 54 `HIT` lines over the three skills below ), Overs Geyser x5, Extreme Rune Buster x10 ( `extreme rune buster: start, 10 random numbers` x10, 18 `EffectSet_SA_ERS_Extreme_Rune_Buster`, hits ). 0 `EXCEPTION`, `ErrorLog.txt` clean, 2 `UNHANDLED` ( `E_DISABLE_HB_CHECK_REQ` ), no `tag 19 not ported` line. Not seen in any log: a held Counter ( the 5 s limit ), Enchant Break, the Rune of Fire ground cancels; no `NUM use` lines ( the numerical debug is retired ). `_SKILL_DEBUG` stays on for the review.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
