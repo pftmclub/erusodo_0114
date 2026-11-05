@@ -465,6 +465,37 @@ All 40 class-map rows of phase CH1b are handled. 37 are `inside`: June's body in
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-raven CH1b review` (Opus 5.5 high), then CH1c.
 
+### CH1b - Review (2026-11-05, Opus 5.5)
+
+**Verdict: PASS, no code change.** All 40 rows read against `charport_adis.py raven --phase CH1b` listings:
+- **No-down stand-up attack** (`32c28c10` / `32c28dd0` / `32c28f50`): anim end -> flag[4] (`+0x7d89`) -> `GetUnit()` (`+0x867c`) non-NULL and `GetSkillLevel( 0x5e88, 0, 0, 1 )`
+  (pushes `1, 0, 0, 0x5e88`) `> 0` -> 0xcc / 0xcd `NO_DOWN`, else (and when no unit) 0x9f / 0xa0 `ATTACK`; then flag[1] ATTACK, flag[2] / [3] rolling,
+  else 0x20 / 0x21 stand-up. The 0.66 key window and all six flag writes (word / dword stores decoded) match. Front and AirDownLanding use float 0.66 (`fld; fcomp`,
+  `test ah, 5; jp`); Back alone uses the double (`fcomp qword 0.66`, `test ah, 0x41; jne`). AirDownLanding's listing equals Front's apart from addresses.
+- **Emergency Escape `32c59550`:** returns while cool (`+0x95ac`) `>` elapsed (`+0x95a0`) (`fcompp`, `test ah, 0x41; jp`); `GetSkillLevel( 0x5f5a, 1, 0, 1 )`, no unit check
+  (as written); `GetSkillTemplet( 0x5f5a, 1 )` = March's one-argument form (funcmap 409); roll `GetRandomInt( 0 )` (vslot 0x1c8) as a double `<` `32206e50( 5, level, 0 ) x 100.0`
+  (March's two-argument `GetSkillAbilityValue` reads the numerical block with bPvp false); MP via vslot 0x6a0 = slot 424 = the virtual `GetActualMPConsume( id, level )`
+  (`X2GUUser.h:3157`, June passes 1); text 0x9f5 = `STR_ID_2549`, font 3, white / black, `DT_CENTER`, 1, 1; `StateChange( 0xde, 0 )`; `UpNowMp( -cost )` (vslot 0xf0);
+  `if( elapsed != 0 ) elapsed = 0` is June's inlined `KProtectedType` store, harmless as written.
+- **Field roles:** `32c42f90` adds the frame time (`+0x2b0`) to `+0x95a0` while `0 < +0x95ac` and `+0x95a0 <= +0x95ac`; `32c57660` stores SA 0x94 at the level into
+  `+0x95ac` (`@32c57c03`..`32c57c35`) and then `+0x95a0` (`@32c57c89`). `ch1_offsets.tsv` rows `0x95a0` / `0x95ac` (value words `+4` / `+8`) are right.
+- **Stand-up Start pair `32c290d0` / `32c29130`:** `31fceab0( 0x5f61 )` = `GetSkillLevelValue( int )` (the only overload under `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE`);
+  `32007b10( 0x67, 0x5f61 )` = `GetLearnedSkillAbilityValue`; anim `+0x250` x value (`SetPlaySpeed` writes `+0x250`); `ResetAnimSpeed( product, 1, 0 / 1, 1.0f )`, so the
+  third argument is bFuture and the fourth is the default `fExtraSpeedRate`. Ten states share them (CH1m registers).
+- **= March, spot-checked end to end:** DieFront Start `32c55ee0` (vslot 0x338, 0.5, `ClearArcEnemyData`, `ClearNasodBall`, protected `+0x97b8 = 0`), Rolling EventProcess
+  `32c29190`, DamageDownBack FrameMove `32c28d90` (plain `EventTimer( 0.32f ) == 1`); also DamageDownFront FrameMove (inlined Oneshot 0.19), `32c33bd0` (Oneshot 1.55,
+  `UpDownCrashCamera( 20, 0.3 )`), SmallBack / BigBack Start, Die FrameMove 0.19 / 0.32 + 1.12. Sibling listings are identical apart from addresses: 4 Rolling EventProcess,
+  4 Attack EventProcess, 8 End (`0.3`, vslots 0x11c / 0x120), 4 Attack FrameMove, the Die StartFuture and EventProcess pairs.
+- **Enum names:** June `Enum.src.lua` 14579 / 14917 / 16006 = 24200 / 24410 / 24417; a compile-time probe asserts those three, `SA_EFFECTIVE_RATE == 5`, `SA_ANI_SPEED == 103`
+  and `XUF_DODUM_20_BOLD == 3`: 0 errors.
+
+**Gates:** `flagcheck SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE --with ..._CORE --range 42429ff6^..42429ff6`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only for the
+commented-out `_LIVE` define (OTHER = `X2GURaven.h` `_CORE`, `X2SkillTree.h` `JUNE_ENUM_NAMES`). `junediverge.py --check-all`: `RESULT: PASS` (185 allow-listed).
+`enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows. One-file `/Zs` probe of `X2GURaven.cpp`: 0 errors with `_LIVE` off and with `/D SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`.
+No build: the review changed no code. CH1b's refused deploy is harmless (`_LIVE` off, the new `_CORE` code is unreferenced); the next deploy carries it.
+Nothing to play-test. Next: `/x2-phase char-raven CH1c` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

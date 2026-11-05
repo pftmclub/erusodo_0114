@@ -177,8 +177,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-05, play-test owed** (4,825 assets in 35 koms + 2 guide Lua copied, 6 walk units 72-77; user walks Raven per tier, then `check logs`) | Sonnet 5.5 / high, user play-test | CH0 (done) | koms, save | `CH0b.md` |
-| CH1b | **done 2026-11-05, review next** (`/x2-phase char-raven CH1b review` on Opus 5.5 / high): reactions, 37 bodies + 2 new; no play-test (`_LIVE` off) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GURaven.*`, `X2SkillTree.h` | `CH1b.md` |
-| CH1c | blocked (CH1b review): riding 27, pepper, dance | Sonnet 5.5 / high, Opus review | CH1b review | `X2GURaven.*` | `CH1c.md` |
+| CH1c | **ready** (`/x2-phase char-raven CH1c` on Sonnet 5.5 / high): riding 27, pepper, dance | Sonnet 5.5 / high, Opus review | CH1b review (done) | `X2GURaven.*` | `CH1c.md` |
 | CH1d | blocked (CH1c review): Raven ground combos | Sonnet 5.5 / high, Opus review | CH1c review | `X2GURaven.*` | `CH1d.md` |
 | CH1e | blocked (CH1d review): Sword Taker + Blade Master lines | Sonnet 5.5 / high, Opus review | CH1d review | `X2GURaven.*` | `CH1e.md` |
 | CH1f | blocked (CH1e review): Over Taker + Reckless Fist lines | Sonnet 5.5 / high, Opus review | CH1e review | `X2GURaven.*` | `CH1f.md` |
@@ -211,7 +210,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | CH6 | blocked (CH3d, CH4c, CH5 reviews): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4a-c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-rena` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0 (2026-11-05; read-only map, no build), CH1a (2026-11-05; review PASS, no code change).
+Done: CH0 (2026-11-05; read-only map, no build), CH1a (2026-11-05; review PASS, no code change), CH1b (2026-11-05; review PASS, no code change).
 
 ## char-luciel - June character port, Stage 8: Lu/Ciel (first new character)
 Plan `JUNE_CHARACTER_LUCIEL_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `LUCIEL <sub>`: `DATA`, `NEWUNIT`, `CREATE`, `DUO`, `CORE`, `SKILL`, `PASSIVE`, `UI`, `NUM`, `JOB`, `TUTORIAL`) · flags `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_*` (`_CORE`, `_LIVE`, `_DUO`, `_DATA`, `_STARTER_ITEMS`, `_SKILL`, `_PASSIVE`, `_UI`, `_CLASS_CHANGE`, `_TUTORIAL`, + `_DEBUG`) and class-agnostic `SERV_IRUHADEV_JUNE_CHAR_*` (`UNIT_TYPE_RANGE`, `UNIT_CLASS_WORD`, `MINOR_UNIT_TEMPLET`, `CREATE`, `DUO_BODY`, `EQUIP_VIEW`, `NESI_RENUMBER`, `DUO_VIEW`), `SERV_IRUHADEV_JUNE_USER_DAMAGE_STATE_GETTERS` · kickoffs `kickoffs/char-luciel/` · backlog Stage 8 · created 2026-11-02.
