@@ -5957,3 +5957,7 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (`Always.h`; `#error` without `..._RA
 | Flame Sword (24201 / 24218) | `RSI_A_RWT_FLAME_SWORD_GROUND` state table | 0.81 (ground table numerical-only, INDEX 1) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (every Raven skill falls back to the Maximum Cannon default), `python tools/build.py --deploy`.
+
+## Base-class portraits: June's art (data only, 2026-11-06)
+
+No flag, no exe change. The top-left gauge portrait (`CIT_MyGage`, pieces `ELSWORD_STATE` / `RENA_STATE` / `RAVEN_STATE` / `EVE_STATE` / `ARA_FACE` / `EL_FACE`) already pointed at June's rows (June's 870-row image table, ctor `31ef0ef0`, equals March's for every class March has), but the sheets still held March's art: June repainted the base-class heads, the later jobs and the transcendence rows were already June's. `kom.py stage-june` replaced `DLG_UI_Common_Texture16 / 23 / 25 / 45 / 68 / 74_NEW.tga` in data057 (the six `.TET` files are identical to June's; Aisha's Texture21 and Chung's Texture61 already matched). The same sheets feed the party bar, 160 / 50 / 20 pictures and the gray ones, so those follow June too. Texture25 also changes the Raven second-job pieces to June's. `PACK OK data057`; the March copies are in `kom_backup_stage_june/20261106_162238`. To revert: copy that backup over the six files and repack, or copy `kom_backup_tools/data057.kom.*` over the live kom.
