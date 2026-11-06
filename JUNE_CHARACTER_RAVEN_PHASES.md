@@ -778,6 +778,42 @@ All 35 class-map rows of phase CH1g are written, all `inside` (June's body in Ma
 
 CH1g2 kickoff checked: present (Sonnet 5.5 high, depends on this review). Nothing to play-test. Next: `/x2-phase char-raven CH1g2` (Sonnet 5.5 high).
 
+### CH1g2 - Done (2026-11-06)
+
+All 33 class-map rows of phase CH1g2 are written: 32 `inside` (June's body in March's own `CX2GURaven` function under `SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`, March's in `#else`) and 1 `new` (`RVC_DASH_COMBO_ZZ_EventProcess`, `_CORE`, declared in `X2GURaven.h`, registered by CH1m). No new flag, enum member or macro (CH1d's `RAVEN_GROUND_*` / `RAVEN_ELSE_IF_FLAG_STATE_CHANGE` cover every chain). `_LIVE` stays `//#define`. 33 funcmap rows `Char Raven CH1g2` (3 replace CH0's `candidate` rows), 9 `ch1_offsets.tsv` rows, `JUNE_BUGS` #541. `RVC_DASH_JUMP_COMBO_XX_START` / `_LOOP` StateEnd have no June row (March registers none) and are untouched.
+
+| June | `CX2GURaven::` |
+|---|---|
+| `32c27250` `32c42400` `32c35d30` `32c4c530` | `RVC_DASH_JUMP_COMBO_X` Init, Start, FrameMoveFuture, FrameMove (= March) |
+| `32c35e20` | `RVC_DASH_JUMP_COMBO_X` EventProcess (differs) |
+| `32c27270` `32c27280` `32c27290` `32c5a7f0` | `..._XX_START` StateStart, FrameMove, FrameMoveFuture, EventProcess (= March) |
+| `32c424b0` `32c61580` `32c272d0` `32c5a860` | `..._XX_LOOP` StateStart (= March), FrameMove (differs), FrameMoveFuture, EventProcess (= March) |
+| `32c42550` `32c4c910` `32c35ed0` `32c35f90` `32c425f0` | `..._XX_FINISH` Start, FrameMove, FrameMoveFuture (= March), EventProcess (differs), End (= March) |
+| `32c36020` | `RVC_DASH_COMBO_ZZ` EventProcess (new) |
+| `32c36420` `32c36440` `32c36790` | `RVC_DASH_COMBO_ZZZ` Start (= March), EventProcess (differs), End (= March) |
+| `32c367b0` `32c367d0` `32c36ad0` | `..._ZZZPushZ_READY` Start (= March), EventProcess (differs), End (= March) |
+| `32c5a940` `32c619e0` `32c5ac10` `32c4cac0` | `..._ZZZPushZ` Start, FrameMove, EventProcess (differ), End (= March) |
+| `32c36af0` | `RVC_DASH_COMBO_ZZZZ_FINISH` EventProcess (differs) |
+| `32c4dfe0` `32c4e3c0` `32c4add0` | `CreateOverHeatObject`, `DeleteOverHeatObject`, `_ShowOverheatIcon` (= March) |
+
+**Where June differs from March** (read from `charport_adis.py raven --phase CH1g2`; 23 rows equal March's body, floats, strings and handle members compared):
+- **Cancel chain** (CH1d's macros, foot test): `SKILL_CANCEL_AFTER( m_fSkillCancelAfter )`, back-walk `+0x8c94`, walk `+0x8c98`, dash `+0x8c9c`, Z / X `+0x8c8c`, replacing March's dash / walk / skill. Z-Z-Z `32c36440`: Oneshot 0.501 `if` (Z -> READY), chain, the end test (WAIT) last as the final `else if`. READY `32c367d0`: end -> Push-Z, chain. Push-Z `32c5ac10`: `0.3 <` and Z released -> FINISH, then `!_CanOverheat( false ) || m_bEndFrameThrow` -> FINISH, `else if` end (clears `m_bEndFrameThrow`; air JUMP_DOWN, else FINISH), chain. FINISH `32c36af0`: end (air JUMP_DOWN, else WAIT), chain.
+- **New dash Z-Z EP `32c36020`:** end -> WAIT, chain, `else if` no foot -> JUMP_DOWN and `y - 45`, then Z-Z-Z at `> 0.43 s` or the end when flag 1 is set, else flag 1 is set by `oneZ` when `t < 100` for classes 25 / 115 (`IsDataClass`, unit data `+0x38`).
+- **Dash-jump X `32c35e20` / X-X finish `32c35f90`:** the end in the air adds `StateChange( USI_JUMP_DOWN )` (March did nothing). `SKILL_CANCEL_AFTER_FLY` keeps March's bodiless macro, so `CommonEventProcess()` runs only when the air skill cancel fires (`JUNE_BUGS` #541; the X-X loop EP `32c5a860` has it too).
+- **One-argument calls:** X-X loop FrameMove `32c61580` and Push-Z FrameMove `32c619e0` call `_BurnOverheatHP( dmg )` and `_SetOverheat( true )`; Push-Z Start `32c5a940` calls `_SetOverheat( true )` (March passed `5.f`, ignored under `_LIVE`). `_CanOverheat( true )` in `32c5a7f0` / `32c5a860` / `32c5a940` equals March's default.
+- **CH0 correction:** `CreateOverHeatObject` / `DeleteOverHeatObject` do not differ from March (March plays `WT_XXXXX_3.ogg` / `WT_ZZZXX_2.ogg` and creates the End mesh too); `ch0_overheat.tsv` fixed. `PlaySound( name, 1, 0 )` = March's defaults.
+- Offsets added to `ch1_offsets.tsv`: `+0x9704` count, `+0x971c` / `+0x9720` frame-throw handle / flag, `+0x9740` / `+0x9744` icon handles, `+0x975c` object, `+0x9760` / `+0x9764` fire handles, `+0x8ca8` fly cancel time.
+
+**Gates.**
+- `flagcheck ..._LIVE --with ..._CORE --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `.cpp` `PASS +730`, `.h` OTHER (`_CORE` only); `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out. `git diff --patience --numstat`: `.cpp` 730 / 0, `.h` 3 / 0.
+- One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): exit 0, 0 errors with `_LIVE` off and with `-DSERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE` (Git Bash turns a leading `/D` into a path: use `-D`). `cl /EP` off / on: `_CanOverheat( true )` 0 / 3, `_BurnOverheatHP( pEffect->GetDamageData() )` 8 / 10, `_SetOverheat( true );` 0 / 4, `USI_JUMP_DOWN` 168 / 174.
+- `junediverge.py --check X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 26,011,136 B, dated 2026-11-06 07:19:44, md5 5383f8fc63323abca6b9bed17deb6960, equal to X2/US_SERVICE/x2.exe (2026-11-06 07:19:38); built at main 0c733c60 + 2 uncommitted code file(s).` No `exestr` line: `_LIVE` is off.
+
+**Routed.** CH1m: register `RVC_DASH_COMBO_ZZ` with `32c36020` as its only callback. CH1j: `CommonFrameMove` calls `DeleteOverHeatObject` (done here, = March). CH1 final play-test: Veteran Commander dash Z-Z (Z within 0.43 s -> Z-Z-Z), Z-Z-Z cancels by skill / walk / dash, Push-Z fire throw (overheat, count 20), dash-jump X ending in the air.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-raven CH1g2 review` (Opus 5.5 high), then CH1h.
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

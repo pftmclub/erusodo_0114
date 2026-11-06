@@ -1574,6 +1574,9 @@ class CX2GURaven : public CX2GUUser
 		void RVC_DASH_JUMP_COMBO_XX_FINISH_FrameMove();
 		void RVC_DASH_JUMP_COMBO_XX_FINISH_EventProcess();
 		void RVC_DASH_JUMP_COMBO_XX_FINISH_StateEnd();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+		void RVC_DASH_COMBO_ZZ_EventProcess();	/// June 32c36020 ( the state's only callback; CH1m registers )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 
 		/// RVC_DASH_COMBO_ZZZ				- 오버 히트 전 돌아서는 동작
 		void RVC_DASH_COMBO_ZZZ_StateStart();

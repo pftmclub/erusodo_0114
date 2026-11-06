@@ -20931,6 +20931,61 @@ void CX2GURaven::_ShowOverheatIcon( int iSize/*= 0*/ )
 void CX2GURaven::_ShowOverheatIcon()
 #endif SERV_RAVEN_VETERAN_COMMANDER
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c4add0
+	D3DXVECTOR3 vDirVector = GetDirVector();
+	D3DXVECTOR3 vPos( GetHeadBonePos() );
+	D3DXVECTOR3 vOffset = ( vDirVector * 140.f );
+	vPos += GetIsRight() ? vOffset : -vOffset;
+	vPos.y += 60.0f;
+
+	if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hSeqOverHeatIcon )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pEmoticon = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hSeqOverHeatIcon );
+
+		if( NULL !=  pEmoticon )
+		{
+			pEmoticon->SetEmitRate( 0, 0 );
+			pEmoticon->ClearAllParticle();
+		}
+
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqOverHeatIcon );
+	}
+
+	m_hSeqOverHeatIcon = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*)this, L"WeaponTaker_Overheat", vPos );
+
+	if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hSeqOverHeatIcon )
+		g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hSeqOverHeatIcon );
+
+	if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hSeqOverHeatOverlapIcon )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pEmoticon = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hSeqOverHeatOverlapIcon );
+
+		if( NULL !=  pEmoticon )
+		{
+			pEmoticon->SetEmitRate( 0, 0 );
+			pEmoticon->ClearAllParticle();
+		}
+
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqOverHeatOverlapIcon );
+	}
+
+	D3DXVECTOR3 vOffsetOverlap = ( vDirVector * 50.f );
+	vPos += vOffsetOverlap;
+	vPos.y += 20.0f;
+
+	if( 3 == iSize )
+		m_hSeqOverHeatIcon = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*)this, L"Overlap_EDT_Emoticon_3_OverHeat", vPos );
+	else if ( 2 == iSize )
+		m_hSeqOverHeatIcon = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*)this, L"Overlap_EDT_Emoticon_2_OverHeat", vPos );
+	else if ( 1 == iSize )
+		m_hSeqOverHeatIcon = g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*)this, L"Overlap_EDT_Emoticon_1_OverHeat", vPos );
+
+	if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hSeqOverHeatIcon )
+		g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hSeqOverHeatIcon );
+
+	UpDownCrashCamera( 30.0f, 0.5f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	D3DXVECTOR3 vDirVector = GetDirVector();
 	D3DXVECTOR3 vPos( GetHeadBonePos() );
 	D3DXVECTOR3 vOffset = ( vDirVector * 140.f );
@@ -20992,6 +21047,7 @@ void CX2GURaven::_ShowOverheatIcon()
 #endif SERV_RAVEN_VETERAN_COMMANDER
 
 	UpDownCrashCamera( 30.0f, 0.5f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 #ifdef SERV_RAVEN_VETERAN_COMMANDER
 bool CX2GURaven::_CanOverheat( bool bShowMassage/*= true*/ )
@@ -23603,25 +23659,77 @@ void CX2GURaven::DeleteMinorParticle()
 /// RVC_DASH_JUMP_COMBO_X
 void CX2GURaven::RVC_DASH_JUMP_COMBO_X_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c27250
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
 	XSkinMeshReadyInBackground( L"Hand_FireImpact01.X" );
 #else	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
 	XSkinMeshReady( L"Hand_FireImpact01.X" );
 #endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
+	XSkinMeshReadyInBackground( L"Hand_FireImpact01.X" );
+#else	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
+	XSkinMeshReady( L"Hand_FireImpact01.X" );
+#endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_X_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c42400
+	m_iRVCComboLoopCount		= 1;
+
+	m_DamageData.attackerType	= CX2DamageManager::AT_MANUAL_COLLISION_DATA;
+	m_DamageData.bCanRevenge	= false;
+
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	m_iRVCComboLoopCount		= 1;	//첫 발사 카운트
 
 	m_DamageData.attackerType	= CX2DamageManager::AT_MANUAL_COLLISION_DATA;
 	m_DamageData.bCanRevenge	= false;
 
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_X_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c35d30
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			m_PhysicParam.nowSpeed.x = m_PhysicParam.GetWalkSpeed();
+		}
+		else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
+		{
+			m_PhysicParam.nowSpeed.x = m_PhysicParam.GetWalkSpeed();
+		}
+
+		if( m_InputData.pureDown == true )
+		{
+			m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime;
+		}
+	}
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() > 0.21f && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.7f )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() >= 0.26f && m_pXSkinAnimFuture->GetNowAnimationTime() < 0.29f )
+		{
+			m_PhysicParam.nowSpeed.y = 700.0f;
+		}
+		else
+		{
+			if( m_PhysicParam.nowSpeed.y < 0.0f )
+				m_PhysicParam.nowSpeed.y = 0.0f;
+		}
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )		/// 애니메이션 종료 후에는 마지막 모션 그대로 떨어진다.
 	{
 		if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
@@ -23652,10 +23760,47 @@ void CX2GURaven::RVC_DASH_JUMP_COMBO_X_FrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_X_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c4c530
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.26f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.26f ) && EventCheck( 0.26f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 vDir = GetRotateDegree();
+		D3DXVECTOR3 vPos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01_L_Hand" );
+
+		vDir.z -= 45.f;
+
+		if( FlushMp( 10.0f ) == true )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Raven_Dash_Jump_Fire", (CX2GameUnit*)this, (CX2GameUnit*)this );
+
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_DASH_JUMP_X_BULLET",
+				GetPowerRate(), vPos, vDir, vDir, m_FrameDataNow.unitCondition.landPosition.y );
+
+			g_pX2Game->GetX2Camera()->GetCamera().UpDownCrashCamera( 10.0f, 0.2f );
+		}
+		else
+		{
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleCommonMajorParticleByEnum( COMMON_MAJOR_PII_MAGIC_FAIL ) );
+			if( pSeq != NULL )
+			{
+				PlaySequenceByTriggerCount( pSeq, vPos, 100, 100, 1 );
+				pSeq->SetAxisAngle( vDir );
+				pSeq->SetAddRotate( vDir );
+			}
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.26f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -23692,10 +23837,36 @@ void CX2GURaven::RVC_DASH_JUMP_COMBO_X_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_X_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c35e20: the end in the air goes to JUMP_DOWN ( March: no state change )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0])
+		{
+			StateChange( RVC_DASH_JUMP_COMBO_XX_START );
+		}
+		else if( true == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+	}
+	else if( true == m_InputData.oneX )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	SKILL_CANCEL_AFTER_FLY( m_fSkillCancelAfterFly )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( m_FrameDataFuture.stateParam.bEventFlagList[0])
@@ -23714,29 +23885,68 @@ void CX2GURaven::RVC_DASH_JUMP_COMBO_X_EventProcess()
 	SKILL_CANCEL_AFTER_FLY( m_fSkillCancelAfterFly )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 /// RVC_DASH_JUMP_COMBO_XX_START
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c27270
 	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c27280
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c27290
 	if( m_PhysicParam.nowSpeed.y < 0.0f )
 		m_PhysicParam.nowSpeed.y = 0.0f;
 
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	if( m_PhysicParam.nowSpeed.y < 0.0f )
+		m_PhysicParam.nowSpeed.y = 0.0f;
+
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5a7f0
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && true == _CanOverheat( true ) )
+		{
+			StateChange( RVC_DASH_JUMP_COMBO_XX_LOOP );
+		}
+		else
+		{
+			StateChange( RVC_DASH_JUMP_COMBO_XX_FINISH );
+		}
+	}
+	else if( true == m_InputData.oneX )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && true == _CanOverheat() )
@@ -23756,6 +23966,7 @@ void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_StateEnd()
 {
@@ -23765,13 +23976,52 @@ void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_StateEnd()
 /// RVC_DASH_JUMP_COMBO_XX_LOOP
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c424b0
+	++m_iRVCComboLoopCount;
+
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	++m_iRVCComboLoopCount;	/// 발사 카운트 증가
 
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c61580: the burn and the setter take one argument each
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.006f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.006f ) && EventCheck( 0.006f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 vDir = GetRotateDegree();
+		D3DXVECTOR3 vPos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01_L_Hand" );
+
+		vDir.z -= 42.5f;
+		vDir.z += ( ( 0.7f - RandomFloat( 1.5f ) ) * 10.f );
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_DASH_JUMP_X_BULLET_LOOP",
+											GetPowerRate(), vPos, vDir, vDir, m_FrameDataNow.unitCondition.landPosition.y );
+
+		CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_DASH_JUMP_Xloop_BULLET_HIT",
+											GetPowerRate(), vPos, vDir, vDir, m_FrameDataNow.unitCondition.landPosition.y );
+
+		if( NULL != pEffect )
+		{
+			_BurnOverheatHP( pEffect->GetDamageData() );
+
+			_SetOverheat( true );
+
+			g_pX2Game->GetDamageEffect()->DestroyInstanceSilently( pEffect );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.006f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -23804,15 +24054,47 @@ void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c272d0
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5a860
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && true == _CanOverheat( true ) )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+
+			if( m_iRVCComboLoopCount >= _CONST_RAVEN_::MAX_DASH_JUMP_COMBO_XX_LOOP_COUNT )
+				StateChange( RVC_DASH_JUMP_COMBO_XX_FINISH );
+			else
+				StateChange( RVC_DASH_JUMP_COMBO_XX_LOOP );
+		}
+		else
+		{
+			StateChange( RVC_DASH_JUMP_COMBO_XX_FINISH );
+		}
+	}
+	else if( true == m_InputData.oneX )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	SKILL_CANCEL_AFTER_FLY( m_fSkillCancelAfterFly )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		/// 키 입력을 받았고, 오버 히트 가능한 상태일 때 발동
@@ -23837,6 +24119,7 @@ void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_EventProcess()
 	SKILL_CANCEL_AFTER_FLY( m_fSkillCancelAfterFly )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_StateEnd()
 {
@@ -23846,13 +24129,40 @@ void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_StateEnd()
 /// RVC_DASH_JUMP_COMBO_XX_FINISH
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c42550
+	++m_iRVCComboLoopCount;
+
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	++m_iRVCComboLoopCount;	/// 발사 카운트 증가
 
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c4c910
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnim->EventTimerOneshot( 0.025f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.025f ) && EventCheck( 0.025f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		D3DXVECTOR3 vDir = GetRotateDegree();
+		D3DXVECTOR3 vPos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01_L_Hand" );
+
+		vDir.z -= 45.f;
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_DASH_JUMP_X_BULLET", GetPowerRate(), vPos, vDir, vDir, m_FrameDataNow.unitCondition.landPosition.y );
+
+		g_pX2Game->GetX2Camera()->GetCamera().UpDownCrashCamera( 10.0f, 0.2f );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.025f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -23872,10 +24182,43 @@ void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c35ed0
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnimFuture->EventTimerOneshot( 0.03f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnimFuture->EventTimer( 0.03f ) == true && EventCheck( 0.03f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		m_PhysicParam.nowSpeed.x = -800.0f;
+		m_PhysicParam.nowSpeed.y = 1200.0f;
+	}
+
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			m_PhysicParam.nowSpeed.x = m_PhysicParam.GetWalkSpeed();
+		}
+		else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
+		{
+			m_PhysicParam.nowSpeed.x = m_PhysicParam.GetWalkSpeed();
+		}
+
+		if( m_InputData.pureDown == true )
+		{
+			m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime;
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+		}
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnimFuture->EventTimerOneshot( 0.03f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -23905,10 +24248,28 @@ void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_FrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c35f90: the end in the air goes to JUMP_DOWN ( March: no state change )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( true == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_LANDING );
+		}
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+		}
+	}
+	SKILL_CANCEL_AFTER_FLY( m_fSkillCancelAfterFly )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( true == IsOnSomethingFuture() )
@@ -23919,24 +24280,91 @@ void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_EventProcess()
 	SKILL_CANCEL_AFTER_FLY( m_fSkillCancelAfterFly )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c425f0
 	m_iRVCComboLoopCount = 0;
 
 	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	m_iRVCComboLoopCount = 0;
+
+	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+/// RVC_DASH_COMBO_ZZ
+void CX2GURaven::RVC_DASH_COMBO_ZZ_EventProcess()
+{
+	// June 32c36020: end -> WAIT, the cancel chain, a fall, then the Z key ( before 0.43 s of the state ) -> Z-Z-Z for classes 25 / 115
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	else if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	RAVEN_ELSE_IF_FLAG_STATE_CHANGE( 1, 0.43f, RVC_DASH_COMBO_ZZZ )
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() < 100.f && true == m_InputData.oneZ &&
+		( true == IsDataClass( GetUnit(), CX2Unit::UC_RAVEN_VETERAN_COMMANDER ) || true == IsDataClass( GetUnit(), CX2Unit::UC_RAVEN_WEAPON_TAKER ) ) )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+	}
+
+	CommonEventProcess();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 /// RVC_DASH_COMBO_ZZZ
 void CX2GURaven::RVC_DASH_COMBO_ZZZ_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c36420
+	CommonStateStart();
+
+	SetNoDetonation( true );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStart();
 
 	SetNoDetonation( true );		/// 기폭 사용 제한
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_COMBO_ZZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c36440: the cancel chain comes before the end test
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+    if( m_pXSkinAnimFuture->EventTimerOneshot( 0.501f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnimFuture->EventTimer( 0.501f ) == true && EventCheck( 0.501f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		if( true == m_InputData.pureZ )
+			StateChange( RVC_DASH_COMBO_ZZZPushZ_READY );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnimFuture->EventTimerOneshot( 0.501f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -23953,43 +24381,110 @@ void CX2GURaven::RVC_DASH_COMBO_ZZZ_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_COMBO_ZZZ_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c36790
 	SetNoDetonation( false );
 
 	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	SetNoDetonation( false );
+
+	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 /// RVC_DASH_COMBO_ZZZ
 void CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_READY_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c367b0
+	CommonStateStart();
+
+	SetNoDetonation( true );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStart();
 
 	SetNoDetonation( true );		/// 기폭 사용 제한
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_READY_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c367d0: the cancel chain follows the end test
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( RVC_DASH_COMBO_ZZZPushZ );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		StateChange( RVC_DASH_COMBO_ZZZPushZ );
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_READY_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c36ad0
 	SetNoDetonation( false );
 
 	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	SetNoDetonation( false );
+
+	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 /// RVC_DASH_COMBO_ZZZPushZ
 void CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5a940: the setter takes one argument
+	CommonStateStart();
+
+	SetNoDetonation( true );
+
+	m_iRVCComboLoopCount = 0;
+
+	m_bEndFrameThrow	 = false;
+
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+    if ( m_hEffectFrameThrow != INVALID_DAMAGE_EFFECT_HANDLE )
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	if( NULL !=m_pEffectFrameThrow )
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	{
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+        g_pX2Game->GetDamageEffect()->DestroyInstanceHandleSilently( m_hEffectFrameThrow );
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+		g_pX2Game->GetDamageEffect()->DestroyInstanceSilently( m_pEffectFrameThrow );
+		m_pEffectFrameThrow = NULL;
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+
+	}
+
+	if( true == _CanOverheat( true ) )
+		_SetOverheat( true );
+	else
+		m_bEndFrameThrow = true;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CommonStateStart();
 
 	SetNoDetonation( true );		/// 기폭 사용 제한
@@ -24017,10 +24512,78 @@ void CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_StateStart()
 		_SetOverheat( true, 5.f );	
 	else
 		m_bEndFrameThrow = true;			/// 화염 방사 종료
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c619e0: the burn and the setter take one argument each
+	int fCheckTime = static_cast<int>( m_pXSkinAnim->GetNowAnimationTime() / 0.2f );
+
+	if( fCheckTime >= m_iRVCComboLoopCount )
+	{
+		if( 0 == m_iRVCComboLoopCount )
+		{
+			if( true == m_bEndFrameThrow )
+				return;
+
+			D3DXVECTOR3 vDir = GetRotateDegree();
+			D3DXVECTOR3 vPos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01_L_Hand" );
+
+			if( GetIsRight() == true )
+				vPos += 30.0f * m_FrameDataNow.unitCondition.dirVector;
+			else
+				vPos -= 30.0f * m_FrameDataNow.unitCondition.dirVector;
+
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+            if ( m_hEffectFrameThrow == INVALID_DAMAGE_EFFECT_HANDLE )
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+			if( NULL == m_pEffectFrameThrow )
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+			{
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+                CX2DamageEffect::CEffect*
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+				m_pEffectFrameThrow = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_RVC_FRAME_THROW",
+					GetPowerRate(), vPos, vDir, vDir, m_FrameDataNow.unitCondition.landPosition.y );
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+                m_hEffectFrameThrow = ( m_pEffectFrameThrow != NULL ) ? m_pEffectFrameThrow->GetHandle() : INVALID_DAMAGE_EFFECT_HANDLE;
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+			}
+		}
+
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+		if( m_hEffectFrameThrow != INVALID_DAMAGE_EFFECT_HANDLE )
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+		if( NULL != m_pEffectFrameThrow )
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+		{
+			CX2DamageEffect::CEffect* pCEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_RVC_FRAME_THROW_OVERHEAT_PENALTY",
+												 GetPowerRate(), GetPos(), GetRotateDegree(), GetRotateDegree() );
+
+			if( NULL != pCEffect )
+			{
+				_BurnOverheatHP( pCEffect->GetDamageData() );
+
+				g_pX2Game->GetDamageEffect()->DestroyInstanceSilently( pCEffect );
+			}
+
+			_SetOverheat( true );
+		}
+
+		++m_iRVCComboLoopCount;
+	}
+
+#ifdef BALANCE_PATCH_20131107
+	if( false == m_bEndFrameThrow && _CONST_RAVEN_::MAX_DASH_COMBO_ZZZPushZ_LOOP_COUNT < m_iRVCComboLoopCount )
+#else // BALANCE_PATCH_20131107
+	if( false == m_bEndFrameThrow && 10 < m_iRVCComboLoopCount )
+#endif // BALANCE_PATCH_20131107
+		m_bEndFrameThrow = true;
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	int fCheckTime = static_cast<int>( m_pXSkinAnim->GetNowAnimationTime() / 0.2f );
 
 	if( fCheckTime >= m_iRVCComboLoopCount )		/// 0.2초 마다 발생
@@ -24088,10 +24651,38 @@ void CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_FrameMove()
 		m_bEndFrameThrow = true;		/// 화염 방사 종료
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5ac10: the cancel chain is the end test's else branch ( skill, back-walk, walk, dash, Z / X; each on a line )
+	if( 0.3f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if( false == m_InputData.pureZ )
+			StateChange( RVC_DASH_COMBO_ZZZZ_FINISH );
+	}
+
+	if( false == _CanOverheat( false ) || true == m_bEndFrameThrow )
+		StateChange( RVC_DASH_COMBO_ZZZZ_FINISH );
+	else if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		m_bEndFrameThrow = false;
+
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( RVC_DASH_COMBO_ZZZZ_FINISH );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( 0.3f < m_pXSkinAnimFuture->GetNowAnimationTime() )
 	{
 		if( false == m_InputData.pureZ )						/// z키를 떼면 정지
@@ -24114,10 +24705,35 @@ void CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_EventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c4cac0
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+    if ( m_hEffectFrameThrow != INVALID_DAMAGE_EFFECT_HANDLE )
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	if( NULL != m_pEffectFrameThrow && true == g_pX2Game->GetDamageEffect()->IsLiveInstance( m_pEffectFrameThrow ) )
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	{
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hEffectFrameThrow );
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+		g_pX2Game->GetDamageEffect()->DestroyInstance( m_pEffectFrameThrow );
+        m_pEffectFrameThrow = NULL;
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+
+		m_bEndFrameThrow	= false;
+	}
+
+	m_iRVCComboLoopCount = 0;
+
+	SetNoDetonation( false );
+
+	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	/// 해당 State 종료시 화염 방사 이펙트 소멸 설정
 #ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
     if ( m_hEffectFrameThrow != INVALID_DAMAGE_EFFECT_HANDLE )
@@ -24140,10 +24756,28 @@ void CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_StateEnd()
 	SetNoDetonation( false );
 
 	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RVC_DASH_COMBO_ZZZZ_FINISH_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c36af0: the cancel chain is the end test's else branch ( skill, back-walk, walk, dash, Z / X; each on a line )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -24156,6 +24790,7 @@ void CX2GURaven::RVC_DASH_COMBO_ZZZZ_FINISH_EventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 /// 레이븐 2차 전직 베테랑 커맨더 - 데들리 레이드
@@ -25690,6 +26325,63 @@ void CX2GURaven::RVC_SI_A_BLEEDING_SLICER_AIR_StateEnd()
 
 void CX2GURaven::CreateOverHeatObject()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c4dfe0
+	if( CX2Unit::UC_RAVEN_VETERAN_COMMANDER == GetUnitClass() )
+	{
+		if( INVALID_MESH_INSTANCE_HANDLE != m_hOverHeatObject )
+			return;
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this, L"RVC_OverHeat_Object_Start", GetPos(), GetRotateDegree(), GetRotateDegree() );
+
+		if( pMeshInst != NULL )
+		{
+			m_hOverHeatObject = pMeshInst->GetHandle();
+			pMeshInst->SetBoundingRadius( 0.0f );
+
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_L_Forearm" );
+			pMeshInst->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+			pMeshInst->OnFrameMove( g_pKTDXApp->GetTime(), 0.01f );
+
+			PlaySound( L"WT_XXXXX_3.ogg" );
+		}
+	}
+
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+    if ( INVALID_DAMAGE_EFFECT_HANDLE == m_hEffectOverHeatFire1 )
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	if( NULL == m_pEffectOverHeatFire1 )
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	{
+		D3DXVECTOR3 vPos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01_L_Forearm" );
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+        CX2DamageEffect::CEffect*
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+		m_pEffectOverHeatFire1 = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_OVERHEAT_EFFECT",
+			GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+        m_hEffectOverHeatFire1 = ( m_pEffectOverHeatFire1 != NULL ) ? m_pEffectOverHeatFire1->GetHandle() : INVALID_DAMAGE_EFFECT_HANDLE;
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	}
+
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+    if ( INVALID_DAMAGE_EFFECT_HANDLE == m_hEffectOverHeatFire2 )
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	if( NULL == m_pEffectOverHeatFire2 )
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	{
+		D3DXVECTOR3 vPos = m_pXSkinAnim->GetCloneFramePosition( L"Bip01_L_Hand" );
+
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+        CX2DamageEffect::CEffect*
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+		m_pEffectOverHeatFire2 = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_OVERHEAT_EFFECT",
+			GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+        m_hEffectOverHeatFire2 = ( m_pEffectOverHeatFire2 != NULL ) ? m_pEffectOverHeatFire2->GetHandle() : INVALID_DAMAGE_EFFECT_HANDLE;
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( CX2Unit::UC_RAVEN_VETERAN_COMMANDER == GetUnitClass() )		/// 베테랑 커맨더만 구조물 생성
 	{
 		if( INVALID_MESH_INSTANCE_HANDLE != m_hOverHeatObject )		/// 이미 생성되어 있다면 중복 생성하지 않는다.
@@ -25746,9 +26438,46 @@ void CX2GURaven::CreateOverHeatObject()
         m_hEffectOverHeatFire2 = ( m_pEffectOverHeatFire2 != NULL ) ? m_pEffectOverHeatFire2->GetHandle() : INVALID_DAMAGE_EFFECT_HANDLE;
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 void CX2GURaven::DeleteOverHeatObject()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c4e3c0
+	if( CX2Unit::UC_RAVEN_VETERAN_COMMANDER == GetUnitClass() )
+	{
+		if( INVALID_MESH_INSTANCE_HANDLE != m_hOverHeatObject )
+			g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_hOverHeatObject );
+
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this, L"RVC_OverHeat_Object_End", GetPos(), GetRotateDegree(), GetRotateDegree() );
+
+		if( pMeshInst != NULL )
+		{
+			m_hOverHeatObject = pMeshInst->GetHandle();
+			pMeshInst->SetBoundingRadius( 0.0f );
+
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_L_Forearm" );
+			pMeshInst->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+			pMeshInst->OnFrameMove( g_pKTDXApp->GetTime(), 0.01f );
+
+			PlaySound( L"WT_ZZZXX_2.ogg" );
+		}
+	}
+
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	if( INVALID_DAMAGE_EFFECT_HANDLE != m_hEffectOverHeatFire1 )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hEffectOverHeatFire1 );
+	if( INVALID_DAMAGE_EFFECT_HANDLE != m_hEffectOverHeatFire2 )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hEffectOverHeatFire2 );
+#else   X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+	if( NULL != m_pEffectOverHeatFire1 )
+		g_pX2Game->GetDamageEffect()->DestroyInstance( m_pEffectOverHeatFire1 );
+	if( NULL != m_pEffectOverHeatFire2 )
+		g_pX2Game->GetDamageEffect()->DestroyInstance( m_pEffectOverHeatFire2 );
+    m_pEffectOverHeatFire1 = NULL;
+    m_pEffectOverHeatFire2 = NULL;
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( CX2Unit::UC_RAVEN_VETERAN_COMMANDER == GetUnitClass() )		/// 베테랑 커맨더만 구조물 생성
 	{
 		if( INVALID_MESH_INSTANCE_HANDLE != m_hOverHeatObject )
@@ -25782,6 +26511,7 @@ void CX2GURaven::DeleteOverHeatObject()
     m_pEffectOverHeatFire1 = NULL;
     m_pEffectOverHeatFire2 = NULL;
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 #endif SERV_RAVEN_VETERAN_COMMANDER
 

@@ -7883,9 +7883,9 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c68ff0	CX2GURaven::SetFullHyperMode (vslot 0xa0, uncarved)	confirmed	Char Raven CH0: writes byte +0x97c8 (X2GURaven.h:484); CH1h
 32c3c7f0	none in March: CX2GURaven vslot 0x73c (1.0 + protected float +0x95b8, MP rate on damage react)	candidate	Char Raven CH0: uncarved; only engine caller DamageReact; CH4a (7an)
 32c3c820	none in March: CX2GURaven vslot 0x748 GetIncreaseSoulRateOnDamageReact (1.0 + protected float +0x95c4)	candidate	Char Raven CH0: uncarved; base hook ported by Chung CH4b; CH4a (7an)
-32c4dfe0	CX2GURaven::CreateOverHeatObject	candidate	Char Raven CH0: March X2GURaven.cpp:21337; 13 callers (March _SetOverheat inlined); CH1g2 (char_raven/ch0_overheat.tsv)
-32c4e3c0	CX2GURaven::DeleteOverHeatObject	candidate	Char Raven CH0: sole caller CommonFrameMove 32c55240; CH1g2
-32c4add0	CX2GURaven::_ShowOverheatIcon	candidate	Char Raven CH0: Overlap_EDT_Emoticon_*_OverHeat / WeaponTaker_Overheat particles; callers RWT / RVC skill states; CH1g2
+32c4dfe0	CX2GURaven::CreateOverHeatObject	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c4e3c0	CX2GURaven::DeleteOverHeatObject	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c4add0	CX2GURaven::_ShowOverheatIcon	PORTED	Char Raven CH1g2: inside; = March; _LIVE
 32e6d890	CX2RavenMyGageUI::CX2RavenMyGageUI	candidate	Char Raven CH0: RTTI vtable 3353348c; no direct caller found (the X2GageManager.cpp:167-176 creation site is unlocated); CH1q
 32e72790	CX2RavenMyGageUI::~CX2RavenMyGageUI	candidate	Char Raven CH0: vtable 3353348c; CH1q
 32e6d6a0	CX2RavenMyGageUI::InitWakeOrb	candidate	Char Raven CH0: March X2GageUI.cpp:3078-3141; CH1q
@@ -8115,3 +8115,33 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c5b740	CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_EventProcess	PORTED	Char Raven CH1g: inside; fall, end -> WAIT, ground chain, then 0.66 s loop branch; _LIVE
 32c5fd90	CX2GURaven::_BurnOverheatHP	PORTED	Char Raven CH1g: inside _BurnOverheatHP; one argument, PvP-or-PvE penalty, HP limit clamp; CH0 had it as a new helper; _LIVE
 32c60230	CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_LOOP_FrameMove	PORTED	Char Raven CH1g: inside; _BurnOverheatHP( dmg ) without rate arguments; _LIVE
+32c27250	CX2GURaven::RVC_DASH_JUMP_COMBO_X_Init	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c27270	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_StateStart	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c27280	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_FrameMove	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c27290	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_FrameMoveFuture	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c272d0	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_FrameMoveFuture	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c35d30	CX2GURaven::RVC_DASH_JUMP_COMBO_X_FrameMoveFuture	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c35e20	CX2GURaven::RVC_DASH_JUMP_COMBO_X_EventProcess	PORTED	Char Raven CH1g2: inside; the end in the air goes to JUMP_DOWN; _LIVE
+32c35ed0	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_FrameMoveFuture	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c35f90	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_EventProcess	PORTED	Char Raven CH1g2: inside; the end in the air goes to JUMP_DOWN; _LIVE
+32c36020	CX2GURaven::RVC_DASH_COMBO_ZZ_EventProcess	PORTED	Char Raven CH1g2: new; end -> WAIT, cancel chain, fall, Z-Z-Z follow-up; plain name, not registered (CH1m); _CORE
+32c36420	CX2GURaven::RVC_DASH_COMBO_ZZZ_StateStart	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c36440	CX2GURaven::RVC_DASH_COMBO_ZZZ_EventProcess	PORTED	Char Raven CH1g2: inside; cancel chain (skill, back-walk, walk, dash, Z / X) before the end test; _LIVE
+32c36790	CX2GURaven::RVC_DASH_COMBO_ZZZ_StateEnd	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c367b0	CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_READY_StateStart	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c367d0	CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_READY_EventProcess	PORTED	Char Raven CH1g2: inside; cancel chain after the end test; _LIVE
+32c36ad0	CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_READY_StateEnd	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c36af0	CX2GURaven::RVC_DASH_COMBO_ZZZZ_FINISH_EventProcess	PORTED	Char Raven CH1g2: inside; cancel chain (skill, back-walk, walk, dash, Z / X) after the end test; _LIVE
+32c42400	CX2GURaven::RVC_DASH_JUMP_COMBO_X_Start	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c424b0	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_StateStart	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c42550	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_StateStart	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c425f0	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_StateEnd	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c4c530	CX2GURaven::RVC_DASH_JUMP_COMBO_X_FrameMove	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c4c910	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_FINISH_FrameMove	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c4cac0	CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_StateEnd	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c5a7f0	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_START_EventProcess	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c5a860	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_EventProcess	PORTED	Char Raven CH1g2: inside; = March; _LIVE
+32c5a940	CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_StateStart	PORTED	Char Raven CH1g2: inside; one-argument _SetOverheat; _LIVE
+32c5ac10	CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_EventProcess	PORTED	Char Raven CH1g2: inside; cancel chain (skill, back-walk, walk, dash, Z / X) after the end test; _LIVE
+32c61580	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_FrameMove	PORTED	Char Raven CH1g2: inside; one-argument _BurnOverheatHP and _SetOverheat; _LIVE
+32c619e0	CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_FrameMove	PORTED	Char Raven CH1g2: inside; one-argument _BurnOverheatHP and _SetOverheat; _LIVE
