@@ -358,6 +358,11 @@ frameBufferNum, pUnit )
 	m_fGuardianStrikeRenderTime = -1.f;		// @32c4015e
 	m_clockLastNasodBallAttack = clock();		// @32c40164
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+	m_iSurelyVictoryHitCount = 0;		// @32c3ed6a
+	m_fMpGainRateOnDamageReact = 0.f;		// @32c3f106
+	m_fSoulGainRateOnDamageReact = 0.f;		// @32c3f2d6
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	m_fLimitOverHeatHP = 0.25f;		/// June @32c408fd ( March 0.1f )
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
@@ -3725,8 +3730,298 @@ void CX2GURaven::InitStateWeaponTaker()
 }
 #endif RAVEN_WEAPON_TAKER
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+namespace _CONST_RAVEN_CH4A_
+{
+	/// June's rate - 1.0 + 5e-8 ( 334355b0 / 3346ed68 ); March's CalculateIncreasingRate adds 5e-5
+	inline float GetIncreasingRate( const float fRate_ ) { return static_cast<float>( fRate_ - 1.0 + 5e-8 ); }
+	const int DAMAGE_TYPE_CHANGE_TO_PHYSIC = 1;		/// SA_DAMAGE_TYPE_CHANGE data value ( no enum ), as March
+	const int DAMAGE_TYPE_CHANGE_TO_MAGIC = 2;
+	const int SURELY_VICTORY_HITS_PER_BUFF = 5;		/// June 32c3df50: 4 < count
+	const float REVERSAL_SOLDIER_HP_RATE = 0.5f;		/// June 32c4e5b0 ( 3342ebc8 )
+}
+using namespace _CONST_RAVEN_CH4A_;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 /*virtual*/ void CX2GURaven::InitPassiveSkillState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+	/// June 32c57660 ( vslot 0x690 )
+	CX2GUUser::InitPassiveSkillState();
+
+	const CX2SkillTree* const pSkillTree = g_pData->GetSkillTree();
+	if ( NULL == pSkillTree )
+		return;
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = NULL;
+
+	m_fChangeDamageRelRaven = 1.f;
+	m_bEnableShadowStepThrust = false;
+	m_bBurningNasodHandLearned = false;
+	m_eDamageTypeRaven = CX2DamageManager::DT_PHYSIC;
+	int iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ROT_BURNING_NASOD_HAND, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		m_bBurningNasodHandLearned = true;
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ROT_BURNING_NASOD_HAND );
+		if ( NULL != pSkillTemplet )
+		{
+			switch ( static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_TYPE_CHANGE, iSkillLevel ) ) )
+			{
+			case DAMAGE_TYPE_CHANGE_TO_PHYSIC:
+				m_eDamageTypeRaven = CX2DamageManager::DT_PHYSIC;
+				break;
+			case DAMAGE_TYPE_CHANGE_TO_MAGIC:
+				m_eDamageTypeRaven = CX2DamageManager::DT_MAGIC;
+				break;
+			default:
+				break;
+			}
+			m_fChangeDamageRelRaven = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel );
+		}
+	}
+
+	SetDelegateProcessToHitCreateDamageEffect( DelegateProcess() );
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RRF_EXPLOSIVE_NASOD_HAND, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RRF_EXPLOSIVE_NASOD_HAND );
+		if ( NULL != pSkillTemplet )
+		{
+			SetHitCreateDamageEffectRate( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel ) );	// June never resets it when unlearned ( JUNE_BUGS )
+			SetHitCreateDamageEffectPowerRate( pSkillTemplet->GetSkillPowerRateValue( iSkillLevel ) );
+			SetDelegateProcessToHitCreateDamageEffect( SET_DELEGATE_PROCESS( CX2GURaven, ApplyBuffToExplosiveNasodHand ) );
+		}
+	}
+
+	m_fMpGainRateOnDamageReact = 0.f;
+	m_fSoulGainRateOnDamageReact = 0.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RFF_HARDEN_BODY, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RFF_HARDEN_BODY );
+		if ( NULL != pSkillTemplet )
+		{
+			m_AdditionalFinalDefenceMultiplier.SetPassiveMultiple( m_AdditionalFinalDefenceMultiplier.GetPassiveMultiple() * pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGED_REL, iSkillLevel ) );
+			m_fMpGainRateOnDamageReact = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_GAIN_GET_HIT_REL, iSkillLevel );
+			m_fSoulGainRateOnDamageReact = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SOUL_ABS, iSkillLevel );
+		}
+	}
+
+	SetCanChangeHyperModeInHyperModeState( 0 < userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RRF_SPIRITUALIZED_FURY, true, 0, true ) );
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RST_EXQUISITE_SWORDMANSHIP, true, 0, true );
+	if ( iSkillLevel < 1 )
+	{
+		SetAddAnimSpeedFactor( 0.f );
+	}
+	else
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RST_EXQUISITE_SWORDMANSHIP );
+		if ( NULL != pSkillTemplet )
+			SetAddAnimSpeedFactor( GetIncreasingRate( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, iSkillLevel ) ) );
+	}
+
+	m_fPassiveCriticalRateRaven = 0.f;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RBM_BLADE_MASTERY, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RBM_BLADE_MASTERY );
+		if ( NULL != pSkillTemplet )
+			m_fPassiveCriticalRateRaven = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ATK_CRITICAL_RATE_ABS, iSkillLevel );
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RBM_SURELY_VICTORY, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RBM_SURELY_VICTORY );
+		if ( NULL != pSkillTemplet && false == pSkillTemplet->m_vecBuffFactorPtr.empty() )
+			InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GURaven, AddHitToSurelyVictory ) );
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RBM_EMERGENCY_ESCAPE, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RBM_EMERGENCY_ESCAPE );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fEmergencyEscapeCoolTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, iSkillLevel );
+			m_fEmergencyEscapeElapsedTime = m_fEmergencyEscapeCoolTime;
+
+			UserUnitStateData stateData;
+			stateData.Init();
+			stateData.m_SPLevel			= 1;
+			stateData.stateID			= RSI_SHADOW_STEP;
+			m_LuaManager.MakeTableReference( "RSI_SI_A_RF_SHADOW_STEP", stateData.stateID );
+			stateData.StateInit			= SET_CB_FUNC( CX2GURaven, RSI_SI_A_RF_SHADOW_STEP_Init );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GURaven, RSI_SI_A_RF_SHADOW_STEP_PASSIVE_StartFuture );
+			stateData.StateStart		= SET_CB_FUNC( CX2GURaven, RSI_SI_A_RF_SHADOW_STEP_Start );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_SI_A_RF_SHADOW_STEP_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SI_A_RF_SHADOW_STEP_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GURaven, RSI_SI_A_RF_SHADOW_STEP_End );
+			m_StateList[stateData.stateID] = stateData;
+		}
+	}
+
+	m_fOverheatDamageRate = 1.f;
+	m_fOverheatDamageLimitedRate = 0.f;
+	pSkillTemplet = userSkillTree.GetUserSkillTemplet( CX2SkillTree::RNSI_P_RWT_BEHAVIOR_OF_MERCENARY, true );
+	if ( NULL != pSkillTemplet )
+	{
+		const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet->m_eID, true, 0, true ) );
+		const bool bPvpOrPve = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );	// stand-in: no game counts as not PvP ( June reads it unchecked )
+		m_fOverheatDamageRate = pSkillTemplet->GetSkillAbilityValue( true == bPvpOrPve ? CX2SkillTree::SA_OVERHEAT_HP_PVP : CX2SkillTree::SA_OVERHEAT_HP, iSkillTempletLevel );
+		m_fOverheatDamageLimitedRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGED_REL, iSkillTempletLevel );
+	}
+
+	m_fReduceEDTDurationRate = 1.f;
+	m_fLimitOverHeatHP = _CONST_RAVEN_::OVERHEAT_HP_LIMIT;	// June 3350f8c0
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fLimitOverHeatHP = min( m_fLimitOverHeatHP, _CONST_RAVEN_::OVERHEAT_HP_LIMIT * pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_OVERHEAT_HP, iSkillLevel ) );	// June 33437830
+			m_fReduceEDTDurationRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_REDUCE_EDT_TIME_REL, iSkillLevel );
+		}
+	}
+
+	const int iReversalSoldierLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RVC_REVERSAL_SOLDIER, true, 0, true );
+	if ( 0 < iReversalSoldierLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RVC_REVERSAL_SOLDIER );
+		if ( NULL != pSkillTemplet )
+		{
+			const float fForceDownRate = GetIncreasingRate( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_REL, iReversalSoldierLevel ) );
+			m_SkillRelatedData.SetForceDownValueRateOfMeleeAttack( m_SkillRelatedData.GetForceDownValueRateOfMeleeAttack() + fForceDownRate );
+			m_SkillRelatedData.SetForceDownValueRateOfRangeAttack( m_SkillRelatedData.GetForceDownValueRateOfRangeAttack() + fForceDownRate );
+		}
+	}
+
+	m_bEnableSurvivalTechniqueOfMercenary = ( 0 < userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RVC_SURVIVAL_TECHNIQUE_OF_MERCENARY, true, 0, true ) );
+	if ( 0 < iReversalSoldierLevel || true == m_bEnableSurvivalTechniqueOfMercenary )
+		InsertDelegateProcessToCommonFrameMove( SET_DELEGATE_PROCESS( CX2GURaven, CheckAndDoReversalSoldierAndSurvivalTechnique ) );
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RRF_CONFIDENCE_VICTORY, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RRF_CONFIDENCE_VICTORY );
+		if ( NULL != pSkillTemplet )
+		{
+			const float fForceDownRate = GetIncreasingRate( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_REL, iSkillLevel ) );
+			m_SkillRelatedData.SetForceDownValueRateOfMeleeAttack( m_SkillRelatedData.GetForceDownValueRateOfMeleeAttack() + fForceDownRate );
+			m_SkillRelatedData.SetForceDownValueRateOfRangeAttack( m_SkillRelatedData.GetForceDownValueRateOfRangeAttack() + fForceDownRate );
+		}
+	}
+
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RBM_PRIDE_VICTORY, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RBM_PRIDE_VICTORY );
+		if ( NULL != pSkillTemplet )
+		{
+			const float fForceDownRate = GetIncreasingRate( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_REL, iSkillLevel ) );
+			m_SkillRelatedData.SetForceDownValueRateOfMeleeAttack( m_SkillRelatedData.GetForceDownValueRateOfMeleeAttack() + fForceDownRate );
+			m_SkillRelatedData.SetForceDownValueRateOfRangeAttack( m_SkillRelatedData.GetForceDownValueRateOfRangeAttack() + fForceDownRate );
+		}
+	}
+
+	m_fAddOverHeatBuffDurationTime = 0.f;
+	m_iAddOverHeatLevel = 0;
+	iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RVC_OVERHEAT_MODE, true, 0, true );
+	if ( 0 < iSkillLevel )
+	{
+		pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_RVC_OVERHEAT_MODE );
+		if ( NULL != pSkillTemplet )
+		{
+			m_iAddOverHeatLevel = iSkillLevel;
+			m_fAddOverHeatBuffDurationTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillLevel );
+		}
+	}
+
+	m_bEnableShadowStepThrustEnhance = false;
+	m_bEnableShadowBackSlide = false;
+	m_bEnableShadowStepThrust = false;
+	const CX2SkillTree::SKILL_ID eShadowStepID = userSkillTree.GetUpgradeSwappedSkillID( CX2SkillTree::RNSI_A_RF_SHADOW_STEP );
+	iSkillLevel = userSkillTree.GetSkillLevel( eShadowStepID, true, 0, true );
+	pSkillTemplet = pSkillTree->GetSkillTemplet( eShadowStepID );
+	if ( 0 < iSkillLevel && NULL != pSkillTemplet )
+	{
+		m_bEnableShadowStepThrust = true;
+		m_fMPConsumeShadowStepThrust = pSkillTemplet->GetSkillMPConsumptionValue( iSkillLevel );
+
+		UserUnitStateData stateData;
+		stateData.Init();
+		stateData.m_SPLevel			= 1;
+		stateData.stateID			= RSI_SHADOW_STEP_Z;
+		m_LuaManager.MakeTableReference( "RSI_SHADOW_STEP_Z", stateData.stateID );
+		stateData.StateInit			= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_STEP_Z_Init );
+		stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_STEP_Z_EventProcess );
+		m_StateList[stateData.stateID] = stateData;
+
+		m_bEnableShadowStepThrustEnhance = true;
+		m_fMPConsumeShadowStepThrust = pSkillTemplet->GetSkillMPConsumptionValue( iSkillLevel );
+
+		stateData.Init();
+		stateData.m_SPLevel			= 1;
+		stateData.stateID			= RSI_SHADOW_STEP_Z_UPGRADE;
+		m_LuaManager.MakeTableReference( "RSI_SHADOW_STEP_Z_UPGRADE", stateData.stateID );
+		stateData.StateInit			= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_STEP_Z_UPGRADE_Init );
+		stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_STEP_Z_UPGRADE_EventProcess );
+		m_StateList[stateData.stateID] = stateData;
+
+		m_bEnableShadowBackSlide = true;
+
+		stateData.Init();
+		stateData.m_SPLevel			= 1;
+		stateData.stateID			= RSI_SHADOW_BACK_SLIDE_UPGRADE;
+		m_LuaManager.MakeTableReference( "RSI_SHADOW_BACK_SLIDE_UPGRADE", stateData.stateID );
+		stateData.StateStartFuture	= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_BACK_SLIDE_UPGRADE_StateStartFuture );
+		stateData.StateStart		= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_BACK_SLIDE_UPGRADE_StateStart );
+		stateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_BACK_SLIDE_UPGRADE_FrameMove );
+		stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_BACK_SLIDE_UPGRADE_EventProcess );
+		stateData.StateEnd			= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_BACK_SLIDE_UPGRADE_StateEnd );
+		m_StateList[stateData.stateID] = stateData;
+
+		stateData.Init();	// June leaves this one's SP level at 0
+		stateData.stateID			= RSI_SHADOW_BACK_SLIDE_END_UPGRADE;
+		m_LuaManager.MakeTableReference( "RSI_SHADOW_BACK_SLIDE_END_UPGRADE", stateData.stateID );
+		stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_BACK_SLIDE_END_UPGRADE_FrameMoveFuture );
+		stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_BACK_SLIDE_END_UPGRADE_EventProcess );
+		m_StateList[stateData.stateID] = stateData;
+
+		m_bEnableShadowStepThrust = true;
+
+		stateData.Init();
+		stateData.m_SPLevel			= 1;
+		stateData.stateID			= RSI_SHADOW_STEP_X_UPGRADE;
+		m_LuaManager.MakeTableReference( "RSI_SHADOW_STEP_X_UPGRADE", stateData.stateID );
+		stateData.StateInit			= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_STEP_X_UPGRADE_Init );
+		stateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_STEP_X_UPGRADE_FrameMove );
+		stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SHADOW_STEP_X_UPGRADE_EventProcess );
+		m_StateList[stateData.stateID] = stateData;
+	}
+
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RBM_OPEN_MIND ) )
+	{
+		const float fMoveSpeed = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MOVE_SPEED, CX2SkillTree::RNSI_P_RBM_OPEN_MIND );
+		m_AdditionalWalkSpeed.SetPassiveMultiple( fMoveSpeed * m_AdditionalWalkSpeed.GetPassiveMultiple() );
+		m_AdditionalDashSpeed.SetPassiveMultiple( fMoveSpeed * m_AdditionalDashSpeed.GetPassiveMultiple() );
+	}
+
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_SA_RRF_X_CRASH ) )
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GURaven, CheckXCrashHit ) );
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN PASSIVE init unit %I64d class %d burning nasod hand %d type %d rel %.3f explosive rate %.3f mp on hit x%.3f soul on hit x%.3f crit %.3f escape cool %.1f overheat rate %.3f limited %.3f limit hp %.3f edt x%.3f survival %d reversal %d force down melee %.3f range %.3f overheat mode %d time %.1f shadow step chain %d walk x%.3f dash x%.3f",
+		GetUnitUID(), static_cast<int>( GetUnit()->GetClass() ), m_bBurningNasodHandLearned ? 1 : 0, static_cast<int>( m_eDamageTypeRaven ), m_fChangeDamageRelRaven,
+		GetHitCreateDamageEffectRate(), 1.f + m_fMpGainRateOnDamageReact, 1.f + m_fSoulGainRateOnDamageReact, m_fPassiveCriticalRateRaven, m_fEmergencyEscapeCoolTime,
+		m_fOverheatDamageRate, m_fOverheatDamageLimitedRate, m_fLimitOverHeatHP, m_fReduceEDTDurationRate, m_bEnableSurvivalTechniqueOfMercenary ? 1 : 0, iReversalSoldierLevel,
+		m_SkillRelatedData.GetForceDownValueRateOfMeleeAttack(), m_SkillRelatedData.GetForceDownValueRateOfRangeAttack(), m_iAddOverHeatLevel, m_fAddOverHeatBuffDurationTime,
+		m_bEnableShadowBackSlide ? 1 : 0, m_AdditionalWalkSpeed.GetPassiveMultiple(), m_AdditionalDashSpeed.GetPassiveMultiple() );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 	CX2GUUser::InitPassiveSkillState();
 
 
@@ -4249,6 +4544,7 @@ void CX2GURaven::InitStateWeaponTaker()
 		}
 	}
 #endif // UPGRADE_SKILL_SYSTEM_2013 // Raven 스킬 개편, 김종훈
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 
 
 
@@ -24694,15 +24990,15 @@ void CX2GURaven::SI_SA_RRF_X_CRASH_Init()
 void CX2GURaven::SI_SA_RRF_X_CRASH_StateStart()
 {
 	/// June 32c26c90
-	m_bXCrashMpRefunded = false;
+	m_bXCrashHit = false;
 
 	CommonStateStart();
 }
 
 void CX2GURaven::SI_SA_RRF_X_CRASH_FrameMove()
 {
-	/// June 32c331a0: nothing is drawn here; the upgrade gives back 30 % of its MP cost at 0.79 s ( the done flag is never set, JUNE_BUGS )
-	if( m_pXSkinAnimFuture->EventTimerOneshot( 0.79f ) && false == m_bXCrashMpRefunded )
+	/// June 32c331a0: nothing is drawn here; the upgrade gives back 30 % of its MP cost at 0.79 s when the cast has not hit yet ( CheckXCrashHit )
+	if( m_pXSkinAnimFuture->EventTimerOneshot( 0.79f ) && false == m_bXCrashHit )
 	{
 		const int iUpgradeSkillLevel = ( NULL != GetUnit() ) ? GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_SA_RRF_X_CRASH_UPGRADE, false, 0, true ) : 0;
 		if( 0 < iUpgradeSkillLevel )
@@ -32384,6 +32680,108 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 	}
 	m_fOldHp = GetNowHp();
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+/// June 32c3c7a0 ( thunk 32c69670 ): the hit create-damage-effect callback InitPassiveSkillState sets
+void CX2GURaven::ApplyBuffToExplosiveNasodHand()
+{
+	if ( NULL == GetUnit() || 0 >= GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RRF_EXPLOSIVE_NASOD_HAND, true, 0, true ) )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RRF_EXPLOSIVE_NASOD_HAND );
+	if ( NULL == pSkillTemplet )
+		return;
+
+	SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN PASSIVE explosive nasod hand buff ( unit %I64d )", GetUnitUID() );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+}
+
+/// June 32c3df50 ( thunk 32c69e10, attack result ): the count rises during the cool time too ( JUNE_BUGS )
+void CX2GURaven::AddHitToSurelyVictory( const CX2DamageManager::DamageData& damageData_ )
+{
+	UNREFERENCED_PARAMETER( damageData_ );
+	if ( NULL == GetComboManager() || GetComboManager()->GetCombo() <= 0 )
+		return;
+
+	++m_iSurelyVictoryHitCount;
+	if ( m_iSurelyVictoryHitCount < SURELY_VICTORY_HITS_PER_BUFF || NULL == GetUnit() )
+		return;
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RBM_SURELY_VICTORY, true, 0, true );
+	if ( iSkillLevel <= 0 )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RBM_SURELY_VICTORY );
+	if ( NULL == pSkillTemplet || pSkillTemplet->m_vecBuffFactorPtr.empty() || 0.f <= m_fSurelyVictoryCoolTime )
+		return;
+
+	SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+	m_fSurelyVictoryCoolTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, iSkillLevel );
+	m_iSurelyVictoryHitCount = 0;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN PASSIVE surely victory buff ( unit %I64d, cool %.1f )", GetUnitUID(), m_fSurelyVictoryCoolTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+}
+
+/// June 32c28160 ( thunk 32c68a40, attack result )
+void CX2GURaven::CheckXCrashHit( const CX2DamageManager::DamageData& damageData_ )
+{
+	if ( CX2SkillTree::RNSI_SA_RRF_X_CRASH != damageData_.m_iAppliedSkillID )
+		return;
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+	if ( false == m_bXCrashHit )
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN PASSIVE x crash hit ( unit %I64d, no MP refund this cast )", GetUnitUID() );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+	m_bXCrashHit = true;
+}
+
+/// June 32c4e5b0 ( thunk 32c6a2f0, common frame move ): one function for March's CheckAndDoReversalSoldier and CheckAndDoServivalTechniqueOfMercenary
+void CX2GURaven::CheckAndDoReversalSoldierAndSurvivalTechnique()
+{
+	const float fMaxHp = GetMaxHp();
+	if ( NULL != GetUnit() )
+	{
+		if ( REVERSAL_SOLDIER_HP_RATE < m_fOldHp / fMaxHp && GetNowHp() / fMaxHp < REVERSAL_SOLDIER_HP_RATE
+			&& 0 < GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RVC_REVERSAL_SOLDIER, true, 0, true ) )
+		{
+			SetBuffFactorToGameUnit( g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RVC_REVERSAL_SOLDIER ), 0 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN PASSIVE reversal soldier buff ( unit %I64d, hp %.0f -> %.0f of %.0f )", GetUnitUID(), m_fOldHp, GetNowHp(), fMaxHp );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+		}
+
+		if ( true == m_bEnableSurvivalTechniqueOfMercenary )
+		{
+			const bool bPvpOrPve = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );	// stand-in: no game counts as not PvP ( June reads it unchecked )
+			const float fHpRate = GetLearnedSkillAbilityValue( true == bPvpOrPve ? CX2SkillTree::SA_OVERHEAT_HP_PVP : CX2SkillTree::SA_OVERHEAT_HP, CX2SkillTree::RNSI_P_RVC_SURVIVAL_TECHNIQUE_OF_MERCENARY );
+			if ( fHpRate < m_fOldHp / fMaxHp && GetNowHp() / fMaxHp < fHpRate )
+			{
+				SetBuffFactorToGameUnit( g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RVC_SURVIVAL_TECHNIQUE_OF_MERCENARY ), 0 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+				CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN PASSIVE survival technique buff ( unit %I64d, hp rate %.3f )", GetUnitUID(), fHpRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+			}
+		}
+	}
+	m_fOldHp = GetNowHp();
+}
+
+/// June 32c3c7f0 ( vslot 0x73c, uncarved )
+/*virtual*/ float CX2GURaven::GetIncreaseMpRateOnDamageReact( const CX2DamageManager::DamageData* pDamageData_ )
+{
+	UNREFERENCED_PARAMETER( pDamageData_ );
+	return 1.f + m_fMpGainRateOnDamageReact;
+}
+
+/// June 32c3c820 ( vslot 0x748, uncarved )
+/*virtual*/ float CX2GURaven::GetIncreaseSoulRateOnDamageReact()
+{
+	return 1.f + m_fSoulGainRateOnDamageReact;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 
 /** @function : ApplyHyperModeBuff
 	@brief : 각성버프 적용

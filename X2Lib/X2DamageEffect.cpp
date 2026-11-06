@@ -5423,8 +5423,16 @@ void CX2DamageEffect::CEffect::AttackResult()
 							CX2DamageEffect::CEffect* pRandomEffect = m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), 
 								pOwnerGameUnit->GetHitCreateDamageEffectPowerRate(),
 								m_DamageData.impactPoint, angle, angle, m_fLandPos );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+							if( NULL != pRandomEffect && CX2GameUnit::GUT_USER == pOwnerGameUnit->GetGameUnitType() )
+							{
+								static_cast<CX2GUUser*>( pOwnerGameUnit )->DoDelegateProcessInHitCreateDamageEffect();	// June 31fcd640 @31f86a50
+								pRandomEffect->SetScale( m_DamageData.m_vCreateDamageEffectNameScale );
+							}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 							if( NULL != pRandomEffect && CX2GameUnit::GUT_USER == pOwnerGameUnit->GetGameUnitType() )
 								pRandomEffect->SetScale( m_DamageData.m_vCreateDamageEffectNameScale );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 #else SERV_IRUHADEV_JUNE_DAMAGEDATA
 							m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), 
 								pOwnerGameUnit->GetHitCreateDamageEffectPowerRate(),

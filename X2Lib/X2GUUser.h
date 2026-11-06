@@ -3256,6 +3256,10 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 		virtual float				GetIncreaseSoulRateOnDamageReact() { return 1.f; }	/// June user vslot 0x748 ( base 3208e1b0 ): the soul rate of a hit taken
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+		void							SetDelegateProcessToHitCreateDamageEffect( const DelegateProcess& delegateProcess_ ) { m_DelegateProcessInHitCreateDamageEffect = delegateProcess_; }	/// June +0x8dbc / +0x8dc0, set by the class ( Raven 32c57660 )
+		void							DoDelegateProcessInHitCreateDamageEffect() { if ( m_DelegateProcessInHitCreateDamageEffect ) m_DelegateProcessInHitCreateDamageEffect(); }	/// June 31fcd640
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 
 #ifdef NEXON_QA_CHEAT_REQ
 		void SetInvincibleAndNoMpConsume_Cheat( bool bValue_ ) { m_bIsInvincibleAndNoMpConsume = bValue_; }
@@ -4990,6 +4994,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 	float GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+	DelegateProcess m_DelegateProcessInHitCreateDamageEffect;	/// June +0x8dbc / +0x8dc0: run when a hit spawns its create-damage-effect
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 	void UserNoStateChangeActionFrameMove();	/// June 32008e40 ( March's is pure virtual; a class override runs it first )
 	void MarkSkillSlotUsed( const int iSlotIndex_, const bool bHyper_ );	/// June 31fc86e0

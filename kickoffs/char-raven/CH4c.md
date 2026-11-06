@@ -45,3 +45,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7aa L701 m_RavenLeftArmItemID basic-item pair (every class): June reader 329657.
 - **Map: `june2017_re/char_raven/ch0_overheat.tsv`** (50 rows, col 7 owner: 24 CH4c). June reads `SA_OVERHEAT_HP` (slot 125) / `_PVP` (145) only in InitPassiveSkillState (24415 @32c58307); March's CommonFrameMove re-read has no twin. `_CanOverheat` / `_BurnOverheatHP` are not located; the extra-damage pack is 37 in June vs March's 35; the VC skill-slot icon swap is June `328e0aa0`. Left arm: June's reader `329657d0` is inside `3295dfa0` (june-engine R14c ports it whole); arm hiding `3201c3a0` is already ported; CH4c locates the viewer and skill-state readers.
+
+## Amended by CH4a (2026-11-07)
+
+- **Taken by CH4a's `InitPassiveSkillState` `32c57660` (whole):** the Overheat Mode id 24415 ( `RNSI_P_RVC_OVERHEAT_MODE`, `m_iAddOverHeatLevel` /
+  `m_fAddOverHeatBuffDurationTime` ), Behavior of Mercenary's `SA_OVERHEAT_HP` / `_PVP` into `m_fOverheatDamageRate` ( the SA reads are 24411's
+  0x91 / 0x7d @32c57f0a / @32c57f11 and 24412's 0x7d x 0.25 @32c57f89 into `m_fLimitOverHeatHP`; @32c58307 is 24415's level read, SA 1 ), Survival Technique ( `+0x9734` and the
+  HP-crossing delegate `32c4e5b0` ). CH4c keeps the overheat object, `_CanOverheat` / `_BurnOverheatHP` readers, `X2Game.cpp`'s VC slot, the memo class
+  and the left-arm readers.

@@ -2504,6 +2504,21 @@ public:
 		RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY            = 24412,	// June's Enum.lua
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-07 // char-raven CH4a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_P_ROT_BURNING_NASOD_HAND                         = 24401,	// June's Enum.lua
+		RNSI_P_RRF_EXPLOSIVE_NASOD_HAND                       = 24402,
+		RNSI_P_RRF_CONFIDENCE_VICTORY                         = 24403,
+		RNSI_P_RFF_HARDEN_BODY                                = 24404,
+		RNSI_P_RST_EXQUISITE_SWORDMANSHIP                     = 24406,
+		RNSI_P_RBM_BLADE_MASTERY                              = 24407,
+		RNSI_P_RBM_PRIDE_VICTORY                              = 24408,
+		RNSI_P_RBM_SURELY_VICTORY                             = 24409,
+		RNSI_P_RWT_BEHAVIOR_OF_MERCENARY                      = 24411,
+		RNSI_P_RVC_SURVIVAL_TECHNIQUE_OF_MERCENARY            = 24414,
+		RNSI_P_RVC_OVERHEAT_MODE                              = 24415,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-06 // char-raven CH1n
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_HA_RRF_INFERNAL_ARMS                             = 24600,	// June's Enum.lua

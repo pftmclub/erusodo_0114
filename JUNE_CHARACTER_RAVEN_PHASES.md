@@ -2089,6 +2089,49 @@ Opus 5.5. **Verdict: passes; one comment line added, `_SKILL_DEBUG` retired.** C
 **Done gate:** each passive's effect shows (CH0 names the stat or log line per passive); Burning Nasod Hand changes the damage type of command
 attacks only; a Veteran Commander enters and leaves overheat as June; 0 Raven `no_state` rows left except passives with no state in June.
 
+### CH4a - Done (2026-11-07)
+
+**Landed.** Commit: see `git log`, "char-raven Phase CH4a". Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE` (+ temporary `_PASSIVE_DEBUG`). Files: `X2GURaven.*`,
+`X2GUUser.*` (one member, two inline functions, two id swaps), `X2DamageEffect.cpp` (one call), `X2SkillTree.h` (11 names under `JUNE_ENUM_NAMES`). Read from Ghidra
+decompiles + listings of every address below (`charport_adis.py raven` for the uncarved ones); block-by-block reading in the funcmap rows marked `(CH4a)`.
+- **`InitPassiveSkillState` `32c57660` whole** inside March's (March's in `#else`), June's order, every level read `GetSkillLevel( id, true, 0, true )`. Before it, March
+  read its 44xx ids, which a June save never has: **every Raven passive was off.** Blocks: Burning Nasod Hand 24401 (the `+0x9688` setter CH1j's `+0x4108 = 2` waited
+  for; type / rel); Explosive Nasod Hand 24402 (hit-create rate SA 5 and power rate, plus the new user callback); Harden Body 24404 (final defence multiple SA 0x10,
+  MP / soul gain when hit SA 0x38 / 0xaa); Spiritualized Fury 24405; Exquisite Swordmanship 24406; Blade Mastery 24407; Surely Victory 24409 (attack-result push when its
+  factors exist); Emergency Escape 24410 (cool time + state 222 `RSI_SHADOW_STEP` with CH2a's passive StartFuture); Behavior of Mercenary 24411 (user templet, PvP SA);
+  Winnable Technique 24412; Reversal Soldier 24413 / Confidence 24403 / Pride 24408 (force down, melee then range); Survival 24414 flag + the HP-crossing push; Overheat Mode
+  24415; the Shadow Step chain (learned swapped 24200 -> Thrust / Enhance / Back Slide on, MP, CH2a's five states registered: 305-309); Open Mind 24417 (walk / dash);
+  X Crash 24010 (attack-result push).
+- **June moved two numbers between skills:** Behavior of Mercenary now gives the damage-taken share (`m_fOverheatDamageLimitedRate`, SA 0x10) and Winnable Technique the
+  debuff-time cut (`m_fReduceEDTDurationRate`, SA 0x7c); March had them the other way round. Checked by the compiler's SA values against CH1g / CH1h's reader offsets.
+- **Callbacks** (thunks: `32c69670` jmp, `32c69e10` / `32c68a40` push edx; call, `32c6a2f0` jmp): `ApplyBuffToExplosiveNasodHand` `32c3c7a0`; `AddHitToSurelyVictory`
+  `32c3df50` (combo hit count `+0x9598`, 5, cool time below 0, JUNE_BUGS 556); `CheckXCrashHit` `32c28160`; `CheckAndDoReversalSoldierAndSurvivalTechnique` `32c4e5b0`
+  (one function for March's two CommonFrameMove pushes, which stay in `#else`). Overrides `GetIncreaseMpRateOnDamageReact` 0x73c `32c3c7f0` / `GetIncreaseSoulRateOnDamageReact`
+  0x748 `32c3c820` (1 + Harden Body's value; the 0x748 base is Chung's, the flag `#error`s without `_CHUNG_PASSIVE`).
+- **Engine (checklist 7a):** Raven is the writer of June's user callback `+0x8dbc / +0x8dc0`: `CX2GUUser::m_DelegateProcessInHitCreateDamageEffect`, run by `31fcd640` at
+  the user AttackResult's **default** reaction case after the rate-gated random spawn (`@32013d66`, also when the spawn fails) and in `CEffect::AttackResult`
+  (`@31f86a50`, user owner, before `SetScale`). The C3 comments at `X2GUUser.cpp` ~15322 place it in RT_CREATE_DAMAGE_EFFECT; the listing says default (funcmap row
+  corrected; old comments left). User DamageReact `@32049cf5` and AttackResult `@32013186` read Spiritualized Fury's June id 24405 (March 4409): both swapped.
+- **Corrections:** JUNE_BUGS 551's flag part withdrawn: `+0x978c` is "the X Crash cast has hit", so the upgrade's 30 % refund is for a miss; the member is renamed
+  `m_bXCrashHit` (4 lines in CH3b's `_SKILL` code: the flagcheck OTHER rows and the 4 deleted lines). The 7b row's `32c43120 @32c43ac4` is CommonStateStart `32c43380`.
+- **Members decided (CH1k amendment):** `m_fChanceOfExplosiveNasodHand` and `m_fAttackPowerRateShadowStepPunisher` have no June store; June's body never touches them
+  (the rate goes straight into the unit, Punisher's flag `+0x9661` is never set), so they keep their ctor values with no June reader. `+0x9654` = `m_fMPConsumeShadowStepThrust`
+  (written, no June reader). Not in June: Shadow Piercing / Thrust / Shadow Thrust / Punisher / Air Slicer / Bleeding Slicer reads (no June ids). `ch1_offsets.tsv` updated.
+- **JUNE_BUGS:** 555 (Explosive Nasod Hand's rate never reset), 556 (Surely Victory counts during the cool time); 551 amended.
+- **Stand-ins (one line each):** no game -> the PvP SA is not taken (June reads the game unchecked), twice.
+
+**Hygiene.** One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GURaven.cpp`, `X2GUUser.cpp`, `X2DamageEffect.cpp` exit 0, 0 errors (the new `#error` guards pass).
+`enumprobe`: 27 values = June's (11 new names 24401-24415, DT 0 / 1, SA 0x39 / 0x3a ...). `flagcheck.py JUNE_CHAR_RAVEN_PASSIVE --with JUNE_CHAR_RAVEN_PASSIVE_DEBUG --worktree --files` (7):
+`files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched
+inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (OTHER = the X Crash rename in `_SKILL` code, the names under `JUNE_ENUM_NAMES`).
+`junediverge.py --check` (7 files): `RESULT: PASS`; new divergence row `CX2GURaven::InitPassiveSkillState` (ported). `enumscan.py --check X2Lib/X2GURaven.cpp`: `0 A/B row(s)`.
+`skillicons.py check 24400-24422`: 2 misses, 24417 / 24421 `DLG_SKILL_Passive_12` = JUNE_BUGS 535 (June's own sheet).
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,079,744 B, dated 2026-11-07 05:38:05, md5 8e1b943c7bdb269dad5873a068ce9dc6, equal to X2/US_SERVICE/x2.exe (2026-11-07 05:37:58); built at main bb6f8d03 + 7 uncommitted code file(s).`
+`EXESTR OK: 3 of 3 found in X2_offline.exe, 26079744 B, dated 2026-11-07 05:38:05, md5 8e1b943c7bdb269dad5873a068ce9dc6` (wide: the `init`, `surely victory buff`, `x crash hit` lines); `EXESTR OK: 1 of 1` (`RSI_SHADOW_BACK_SLIDE_END_UPGRADE`).
+
+**How to see it in game:** `[JUNE_CHAR] RAVEN PASSIVE init` lines on each Raven load, with the values above; `explosive nasod hand buff`,
+`surely victory buff`, `reversal soldier buff`, `survival technique buff`, `x crash hit` lines when each fires.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI`. Sub-tag `UI`.

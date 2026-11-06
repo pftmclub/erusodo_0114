@@ -11880,3 +11880,28 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND needs SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE, SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND and SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND ( the allow-list chain and the Texture99 rows it extends )
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-07
+// Description: June character port ( Raven ) Phase CH4a - Raven's InitPassiveSkillState is June's ( 32c57660: June's passive ids, the Burning Nasod Hand
+//              24401 setter, Emergency Escape and the Shadow Step chain registrations ) with its four callbacks ( Explosive Nasod Hand buff, Surely Victory,
+//              Reversal Soldier / Survival Technique, X Crash hit ), the MP / soul gain when hit overrides ( vslots 0x73c / 0x748 ), the user callback a hit's
+//              create-damage-effect runs ( June 31fcd640 ) and the user DamageReact / AttackResult Spiritualized Fury id ( 24405 ).
+//              Revert: undefine the flag ( JUNE_CHAR_RAVEN_PASSIVE ).
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL ) || !defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ) || !defined( SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL ( the Shadow Step chain states ), SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS and SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS ( vslot 0x73c )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) || !defined( SERV_IRUHADEV_JUNE_USER_STATE_ID16 ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE ( vslot 0x748 ), SERV_IRUHADEV_JUNE_DAMAGEDATA ( the random-spawn child ) and SERV_IRUHADEV_JUNE_USER_STATE_ID16 ( state ids above 255 )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-07
+// Description: June character port ( Raven ) Phase CH4a - temporary [JUNE_CHAR] RAVEN PASSIVE lines ( the init values, each callback when it fires ) for CH4a's
+//              play-test; they sit inside JUNE_CHAR_RAVEN_PASSIVE code only. CH4a's review retires it. Revert: undefine the flag ( JUNE_CHAR_RAVEN_PASSIVE_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+//////////////////////////////////////////////////////////////////////////

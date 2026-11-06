@@ -622,6 +622,17 @@ class CX2GURaven : public CX2GUUser
 		virtual int GetComboXStateID() const { return RSI_COMBO_X; }
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	protected:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+		int									m_iSurelyVictoryHitCount;		/// June +0x9598: hits with a combo since Surely Victory's last buff
+		float								m_fMpGainRateOnDamageReact;	/// June +0x95b8 ( KProtectedType<float> ): Harden Body's MP gain when hit
+		float								m_fSoulGainRateOnDamageReact;	/// June +0x95c4 ( KProtectedType<float> ): Harden Body's soul gain when hit
+		void ApplyBuffToExplosiveNasodHand();											/// June 32c3c7a0
+		void AddHitToSurelyVictory( const CX2DamageManager::DamageData& damageData_ );		/// June 32c3df50
+		void CheckXCrashHit( const CX2DamageManager::DamageData& damageData_ );			/// June 32c28160
+		void CheckAndDoReversalSoldierAndSurvivalTechnique();						/// June 32c4e5b0
+		virtual float GetIncreaseMpRateOnDamageReact( const CX2DamageManager::DamageData* pDamageData_ );	/// June 32c3c7f0 ( vslot 0x73c )
+		virtual float GetIncreaseSoulRateOnDamageReact();								/// June 32c3c820 ( vslot 0x748 )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 		float								m_fEmergencyEscapeElapsedTime;	/// June +0x95a0: time since the last escape ( KProtectedType<float> in June; ctor -1.0f in CH1k, CommonFrameMove 32c42f90 in CH1j )
 		float								m_fEmergencyEscapeCoolTime;		/// June +0x95ac: cool time of the escape ( KProtectedType<float>; InitPassiveSkillState sets it from SA 0x94 in CH4a )
@@ -1878,7 +1889,7 @@ class CX2GURaven : public CX2GUUser
 		void RSI_SA_RRF_DEVASTATING_STRIKE_Init();
 		void RSI_SA_RRF_DEVASTATING_STRIKE_StateEnd();
 		void RSI_SA_RRF_DEVASTATING_STRIKE_EventProcess();
-		bool m_bXCrashMpRefunded;	/// June +0x978c: set false at the start, never set true
+		bool m_bXCrashHit;	/// June +0x978c: the X Crash cast has hit ( StateStart clears it, CheckXCrashHit sets it )
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 		/// RSI_SA_RST_SHOCKWAVE_FRONT 기가 드라이브 - 폭

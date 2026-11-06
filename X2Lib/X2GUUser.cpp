@@ -11712,13 +11712,22 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				
 				//{{ kimhc // 2010.11.3 // 레피 - 승화된 분노
 #ifdef	NEW_SKILL_2010_11
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+				const CX2SkillTree::SkillTemplet* pSkillTempletSpritualizedFury 
+					= pUnitData->m_UserSkillTree.GetUserSkillTemplet( CX2SkillTree::RNSI_P_RRF_SPIRITUALIZED_FURY, true );	// June 320462a0 @32049cf5
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 				const CX2SkillTree::SkillTemplet* pSkillTempletSpritualizedFury 
 					= pUnitData->m_UserSkillTree.GetUserSkillTemplet( CX2SkillTree::SI_P_RRF_SPIRITUALIZED_FURY );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 
 				if ( NULL != pSkillTempletSpritualizedFury )
 				{
 	#ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+					const int iSkillTempletLevel = max( 1, pUnitData->m_UserSkillTree.GetSkillLevel( pSkillTempletSpritualizedFury->m_eID, true, 0, true ) );	// June @32049d0d
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 					const int iSkillTempletLevel = max( 1, pUnitData->m_UserSkillTree.GetSkillLevel( pSkillTempletSpritualizedFury->m_eID, true ) );	/// 스킬 레벨
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 
 					float fRate = pSkillTempletSpritualizedFury->GetSkillAbilityValue( CX2SkillTree::SA_SOUL_GAIN_GET_HIT_REL, iSkillTempletLevel );
 	#else // UPGRADE_SKILL_SYSTEM_2013
@@ -14887,13 +14896,22 @@ void CX2GUUser::AttackResult()
 
 //{{ kimhc // 2010.11.3 // 레피 - 승화된 분노
 #ifdef	NEW_SKILL_2010_11
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+			const CX2SkillTree::SkillTemplet* pSkillTempletSpritualizedFury 
+				= pUnitData->m_UserSkillTree.GetUserSkillTemplet( CX2SkillTree::RNSI_P_RRF_SPIRITUALIZED_FURY, true );	// June 32012b50 @32013186
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 			const CX2SkillTree::SkillTemplet* pSkillTempletSpritualizedFury 
 				= pUnitData->m_UserSkillTree.GetUserSkillTemplet( CX2SkillTree::SI_P_RRF_SPIRITUALIZED_FURY );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 
 			if ( NULL != pSkillTempletSpritualizedFury )
 			{
 	#ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+				const int iSkillTempletLevel = max( 1, pUnitData->m_UserSkillTree.GetSkillLevel( pSkillTempletSpritualizedFury->m_eID, true, 0, true ) );	// June @320131a1
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 				const int iSkillTempletLevel = max( 1, pUnitData->m_UserSkillTree.GetSkillLevel( pSkillTempletSpritualizedFury->m_eID, true ) );	/// 스킬 레벨
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 
 				float fRate = pSkillTempletSpritualizedFury->GetSkillAbilityValue( CX2SkillTree::SA_SOUL_GAIN_ON_HIT_REL, iSkillTempletLevel );
 	#else // UPGRADE_SKILL_SYSTEM_2013
@@ -15371,6 +15389,9 @@ void CX2GUUser::AttackResult()
 					m_DamageData.impactPoint, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
 				if( NULL != pRandomEffect )
 					pRandomEffect->SetScale( m_DamageData.m_vCreateDamageEffectNameScale );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+				DoDelegateProcessInHitCreateDamageEffect();	// June 31fcd640 @32013d66
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 #else SERV_IRUHADEV_JUNE_DAMAGEDATA
 				g_pX2Game->GetDamageEffect()->CreateInstance( this, m_DamageData.m_wstrCreateDamageEffectName.c_str(),
 					GetHitCreateDamageEffectPowerRate(), 
