@@ -30,7 +30,8 @@ Check CH4a against June (read-only in Ghidra). In order of risk:
   ( `+0x66ac` attack result, `+0x66cc` frame move ).
 - **The callbacks:** Surely Victory's `cmp 5` and the cool-time test ( `< 0` incl. NaN ); Reversal Soldier / Survival HP crossing ( strict tests, 0.5,
   max HP read once, `m_fOldHp` written last ); X Crash's `+0x5c4 == 24010`; Explosive Nasod Hand's level test. JUNE_BUGS 551 ( flag part withdrawn ),
-  555, 556.
+  555, 556, 557 ( Winnable Technique's SA 0x7c, absent in June's data: confirm June's SA numbering reads 0x7c = `SA_REDUCE_EDT_TIME_REL` and the
+  `OpenXET RAVEN_SI_A_RF_SHADOW_STEP_MESH01.XET` line is June's too ).
 - **Engine:** `CX2GUUser::m_DelegateProcessInHitCreateDamageEffect` and its two call sites ( user AttackResult default case after the spawn, also when it
   fails; CEffect only with a child and a user owner, before `SetScale` ); the two Spiritualized Fury id changes.
 - **Not ported on purpose:** March's Shadow Piercing / Thrust / Punisher / Air Slicer / Bleeding Slicer reads ( June has no such passive ids ); confirm
