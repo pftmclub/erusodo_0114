@@ -6261,7 +6261,7 @@ bool CX2GURaven::SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION e
 	if ( true == m_bParrying && accessUserSkillTree.GetUpgradeSwappedSkillID( CX2SkillTree::RNSI_A_RF_SHADOW_STEP ) != pSkillTemplet->m_eID )
 		return false;
 
-	/// June @32c58f36: while a Shadow Step chain runs only Shadow Step chains on, with no MP cost and no slot refresh ( JUNE_BUGS )
+	/// June @32c58f36: while a Shadow Step chain runs only Shadow Step chains on, with no MP cost and no slot refresh
 	if ( true == m_bActiveShadowStepCombo )
 	{
 		if ( true != m_bEnableShadowBackSlide )
