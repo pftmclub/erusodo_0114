@@ -41,7 +41,12 @@ static bool IsBlankSlotSkillState( const CX2GUUser* pUser_, const int iState_ )
 	if( mapState.end() == mit )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// a state with only a StateStartFuture is not blank ( June's Barrage Attack slot state changes to its STAND / AIR state from it )
+	return ( NULL == mit->second.OnEventProcess && NULL == mit->second.OnFrameMove && NULL == mit->second.StateStart && NULL == mit->second.StateStartFuture );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	return ( NULL == mit->second.OnEventProcess && NULL == mit->second.OnFrameMove && NULL == mit->second.StateStart );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 static void LogNoStateSkill( CX2GUUser* pUser_, const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ )

@@ -6014,4 +6014,5 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `..._SKILL_DEBUG` re-defined, `[JU
 | Napalm Grenade ( 24213 ) | `DAMAGE_EFFECT_NAPALM_GRENADE_BULLET_1..3` | the same three effects ( = March ) |
 | Mental Crash ( 24214 ) | none ( no March state ) | the script's state table only |
 
+- **Shared engine change.** `X2GUUser.cpp` `IsBlankSlotSkillState` ( the S3 helper that makes `StateChange` refuse a slot state with no callbacks ) also counts `StateStartFuture`; without it June's Barrage Attack slot state ( Init + StartFuture only ) was refused on every press.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the Weapon Taker ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.
