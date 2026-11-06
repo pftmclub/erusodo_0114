@@ -6018,3 +6018,24 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `..._SKILL_DEBUG` re-defined, `[JU
 
 - **Shared engine change.** `X2GUUser.cpp` `IsBlankSlotSkillState` ( the S3 helper that makes `StateChange` refuse a slot state with no callbacks ) also counts `StateStartFuture`; without it June's Barrage Attack slot state ( Init + StartFuture only ) was refused on every press.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the Weapon Taker ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.
+
+## Stage 7 Raven, CH3a: Blade Master (class 106) skills (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `..._SKILL_DEBUG` re-defined, `[JUNE_CHAR] RAVEN SKILL` lines). Plan `JUNE_CHARACTER_RAVEN_PHASES.md` "CH3a - Done". Client only, no data change ( the June assets are CH0b's ).
+- **What changes in game.** The sixteen Blade Master ids ( Bloody Accel 24014 / 24047, Giga Drive - Limiter 24015 / 24048, Shockwave - Front 24016 / 24049, Wolf Fang 24017 / 24050, Deadly Blow 24035, Shoot Up Genocide 24036, Sharp Charge 24056, Sonic Slash 24210 / 24234, Cut Tendon 24211 / 24235, Pointed Stiletto 24222 ) get cases in the id switch of `SetEquippedSkillFuncBySkillSlotIndex` with June's state callbacks; four skills ( Deadly Blow, Shoot Up Genocide, Pointed Stiletto, Sharp Charge ) are new states with an empty Init and an EventProcess; the 14 missing `RNSI_*` names are registered in `X2SkillTree.h`.
+- **Differs from March.** Cut Tendon pushes its levelled buff factor with the skill's memo rate ( March: memo 11 test ); Bloody Accel and Giga Drive apply the base skill's buff factor at 1.0 / 1.1 s through the upgrade swap, and Giga Drive with Counter Wave ( 24418 ) learned sets the escape cool time to one second short of done; Shockwave - Front applies the Counter Wave buff factor ( and the base skill's for the upgrade ) when it starts and has no walk / dash / skill cancel; Wolf Fang has no hyper states and its landing MP refund reads the state's own skill slot; Bloody Accel, Giga Drive and the new states cancel into walk, dash, skill ( and attack ) only on a line; the Init preload lists are June's.
+- **Damage ( level 1 ).** June's numbers are the numerical override's ( x0.01 of the `NUMERICAL_DATA` row, `june2017_re/c1a_numerical_blocks.tsv` ); March's shipped tables for the old ids were not re-read here ( the `[JUNE_SKILL] NUM use` lines of the play-test show the live value ).
+
+| Skill | June damage ( physic, level 1 ) |
+|---|---|
+| Bloody Accel ( 24014 ) `DamageEffect_SA_RBM_BloodyAccel` | 48.55 |
+| Giga Drive - Limiter ( 24015 ) `DamageEffect_SA_RBM_GigaDrive_Explosion` | 25.43 ( row 2 ) |
+| Shockwave - Front ( 24016 ) `DamageEffect_RBM_ShockWave_Cutter` | 2.03 |
+| Wolf Fang ( 24017 ) `DamageEffect_RBM_WolfFang_Hit` | 8.76 ( row 2 ) |
+| Deadly Blow ( 24035 ) `DamageEffect_SA_RBM_Deadly_Blow_Damage` | 27.31 |
+| Shoot Up Genocide ( 24036 ) `..._Explosion_Damage` | 6.47 ( row 2 ) |
+| Sharp Charge ( 24056 ) `DamageEffect_SA_RBM_Shapt_Charge` | 58.42 |
+| Sonic Slash ( 24210 ) `DamageEffect_RBM_Sonic_Slash` | 0.96 per hit |
+| Cut Tendon ( 24211 ), Pointed Stiletto ( 24222 ) | the script's state tables ( numerical-only `DAMAGE_DATA` ) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the 16 ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.

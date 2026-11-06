@@ -4950,6 +4950,186 @@ void CX2GURaven::InitStateWeaponTaker()
 			hyperStateData.StateInit		= normalStateData.StateInit;
 			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
 		} break;
+
+	case CX2SkillTree::RNSI_SA_RBM_BLOODY_ACCEL:	// June 32c641a0 @32c64a2a / @32c66d70
+	case CX2SkillTree::RNSI_SA_RBM_BLOODY_ACCEL_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "RSI_A_RST_BLOODY_ACCEL", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_A_RST_BLOODY_ACCEL_Init );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_A_RST_BLOODY_ACCEL_FrameMove );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_A_RST_BLOODY_ACCEL_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_A_RST_BLOODY_ACCEL", hyperStateData.stateID );
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_RBM_GIGA_DRIVE_LIMITER:	// June 32c641a0 @32c64d32 / @32c64d6a
+	case CX2SkillTree::RNSI_SA_RBM_GIGA_DRIVE_LIMITER_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "RSI_SA_RBM_GIGA_DRIVE", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_SA_RBM_GIGA_DRIVE_Init );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_SA_RBM_GIGA_DRIVE_FrameMove );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SA_RBM_GIGA_DRIVE_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_SA_RBM_GIGA_DRIVE", hyperStateData.stateID );
+			hyperStateData.StateInit		= normalStateData.StateInit;
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_RBM_SHOCKWAVE_FRONT:	// June 32c641a0 @32c66446 / @32c66492
+	case CX2SkillTree::RNSI_SA_RBM_SHOCKWAVE_FRONT_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "RSI_SA_RST_SHOCKWAVE_FRONT", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_SA_RST_SHOCKWAVE_Init );
+			normalStateData.StateStart		= SET_CB_FUNC( CX2GURaven, RSI_SA_RST_SHOCKWAVE_FRONT_StateStart );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_SA_RST_SHOCKWAVE_FRONT_FrameMove );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SA_RST_SHOCKWAVE_FRONT_EventProcess );
+			normalStateData.StateEnd		= SET_CB_FUNC( CX2GURaven, RSI_SA_RST_SHOCKWAVE_FRONT_StateEnd );
+
+			m_LuaManager.MakeTableReference( "RSI_SA_RST_SHOCKWAVE_FRONT", hyperStateData.stateID );
+			hyperStateData.StateInit		= normalStateData.StateInit;
+			hyperStateData.StateStart		= normalStateData.StateStart;
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+			hyperStateData.StateEnd			= normalStateData.StateEnd;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_RBM_WOLF_FANG:	// June 32c641a0 @32c64c01 / @32c64c44, STARTLANDING @32c64cb1, HIT @32c64cdd, HITLANDING @32c64d09
+	case CX2SkillTree::RNSI_SA_RBM_WOLF_FANG_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "SI_SA_RBM_WOLF_FANG_START", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, SI_SA_RBM_WOLF_FANG_START_Init );
+			normalStateData.StateStart		= SET_CB_FUNC( CX2GURaven, SI_SA_RBM_WOLF_FANG_START_StateStart );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, SI_SA_RBM_WOLF_FANG_START_FrameMove );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, SI_SA_RBM_WOLF_FANG_START_EventProcess );
+
+			m_LuaManager.MakeTableReference( "SI_SA_RBM_WOLF_FANG_START", hyperStateData.stateID );
+			hyperStateData.StateInit		= normalStateData.StateInit;
+			hyperStateData.StateStart		= normalStateData.StateStart;
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+
+			UserUnitStateData stateData;
+
+			stateData.Init();
+			stateData.stateID			= SI_SA_RBM_WOLF_FANG_STARTLANDING;
+			m_LuaManager.MakeTableReference( "SI_SA_RBM_WOLF_FANG_STARTLANDING", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, SI_SA_RBM_WOLF_FANG_STARTLANDING_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= SI_SA_RBM_WOLF_FANG_HIT;
+			m_LuaManager.MakeTableReference( "SI_SA_RBM_WOLF_FANG_HIT", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, SI_SA_RBM_WOLF_FANG_HIT_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= SI_SA_RBM_WOLF_FANG_HITLANDING;
+			m_LuaManager.MakeTableReference( "SI_SA_RBM_WOLF_FANG_HITLANDING", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, SI_SA_RBM_WOLF_FANG_HITLANDING_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_RBM_DEADLY_BLOW:	// June 32c641a0 @32c66886 / @32c668b1
+		{
+			m_LuaManager.MakeTableReference( "RSI_SA_RBM_DEADLY_BLOW", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_SA_RBM_DEADLY_BLOW_Init );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SA_RBM_DEADLY_BLOW_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_SA_RBM_DEADLY_BLOW", hyperStateData.stateID );
+			CopyStateCallbacks( hyperStateData, normalStateData );
+		} break;
+
+	case CX2SkillTree::RNSI_SA_RBM_SHOOTUP_GENOCIDE:	// June 32c641a0 @32c668d5 / @32c668b1
+		{
+			m_LuaManager.MakeTableReference( "RSI_SA_RBM_SHOOTUP_GENOCIDE", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_SA_RBM_SHOOTUP_GENOCIDE_Init );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SA_RBM_SHOOTUP_GENOCIDE_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_SA_RBM_SHOOTUP_GENOCIDE", hyperStateData.stateID );
+			CopyStateCallbacks( hyperStateData, normalStateData );
+		} break;
+
+	case CX2SkillTree::RNSI_SA_RBM_SHAPT_CHARGE:	// June 32c641a0 @32c66a83 / @32c668b1
+		{
+			m_LuaManager.MakeTableReference( "RSI_SA_RBM_SHAPT_CHARGE", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_SA_RBM_SHAPT_CHARGE_Init );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SA_RBM_SHAPT_CHARGE_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_SA_RBM_SHAPT_CHARGE", hyperStateData.stateID );
+			CopyStateCallbacks( hyperStateData, normalStateData );
+		} break;
+
+	case CX2SkillTree::RNSI_A_RBM_POINTED_STILETTO:	// June 32c641a0 @32c669e1 / @32c668b1
+		{
+			m_LuaManager.MakeTableReference( "RSI_A_RBM_POINTED_STILETTO", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_A_RBM_POINTED_STILETTO_Init );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_A_RBM_POINTED_STILETTO_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_A_RBM_POINTED_STILETTO", hyperStateData.stateID );
+			CopyStateCallbacks( hyperStateData, normalStateData );
+		} break;
+
+	case CX2SkillTree::RNSI_A_RBM_SONIC_SLASH:	// June 32c641a0 @32c664ea / @32c6652d, FINISH @32c66598
+		{
+			m_LuaManager.MakeTableReference( "RSI_A_RBM_SONIC_SLASH_LOOP", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_A_RBM_SONIC_SLASH_LOOP_Init );
+			normalStateData.StateStart		= SET_CB_FUNC( CX2GURaven, RSI_A_RBM_SONIC_SLASH_LOOP_StateStart );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_A_RBM_SONIC_SLASH_LOOP_FrameMove );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_A_RBM_SONIC_SLASH_LOOP_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_A_RBM_SONIC_SLASH_LOOP", hyperStateData.stateID );
+			hyperStateData.StateInit		= normalStateData.StateInit;
+			hyperStateData.StateStart		= normalStateData.StateStart;
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+
+			UserUnitStateData stateData;
+
+			stateData.Init();
+			stateData.stateID			= RSI_A_RBM_SONIC_SLASH_FINISH;
+			m_LuaManager.MakeTableReference( "RSI_A_RBM_SONIC_SLASH_FINISH", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_A_RBM_SONIC_SLASH_FINISH_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2SkillTree::RNSI_A_RBM_SONIC_SLASH_UPGRADE:	// June 32c641a0 @32c665ab / @32c665ee, FINISH @32c66655
+		{
+			m_LuaManager.MakeTableReference( "RSI_A_RBM_SONIC_SLASH_LOOP_UPGRADE", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_A_RBM_SONIC_SLASH_LOOP_Init );
+			normalStateData.StateStart		= SET_CB_FUNC( CX2GURaven, RSI_A_RBM_SONIC_SLASH_LOOP_StateStart );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_A_RBM_SONIC_SLASH_LOOP_FrameMove );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_A_RBM_SONIC_SLASH_LOOP_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_A_RBM_SONIC_SLASH_LOOP_UPGRADE", hyperStateData.stateID );
+			hyperStateData.StateInit		= normalStateData.StateInit;
+			hyperStateData.StateStart		= normalStateData.StateStart;
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+
+			UserUnitStateData stateData;
+
+			stateData.Init();
+			stateData.stateID			= RSI_A_RBM_SONIC_SLASH_FINISH;
+			m_LuaManager.MakeTableReference( "RSI_A_RBM_SONIC_SLASH_FINISH", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_A_RBM_SONIC_SLASH_FINISH_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2SkillTree::RNSI_A_RBM_CUT_TENDON:	// June 32c641a0 @32c64956 / @32c6498c
+	case CX2SkillTree::RNSI_A_RBM_CUT_TENDON_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "RSI_A_RST_CUT_TENDON", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_A_RST_CUT_TENDON_Init );
+			normalStateData.StateStart		= SET_CB_FUNC( CX2GURaven, RSI_A_RST_CUT_TENDON_StateStart );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_A_RST_CUT_TENDON_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_A_RST_CUT_TENDON", hyperStateData.stateID );
+			hyperStateData.StateStart		= normalStateData.StateStart;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+		} break;
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	default:
 		{
@@ -22429,11 +22609,34 @@ void CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_LANDING_HYPER_EventProcess()
 
 void CX2GURaven::RSI_A_RST_CUT_TENDON_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c268a0
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"RBM_BloodyAccel_Trace.dds" );
+	XSkinMeshReadyInBackground( L"RST_ShockWave_M01.X" );
+	XSkinMeshReadyInBackground( L"RST_ShockWave_M02.X" );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	TextureReadyInBackground( L"CutTendon_Slash01.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_A_RST_CUT_TENDON_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c5c4a0: the levelled buff factor goes in with the skill's memo rate ( the memo test is gone, always false )
+	CommonStateStart();
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RBM_CUT_TENDON, true );
+	if ( NULL != pSkillTemplet && pSkillTemplet->m_vecBuffFactorPtr.size() > 1 && NULL != GetUnit() )
+	{
+		const int iSkillTempletLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL cut tendon buff factor skill %d level %d", static_cast<int>( pSkillTemplet->m_eID ), iSkillTempletLevel );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+
+		PushBuffFactorWithMemoRate( m_DamageData, pSkillTemplet->m_vecBuffFactorPtr[0], iSkillTempletLevel, static_cast<int>( pSkillTemplet->m_eID ) );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	CommonStateStart();
 
 	const CX2SkillTree::SkillTemplet* pSkillTemplet 
@@ -22458,6 +22661,7 @@ void CX2GURaven::RSI_A_RST_CUT_TENDON_StateStart()
 			m_DamageData.PushBuffFactor( pSkillTemplet->m_vecBuffFactorPtr[0] );
 #endif //UPGRADE_SKILL_SYSTEM_2013
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 	
 void CX2GURaven::RSI_A_RST_CUT_TENDON_EventProcess()
@@ -22556,15 +22760,66 @@ void CX2GURaven::RSI_A_ROT_WEAPON_BREAK_EventProcess()
 #ifdef SKILL_CASH_10_TEST
 void CX2GURaven::RSI_A_RST_BLOODY_ACCEL_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c26980
+	TextureReadyInBackground( L"Blur_16.dds" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"Heal01.dds" );
+	XSkinMeshReadyInBackground( L"OptimusAttackZ_M01.X" );
+	XSkinMeshReadyInBackground( L"OptimusAttackZ_M02.X" );
+	XSkinMeshReadyInBackground( L"OptimusSkillC_M03.X" );
+	XSkinMeshReadyInBackground( L"RBM_BladeWeaponM.X" );
+	TextureReadyInBackground( L"RBM_BloodyAccel_Trace.dds" );
+	XSkinMeshReadyInBackground( L"SonicBlade_M3.X" );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	XSkinMeshReadyInBackground( L"Raven_Bloody_Accel_Blade_Mesh01.X" );
 	XMeshReadyInBackground( L"Wind_Liner02.Y" );
 	TextureReadyInBackground( L"Explosion_Sphere.dds" );
 	TextureReadyInBackground( L"Heal01.tga" );
 	TextureReadyInBackground( L"Blood_Bouble01.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_A_RST_BLOODY_ACCEL_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c49930: the buff factor comes at 1.0 s; nothing creates the particle sequence here, only the update block is June's
+	ChangeWorldColorByHyperMode();
+
+	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.01f, 2 );
+
+	if( m_pXSkinAnim->EventTimerOneshot( 1.f ) )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RBM_BLOODY_ACCEL, true );
+		if( NULL != pSkillTemplet )
+		{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL bloody accel buff factor skill %d", static_cast<int>( pSkillTemplet->m_eID ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+			SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+		}
+	}
+
+	if( m_hSeqBloodyAccel != INVALID_PARTICLE_SEQUENCE_HANDLE )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hSeqBloodyAccel );
+		if( NULL != pSeq )
+		{
+			D3DXVECTOR3 vBonePos = GetWeaponBonePos( 0, L"TRACE_END0", 0 );
+			vBonePos.y += 30.f;
+
+			D3DXVECTOR3 vBoneRot = D3DXVECTOR3(0.f, 0.f, 0.f);
+			GetFrameRotateDegree(&vBoneRot, m_pXSkinAnim->GetCloneFrame(L"Dummy1_Rhand"));
+			vBoneRot.x += 90.f;
+
+			pSeq->SetPosition( vBonePos );
+			pSeq->SetAxisAngle( vBoneRot );
+			pSeq->SetAddRotate( vBoneRot );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	ChangeWorldColorByHyperMode();
 
 	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.01f, 2 );
@@ -22609,6 +22864,7 @@ void CX2GURaven::RSI_A_RST_BLOODY_ACCEL_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_A_RST_BLOODY_ACCEL_EventProcess()
@@ -22620,6 +22876,13 @@ void CX2GURaven::RSI_A_RST_BLOODY_ACCEL_EventProcess()
 		else
 			StateChange( USI_WAIT );
 	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c31350: the skill, back-walk, walk and dash cancels after the animation-end test
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	CommonEventProcess();
 }
 		
@@ -24018,6 +24281,20 @@ void CX2GURaven::SI_SA_RBM_WOLF_FANG_START_FrameMove()
 }
 void CX2GURaven::SI_SA_RBM_WOLF_FANG_START_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c33420: no hyper states, a hit goes to the one hit state and the landing to the one landing state
+	if( GetAttackSuccess( false ) == true )
+	{
+		StateChange( SI_SA_RBM_WOLF_FANG_HIT );
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( IsOnSomethingFuture() == true )
+			StateChange( SI_SA_RBM_WOLF_FANG_STARTLANDING );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	// To do...
 	if( GetAttackSuccess(false) == true )
 	{
@@ -24038,9 +24315,52 @@ void CX2GURaven::SI_SA_RBM_WOLF_FANG_START_EventProcess()
 	}		
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }	
 void CX2GURaven::SI_SA_RBM_WOLF_FANG_STARTLANDING_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c3dce0: the landing's MP refund reads the state's own skill slot ( the upgrade's too ); a hit goes to the one hit state
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+		{
+			StateChange( USI_DASH );
+		}
+
+		const CX2UserSkillTree::SkillSlotData* pSkillSlotData = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillSlot( GetNowStateSkillID() );
+		if( NULL != pSkillSlotData )
+		{
+			float fMPConsume = pSkillSlotData->m_fMPConsumption / 2.f;
+			UpNowMp(fMPConsume);
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL wolf fang mp refund %d skill %d", static_cast<int>( fMPConsume ), static_cast<int>( GetNowStateSkillID() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+
+			if( NULL != g_pData->GetPicCharBlue() )
+			{
+				WCHAR wszText[64] = L"";
+				StringCchPrintfW( wszText, ARRAY_SIZE(wszText), L"MP+ %d", (int)fMPConsume );
+
+				D3DXVECTOR3 pos = GetPos();
+				pos.y += 50.f;
+
+				g_pData->GetPicCharBlue()->DrawText( wszText, pos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+			}
+		}
+	}
+	else if( GetAttackSuccess( false ) == true )
+	{
+		StateChange( SI_SA_RBM_WOLF_FANG_HIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	// To do...
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
@@ -24086,6 +24406,7 @@ void CX2GURaven::SI_SA_RBM_WOLF_FANG_STARTLANDING_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 void CX2GURaven::SI_SA_RBM_WOLF_FANG_HIT_EventProcess()
 {
@@ -24303,15 +24624,52 @@ void CX2GURaven::RBM_EMERGENCY_ESCAPE_StartFuture()
 */
 void CX2GURaven::RSI_SA_RBM_GIGA_DRIVE_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c26d80
+	TextureReadyInBackground( L"Blur_16.dds" );
+	XMeshReadyInBackground( L"BumBleBee_C_SkillC_E1.Y" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"HighLightMagical_001.dds" );
+	XMeshReadyInBackground( L"LLD_FireMeshSmoke.Y" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	TextureReadyInBackground( L"MagicSquareLight01_Poision.tga" );
+	XSkinMeshReadyInBackground( L"RBM_BladeWeaponM.X" );
+	TextureReadyInBackground( L"RingAlpha.dds" );
+	XMeshReadyInBackground( L"SCA_CRIMSON_BREAK_P01.Y" );
+	TextureReadyInBackground( L"SpreadLight03_Gray.dds" );
+	TextureReadyInBackground( L"WhitePointSmall.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
 	XSkinMeshReadyInBackground( L"Arme_ChargeMp1.X" );
 	XMeshReadyInBackground( L"Up_Impact01.Y" );
 	XMeshReadyInBackground( L"Thief_Fat_JumpAttackA_Stone02.Y" );
 	TextureReadyInBackground( L"ColorBallFire.dds" );	
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_SA_RBM_GIGA_DRIVE_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c42010: the buff factor of the slot's skill ( upgrade too ); the Counter passive sets the escape cool time to one second short of done
+	ChangeWorldColorByHyperMode();
+
+	ShowActiveSkillCutInAndLight( L"Dummy2_Lhand", 0.04f, 2 );
+
+	if( m_pXSkinAnim->EventTimerOneshot( 1.1f ) )
+	{
+		SetBuffFactorToGameUnit( GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RBM_GIGA_DRIVE_LIMITER, true ), 0 );
+
+		if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RBM_COUNTER ) )
+		{
+			m_fEmergencyEscapeElapsedTime = m_fEmergencyEscapeCoolTime - 1.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL giga drive counter escape cool time %.2f", m_fEmergencyEscapeCoolTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	ChangeWorldColorByHyperMode();
 
 	ShowActiveSkillCutInAndLight( L"Dummy2_Lhand", 0.04f, 2 );
@@ -24333,6 +24691,7 @@ void CX2GURaven::RSI_SA_RBM_GIGA_DRIVE_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_SA_RBM_GIGA_DRIVE_EventProcess()
@@ -24349,6 +24708,13 @@ void CX2GURaven::RSI_SA_RBM_GIGA_DRIVE_EventProcess()
 			StateChange( USI_WAIT );
 		}
 	}		
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c335b0: the skill, back-walk, walk and dash cancels after the animation-end test
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 	CommonEventProcess();
 }
@@ -31796,8 +32162,22 @@ void CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_End()
 /// RSI_A_RBM_SONIC_SLASH 소닉 슬래시
 void CX2GURaven::RSI_A_RBM_SONIC_SLASH_LOOP_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c275a0
+	XSkinMeshReadyInBackground( L"DummyAttackBox_100x50x50_Center.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XSkinMeshReadyInBackground( L"RBM_BladeWeaponM.X" );
+	XSkinMeshReadyInBackground( L"RST_ShockWave_M01.X" );
+	XSkinMeshReadyInBackground( L"RST_ShockWave_M02.X" );
+	TextureReadyInBackground( L"SlashLight.dds" );
+	XSkinMeshReadyInBackground( L"SonicBlade_M3.X" );
+	TextureReadyInBackground( L"Star.dds" );
+	TextureReadyInBackground( L"WhitePoint.dds" );
+	TextureReadyInBackground( L"WhitePointSmall.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	XSkinMeshReadyInBackground( L"RBM_SONIC_SLASH_TRACE.X" );
 	TextureReadyInBackground( L"PET_SILVERFOX_MIHOEffect02.tga" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 
@@ -31883,6 +32263,29 @@ void CX2GURaven::RSI_SA_RST_SHOCKWAVE_FRONT_StateStart()
 	m_bDisableGravity = true;
 	m_PhysicParam.nowSpeed		= D3DXVECTOR2( 0, 0 );
 	m_PhysicParam.passiveSpeed	= D3DXVECTOR2( -1, -1 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c38a30 @32c38a8e: the Counter passive's buff factor, and the base skill's first one for an upgraded Shockwave Front
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RBM_COUNTER ) )
+	{
+		const CX2SkillTree::SkillTemplet* pCounterTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_P_RBM_COUNTER, true );
+		if( NULL != pCounterTemplet )
+			SetBuffFactorToGameUnit( pCounterTemplet, 0 );
+	}
+
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_SA_RBM_SHOCKWAVE_FRONT ) )
+	{
+		const CX2SkillTree::SkillTemplet* pStateSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
+		if( NULL != pStateSkillTemplet && 0 != pStateSkillTemplet->m_iDeleteSkillIDByUpgrade )
+		{
+			const CX2SkillTree::SkillTemplet* pBaseSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RBM_SHOCKWAVE_FRONT, true );
+			if( NULL != pBaseSkillTemplet )
+				SetBuffFactorToGameUnit( pBaseSkillTemplet, 0 );
+		}
+	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL shockwave front start skill %d counter level %d", static_cast<int>( GetNowStateSkillID() ), GetSkillLevelValue( CX2SkillTree::RNSI_P_RBM_COUNTER ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 }
 
@@ -31904,10 +32307,14 @@ void CX2GURaven::RSI_SA_RST_SHOCKWAVE_FRONT_EventProcess()
 		else
 			StateChange( USI_WAIT );
 	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c38b20: no walk, dash or skill cancel
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	CommonEventProcess();
 }
 
@@ -31916,6 +32323,102 @@ void CX2GURaven::RSI_SA_RST_SHOCKWAVE_FRONT_StateEnd()
 	m_bDisableGravity = false;
 	CommonStateEnd();
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+void CX2GURaven::RSI_SA_RBM_DEADLY_BLOW_Init()
+{
+	/// June 32c27c00: nothing to preload
+}
+
+void CX2GURaven::RSI_SA_RBM_DEADLY_BLOW_EventProcess()
+{
+	/// June 32c3ad00: ends in the air once its useful-value time has passed; the cancels need the foot on a line
+	if( GetUsefulValueFuture( 0, 0 ) <= m_pXSkinAnimFuture->GetNowAnimationTime() && false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+}
+
+void CX2GURaven::RSI_SA_RBM_SHOOTUP_GENOCIDE_Init()
+{
+	/// June 32c27c10: nothing to preload
+}
+
+void CX2GURaven::RSI_SA_RBM_SHOOTUP_GENOCIDE_EventProcess()
+{
+	/// June 32c3b040: ends in the air once its useful-value time has passed; no cancels
+	if( GetUsefulValueFuture( 0, 0 ) <= m_pXSkinAnimFuture->GetNowAnimationTime() && false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+void CX2GURaven::RSI_A_RBM_POINTED_STILETTO_Init()
+{
+	/// June 32c27c60: nothing to preload
+}
+
+void CX2GURaven::RSI_A_RBM_POINTED_STILETTO_EventProcess()
+{
+	/// June 32c3bd40: the animation end, then the skill, back-walk, walk, dash and attack cancels on a line
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RAVEN_GROUND_BWALK_CANCEL
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	RAVEN_GROUND_ATTACK_CANCEL
+
+	CommonEventProcess();
+}
+
+void CX2GURaven::RSI_SA_RBM_SHAPT_CHARGE_Init()
+{
+	/// June 32c28130: nothing to preload
+}
+
+void CX2GURaven::RSI_SA_RBM_SHAPT_CHARGE_EventProcess()
+{
+	/// June 32c3c8a0: the animation end only
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 /// RSI_SA_RBM_GIGA_DRIVE 기가 드라이브 - 폭
 void CX2GURaven::RSI_SA_RBM_GIGA_DRIVE_BURST_Init()

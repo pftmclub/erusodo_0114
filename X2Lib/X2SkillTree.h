@@ -2444,6 +2444,24 @@ public:
 		RNSI_A_RWT_MENTAL_BREAK_UPGRADE                       = 24237,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-06 // char-raven CH3a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RBM_BLOODY_ACCEL                              = 24014,	// June's Enum.lua
+		RNSI_SA_RBM_GIGA_DRIVE_LIMITER                        = 24015,
+		RNSI_SA_RBM_SHOCKWAVE_FRONT                           = 24016,
+		RNSI_SA_RBM_DEADLY_BLOW                               = 24035,
+		RNSI_SA_RBM_SHOOTUP_GENOCIDE                          = 24036,
+		RNSI_SA_RBM_BLOODY_ACCEL_UPGRADE                      = 24047,
+		RNSI_SA_RBM_GIGA_DRIVE_LIMITER_UPGRADE                = 24048,
+		RNSI_SA_RBM_SHOCKWAVE_FRONT_UPGRADE                   = 24049,
+		RNSI_SA_RBM_WOLF_FANG_UPGRADE                         = 24050,
+		RNSI_SA_RBM_SHAPT_CHARGE                              = 24056,
+		RNSI_A_RBM_CUT_TENDON                                 = 24211,
+		RNSI_A_RBM_POINTED_STILETTO                           = 24222,
+		RNSI_A_RBM_SONIC_SLASH_UPGRADE                        = 24234,
+		RNSI_A_RBM_CUT_TENDON_UPGRADE                         = 24235,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-06 // char-raven CH1k
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY            = 24412,	// June's Enum.lua

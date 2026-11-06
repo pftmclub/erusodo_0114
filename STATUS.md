@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH3a | **ready**: Blade Master (106) skills; `/x2-phase char-raven CH3a` (Sonnet 5.5 high); not beside CH4a (one `X2GURaven.*` phase at a time) | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH3a.md` |
+| CH3a | built 2026-11-06 (Blade Master 106 skills, 16 ids, 8 new functions); **play-test owed** (units 78 `BladeMasterT` / 79 `BladeMasterU`), then `/x2-phase char-raven CH3a review` (Opus 5.5 high); not beside CH4a | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH3a.md` |
 | CH3b | blocked (CH3a review): Reckless Fist (107) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GURaven.*` | `CH3b.md` |
 | CH3c | blocked (CH3b review): Veteran Commander (115) skills but Ignition Crow / Deadly Raid | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GURaven.*` | `CH3c.md` |
 | CH3c2 | blocked (CH3c review; split by CH0): Ignition Crow Napalm / Incineration + Deadly Raid with their overheat states (45 fns) | Sonnet 5.5 / high, Opus review, user play-test | CH3c review | `X2GURaven.*` | `CH3c2.md` |
