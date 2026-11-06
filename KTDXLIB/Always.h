@@ -11858,3 +11858,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Revert: undefine the flag ( March's ScaleHand / RestoreHand come back; nothing calls SetLeftHandScale until CH2c ).
 #define SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-06
+// Description: the broadcast box on the bottom menu bar ( right of the EXP / stamina gauges ) always shows "Elsword Offline Jun17 by IruhaDev"
+//              Revert: undefine the flag.
+#define SERV_IRUHADEV_BOTTOM_BAR_CREDIT
+//////////////////////////////////////////////////////////////////////////

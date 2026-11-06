@@ -414,6 +414,22 @@ CKTDGUIDialogType CX2MemoryHolder::GetMenuDLG( CKTDXStage* pStage )
 
 #endif POSTBOX
 		g_pKTDXApp->GetDGManager()->GetDialogManager()->AddDlg( m_pMenuDLG );
+#ifdef SERV_IRUHADEV_BOTTOM_BAR_CREDIT
+		// the bar's "Static" holds the Bra_Notice picture ( x 552-1011, y 743 ); this string sits in that box
+		CKTDGUIStatic* pStaticMenuButton = static_cast<CKTDGUIStatic*>( m_pMenuDLG->GetControl( L"Static" ) );
+		if ( NULL != pStaticMenuButton )
+		{
+			CKTDGUIControl::UIStringData* pStringCredit = new CKTDGUIControl::UIStringData();
+			pStaticMenuButton->AddString( pStringCredit );
+			pStringCredit->fontIndex = XUF_DODUM_11_NORMAL;
+			pStringCredit->color = D3DXCOLOR( 1, 1, 0, 1 );
+			pStringCredit->outlineColor = D3DXCOLOR( 0, 0, 0, 1 );
+			pStringCredit->msg = L"Elsword Offline Jun17 by IruhaDev";
+			pStringCredit->fontStyle = CKTDGFontManager::FS_SHELL;
+			pStringCredit->sortFlag = DT_CENTER;
+			pStringCredit->pos = D3DXVECTOR2( 781.f, 755.f );
+		}
+#endif SERV_IRUHADEV_BOTTOM_BAR_CREDIT
 	}
 
 	DefualtSettingDLG( m_pMenuDLG, pStage );
