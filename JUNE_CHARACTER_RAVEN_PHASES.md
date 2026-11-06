@@ -1323,6 +1323,38 @@ No `exestr` line: every site is under the undefined `_LIVE`. No funcmap or `JUNE
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-raven CH1p review` (Opus 5.5 high).
 
+### CH1p - Review (2026-11-06)
+
+**Verdict: PASS, no code change** (flag `_LIVE`, still `//#define`). Read from the exe bytes (capstone over `unpacked_x2.exe`, `charport_adis.py raven`):
+- **The 12 held-key tests hold.** Each June function loads the future state data (`+0x7cb4` xor `+0x7cb0`, `[+8]` -> `+0xc` = `GetFutureStateSkillID()`
+  under `SERV_IRUHADEV_JUNE_SKILL_STATE_PTR`), pushes `+0x86da` (`m_InputData`) and calls `31fce710` at the cited address; `test al,al; je` skips the same
+  block March's `SAKP_*` test guards. Revolver Cannon / LOOP, Hellfire Gatling / LOOP, Giga Prominence / LOOP: key, then `_CanOverheat( 1 )` (March's default
+  argument), then `++` protected `+0x96bc`. Harpoon Spear: key, `_CanOverheat` -> `++m_iRVCComboLoopInputCount`, then the `>= 3` / `m_bShowedOverheat` icon
+  block and FIRE / FIRE_OVERHEAT (0x114 / 0x115) at animation end, = March's body. Deadly Raid: key -> `++m_iRVCComboLoopInputCount` (no overheat test, as
+  March). Deadly Raid LOOP / LOOP_OVERHEAT: `m_pXSkinAnim` time `< 0.21` first; Ignition Crow / Incineration: `m_pXSkinAnimFuture` time `< 2.01` first; the key
+  test inside, = March's nesting. No June structure around a call differs, so the `_LIVE` test alone is safe before each skill phase.
+- **Skill id is there to test.** The cast states get `m_eSkillID` from the slot head (CH1n); the LOOP states from `SetEquippedSkillLevelStateData`
+  (`X2GURaven.cpp:5898` / `:5905` / `:5911` / `:5939-5940`, `SetSkillLevelStateData` writes `m_eSkillID`), with June's ids (`ch0_state_skill.tsv`: LOOP rows =
+  cases 24019 / 24020 / 24021 / 24024, as March's templets).
+- **`+0x8ac0`:** `dispsweep.py 8ac0` = 11 hits; in the Raven range only the writer `32c43bf0 @32c43ed1`; readers Chung `32bfeb80`, Aisha `32cd9af0`.
+- **Limit Crusher.** `32c27860` = `Set( [+0x88bc] - 1 )` on `+0x8b58`, tail-jump vslot 0x7c0 (`CommonStateStartFuture`): whole body. `32c38f70`:
+  `FollowSlotSwap` `@32c38f7c`; animation end -> `32c3918a`; else time `< 0.45` skips the key; else `IsKeyReleased` `@32c38fb7` == 1 -> `32c3918a` (the revenge
+  StateChange, picking REVENGE_ATTACK / _UPGRADE by the equipped templet: CH3b's), otherwise the rest = CH3b's. Matches the converted condition.
+- **Shared reader.** `X2GUUser.cpp` `CommonSpecialAttackEventProcess`: the `_LIVE` line adds `UT_RAVEN` to Elsword's set; the `#else` is the Elsword / Chung
+  nest unchanged. `Always.h` guard: `_ELSWORD_LIVE` (`:11467`) and `_CHUNG_LIVE` (`:11089`) are defined above it; the `_LIVE` probes fire no `#error`.
+- **Left alone, correctly:** `RSI_SA_RWT_REVOLVER_CANNON_HE*` and `RSI_SI3_MAGNUM_BLASTER*` are `june-dead-data` (strings absent from June's exe). Shadow Step:
+  `32c30db0 @32c30e73` = `Set`, `32c52550 @32c5255b` = `FollowSlotSwap`, `@32c525f4` = `31fc8900`; the CH2a kickoff carries both (its lines 66-68).
+- **`cl /P` with `_LIVE`, X2GURaven.cpp bodies:** `CountUsedSkill` / `GetPressedSkillState` / `CurrentSkillKeyManager` 0; `SAKP_` 16 = the two HE states only;
+  `IsEquippedSkillKeyPressed` 12 (one per converted function); `m_kSkillSlotKey` 3 (Limit Crusher); `m_eSpecialAttackKeyPressed` 17 = the cooldown writer + HE.
+
+**Hygiene.** `flagcheck JUNE_CHAR_RAVEN_LIVE --range e81a7183^..e81a7183 --files` the 3: `files: 3 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`;
+0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 `#else/#endif` without the token, 0 encoding changes; RESULT FAIL only for `define: NOT FOUND` (`//#define`).
+numstat 76 / 0, 5 / 0, 3 / 0. `junediverge.py --check-all`: `allow-listed: 186`, `RESULT: PASS`. `enumscan.py --check X2GURaven.cpp X2GUUser.cpp`:
+`0 A/B row(s) remain`. Probes (`census.cl_cmd`, `/c /Zs /EHsc`), `_LIVE` off / on: `X2GURaven.cpp` 0 errors, 38 / 38 warnings; `X2GUUser.cpp` 0 errors,
+39 / 39. No build: the review changes no code.
+
+**Nothing to play-test.** CH1q kickoff checked. Next: `/x2-phase char-raven CH1q` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.
