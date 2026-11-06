@@ -1398,6 +1398,34 @@ CH4a: the run-jump EDT / `SFI_SPEED_9` blocks (not rage) and the Survival Techni
 **Nothing to play-test** (`_RAGE` and `_LIVE` are off). CH1's play-test lines are `[JUNE_CHAR] RAVEN RAGE hit gain` / `parry` / `ball level` / `orb ball` (CH1 kickoff
 amended). Next: `/x2-phase char-raven CH1q review` (Opus 5.5 high).
 
+### CH1q - Review (2026-11-06)
+
+**Verdict: PASS, no code change** (flag `_RAGE`, still `//#define`). Read from Ghidra and the exe bytes (`disasm_range.py`, `charport_consts.py`):
+- **Roll helper `32070350`** = `a > b` (`fcompp`, `test ah,0x41`, `jne` -> 0). Every site passes ( spec B `+0x6d04`, `GetRandomFloat( 0 )` vslot 0x1cc ): a win skips the cost.
+- **DoParrying `32c491a0`.** `@32c4942d` loads spec B over the random value, `fcompp` / `test ah,0x41` / `je 32c4957c` = spec B > random skips the cost. In the paid branch:
+  `clock()` -> `+0x9778`; rage `fsubr` qword 20.0; `@32c494e9` `fcomp` qword 60.0, `test ah,5` / `jp` skip = rage < 60 -> 0; `@32c49563` `dec` level, `cmp 3` / `jge` = < 3 -> 0. = the port.
+- **DoFrameMoveNasodBall `32c50330`.** Order = port: hyper gate, parry timer (`+0x97a4` / `+0x97a1`), delay (`>= 0.3`) then the level block (`@32c50438` `fdiv` qword
+  20.0 = `rage / 20.0`; others `+0x8160` sync count; `IsAttackNasodBall` inlined as delay || attack), follow (0.95 / 0.05 = float values), parry pos (-1, 70, 100),
+  attack end (`>= 1.2`; resets delay time, attack time, lock-on NPC / UID, attack flag). Rolls: `@32c507da` instance lost -> lose: rage - lv x 20.0, `ClearNasodBall`; win:
+  `RestoreNasodBall`. `@32c50b15` instance gone / `@32c50c3d` damage time `+0x850` > 0 -> lose: pay, clear, return; win or no hit -> `RestoreNasodBall`. = the port.
+- **AddRageGuage `32c41170`**: `31fceab0( 24419 )` > 0 -> x `32007b10( 0x18, 24419 )`; rage + ( `+0x6c50` + 1.0 ) x gain; clamp 100 / 0. `GetSkillLevelValue` resolves to
+  the one `JUNE_DIVERGE_SKILL_LEVEL_VALUE` body (31fceab0). **CanParryingState `32c3e030`**: `+0x80bc` and `+0x7e1c`; Now state ids 16 / 17 / 21, 25-43, 168 / 215 / 216
+  = June's `USI_JUMP_UP` / `_DOWN` / `DASH_JUMP`, `GROGGY..GRAPPLED_FRONT`, `RSI_COMBO_ZZZX` / `RBM_COMBO_ZZZX_EXPLOSION` / `RBM_COMBO_ZZZXZ` (`ch0_state_enum_names.tsv`).
+  **RestoreNasodBall `32c4fd80`**: `CreateNasodBall` first, then the `+0x650` / `+0x654` erase (`hitUnitList`, Eve CH1l4), then March's body.
+- **Gauge UI.** `32e6d900`: g_pX2Game + major particle gate, hyper count (`+0xf4`) != 3 -> `32e681e0`; create at ( 74.0 x `+0x1b8`, 60.0 x `+0x1bc` ), owner 0, args
+  -1 / -1 / -1 / -1 / -1.0 / 1 / 0 / 0 = `CreateSequenceHandle`'s defaults; missing sequence returns; `+0x170` OverUI; live handle: lost sequence -> -1, else
+  `SetPosition( pos, 0, 0 )`; `GetShow()` (vslot 0x1c) -> inlined `SetShowObject( !GetHideDialog() )`. The port's extra `m_pGageData` null test is defensive only.
+  `32e681e0` two passes = port. `32e5e450` = base `32e5c380`, then `g_pData+0x84` sequence `SetShowObject( arg )`; March's base `SetShow` is virtual (`X2GageUI.h:107`).
+  Vtable `3353348c` differs from both siblings (`3353336c`, `335336cc`) at slots 0 / 2 / 8 / 21 only; slot 1 `32e6d6a0` is shared (3 vtables). `32e5b470` pushes
+  6 / 5 / 3 / 2 = `PGUWO_ORB_EVE` (under `ADD_EVE_SYSTEM_2014`) / `_ARA` / `_CHUNG` / `_ORB3`.
+- **= March spot-check:** `CreateNasodBall` plays `EffectSet_BEED_UP` in March too. **Routing** (Stage 33 bullet, CH1 / CH4a amendments) is in place and correct.
+
+**Hygiene.** `flagcheck _RAGE --range 8b093bac^..8b093bac --with _RAGE_DEBUG --files` the 4: `files: 2 PASS, 1 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; 0 deleted,
+0 non-ASCII, 0 EOL-mismatched, 0 `#else/#endif` without the token, 0 encoding changes; RESULT FAIL only for `define: NOT FOUND` (`//#define`). numstat 198 / 74 / 7 / 42, 0 deleted.
+`_RAGE_DEBUG --with _RAGE`: `1 PASS, 1 PASS~, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 186`, `RESULT: PASS`.
+`enumscan.py --check X2GURaven.cpp X2GageUI.cpp`: `0 A/B row(s) remain`. Probes (`census.cl_cmd`, `/c /Zs /EHsc`) of both files: no flag, `_RAGE`, `_LIVE` + `_RAGE` = 0 errors;
+`_LIVE` alone = C1189 at `Always.h(11792)`. No build: the review changes no code. CH1 kickoff checked: ready once CH0b's walk is done.
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.
