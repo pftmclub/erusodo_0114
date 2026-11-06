@@ -4321,6 +4321,139 @@ void CX2GURaven::InitStateWeaponTaker()
 
 /*virtual*/ void CX2GURaven::SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c28270: every equipped skill's level and power rate go to its states; June's dirty-state batch around it has no March form
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ROT_VALKYRIESJAVELIN == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ROT_VALKYRIESJAVELIN, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SA_ROT_VALKYRIESJAVELIN_LANDING );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RRF_WILD_CHARGE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RRF_WILD_CHARGE, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SA_RRF_WILD_CHARGING );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SA_RRF_WILD_CHARGE_DASH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RBM_WOLF_FANG == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RBM_WOLF_FANG, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, SI_SA_RBM_WOLF_FANG_HIT );
+		SetEquippedSkillLevelStateData( pSkillTemplet, SI_SA_RBM_WOLF_FANG_HITLANDING );
+		SetEquippedSkillLevelStateData( pSkillTemplet, SI_SA_RBM_WOLF_FANG_STARTLANDING );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RWT_HARPOON_SPEAR == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RWT_HARPOON_SPEAR, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SA_RWT_HARPOON_SPEAR_FIRE );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SA_RWT_HARPOON_SPEAR_FIRE_OVERHEAT );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SA_RWT_REVOLVER_CANNON_LOOP );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SA_RWT_REVOLVER_CANNON_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RWT_HELLFIRE_GATLING == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RWT_HELLFIRE_GATLING, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SA_RWT_HELLFIRE_GATLING_LOOP );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RVC_GIGA_PROMINENCE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RVC_GIGA_PROMINENCE, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SA_RWT_GIGA_PROMINENCE_LOOP );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SA_RWT_GIGA_PROMINENCE_FINISH );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SA_RWT_GIGA_PROMINENCE_OVER_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RVC_IGNITION_CROW_NAPALM == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RVC_IGNITION_CROW_NAPALM, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_IGNITION_CROW_FIRE );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_IGNITION_CROW_FIRE_UPGRADE );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_UPGRADE );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RVC_IGNITION_CROW_INCINERATION == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RVC_IGNITION_CROW_INCINERATION, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_IGNITION_CROW_INCINERATION_OVERHEAT_END );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_UPGRADE );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_UPGRADE );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_IGNITION_CROW_INCINERATION_OVERHEAT_END_UPGRADE );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RVC_DEADLY_RAID == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RVC_DEADLY_RAID, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_DEADLY_RAID_LOOP );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_DEADLY_RAID_LOOP_END );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_DEADLY_RAID_FINISH );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_RF_FLAME_SWORD == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RF_FLAME_SWORD, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_A_RWT_FLAME_SWORD_GROUND );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_A_RWT_FLAME_SWORD_FLY );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_RRF_LIMIT_CRUSHER == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RRF_LIMIT_CRUSHER, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_A_RRF_LIMIT_CRUSHER_AVOID_ATTACK );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_RST_BLEEDING_SLICER == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RST_BLEEDING_SLICER, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_A_BLEEDING_SLICER_GROUND );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RVC_SI_A_BLEEDING_SLICER_FLY );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_RBM_SONIC_SLASH == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RBM_SONIC_SLASH, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_A_RBM_SONIC_SLASH_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_RWT_BARRAGE_ATTACK == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RWT_BARRAGE_ATTACK, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_A_RWT_BARRAGE_ATTACK_STAND );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_A_RWT_BARRAGE_ATTACK_AIR );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_HA_RBM_EXTREM_BLADE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_HA_RBM_EXTREM_BLADE, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_HA_RBM_EXTREM_BLADE_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_RF_SHADOW_STEP == eSkillID_ || CX2SkillTree::RNSI_A_RF_SHADOW_STEP_UPGRADE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RF_SHADOW_STEP, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SHADOW_STEP_Z );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SHADOW_STEP_Z_UPGRADE );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SHADOW_STEP_X_UPGRADE );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SHADOW_BACK_SLIDE_UPGRADE );
+		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_SHADOW_BACK_SLIDE_END_UPGRADE );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifndef UPGRADE_SKILL_SYSTEM_2013 // Raven
 	if ( true == bChangeAll_ || CX2SkillTree::SI_A_RF_BURNING_RUSH == eSkillID_ )
 	{
@@ -5047,6 +5180,7 @@ void CX2GURaven::InitStateWeaponTaker()
 		SetEquippedSkillLevelStateData( pSkillTemplet, RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH );
 	}
 #endif //FINALITY_SKILL_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -7770,6 +7904,28 @@ void CX2GURaven::RSI_DASH_JUMP_POWER_LANDING_EventProcess()
 //RSI_HYPER_MODE
 void CX2GURaven::HyperModeFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c4f640: the first frame of the awakening gives a unit under half HP Reversal Soldier's MP, then the common hyper-mode frame move
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		if ( NULL != GetUnit() && NULL != g_pData->GetSkillTree() )
+		{
+			const float fHpRate = GetNowHp() / GetMaxHp();
+			if ( fHpRate < 0.5f )
+			{
+				const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RVC_REVERSAL_SOLDIER, true, 0, true );
+				if ( 0 < iSkillLevel )
+				{
+					const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RVC_REVERSAL_SOLDIER );
+					if ( NULL != pSkillTemplet )
+						UpNowMp( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, iSkillLevel ) );
+				}
+			}
+		}
+	}
+
+	CommonHyperModeFrameMove( 0.05f, 0.83f );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef MODIFY_RIDING_PET_AWAKE
 	CommonHyperModeFrameMove( 0.05f, 0.83f );
 #else
@@ -7804,6 +7960,7 @@ void CX2GURaven::HyperModeFrameMove()
 	}
 	CommonFrameMove();
 #endif // MODIFY_RIDING_PET_AWAKE
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 ////RSI_DAMAGE_GROGGY
@@ -18002,7 +18159,7 @@ void CX2GURaven::AddRageGuage(float fVal)
 /*virtual*/ float CX2GURaven::GetHyperModeTime() const
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
-	// June 32c3db70: the remaining hyper time decides, the awakening count times the per-count time, Spiritualized Fury scales it for a transcended unit
+	// June 32c3db70: while the gage has hyper time left, the awakening counts left x the max time, x Spiritualized Fury when it lets awakening re-trigger; a forced time wins
 	if ( NULL != GetGageData() && 0.f < GetRemainHyperModeTime() )
 	{
 		const int iLeftHyperModeCount = GetLastStateHyperModeCount() - GetHyperModeCount();

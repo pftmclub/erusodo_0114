@@ -2366,6 +2366,28 @@ public:
 		RNSI_A_RRF_ENCHANT_HAND                               = 24206,	// June's Enum.lua
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-06 // char-raven CH1i
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_ROT_VALKYRIESJAVELIN                          = 24004,	// June's Enum.lua
+		RNSI_SA_RRF_WILD_CHARGE                               = 24009,
+		RNSI_SA_RBM_WOLF_FANG                                 = 24017,
+		RNSI_SA_RWT_HARPOON_SPEAR                             = 24018,
+		RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR       = 24019,
+		RNSI_SA_RWT_HELLFIRE_GATLING                          = 24020,
+		RNSI_SA_RVC_GIGA_PROMINENCE                           = 24021,
+		RNSI_SA_RVC_IGNITION_CROW_NAPALM                      = 24022,
+		RNSI_SA_RVC_IGNITION_CROW_INCINERATION                = 24023,
+		RNSI_SA_RVC_DEADLY_RAID                               = 24024,
+		RNSI_A_RF_FLAME_SWORD                                 = 24201,
+		RNSI_A_RRF_LIMIT_CRUSHER                              = 24205,
+		RNSI_A_RST_BLEEDING_SLICER                            = 24208,
+		RNSI_A_RBM_SONIC_SLASH                                = 24210,
+		RNSI_A_RWT_BARRAGE_ATTACK                             = 24212,
+		RNSI_A_RF_SHADOW_STEP_UPGRADE                         = 24217,
+		RNSI_P_RVC_REVERSAL_SOLDIER                           = 24413,
+		RNSI_HA_RBM_EXTREM_BLADE                              = 24601,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-29 // june-march-divergence D1-2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names CheckSummonSpecialAttack's Add summon skills spell (values from June's Enum.lua)

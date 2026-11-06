@@ -267,6 +267,16 @@ class CX2GURaven : public CX2GUUser
 			RSI_OVER_TAKER_COMBO_XXfrontXX3,	/// June script id 193 ( Over Taker X-X-front-X-X 3 )
 			RSI_OVER_TAKER_COMBO_XXfrontXX4,	/// June script id 194 ( Over Taker X-X-front-X-X 4 )
 			RSI_OVER_TAKER_COMBO_XXfrontXXdownX,	/// June script id 195 ( Over Taker X-X-front-X-X down-X ( shares the X-X-front-X-X 4 EventProcess ) )
+			RSI_SHADOW_STEP_Z,	/// June script id 305 ( Shadow Step Z; set by SetEquippedSkillLevel )
+			RSI_SHADOW_STEP_Z_UPGRADE,	/// June script id 306
+			RSI_SHADOW_STEP_X_UPGRADE,	/// June script id 307
+			RSI_SHADOW_BACK_SLIDE_UPGRADE,	/// June script id 308
+			RSI_SHADOW_BACK_SLIDE_END_UPGRADE,	/// June script id 309
+			RVC_SI_SA_IGNITION_CROW_FIRE_UPGRADE,	/// June script id 312 ( Ignition Crow upgrade; set by SetEquippedSkillLevel )
+			RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_UPGRADE,	/// June script id 313
+			RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_UPGRADE,	/// June script id 315 ( Incineration upgrade )
+			RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_UPGRADE,	/// June script id 316
+			RVC_SI_SA_IGNITION_CROW_INCINERATION_OVERHEAT_END_UPGRADE,	/// June script id 317 ( not registered by name; the slot after 316 )
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 
 		};
