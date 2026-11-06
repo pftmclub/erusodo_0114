@@ -1472,6 +1472,19 @@ Build: `DEPLOY OK: X2_offline.exe is 26,039,296 B, dated 2026-11-06 14:49:59, md
 **Play-test (user) is the gate:** units 72-77 (classes 4 / 16 / 17 / 25 / 107 / 115) and 49 (106), skills 24025 / 24217 / 24026 / 24027 in slots A-S-D-C (bank 0;
 none in slot 4 / 9) for the bar only; combos, dash, jump, a bounding hit, damage and stand-up, riding, parrying, rage gain, Nasod balls, the orb ball, awakening; the Z
 re-attack after a full Z-Z-Z (CH1d); `RAVEN DATA` per class; ErrorLog against the reference. Skills are not tested here (user, 2026-11-06: an unported skill cannot be cast); the two-casts check (cool time, MP, `ReservedSkillStart`) is CH2a's first hand-off.
+**Play-test (2026-11-06, run 14:53-15:02 on md5 76fc2a9a): user "all test passed".** `offline_server.log`:
+- `RAVEN DATA` for all 7 classes, each `script RAVEN_FIGHTER.lua motion MOTION_RAVEN.X wait_state_change 1`; states 4: 136, 16: 155, 17: 148, 25: 155,
+  106: 159 (twice, the same), 107: 155, 115: 174 (the review checks them against `ch1m_reg_by_class.tsv`).
+- `RAVEN RAGE`: `orb ball ... sequence made, at ( 93, 56 )` x3 (107 / 115 / 106; = ( 74, 60 ) x the resolution scale 1.25 / 0.93), `ball level 5, rage 100.0`
+  x3 right after (awakening), `hit gain 0.62 ( specialization A 0.00, Open Mind level 0 ): rage 100.6` x1 (logged before the clamp to 100).
+  **Open:** no `parry` line. The review asks for that step once before retiring `_RAGE_DEBUG`.
+- START / WIN / LOSE: ErrorLog's `C3e-2 roll` lines pick `RSI_*_START` / `_WIN` / `_LOSE` tables for every job, list sizes 1-6, none `list size 0`.
+ErrorLog against `ErrorLog_pre_CH1_raven.txt` / `ErrorLog_pre_CH0b_raven.txt`: `KEM_ERROR` 0 / 0 / 0, `Motion Error` 0 / 0 / 0, `[LUA_SRC]` 7 / 7 / 7, `lua error` 3 / 3 / 3,
+no missing animation. The new lines come from Raven gear, effects and places those runs never opened: optional `.XET` probes (Raven costume / effect
+meshes, `C_RVC_DashComboZZZZ_AttackLine`), `result : 47` on nine Raven sounds (as Chung's and Elsword's), `HQ_CUTIN_RAVEN_N.DDS.GFX` (March's cut-in table
+plus `.gfx`, CH5's), the quest event scene `Quest_N_RAVEN_End`, three texture names no kom has (`MESH_RAEN_CASH_FACE.TGA` and `MESH_RAVEN_CASH_FACETGA`, typos
+inside a costume mesh; `ATTRIBUTE_HAND_WHITE.TGA`, where data002 has the `.dds`), and `JUNE_FX MP_CRASH RVC_C_dashJumpX_bullet_M01` traces. Nothing
+broke in play; no new routing. `AddGroupChainQuest` unbound x1 is pre-CH1.
 
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 

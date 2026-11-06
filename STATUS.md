@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1 | **done 2026-11-06, play-test owed** (`_LIVE` + `_RAGE` defined, June's script + OT motion copied in data036 / data033; user walks Raven per job, then `check logs`) | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | Always.h, data036, motion kom | `CH1.md`, review `CH1-review.md` |
+| CH1 | **done 2026-11-06, play-test passed** (`_LIVE` + `_RAGE` live, June's script + OT motion; `RAVEN DATA` x7 classes; review owes the parry line, retires `_RAGE_DEBUG`) | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | Always.h, data036, motion kom | `CH1.md`, review `CH1-review.md` |
 | CH2a | blocked (CH1 review): Raven (4) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GURaven.*`, `MODS.md` | `CH2a.md` |
 | CH2b | blocked (CH2a review): Sword Taker (16) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GURaven.*` | `CH2b.md` |
 | CH2c0 | blocked (CH2b review; added by CH0): June-only `CX2GUUser` left-hand bone scale setter `31fd9f40` (Megadrill Break) | Opus 5.5 / high, Opus review | CH2b review | `X2GUUser.*`, Always.h | `CH2c0.md` |
