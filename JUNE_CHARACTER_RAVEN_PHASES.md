@@ -2025,7 +2025,7 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (the base setter; `_SKILL_DEBUG` re-
   `TR_R_FIST_STATE` `@333711ba` -> `Texture97_NEW`): large + gray in **Texture99** (Raven joins the Eve / Chung condition), gauge `_STATE` for all three, medium / icon / party Texture100, `list_TR_*`
   in `GUI_character_01` (+ `_gray`). Every piece is in the staged TETs (data215, data057, datai021).
 - `LevelUpEvent.lua` (data036, BOM source) gets `TYPE4` = June's `TYPE3` row (`LevelUpEvent.src.lua:509-527`: LEVEL 70, the three classes, `DLG_Transcendental_Change_Guide_Raven.lua`,
-  `RavenVoice_ClassUpReady01 / 02.ogg`, data097). `luasrc.py refresh`, `ledger --check` PASS; `PACK OK data036` (only `LevelUpEvent.lua` changed); the copy waits for the user's yes.
+  `RavenVoice_ClassUpReady01 / 02.ogg`, data097). `luasrc.py refresh`, `ledger --check` PASS; `PACK OK data036` (only `LevelUpEvent.lua` changed); `COPY OK data036` md5 93698107 (user's yes, 2026-11-07).
 - Already June's, verified: the guide dialog (`adopt-june --dry-run` identical) and `POPUP_TR_B_MASTER / R_FIST / V_COMMANDER` (data215); `HQ_Cutin_RBM / RRF / RVC_Transcendence.gfx` (data195)
   and CH5's `m_HyperCutIn` rows; `GetHyperModeTableName` (CH1m); 18 `SPRT_HYPER_CLASS` ids and 12 `TRANSCENDENTAL_SKILL_DATA` rows (`NewSkillTempletVer2.lua`, `SkillCommandDescriptionData.lua`
   identical to June); the hyper effect start's transcended return (CH1h, `32c4e7c0`); the 24419 branch of `HyperModeStart` (`JUNE_USER_BASE_STATE_BODIES`, not class-gated); the type-13
