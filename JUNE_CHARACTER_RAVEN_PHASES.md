@@ -1470,8 +1470,8 @@ Build: `DEPLOY OK: X2_offline.exe is 26,039,296 B, dated 2026-11-06 14:49:59, md
 `EXESTR OK: 2 of 2 found in X2_offline.exe, 26039296 B, dated 2026-11-06 14:49:59, md5 76fc2a9ac22588f39c371b564994b92e` (`RAVEN DATA` wide x1, `RAVEN RAGE` wide x4).
 
 **Play-test (user) is the gate:** units 72-77 (classes 4 / 16 / 17 / 25 / 107 / 115) and 49 (106), skills 24025 / 24217 / 24026 / 24027 in slots A-S-D-C (bank 0;
-none in slot 4 / 9); combos, dash, jump, a bounding hit, damage and stand-up, riding, parrying, rage gain, Nasod balls, the orb ball, awakening; the Z
-re-attack after a full Z-Z-Z (CH1d); `RAVEN DATA` per class; ErrorLog against the reference. Skills are CH2-CH3's: an unported skill takes March's route.
+none in slot 4 / 9) for the bar only; combos, dash, jump, a bounding hit, damage and stand-up, riding, parrying, rage gain, Nasod balls, the orb ball, awakening; the Z
+re-attack after a full Z-Z-Z (CH1d); `RAVEN DATA` per class; ErrorLog against the reference. Skills are not tested here (user, 2026-11-06: an unported skill cannot be cast); the two-casts check (cool time, MP, `ReservedSkillStart`) is CH2a's first hand-off.
 
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 

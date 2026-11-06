@@ -28,6 +28,7 @@ Review CH1 final against its Done gate (plan section "Phase CH1 - Deploy unit", 
   floor, the orb ball at ( 74, 60 ) while three orbs are held, gone at awakening). A step the user's run missed is asked for once. Then **retire
   `_RAGE_DEBUG`** (comment out its `#define`; the `_LIVE` include keeps `X2OfflineLog.h` for `RAVEN DATA`), build, `exestr.py --absent` on the
   four `RAVEN RAGE` strings.
+- **Skills are not checked** (user, 2026-11-06: unported skills cannot be cast); the cool time / MP check moved to CH2a.
 - **Z re-attack after a full Z-Z-Z** (CH1d routing): June no longer re-arms `m_fReAttackZ1Time`; record what the run showed.
 - **ErrorLog** against `data\ErrorLog_pre_CH1_raven.txt` (192,987 B, a start-up-only run 2026-11-06 14:35 on the pre-CH1 exe) and, for Raven-load
   lines, `ErrorLog_pre_CH0b_raven.txt`: no new `KEM_ERROR` / `Motion Error` / missing Raven animation and no new `[LUA_SRC]` error; anything new is

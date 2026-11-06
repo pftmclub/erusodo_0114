@@ -30,7 +30,8 @@ callee) is "this needs Opus": stop.
 - `NUM use` lines for these skills; March vs June damage per skill in `MODS.md`.
 - CP949: `bytepatch.py` only. Mark the ported checklist rows `(Raven: CH2a)`.
 - Hand-off: the unit and class, each skill id and its A / B slot (never slot 4 / 9 before transcendence; learn only the bank under test), each
-  cast twice (cool time, MP), what June's motion and effect look like.
+  cast twice (cool time, MP), what June's motion and effect look like. This is the first skill cast on `_LIVE` (CH1 could not test skills, user
+  2026-11-06): it also proves CH1k's `ReservedSkillStart` (cool time and MP at skill-state start).
 
 No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): an id that has a name in an Enum (June's
 `Enum.lua`, or a C++ enum) is never written as a number, in any new or touched code: use the member, and
