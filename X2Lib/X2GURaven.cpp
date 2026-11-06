@@ -4651,6 +4651,128 @@ void CX2GURaven::InitStateWeaponTaker()
 			hyperStateData.StateInit		= normalStateData.StateInit;
 			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
 		} break;
+
+	case CX2SkillTree::RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG:	// June 32c641a0 @32c645a6, hyper tail @32c66d70
+	case CX2SkillTree::RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "RSI_SI1_OVER_TAKER_CHARGED_BOLT", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_SI1_OVER_TAKER_CHARGED_BOLT_Init );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_SI1_OVER_TAKER_CHARGED_BOLT_FrameMove );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SI1_OVER_TAKER_CHARGED_BOLT_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_SI1_OVER_TAKER_CHARGED_BOLT", hyperStateData.stateID );
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_ROT_GUARDIAN_STRIKE:	// June 32c641a0 @32c646bd / @32c646fe
+	case CX2SkillTree::RNSI_SA_ROT_GUARDIAN_STRIKE_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GURaven, RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_Init );
+			normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GURaven, RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_StateStartFuture );
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GURaven, RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_FrameMove );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GURaven, RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE", hyperStateData.stateID );
+			hyperStateData.StateStartFuture		= normalStateData.StateStartFuture;
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_ROT_VALKYRIESJAVELIN:	// June 32c641a0 @32c6486e / @32c648bc, LANDING @32c64929
+	case CX2SkillTree::RNSI_SA_ROT_VALKYRIESJAVELIN_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "RSI_SA_ROT_VALKYRIESJAVELIN", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_SA_ROT_VALKYRIESJAVELIN_Init );
+			normalStateData.StateStart		= SET_CB_FUNC( CX2GURaven, RSI_SA_ROT_VALKYRIESJAVELIN_StateStart );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_SA_ROT_VALKYRIESJAVELIN_FrameMove );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SA_ROT_VALKYRIESJAVELIN_EventProcess );
+			normalStateData.StateEnd		= SET_CB_FUNC( CX2GURaven, RSI_SA_ROT_VALKYRIESJAVELIN_StateEnd );
+
+			m_LuaManager.MakeTableReference( "RSI_SA_ROT_VALKYRIESJAVELIN", hyperStateData.stateID );
+			hyperStateData.StateStart		= normalStateData.StateStart;
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+			hyperStateData.StateEnd			= normalStateData.StateEnd;
+
+			UserUnitStateData stateData;
+
+			stateData.Init();
+			stateData.stateID			= RSI_SA_ROT_VALKYRIESJAVELIN_LANDING;
+			m_LuaManager.MakeTableReference( "RSI_SA_ROT_VALKYRIESJAVELIN_LANDING", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SA_ROT_VALKYRIESJAVELIN_LANDING_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2SkillTree::RNSI_A_ROT_HELL_DIVE:	// June 32c641a0 @32c661a9 / @32c661d4
+		{
+			m_LuaManager.MakeTableReference( "RSI_A_RRF_HELL_DIVE", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_A_RRF_HELL_DIVE_Init );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_A_RRF_HELL_DIVE_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_A_RRF_HELL_DIVE", hyperStateData.stateID );
+			hyperStateData.StateInit		= normalStateData.StateInit;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_A_ROT_HELL_DIVE_UPGRADE:	// June 32c641a0 @32c66209 / @32c66234
+		{
+			m_LuaManager.MakeTableReference( "RSI_A_RRF_HELL_DIVE_UPGRADE", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_A_RRF_HELL_DIVE_Init );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_A_RRF_HELL_DIVE_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_A_RRF_HELL_DIVE_UPGRADE", hyperStateData.stateID );
+			hyperStateData.StateInit		= normalStateData.StateInit;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_A_ROT_MEGADRILL_BREAK:	// June 32c641a0 @32c66668 / @32c666b6
+		{
+			m_LuaManager.MakeTableReference( "RSI_A_RF_MEGADRILL_BREAK", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GURaven, RSI_A_RF_MEGADRILL_BREAK_Init );
+			normalStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GURaven, RSI_A_RF_MEGADRILL_BREAK_FrameMoveFuture );
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GURaven, RSI_A_RF_MEGADRILL_BREAK_FrameMove );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GURaven, RSI_A_RF_MEGADRILL_BREAK_EventProcess );
+			normalStateData.StateEnd			= SET_CB_FUNC( CX2GURaven, RSI_A_RF_MEGADRILL_BREAK_End );
+
+			m_LuaManager.MakeTableReference( "RSI_A_RF_MEGADRILL_BREAK", hyperStateData.stateID );
+			hyperStateData.StateInit			= normalStateData.StateInit;
+			hyperStateData.OnFrameMoveFuture	= normalStateData.OnFrameMoveFuture;
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+			hyperStateData.StateEnd				= normalStateData.StateEnd;
+		} break;
+
+	case CX2SkillTree::RNSI_A_ROT_MEGADRILL_BREAK_UPGRADE:	// June 32c641a0 @32c66709, hyper through @32c666b6
+		{
+			m_LuaManager.MakeTableReference( "RSI_A_RF_MEGADRILL_BREAK_UPGRADE", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GURaven, RSI_A_RF_MEGADRILL_BREAK_Init );
+			normalStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GURaven, RSI_A_RF_MEGADRILL_BREAK_FrameMoveFuture );
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GURaven, RSI_A_RF_MEGADRILL_BREAK_FrameMove );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GURaven, RSI_A_RF_MEGADRILL_BREAK_EventProcess );
+			normalStateData.StateEnd			= SET_CB_FUNC( CX2GURaven, RSI_A_RF_MEGADRILL_BREAK_End );
+
+			m_LuaManager.MakeTableReference( "RSI_A_RF_MEGADRILL_BREAK_UPGRADE", hyperStateData.stateID );
+			hyperStateData.StateInit			= normalStateData.StateInit;
+			hyperStateData.OnFrameMoveFuture	= normalStateData.OnFrameMoveFuture;
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+			hyperStateData.StateEnd				= normalStateData.StateEnd;
+		} break;
+
+	case CX2SkillTree::RNSI_A_ROT_WEAPON_BREAK:	// June 32c641a0 @32c649c0 / @32c649f6
+	case CX2SkillTree::RNSI_A_ROT_WEAPON_BREAK_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "RSI_A_ROT_WEAPON_BREAK", normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_A_ROT_WEAPON_BREAK_Init );
+			normalStateData.StateStart		= SET_CB_FUNC( CX2GURaven, RSI_A_ROT_WEAPON_BREAK_StateStart );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_A_ROT_WEAPON_BREAK_EventProcess );
+
+			m_LuaManager.MakeTableReference( "RSI_A_ROT_WEAPON_BREAK", hyperStateData.stateID );
+			hyperStateData.StateStart		= normalStateData.StateStart;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+		} break;
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	default:
 		{
@@ -18538,6 +18660,49 @@ void CX2GURaven::RSI_SI1_OVER_TAKER_CHARGED_BOLT_StateStartFuture()
 
 void CX2GURaven::RSI_SI1_OVER_TAKER_CHARGED_BOLT_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c48de0: one Charged Bolt damage effect for every memo ( the memo one is June's skill-memo damage data )
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLight( L"Dummy2_Lhand", 0.04f, 0 );
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.4f ) )
+	{
+		D3DXVECTOR3 vRotDegree = GetRotateDegree();
+		D3DXVECTOR3 vPos = GetPos();
+
+		if( false == GetIsRight() )
+		{
+			vRotDegree.y += 180.f;
+			vPos += GetDirVector() * 30.f;
+		}
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( (CX2GameUnit*) this, L"RAVEN_OVER_TAKER_CHARGED_BOLT", GetPowerRate(), vPos,
+			vRotDegree, vRotDegree, m_FrameDataNow.unitCondition.landPosition.y );
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.7f ) )
+	{
+		D3DXVECTOR3 vPos = GetPos();
+		if( true == GetIsRight() )
+		{
+			vPos -= GetDirVector() * 20.f;
+		}
+		else
+		{
+			vPos += GetDirVector() * 20.f;
+		}
+		vPos.y += 50.f;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this,  L"Flare_Raven_Overtaker_Sp1a_ChargedBolt02", vPos );
+		pSeq->SetAxisAngle( GetRotateDegree() );
+		pSeq->SetLandPosition( m_FrameDataNow.unitCondition.landPosition.y );
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.8f ) )
+	{
+		UpDownCrashCamera( 4.f, 0.3333f );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 // #ifndef UPGRADE_SKILL_SYSTEM_2013 // 청 스킬 개편, 김종훈
 	// 차지드 볼트가 액티브로 변경됨
 	ChangeWorldColorByHyperMode();
@@ -18599,6 +18764,7 @@ void CX2GURaven::RSI_SI1_OVER_TAKER_CHARGED_BOLT_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_SI1_OVER_TAKER_CHARGED_BOLT_EventProcess()
@@ -19116,6 +19282,20 @@ void CX2GURaven::RSI_SI2_OVER_TAKER_ARC_ENEMY_HYPER_EventProcess()
 
 void CX2GURaven::RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c265d0
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"EL_FIRE_06.dds" );
+	XSkinMeshReadyInBackground( L"GuardianStrike01.X" );
+	TextureReadyInBackground( L"LD_Blade_Liner01.dds" );
+	TextureReadyInBackground( L"ROT_FireBall01.dds" );
+	TextureReadyInBackground( L"RingAlpha.dds" );
+	XMeshReadyInBackground( L"SCA_CRIMSON_BREAK_P01.Y" );
+	TextureReadyInBackground( L"SpreadLight03_Gray.dds" );
+	TextureReadyInBackground( L"VERITABLE_PANDEMONIUM_T02.dds" );
+	TextureReadyInBackground( L"WhitePoint.dds" );
+	TextureReadyInBackground( L"WhitePointSmall.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	XSkinMeshReadyInBackground( L"GuardianStrike01.X" );
 	XSkinMeshReadyInBackground( L"GuardianStrike02.X" );
 
@@ -19123,6 +19303,7 @@ void CX2GURaven::RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_Init()
 	TextureReadyInBackground( L"Arme_Ring2.dds" );
 	TextureReadyInBackground( L"PinLight01.tga" );
 	TextureReadyInBackground( L"Raven_GuardianStrike01.tga" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_StateStartFuture()
@@ -19135,6 +19316,22 @@ void CX2GURaven::RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_StateStartFuture()
 
 void CX2GURaven::RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c30cb0: the unit goes onto the effect layer in dark red for 1.4 s ( CommonFrameMove puts it back ); the effects come from the script
+	if( m_pXSkinAnim->EventTimerOneshot( 0.678f ) )
+	{
+		SetLayer( XL_EFFECT_2 );
+		m_bSetCustomRenderParam = true;
+		m_RenderParam.color = 0xff5f0000;
+		SetAlphaObject( true );
+		m_fGuardianStrikeRenderTime = 1.4f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL guardian strike layer set" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	ChangeWorldColorByHyperMode();
 
 	ShowActiveSkillCutInAndLight( L"Dummy2_Lhand", 0.04f, 2 );
@@ -19289,6 +19486,7 @@ void CX2GURaven::RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_FrameMove()
 
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_EventProcess()
@@ -21842,6 +22040,29 @@ void CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_StateStart()
 
 void CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c49730: the new Valkyrie's Javelin effect set, with no memo power-up
+	ChangeWorldColorByHyperMode();
+
+	ShowActiveSkillCutInAndLight( L"Dummy2_Lhand", 0.04f, 1 );
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		CX2EffectSet::Handle hGroundImpact = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_ROT_VALKYRIESJAVELIN_NEW", this );
+		m_vecEffectSetToDeleteOnDamageReact.push_back( hGroundImpact );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL valkyrie javelin effect set played" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.48f ) )
+	{
+		m_bDisableGravity = false;
+		m_PhysicParam.fDownAccel = m_PhysicParam.fGAccel * 2.f;
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	ChangeWorldColorByHyperMode();
 
 	ShowActiveSkillCutInAndLight( L"Dummy2_Lhand", 0.04f, 1 );
@@ -21887,6 +22108,7 @@ void CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_SA_ROT_VALKYRIESJAVELIN_EventProcess()
@@ -22082,11 +22304,30 @@ void CX2GURaven::RSI_A_RST_CUT_TENDON_EventProcess()
 
 void CX2GURaven::RSI_A_ROT_WEAPON_BREAK_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c268e0
+	TextureReadyInBackground( L"Blur_16.dds" );
+	TextureReadyInBackground( L"Damage_Center.dds" );
+	TextureReadyInBackground( L"Damage_Line.dds" );
+	TextureReadyInBackground( L"Damage_Ling.dds" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.x" );
+	TextureReadyInBackground( L"LD_Slicer_trace_01.dds" );
+	XSkinMeshReadyInBackground( L"ROT_HellDive_M01.X" );
+	XSkinMeshReadyInBackground( L"ROT_HellDive_M02.X" );
+	TextureReadyInBackground( L"Star.dds" );
+	TextureReadyInBackground( L"WhitePoint.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	TextureReadyInBackground( L"Break_Impact01.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_A_ROT_WEAPON_BREAK_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c26970: the skill's buff factors come from the script's damage data
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	CommonStateStart();
 
 	const CX2SkillTree::SkillTemplet* pSkillTemplet 
@@ -22112,6 +22353,7 @@ void CX2GURaven::RSI_A_ROT_WEAPON_BREAK_StateStart()
 			m_DamageData.PushBuffFactor( pSkillTemplet->m_vecBuffFactorPtr[0] );	
 #endif //UPGRADE_SKILL_SYSTEM_2013
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_A_ROT_WEAPON_BREAK_EventProcess()
@@ -31056,6 +31298,10 @@ void CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_Init()
 	TextureReadyInBackground( L"raven_beed_hit_spark.DDS" );
 	TextureReadyInBackground( L"state_potion_flare.DDS" );
 	TextureReadyInBackground( L"ColorBallGray.dds" );	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	XSkinMeshReadyInBackground( L"aisha_SA_SCREWDRIVER_circle.X" );	// June 32c27500: two more than March's list
+	TextureReadyInBackground( L"GroundShockWave.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_FrameMoveFuture()
@@ -31111,6 +31357,15 @@ void CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_FrameMove()
 		SetEnableAttackBox( L"Lhand1", true );
 		SetEnableAttackBox( L"Sword", false );
 		m_DamageData.backSpeed.x = 0.0f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		/// June 32c5ce40: the drill's second hit also drains mana ( extra damage type, damage 2 )
+		m_DamageData.m_bApplyExtraDamage = true;
+		m_DamageData.m_ExtraDamage.m_Damage = 2.f;
+		m_DamageData.m_ExtraDamage.m_ExtraDamageType = CX2DamageManager::EDT_MANA_DAMAGE;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL megadrill second hit mana damage" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	}
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     else if( m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
@@ -31134,6 +31389,14 @@ void CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_FrameMove()
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 			SetDamageData( "DAMAGE_DATA_NEXT" );	
 			m_LuaManager.EndTable();		
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+			/// June 32c5ce40: the next damage data always crits, and the left hand grows to three times
+			m_DamageData.m_fCriticalRate = 1.f;
+			SetLeftHandScale( D3DXVECTOR3( 3.f, 3.f, 3.f ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL megadrill next damage data hand x3" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 		}
 	}
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -31151,6 +31414,14 @@ void CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_FrameMove()
 		}
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c5ce40: the left hand goes back to normal size at 2.15 s
+	if( m_pXSkinAnim->EventTimerOneshot( 2.15f ) )
+	{
+		SetLeftHandScale( D3DXVECTOR3( 1.f, 1.f, 1.f ) );
+	}
+
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	if( m_hSeqMagnumBlaster1 != INVALID_PARTICLE_SEQUENCE_HANDLE )
 	{
 		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMajorParticle()->GetInstanceSequence( m_hSeqMagnumBlaster1 );
@@ -31191,14 +31462,25 @@ void CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_EventProcess()
 		else
 			StateChange( USI_WAIT );
 	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c38510: the walk and dash cancels also need the foot on a line
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	CommonEventProcess();
 }
 
 void CX2GURaven::RSI_A_RF_MEGADRILL_BREAK_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c38710: the left hand goes back to normal size
+	SetLeftHandScale( D3DXVECTOR3( 1.f, 1.f, 1.f ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	SetEnableAttackBox( L"Lhand1", false );
 	SetEnableAttackBox( L"Sword", true );
 	CommonStateEnd();
@@ -31519,6 +31801,16 @@ void CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_AVOID_ATTACK_EventProcess()
 // 스킬 개편 2013, 레이븐 레크리스 피스트 헬 다이브, 김종훈
 void CX2GURaven::RSI_A_RRF_HELL_DIVE_Init()
 {	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c27940
+	TextureReadyInBackground( L"ALS_SLICER_01.dds" );
+	TextureReadyInBackground( L"Blur_16.dds" );
+	TextureReadyInBackground( L"ColorBallFire.dds" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"MagicSquareLight01_Poision.tga" );
+	TextureReadyInBackground( L"WhitePointSmall.dds" );
+	XSkinMeshReadyInBackground( L"aisha_SA_SCREWDRIVER_circle.X" );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	XSkinMeshReadyInBackground( L"Raven_RRF_SI_SA_X_Crash_Mesh01.x" );
 		
 		
@@ -31534,6 +31826,7 @@ void CX2GURaven::RSI_A_RRF_HELL_DIVE_Init()
 	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
 	TextureReadyInBackground( L"Arme_Critical.dds" );
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_A_RRF_HELL_DIVE_FrameMove()
@@ -31573,9 +31866,16 @@ void CX2GURaven::RSI_A_RRF_HELL_DIVE_EventProcess()
 		}
 	}		
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c39670: the walk and dash cancels also need the foot on a line
+	RAVEN_GROUND_WALK_CANCEL
+	RAVEN_GROUND_DASH_CANCEL
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 	CommonEventProcess();
 }

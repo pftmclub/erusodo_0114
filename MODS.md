@@ -5979,3 +5979,21 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `..._SKILL_DEBUG` re-defined, `[JU
 | Armor Crash ( 24209 ) | `RSI_A_ROT_ARMOR_BREAK` state table | 7.26 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the Sword Taker ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.
+
+## Stage 7 Raven, CH2c: Over Taker (class 17) skills (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `..._SKILL_DEBUG` re-defined, `[JUNE_CHAR] RAVEN SKILL` lines). Plan `JUNE_CHARACTER_RAVEN_PHASES.md` "CH2c - Done". Client only, no data change.
+- **What changes in game.** The twelve Over Taker ids ( Valkyrie's Javelin 24004 / 24029, Charged Bolt 24005 / 24032, Guardian Strike 24006 / 24041, Hell Dive 24202 / 24219, Megadrill Break 24203 / 24228, Weapon Crash 24204 / 24229 ) get cases in the id switch of `SetEquippedSkillFuncBySkillSlotIndex` ( before this each fell into the Maximum Cannon default ). `X2SkillTree.h` gains eleven `RNSI_*` names ( 24005 / 24006 / 24029 / 24032 / 24041 / 24202 / 24203 / 24204 / 24219 / 24228 / 24229 ).
+- **Differs from March.** Guardian Strike's FrameMove only moves the unit to the effect layer in dark red for 1.4 s ( cut-in, particles and the damage effect are the script's ); Charged Bolt has one damage effect for every memo; Valkyrie's Javelin plays `EffectSet_SA_ROT_VALKYRIESJAVELIN_NEW` with no memo power-up and has one landing state for the hyper state too; Hell Dive loses its FrameMove ( the punches are the script's ); Weapon Crash's start no longer pushes a buff factor ( the script's damage data does ); Hell Dive's and Megadrill Break's walk and dash cancels need the foot on a line; Megadrill Break's second hit drains mana ( extra damage type 16, damage 2 ), its next damage data always crits, and the left hand grows to three times from that hit until 2.15 s ( `SetLeftHandScale`, CH2c0 ).
+- **Damage ( level 1, x0.01 numerical data; March = the shipped effect / state table ).**
+
+| Skill | March damage | June damage |
+|---|---|---|
+| Valkyrie's Javelin ( 24004 ) | `EffectSet_RAVEN_VJAVELIN` effect table | 13.83 ( `DamageEffect_ROT_VALKYRIESJAVELIN_NEW` ), 2.35 ( `..._EXPLOSION_NEW` ) |
+| Charged Bolt ( 24005 ) | `RAVEN_OVER_TAKER_CHARGED_BOLT[_MEMO]` effect tables | 4.07 ( `RAVEN_OVER_TAKER_CHARGED_BOLT` ) |
+| Guardian Strike ( 24006 ) | `RAVEN_OVER_TAKER_GUARDIAN_STRIKE[_HYPER]` effect tables | 4.08 ( `DamageEffect_SA_ROT_GuardianStrike`, DAMAGE_DATA and _NEXT ) |
+| Hell Dive ( 24202 ) | `RSI_A_RRF_HELL_DIVE` state table, `DAMAGE_EFFECT_RRF_HELL_DIVE_LAST_PUNCH` | 3.84 ( first and second punch effects ), state table numerical-only |
+| Megadrill Break ( 24203 ) | `RSI_A_RF_MEGADRILL_BREAK` state table | state tables numerical-only ( INDEX 1 and, for the next table, INDEX 2 ): read the `NUM use` lines |
+| Weapon Crash ( 24204 ) | `RSI_A_ROT_WEAPON_BREAK` state table | 9.34 ( `DamageEffect_Raven_Weapon_Break` ) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the Over Taker ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.

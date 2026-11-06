@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2c | **ready**: Over Taker (17) skills; `/x2-phase char-raven CH2c` | Sonnet 5.5 / high, Opus review, user play-test | CH2c0 review | `X2GURaven.*` | `CH2c.md` |
+| CH2c | **done 2026-11-06, play-test owed** (unit 74 OverTakerT, banks A + B), then `/x2-phase char-raven CH2c review` (Opus 5.5 high): Over Taker (17) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c0 review | `X2GURaven.*` | `CH2c.md`, `CH2c-review.md` |
 | CH2d | blocked (CH2c review): Weapon Taker (25) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GURaven.*` | `CH2d.md` |
 | CH3a | blocked (CH2d review): Blade Master (106) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH3a.md` |
 | CH3b | blocked (CH3a review): Reckless Fist (107) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GURaven.*` | `CH3b.md` |

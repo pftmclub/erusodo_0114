@@ -2417,6 +2417,21 @@ public:
 		RNSI_P_RBM_COUNTER                                    = 24418,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-06 // char-raven CH2c
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG                     = 24005,	// June's Enum.lua
+		RNSI_SA_ROT_GUARDIAN_STRIKE                           = 24006,
+		RNSI_SA_ROT_VALKYRIESJAVELIN_UPGRADE                  = 24029,
+		RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG_UPGRADE             = 24032,
+		RNSI_SA_ROT_GUARDIAN_STRIKE_UPGRADE                   = 24041,
+		RNSI_A_ROT_HELL_DIVE                                  = 24202,
+		RNSI_A_ROT_MEGADRILL_BREAK                            = 24203,
+		RNSI_A_ROT_WEAPON_BREAK                               = 24204,
+		RNSI_A_ROT_HELL_DIVE_UPGRADE                          = 24219,
+		RNSI_A_ROT_MEGADRILL_BREAK_UPGRADE                    = 24228,
+		RNSI_A_ROT_WEAPON_BREAK_UPGRADE                       = 24229,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-06 // char-raven CH1k
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY            = 24412,	// June's Enum.lua

@@ -47,7 +47,7 @@ It copies the June scripts into `<scratch dir>` and never writes to the June dir
 
 | June script | `DAMAGE_DATA*` tables whose damage comes only from the numerical table | other `DAMAGE_DATA*` tables |
 |---|---|---|
-| `RAVEN_FIGHTER` | 25 (Raven: CH2a, 3 of them: Shadow Step Z, Shadow Step Z upgrade, Flame Sword ground) (Raven: CH2b, 1 of them: Bleeding Slicer ground, damage 6.23 at level 1) | 70 |
+| `RAVEN_FIGHTER` | 25 (Raven: CH2a, 3 of them: Shadow Step Z, Shadow Step Z upgrade, Flame Sword ground) (Raven: CH2b, 1 of them: Bleeding Slicer ground, damage 6.23 at level 1) (Raven: CH2c, 6 of them: Hell Dive, Hell Dive upgrade, Megadrill Break + its next table, Megadrill Break upgrade + its next table) | 70 |
 | `Elsword_SwordMan` | 20 (Elsword: CH2a, 4 of them: Rolling, Unlimited Blade, Assault Slash x2) (Elsword: CH2b, 3 of them: Armor Break, Kick, Impact Smash) (Elsword: CH2c, 1 of them: Big Burst) (Elsword: CH2d, 1 of them: Mirage Sting, its DAMAGE_DATA and DAMAGE_DATA_NEXT) (Elsword: CH3a, 3 of them: Rolling Smash, Armageddon Blade, the counter strike ESSI_REVENGE_ATTACK) (Elsword: CH3b, 1 of them: Enchant Break's state table, magical 1855 at level 1) (Elsword: CH3c, 5 of them: Compact Counter's DAMAGE_DATA and DAMAGE_DATA_NEXT, Sword Blasting and its upgrade, Another Sword's two tables) | 87 |
 | `ELESIS_KNIGHT` | 20 | 69 |
 | `Chung_Iron_Cannon` | 15 (Chung: CH2a, 6 of them: Back Blast, Reload Cannon, Siege Shelling x2, Lunatic Blow x2; CH2b, 6 of them: Burst Wolf x2, Brutal Swing x2, Sudden Burster, Lunatic Fury Run; CH3a, Crack Crasher 26037; CH3c, Cannon Strike 26026 / 26061) | 74 |

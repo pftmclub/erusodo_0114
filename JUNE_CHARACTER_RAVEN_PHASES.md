@@ -1686,6 +1686,37 @@ Opus 5.5. **Verdict: PASS, no code change.** Checked against Ghidra's decompiles
 **Gates.** flagcheck `--range 6d2c4614^..6d2c4614`: `2 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`, 0 deleted, 0 non-ASCII, 0 EOL mismatches, 2 plain `#else`, `RESULT: PASS`.
 `junediverge.py --check-all`: `allow-listed: 194`, `RESULT: PASS`. `enumscan.py --check X2GUUser.cpp X2GUUser.h`: 2 rows (`X2GUUser.h:2555-2556`, older NPC ids). No build (no code change).
 
+### CH2c - Done (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `_SKILL_DEBUG` re-defined): the twelve Over Taker ids run June's registrations. All 23 class-map rows are read from `charport_adis.py raven --phase CH2c` listings plus the registration `32c641a0`: **12 written** inside March's function under the flag (March in `#else`, or insert-only), **11 are June = March** (no code). `funcmap.tsv` rows `Char Raven CH2c` (23); `MODS.md` "Stage 7 Raven, CH2c" has the damage table. No `JUNE_BUGS.md` row ( `RSI_SA_ROT_CHARGED_BOLT_BLOOD` / the bare `OT_SP1a_ChargedBolt` is dead data, CH0 ).
+
+| June | `CX2GURaven::` | June differs from March |
+|---|---|---|
+| `32c265d0` `32c268e0` `32c27940` `32c27500` | `RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_Init`, `RSI_A_ROT_WEAPON_BREAK_Init`, `RSI_A_RRF_HELL_DIVE_Init`, `RSI_A_RF_MEGADRILL_BREAK_Init` | June's preload lists ( 11 / 11 / 7 names; Megadrill = March's 10 + 2 ) |
+| `32c26970` | `RSI_A_ROT_WEAPON_BREAK_StateStart` | `CommonStateStart` only: the buff-factor push is gone ( the script's damage data owns it ) |
+| `32c30cb0` | `RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE_FrameMove` | 0.678 s one-shot only: `XL_EFFECT_2`, `m_bSetCustomRenderParam`, colour `0xff5f0000`, alpha object, `m_fGuardianStrikeRenderTime` 1.4 ( CH1j restores ); no cut-in, particles or damage effect |
+| `32c48de0` | `RSI_SI1_OVER_TAKER_CHARGED_BOLT_FrameMove` | one `RAVEN_OVER_TAKER_CHARGED_BOLT` effect at 0.4 s ( no `_MEMO` variant ); one function for the normal and the hyper state |
+| `32c49730` | `RSI_SA_ROT_VALKYRIESJAVELIN_FrameMove` | `EffectSet_SA_ROT_VALKYRIESJAVELIN_NEW` with default arguments ( no MEMO21 power-up ); the hyper state uses it and the one `LANDING` state ( no hyper landing ) |
+| `32c39670` `32c38510` | `RSI_A_RRF_HELL_DIVE_EventProcess`, `RSI_A_RF_MEGADRILL_BREAK_EventProcess` | walk and dash cancels need the foot on a line ( `RAVEN_GROUND_WALK_CANCEL` / `_DASH_CANCEL` ); Hell Dive keeps the `y -= 45` JUMP_DOWN shift |
+| `32c38710` | `RSI_A_RF_MEGADRILL_BREAK_End` | `SetLeftHandScale( 1, 1, 1 )` first ( `31fd9f40`, CH2c0 ) |
+| `32c5ce40` | `RSI_A_RF_MEGADRILL_BREAK_FrameMove` | 1.0 s: `m_bApplyExtraDamage` ( DD +0x4fa ), `m_ExtraDamage.m_Damage` 2 ( +0xa4 ), type `EDT_MANA_DAMAGE` ( +0x50 = 16 ); `DAMAGE_DATA_NEXT`: `m_fCriticalRate` 1 ( +0x510 ), `SetLeftHandScale( 3, 3, 3 )`; a separate 2.15 s one-shot `SetLeftHandScale( 1, 1, 1 )` |
+| = March | Charged Bolt Init / EP, Guardian Strike StartFuture / EP, Valkyrie Init / Start / EP / End / LANDING EP, Weapon Break EP, Megadrill FMF | `funcmap.tsv` says which |
+
+**Registration.** Eight new cases for the twelve ids in the id switch ( raw ids, base and upgrade ): Charged Bolt ( Init / FM / EP; hyper FM + EP, one table ), Guardian Strike ( Init / StartFuture / FM / EP; hyper without Init ), Valkyrie's Javelin ( five callbacks; hyper without Init; the `LANDING` state with EP only ), Hell Dive and its upgrade ( Init + EP; the upgrade on `RSI_A_RRF_HELL_DIVE_UPGRADE` ), Megadrill Break and its upgrade ( five callbacks; the upgrade on `RSI_A_RF_MEGADRILL_BREAK_UPGRADE`, hyper through the shared tail with the same table ), Weapon Break ( Init / Start / EP; hyper Start + EP ). March's Charged Bolt Start / StartFuture / End, Hell Dive FrameMove and the hyper-named functions are no longer registered. `X2SkillTree.h`: eleven `RNSI_*` names ( values = `Enum.src.lua` ). The `SetEquippedSkillLevel` `LANDING` level term was already June's ( CH1 ); no other code reads these `SI_*` ids ( grep ) and no function reads a templet for them, so the upgrade-swap check finds nothing to change.
+
+**Findings.** Routed, not ported: none new. Checklist rows: L50 marked `(Raven: CH2c, 6 of them)`; L116 / L117 / L178 / L714-733 / L844 are covered by this phase's ids ( numerical data is S4's and reaches the states by `APPLIED_SKILL_ID`; IGNORE_DEFENCE_RATE is engine-done, Megadrill Break is where it first plays ); L636 ( GUARDIAN_STRIKE / VJAVELIN March-only effect templets ) is taken: both are now June's callers. All preload names and the effect names ( `EffectSet.lua`, `DamageEffect.lua` in the live data036 ) exist.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RAVEN_SKILL --with JUNE_CHAR_RAVEN_SKILL_DEBUG --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `1 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL`; `1 deleted line (the //#define), 0 non-ASCII, 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token`, `RESULT: PASS`.
+- `junediverge.py --check` ( X2GURaven.cpp / .h, X2SkillTree.h ): `allow-listed: 9`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `0 A/B row(s) remain`. `skillicons.py check` the 12 ids: `skills 12, misses 0`, `RESULT: PASS`. `luabind.py check RAVEN_FIGHTER`: 0 unbound. One-file probe `X2GURaven.cpp` ( `/c /Zs /EHsc` ): exit 0, 0 errors.
+- DEPLOY OK: X2_offline.exe is 26,050,560 B, dated 2026-11-06 18:16:30, md5 68a5ae773ddd447f0356866eead86c5e, equal to X2/US_SERVICE/x2.exe (2026-11-06 18:16:23); built at main 071405eb + 3 uncommitted code file(s).
+- EXESTR OK: 7 of 7 found in X2_offline.exe, 26050560 B, md5 68a5ae77 ( wide: the four `[JUNE_CHAR] RAVEN SKILL` CH2c lines, `EffectSet_SA_ROT_VALKYRIESJAVELIN_NEW`, `aisha_SA_SCREWDRIVER_circle.X`, `VERITABLE_PANDEMONIUM_T02.dds` ).
+
+**Play-test hand-off.** Unit 74 `OverTakerT` ( Over Taker, class 17, lv 99 ). Save set up ( backup taken by `elsdb`, no schema change ): bank A = slot 0 Valkyrie's Javelin 24029, 1 Charged Bolt 24032, 2 Guardian Strike 24041, 3 Weapon Crash 24229; bank B = slot 5 Hell Dive 24219, 6 Megadrill Break 24228 ( slots 4 / 7 / 8 / 9 empty ). Dev console ( END key ): `/invin 0`, then `/stage 1`. Each skill twice, enemies in front ( the slot shows a cool time after the first cast, the MP bar drops ):
+1. **Bank A.** Valkyrie's Javelin: the unit hovers, then dives; June's new effect set and the landing; Charged Bolt: bolt at the hand, flare, camera shake; Guardian Strike: the unit turns dark red for about 1.4 s while the script's effects play, then is normal; Weapon Crash: June's break impact.
+2. **Bank B.** Hell Dive: the punch effects ( no extra last punch ); Megadrill Break ( first, against a target with defence and MP ): the left hand grows to three times at the second hit, which also drains MP, the next hits crit, the hand is normal again at the end.
+3. Log: `python tools/logs.py --grep "RAVEN SKILL"` ( `equip skill` for 24029 / 24032 / 24041 / 24229 / 24219 / 24228, `valkyrie javelin effect set played`, `guardian strike layer set`, `megadrill second hit mana damage`, `megadrill next damage data hand x3` ) and `--grep NUM` for the `NUM use` lines of 24004-24006 / 24202-24204. Then say "check logs".
+
 ## Phase CH3 - Skills: second jobs (106, 107, 115), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.
