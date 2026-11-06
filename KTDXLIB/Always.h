@@ -11843,5 +11843,5 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              they sit inside JUNE_CHAR_RAVEN_SKILL code only.
 //              Revert: undefine the flag ( JUNE_CHAR_RAVEN_SKILL_DEBUG ).
 //              CH2b re-defines it for its own lines ( one flash hit count, shockwave counter buff ).
-#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
