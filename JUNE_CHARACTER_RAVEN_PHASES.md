@@ -1906,6 +1906,8 @@ Opus 5.5 high. **Verdict: two fixes, then PASS;** `_SKILL_DEBUG` retired ( `//#d
 
 **Play-test ( user ).** Unit 80 `RecklessFistB` ( class 107 ), Devastating Strike 24057 in slot 7 ( E ). Dev console: `/invin 0`, `/stage 1`. Cast Devastating Strike, then at once X X ( or Z Z X ) into enemies for 4 s: every X hit shows the Nasod-hand explosion. After ~4 s the X hits stop exploding ( unless Explosive Nasod Hand is learned ). No log line ( `_SKILL_DEBUG` retired ).
 
+**Logs ( 2026-11-06, run 22:55-22:56, after deploy ).** Unit 80 cast Devastating Strike four times ( `JUNE_FX HIT ..._Devastating_Strike_1Fst_Attack` at 16.1 / 21.7 / 27.4 / 49.1 ). `DamageEffect_RRF_ExplosiveHand_Impact_NEW` was created twice, each right after a cast: 17.72 ( Raven's body hit 1.6 s after the 16.1 hit ) and 32.05 ( the body hit at 31.69, about 4.3 s after the 27.4 hit, so inside 4 s of the state's end ). No explosion anywhere else in the run. Unit 80 has June's passive 24402 learned, but March's passive code reads 4410 ( not learned; CH4a moves it to June's id ), so its own chance is 0 and only the window explains them. `Motion Error` 0, `KEM_ERROR` 0, no `EXCEPTION`. Unrelated: OpenXET preload misses, `RAVEN_OT_COMBOX3FRONT.OGG` 3D-position errors, `AddGroupChainQuest` unbound, 2 `E_DISABLE_HB_CHECK_REQ` UNHANDLED.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
