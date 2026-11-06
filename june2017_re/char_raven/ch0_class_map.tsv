@@ -634,8 +634,8 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c50fb0	override 0xc8	HyperModeBuffEffectEnd	X2GURaven.h:488 virtual void HyperModeBuffEffectEnd();	inside	-	CH1h	base 31fd5d70	y
 32c50fd0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 970000ff8dbecc97	n
 32c511a0	state-fn	RSI_RIDING_HYPER_MODE.FrameMove	inside X2GURaven.cpp:1835 CX2GURaven::RidingHyperModeFrameMove	inside	-	CH1c	1 states	y
-32c511c0	registrar	class registrar (classes 16 / 106; 12 combo states)	X2GURaven.cpp InitState	inside	-	CH1m		y
-32c51b70	registrar	class registrar (classes 17 / 107; 11 combo states)	X2GURaven.cpp InitState	inside	-	CH1m		y
+32c511c0	registrar	class registrar (classes 16 / 106; 12 combo states)	X2GURaven.cpp InitStateSwordTaker	inside	-	CH1m		y
+32c51b70	registrar	class registrar (classes 17 / 107; 11 combo states)	X2GURaven.cpp InitStateOverTaker	inside	-	CH1m		y
 32c52480	helper	called by 32c54960 32c54c10 32c55240 32c55ee0	-	new	?	CH1b	name: called by 32c54960(helper) 32c54c10(helper) 32c55240(CommonFrameMove) 32c55ee0(RSI_RIDING_DIE.Start RSI_DIE)	y
 32c52550	state-fn	RSI_SI_A_RF_SHADOW_STEP.EventProcess	inside X2GURaven.cpp:2386 CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_EventProcess	inside	-	CH2a	1 states	y
 32c526e0	helper	called by 32c528c0 32c52b30 32c52cc0 32c53110	inside X2GURaven.cpp:20901 CX2GURaven::_SetOverheat	inside	-	CH1g	name: called by 32c528c0(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c52b30(RSI_SA_RWT_REVOLVER_CANNON.S) 32c52cc0(RSI_SA_RWT_REVOLVER_CANNON_L) 32c53110(RSI_SA_RWT_HELLFIRE_GATLING.) | CH1g: June 1-argument body of March _SetOverheat (CH0 had it as new)	y
@@ -715,7 +715,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c5d330	state-fn	RSI_A_RWT_FLAME_SWORD_GROUND.Start	inside X2GURaven.cpp:3940 CX2GURaven::RSI_A_RWT_FLAME_SWORD_GROUND_StateStart	inside	-	CH2a	1 states	y
 32c5d3f0	state-fn	RSI_A_RWT_FLAME_SWORD_FLY.Start	inside X2GURaven.cpp:3948 CX2GURaven::RSI_A_RWT_FLAME_SWORD_AIR_StateStart	inside	-	CH2a	1 states	y
 32c5d540	helper	called by 32c63660	-	new	?	CH1h	name: called by 32c63660(?)	y
-32c5d660	registrar	InitStateCommon (registers the common states, ids 7-286)	X2GURaven.cpp InitState	inside	-	CH1m		y
+32c5d660	registrar	InitStateCommon (registers the common states, ids 7-286)	X2GURaven.cpp InitStateCommon	inside	-	CH1m		y
 32c5fd90	helper	called by 32c60230 32c607a0 32c609c0 32c60b30	inside X2GURaven.cpp:20830 CX2GURaven::_BurnOverheatHP	inside	-	CH1g	name: called by 32c60230(RSI_WEAPON_TAKER_COMBO_XXX_L) 32c607a0(dead) 32c609c0(RSI_SA_RWT_HARPOON_SPEAR_FIR) 32c60b30(RSI_SA_RWT_HELLFIRE_GATLING_) | CH1g: June 1-argument body of March _BurnOverheatHP (CH0 had it as new)	y
 32c60230	state-fn	RSI_WEAPON_TAKER_COMBO_XXX_LOOP.FrameMove	inside X2GURaven.cpp:2060 CX2GURaven::RSI_WEAPON_TAKER_COMBO_XXX_LOOP_FrameMove	inside	-	CH1g	1 states	y
 32c60510	state-fn	RSI_SA_RWT_REVOLVER_CANNON_LOOP.FrameMove RSI_SA_RWT_REVOLVER_CANNON_FINISH.FrameMove	inside X2GURaven.cpp:3472 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_FrameMove ; inside X2GURaven.cpp:3481 CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_FrameMove	inside	-	CH2d	2 states	y
@@ -736,7 +736,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c63490	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 89118b50048b4008	n
 32c634f0	state-fn	RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT.FrameMove RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_UPGRADE.FrameMove	inside X2GURaven.cpp:3795 CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_FrameMove	inside	-	CH3c2	2 states	n
 32c63660	override 0x300	?	- (name unsettled)	new	?	CH1h	base 3208ddc0; name: user vslot 0x300 (uncarved): 5-byte jmp thunk to 32c5d540 (80 lines, no state registration); read 32c5d540	n
-32c63670	registrar	class registrar (classes 25 / 115; 13 combo states)	X2GURaven.cpp InitState	inside	-	CH1m		y
+32c63670	registrar	class registrar (classes 25 / 115; 13 combo states)	X2GURaven.cpp InitStateWeaponTaker	inside	-	CH1m		y
 32c641a0	override 0x7b4 + registrar	SetEquippedSkillFuncBySkillSlotIndex	X2GURaven.h:505 virtual void SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ );	inside	-	CH1n	base 31aa1d30	y
 32c66fe0	override 0x7a4 + registrar	InitState	X2GURaven.h:493 virtual void InitState();	inside	-	CH1m	base 31aa1d30	y
 32c685f0	thunk	jmp 32c26aa0	-	-	-	n/a	not ported	n

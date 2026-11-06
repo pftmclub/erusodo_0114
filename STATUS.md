@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-05, play-test owed** (4,825 assets in 35 koms + 2 guide Lua copied, 6 walk units 72-77; user walks Raven per tier, then `check logs`) | Sonnet 5.5 / high, user play-test | CH0 (done) | koms, save | `CH0b.md` |
-| CH1m | **ready** (`/x2-phase char-raven CH1m` on Opus 5.5 / high): registration (InitState `32c66fe0`), `_LIVE` gate | Opus 5.5 / high, Opus review | CH1k review | `X2GURaven.*`, Always.h | `CH1m.md` |
+| CH1m | **done 2026-11-06, review ready** (`/x2-phase char-raven CH1m review` on Opus 5.5 / high): 5 registrars written under `_LIVE` (761 registrations = June per class, 147 ids 1:1), 7 `_LIVE` guards | Opus 5.5 / high, Opus review | CH1k review | `X2GURaven.*`, Always.h | `CH1m.md` |
 | CH1n | blocked (CH1m review): base callbacks + skill-slot head `32c641a0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GURaven.*`, `X2GUUser.*` | `CH1n.md` |
 | CH1o | blocked (CH1n review): virtuals under `_LIVE`, `SetSkillLevelStateData` term, routed gaps | Opus 5.5 / high, Opus review | CH1n review | `X2GURaven.*`, `X2GUUser.*` | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index, hooks, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GURaven.*`, `X2GUUser.*` | `CH1p.md` |

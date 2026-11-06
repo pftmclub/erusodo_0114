@@ -48,3 +48,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   June addresses: `32c641a0` `32c69e30`(new ?).
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7b L328 skill-memo entry 31fdbbb0 and the class callers of 31fdbcc0; §7i L444 SetEquippedSkillFuncBySkillSlotIndex Raven 32c641a0: drop the snapshot; §7ae L729-733 types 14-16 / 17 / 18 named in the class switch.
 - `32c641a0` has three switches (skill type 0xd-0x10, the 6-case hyper switch 0xc / 0x6019-0x601d, the skill-id switch 0x5dc1-0x5eaf): `ch0_skill_listing_rows.tsv` (listing emulator) = 181 rows for 126 ids; 23 ids (106, 24400-24415, 24417-24422, types 1 / 8) leave at the type switch.
+
+## Amended by CH1m (2026-11-06)
+
+- `june2017_re/char_raven/ch1m_user_callbacks.tsv`: the 132 `CX2GUUser` members Raven's registration names (June target, funcmap name). Only
+  `RidingDamageFrontStartFuture` and `RidingOnEnd` are not in Elsword's `char_elsword/ch1m_user_callbacks.tsv`; triage those two first.
+- CH1i's ten `_CORE` states are not InitState's: 305-309 (Shadow Step) are `InitPassiveSkillState` `32c57660`'s (CH4a), 312 / 313 / 315-317
+  (Ignition Crow upgrades) the skill-slot function's (`ch0_skill_listing_rows.tsv`, cases CH3c2). Skill-slot states use the `_CONST_GUUSER_` ids ( CH1k ).

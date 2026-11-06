@@ -1012,6 +1012,58 @@ Gates. Probe `/c /Zs /EHsc`: exit 0, 0 errors, off and `-DSERV_IRUHADEV_JUNE_CHA
 `DEPLOY OK: X2_offline.exe is 26,014,208 B, dated 2026-11-06 10:15:22, md5 2caffbe9b9918879a4b95d5110481e9a, equal to X2/US_SERVICE/x2.exe (2026-11-06 10:15:15); built at main 7c1254f2 + 1 uncommitted code file(s).`
 CH1m kickoff checked: the CH1k amendment is present (`IsNotCommonMoveState` / `ReservedSkillStart` register nothing; skill-slot states = the `_CONST_GUUSER_` ids). Nothing to play-test. Next: `/x2-phase char-raven CH1m` (Opus 5.5 high).
 
+### CH1m - Done (2026-11-06)
+
+All five class-map rows are written, all `inside`: June's bodies sit in March's own `InitState` (`32c66fe0`, vslot 0x7a4), `InitStateCommon`
+(`32c5d660`) and the three line registrars `InitStateSwordTaker` (`32c511c0`), `InitStateOverTaker` (`32c51b70`), `InitStateWeaponTaker`
+(`32c63670`), under `SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE` with March's bodies in the `#else` (still `//#define`d). Class map: the four registrars' March
+pair corrected from `InitState` to those names. Raven has no `InitStateByUnitClass`: June's class tests sit in `InitState`, as March's do.
+
+**How it was derived.** `june2017_re/char_raven/ch1m_regsim.py` (Elsword's, with Raven's class registers `local_68` / `uVar4` / `iVar5`) walks fresh
+decompiles of the five registrars once per class; counts equal CH0's listing-checked `ch0_reg.tsv` (103 / 29 sites / 12 / 11 / 13). `ch1m_reg_by_class.tsv`
+is that output. `ch1m_gen.py` writes the C++ (ids by table name: a table that is a `RAVEN_STATE_ID` member registers under its own name, else March's own
+registration of the table; callbacks from `funcmap.tsv`, else CH0's `inside` member, else CH0's `pair`); `ch1m_spec.py` makes the bytepatch spec.
+`ch1m_regcheck.py` parses the `_LIVE` branches per class (line registrars for the classes InitState's switch sends there, order checked):
+**761 registrations match slot by slot, 0 problems; 147 June ids map one-to-one both ways** (`ch1m_idmap.tsv`).
+**One id differs from March:** June registers `RWT_COMBO_ZZZX` under its own id 304 (CH1d's member) beside `RSI_COMBO_ZZZX` 168 for Veteran Commander; March
+shared `RSI_COMBO_ZZZX`. `RBM_` / `RRF_` / `RWT_COMBO_X` / `RSI_SOUL_TAKER_DASH_COMBO_ZZ` keep March's shared ids (168 / 182 / 173 / 177, = June).
+
+**InitState `32c66fe0`:** cut-in 4 / 16 / 17 / 25 -> 0, 106 -> 1, 107 -> 2, 115 -> 3 (no default write), sub-index 16 -> 1, 17 -> 2, else 0 (= March).
+InitStateID is inlined @32c6709f-32c670a5 (`m_CommonState.m_Wait`, `m_ChargeMpState` = 13): March's live body is the same (`TRANSFORMER_TEST` off, `cl /P`),
+so it is called unchanged. `31fc93d0` (empty stub) is not called. Then `InitStateCommon`, `InitStateCommonRandom` (3202b110 + 31fe22d0), START (Start /
+EventProcess / End), WIN (`WinStateStart`, `RandomLoseEventProcess`; no FrameMove, unlike Elsword), LOSE (`LoseStateStart`, plus `RSI_RWT_LOSE2_FrameMove`
+only when the roll picked `RSI_RWT_LOSE2`, the compare @32c673b1, = March), `InitWaitStateChange( "RSI_WAIT_STATE_CHANGE" )` @32c67494 (7h), the line
+switch @315 (16 / 106, 17 / 107, 25 / 115), five class tests written as `switch( eClass )`, then vslots 0x690 / 0x684( 0 ) / `31fd8f00` @32c6839f.
+Per class 7 / 13 / 7 / 7 / 13 / 12 / 14 registrations incl. the four head ones. Veteran Commander registers `RSI_SOUL_TAKER_DASH_COMBO_ZZ` twice (32c63670
+@268, then InitState @1114 with the same callback): both kept in June's order.
+
+**InitStateCommon `32c5d660`** (103 per class, no class or skill test): hyper id 23 = `GetHyperModeTableName( false )` (Raven's RBM / RRF / RVC cases were
+already there), FrameMove = Raven's `HyperModeFrameMove` (vslot 0x600), End = `CX2GUUser::HyperModeEnd`. Bounding = `InitBoundingStates( "RSI_" )`
+at June's place (7l). Parrying (0xca / 0xcb) registers March's `RSI_PARRYING_*` members (bodies CH1q). CH1b's ten stand-up states (Front / Back, 4 Rolling, 4 Attack) take its `RSI_DAMAGE_STANDUP_FRONT_StateStart` / `_StateStartFuture`. The 5 `USI_EVENT_*` states of this phase are 3202b110's, run by `InitStateCommonRandom`.
+Routed registrations done: CH1d's 4 new functions (March's `RSI_COMBO_ZZZX_Start` is no longer registered), CH1e's 12, CH1f's 9 (`XXfrontX` no Init /
+FrameMove, `XXdownX` no FrameMoveFuture, `XXfrontXX4_EventProcess` also on `XXfrontXXdownX`), CH1g2's `RVC_DASH_COMBO_ZZ` (EventProcess only).
+CH1i's ten `_CORE` states are not these registrars': 305-309 are `InitPassiveSkillState` `32c57660`'s (CH4a), 312 / 313 / 315-317 the skill slot's (CH3c2).
+
+**Left out, each a comment line with its owner:** phoenix run 123-126 (PvP), dance 127-129 (Stage 10), riding 93-96 (Stage 17), the empty slots
+`3202a7d0` (die end, in `StateChange`) and `32002f70` (Stage 17). **JUNE_BUGS 542:** `RSI_RIDING_DAMAGE_BACK` registered with no script table; the script
+defines `RSI_RIDING_DAMAGE_FRONT` twice (lines 9775 / 9782; Raven's twin of 525).
+
+**The `_LIVE` gate (`Always.h`):** seven `#error` guards added (Elsword's set): `JUNE_CHAR_ARME_CORE`, `JUNE_CHAR_EVE_CORE`, `HYPER_MODE_FIX`,
+`JUNE_COMMON_RANDOM_STATE`, `JUNE_EVENT_STATES`, `JUNE_WAIT_STATE_CHANGE`, `JUNE_BOUNDING_STATE`; all defined (`cl /P` flag probe) and the `_LIVE` probe passes them.
+For CH1n: `june2017_re/char_raven/ch1m_user_callbacks.tsv` lists the 132 `CX2GUUser` members the registration names; only `RidingDamageFrontStartFuture`
+and `RidingOnEnd` are not in Elsword's list. Checklist: 7h, 7l and the 7ao hyper-table bullet marked `(Raven: CH1m)`.
+
+**Checks.** One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`) of `X2GURaven.cpp`, `_LIVE` off and on: exit 0, 0 errors each. `cl /P` off / on:
+`InitWaitStateChange( "RSI_WAIT_STATE_CHANGE" )` 0 / 1, `InitBoundingStates( "RSI_" )` 0 / 1, `GetHyperModeTableName( false )` 0 / 1, the LOSE2 compare 0 / 1,
+`RSI_DAMAGE_STANDUP_FRONT_StateStart` 4 / 24, `RSI_COMBO_ZZZX_Start` 3 / 2, `RVC_DASH_COMBO_ZZ_EventProcess` 2 / 3.
+`git diff --patience --numstat`: `X2GURaven.cpp` 1377 / 0, `Always.h` 21 / 0. bytepatch: CRLF 1766 and high bytes 20340 unchanged.
+`flagcheck.py SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE --worktree --files X2Lib/X2GURaven.cpp KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only for the `//#define`.
+`junediverge.py --check X2Lib/X2GURaven.cpp KTDXLIB/Always.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: `0 A/B row(s)`.
+`DEPLOY OK: X2_offline.exe is 26,014,208 B, dated 2026-11-06 10:41:47, md5 ffd1e91ecd33d37fb1d07df5b8cd30d4, equal to X2/US_SERVICE/x2.exe (2026-11-06 10:41:40); built at main f4777c79 + 2 uncommitted code file(s).`
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-raven CH1m review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.
