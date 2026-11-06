@@ -604,7 +604,7 @@ class CX2GURaven : public CX2GUUser
 		float								m_fEmergencyEscapeCoolTime;		/// June +0x95ac: cool time of the escape ( KProtectedType<float>; InitPassiveSkillState sets it from SA 0x94 in CH4a )
 		clock_t								m_clockLastNasodBallAttack;		/// June +0x9778: clock() when a Nasod ball was sent at an enemy ( AttackResultByType 32c56be0; CommonFrameMove 32c55240 reads it for Open Mind; the ctor sets it in CH1k )
 		void AttackResultArcEnemy( CX2DamageManager::DamageData& damageData_ );							/// June 32c54960
-		void ApplyEnchantHandDebuffToDamageData( CX2DamageManager::DamageData* pDamageData_ );		/// June 32c5d540 ( vslot 0x300 hook )
+		virtual void AdjustDamageDataBeforeDamageReact( CX2DamageManager::DamageData* pDamageData_ );	/// June 32c5d540 ( vslot 0x300 )
 		float								m_fSurelyVictoryCoolTime;		/// June +0x959c: cool time of Surely Victory ( 24409 ), CommonFrameMove counts it down; ctor 0 in CH1k, 32c3df50 sets it from SA 0x94 in CH4a
 		bool								m_bBurningNasodHandLearned;		/// June +0x9688: skill 24401 learned; ctor false in CH1k, InitPassiveSkillState 32c57660 sets it in CH4a, CommonStateStart 32c43380 reads it
 		float								m_fGuardianStrikeRenderTime;	/// June +0x9774: seconds until the layer and colour Guardian Strike changed are restored; ctor -1.0f in CH1k, set 1.4 by 32c30cb0 in CH2c

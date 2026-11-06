@@ -1406,6 +1406,11 @@ public:
 	//DamageReact를 실행하기 전에 해당 DamageData를 수정할 수 있는 함수
 	virtual void AdjustDamageDataBeforeDamageReact( CX2DamageManager::DamageData* pDamageData ){};
 #endif //ADD_RENA_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#ifndef ADD_RENA_SYSTEM
+	virtual void AdjustDamageDataBeforeDamageReact( CX2DamageManager::DamageData* pDamageData ){};	/// June vslot 0x300 ( base 3208ddc0, empty )
+#endif ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 #ifdef NEXON_QA_CHEAT_REQ
 	bool	m_bIsInvincibleAndNoMpConsume;

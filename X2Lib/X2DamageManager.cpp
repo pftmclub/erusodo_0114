@@ -2198,6 +2198,13 @@ bool CX2DamageManager::UnitToUnit( DamageData* pDamageData, bool bAttackOnlyThis
 						pUser->AdjustDamageDataBeforeDamageReact(pDamageData);
 				}
 #endif //ADD_RENA_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#ifndef ADD_RENA_SYSTEM
+				// June @3262546d: the attacker's vslot 0x300 before DamageReact ( June calls it on every unit; an ally NPC hands it to its owner, 32778fe0 )
+				if ( pAttacker->GetGameUnitType() == CX2GameUnit::GUT_USER )
+					static_cast<CX2GUUser*>( pAttacker )->AdjustDamageDataBeforeDamageReact( pDamageData );
+#endif ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 				pDefender->DamageReact( pDamageData );
 			}
 #else
@@ -3027,6 +3034,13 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 						pUser->AdjustDamageDataBeforeDamageReact(pDamageData);
 				}
 #endif //ADD_RENA_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#ifndef ADD_RENA_SYSTEM
+				// June @3262f1e6: the attacker's vslot 0x300 before DamageReact ( June calls it on every unit; an ally NPC hands it to its owner, 32778fe0 )
+				if ( pAttackerGameUnit->GetGameUnitType() == CX2GameUnit::GUT_USER )
+					static_cast<CX2GUUser*>( pAttackerGameUnit )->AdjustDamageDataBeforeDamageReact( pDamageData );
+#endif ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 				pDefender->DamageReact( pDamageData );
 			}
 #else
@@ -3488,6 +3502,13 @@ bool CX2DamageManager::MeshToUnit( DamageData* pDamageData )
 						pUser->AdjustDamageDataBeforeDamageReact(pDamageData);
 				}
 #endif //ADD_RENA_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#ifndef ADD_RENA_SYSTEM
+				// June @32628652: the attacker's vslot 0x300 before DamageReact ( June calls it on every unit; an ally NPC hands it to its owner, 32778fe0 )
+				if ( pAttacker->GetGameUnitType() == CX2GameUnit::GUT_USER )
+					static_cast<CX2GUUser*>( pAttacker )->AdjustDamageDataBeforeDamageReact( pDamageData );
+#endif ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 				pDefender->DamageReact( pDamageData );
 			}
 #else

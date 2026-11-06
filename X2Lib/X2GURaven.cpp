@@ -19799,8 +19799,8 @@ void CX2GURaven::AttackResultArcEnemy( CX2DamageManager::DamageData& damageData_
 	m_fArcEnemyEachTime = 0.3f;
 }
 
-/// June 32c5d540 ( user vslot 0x300, a hook with the damage data; 32c63660 jumps to it ): Enchant Hand adds its debuff factor, without clearing the others, to a hit that creates a damage effect. CH1o adds the CX2GUUser virtual
-void CX2GURaven::ApplyEnchantHandDebuffToDamageData( CX2DamageManager::DamageData* pDamageData_ )
+/// June 32c5d540 ( vslot 0x300 = March's AdjustDamageDataBeforeDamageReact; 32c63660 jumps to it ): Enchant Hand adds its debuff factor to a hit that creates a damage effect
+/*virtual*/ void CX2GURaven::AdjustDamageDataBeforeDamageReact( CX2DamageManager::DamageData* pDamageData_ )
 {
 	if( NULL == pDamageData_ || true == GetRidingOn() || false == HaveThisBuff( BTI_BUFF_ENCHANT_HAND ) )
 		return;
@@ -31021,6 +31021,19 @@ void CX2GURaven::SetEquippedSkillLevelStateData( const CX2SkillTree::SkillTemple
 }
 void CX2GURaven::SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 3201f850 ( CX2GUUser's hoisted form, reached through vslot 0x7a8 32028190 )
+	if ( NULL == pSkillTemplet_ || NULL == GetUnit() )
+		return;
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet_->m_eID, false, 0, true ) );
+
+	stateData_.m_SPLevel	= iSkillTempletLevel;
+	stateData_.m_fPowerRate	= pSkillTemplet_->GetSkillPowerRateValue( iSkillTempletLevel );
+	stateData_.m_eSkillID	= pSkillTemplet_->m_eID;
+	stateData_.m_fPowerRate	= ( GetSkillAdditionalPowerRate( static_cast<int>( pSkillTemplet_->m_eID ) ) + 1.f ) * stateData_.m_fPowerRate;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if ( NULL == GetUnit()  )
 		return;
 	
@@ -31030,6 +31043,7 @@ void CX2GURaven::SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkil
 	stateData_.m_SPLevel	= iSkillTempletLevel;
 	stateData_.m_fPowerRate	= pSkillTemplet_->GetSkillPowerRateValue( iSkillTempletLevel );
 	stateData_.m_eSkillID	= pSkillTemplet_->m_eID;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 #endif UPGRADE_SKILL_SYSTEM_2013
 

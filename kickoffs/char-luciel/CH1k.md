@@ -44,3 +44,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §5 L184-188 keys DEFAULT_UNSELECTED_UNIT_MP_CHARGE_VALUE_PER_SECOND and _AT_PVP (INIT_COMPON; §7 L238 32b1e8e0 (vslot 16, user slot 0x40) writes 0 at init; §7 L255 ChangeMaxCharacterAddResource override 32b14cd0 (unit vslot 201, BBT 97); §7a L308 vslot 0x248 override 32b0efc0 (instance +0x1b8 = unit +0x988c), vslot 0x2e0 over.
 - Overrides below vslot 0x49c (except the state-id getters, CH1l), names in col 4 with the base member in col 5. **Depends on CH1k0** (buff Time-finalizer passes).
 - 14 overrides stay `?` with a hint in the note (`0x2b0`, `0x2e4` = `0x2fc` one body, `0x300`, `0x318`, `0x580`, `0x62c`, `0x640`, `0x648`, `0x64c`, `0x658`, `0x6b0`, `0x848`, `0x87c`): name each from its base and body by March's pattern before transcribing.
+- **Amended by Raven CH1o (2026-11-06):** vslot `0x300` is March's `AdjustDamageDataBeforeDamageReact( DamageData* )` (`X2GUUser.h`, under
+  `ADD_RENA_SYSTEM`, off): name Luciel's `32b1e720` so. Raven CH1o declared the base and added the user-attacker calls in `X2DamageManager.cpp`
+  (UnitToUnit / EffectToUnit / MeshToUnit, June @3262546d / @3262f1e6 / @32628652) under `#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE` + `#ifndef ADD_RENA_SYSTEM`:
+  widen those four guards with Luciel's `_LIVE`. June calls the slot on every attacker: `CX2GUNPC`'s override `32778fe0` hands it to the owner of a
+  `CX2AllyNPCAI` NPC (funcmap row). If a Luciel summon deals damage, port that override and drop the user-only test; Raven needed neither.
