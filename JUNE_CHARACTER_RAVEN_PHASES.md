@@ -1787,7 +1787,7 @@ Opus 5.5 high. **Verdict: one missed June line fixed, everything else PASS;** `_
 - DEPLOY OK: X2_offline.exe is 26,054,144 B, dated 2026-11-06 20:31:29, md5 2c7a4e2a73924ad75dc87592ba3b0e3d, equal to X2/US_SERVICE/x2.exe (2026-11-06 20:31:22); built at main 5cc1712d + 2 uncommitted code file(s) (this fix + the retire).
 - EXESTR OK: 1 of 1 absent ( `[JUNE_CHAR] RAVEN SKILL hellfire loop`, wide ), md5 2c7a4e2a.
 
-**Play-test hand-off.** Unit 75 `WeaponTakerT` ( Weapon Taker, class 25 ); the save already has the Enhanced Hellfire Gatling 24051 on bank A slot 2. Dev console ( END key ): `/invin 0`, `/stage 1`. Cast it twice: a buff icon appears in the buff row as the skill starts ( `BFI_JIN_SKILL_BUFF_MAXIMUM` ), the loop plays as before. If no icon: say so; no debug line covers it.
+**Play-test hand-off.** Unit 75 `WeaponTakerT` ( Weapon Taker, class 25 ); the save already has the Enhanced Hellfire Gatling 24051 on bank A slot 2. Dev console ( END key ): `/invin 0`, `/stage 1`. Cast it twice: a buff icon appears in the buff row as the skill starts ( `BFI_JIN_SKILL_BUFF_MAXIMUM` ), the loop plays as before. If no icon: say so; no debug line covers it. **Result (2026-11-06): user "the buff showed up"** ( key D, bank A slot 2 ).
 
 ## Phase CH3 - Skills: second jobs (106, 107, 115), hyper actives, transcendence
 
