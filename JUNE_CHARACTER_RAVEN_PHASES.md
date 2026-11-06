@@ -1156,6 +1156,54 @@ No `exestr` line: `_LIVE` is off and the `_CORE` helper adds no string.
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-raven CH1n review` (Opus 5.5 high).
 
+### CH1n - Review (2026-11-06)
+
+**Verdict: PASS, no code change.** Read from a fresh decompile of `32c641a0` (1554 lines) and the exe bytes (`june2017_re/disasm_range.py`, tables read
+from the PE sections).
+- **Head.** `js` / `cmp edi, 5; jae` = `slot < 0 || 4 < slot`. Tables by `bSlotB_`: `3350f9e8` {50,52,54,56,58} / `3350fa10` {60..68} normal,
+  `3350f9fc` {51..59} / `3350fa24` {61..69} hyper = `_CONST_GUUSER_`. `31fd2af0( normal )` with `ecx = this` is the 7i snapshot (dropped); `byte +0x11 = 1`
+  normal, `word +0x10 = 0x101` hyper. `31fca8e0( id, 1 )` = `GetEquippedActiveSkillTemplet( id, true )`, null -> epilogue. `31fd88f0` / `3207c1a0` /
+  `31fdf970` act on the stack batch `[esp+0x84]` (anti-tamper), as ported.
+- **Memo exit @32c642aa.** `31fdbcc0( id )`, then `32206450( memo, 1 )` on `g_pData +0x50`, `jne 32c66d8d` = the epilogue. No case, as ported. It cannot
+  fire for Raven: June's `SkillNoteTemplet.src.lua` has 15 `MI_TRANSCENDENCE_1` / `_2` rows (AVP, EEG, ECE, ECB, CSG, CDC, ALD, SGM, SBH, LLD) and none
+  names a Raven skill.
+- **Types.** Byte table `32c66dd0` over `type - 5` = {0,1,1,3,3,3,3,2,1,1,1,1}, jump table `32c66dc0` = buff `32c642ed` / active `32c64348` / throw
+  `32c66d26` / exit `32c66d8d`: 5 buff; 6, 7, 0xd-0x10 active; 0xc throw; 8-11 and above 0x10 exit. Grade 14 = `ST_SPECIAL_ACTIVE_GRADE_1`
+  (`X2SkillTree.h:54`, `JUNE_SKILL_TYPE`). Buff: FM `329ccd90` -> `32a77a20` (`jmp [vtbl+0x5f0]`, Raven's `32c3da10` = his `COMMON_BUFF_FrameMove`
+  override), EP `329cba40` -> `31fcbd60`, hyper copies. Throw: `cmp id, 0x384`, FM `329ccda0` -> `329cc0d0` (`+0x5f4`), EP `329ccdb0` -> `329cc170` (`+0x5f8`),
+  neither overridden by Raven (`ch0_vtable_slots.tsv`), both copied to hyper; `SI_ETC_WS_COMMON_LOVE` = 900 (Elsword's CH1n review).
+- **Hyper switch.** `jg` -> `id - 0x6019`, `cmp 4; ja 32c66cd6`, table `32c66fc4` = {EB, BB, `32c66c32` IA, EB, BB}; `je 0x6018` -> `32c66c32`; else the
+  id switch. Thunks: IA `32c68f40` / `32c69d30` -> `32c27c90` / `32c3c670`; EB READY `32c68f00` / `32c69d00` -> `32c27d90` / `32c3c6b0`; BB `32c68f50` ->
+  `32c28040`, `329cbfc0` -> `31fcc740`. Hyper slot gets +0x44/+0x48 only; BB's `byte +0x10 = 1` = `m_bHyperState`. Strings `33514134` / `33514194` /
+  `33514118` = the tables the C++ names.
+- **Extreme Blade's two states.** Stack struct `[esp+0x1c]`: ctor `32078bc0`, `320775a0` (= `UserUnitStateData::Init`) before each. `0x123`
+  `"RSI_HA_RBM_EXTREM_BLADE_ATTACK"`: +0x14 Init `32c68f10`->`32c27e50`, +0x24 Start `32c6a110`->`32c42e10`, +0x34 FM `32c6a440`->`32c4f0a0`, +0x44 EP
+  `32c69d10`->`32c3c6e0`, +0x54 End `32c6a120`->`32c42eb0`. `0x124` `"..._ATTACK_FINISH"`: Init `32c68f20`->`32c27f10`, +0x1c StartFuture `32c68f30`->`32c27fe0`,
+  EP `32c69d20`->`32c3c730`. Every slot and target = the C++. June's C++ ids 291 / 292 differ from June's own `Enum.src.lua` (222 / 223,
+  `ch0_state_enum_names.tsv` DIFF); the registration ties each id to its table name, and the port uses the enumerator of that name.
+- **`RNSI_HA_*`** = `Enum.src.lua` 16455 / 16421 / 16540 / 15330 / 16154 (24600 / 24602 / 24603 / 24604 / 24605); 24601 is CH1i's.
+- **`SetMaximumCannonSkillFunc`.** Both defaults land on `@32c66cd6` (hyper `ja` @32c66b26, id switch `id - 0x5dc1; cmp 0xee; ja` @32c6436a), no explicit
+  case. The helper = March's `SI_A_RF_MAXIMUM_CANNON` case line for line (its two commented CameraMove lines aside); `_LIVE`'s `default:` calls it and
+  breaks. June's own form there (one table, Init `32c260a0` + EP `32c2dac0`, hyper EP only) is in CH2a's kickoff amendment.
+- **`32c69e30`.** `new 0x24`: +0 refcount 0, +4/+8/+0xc 0.0f, +0x10 `0x99` (June's `RSI_BASE`), +0x14 bool 0, +0x18 NULL, +0x1c / +0x20 -1 (handle) =
+  `WildChargeData`'s constructor order, inlined `CreateWildChargeData()`; the only xref is the Wild Charge case @32c64eeb (CH3b). Nothing to port.
+- **Callbacks.** `ch1n_user_callback_triage.tsv` = `ch1m_user_callbacks.tsv` row for row (132 / 132), each member found at the same VA with the same verdict
+  in the cited triage (127 Chung, 5 Elsword); 63 SAME, 16 ported, 5 kept, 48 Stage 17. Bytes: `RidingOnEnd` `31fc8810` = `jmp [vtbl+0x7dc]`
+  (`CommonStateEnd`) = March (`X2GUUser.cpp:46147`); `RidingDamageFrontStartFuture` `31fce160` calls `CommonStateStartFuture` (+0x7c0) before the pet
+  `StateChangeFuture` through getter `32d278b0`, March the reverse (`X2GUUser.cpp:46887`) = DIFF, Stage 17, as triaged.
+- **Always.h.** The five guards name what the `_LIVE` head uses: `GetEquippedActiveSkillTemplet( id, bool )` (`X2GUUser.h:2696`, `JUNE_SKILL_TEMPLET`),
+  `GetTranscendenceMemoSkillID` (`X2GUUser.h:3098`, inside `JUNE_DAMAGE_EXCEPTION` + `JUNE_SKILL_NOTE`), the grades (`JUNE_SKILL_TYPE`), `RNSI_HA_*`
+  (`JUNE_ENUM_NAMES`).
+
+**Hygiene.** flagcheck `--range ab97af2e^..ab97af2e --files`: `_LIVE --with _CORE` `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, FAIL only for
+the `//#define` (by design); `_CORE` `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` `RESULT: PASS`; `JUNE_ENUM_NAMES`
+`files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR` `RESULT: PASS`. Each: 0 deleted, 0 non-ASCII, 0 EOL-mismatched, 0 `#else`/`#endif`
+without the token, 0 encoding changes. `git diff --patience --numstat`: 152 / 1 / 15 / 9 added, 0 deleted. `junediverge.py --check-all`: `allow-listed: 186`,
+`RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: `0 A/B row(s)`. One-file probes (`/c /Zs /EHsc`): `_LIVE` off exit 0 / 0 errors, on exit 0 / 0 errors.
+No build: the review changed no code (CH1n's `DEPLOY OK` stands).
+
+**Nothing to play-test** (`_LIVE` is off). CH1o's kickoff stands as written (Amended by CH0 / CH1h checked). Next: `/x2-phase char-raven CH1o` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.
