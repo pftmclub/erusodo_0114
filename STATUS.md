@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2b | **done 2026-11-06, play-test owed** (unit 73 SwordTakerT, banks A + B; also Seven Burst / Flame Sword), then `/x2-phase char-raven CH2b review` (Opus 5.5 high): Sword Taker (16) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GURaven.*` | `CH2b.md`, `CH2b-review.md` |
+| CH2b | **done 2026-11-06, play-test passed (user)**; next `/x2-phase char-raven CH2b review` (Opus 5.5 high): Sword Taker (16) skills incl. Seven Burst / Flame Sword | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GURaven.*` | `CH2b.md`, `CH2b-review.md` |
 | CH2c0 | blocked (CH2b review; added by CH0): June-only `CX2GUUser` left-hand bone scale setter `31fd9f40` (Megadrill Break) | Opus 5.5 / high, Opus review | CH2b review | `X2GUUser.*`, Always.h | `CH2c0.md` |
 | CH2c | blocked (CH2c0 review): Over Taker (17) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c0 review | `X2GURaven.*` | `CH2c.md` |
 | CH2d | blocked (CH2c review): Weapon Taker (25) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GURaven.*` | `CH2d.md` |

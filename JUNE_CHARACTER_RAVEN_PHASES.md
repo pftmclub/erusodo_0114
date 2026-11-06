@@ -1621,6 +1621,8 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `_SKILL_DEBUG` re-defined; `Always
 2. **Bank B.** Fatal Wound: ground and air versions, bleed on hit; Armor Crash: key press after 0.66 s ends it; Seven Burst ( CH2a, never played ) and Flame Sword ( ground and air ).
 3. Log: `python tools/logs.py --grep "RAVEN SKILL"` ( `equip skill` for 24030 / 24033 / 24046 / 24220 / 24232 / 24233 / 24028 / 24218, `one flash skill ... hits`, `shockwave end counter buff 0` without the Blade Master passive ). Then say "check logs".
 
+**Play-test (2026-11-06, run 17:02-17:05 on md5 3170bfd7): user "all's fine"** for unit 73 ( banks A + B: Shockwave, Berserker Blade, Hypersonic Stab, Finishing Slash, Fatal Wound, Armor Crash, Seven Burst, Flame Sword ). Logs: 8 `RAVEN SKILL equip` lines ( states 49 / 51 / 53 / 55 / 59 / 61 / 63 / 65 ); effect sets created for every skill ( Shockwave 7 + 6 Ultimate, Berserker Blade Ultimate, Hypersonic Stab 6, Armor Break 7, Seven Burst 3, Flame Sword 5, One Flash 2, Bleeding Slicer alpha set once ); `one flash skill 24220 level 1 hits 6` twice; `shockwave end counter buff 0` ( no Counter Wave buff on this character ); `Motion Error` 0, `KEM_ERROR` 0, only optional `.XET` probes in ErrorLog.
+
 ## Phase CH3 - Skills: second jobs (106, 107, 115), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.
