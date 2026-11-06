@@ -1717,6 +1717,8 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `_SKILL_DEBUG` re-defined): the tw
 2. **Bank B.** Hell Dive: the punch effects ( no extra last punch ); Megadrill Break ( first, against a target with defence and MP ): the left hand grows to three times at the second hit, which also drains MP, the next hits crit, the hand is normal again at the end.
 3. Log: `python tools/logs.py --grep "RAVEN SKILL"` ( `equip skill` for 24029 / 24032 / 24041 / 24229 / 24219 / 24228, `valkyrie javelin effect set played`, `guardian strike layer set`, `megadrill second hit mana damage`, `megadrill next damage data hand x3` ) and `--grep NUM` for the `NUM use` lines of 24004-24006 / 24202-24204. Then say "check logs".
 
+**Play-test (2026-11-06, run 18:59-19:01 on md5 68a5ae77): user "all okay and play perfectly"** for unit 74 ( banks A + B: Valkyrie's Javelin, Charged Bolt, Guardian Strike, Weapon Crash, Hell Dive, Megadrill Break ). Logs: 6 `RAVEN SKILL equip` lines ( states 49 / 51 / 53 / 55 / 59 / 61 ); `valkyrie javelin effect set played` 1x, `guardian strike layer set` 1x, `megadrill second hit mana damage` and `next damage data hand x3` 5x each; `Motion Error` 0, `KEM_ERROR` 0, ErrorLog only the optional `MAGNUMBLASTER_MESH01.XET` probe. No `NUM use` lines exist in this build ( the review need not look for them ). Charged Bolt / Weapon Crash / Hell Dive have no debug line: user's visual check only.
+
 ## Phase CH3 - Skills: second jobs (106, 107, 115), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.
