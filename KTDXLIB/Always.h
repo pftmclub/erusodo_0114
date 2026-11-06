@@ -11802,3 +11802,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Revert: undefine the flag ( JUNE_CHAR_RAVEN_RAGE_DEBUG ).
 //#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-06
+// Description: June character port ( Raven ) Phase CH5 - Raven's skill cut-in table is June's ( 333aa400: GFx names HQ_CutIn_Raven_01..03 / BM_01 / RF_01 / VC_01,
+//              the 0x8b3 CASH_21 / CASH_22 pair ) in the class cut-in reader ( 32c3e450 ), plus the RAVEN UI cut-in log lines.
+//              Revert: undefine the flag ( JUNE_CHAR_RAVEN_UI ).
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE ) || !defined( SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI needs SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE and SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI
+//////////////////////////////////////////////////////////////////////////

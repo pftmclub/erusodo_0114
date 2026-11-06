@@ -38,3 +38,7 @@ March's in `#else`. A function March lacks gets a name in the class's own patter
 Every name (locals and constants too) says what it is in context: no Ghidra address, phase tag or `June` in an identifier.
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
+
+## Amended by CH5 (2026-11-06)
+
+- **CH5's walk items** (not reached in CH5's own play-test, which only needs one cut-in per set): the select screen with all nine March characters and Raven's seven classes (lobby pose turns 10 / 30 / 10 / 1 / 30 / 20 / 40 for 4 / 16 / 17 / 25 / 106 / 107 / 115 as June has them), the name "Veteran Commander" on 115; a skill cut-in on each class (`[JUNE_CHAR] RAVEN UI cut-in set 0..3 index 0..2`, art `HQ_CutIn_Raven_*`); the awakening hyper cut-in on 106 / 107 / 115 (`[JUNE_CHAR] RAVEN UI hyper cut-in class <c> name HQ_Cutin_R*_Transcendence`, only when the awakening state sets `SHOW_HYPER_CUT_IN_TIME`).

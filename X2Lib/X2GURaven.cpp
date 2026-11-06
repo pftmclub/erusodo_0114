@@ -65,6 +65,42 @@ namespace _CONST_RAVEN_
 #ifdef SERV_APRIL_FOOLS_DAY
 static const CX2GUUser::SkillCutIn s_SkillCutInSetFoolsDay = CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_Gura.dds");
 #endif //APRIL_FOOLS_DAY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI
+// June 333aa400 / table 337ae1d0: GFx names without extension ( ActiveSkillShow appends .gfx ); 4 sets of 3, in the class-index order of InitState
+static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
+{
+	// Raven, Sword Taker, Over Taker, Weapon Taker
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_02"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_03"),
+	},
+	// Blade Master
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_BM_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_BM_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_BM_01"),
+	},
+	// Reckless Fist
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_RF_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_RF_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_RF_01"),
+	},
+	// Veteran Commander
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_VC_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_VC_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_VC_01"),
+	},
+};
+/// June 337ae170 / 337ae1a0: the cut-ins of code event 0x8b3
+static const CX2GUUser::SkillCutIn s_SkillCutInSetEvent8b3[] =
+{
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_CASH_21"),
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Raven_CASH_22"),
+};
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI
 
 // 필살기 쓸 때 cut in image 
 static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] = 
@@ -101,6 +137,7 @@ static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
 	},
 #endif SERV_RAVEN_VETERAN_COMMANDER
 };
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI
 
 // dmlee 2008.09.15
 // 레이븐 소드테이커, 오버테이커의 2필인 아크에너미와 플라잉임팩트의 이름이 바뀌어서 코드와 필살기 이름이 서로 맞지 않습니다. 주의해주세요. ^^
@@ -29501,6 +29538,21 @@ void CX2GURaven::DeleteOverHeatObject()
 
 void CX2GURaven::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ /*= false */ )
 {	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI
+	/// June 32c3e450
+	if ( true == m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) && true == GetShowCutInAndChangeWorldColor() && true == GetShowActiveSkillShow() )
+	{
+		SkillCutIn cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_];
+
+		// not ported: the cut-in item override ( 31fd8a50, CX2CustomizeManager: backlog Stage 12 )
+
+		IF_EVENT_ENABLED( 0x8b3 )
+			cutIn = s_SkillCutInSetEvent8b3[ ( 0 == ( rand() & 1 ) ) ? 0 : 1 ];	// June 31e5a860: even rand() -> CASH_21
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN UI cut-in set %d index %d name %s", m_iSkillCutInSetIndex, static_cast<int>( uiCutInIndex_ ), cutIn.fileName.c_str() );
+
+		ActiveSkillShow( szBoneName_, cutIn.fileName.c_str(), cutIn.vSize, cutIn.vPosition, IsHyperState(), bOnlyLight_ );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -29514,6 +29566,7 @@ void CX2GURaven::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const f
 #endif //APRIL_FOOLS_DAY
 			ActiveSkillShow( szBoneName_, s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_].fileName.c_str(), s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_].vSize, s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_].vPosition, IsHyperState(), bOnlyLight_ );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI
 }
 
 /** @function : CheckAndDoReversalSoldier

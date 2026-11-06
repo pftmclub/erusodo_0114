@@ -189,7 +189,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | CH4a | blocked (CH2d review): passives `32c57660`, Burning Nasod Hand, 7am delegates, 0x73c / 0x748, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH4a.md` |
 | CH4b | blocked (CH4a review): June-only `SetDamageExceptionProcess` `32c5c080`, uncarved overrides | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GURaven.*`, `X2GUUser.*` | `CH4b.md` |
 | CH4c | blocked (CH4b, CH3c2 reviews): Veteran Commander overheat (`ch0_overheat.tsv`), `MemoConditionRaven`, left-arm readers | Opus 5.5 / high, Opus review, user play-test | CH4b review, CH3c2 review | `X2GURaven.*`, `X2Game.cpp`, `X2GameUnit.*` | `CH4c.md` |
-| CH5 | **ready** (CH1 review passed 2026-11-06): 7 `UnitTemplet` rows, cut-in table, flag `_UI`; beside CH2-CH4 | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, cut-in lines of the class `.cpp`, data036 | `CH5.md` |
+| CH5 | **done 2026-11-06, awaiting play-test** (flag `_UI`; 7 `UnitTemplet` rows + cut-in table + reader = June's; data036 copied; DEPLOY OK): user owes the select-screen + cut-in check, then CH5 review (Opus) | Opus 5.5 / high review, user play-test | CH5 done | `UnitTemplet.lua`, `X2GURaven.cpp`, `X2GUUser.cpp`, data036 | `CH5-review.md` |
 | CH6 | blocked (CH3d, CH4c, CH5 reviews): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4a-c, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-rena` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 

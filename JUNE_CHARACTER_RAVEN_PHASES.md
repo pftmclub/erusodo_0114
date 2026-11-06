@@ -1578,6 +1578,34 @@ attacks only; a Veteran Commander enters and leaves overheat as June; 0 Raven `n
 `:669-693` replaced by June's names and layout (7t cut-in `.gfx` names, `HQ_CutIn_Raven_BM_01` style); 7ah; the gauge pieces CH1q does not take.
 **Done gate:** a select-screen pass of all nine March characters with no new error; Raven's skill and hyper cut-ins play June's art.
 
+### CH5 - Done (2026-11-06)
+
+- **`UnitTemplet.lua` (data036, core-list BOM source):** Raven's 7 blocks are June's text, block-wise swap (55 blocks before and after, the other 48 untouched, BOM and CRLF kept). The semantic delta vs the old file is exactly
+  `ch0_unittemplet_raven.tsv`'s 11 keys: `m_fLobbyRotationY` 10 / 30 / 10 / 30 / 20 / 1 / 40 on 4 / 16 / 17 / 106 / 107 / 25 / 115, `m_HyperCutIn` `HQ_Cutin_RBM / RRF / RVC_Transcendence` on 106 / 107 / 115 (no `m_BerserkCutIn`),
+  `name` `STR_ID_617` -> `STR_ID_17431` on 115 (checked: `general.ess` "Veteran Commander"). `luasrc.py refresh data036 UnitTemplet.lua` REFRESHED, `ledger --check` PASS, `core --check` PASS, `luabind.py check UnitTemplet` PASS (0 unbound).
+  `kom.py pack data036`: PACK OK, `vs live data036.kom: ~1 changed` = `UnitTemplet.lua` only. **`COPY OK data036`** (user yes) md5 `e2360ec23ff284606954b7040e48c25d`, backup `kom_backup_tools/data036.kom.20261106_155516`.
+  Pre-phase file kept in the scratchpad (`UnitTemplet.lua.before`) for the review's block diff.
+- **Cut-in table (`SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI`, new at the end of `Always.h`; `#error` without `_RAVEN_LIVE` / `_JUNE_HYPER_CUT_IN_TIME`):** `s_SkillCutInSet` = June `333aa400` (table `337ae1d0`, 12 entries, stride 0x30; the static init's
+  string xrefs: `_01` / `_02` / `_03` once each, `_BM_01` x3, `_RF_01` x3, `_VC_01` x3): set 0 `HQ_CutIn_Raven_01` / `_02` / `_03` (Raven, Sword Taker, Over Taker, Weapon Taker), set 1 `_BM_01` x3, set 2 `_RF_01` x3, set 3 `_VC_01` x3.
+  Names carry no extension and every entry is March's one-argument `SkillCutIn( name )`. March's `.dds` table sits in `#else`. The event 0x8b3 pair `337ae170` / `337ae1a0` (`HQ_CutIn_Raven_CASH_21` / `_22`) is `s_SkillCutInSetEvent8b3`.
+- **Reader `CX2GURaven::ShowActiveSkillCutInAndLight` = June `32c3e450`** (a body inside March's function under `_UI`, March's in `#else`): `EventTimerOneshot` + `GetShowCutInAndChangeWorldColor` + `GetShowActiveSkillShow`, then
+  `s_SkillCutInSet[ m_iSkillCutInSetIndex ].cutIn[ index ]` (June `+0x8ac8`, set stride 3 x 0x30), the item override `31fd8a50` (not ported: Stage 12, as Aisha / Eve / Chung / Elsword), the 0x8b3 swap (even `rand()` -> CASH_21),
+  then `ActiveSkillShow( bone, name, size, pos, IsHyperState(), bOnlyLight )`. June has no April-fools branch: `s_SkillCutInSetFoolsDay` stays March's in the `#else` only.
+- **Already June's from CH1, unchanged:** the InitState set-index switch (sets 0 / 1 / 2 / 3 and sub-index 1 / 2 / 0, `X2GURaven.cpp:855-890`) and `ShowActiveSkillCutInAndLightByScript` (CH1k).
+- **Assets:** the six `HQ_CutIn_Raven_*.gfx` + `CASH_21` / `CASH_22` are in data152 and the three `HQ_Cutin_R{BM,RRF,RVC}_Transcendence.gfx` in data195, all June's bytes from CH0b (`ch0_assets.tsv`). Nothing staged.
+- **Logs:** `[JUNE_CHAR] RAVEN UI cut-in set <set> index <i> name <gfx>` (class reader, after the 0x8b3 swap) and `[JUNE_CHAR] RAVEN UI hyper cut-in class <c> name <gfx>` (`CX2GUUser::ShowHyperSkillCutInByScript`, Raven only).
+- **Checklist rows:** 7t L594 (rows), L623 (cut-in names) and the 7ao hyper cut-in name bullet marked `(Raven: CH5)`. **7ah** (`UpdateElswordSkillSlotEffect`) is Elsword-only (n/a, CH0). The gauge pieces were CH1q's (rage orb `32e6d900`).
+  **The guide dialog, `LevelUpEvent.lua` TYPE row and the `POPUP_TR_B_MASTER / R_FIST / V_COMMANDER` pictures of 7ao** are CH3d's (its kickoff names all three). No dialog or gauge piece is left for CH5.
+- **Not ported, routed:** the cut-in item override `31fd8a50` -> `CX2CustomizeManager`, Stage 12 bullet (as the other four characters).
+- **Hygiene:** `flagcheck JUNE_CHAR_RAVEN_UI --worktree --files KTDXLIB/Always.h X2Lib/X2GURaven.cpp X2Lib/X2GUUser.cpp`: 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatch, RESULT PASS
+  (15 inserted lines first came out LF beside a CRLF line and were converted to CRLF). `junediverge --check X2Lib/X2GURaven.cpp X2Lib/X2GUUser.cpp`: allow-listed 16, RESULT: PASS. `enumscan --check X2Lib/X2GURaven.cpp`: 0 A/B rows.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 26,039,296 B, dated 2026-11-06 15:48:11, md5 ce0eebc72628f4e07bf10e65a59dddff`. `EXESTR OK: 10 of 10` (the two log tags and the eight June names `HQ_CutIn_Raven_01/02/03/BM_01/RF_01/VC_01/CASH_21/CASH_22`, wide),
+  `EXESTR OK: 6 of 6 absent` (the six March `HQ_CutIn_Raven_{1,2,3,Blade_Master_1,Reckless_Fist_1,Veteran_Commander_1}.dds`).
+- **See it in game:** select screen: all nine March characters, then Raven's seven classes (the lobby pose turns by class: 10 / 30 / 10 / 1 / 30 / 20 / 40 for Raven, Sword Taker, Over Taker, Weapon Taker, Blade Master, Reckless Fist, Veteran Commander;
+  Veteran Commander is named "Veteran Commander"). A skill cut-in on each job plays June's `HQ_CutIn_Raven_*` art (set 0 on 4 / 16 / 17 / 25, `_BM_01` on 106, `_RF_01` on 107, `_VC_01` on 115). The awakening hyper on 106 / 107 / 115 shows
+  `HQ_Cutin_R{BM,RRF,RVC}_Transcendence` only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME` (the script has it in three states; the check is CH6's). Raven's skills are unported until CH2a: a cast of a March skill
+  that reaches `ShowActiveSkillCutInAndLight` is the test.
+
 ## Phase CH-N - not run for Raven
 
 All seven June Raven classes up to transcendence exist in March. The template block is `JUNE_CHARACTER_AISHA_PHASES.md` "Phase CH-N"; Ara
