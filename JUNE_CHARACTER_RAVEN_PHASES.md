@@ -1939,6 +1939,8 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `_SKILL_DEBUG` re-defined): ten Ve
 2. **Unit 83 `VetCommanderU` ( upgrade ids ).** A: Giga Prominence upgrade 24052 ( 0 ), Hellfire ( 1 ), Bursting Blade ( 2 ), Ifrit Flame ( 3 ); B: Breaking Fist upgrade 24238 ( 5 ), Ground Impact upgrade 24239 ( 6 ), Flame Sword: Flurry ( 7 ). Same checks; the upgrades use the same states.
 3. Log: `python tools/logs.py --grep "RAVEN SKILL"` ( `equip skill` for each id, `giga prominence finish loops 8 key presses N`, `ground impact skill 24216 level L scale S` ), plus `python tools/logs.py --tag JUNE_SKILL --grep "NUM"`. Then say "check logs".
 
+**Logs ( 2026-11-06, run 23:28-23:32, after deploy ).** Unit 83 only: `equip skill` for 24052 / 24039 / 24040 / 24058 ( bank A, states 49 / 51 / 53 / 55 ) and 24238 / 24239 / 24226 ( bank B, states 59 / 61 / 63 ), twice ( two sessions ); `giga prominence finish loops 8 key presses 16 / 0 / 15`; `ground impact skill 24239 level 1 scale 1.50` x5. `Motion Error` 0, `KEM_ERROR` 0; ErrorLog only the `.XET` preload misses ( March logs the same names ) and unrelated village ones. Not exercised: unit 82 ( base ids 24021 / 24215 / 24216 ), the overheat-vs-plain finish has no log line. **User's visual verdict: passed** ( user, 2026-11-06, "looks good" ).
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
