@@ -5492,6 +5492,35 @@ void CX2GURaven::CommonStateStartFuture()
 
 void CX2GURaven::CommonStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	/// June 32c43380: Black Hole count reset for every state but the ZZZX explosion combo; Burning Nasod Hand needs skill 24401 learned and tags AT_COMMAND
+	LUA_GET_VALUE(	m_LuaManager, "DAMAGEDATA_CHANGE_TIME",				m_fDamageDataChangeTime,			0.f );
+	LUA_GET_VALUE(	m_LuaManager, "DAMAGEDATA_CHANGE_TIME1",			m_fDamageDataChangeTime1,			0.f );
+	LUA_GET_VALUE(	m_LuaManager, "DAMAGEDATA_CHANGE_TIME2",			m_fDamageDataChangeTime2,			0.f );
+
+	ResetDamageType();
+	bool bChangeDamageType = false;
+	LUA_GET_VALUE( m_LuaManager, "BURNING_NASOD_HAND_POSSIBLE",	bChangeDamageType,	false );
+	if( true == bChangeDamageType && true == m_bBurningNasodHandLearned )
+	{
+		ChangeDamageType( m_eDamageTypeRaven, m_fChangeDamageRelRaven );
+#ifdef SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+		m_iChangeDamageAttackType = CX2DamageManager::AT_COMMAND;
+#endif SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION
+	}
+
+	SetPassiveCriticalRate( m_fPassiveCriticalRateRaven );
+
+	const int iNowStateID = GetNowStateID();
+	if( RSI_COMBO_ZZZX != iNowStateID && RBM_COMBO_ZZZX_EXPLOSION != iNowStateID && RBM_COMBO_ZZZXZ != iNowStateID )
+	{
+		m_iBlackHoleHitCount = 0;
+		if( m_hBlackHoleEffectSet != INVALID_EFFECTSET_HANDLE )
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hBlackHoleEffectSet );
+	}
+
+	CX2GUUser::CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	KTDXPROFILE();
 
 #ifdef SERV_RAVEN_VETERAN_COMMANDER
@@ -5524,6 +5553,7 @@ void CX2GURaven::CommonStateStart()
 #endif
 
 	CX2GUUser::CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::CommonFrameMoveFuture()
@@ -5546,6 +5576,166 @@ void CX2GURaven::CommonFrameMoveFuture()
 
 void CX2GURaven::CommonFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	/// June 32c55240: no class-side hyper ball ( the gage UI draws it ) and no inline Survival Technique of Mercenary block
+	CX2GUUser::CommonFrameMove();
+
+	/// Open Mind: awake, and no Nasod ball attack for the skill's time, lifts the rage gauge to 60
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RRF_OPEN_MIND ) && NULL != GetGageData() && 0.0f < GetRemainHyperModeTime() )
+	{
+		const double dSecondsSinceNasodBallAttack = static_cast<double>( clock() - m_clockLastNasodBallAttack ) / 1000.0;
+		if( GetLearnedSkillAbilityValue( CX2SkillTree::SA_TIME_ABS, CX2SkillTree::RNSI_P_RRF_OPEN_MIND ) <= dSecondsSinceNasodBallAttack )
+		{
+			if( m_fRageGauge <= 60.0 )
+				m_fRageGauge = 60.f;
+		}
+	}
+
+	D3DXVECTOR3 vDirVec = GetDirVector();
+	D3DXVECTOR3 vZVec = GetZVector();
+	D3DXVec3Normalize( &vDirVec, &vDirVec );
+
+	for( UINT i=0; i<m_vecArcEnemyData.size(); i++ )
+	{
+		ArcEnemyData* pData = m_vecArcEnemyData[i];
+		if( NULL != pData && INVALID_DAMAGE_EFFECT_HANDLE != pData->m_hEffect )
+		{
+			if ( CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->GetInstance( pData->m_hEffect ) )
+			{
+				CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = pEffect->GetMainEffect();
+				if( NULL != pMeshInst )
+				{
+					D3DXVECTOR3 vTargetPos = GetPos();
+					if( true == GetIsRight() )
+					{
+						vTargetPos += pData->m_vOffsetPos.x * vDirVec;
+						vTargetPos.y += pData->m_vOffsetPos.y;
+						vTargetPos += pData->m_vOffsetPos.z * vZVec;
+					}
+					else
+					{
+						vTargetPos -= pData->m_vOffsetPos.x * vDirVec;
+						vTargetPos.y += pData->m_vOffsetPos.y;
+						vTargetPos += pData->m_vOffsetPos.z * vZVec;
+					}
+
+					float coeff = 0.05f;
+					switch( i )
+					{
+					case 1: coeff = 0.06f; break;
+					case 2: coeff = 0.07f; break;
+					case 3: coeff = 0.08f; break;
+					case 4: coeff = 0.09f; break;
+					default: break;
+					}
+
+					D3DXVECTOR3 vRotateDegree = GetRotateDegree() + pData->m_vOffsetRotate;
+					pMeshInst->SetRotateDegree( vRotateDegree );
+					pMeshInst->SetMoveAxisAngleDegree( GetRotateDegree() );
+
+					vTargetPos = vTargetPos * coeff + pMeshInst->GetPos() * ( 1.f-coeff );
+					pMeshInst->SetPos( vTargetPos );
+				}
+			}
+			else
+			{
+				ClearArcEnemyData();
+				break;
+			}
+		}
+	}
+
+	DoFrameMoveNasodBall();
+
+	if( m_fArcEnemyEachTime > 0.f )
+	{
+		m_fArcEnemyEachTime -= m_fElapsedTime;
+	}
+
+	if( GetNowHp() <= 0.f )
+	{
+		m_fBlackHoleTime = 0.f;
+	}
+
+	if( m_fBlackHoleTime > 0.f )
+	{
+		m_fBlackHoleTime -= m_fElapsedTime;
+
+		if( m_fBlackHoleTime <= 0.f )
+		{
+			m_fBlackHoleTime = 0.f;
+			m_eRavenCurrentStage = RSI_BASE;
+			if( m_hBlackHoleEffectSet != INVALID_EFFECTSET_HANDLE )
+				g_pX2Game->GetEffectSet()->StopEffectSet( m_hBlackHoleEffectSet );
+		}
+	}
+	else
+	{
+		if( m_hBlackHoleEffectSet != INVALID_EFFECTSET_HANDLE )
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hBlackHoleEffectSet );
+	}
+
+	if( m_fOverheatBuffTime > 0.f )
+	{
+		m_fOverheatBuffTime -= m_fElapsedTime;
+
+		if( m_fOverheatBuffTime <= 0.f )
+			DeleteOverHeatObject();
+	}
+	else
+	{
+		m_fOverheatBuffTime = 0.f;
+	}
+
+	if( m_hOverHeatObject != INVALID_MESH_INSTANCE_HANDLE )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hOverHeatObject );
+
+		if( NULL != pMeshInst )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Bip01_L_Forearm" );
+			pMeshInst->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+		else
+		{
+			m_hOverHeatObject = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+
+	if ( CX2DamageEffect::CEffect* pEffectOverHeatFire1 = g_pX2Game->GetDamageEffect()->GetInstance( m_hEffectOverHeatFire1 ) )
+	{
+		D3DXVECTOR3 vPosition = m_pXSkinAnim->GetCloneFramePosition( L"Bip01_L_Forearm" );
+
+		pEffectOverHeatFire1->SetPos( vPosition );
+	}
+
+	if ( CX2DamageEffect::CEffect* pEffectOverHeatFire2 = g_pX2Game->GetDamageEffect()->GetInstance( m_hEffectOverHeatFire2 ) )
+	{
+		D3DXVECTOR3 vPosition = m_pXSkinAnim->GetCloneFramePosition( L"Bip01_L_Hand" );
+
+		pEffectOverHeatFire2->SetPos( vPosition );
+	}
+
+	/// Guardian Strike put the unit on the effect layer; back to the unit layer when its time is up
+	if( m_fGuardianStrikeRenderTime > 0.f )
+	{
+		m_fGuardianStrikeRenderTime -= m_fElapsedTime;
+
+		if( m_fGuardianStrikeRenderTime <= 0.f )
+		{
+			SetLayer( XL_UNIT_0 );
+			m_bSetCustomRenderParam = false;
+			m_RenderParam.color = D3DXCOLOR( 1.f, 1.f, 1.f, 1.f );
+			m_fGuardianStrikeRenderTime = -1.f;
+			SetAlphaObject( false );
+		}
+	}
+
+	EmergencyEscapeCoolTimeFrameMove();
+
+	if( 0.f <= m_fSurelyVictoryCoolTime )
+		m_fSurelyVictoryCoolTime -= m_fElapsedTime;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	KTDXPROFILE();
 
 	CX2GUUser::CommonFrameMove();
@@ -5892,11 +6082,16 @@ void CX2GURaven::CommonFrameMove()
 		m_pEffectOverHeatFire2->SetPos( vPosition );
 	}
 #endif SERV_RAVEN_VETERAN_COMMANDER
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
 /*virtual*/ void CX2GURaven::CommonEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	/// June 32c25ac0: the base only ( the skill cancel check is June's common cancel )
+	CX2GUUser::CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	KTDXPROFILE();
 	CX2GUUser::CommonEventProcess();
 
@@ -5906,9 +6101,18 @@ void CX2GURaven::CommonFrameMove()
 		SpecialAttackEventProcess();
 #endif SKILL_FOR_CANCEL
 	//}} kimhc // 2010.10.5 //
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+/// June 32c42f90: the elapsed time counts up while the cool time is above zero and not below it
+void CX2GURaven::EmergencyEscapeCoolTimeFrameMove()
+{
+	if( 0.0f < m_fEmergencyEscapeCoolTime && !( m_fEmergencyEscapeCoolTime < m_fEmergencyEscapeElapsedTime ) )
+		m_fEmergencyEscapeElapsedTime += m_fElapsedTime;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 void CX2GURaven::CommonStateEndFuture()
 {
 	KTDXPROFILE();

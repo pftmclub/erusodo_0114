@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-05, play-test owed** (4,825 assets in 35 koms + 2 guide Lua copied, 6 walk units 72-77; user walks Raven per tier, then `check logs`) | Sonnet 5.5 / high, user play-test | CH0 (done) | koms, save | `CH0b.md` |
-| CH1j | **ready** (`/x2-phase char-raven CH1j` on Sonnet 5.5 / high): Common* overrides (6 uncarved) + CommonFrameMove | Sonnet 5.5 / high, Opus review | CH1i review | `X2GURaven.*` | `CH1j.md` |
+| CH1j | **done 2026-11-06, review ready** (`/x2-phase char-raven CH1j review` on Opus 5.5 / high): Common* overrides, 3 `inside` written (CommonStateStart, CommonFrameMove, CommonEventProcess), 5 = March, 1 `new` (Emergency Escape tick) | Sonnet 5.5 / high, Opus review | CH1i review (done) | `X2GURaven.*` | `CH1j.md`, `CH1j-review.md` |
 | CH1k | blocked (CH1j review): skill-use overrides + SpecialAttackEventProcess `32c25af0` (uncarved) + `ReservedSkillStart` | Sonnet 5.5 / high, Opus review | CH1j review | `X2GURaven.*`, `X2GUUser.*` | `CH1k.md` |
 | CH1m | blocked (CH1k review): registration (InitState `32c66fe0`), `_LIVE` gate | Opus 5.5 / high, Opus review | CH1k review | `X2GURaven.*`, Always.h | `CH1m.md` |
 | CH1n | blocked (CH1m review): base callbacks + skill-slot head `32c641a0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GURaven.*`, `X2GUUser.*` | `CH1n.md` |

@@ -149,3 +149,7 @@ offset	kind	name	note
 0xc04	field	m_pGageData	CX2GameUnit (GetGageData()) ( CH1h )
 0x24c	field	m_fMaxHyperModeTime	CX2GameUnit (KProtectedType<float>, GetMaxHyperModeTime()) ( CH1h )
 0x404c	field	m_pUnitSlashTraceManager	CX2GameUnit; AddUnitSlashData 32c3ea70 ( CH1h )
+0x959c	field	m_fSurelyVictoryCoolTime	Raven (_CORE); cool time of Surely Victory ( 24409 ), CommonFrameMove 32c55240 counts it down while >= 0; ctor 0 ( CH1k ), 32c3df50 sets it from SA 0x94 ( CH4a ) ( CH1j )
+0x9688	field	m_bBurningNasodHandLearned	Raven (_CORE); skill 24401 learned; ctor 0 @32c404e3 ( CH1k ), 32c57660 sets it ( CH4a ), CommonStateStart 32c43380 reads it ( CH1j )
+0x9774	field	m_fGuardianStrikeRenderTime	Raven (_CORE); restore timer: ctor -1.0 @32c4015e ( CH1k ), Guardian Strike FrameMove 32c30cb0 sets 1.4 ( CH2c ), CommonFrameMove 32c55240 restores layer / render flag / colour / alpha object ( CH1j )
+0x8e04	field	m_bSetCustomRenderParam	CX2GUUser; ctor 0 @32040e02; Guardian Strike sets it, CommonFrameMove 32c55240 clears it ( March: X2GUEL.cpp:9209 Ancient Fire pattern ) ( CH1j )
