@@ -1880,6 +1880,10 @@ class CX2GURaven : public CX2GUUser
 		void RSI_A_RVC_NAPALM_GRENADE_Init ();
 		void RSI_A_RVC_NAPALM_GRENADE_EventProcess ();
 		void RSI_A_RVC_NAPALM_GRENADE_FrameMove ();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		void RSI_A_RWT_MENTAL_BREAK_Init();
+		void RSI_A_RWT_MENTAL_BREAK_EventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 		
 		// RSI_SA_RWT_REVOLVER_CANNON_HE ¸®º¼¹ö Ä³³í HE, ±èÁ¾ÈÆ
 		void RSI_SA_RWT_REVOLVER_CANNON_HE_Init ();

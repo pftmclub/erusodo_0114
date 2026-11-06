@@ -1735,6 +1735,38 @@ Fable 5.1 (the kickoff names Opus 5.5 high). **Verdict: PASS, no code change** e
 
 **Gates.** flagcheck `_SKILL --with _SKILL_DEBUG --range e5e12fb1^..e5e12fb1`: `1 PASS, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL`, 1 deleted line (the `//#define`), `RESULT: PASS`. Worktree (`Always.h`): `1 DEFINE, 0 FAIL`, 1 deleted line (the retired `#define`), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 194`, `RESULT: PASS`. `enumscan.py --check` on the `.cpp` / `.h`: `0 A/B row(s) remain`. One-file probe `X2GURaven.cpp` (`census.cl_cmd`, `/c /Zs /EHsc`, after the retire): exit 0, 0 errors. Build: started not awaited (debug retire only), finished after the commit: DEPLOY OK: X2_offline.exe is 26,050,048 B, dated 2026-11-06 19:30:52, md5 9565a661e7016db7d14d5ecfecf830f6, equal to X2/US_SERVICE/x2.exe (2026-11-06 19:30:45); built at main 0ba30e9d.
 
+### CH2d - Done (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `_SKILL_DEBUG` re-defined): the twelve Weapon Taker ids run June's registrations. All 41 class-map rows are read from `charport_adis.py raven --phase CH2d` listings plus the registration `32c641a0`: **15 written** ( 13 inside March's function under the flag with March in `#else` or insert-only, 2 new ), **26 are June = March** ( no code ). `funcmap.tsv` rows `Char Raven CH2d` ( 41 ); `MODS.md` "Stage 7 Raven, CH2d"; `JUNE_BUGS.md` 549.
+
+| June | `CX2GURaven::` | June differs from March |
+|---|---|---|
+| `32c4b7d0` | `RSI_A_RWT_BARRAGE_ATTACK_STAND_FrameMove` | one `RAVEN_BARRAGE_ATTACK_STAND` effect at 0.4 s; no memo effect, no buff factor |
+| `32c4b9e0` | `RSI_A_RWT_BARRAGE_ATTACK_AIR_FrameMove` | 0.1 s: `m_fNowStatePowerRate` x 1.2 ( checklist 7 l.256 ), then the STAND effect, not the AIR one ( JUNE_BUGS 549 ); no memo, no buff factor |
+| `32c52cc0` `32c52f30` `32c532f0` | Revolver LOOP / Harpoon FIRE_OVERHEAT / Hellfire LOOP `StateStart` | June inlines the one-argument `_SetOverheat( true )` ( March passed a 5 s duration the LIVE setter ignores ) |
+| `32c5a020` `32c5a1e0` `32c5a400` | Revolver LOOP / Harpoon / Hellfire LOOP `EventProcess` | the key count that shows the overheat icon is 3 ( March 5 / 4 / 5 ); `_CONST_RAVEN_CH2D_` |
+| `32c357e0` `32c359d0` | Revolver FINISH / END `EventProcess` | after the animation-end test: foot-gated walk and dash cancels + `SKILL_CANCEL_AFTER` ( March has none ) |
+| `32c39c70` | `RSI_A_RVC_NAPALM_GRENADE_EventProcess` | walk and dash cancels need the foot on a line |
+| `32c60510` | `RSI_SA_RWT_REVOLVER_CANNON_LOOP_FrameMove` | no memo x0.8 on the shell rate |
+| `32c60b30` | `RSI_SA_RWT_HELLFIRE_GATLING_LOOP_FrameMove` | whole new body: one 0.001 s one-shot per loop plays `EffectSet_SA_RWT_HellFire_Loop` ( `_OverHit` when overheated, plus the temporary `RAVEN_HELLFIRE_GATLING_IMPACT_OVERHEAT` at ( 0, -1000, 0 ) with `_BurnOverheatHP` and `DestroyInstance` ); shout at loop 18; no bullet effects, no 0.09 / 0.06 / 0.12 s timers |
+| `32c27930` `32c39630` | `RSI_A_RWT_MENTAL_BREAK_Init` / `_EventProcess` ( new ) | empty Init; animation end -> WAIT on a foot else JUMP_DOWN, `CommonEventProcess` |
+| = March | 26 rows: all Inits, the four `StateEnd` tail jumps, Barrage StartFuture / STAND EP / AIR EP, Revolver / Harpoon / Hellfire `FrameMove` ( world colour + cut-in ), Revolver / Hellfire / Harpoon Start and first EP, Harpoon FIRE / OVERHEAT EP + FM, Hellfire END EP, Napalm FM | `funcmap.tsv` says which |
+
+**Registration.** Six new cases in the id switch ( raw ids, base and upgrade ): Barrage Attack ( Init + StartFuture, hyper StartFuture only; STAND FM + EP; AIR FM + EP ), Revolver Cannon ( five callbacks on both; LOOP, FINISH, END, OVER_END ), Harpoon Spear ( five callbacks on both; FIRE, FIRE_OVERHEAT ), Hellfire Gatling ( five callbacks on both; LOOP, END, OVER_END ), Napalm Grenade ( Init + FM + EP ), Mental Crash ( Init + EP ). `X2SkillTree.h`: eight `RNSI_*` names ( 24031 / 24034 / 24051 / 24213 / 24214 / 24221 / 24236 / 24237 ). `X2GURaven.h`: the two Mental Crash declarations. The base skills' `SetEquippedSkillLevel` terms were already June's ( CH1 ); the only readers of the old `SI_*` ids left are March's dead branches and CH4a's air-slicer test ( `X2GURaven.cpp` ~8407 / ~8421 ), so the upgrade-swap check finds nothing more to change.
+
+**Findings.** Routed, not ported: none new. `_ShowOverheatIcon` and `_CanOverheat( true )` defaults equal June's pushes ( 0 / 1 ). Checklist rows: L50 marked `(Raven: CH2d, 26 of them)`; L116 / L117 / L178 / L714-733 / L844 are covered by this phase's ids ( numerical data is S4's; no BFI call is left in these functions ); L636 / 7u: `Effectset_A_RWT_FLAME_SWORD_MEMO_FX` / `_Damage` and the two Hellfire effect sets exist in the live `EffectSet.lua` ( closure rows `fn:32c60b30` ). `PlaySound` is allow-listed ( `june_diverge_allow.tsv` ).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RAVEN_SKILL --with JUNE_CHAR_RAVEN_SKILL_DEBUG --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `1 PASS, 1 PASS~, 1 DEFINE, 1 OTHER ( X2SkillTree.h: JUNE_ENUM_NAMES ), 0 FAIL`; `1 deleted line ( the //#define ), 0 non-ASCII, 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token`, `RESULT: PASS` ( the PASS~ is two blank lines before the new namespace and the new functions ).
+- `junediverge.py --check` ( X2GURaven.cpp / .h, X2SkillTree.h ): `allow-listed: 10`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `0 A/B row(s) remain`. `skillicons.py check` the 12 ids: `skills 12, misses 0`, `RESULT: PASS`. `luabind.py check RAVEN_FIGHTER`: 0 unbound. One-file probe `X2GURaven.cpp` ( `/c /Zs /EHsc` ): exit 0, 0 errors.
+- DEPLOY OK: X2_offline.exe is 26,055,680 B, dated 2026-11-06 19:55:23, md5 23bec2c7757fda94632be36b3f023f0f, equal to X2/US_SERVICE/x2.exe ( 2026-11-06 19:55:15 ); built at main c7540a42 + 4 uncommitted code file(s).
+- EXESTR OK: 5 of 5 found in X2_offline.exe, 26055680 B, md5 23bec2c7 ( wide: `[JUNE_CHAR] RAVEN SKILL` hellfire / barrage air / mental break lines, `EffectSet_SA_RWT_HellFire_Loop_OverHit`, `RAVEN_HELLFIRE_GATLING_IMPACT_OVERHEAT` ).
+
+**Play-test hand-off.** Unit 75 `WeaponTakerT` ( Weapon Taker, class 25, lv 99 ). Save set up ( backup taken by `elsdb`, no schema change ): bank A = slot 0 Harpoon Spear 24018, 1 Revolver Cannon upgrade 24034, 2 Hellfire Gatling 24020, 3 Barrage Attack upgrade 24221; bank B = slot 5 Napalm Grenade 24213, 6 Mental Crash upgrade 24237 ( slots 4 / 7 / 8 / 9 empty ). Dev console ( END key ): `/invin 0`, then `/stage 1`. Each skill twice, enemies in front ( the slot shows a cool time after the first cast, the MP bar drops ):
+1. **Bank A.** Harpoon Spear: the unit hovers, hold the slot key to show the overheat icon ( 3 presses ), then fires ( normal or overheated ), lands; Revolver Cannon: shell loop, keep pressing for the icon and a longer loop, finish, then walk / dash cancel; Hellfire Gatling: loop with June's effect set per loop ( longer with the icon ); Barrage Attack: once on the ground and once in the air ( air hits harder, JUNE_BUGS 549 ).
+2. **Bank B.** Napalm Grenade: three grenade effects at 0.6 s, walk / dash cancel on the ground; Mental Crash: ends in WAIT, no crash or "Motion Error".
+3. Log: `python tools/logs.py --grep "RAVEN SKILL"` ( `equip skill` for 24018 / 24034 / 24020 / 24221 / 24213 / 24237, `barrage stand effect`, `barrage air effect power rate`, `hellfire loop effect set played loop N overheated 0/1`, `mental break end` ). Then say "check logs".
+
 ## Phase CH3 - Skills: second jobs (106, 107, 115), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.

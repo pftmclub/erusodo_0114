@@ -5997,3 +5997,21 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `..._SKILL_DEBUG` re-defined, `[JU
 | Weapon Crash ( 24204 ) | `RSI_A_ROT_WEAPON_BREAK` state table | 9.34 ( `DamageEffect_Raven_Weapon_Break` ) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the Over Taker ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.
+
+## Stage 7 Raven, CH2d: Weapon Taker (class 25) skills (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `..._SKILL_DEBUG` re-defined, `[JUNE_CHAR] RAVEN SKILL` lines). Plan `JUNE_CHARACTER_RAVEN_PHASES.md` "CH2d - Done". Client only, no data change.
+- **What changes in game.** The twelve Weapon Taker ids ( Harpoon Spear 24018 / 24031, Revolver Cannon 24019 / 24034, Hellfire Gatling 24020 / 24051, Barrage Attack 24212 / 24221, Napalm Grenade 24213 / 24236, Mental Crash 24214 / 24237 ) get cases in the id switch of `SetEquippedSkillFuncBySkillSlotIndex` ( before this each fell into the Maximum Cannon default ). `X2SkillTree.h` gains eight `RNSI_*` names. Mental Crash gets two new functions ( an empty Init and an EventProcess that ends in WAIT / JUMP_DOWN ).
+- **Differs from March.** The overheat icon of Harpoon Spear, Revolver Cannon and Hellfire Gatling shows after 3 key presses ( March 4 / 5 / 5 ); the overheat setter is June's one-argument form; Revolver Cannon's finish and end states and Napalm Grenade take the foot-gated walk / dash cancels ( Revolver's two also the skill cancel ); Barrage Attack's damage effects lose their memo variants and buff factor, and the air one multiplies the cached power rate by 1.2 ( and spawns the STAND effect, JUNE_BUGS 549 ); Hellfire Gatling's loop plays one effect set per loop ( `EffectSet_SA_RWT_HellFire_Loop` / `_OverHit` ) in place of March's bullet damage effects; Revolver Cannon's shell loses the memo x0.8.
+- **Damage ( level 1, March = the shipped effect / state table ).**
+
+| Skill | March damage | June damage |
+|---|---|---|
+| Harpoon Spear ( 24018 ) | state table ( numerical data ), `RAVEN_HARPOON_SPEAR_SHELL_OVERHEAT_PENALTY` on an overheat fire | = March ( the same effect; June's state table is numerical-only ) |
+| Revolver Cannon ( 24019 ) | `RAVEN_REVOLVER_CANNON_SHELL` / `_FINAL_SHELL` ( `_OVERHEAT` ), shell rate x0.8 with memo 15 | the same effects, rate = `GetPowerRate()` ( no memo ) |
+| Hellfire Gatling ( 24020 ) | `RAVEN_HELLFIRE_GATLING_BULLET[_OVERHEAT][_MEMO]` per fire time | `EffectSet_SA_RWT_HellFire_Loop` / `_OverHit` once per loop ( damage effects `DamageEffect_SA_RWT_HellFire_Explosion` / `_OverHit` ) |
+| Barrage Attack ( 24212 ) | `RAVEN_BARRAGE_ATTACK_STAND` / `_AIR` ( `_MEMO` ) + the skill's buff factor | `RAVEN_BARRAGE_ATTACK_STAND` for both ( air power rate x1.2 ), no buff factor |
+| Napalm Grenade ( 24213 ) | `DAMAGE_EFFECT_NAPALM_GRENADE_BULLET_1..3` | the same three effects ( = March ) |
+| Mental Crash ( 24214 ) | none ( no March state ) | the script's state table only |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the Weapon Taker ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.

@@ -2432,6 +2432,18 @@ public:
 		RNSI_A_ROT_WEAPON_BREAK_UPGRADE                       = 24229,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-06 // char-raven CH2d
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RWT_HARPOON_SPEAR_UPGRADE                     = 24031,	// June's Enum.lua
+		RNSI_SA_RWT_REVOLVER_CANNON_ORDNANCE_PENETRATOR_UPGRADE = 24034,
+		RNSI_SA_RWT_HELLFIRE_GATLING_UPGRADE                  = 24051,
+		RNSI_A_RWT_NAPALM_GRENADE                             = 24213,
+		RNSI_A_RWT_MENTAL_BREAK                               = 24214,
+		RNSI_A_RWT_BARRAGE_ATTACK_UPGRADE                     = 24221,
+		RNSI_A_RWT_NAPALM_GRENADE_UPGRADE                     = 24236,
+		RNSI_A_RWT_MENTAL_BREAK_UPGRADE                       = 24237,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-06 // char-raven CH1k
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY            = 24412,	// June's Enum.lua
