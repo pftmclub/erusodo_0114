@@ -4201,6 +4201,135 @@ void CX2GURaven::InitStateWeaponTaker()
 
 /*virtual*/ void CX2GURaven::SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c641a0 up to its skill switch; its batch 3207c1a0 / 31fdf970 only re-protects the edited entries ( anti-tamper ), nothing to port
+	if ( iSlotIndex_ < 0 || iSlotIndex_ > 4 )
+		return;
+
+	const int iNormalStateID = ( false == bSlotB_ ? _CONST_GUUSER_::aNormalSkillStateID[iSlotIndex_] : _CONST_GUUSER_::aNormalSkillStateIDSlotB[iSlotIndex_] );	// June 3350f9e8 / 3350fa10
+	UserUnitStateData& normalStateData = m_StateList[ iNormalStateID ];
+	normalStateData.Init();		// June's 31fd2af0 snapshot before it is the engine's ( checklist 7i )
+	normalStateData.stateID = iNormalStateID;	// June's +0x11 = 1 is IsSkillSlotState ( X2GUUser.cpp )
+
+	const int iHyperStateID = ( false == bSlotB_ ? _CONST_GUUSER_::aHyperSkillStateID[iSlotIndex_] : _CONST_GUUSER_::aHyperSkillStateIDSlotB[iSlotIndex_] );	// June 3350f9fc / 3350fa24
+	UserUnitStateData& hyperStateData = m_StateList[ iHyperStateID ];
+	hyperStateData.Init();
+	hyperStateData.m_bHyperState = true;
+	hyperStateData.stateID = iHyperStateID;
+
+	const CX2SkillTree::SkillTemplet* pSkillTempletEquipped = GetEquippedActiveSkillTemplet( eSkillID_, true );
+	if ( NULL == pSkillTempletEquipped )
+		return;
+
+	const int iTranscendenceSkillID = GetTranscendenceMemoSkillID( eSkillID_ );
+	if ( 0 != iTranscendenceSkillID && NULL != g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iTranscendenceSkillID ) ) )
+		return;		// June @32c642aa: a transcended skill registers nothing here
+
+	switch ( pSkillTempletEquipped->m_eType )
+	{
+	case CX2SkillTree::ST_BUFF:
+		{
+			m_LuaManager.MakeTableReference( "RSI_SI1_COMMON_BUFF", normalStateData.stateID );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, COMMON_BUFF_FrameMove );	// June 32a77a20 = vslot 0x5f0
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, COMMON_BUFF_EventProcess );	// June 31fcbd60
+
+			m_LuaManager.MakeTableReference( "RSI_SI1_COMMON_BUFF_HYPER", hyperStateData.stateID );
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+		} return;
+
+	case CX2SkillTree::ST_ACTIVE:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE:
+	case CX2SkillTree::ST_HYPER_ACTIVE_SKILL:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+		{
+			switch ( eSkillID_ )
+			{
+			case CX2SkillTree::RNSI_HA_RRF_INFERNAL_ARMS:
+			case CX2SkillTree::RNSI_HA_RRF_INFERNAL_ARMS_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "RSI_HA_RRF_INFERNAL_ARM", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_HA_RRF_INFERNAL_ARM_Init );			// June 32c27c90, CH3d
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_HA_RRF_INFERNAL_ARM_EventProcess );	// June 32c3c670, CH3d
+
+					m_LuaManager.MakeTableReference( "RSI_HA_RRF_INFERNAL_ARM", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;	// June gives the hyper state no StateInit
+				} return;
+
+			case CX2SkillTree::RNSI_HA_RBM_EXTREM_BLADE:
+			case CX2SkillTree::RNSI_HA_RBM_EXTREM_BLADE_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "RSI_HA_RBM_EXTREM_BLADE_READY", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_HA_RBM_EXTREM_BLADE_READY_Init );			// June 32c27d90, CH3d
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_HA_RBM_EXTREM_BLADE_READY_EventProcess );	// June 32c3c6b0, CH3d
+
+					m_LuaManager.MakeTableReference( "RSI_HA_RBM_EXTREM_BLADE_READY", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= RSI_HA_RBM_EXTREM_BLADE_ATTACK;
+					m_LuaManager.MakeTableReference( "RSI_HA_RBM_EXTREM_BLADE_ATTACK", stateData.stateID );
+					stateData.StateInit			= SET_CB_FUNC( CX2GURaven, RSI_HA_RBM_EXTREM_BLADE_ATTACK_Init );			// June 32c27e50
+					stateData.StateStart		= SET_CB_FUNC( CX2GURaven, RSI_HA_RBM_EXTREM_BLADE_ATTACK_StateStart );		// June 32c42e10
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_HA_RBM_EXTREM_BLADE_ATTACK_FrameMove );		// June 32c4f0a0
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_HA_RBM_EXTREM_BLADE_ATTACK_EventProcess );	// June 32c3c6e0
+					stateData.StateEnd			= SET_CB_FUNC( CX2GURaven, RSI_HA_RBM_EXTREM_BLADE_ATTACK_StateEnd );		// June 32c42eb0
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH;
+					m_LuaManager.MakeTableReference( "RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH", stateData.stateID );
+					stateData.StateInit			= SET_CB_FUNC( CX2GURaven, RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH_Init );			// June 32c27f10
+					stateData.StateStartFuture	= SET_CB_FUNC( CX2GURaven, RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH_StartFuture );	// June 32c27fe0
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH_EventProcess );	// June 32c3c730
+					m_StateList[stateData.stateID] = stateData;
+				} return;
+
+			case CX2SkillTree::RNSI_HA_RVC_BURNING_BUSTER:
+			case CX2SkillTree::RNSI_HA_RVC_BURNING_BUSTER_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "RSI_HA_RVC_BURNING_BUSTER", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GURaven, RSI_HA_RVC_BURNING_BUSTER_Init );			// June 32c28040, CH3d
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );	// June 31fcc740
+
+					m_LuaManager.MakeTableReference( "RSI_HA_RVC_BURNING_BUSTER", hyperStateData.stateID );
+					hyperStateData.m_bHyperState	= true;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+				} return;
+
+			default:
+				break;
+			}
+
+			if ( CX2SkillTree::RNSI_HA_RRF_INFERNAL_ARMS < eSkillID_ )
+			{
+				SetMaximumCannonSkillFunc( normalStateData, hyperStateData );	// June @32c66cd6
+				return;
+			}
+		} break;	// June switches on the raw id; March's cases until CH2-CH3
+
+	case CX2SkillTree::ST_RELATIONSHIP_SKILL:
+		{
+			if ( CX2SkillTree::SI_ETC_WS_COMMON_LOVE == eSkillID_ )
+			{
+				m_LuaManager.MakeTableReference( "RSI_THROW_ITEM", normalStateData.stateID );
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, COMMON_RELATIONSHIP_SKILL_FrameMove );		// June 329cc0d0 = vslot 0x5f4
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, COMMON_RELATIONSHIP_SKILL_EventProcess );	// June 329cc170 = vslot 0x5f8
+
+				m_LuaManager.MakeTableReference( "RSI_THROW_ITEM", hyperStateData.stateID );
+				hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+				hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+			}
+		} return;
+
+	default:
+		return;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if ( iSlotIndex_ < 0 || iSlotIndex_ >= ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ) )
 		return;
 
@@ -4265,6 +4394,7 @@ void CX2GURaven::InitStateWeaponTaker()
 				return;
 			} break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////// 여기서 부터 ACTIVE, SPECIAL ACTIVE 스킬//////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4272,7 +4402,15 @@ void CX2GURaven::InitStateWeaponTaker()
 	
 	switch( eSkillID_ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	default:
+		{
+			SetMaximumCannonSkillFunc( normalStateData, hyperStateData );	// June 32c641a0 @32c66cd6
+		} break;
+
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	default:
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		case CX2SkillTree::SI_A_RF_MAXIMUM_CANNON:
 #else //UPGRADE_SKILL_SYSTEM_2013
@@ -5708,6 +5846,20 @@ void CX2GURaven::InitStateWeaponTaker()
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+/// June 32c641a0 @32c66cd6: the default of both skill switches registers Maximum Cannon ( June's own registration is CH2a's )
+void CX2GURaven::SetMaximumCannonSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ )
+{
+	m_LuaManager.MakeTableReference( "RSI_SI1_MAXIMUM_CANNON", rNormalStateData_.stateID );
+	rNormalStateData_.StateInit			= SET_CB_FUNC( CX2GURaven, RSI_SI1_MAXIMUM_CANNON_Init );
+	rNormalStateData_.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_SI1_MAXIMUM_CANNON_FrameMove );
+	rNormalStateData_.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RSI_SI1_MAXIMUM_CANNON_EventProcess );
+
+	m_LuaManager.MakeTableReference( "RSI_SI1_MAXIMUM_CANNON_HYPER", rHyperStateData_.stateID );
+	rHyperStateData_.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RSI_SI1_MAXIMUM_CANNON_HYPER_FrameMove );
+	rHyperStateData_.OnEventProcess		= SET_CB_FUNC( CX2GURaven, RSI_SI1_MAXIMUM_CANNON_HYPER_EventProcess );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 /*virtual*/ void CX2GURaven::SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE

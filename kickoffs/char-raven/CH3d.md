@@ -50,3 +50,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Skills: 6** (part 2 of `ch0_state_skill.tsv`, col 6): 24600 RNSI_HA_RRF_INFERNAL_ARMS, 24601 RNSI_HA_RBM_EXTREM_BLADE, 24602 RNSI_HA_RVC_BURNING_BUSTER, 24603 RNSI_HA_RRF_INFERNAL_ARMS_UPGRADE, 24604 RNSI_HA_RBM_EXTREM_BLADE_UPGRADE, 24605 RNSI_HA_RVC_BURNING_BUSTER_UPGRADE.
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, RAVEN_STATE_ID); §7t L594 June UnitTemplet.lua m_HyperCutIn / m_BerserkCutIn keys and the HQ_Cut; §7t L604-608 hyper active skills: cut-in shown whatever the option says (type 13); §7ag L807-809 TC slot A-5 / B-5 states and the Stage 6 skips; §7ao L954 T5 branch: HyperModeStart 31ffd490, skill 24419 (0x5f63) learned while; §7ao L966 transcend: Raven hyper effect start 32c4e7c0 (vslot 49) returns at onc; §7ao L940-945 every class also brings: emulator allow-list id, LevelUpEvent TYPE row.
 - 7ao: 24419 in `HyperModeStart` `31ffd490` and the transcended return of `32c4e7c0` (CH1h writes the body).
+
+## Amended by CH1n (2026-11-06)
+
+- The registration of the six hyper ids is done (`32c641a0`'s hyper switch, under `_LIVE` in the head): 24600 / 24603 Infernal Arm, 24601 / 24604
+  Extreme Blade (READY + `RSI_HA_RBM_EXTREM_BLADE_ATTACK` / `_ATTACK_FINISH`), 24602 / 24605 Burning Buster, all = March's callbacks (`funcmap.tsv`
+  row `32c641a0 (CH1n)`). CH3d ports only their bodies inside March's functions; the five `RNSI_HA_*` names are in `X2SkillTree.h`.

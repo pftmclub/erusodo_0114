@@ -1107,6 +1107,55 @@ One-file probes (`/c /Zs /EHsc`): `off exit 0 errors 0`, `on exit 0 errors 0`. N
 
 **Nothing to play-test** (`_LIVE` is off). CH1n's kickoff stands as written (Amended by CH1m checked). Next: `/x2-phase char-raven CH1n` (Opus 5.5 high).
 
+### CH1n - Done (2026-11-06)
+
+**Head (`32c641a0`), inside, `_LIVE`.** June's head sits in March's own `SetEquippedSkillFuncBySkillSlotIndex` up to the id switch; March's head and
+type switch are the `#else` (`_LIVE` still `//#define`d). Read from the decompile and the exe bytes (Elsword's CH1n is the template):
+- Bounds `0 > slot || 4 < slot`; tables `3350f9e8` / `3350fa10` (normal A / B = 50.. / 60..) and `3350f9fc` / `3350fa24` (hyper 51.. / 61..) = March's
+  `_CONST_GUUSER_` arrays (read from the exe). `31fd2af0` dropped (7i), `+0x11` = `IsSkillSlotState`, hyper `0x101`; `GetEquippedActiveSkillTemplet( id, true )`.
+  The batch `3207c1a0` / `31fdf970` is anti-tamper only.
+- **Transcendence memo @32c642aa:** `31fdbcc0`, then `32206450( memo, 1 )` non-null -> the epilogue. No case: a transcended skill registers nothing.
+- **Types** (jump table `32c66dc0`): 5 buff = `RSI_SI1_COMMON_BUFF` / `_HYPER` (= March), FM = vslot 0x5f0 (Raven's `32c3da10`), EP `31fcbd60`; 6 / 7 / 0xd-0x10
+  = the hyper switch, then the id switch; 0xc + 900 = `RSI_THROW_ITEM`, vslots 0x5f4 / 0x5f8; anything else returns.
+- **Hyper switch** (`0x6018 < id`, `== 0x6018`): 24600 / 24603 Infernal Arm (`32c27c90` / `32c3c670`), 24601 / 24604 Extreme Blade READY (`32c27d90` /
+  `32c3c6b0`) plus `RSI_HA_RBM_EXTREM_BLADE_ATTACK` (Init / Start / FrameMove / EventProcess / End) and `_ATTACK_FINISH` (Init / StartFuture / EventProcess)
+  through `31fd89b0`, 24602 / 24605 Burning Buster (`32c28040`, EP `31fcc740` = `GenericSpecialActiveSkillEventProcess`). Each = March's callbacks and slots
+  (`UserUnitStateData` +0x54 = `StateEnd`); the hyper slot gets the EventProcess only, as March. Ids above 24600 with no case -> `@32c66cd6`; below -> the id
+  switch (March's cases until CH2-CH3). Bodies stay CH3d's (kickoff amended).
+- **`SetMaximumCannonSkillFunc`** (new, `_CORE`; June `@32c66cd6`, the default of both switches: 24000 / 24025 have no case). June registers
+  `RSI_SI1_MAXIMUM_CANNON` on both slots (Init `32c260a0`, EP `32c2dac0`, hyper EP only). The helper holds March's Maximum Cannon case until CH2a (kickoff
+  amended); under `_LIVE` March's id-switch `default:` calls it (Elsword's `SetMegaSlashSkillFunc` shape).
+- **`32c69e30`** (CH0's "new ?") = March's inlined `WildChargeData::CreateWildChargeData()` (0x24 bytes, `RSI_BASE` 0x99 at +0x10, handle -1); only
+  caller the Wild Charge case @32c64eeb (CH3b). Nothing to port; class-map row corrected.
+- Enum names (`JUNE_ENUM_NAMES`, `X2SkillTree.h`): `RNSI_HA_RRF_INFERNAL_ARMS` 24600, `RNSI_HA_RVC_BURNING_BUSTER` 24602, `RNSI_HA_RRF_INFERNAL_ARMS_UPGRADE`
+  24603, `RNSI_HA_RBM_EXTREM_BLADE_UPGRADE` 24604, `RNSI_HA_RVC_BURNING_BUSTER_UPGRADE` 24605 (June `Enum.src.lua`, June's spelling); 24601 was CH1i's.
+- `Always.h`: five new `_LIVE` guards: `JUNE_ENUM_NAMES`, `JUNE_SKILL_TEMPLET`, `JUNE_SKILL_TYPE`, `JUNE_SKILL_NOTE`, `JUNE_DAMAGE_EXCEPTION`.
+
+**Dev free-skill gate.** `32c641a0` has no cool-time / MP check; the gate is CH1k's in `SpecialAttackLookup` (`32c58c30`, `X2GURaven.cpp` `IsDevUnlimitedSkillUse`).
+Checklist marked `(Raven: CH1n)`: dev-gate row, §7b memo row, 7i head row, the `+0x11` row, types 14-16.
+
+**Base callbacks.** Raven's 132 (`ch1m_user_callbacks.tsv`) are all covered at the same June VA: 127 by Chung's triage, 5 by Elsword's
+(`june2017_re/char_raven/ch1n_user_callback_triage.tsv`). The two CH1m flagged, `RidingOnEnd` `31fc8810` (SAME) and `RidingDamageFrontStartFuture`
+`31fce160` (DIFF -> Stage 17), are Chung's rows. Tally: 63 SAME; DIFF 16 ported for every class (Chung CH1n2 base flags), 5 kept (RandomLose `find`
+guard, the two HyperModeEnd Add stand-ins, StartStateStart / StartEventProcess), 48 Stage 17. Nothing to widen: no registered body is gated on another
+class's `_LIVE` flag (the class-gated `X2GUUser` sites are virtual hooks, CH1o / CH1p).
+
+**Checks.** One-file probes of `X2GURaven.cpp` (`census.cl_cmd`, `/c /Zs /EHsc`): `_LIVE` off exit 0 / 0 errors, `/DSERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`
+exit 0 / 0 errors (the five guards pass). `cl /P` off / on: `SetMaximumCannonSkillFunc( normalStateData` 0 / 2, `RNSI_HA_RRF_INFERNAL_ARMS:` 0 / 1,
+`GetTranscendenceMemoSkillID( eSkillID_ )` 0 / 1; the helper's definition 1 / 1.
+`git diff --patience --numstat`: `X2GURaven.cpp` 152 / 0, `.h` 1 / 0, `Always.h` 15 / 0, `X2SkillTree.h` 9 / 0. bytepatch: high bytes unchanged (20340 / 4732 / 38738 / 23310).
+`flagcheck JUNE_CHAR_RAVEN_LIVE --with SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h KTDXLIB/Always.h`:
+`files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, RESULT FAIL only for the `//#define`;
+`JUNE_CHAR_RAVEN_CORE --files X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`;
+`JUNE_ENUM_NAMES --files X2Lib/X2SkillTree.h`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`.
+Each: `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+`junediverge.py --check` (the four code files): `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: `0 A/B row(s)`.
+Funcmap rows `Char Raven CH1n` (3). No JUNE_BUGS row.
+`DEPLOY OK: X2_offline.exe is 26,014,208 B, dated 2026-11-06 11:21:13, md5 03d6e3fd209d5316848fcdb97fe264d6, equal to X2/US_SERVICE/x2.exe (2026-11-06 11:21:06); built at main 552f779a + 4 uncommitted code file(s).`
+No `exestr` line: `_LIVE` is off and the `_CORE` helper adds no string.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-raven CH1n review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

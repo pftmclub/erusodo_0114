@@ -1121,7 +1121,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c69e00	thunk	jmp 32c3d980	-	-	-	n/a	not ported	n
 32c69e10	helper	called by 32c57660	-	new	?	CH4a	name: called by 32c57660(InitPassiveSkillState)	n
 32c69e20	thunk	jmp 32c3dce0	-	-	-	n/a	not ported	n
-32c69e30	helper	called by 32c641a0	-	new	?	CH1n	name: called by 32c641a0(SetEquippedSkillFuncBySkillS)	y
+32c69e30	helper	called by 32c641a0	X2GURaven.h WildChargeData::CreateWildChargeData()	-	-	CH1n	= March ( CH1n ): the inlined WildChargeData factory, layout equal; only caller the Wild Charge case @32c64eeb	y
 32c69e90	thunk	jmp 32c3e740	-	-	-	n/a	not ported	n
 32c69ea0	thunk	jmp 32c3e680	-	-	-	n/a	not ported	n
 32c69eb0	thunk	jmp 32c3e7a0	-	-	-	n/a	not ported	n
