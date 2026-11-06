@@ -38193,6 +38193,7 @@ void CX2GUUser::SetInvisibility( bool bInvisibility_ )
 		/// June @3200a677: an awakened Ara's leg accessory keeps its particles
 		if ( true == IsFullHyperMode() && CX2Unit::UT_ARA == GetUnitType() && CX2Unit::EP_AC_LEG == pEquip->GetEqipPos() )
 			continue;
+		/// stand-in: June 3295cd30 shows the equip's enchant list ( +0x8f0 ), not ported ( june-engine R6c )
 		pEquip->SetShowAttachedParticle( !m_bInvisibility );
 	}
 

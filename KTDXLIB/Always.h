@@ -11849,7 +11849,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH3c re-defines it for its own lines ( giga prominence finish loops and key presses, ground impact skill level and scale ).
 //              CH3c2 re-defines it for its own lines ( ignition crow / incineration end state, deadly raid finish loop and input counts ).
 //              CH3d re-defines it for its own lines ( the hyper actives' equip line, SetInvisibility on / off ). CH3d's review retires it.
-#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

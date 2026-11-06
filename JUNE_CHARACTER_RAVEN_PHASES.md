@@ -2049,6 +2049,33 @@ type 7 Texture97 `TR_*_STATE`; `UNIT 76 / 77 / 78 transcendence 1 ( room )`; `eq
 Burning Buster ( `RVC_Flame_Buster` ) x2, Ifrit Flame x2; the awakenings play `HQ_Cutin_RBM / RRF / RVC_Transcendence.gfx` with the TR wake-up FX. `Motion Error` 0, `KEM_ERROR` 0, `EXCEPTION` 0;
 baseline only ( 5 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, unbound `AddGroupChainQuest` ). Not exercised: the level-70 guide popup ( CH6 walks the transition ). **User's visual verdict owed.**
 
+### CH3d - Review (2026-11-07)
+
+Opus 5.5. **Verdict: passes; one comment line added, `_SKILL_DEBUG` retired.** Commit `1fa378bc`; June listings via `funcann.py` / `charport_adis.py`, the picture rows via Ghidra string xrefs.
+- **`CX2GUUser::SetInvisibility` (`3200a590`), line for line.** `+0x3e58 / +0x3e59` = `m_bInvisibility / m_bAbsoluteInvisibility`; `if ( !b ) +0xc44 = +0x8e98`, then `+0x8e98 = +0xc44` (= port).
+  RenderParam offsets from `KTDGXRenderer.h:168` at `+0xc10`: `color.a` `+0x34` (`+0xc44`), `bAlphaBlend` `+0x64` (`+0xc74`), `bAlphaTestEnable` `+0xa4` after `FOG_WORLD` and the two June ints (`+0xcb4`).
+  `+0x8e9c = 1.0`; `m_pXSkinAnim +0x164 = 1` (`SetLayer( 1 )`, as March's Raven). Every write to `this` is one of those seven: **no `SetAlphaObject`**. Equip loop (`+0x8834`, NULL skipped): vslot `0x9c`
+  `IsFullHyperMode` && unit type 7 && `+0x1b0 == 0x15` -> skip, else `3295cd30( !b, -1 )`; vslot `0x394( !b )` (`SetShowEnchantWeaponParticle`); vslot `0x198` (`IsMyUnit`) false and `+0xc08` set -> vslot
+  `0x28( b ? 0 : 255 )`; `+0xc04` set and its decoded remain time `> 0` (= `GetRemainHyperModeTime`, `X2GameUnit.h:2333`) -> handles `+0xcbc..+0xcc8`, each the inlined `SetShowObject( !b )`
+  (old / new `GetShowObject` through `+0xc`, vslot `0x28` on change = `KTDGObject.h:324`). Ctor `@32040e5c / 32040e62`: `fst` / `fstp` of 1.0 into `+0x8e98 / +0x8e9c` (= port). = port.
+- **One finding (comment, fixed).** `3295cd30` is `ADD ECX,0x8f0; JMP 3295bf90`: June's per-equip enchant-particle list (tsv row 263), not March's `m_AttachedParticleGroup`. The port keeps
+  `SetShowAttachedParticle` (March's Raven call; the enchant handles still hide through `SetShowEnchantWeaponParticle`), already routed: `kickoffs/june-engine/R6c.md` names `3200a590` among the callers.
+  The call had no stand-in comment; added one line (`X2GUUser.cpp:38196`). No behaviour change.
+- **Extreme Blade `32c4f0a0` / `32c42eb0`.** Both call `3200a590` directly; Raven's member stays in `#else` (`X2GURaven.cpp` / `.h`), so the ATTACK FrameMove / StateEnd bind to the base. Log: `invisibility 1`
+  then `0`, `alpha 1.00` both times (the save / restore round-trips).
+- **"= March" (11), Sonnet subagent, all SAME:** Inits 20 / 15 / 14 / 16 / 14 preloads, names, order, loader (`31d16ef0` Texture, `31d16f90` XSkinMesh, `31d170a0` XMesh); StartFuture y - 350; EventProcesses
+  `JUMP_DOWN` / `WAIT`, `0x123`, delay > 1 -> `0x124`, y - 45 (`LINE_RADIUS` 30 * 1.5); ATTACK Start delay 0. Spot-checked `32c3c730` (45.0 and `0x11` / `0xd`) and `32c27fe0` (350.0) in the listings.
+- **Transcendence.** `TranscendCheck`: Raven's guard sits between Elsword's and March / Eve's `return`, brace-less, so all 15 classes pass. Prefixes `B_MASTER / R_FIST / V_COMMANDER`; third
+  picture check: `TR_V_COMMANDER_LARGE_GRAY` `@3345fac0` pushed `@3337c61f`, paired with `DLG_UI_Common_Texture99_GRAY.tga` `@334600e0` (= port; with CH3d's `B_MASTER_LARGE` / `R_FIST_STATE`).
+  `LevelUpEvent.lua` `TYPE4` (line 374) = June's `TYPE3` (`LevelUpEvent.src.lua:509-527`) line for line; only the key and the last entry's trailing comma differ.
+- **Gates.** `flagcheck JUNE_CHAR_RAVEN_SKILL --with ..._SKILL_DEBUG --range 1fa378bc^..1fa378bc --files` the 7 code files: `files: 4 PASS, 0 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`,
+  `0 deleted line(s)`, `RESULT: PASS`. `flagcheck JUNE_CHAR_RAVEN_TRANSCEND` same range: `files: 2 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s)`, `RESULT: PASS`.
+  `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`. `enumscan.py --check` the four `.cpp`: 4 A rows, all outside CH3d's lines (`X2Data.cpp` 104 / 105 / 113, `Handlers_Quest.cpp:1416` `< 100`).
+  This review: `flagcheck JUNE_CHAR_RAVEN_SKILL --with ..._SKILL_DEBUG --worktree --files X2Lib/X2GUUser.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`,
+  `1 deleted line(s)` (the `#define` made `//#define`), `RESULT: PASS`; `junediverge.py --check X2Lib/X2GUUser.cpp`: `RESULT: PASS`.
+- **Build:** started, not awaited (the only code change is a comment and the `_DEBUG` retire; user rule 2026-11-03). CH4a's kickoff is in place.
+- **Owed by the user:** the visual verdict on the three hyper actives and the TR pictures (CH3d play-test).
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
