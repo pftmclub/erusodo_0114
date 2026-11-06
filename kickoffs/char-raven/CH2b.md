@@ -6,7 +6,7 @@
 | Plan doc | `JUNE_CHARACTER_RAVEN_PHASES.md` (branch `main`) |
 | Depends on | CH2a review (and any `CH2b0`). One at a time: `X2GURaven.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `..._SKILL_DEBUG`) |
-| Log tag | `[JUNE_CHAR]` (`RAVEN SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
+| Log tag | `[JUNE_CHAR]` (`RAVEN SKILL`) |
 | Review | `kickoffs/char-raven/CH2b-review.md` (Opus 5.5 high; the phase writes it when done) |
 
 ## Read first (and nothing else from the plan doc unless you need it)
@@ -27,7 +27,8 @@ UPDOWN cancels, §7 l.256 power-rate operator, the numerical-only tables); its e
 added to `ch0_assets.tsv`). Upgrade ids reach their base through the templet's `m_iDeleteSkillIDByUpgrade` (June `32071720`): check the
 templet swap for every term that reads the id (the Aisha CH3b review defect). A function the map does not settle (new mechanism, unmapped
 callee) is "this needs Opus": stop.
-- `NUM use` lines for these skills; March vs June damage per skill in `MODS.md`.
+- March vs June damage per skill in `MODS.md`. No `NUM use` lines: the engine's `NUMERICAL_DEBUG` is retired (CH2a review). Re-define `_SKILL_DEBUG` for this phase's `RAVEN SKILL` lines; the CH2b review retires it.
+- The hand-off also plays CH2a's Seven Burst (24028) and Flame Sword (24218, ground and air), never played in CH2a.
 - CP949: `bytepatch.py` only. Mark the ported checklist rows `(Raven: CH2b)`.
 - Hand-off: the unit and class, each skill id and its A / B slot (never slot 4 / 9 before transcendence; learn only the bank under test), each
   cast twice (cool time, MP), what June's motion and effect look like.

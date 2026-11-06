@@ -663,7 +663,7 @@ June reads the state key `CUSTOM_RENDER_STATE = { start, end, CRS }` with the ge
 renders it (cases in `june2017_re/r0_renderer_contract.tsv`, `crs` rows). R5 ports the engine side. These class scripts carry the key
 and come with their ports: `Add_NasodRuler` (`CRS_INVISIBLE` x6, `CRS_UNIT_FADE_WHITE_WITHOUT_WEAPON` x1), `Ara_Martial_Artist`,
 `Ain_Apostasia`, `Ain_Erbluhen_Emotion`, `Luciel_Demonio`, `Rose_Ranger`, `RidingPet_Rakshasa` (all `CRS_INVISIBLE`). The `Enum` table
-itself is the `CUSTOM_RENDER_STATE` row at line 152. Funcmap rows `31fce500`, `31fd4460` (`Engine R0`).
+itself is the `CUSTOM_RENDER_STATE` row at line 152. Funcmap rows `31fce500`, `31fd4460` (`Engine R0`). **C++ writers of the buff override `+0x8e64`:** Raven's Power Assault (`32c3e7a0` / `32c2dbd0`: 8 = `CRS_UNIT_BLACK` from 0.4 s, 0 at 1.14 s and at state end via `31fc9570`) ships a stand-in, `m_bSetCustomRenderParam` with RT 0 colour (0,0,0,1) (`X2GURaven.cpp`, `_SKILL`); when R5 lands, that block writes the override instead (Raven: CH2a).
 ### 7x. Combo hits must carry June's AT_COMMAND tag (from Atlas E10)
 
 June's class scripts tag combo `DAMAGE_DATA` with `ATTACK_TYPE = ATTACK_TYPE.AT_COMMAND` (e.g. `Lire_ElvenRanger`: 52 `AT_COMMAND`, 11 `AT_SPECIAL`); March's leave combos
