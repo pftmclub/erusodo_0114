@@ -1542,6 +1542,38 @@ found only now is staged and added to `ch0_assets.tsv`). Upgrade ids reach their
 **Done gate:** every class-4 / 16 / 17 / 25 id in the S3 census has a state (except CH0's passive / CH4 ids); each skill in an A and a B slot
 casts June's state, motion and effect, deals damage, shows its cool time and spends MP; no missing particle / mesh / texture line.
 
+### CH2a - Done (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `_SKILL_DEBUG`, `Always.h`; `#error` without `_LIVE`, `JUNE_ENUM_NAMES`, `JUNE_SKILL_NUMERICAL`, `JUNE_CHAR_CHUNG_CORE`, `JUNE_CHAR_ELSWORD_SKILL`) is defined: Raven's six skills run June's registrations. All 43 class-map rows are read from `charport_adis.py raven --phase CH2a` listings: **30 written** (14 inside March's function under the flag with March in `#else`, 16 new), **13 are June = March** (no code). `funcmap.tsv` rows `Char Raven CH2a` (44); `MODS.md` "Stage 7 Raven, CH2a" has the damage table; `JUNE_BUGS.md` 545 / 546.
+
+| June | `CX2GURaven::` | June differs from March |
+|---|---|---|
+| `32c260a0` `32c26130` `32c261c0` `32c26280` | `RSI_SI1_MAXIMUM_CANNON_Init`, `RSI_SI2_POWER_ASSAULT_Init`, `RSI_SI3_SEVEN_BURST_Init`, `RSI_SI2_CANNON_BLADE_Init` | June's own preload lists (10 / 10 / 11 / 14 names) |
+| `32c3e7a0` `32c2dbd0` | `RSI_SI2_POWER_ASSAULT_FrameMove`, `_StateEnd` (new) | no particles; 0.4 s unit black on `XL_EFFECT_2` ( stand-in for CRS 8 UNIT_BLACK ), 1.14 s back; the end state restores layer / colour |
+| `32c30db0` `32c33510` | `RSI_SI_A_RF_SHADOW_STEP_StartFuture`, `..._PASSIVE_StartFuture` (new) | upgrade-swapped templet / level; speed x1.3 with no memo test; the slot version stores the held key |
+| `32c49590` `32c4de60` | `..._Start`, `InitShadowStep` | real cool time ( `GetActualCoolTime` ); no 1 s cut per back-slide level; swap on the cool time and the buff rate |
+| `32c52550` `32c50ef0` | `..._EventProcess`, `SetShadowStepAttackSkill` | upgraded templet ( `+0x178` ) takes the key-held back slide and the Z / X upgrade states; the attacks cost no MP |
+| `32c378f0` .. `32c54190`, `32c50e00`, `32c27320` `32c37a10` | `RSI_SHADOW_BACK_SLIDE_UPGRADE_*` (5), `RSI_SHADOW_BACK_SLIDE_END_UPGRADE_*` (2) (new) | the back slide chain, written for CH4a to register |
+| `32c266b0` `32c30ee0` `32c27ba0` `32c3a690` `32c27350` `32c4dcc0` `32c37b80` | `RSI_SHADOW_STEP_Z_*`, `_Z_UPGRADE_*`, `_X_UPGRADE_*` (7 new) | Z / X attack states; ground walk / dash cancels ( `RAVEN_GROUND_*` ) |
+| `32c5d330` `32c5d3f0` | `RSI_A_RWT_FLAME_SWORD_GROUND_StateStart`, `..._AIR_StateStart` | levelled buff factor with the memo rate ( `PushBuffFactorWithMemoRate` ); fly state x1.2 on the cached power rate |
+| `32c398b0` `32c39b20` | `..._GROUND_EventProcess`, `..._AIR_EventProcess` | dash / walk cancels need the foot on a line |
+| = March | Max Cannon / Power Assault / Seven Burst / Cannon Blade EP and FMF, Shadow Step Init / FM / End, Flame Sword Init / Start / EP / FLY FMF | `funcmap.tsv` says which |
+
+**Registration.** `SetMaximumCannonSkillFunc` (24000 / 24025, June's default) now registers Init + EventProcess on both slots; the id switch gains the Cannon Blade, Power Assault, Seven Burst, Shadow Step and Flame Sword cases (base and upgrade ids, raw-id switch) ahead of the default, Flame Sword also registers its GROUND / FLY states. `X2SkillTree.h`: nine `RNSI_*` names. The five `RSI_SHADOW_*` chain states are written but registered by CH4a (`InitPassiveSkillState`); without the Back Slide passive Shadow Step runs alone.
+
+**Findings.** Shadow Step has no cool time without the Back Slide passive (JUNE_BUGS 545); the Z attack without the passive changes to states June has no table for (546). Routed: the CRS stand-in (Power Assault) to the engine plan, Shadow Step members `+0x9654 / +0x9664` (not read here) stay CH4a's.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RAVEN_SKILL --with JUNE_CHAR_RAVEN_SKILL_DEBUG --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR` (numstat 677 / 18 / 13 / 27, 0 deletions); `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+- `junediverge.py --check` the five code files: `allow-listed: 16`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `0 A/B row(s) remain`. `skillicons.py check 24000-24003 24025-24028 24200-24201 24217-24218`: `skills 12, misses 0`, `RESULT: PASS`. `luabind.py check RAVEN_FIGHTER`: 0 unbound. One-file probes (`/Zs /EHsc`): `X2GURaven.cpp`, `X2GUUser.cpp` exit 0, 0 errors.
+- DEPLOY OK: X2_offline.exe is 26,043,904 B, dated 2026-11-06 16:07:50, md5 d9a2b38173689b124d73d3311d70b552, equal to X2/US_SERVICE/x2.exe (2026-11-06 16:07:43); built at main 0297cb08 + 4 uncommitted code file(s).
+- EXESTR OK: 4 of 4 found in X2_offline.exe, 26043904 B, md5 d9a2b381 ( wide: `[JUNE_CHAR] RAVEN SKILL equip skill`, `[JUNE_CHAR] RAVEN SKILL shadow step cool time`, `SCA_CRIMSON_BREAK_P01.Y`, `ALS_SLICER_01.dds` ).
+
+**Play-test hand-off.** Unit 72 `RavenFighterT` (Raven, class 4, lv 99, SP 843): A Maximum Cannon (24025), S Shadow Step (24217), D Cannon Blade (24026), C Power Assault (24027) are slotted; for Seven Burst (24028) and Flame Sword (24218) say "swap" and I move them in. Dev console ( END key ): `/invin 0`, then `/stage 1`. Each skill twice, enemies in front:
+1. **A Maximum Cannon, D Cannon Blade, C Power Assault.** June's motion and effects; the slot shows a cool time after the first cast and the MP bar drops (CH1k's `ReservedSkillStart`); a second cast during the cool time is refused unless the dev gate lets it through. Power Assault: the unit turns black for ~0.7 s ( stand-in ) and recovers.
+2. **S Shadow Step.** Dashes forward, ends in a dash / jump; Z / X during it do nothing (needs the passive, CH4a); it shows no cool time (JUNE_BUGS 545).
+3. Log: `python tools/logs.py --grep "RAVEN SKILL"` and `[JUNE_SKILL]` `NUM use` ( x0.01 at level 1: Max Cannon 2.63, Cannon Blade 4.15, Power Assault 4.88, Seven Burst 6.43, Flame Sword 0.81 ). Then say "check logs".
+
 ## Phase CH3 - Skills: second jobs (106, 107, 115), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.

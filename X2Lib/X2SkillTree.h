@@ -2388,6 +2388,19 @@ public:
 		RNSI_HA_RBM_EXTREM_BLADE                              = 24601,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-06 // char-raven CH2a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RF_MAXIMUM_CANNON                             = 24000,	// June's Enum.lua
+		RNSI_SA_RF_CANNON_BLADE                               = 24001,
+		RNSI_SA_RF_POWER_ASSAULT                              = 24002,
+		RNSI_SA_RF_SEVEN_BURST                                = 24003,
+		RNSI_SA_RF_MAXIMUM_CANNON_UPGRADE                     = 24025,
+		RNSI_SA_RF_CANNON_BLADE_UPGRADE                       = 24026,
+		RNSI_SA_RF_POWER_ASSAULT_UPGRADE                      = 24027,
+		RNSI_SA_RF_SEVEN_BURST_UPGRADE                        = 24028,
+		RNSI_A_RF_FLAME_SWORD_UPGRADE                         = 24218,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-06 // char-raven CH1k
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY            = 24412,	// June's Enum.lua

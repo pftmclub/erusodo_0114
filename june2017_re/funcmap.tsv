@@ -8220,3 +8220,47 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32e6d900 (Raven CH1q)	CX2RavenMyGageUI::UpdateHyperOrb	PORTED	Char Raven CH1q: g_pData+0x84 game particle, raven_powrUp_UI_01 at ( 74, 60 ) x resolution, no owner, OverUI; lost sequence -> handle -1; not 3 orbs -> 32e681e0; under _RAGE ( checklist 7aq )
 32e681e0	CX2RavenMyGageUI::DestroyHyperOrb	PORTED	Char Raven CH1q: new; destroy +0x5c on g_pData+0x84 while g_pX2Game lives, again if the handle survived; called by dtor 32e72790 / 32e6d890 and UpdateHyperOrb
 32e5e450	CX2RavenMyGageUI::SetShow	PORTED	Char Raven CH1q: new override, vslot 0x20 ( vtable 3353348c slot 8 ): base 32e5c380, then the ball sequence SetShowObject( arg ); = Eve's 32e5eca0
+32c260a0	CX2GURaven::RSI_SI1_MAXIMUM_CANNON_Init	PORTED	Char Raven CH2a: inside under _SKILL; June's ten preloads ( SCA_CRIMSON_BREAK_P01.Y, DummyAttackBox, EL_FIRE_03, ROT_FireBall01, ... ELK_WIND_SLICER_01 ), March's two meshes in #else
+32c26130	CX2GURaven::RSI_SI2_POWER_ASSAULT_Init	PORTED	Char Raven CH2a: inside under _SKILL; June's ten preloads ( ALS_SLICER_01 ... ST_DarkFireBall_Dummy.X ), March's PowerAssault01.dds in #else
+32c261c0	CX2GURaven::RSI_SI3_SEVEN_BURST_Init	PORTED	Char Raven CH2a: inside under _SKILL; June's eleven preloads ( Blur_16 ... aisha_SA_SCREWDRIVER_circle.X ), March's DarkSmoke01.dds in #else
+32c26280	CX2GURaven::RSI_SI2_CANNON_BLADE_Init	PORTED	Char Raven CH2a: inside under _SKILL; June's fourteen preloads ( Blur_16 ... aisha_SA_SCREWDRIVER_circle.X ), March's Raven_CanonBlade01.dds in #else
+32c26690	CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_Init	= MARCH	Char Raven CH2a: XSkinMeshReadyInBackground( Raven_SI_A_RF_Shadow_Step_Mesh01.X ) as March's
+32c266b0	CX2GURaven::RSI_SHADOW_STEP_Z_Init	PORTED	Char Raven CH2a: new under _SKILL; preloads Raven_SI_A_RF_Thrust_Mesh01.X; registration is the passive phase's ( InitPassiveSkillState 32c57660 @475 )
+32c27320	CX2GURaven::RSI_SHADOW_BACK_SLIDE_END_UPGRADE_FrameMoveFuture	PORTED	Char Raven CH2a: new under _SKILL; CommonFrameMoveFuture only
+32c27350	CX2GURaven::RSI_SHADOW_STEP_X_UPGRADE_Init	PORTED	Char Raven CH2a: new under _SKILL; preloads Raven_SI_A_RF_Thrust_Mesh01.X
+32c279a0	CX2GURaven::RSI_A_RWT_FLAME_SWORD_Init	= MARCH	Char Raven CH2a: the nine preloads equal March's, in June's order
+32c27a20	CX2GURaven::RSI_A_RWT_FLAME_SWORD_StateStart	= MARCH	Char Raven CH2a: CommonStateStart only
+32c27ba0	CX2GURaven::RSI_SHADOW_STEP_Z_UPGRADE_Init	PORTED	Char Raven CH2a: new under _SKILL; preloads Raven_SI_A_RF_Thrust_Mesh01.X
+32c2dac0	CX2GURaven::RSI_SI1_MAXIMUM_CANNON_EventProcess	= MARCH	Char Raven CH2a: animation end -> WAIT on the foot, else JUMP_DOWN; CommonEventProcess
+32c2db00	CX2GURaven::RSI_SI2_POWER_ASSAULT_FrameMoveFuture	= MARCH	Char Raven CH2a: 0.35 s passive speed 1500, 0.9 s passive 0 and speed 1000; CommonFrameMoveFuture
+32c2db90	CX2GURaven::RSI_SI2_POWER_ASSAULT_EventProcess	= MARCH	Char Raven CH2a: as Maximum Cannon's
+32c2dbd0	CX2GURaven::RSI_SI2_POWER_ASSAULT_StateEnd	PORTED	Char Raven CH2a: new under _SKILL; CommonStateEnd, then 31fc9570 + layer: custom render param off, outline and colour alpha 1.0, blend off, XL_UNIT_0, colour white, SetAlphaObject( false )
+32c2dc40	CX2GURaven::RSI_SI3_SEVEN_BURST_FrameMoveFuture	= MARCH	Char Raven CH2a: 2.633 s speed -700; CommonFrameMoveFuture
+32c2dc90	CX2GURaven::RSI_SI3_SEVEN_BURST_EventProcess	= MARCH	Char Raven CH2a: as Maximum Cannon's
+32c2dd10	CX2GURaven::RSI_SI2_CANNON_BLADE_EventProcess	= MARCH	Char Raven CH2a: as Maximum Cannon's
+32c30db0	CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_StartFuture	PORTED	Char Raven CH2a: inside under _SKILL; skill 24200 with the upgrade swap, level swapped, time left = SA_TELEPORT_RANGE_ABS x 100 / passive speed, speed x 1.3 with no memo test, then m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 ); March's in #else
+32c30e80	CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_FrameMove	= MARCH	Char Raven CH2a: time left counts down while not frame-stopped; CommonFrameMove
+32c30ee0	CX2GURaven::RSI_SHADOW_STEP_Z_EventProcess	PORTED	Char Raven CH2a: new under _SKILL; animation end -> JUMP_DOWN ( y - 45 ) / WAIT; CommonEventProcess
+32c33510	CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_PASSIVE_StartFuture	PORTED	Char Raven CH2a: new under _SKILL; the StartFuture of the state InitPassiveSkillState registers ( 32c57660 @274 ): as 32c30db0 from the skill tree's templet, no slot key; registration is the passive phase's
+32c378f0	CX2GURaven::RSI_SHADOW_BACK_SLIDE_UPGRADE_StateStartFuture	PORTED	Char Raven CH2a: new under _SKILL; back slide time left = int( range ) x 100 / passive speed, CommonStateStartFuture last
+32c379b0	CX2GURaven::RSI_SHADOW_BACK_SLIDE_UPGRADE_FrameMove	PORTED	Char Raven CH2a: new under _SKILL; the back slide time left counts down; CommonFrameMove
+32c37a10	CX2GURaven::RSI_SHADOW_BACK_SLIDE_END_UPGRADE_EventProcess	PORTED	Char Raven CH2a: new under _SKILL; as the Z state's
+32c37b80	CX2GURaven::RSI_SHADOW_STEP_X_UPGRADE_EventProcess	PORTED	Char Raven CH2a: new under _SKILL; animation end as above, then the ground dash, walk and skill cancels ( RAVEN_GROUND_*, 7h )
+32c39880	CX2GURaven::RSI_A_RWT_FLAME_SWORD_EventProcess	= MARCH	Char Raven CH2a: foot on a line -> GROUND else FLY; CommonEventProcess
+32c398b0	CX2GURaven::RSI_A_RWT_FLAME_SWORD_GROUND_EventProcess	PORTED	Char Raven CH2a: inside under _SKILL; the dash and walk cancels need the foot on a line ( RAVEN_GROUND_*, 7h ), March's plain macros in #else
+32c39ab0	CX2GURaven::RSI_A_RWT_FLAME_SWORD_AIR_FrameMoveFuture	= MARCH	Char Raven CH2a: walk speed with the facing key, down key adds gravity; CommonFrameMoveFuture
+32c39b20	CX2GURaven::RSI_A_RWT_FLAME_SWORD_AIR_EventProcess	PORTED	Char Raven CH2a: inside under _SKILL; the dash and walk cancels need the foot on a line ( RAVEN_GROUND_*, 7h ), then the fly skill cancel with CommonEventProcess as its body; March's in #else
+32c3a690	CX2GURaven::RSI_SHADOW_STEP_Z_UPGRADE_EventProcess	PORTED	Char Raven CH2a: new under _SKILL; animation end as above, then walk, dash ( ground ) and skill cancels
+32c3e7a0	CX2GURaven::RSI_SI2_POWER_ASSAULT_FrameMove	PORTED	Char Raven CH2a: inside under _SKILL; world colour, cut-in index 1, 0.4 s unit black on XL_EFFECT_2 ( stand-in: custom render state UNIT_BLACK +0x8e64 = 8 not ported ), 1.14 s back; the particles are the script's; March's in #else
+32c42a30	CX2GURaven::RSI_SHADOW_BACK_SLIDE_UPGRADE_StateStart	PORTED	Char Raven CH2a: new under _SKILL; alpha object, gage alpha 0, colour alpha 0.1, blend, combo active, icon off, ++loop count, after image
+32c49590	CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_Start	PORTED	Char Raven CH2a: inside under _SKILL; with the back slide passive the cool time is GetActualCoolTime( templet, swapped level ) ( March: the templet's value ), loop count 1, combo active, icon off, slot UI; March's in #else
+32c4dcc0	CX2GURaven::RSI_SHADOW_STEP_X_UPGRADE_FrameMove	PORTED	Char Raven CH2a: new under _SKILL; 0.01 s EffectSet_Raven_Shadow_Buster; CommonFrameMove
+32c4de60	CX2GURaven::InitShadowStep	PORTED	Char Raven CH2a: inside under _SKILL; no 1 s cut per back slide level ( March: -= m_iShadowBackSlideLevel ); SetSkillCoolTimeLeft( 24200, t, swap ), buff rate on the swapped id; the rest as March; March's in #else
+32c50d50	CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_End	= MARCH	Char Raven CH2a: alpha off, gage alpha 255, colour alpha 1.0, blend off, InitShadowStep while the combo is active, time left 0, DisableAfterImage
+32c50e00	CX2GURaven::RSI_SHADOW_BACK_SLIDE_UPGRADE_StateEnd	PORTED	Char Raven CH2a: new under _SKILL; as the Shadow Step End, back slide time left 0
+32c50ef0	CX2GURaven::SetShadowStepAttackSkill	PORTED	Char Raven CH2a: inside under _SKILL; state time > 0.2: Punisher / Thrust Enhance / Thrust or the chained state, NO FlushMp( 10 ) ( March spends it ), then InitShadowStep; March's in #else
+32c52550	CX2GURaven::RSI_SI_A_RF_SHADOW_STEP_EventProcess	PORTED	Char Raven CH2a: inside under _SKILL; FollowSlotSwap, expired -> InitShadowStep + dash / JUMP_DOWN; upgraded templet ( +0x178 ) with the back slide passive and the key pressed once -> RSI_SHADOW_BACK_SLIDE_UPGRADE, Z -> RSI_SHADOW_STEP_Z_UPGRADE, X -> SetShadowStepAttackSkill( X_UPGRADE ); plain templet Z -> RSI_SHADOW_STEP_Z; March's in #else
+32c54190	CX2GURaven::RSI_SHADOW_BACK_SLIDE_UPGRADE_EventProcess	PORTED	Char Raven CH2a: new under _SKILL; expired -> InitShadowStep + JUMP_DOWN or RSI_SHADOW_BACK_SLIDE_END_UPGRADE; X / Z as the Shadow Step's upgraded branch; no finish skill
+32c5d330	CX2GURaven::RSI_A_RWT_FLAME_SWORD_GROUND_StateStart	PORTED	Char Raven CH2a: inside under _SKILL; skill 24201 with the swap, the levelled buff factor [0] through PushBuffFactorWithMemoRate; March's in #else
+32c5d3f0	CX2GURaven::RSI_A_RWT_FLAME_SWORD_AIR_StateStart	PORTED	Char Raven CH2a: inside under _SKILL; m_fNowStatePowerRate x 1.2 ( checklist 7 l.256 ), then the same buff factor push; March's in #else
+32c641a0	CX2GURaven::SetMaximumCannonSkillFunc / SetEquippedSkillFuncBySkillSlotIndex	PORTED	Char Raven CH2a: Maximum Cannon ( 24000 / 24025 ) registers Init + EventProcess on both slots under _SKILL; the id switch gains Cannon Blade, Power Assault, Seven Burst, Shadow Step and Flame Sword ( base and upgrade ids ) with their GROUND / FLY states, ahead of the default

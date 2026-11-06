@@ -11814,3 +11814,30 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI needs SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE and SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-06
+// Description: June character port ( Raven ) Phase CH2a - Raven's own skills ( Maximum Cannon, Cannon Blade, Power Assault, Seven Burst, Shadow Step, Flame Sword
+//              and their upgrade ids ) run June's registrations and state functions ( 32c641a0, 32c260a0 .. 32c5d3f0 ), the Shadow Step chain states are written for the passive phase.
+//              Revert: undefine the flag ( JUNE_CHAR_RAVEN_SKILL ).
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) || !defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL needs SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE, SERV_IRUHADEV_JUNE_ENUM_NAMES and SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL ) && !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE )
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE ( SkillSlotKey::IsKeyPressedOnce )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL ) && !defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL )
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL needs SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL ( CX2GUUser::PushBuffFactorWithMemoRate )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-06
+// Description: June character port ( Raven ) Phase CH2a - temporary [JUNE_CHAR] RAVEN SKILL lines ( the equipped skill's slot and state, the Shadow Step cool time ) for CH2a's play-test;
+//              they sit inside JUNE_CHAR_RAVEN_SKILL code only.
+//              Revert: undefine the flag ( JUNE_CHAR_RAVEN_SKILL_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+//////////////////////////////////////////////////////////////////////////

@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2a | **ready** (CH1 review passed 2026-11-06): Raven (4) skills, flag `_SKILL`; first hand-off proves two casts / `ReservedSkillStart` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GURaven.*`, `MODS.md` | `CH2a.md` |
+| CH2a | **built 2026-11-06, play-test owed** (flag `_SKILL`, DEPLOY OK): Raven (4) skills; user plays unit 72 (two casts each, cool time / MP), then CH2a review (Opus; kickoff written) | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GURaven.*`, `MODS.md` | `CH2a.md` |
 | CH2b | blocked (CH2a review): Sword Taker (16) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GURaven.*` | `CH2b.md` |
 | CH2c0 | blocked (CH2b review; added by CH0): June-only `CX2GUUser` left-hand bone scale setter `31fd9f40` (Megadrill Break) | Opus 5.5 / high, Opus review | CH2b review | `X2GUUser.*`, Always.h | `CH2c0.md` |
 | CH2c | blocked (CH2c0 review): Over Taker (17) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c0 review | `X2GURaven.*` | `CH2c.md` |

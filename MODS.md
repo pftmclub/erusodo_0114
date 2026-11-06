@@ -5939,3 +5939,21 @@ No `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_*_DEBUG` flag is defined (`_WOS_DEBUG`, `_SK
 ## Stage 7 Raven, CH0b: June assets staged (data only, 2026-11-05)
 
 No flag, no exe change. `kom.py stage-june june2017_re/char_raven/ch0b_stage_list.tsv`: 4,825 June files byte-exact in 35 koms (4,490 new, 335 replaced; the March copies are backed up under `kom_backup_stage_june/20261105_201955`). `data202` is a new archive (June's 53 emotion motions + `Motion_Standard_Raven.X`). data034 gains June's `DLG_1ST_Class_Change_Guide_Raven.lua` / `DLG_2ND_Class_Change_Guide_Raven.lua` (bytecode, `adopt-june`). All 36 koms copied to the game dir. `Motion_Raven_OT.x` (data033) stays March's until CH1 final: March's script plays `OT_ComboX3Down` / `X4Down` / `X5Down` and `OT_SP1a_ChargedBolt`, which June's file renames. To revert: copy the matching `kom_backup_tools/dataNNN.kom.*` over the live kom. Save: walk units 72-77 added (`db_backup/els_db_20261105_202257_pre_manual.sql` is the state before).
+
+## Stage 7 Raven, CH2a: Raven (class 4) skills (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (`Always.h`; `#error` without `..._RAVEN_LIVE`, `..._ENUM_NAMES`, `..._SKILL_NUMERICAL`, `..._CHAR_CHUNG_CORE`, `..._ELSWORD_SKILL`) and the temporary `..._SKILL_DEBUG` (`[JUNE_CHAR] RAVEN SKILL` lines). Plan `JUNE_CHARACTER_RAVEN_PHASES.md` "CH2a - Done". Client only, no data change.
+- **What changes in game.** Raven's six class-4 skills run June's registrations in `SetEquippedSkillFuncBySkillSlotIndex` (before this every Raven skill fell into the Maximum Cannon default): Maximum Cannon (24000 / 24025, Init + EventProcess), Cannon Blade (24001 / 24026), Power Assault (24002 / 24027, with an end state), Seven Burst (24003 / 24028), Shadow Step (24200 / 24217) and Flame Sword (24201 / 24218, with its ground and fly states). Nine `RNSI_*` names are registered in `X2SkillTree.h`.
+- **Differs from March.** The four attacks lost their FrameMove (particles, cut-in and hit boxes are the script's); Power Assault keeps a FrameMove that turns the unit black on the effect layer from 0.4 s to 1.14 s (stand-in: June's custom render state UNIT_BLACK is not ported, the held render param is set black) and an end state that restores layer and colour. Shadow Step: the speed memo test is gone (speed x1.3 always), its held key is stored for the back slide, the combo Z / X attacks no longer cost 10 MP, and with the Back Slide passive its cool time is the real one (`GetActualCoolTime`) and is set when the combo ends, no longer cut by 1 s per back-slide level; June never sets Shadow Step's cool time at use (CH1k), so without the passive it has none (JUNE_BUGS 545). Flame Sword: the ground and fly states push the levelled buff factor with the skill memo's rate, the dash and walk cancels need the foot on a line, and the fly cut multiplies the state power rate by 1.2. The five `RSI_SHADOW_*` chain states (Z, Z upgrade, X upgrade, back slide, back slide end) are written but registered by the passive phase (CH4a).
+- **Damage (level-1 multiplier; June = `NewSkillTempletVer2.lua` NUMERICAL_DATA through the engine, x0.01; March = the shipped state table).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Maximum Cannon (24000 / 24025) | `RSI_SI1_MAXIMUM_CANNON` state table in the shipped script | 2.63 (shot and finish) |
+| Cannon Blade (24001 / 24026) | `RSI_SI2_CANNON_BLADE` state table | 4.15 |
+| Power Assault (24002 / 24027) | `RSI_SI2_POWER_ASSAULT` state table (hit at 0.75 s, fly) | 4.88 (hit and next hit) |
+| Seven Burst (24003 / 24028) | `RSI_SI3_SEVEN_BURST` state table | 6.43 (projectile and explosion) |
+| Shadow Step (24200 / 24217) | none (the combo attacks are separate states) | Z / Z upgrade tables are numerical-only (INDEX 1); the Shadow Buster explosion 0.06 |
+| Flame Sword (24201 / 24218) | `RSI_A_RWT_FLAME_SWORD_GROUND` state table | 0.81 (ground table numerical-only, INDEX 1) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (every Raven skill falls back to the Maximum Cannon default), `python tools/build.py --deploy`.

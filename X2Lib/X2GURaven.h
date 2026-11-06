@@ -1283,6 +1283,24 @@ class CX2GURaven : public CX2GUUser
 		void RSI_SI_A_RF_SHADOW_STEP_FrameMove();
 		void RSI_SI_A_RF_SHADOW_STEP_EventProcess();
 		void RSI_SI_A_RF_SHADOW_STEP_End();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		void RSI_SI_A_RF_SHADOW_STEP_PASSIVE_StartFuture();		/// June 32c33510 ( the state InitPassiveSkillState registers, no skill slot key )
+		void RSI_SI2_POWER_ASSAULT_StateEnd();					/// June 32c2dbd0
+		void RSI_SHADOW_STEP_Z_Init();							/// June 32c266b0
+		void RSI_SHADOW_STEP_Z_EventProcess();					/// June 32c30ee0
+		void RSI_SHADOW_STEP_Z_UPGRADE_Init();					/// June 32c27ba0
+		void RSI_SHADOW_STEP_Z_UPGRADE_EventProcess();			/// June 32c3a690
+		void RSI_SHADOW_STEP_X_UPGRADE_Init();					/// June 32c27350
+		void RSI_SHADOW_STEP_X_UPGRADE_FrameMove();				/// June 32c4dcc0
+		void RSI_SHADOW_STEP_X_UPGRADE_EventProcess();			/// June 32c37b80
+		void RSI_SHADOW_BACK_SLIDE_UPGRADE_StateStartFuture();	/// June 32c378f0
+		void RSI_SHADOW_BACK_SLIDE_UPGRADE_StateStart();		/// June 32c42a30
+		void RSI_SHADOW_BACK_SLIDE_UPGRADE_FrameMove();			/// June 32c379b0
+		void RSI_SHADOW_BACK_SLIDE_UPGRADE_EventProcess();		/// June 32c54190
+		void RSI_SHADOW_BACK_SLIDE_UPGRADE_StateEnd();			/// June 32c50e00
+		void RSI_SHADOW_BACK_SLIDE_END_UPGRADE_FrameMoveFuture();	/// June 32c27320
+		void RSI_SHADOW_BACK_SLIDE_END_UPGRADE_EventProcess();	/// June 32c37a10
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 
 
