@@ -1064,6 +1064,49 @@ and `RidingOnEnd` are not in Elsword's list. Checklist: 7h, 7l and the 7ao hyper
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-raven CH1m review` (Opus 5.5 high).
 
+### CH1m - Review (2026-11-06)
+
+**Verdict: PASS, no code change.**
+
+- **Simulation.** Fresh decompiles of `32c5d660` (1379 lines) / `32c66fe0` (1163) / `32c511c0` (591) / `32c51b70` (550) / `32c63670` (649) through
+  `ch1m_regsim.py` equal `ch1m_reg_by_class.tsv` row for row (1046 rows; the header is the only diff), with no `UNKNOWN COND`. Every `(iVar5 == 0)` the
+  override takes false is a shared_ptr release count (`piVar3[1]` / `[2]` decrements), except @261, the LOSE2 `compare` result. `iVar5` is the class
+  register only from @1087. `ch1m_regcheck.py`: `matched 761 registrations, 0 problems; ids mapped 147`.
+- **Head, from the exe bytes.** `31fc93d0` is called first (@32c6701d); its body is a bare `RET`. Cut-in table `32c6847c` / index `32c68490`:
+  4 / 16 / 17 / 25 -> `+0x8ac8 = 0`, 106 -> 1, 107 -> 2, 115 -> 3; the other 105 values skip to `32c67072`. Sub-index `+0x8acc`: 16 -> 1, 17 -> 2, else 0.
+  Then only two writes, `+0x4088` and `+0x7d04` = 0xd (@32c6709f / @32c670a5; Elsword's four included two Elsword members). That equals March's
+  live `InitStateID`. Calls in order: `32c5d660`, `3202b110`, `31fe22d0` (START / WIN / LOSE OUT strings), `32078bc0` (the `UserUnitStateData` constructor).
+- **START / WIN / LOSE.** START (9): `31ffbd70` / `3201b390` / `3201b460`. WIN (0xb): Start `320004b0`, EventProcess `31fcd0b0`, no FrameMove. LOSE (0xc):
+  Start `320007e0`. The compare @32c673b1 runs on the LOSE string (`ecx = [esp+0x8c]` after four pushes = `[esp+0x7c]`, the third OUT argument),
+  length 0xd. On a match it fills `[esp+0x4c]` = delegate +0x34 = FrameMove with `32c69000` -> `32c33bd0` (`RSI_RWT_LOSE2_FrameMove`).
+  0x82 `"RSI_WAIT_STATE_CHANGE"`: EventProcess `31fc8620`. Tail @32c68384: vslot 0x690, vslot 0x684( 0 ), `31fd8f00`.
+- **Class tests, capstone over `32c66fe0`-`32c6847c`.** Ghidra's listing skips the shared-call tails. Line switch @315 (`add -0x10`, table `32c68500` /
+  `32c68510`): 16+106 -> `32c511c0`, 17+107 -> `32c51b70`, 25+115 -> `32c63670`. @344: 0x6b -> RRF, 0x73 -> RVC (252, 232, 233 `0xe9` into the shared call
+  @32c6789d), else `RSI_DASH_JUMP_COMBO_X` on 0xb6. @564: 0x6a -> `RBM_COMBO_ZZZX` on 0xa8. 0x73 -> 0xa8 `RSI_COMBO_ZZZX` (@32c67a0a), then `push 0x130`
+  `RWT_COMBO_ZZZX` into the shared call @32c67b81. Else 0xa8 `RSI_COMBO_ZZZX`. @720: 0x19 / 0x73 -> `RWT_COMBO_X`, else `RSI_COMBO_X`, both 0xad.
+  @815 (table `32c68574` / `32c68584`): 16+106 -> 0xd4-0xd8, 107 -> 0xcf-0xd3, 115 -> 0xfd-0xff. Each case ends in the shared call @32c682da
+  (0xd7 / 0xd3 / 0xff). @1088: 0x10 / 0x6a / 0x73 -> 0xb1 `RSI_SOUL_TAKER_DASH_COMBO_ZZ`. The C++ has every case in this order.
+- **Ids.** `ch1m_idmap.tsv`: 147 rows, no duplicate either way. 304 is pushed as its own id. 168 / 173 / 182 / 177 carry the `RBM_` / `RRF_` / `RWT_` /
+  `RSI_SOUL_TAKER_` tables (strings read at `33515068` / `33515088` / `33515050` / `33514064`). June 72 = `GetRidingStartStateID()`.
+- **InitStateCommon.** Id 23's table is `31fdd490( ..., 0 )` = `GetHyperModeTableName( false )`. FrameMove `32bd5f20` -> `32adf320` = `jmp [eax+0x600]`
+  (Raven's `HyperModeFrameMove`). End `329cc0e0` = vslot 0x604, which Raven does not override (`ch0_vtable_all.tsv`: base `3201b8e0`), so it is
+  `CX2GUUser::HyperModeEnd`. CH1b's pair `32c29130` / `32c290d0` is on exactly ten states (32, 33, 155-160, 204, 205). Bounding 120-122 and parrying
+  0xca / 0xcb sit at June's place.
+- **Routed / doubles.** `XXfrontXX4_EventProcess` `32c2ffb0` is on 194 and 195. `RVC_DASH_COMBO_ZZ` 303 has EventProcess only. Veteran Commander's 177
+  is registered three times: InitStateCommon @1110 (`RSI_DASH_COMBO_ZZ`, `32c2c810`), `32c63670` @268, then InitState @1114 (both `32c2dd50`). All are
+  kept in June's order, so the last registration wins as in June.
+- **Left out / Always.h.** Each left-out state has its owner line: riding 93-96, phoenix 123-126, dance 127-129, `3202a7d0`, `32002f70`. JUNE_BUGS 542 holds.
+  The seven guards are Elsword's CH1m set without his two Elsword-only flags. Raven's registration has no skill test, so `JUNE_SKILL_TEMPLET` is not needed.
+  `ch1m_user_callbacks.tsv`: 132 members. The two not in Elsword's list are June `31fc8810` / `31fce160`.
+
+**Hygiene.** `flagcheck JUNE_CHAR_RAVEN_LIVE --range 27ede6e0^..27ede6e0 --files X2Lib/X2GURaven.cpp KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~
+(blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted
+line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`. RESULT FAIL only for the `//#define`. `git diff --patience --numstat`: 1377 / 0, 21 / 0.
+`junediverge.py --check-all`: `allow-listed: 186`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: `0 A/B row(s)`.
+One-file probes (`/c /Zs /EHsc`): `off exit 0 errors 0`, `on exit 0 errors 0`. No code change, so no build.
+
+**Nothing to play-test** (`_LIVE` is off). CH1n's kickoff stands as written (Amended by CH1m checked). Next: `/x2-phase char-raven CH1n` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.
