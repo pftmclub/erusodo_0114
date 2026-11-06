@@ -1641,6 +1641,29 @@ attacks only; a Veteran Commander enters and leaves overheat as June; 0 Raven `n
   `[JUNE_GFX] CUTIN play ui=0xc HQ_CutIn_Raven_BM_01.gfx` in the same second (Blade Master set 1; sets 0 / 2 / 3, indices 1 / 2 and the hyper cut-in are CH6's walk). ErrorLog `Motion Error` 0, KEM 0; the only `[LUA_SRC]` lines are
   `TutorSystem.lua` (empty, 3 B) and `ChainQuestInfo.lua` (`AddGroupChainQuest` unbound), both quest / tutor files outside CH5, no routing from here.
 
+#### CH5 - Review (2026-11-06, Opus 5.5): PASS, no code change
+
+I read each item against June in Ghidra: `333aa400`, `333aa270`, `32c3e450` and `32c3e770`. InitState `32c66fe0`'s switch targets lie outside Ghidra's body, so I decoded its jump table from the exe bytes (`charport_consts.read_va` + capstone).
+- **Table `333aa400`.** It builds 12 `SkillCutIn` entries at `337ae1d0 + i * 0x30` (`337ae1d0` .. `337ae3e0`). The strings in push order are `33515268` `HQ_CutIn_Raven_01`, `5244` `_02`, `5220` `_03`, `51f4` `_BM_01` x3, `51c8` `_RF_01` x3 and `519c` `_VC_01` x3, with lengths 0x11 / 0x14.
+  That is the port's table, row for row. Each entry stores size `( [334367ac], [334367ac] )`, position `( [33435598], [334367ac] )` and an uninitialised z (`[ESP+0x18]`): this is March's one-argument `SkillCutIn( name )`.
+  `333aa270` builds the 0x8b3 pair: `3351516c` `CASH_21` -> `337ae170`, `3351513c` `CASH_22` -> `337ae1a0`. That equals `s_SkillCutInSetEvent8b3[0]` / `[1]`.
+- **Reader `32c3e450`.** Its gate is `EventTimerOneshot` (`[anim+0x24c] < t`, `31d28e10`), then `32001380`, then `31fd3180`, the same idiom Elsword's `32d09050` uses. It copies `337ae1d0 + ( index + [this+0x8ac8] * 3 ) * 0x30` (set stride 0x90).
+  The item override `31fd8a50` is not ported (Stage 12). Next comes `[33775864] && 31e5a860( 0x8b3 )`, where an even `rand() % 2` picks `337ae170` (CASH_21). It ends with `31fde0f0( bone, name, size x2, pos x3, IsHyperState byte, only light )`.
+  The port matches in that order. Its log line prints after the swap, so it prints the name that `ActiveSkillShow` gets.
+- **Set index (InitState `32c66fe0` @32c67022).** The code is `class - 4; cmp 0x6f; ja; movzx byte [32c68490 + class-4]; jmp [32c6847c + idx*4]`. The byte map sends 4 / 16 / 17 / 25 -> 0, 106 -> 1, 107 -> 2, 115 -> 3, and the other 105 values -> 4 (the default, which keeps the value).
+  Targets 0-3 store +0x8ac8 = EBX (0), ECX (1), 2 and 3. The sub index follows: 16 -> 1, 17 -> 2, else 0 (+0x8acc). This equals `X2GURaven.cpp:895-927` (CH1m, `_LIVE`). A NULL unit takes the default in the port, and June has no NULL check. No index can reach past set 3.
+- **`ShowActiveSkillCutInAndLightByScript` `32c3e770`** pushes `3345bb08` (`Dummy2_Lhand`), `[this+0x8acc]` and the time, then calls `32c3e450`. That is March's body (`X2GURaven.cpp:32064`), which already calls the `_UI` reader.
+- **UnitTemplet.** I split the files into blocks on `g_pUnitManager:AddUnitTemplet` and keyed each on `unitClass`, normalising only BOM and CRLF. Current, pre-phase (`kom_backup_tools/data036.kom.20261106_155516`) and June hold 55 / 55 / 87 blocks.
+  Current and pre-phase have the same class set in the same order. The 7 `UC_RAVEN_*` blocks match June's text 7 of 7, and the other 48 match pre-phase 48 of 48. The file starts with a BOM and has 1475 CRLF and 0 lone LF.
+  `luasrc.py ledger --check`: LEDGER CHECK PASS (0 FAIL, 0 WARN). `core --check`: CORE CHECK PASS. `luabind.py check UnitTemplet`: RESULT: PASS (0 unbound).
+  `STR_ID_17431` is defined (`StringID_def7.h:2438`). The three `HQ_Cutin_R{BM,RRF,RVC}_Transcendence.gfx` are in data195 with the same case as the rows.
+- **Routing.** `kickoffs/char-raven/CH3d.md:24-28` names `DLG_Transcendental_Change_Guide_Raven.lua`, the `LevelUpEvent.lua` TYPE row and `POPUP_TR_B_MASTER` / `_R_FIST` / `_V_COMMANDER`.
+  `CH3a.md` still listed `32c3e450` as CH3a's own (CH0's hand rule). I amended it: CH5 ported the reader, so CH3a's `32c3e680` FrameMove only calls it.
+  `funcmap.tsv` now has rows for `32c3e450` and `333aa400`.
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI --range 729a82d2^..729a82d2`: 2 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatch, RESULT PASS. No later commit touches the flag (`git log -S`).
+  `junediverge.py --check-all`: allow-listed 194, RESULT: PASS. `enumscan --check X2Lib/X2GURaven.cpp`: 0 A/B rows (the working tree includes a peer's uncommitted CH2a edits). There was no rebuild, so the deployed exe stays md5 `ce0eebc7`.
+- **Next.** I checked `kickoffs/char-raven/CH6.md`: its "Amended by CH5" section carries the cut-in set walk (sets 0-3, indices 0-2) and the hyper cut-in check. The select screen already passed in CH5's play-test. CH6 still waits on the CH3d and CH4a-c reviews.
+
 ## Phase CH-N - not run for Raven
 
 All seven June Raven classes up to transcendence exist in March. The template block is `JUNE_CHARACTER_AISHA_PHASES.md` "Phase CH-N"; Ara
