@@ -1355,6 +1355,49 @@ numstat 76 / 0, 5 / 0, 3 / 0. `junediverge.py --check-all`: `allow-listed: 186`,
 
 **Nothing to play-test.** CH1q kickoff checked. Next: `/x2-phase char-raven CH1q` (Opus 5.5 high).
 
+### CH1q - Done (2026-11-06)
+
+New flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE`, a `//#define` that CH1 final defines with `_LIVE`. `_LIVE` `#error`s without it, because CH1j dropped the class-side hyper ball and the gauge UI now draws it.
+`_RAGE` `#error`s without `_CORE`, `JUNE_USER_SKILL_LEVEL_HELPERS`, `JUNE_DIVERGE_SKILL_LEVEL_VALUE`, `JUNE_ENUM_NAMES` and `JUNE_SOCKET_PARITY`. `_RAGE_DEBUG` is defined, and its four lines sit inside `_RAGE` code.
+Every row of `ch0_rage.tsv` has a verdict in **`june2017_re/char_raven/ch1q_rage_outcome.tsv`** (40 rows). Funcmap rows `Char Raven CH1q`: 8.
+
+| June | Function | June differs from March |
+|---|---|---|
+| `32c3e030` | `CanParryingState` | also needs `m_FrameDataFuture.unitCondition.bFootOnLine` (`+0x7e1c`) |
+| `32c41170` | `AddRageGuage` | gain x Open Mind's `SA_CHARGING_TIME` (24419 learned), then x ( spec A + 1.0 ); clamp as March |
+| `32c491a0` | `DoParrying` | spec B > `GetRandomFloat(0)` skips the cost (7an); else `clock()` stamp, rage - 20, **rage < 60 -> 0, --level, level < 3 -> 0** (June's 3-5 ball levels, as CH1h's jump to 60) |
+| `32c4fd80` | `RestoreNasodBall` | clears the ball's `hitUnitList` (CEffect `+0x650`) first |
+| `32c50330` | `DoFrameMoveNasodBall` | the spec B roll at the three rage-spend sites (7an): a win restores the ball and costs no rage |
+| `32e6d900` | `CX2RavenMyGageUI::UpdateHyperOrb` | game particle system ( `g_pData+0x84` ), no owner, ( 74, 60 ) x resolution, OverUI, the handle reset when the sequence is gone (7aq; March's UI-system template never loaded) |
+| `32e681e0` / `32e5e450` | `DestroyHyperOrb` (new) / `SetShow` (new override) | the dtor and the not-3 path destroy through it; SetShow shows / hides the ball with the gauge (Eve's shape) |
+
+**= March, no code:** the four parrying state functions, `ClearNasodBall`, `CreateNasodBall` (CH0's BEED_UP "difference" is March's too), `ChangePowerRateNasodBall`,
+`AttackNasodBall`, the `X2GUUser.cpp` hooks (DamageReact parry gate `@32047385`, parry damage cut `@32048631`, rage fill `@3204a674`, `DamageReactStateChange`
+`31feabd0`, `SetHold` `31fd29c0`), the gauge UI creation (`3248e290`, the seven classes, plain `CX2GageData`), `InitWakeOrb` `32e5b470`, `OnFrameMove`, the
+damage-manager `ONLY_BASIC` / `NO_MISS` / `IGNORE_STATE_DEFENCE` / lock-on sites, the `m_CannonBallCount` sync. CH0's "new ?" rows: `32c33b80` = `ArcEnemyData`'s ctor,
+`32c4ff70` = jump-table data. `32e6d6a0` is the shared `InitUI`, not Raven's `InitWakeOrb`. Already ported elsewhere: the cooldown rage (CH1k), `AttackResultByType` (CH1h),
+`CommonFrameMove` (CH1j). Kept as March: the dev rage text in `RenderName` (June's service exe drops the overlay, as Eve's).
+
+**Routed.** Two June-only hit-dispatch pieces that are not Raven's go to **Stage 33** (bullet added in `JUNE_PORT_BACKLOG_ORDER.md`):
+- `CEffect::AttackResult`'s tail: `ProcessSocketEffectByAttackSuccess`, `32008280`, and a second-unit block.
+- `UnitToUnit` calls `CX2GUNPC::AttackResultByType` for any non-user attacker (March does this only under `ADD_RENA_SYSTEM`).
+
+CH4a: the run-jump EDT / `SFI_SPEED_9` blocks (not rage) and the Survival Technique block (kickoff amended). Checklist §7an l.938 and §7aq l.995 are marked `(Raven: CH1q)`. No JUNE_BUGS row: the 60 / level-3 floors are June's design.
+
+**Gates.**
+- flagcheck `_RAGE --worktree --with _RAGE_DEBUG --files` (4 code files): `files: 2 PASS, 1 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`. RESULT is FAIL only for the
+  commented-out `#define`. OTHER = Always.h (the guard and `_DEBUG` blocks). `_RAGE_DEBUG --with _RAGE`: `1 PASS, 1 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`.
+  All runs: `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+  numstat: X2GURaven.cpp 198 / 0, X2GageUI.cpp 74 / 0, X2GageUI.h 7 / 0, Always.h 42 / 0.
+- `junediverge.py --check` (the Raven and gauge files): `allow-listed: 6`, `RESULT: PASS`. `enumscan.py --check X2GURaven.cpp X2GageUI.cpp`: `0 A/B row(s) remain`.
+- One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`, `-D`) of `X2GURaven.cpp`, `X2GageUI.cpp` and `X2GUUser.cpp`: no flag, `_RAGE`, and `_LIVE` + `_RAGE` all give exit 0 and 0 errors.
+  `_LIVE` alone stops at the new `#error` (C1189), which proves the probes read Always.h.
+- `DEPLOY OK: X2_offline.exe is 26,014,208 B, dated 2026-11-06 14:14:10, md5 bdc04fdb3c38ea1287d86081e2e76ed6, equal to X2/US_SERVICE/x2.exe (2026-11-06 14:14:03); built at main 54289532 + 4 uncommitted code file(s).`
+  `EXESTR OK: 4 of 4 absent` (the four `_RAGE_DEBUG` lines sit in `_RAGE` code, which is off).
+
+**Nothing to play-test** (`_RAGE` and `_LIVE` are off). CH1's play-test lines are `[JUNE_CHAR] RAVEN RAGE hit gain` / `parry` / `ball level` / `orb ball` (CH1 kickoff
+amended). Next: `/x2-phase char-raven CH1q review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

@@ -1405,6 +1405,12 @@ spread; the window prints min = max until it exists), `32358970` (per-unit abili
 `X2GameUnit.cpp:15916` / `:15992` / `:2473` and `X2SocketItem.cpp:1178` still say March lacks them; check that `IsSocketOptionFormLoaded()` paths now run.
 **Code priority (user, 2026-10-27):** after the character ports (Stages 7 and 8), so the damage of every character is tested on June's formulas at once. A mixed formula that breaks play before then (as the MP bug did) is fixed at once under *Scope*, in its own flag, and the map marks it June.
 **Brief:** `kickoffs/june-backlog/stage33-plan.md` (`/x2-phase new-plan june-stat-calc`).
+- **Hit dispatch gaps (routed from char-raven CH1q, 2026-11-06).** (1) June's `CEffect::AttackResult` `31f85910` tail (`31f885bd-31f88669`) does more than March's
+  `X2DamageEffect.cpp:6115` block after the owner's vslot `0x4e0`: vslot `0x3f0` = `ProcessSocketEffectByAttackSuccess` (`3202ab70`, SIEE 13 / 14 / 16; March calls it
+  only from `CX2GUUser::AttackResult`), `32008280` on the owner when the hit is not special (an HP-threshold effect, unidentified), and a block on a second unit
+  (`31f88613-31f88664`, `31f8df30`). A damage effect's hit therefore skips the attacker's on-hit sockets in March. (2) `UnitToUnit` `32625000` @3262561e calls
+  `CX2GUNPC::AttackResultByType` `32773ee0` for every non-user attacker; March does it only under `ADD_RENA_SYSTEM` (off; char-rena's planning asks for it).
+  March's dead `PVP_ZOOM_CAMERA` block has no June twin. Identify both whole in this stage's map.
 
 ### Stage 34: June character info window (user, 2026-10-28; split out of Stage 9)
 

@@ -507,6 +507,13 @@ public:
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	void					UpdateHyperOrb();
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+	virtual void			SetShow( const bool bShow_ );		/// June 32e5e450
+
+private:
+	void					DestroyHyperOrb();					/// June 32e681e0
+
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 private:
 	CKTDGParticleSystem::CParticleEventSequenceHandle m_hSeqHyperBall;
 };

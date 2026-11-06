@@ -1,0 +1,41 @@
+june_addr	piece	verdict	evidence	where
+32c26ea0	RSI_PARRYING_StartFuture	= March	uncarved: vslot 0x7c0 jmp ( CommonStateStartFuture )	-
+32c4a9f0	RSI_PARRYING_Start	= March	CommonStateStart, GetRandomInt(0) % 2 == 0 -> GuardSmallFront, +0x97a0 word 0x101, +0x97a4 = 0.5, +0x97a8 word 0, +0x97ac / +0x97b4 = 0, tail DoParrying	-
+32c33a60	RSI_PARRYING_EventProcess	= March	anim end: !IsOnSomethingFuture -> 0x11 USI_JUMP_DOWN, y -= 45; else 0xd USI_WAIT; else the June SKILL_CANCEL_AFTER( 0.3f ) expansion ( BUFF_AWAKE_LOCK macro )	-
+32c50dd0	RSI_PARRYING_StateEnd	= March	CommonStateEnd, +0x97a4 = 0, +0x97a0 word 0, RestoreNasodBall	-
+32c33b80	ArcEnemyData::ArcEnemyData	= March	the 0x1c ball record ctor ( zeros, handle -1 ); CH0's "new ?" row	-
+32c4ff70	(not code)	n/a	jump-table data inside RestoreNasodBall's switch; CH0's "new ?" row	-
+32c4f750	ClearNasodBall	= March	the inline ArcEnemyData dtor ( DestroyInstanceHandle +0x18 ) then March's resets	-
+32c4f7e0	CreateNasodBall	= March	CH0's DIFFERS ( EffectSet_BEED_UP ) is wrong: March plays it too ( X2GURaven.cpp CreateNasodBall ); offsets -162 / 126, outline ( 1, .333, .0745 ), scales 1 / 1.3 / 1.6 / 1.9 / 2.2	-
+32c4ff90	ChangePowerRateNasodBall	= March	2.2 / 4.4 / 6.6 / 8.8 / 11 into +0x238 / +0x23c; default RestoreNasodBall + both flags off	-
+32c50060	AttackNasodBall	= March	curve 30, unlock 0.06, lock-on NPC +0x940 / user +0x938, dir x -1 when right, 150, attack time ( 0, 9999 ), dir speed 3600, Attack.ogg	-
+32c3e030	CanParryingState	differs	June adds m_FrameDataFuture.unitCondition.bFootOnLine ( +0x7e1c ) beside Now's ( +0x80bc ); state ranges = March	_RAGE
+32c41170	AddRageGuage	differs	Open Mind ( 24419 learned: x ability 0x18 SA_CHARGING_TIME ), then rage += ( spec A +0x6c50 + 1.0 ) x gain; clamp 0..100 = March	_RAGE
+32c491a0	DoParrying	differs	@32c49410 spec B > GetRandomFloat(0) skips the cost; else clock() -> +0x9778, rage -= 20, rage < 60.0 -> 0 ( fcomp qword 60 @32c494e9 ), --lv, lv < 3 -> 0 ( cmp 3 / jge @32c49569 )	_RAGE
+32c4fd80	RestoreNasodBall	differs	the ball effect's DamageData hitUnitList ( CEffect +0x650 ) is erased first; rest = March	_RAGE
+32c50330	DoFrameMoveNasodBall	differs	spec B roll ( 32070350 ) at the three rage-spend sites @32c507da / @32c50b15 / @32c50c3d: a win keeps the ball ( RestoreNasodBall ), no rage cost; rest = March	_RAGE
+3204a674	DamageReact rage fill	= March	UT_RAVEN ( 4 ), remain hyper > 0, fFinalDamage / max HP x 500.0 -> AddRageGuage	-
+32047385	DamageReact parry hook	= March	extra-damage switch, no damage / hp% / mp / dummy / sensor / ground hit / hold / grap / riding gates, IsAttackNasodBall ( 32070eb0 ), CanParryingState or +0x97a0, remain > 0, lv > 0 or +0x97a1, super armor, attacker front +0x7e2d, Now foot +0x80bc -> +0x9172	-
+32048631	DamageReact parry damage cut	= March	speed x x 0.7, y 0, damage x 0.25, offset 70 / 100, EffectSet ( 33478bd0 ), Raven_NasodCore_Guard.ogg	-
+31feabd0	DamageReactStateChange parry	= March	+0x9172 -> clear; +0x97a1 == 0 -> StateChange( RT_SMALL_DAMAGE ? 0xca : 0xcb, true ); return	-
+31fd29c0	SetHold parry guard	= March	UT_RAVEN, remain > 0, CanParryingState or parrying, lv or can-parry, super armor, attacker front -> return	-
+32c43bf0	SpecialAttackCooldown rage += MP / 3	CH1k	ported in CH1k ( x ( spec A + 1 ) )	CH1k
+32c56be0	AttackResultByType rage gain	CH1h	ported in CH1h	CH1h
+32c55240	CommonFrameMove ball call, class hyper ball dropped	CH1j	ported in CH1j; the ball moves to the gauge UI here	CH1j
+32e6d900	CX2RavenMyGageUI::UpdateHyperOrb	differs	g_pData+0x84 ( GetGameMajorParticle ), no owner, ( 74, 60 ) x resolution, OverUI; a lost sequence resets the handle; not 3 orbs -> 32e681e0 ( March: UI particle system at ( 100, 120 ), template never loaded there: checklist 7aq )	_RAGE
+32e681e0	CX2RavenMyGageUI::DestroyHyperOrb ( new )	new	destroy on the game particle system while g_pX2Game lives, again if the handle survived; dtor 32e72790 and UpdateHyperOrb call it	_RAGE
+32e5e450	CX2RavenMyGageUI::SetShow ( new override )	new	vslot 0x20: base 32e5c380, then the ball sequence's SetShowObject( arg ) ( Eve's 32e5eca0 shape )	_RAGE
+32e718a0	CX2RavenMyGageUI::OnFrameMove	= March	base 32e71620 then UpdateHyperOrb	-
+32e5b470	CX2RavenMyGageUI::InitWakeOrb	= March	removes 6 / 5 / 3 / 2 ( PGUWO_ORB_EVE / _ARA / _CHUNG / _ORB3 ) from WakeOrb and WakeSlot	-
+32e6d6a0	shared CX2MyGageUI::InitUI	= March	InitStatusUI 32e66e60 then vslot 0x54; CH0 had it as Raven's InitWakeOrb	-
+3248e290 @3248e39e	CX2GageManager::CreateMyGageUI Raven case	= March	classes 4 / 16 / 17 / 25 / 106 / 107 / 115, plain CX2GageData ( 0x110 ), UI 0x60 via ctor 32e646c0 ( +0x5c = -1 ); the 3rd ctor argument is the engine-wide extra	-
+32625000 @3262561e	UnitToUnit NPC-attacker AttackResultByType	differs ( not Raven )	June calls CX2GUNPC::AttackResultByType 32773ee0 for every non-user attacker; March only under ADD_RENA_SYSTEM ( off )	Stage 33
+31f85910 @31f885bd	CEffect::AttackResult tail	differs ( not Raven )	June adds vslot 0x3f0 ProcessSocketEffectByAttackSuccess, 32008280 on a non-special hit, a block on a second unit; March's PVP_ZOOM_CAMERA block is dead	Stage 33
+32625000 / 3262b6e0 / 326413c0 / 32625670 / 32628890	ONLY_BASIC ( +0x540 ) skips	= March	five sites, NPC defender ( owner for UnitToEffect ) class +4 != NCT_BASIC skips	-
+32625000 / 3262b6e0 / 32625670 / 32628890	NO_MISS ( +0x542 )	= March	hit percent 1.0 at the four sites	-
+32625670 / 32628890	MeshToUnit / CollisionDataToUnit AttackResultByType	= March	vslot 0x4e0, user attacker only	-
+32284aa0 @322862f6	GetFinalDamage IGNORE_STATE_DEFENCE ( +0x541 )	= March	penetrate or ignore skips the reduce + guard group	-
+31f83aa0 / 31f71930	LockOnData unlock timer, TIME_UNLOCK_AFTER_START default 9999	= March	CEffect +0x954	-
+-	m_CannonBallCount sync	= March	June's protected sync int is March's syncData member ( Future written in CommonFrameMoveFuture, Now read in DoFrameMoveNasodBall )	-
+-	dev rage text in RenderName ( X2GUUser.cpp:29603 )	kept March	June's service exe drops the whole overlay ( as Eve CH1q )	-
+-	RunJump EDT / SFI_SPEED_9 ( not rage )	routed	Raven run-jump passive	CH4a

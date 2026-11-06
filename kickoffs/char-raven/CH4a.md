@@ -60,3 +60,5 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   `m_bEnableSurvivalTechniqueOfMercenary` and the 24414 `RNSI_P_RVC_SURVIVAL_TECHNIQUE_OF_MERCENARY` threshold `32007b10( 24414, PvP ? 0x91 : 0x7d )`
   crossed -> that buff factor; then `m_fOldHp` = now HP. March's counterparts are `CheckAndDoReversalSoldier` (`X2GURaven.cpp:29259`) and
   `CheckAndDoServivalTechniqueOfMercenary` (`:29298`). Register 24402 / 24414 under `JUNE_ENUM_NAMES` and transcribe both from the bytes (CH1o read them for routing only).
+- **Amended by CH1q (2026-11-06):** check the non-rage `UPGRADE_RAVEN` run-jump blocks against June (`X2GameUnit.h:122` / `:712`, `X2GameUnit.cpp:12455` / `:12694`
+  EDT / `SFI_SPEED_9`, `X2GUUser.cpp:13210`, `X2GUNPC.cpp:12820`; `ch0_rage.tsv` row "RunJump speed"); CH1q left them as March.

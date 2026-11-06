@@ -6,6 +6,9 @@
 #ifdef SERV_IRUHADEV_JUNE_HUD_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_HUD_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
 
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
@@ -3082,8 +3085,12 @@ CX2RavenMyGageUI::CX2RavenMyGageUI( CX2GageData* pGageData_, const CX2Unit::UNIT
 
 /*virtual*/ CX2RavenMyGageUI::~CX2RavenMyGageUI()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+	DestroyHyperOrb();		// June 32e72790
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 	if( m_hSeqHyperBall != INVALID_PARTICLE_SEQUENCE_HANDLE )
 		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle(m_hSeqHyperBall);
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 }
 
 /*virtual*/ void CX2RavenMyGageUI::InitWakeOrb()
@@ -3127,8 +3134,74 @@ CX2RavenMyGageUI::CX2RavenMyGageUI( CX2GageData* pGageData_, const CX2Unit::UNIT
 	UpdateHyperOrb();
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+/*virtual*/ void CX2RavenMyGageUI::SetShow( const bool bShow_ )
+{
+	CX2MyGageUI::SetShow( bShow_ );
+
+	if( NULL != g_pData && NULL != g_pData->GetGameMajorParticle() )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetGameMajorParticle()->GetInstanceSequence( m_hSeqHyperBall );
+		if( NULL != pSeq )
+			pSeq->SetShowObject( bShow_ );
+	}
+}
+
+/// June 32e681e0: the ball lives on the game particle system; the second pass catches a handle the first left
+void CX2RavenMyGageUI::DestroyHyperOrb()
+{
+	if( NULL != g_pX2Game && NULL != g_pData && NULL != g_pData->GetGameMajorParticle() )
+		g_pData->GetGameMajorParticle()->DestroyInstanceHandle( m_hSeqHyperBall );
+
+	if( INVALID_PARTICLE_SEQUENCE_HANDLE != m_hSeqHyperBall && NULL != g_pData && NULL != g_pData->GetGameMajorParticle() )
+		g_pData->GetGameMajorParticle()->DestroyInstanceHandle( m_hSeqHyperBall );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+
 void CX2RavenMyGageUI::UpdateHyperOrb()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+	// June 32e6d900: the three-orb ball on the game particle system over the UI at ( 74, 60 ); March's UI-system template never loaded ( checklist 7aq )
+	if( NULL == g_pX2Game || NULL == g_pData->GetGameMajorParticle() || NULL == m_pGageData )
+		return;
+
+	if( 3 != m_pGageData->GetHyperModeCount() )
+	{
+		DestroyHyperOrb();
+		return;
+	}
+
+	CKTDGParticleSystem* pParticle = g_pData->GetGameMajorParticle();
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+	if( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hSeqHyperBall )
+	{
+		const D3DXVECTOR3 vHyperBallPos( 74.f * g_pKTDXApp->GetResolutionScaleX(), 60.f * g_pKTDXApp->GetResolutionScaleY(), 0.f );
+		m_hSeqHyperBall = pParticle->CreateSequenceHandle( NULL, L"raven_powrUp_UI_01", vHyperBallPos );
+		pSeq = pParticle->GetInstanceSequence( m_hSeqHyperBall );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN RAGE orb ball: handle %d, sequence %s, at ( %.0f, %.0f )", m_hSeqHyperBall, ( NULL != pSeq ) ? L"made" : L"missing", vHyperBallPos.x, vHyperBallPos.y );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+		if( NULL == pSeq )
+			return;
+
+		pSeq->SetOverUI( true );
+	}
+	else
+	{
+		pSeq = pParticle->GetInstanceSequence( m_hSeqHyperBall );
+		if( NULL == pSeq )
+		{
+			m_hSeqHyperBall = INVALID_PARTICLE_SEQUENCE_HANDLE;
+			return;
+		}
+
+		const D3DXVECTOR3 vHyperBallPos( 74.f * g_pKTDXApp->GetResolutionScaleX(), 60.f * g_pKTDXApp->GetResolutionScaleY(), 0.f );
+		pSeq->SetPosition( vHyperBallPos );
+	}
+
+	if( true == GetShow() )
+		pSeq->SetShowObject( false == g_pKTDXApp->GetDGManager()->GetDialogManager()->GetHideDialog() );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 	if ( m_pGageData->GetHyperModeCount() == 3 )
 	{
 		CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
@@ -3173,6 +3246,7 @@ void CX2RavenMyGageUI::UpdateHyperOrb()
 			pUIMajorParticleSystem->DestroyInstanceHandle(m_hSeqHyperBall);
 		}	
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 }
 
 /*virtual*/ CX2PartyMemberGageUI::~CX2PartyMemberGageUI()

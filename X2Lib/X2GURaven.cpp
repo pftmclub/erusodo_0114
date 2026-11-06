@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include ".\x2guraven.h"
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
 
 #ifdef RAVEN_WEAPON_TAKER
 
@@ -19363,8 +19366,14 @@ void CX2GURaven::CreateNasodBall()
 }
 bool CX2GURaven::CanParryingState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+	// June 32c3e030: the future frame must stand on a line too
+	if( false == m_FrameDataNow.unitCondition.bFootOnLine || false == m_FrameDataFuture.unitCondition.bFootOnLine )
+		return false;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 	if( m_FrameDataNow.unitCondition.bFootOnLine == false )
 		return false;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 
 	switch( GetNowStateID() )
 	{
@@ -19433,6 +19442,24 @@ void CX2GURaven::DoParrying()
 
 		PlaySound(L"Raven_NasodCore_Trans_Parry.ogg");
 		
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+		// June 32c491a0 @32c49410: specialization B beating the roll skips the cost; under 60 rage / ball level 3 the ball is spent
+		if( false == ( GetCharacterSpecializationB() > GetRandomFloat( 0 ) ) )
+		{
+			m_clockLastNasodBallAttack = clock();
+
+			m_fRageGauge -= 20.f;
+			if( m_fRageGauge < 60.f )
+				m_fRageGauge = 0.f;
+
+			--m_iNaosdBallLv;
+			if( m_iNaosdBallLv < 3 )
+				m_iNaosdBallLv = 0;
+		}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN RAGE parry: rage %.1f, ball level %d, specialization B %.2f", static_cast<float>( m_fRageGauge ), m_iNaosdBallLv, GetCharacterSpecializationB() );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 		m_fRageGauge -= 20.f;
 		if( m_fRageGauge < 0.f )
 			m_fRageGauge = 0.f;		
@@ -19440,6 +19467,7 @@ void CX2GURaven::DoParrying()
 		--m_iNaosdBallLv;
 		if( m_iNaosdBallLv < 0 )
 			m_iNaosdBallLv = 0;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 	}
 }
 
@@ -19459,6 +19487,9 @@ void CX2GURaven::RestoreNasodBall()
 		return;
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+	pNasodBallEffect->GetDamageData().hitUnitList.clear();		// June 32c4fd80: a restored ball can hit the same units again
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 	m_pNasodBall->m_vOffsetPos = D3DXVECTOR3( -180*0.9f, 42*3.f, 0.f);
 
 	CX2DamageEffect::LockOnData* pLockOnData = &pNasodBallEffect->GetLockOnData();				
@@ -19938,6 +19969,160 @@ void CX2GURaven::AttackNasodBall( )
 
 void CX2GURaven::DoFrameMoveNasodBall()
 {	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+	// June 32c50330: specialization B beating the roll keeps a lost or spent ball ( @32c507da, @32c50b15, @32c50c3d )
+	if( GetRemainHyperModeTime() <= 0.f )
+		return;
+
+	if( m_fParryingTime > 0.f )
+	{
+		m_fParryingTime -= m_fElapsedTime;
+		if( m_fParryingTime < 0.f )
+		{
+			m_fParryingTime = 0.f;
+			m_bCanParrying = false;
+		}
+	}
+
+	if( true == m_bDelayAttackNasodBall && false == m_bParrying )
+	{
+		m_fDelayAttackTime += m_fElapsedTime;
+		if( m_fDelayAttackTime >= 0.3f )
+			AttackNasodBall();
+	}
+
+	if( false == GetParrying() )
+	{
+		int iNasodBall = 0;
+		if( true == IsMyUnit() )
+			iNasodBall = static_cast<int>( m_fRageGauge / 20.0 );
+		else
+			iNasodBall = m_FrameDataNow.syncData.m_CannonBallCount;
+
+		if( m_iNaosdBallLv != iNasodBall )
+		{
+			if( 0 == m_iNaosdBallLv )
+				PlaySound( L"Raven_NasodCore_Appear.ogg" );
+			else if( m_iNaosdBallLv > iNasodBall )
+				PlaySound( L"Raven_NasodCore_Shrink.ogg" );
+			else
+				PlaySound( L"Raven_NasodCore_Grow.ogg" );
+
+			m_iNaosdBallLv = iNasodBall;
+			if( m_iNaosdBallLv > 5 )
+				m_iNaosdBallLv = 5;
+			CreateNasodBall();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+			if( true == IsMyUnit() )
+				CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN RAGE ball level %d, rage %.1f", m_iNaosdBallLv, static_cast<float>( m_fRageGauge ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+
+			if( true == IsAttackNasodBall() )
+				ChangePowerRateNasodBall();
+		}
+	}
+
+	D3DXVECTOR3 vDirVec = GetDirVector();
+
+	if( false == m_bAttackNasodBall && false == m_bDelayAttackNasodBall && false == GetParrying() &&
+		NULL != m_pNasodBall && INVALID_DAMAGE_EFFECT_HANDLE != m_pNasodBall->m_hEffect )
+	{
+		CX2DamageEffect::CEffect* pNasodBallEffect = g_pX2Game->GetDamageEffect()->GetInstance( m_pNasodBall->m_hEffect );
+		if( NULL == pNasodBallEffect )
+		{
+			if( false == ( GetCharacterSpecializationB() > GetRandomFloat( 0 ) ) )
+			{
+				if( true == IsMyUnit() )
+					m_fRageGauge = static_cast<float>( m_fRageGauge - m_iNaosdBallLv * 20.0 );
+
+				ClearNasodBall();
+			}
+			else
+			{
+				RestoreNasodBall();
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 vZVec = GetZVector();
+			D3DXVec3Normalize( &vDirVec, &vDirVec );
+
+			CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = pNasodBallEffect->GetMainEffect();
+			if( NULL != pMeshInst )
+			{
+				D3DXVECTOR3 vTargetPos = GetPos();
+				if( true == GetIsRight() )
+				{
+					vTargetPos += m_pNasodBall->m_vOffsetPos.x * vDirVec;
+					vTargetPos.y += m_pNasodBall->m_vOffsetPos.y;
+					vTargetPos += m_pNasodBall->m_vOffsetPos.z * vZVec;
+				}
+				else
+				{
+					vTargetPos -= m_pNasodBall->m_vOffsetPos.x * vDirVec;
+					vTargetPos.y += m_pNasodBall->m_vOffsetPos.y;
+					vTargetPos += m_pNasodBall->m_vOffsetPos.z * vZVec;
+				}
+
+				const float coeff = 0.05f;
+				pMeshInst->SetRotateDegree( GetRotateDegree() + m_pNasodBall->m_vOffsetRotate );
+				pMeshInst->SetMoveAxisAngleDegree( GetRotateDegree() );
+
+				vTargetPos = vTargetPos * coeff + pMeshInst->GetPos() * ( 1.f - coeff );
+				pMeshInst->SetPos( vTargetPos );
+			}
+		}
+	}
+
+	if( true == m_bParrying && NULL != m_pNasodBall )
+	{
+		CX2DamageEffect::CEffect* pNasodBallEffect = g_pX2Game->GetDamageEffect()->GetInstance( m_pNasodBall->m_hEffect );
+		CKTDGXMeshPlayer::CXMeshInstance* pNasodBallEffectMeshInstance = ( NULL != pNasodBallEffect ) ? pNasodBallEffect->GetMainEffect() : NULL;
+		if( NULL != pNasodBallEffectMeshInstance )
+		{
+			if( false == GetIsRight() )
+				vDirVec *= -1;
+
+#ifdef VERIFY_STAT_BY_BUFF
+			const PROTECT_VECTOR3 &vScale = GetScaleByUnit();
+#else	// VERIFY_STAT_BY_BUFF
+			const D3DXVECTOR3 &vScale = GetScaleByUnit();
+#endif // VERIFY_STAT_BY_BUFF
+
+			D3DXVECTOR3 vOffset = vScale.x * vDirVec * 70.f;
+			float fOffsetY = vScale.y * 100.f;
+
+			pNasodBallEffectMeshInstance->SetPos( GetPos() + vOffset + D3DXVECTOR3( 0.f, fOffsetY, 0.f ) );
+		}
+	}
+
+	m_fNasodBallAttackTime += m_fElapsedTime;
+	if( NULL != m_pNasodBall && INVALID_DAMAGE_EFFECT_HANDLE != m_pNasodBall->m_hEffect &&
+		true == m_bAttackNasodBall && false == m_bDelayAttackNasodBall && m_fNasodBallAttackTime >= 1.2f )
+	{
+		m_bLockOnNpc = false;
+		m_iLockOnUid = -1;
+
+		m_bAttackNasodBall = false;
+		m_fDelayAttackTime = 0.f;
+		m_fNasodBallAttackTime = 0.f;
+
+		CX2DamageEffect::CEffect* pNasodBallEffect = g_pX2Game->GetDamageEffect()->GetInstance( m_pNasodBall->m_hEffect );
+		if( NULL == pNasodBallEffect || pNasodBallEffect->GetDamageTimeNow() > 0 )
+		{
+			if( false == ( GetCharacterSpecializationB() > GetRandomFloat( 0 ) ) )
+			{
+				if( true == IsMyUnit() )
+					m_fRageGauge = static_cast<float>( m_fRageGauge - m_iNaosdBallLv * 20.0 );
+
+				ClearNasodBall();
+				return;
+			}
+		}
+
+		RestoreNasodBall();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 	if( GetRemainHyperModeTime() > 0.f )
 	{
 		if( m_fParryingTime > 0.f )
@@ -20164,11 +20349,24 @@ void CX2GURaven::DoFrameMoveNasodBall()
 			}				
 		}
 	}	
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 }
 
 void CX2GURaven::AddRageGuage(float fVal)
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+	// June 32c41170: Open Mind's ability scales the gain, then specialization A
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RRF_OPEN_MIND ) )
+		fVal *= GetLearnedSkillAbilityValue( CX2SkillTree::SA_CHARGING_TIME, CX2SkillTree::RNSI_P_RRF_OPEN_MIND );
+
+	m_fRageGauge = static_cast<float>( m_fRageGauge + ( GetCharacterSpecializationA() + 1.0 ) * fVal );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+	if( true == IsMyUnit() )
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN RAGE hit gain %.2f ( specialization A %.2f, Open Mind level %d ): rage %.1f", fVal, GetCharacterSpecializationA(), GetSkillLevelValue( CX2SkillTree::RNSI_P_RRF_OPEN_MIND ), static_cast<float>( m_fRageGauge ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 	m_fRageGauge = m_fRageGauge + fVal;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 	if( m_fRageGauge > 100.f )
 		m_fRageGauge = 100.f;
 	else if( m_fRageGauge < 0.f )

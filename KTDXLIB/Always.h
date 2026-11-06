@@ -11760,3 +11760,45 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Revert: comment out the #define.
 #define SERV_IRUHADEV_OFFLINE_LOAD_UDP_GATE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-06
+// Description: June character port ( Raven ) Phase CH1q - June's Nasod core: rage gain x Open Mind and specialization A, the specialization B roll that keeps
+//              a parried / lost / spent ball, June's parry floors ( under 60 rage, ball level 3 ), the future-foot parry test, the restored ball's
+//              hit list, and the three-orb ball on the gauge UI ( CX2RavenMyGageUI on the game particle system at ( 74, 60 ) ).
+//              Stays commented out until CH1's final sub-phase defines it with SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE.
+//              Revert: comment out the #define ( JUNE_CHAR_RAVEN_RAGE ).
+//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE needs SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE ( m_clockLastNasodBallAttack )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+#ifndef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE needs SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ( GetLearnedSkillAbilityValue )
+#endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+#ifndef SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE needs SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE ( GetSkillLevelValue )
+#endif SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+#ifndef SERV_IRUHADEV_JUNE_ENUM_NAMES
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE needs SERV_IRUHADEV_JUNE_ENUM_NAMES ( RNSI_P_RRF_OPEN_MIND )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+#ifndef SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE needs SERV_IRUHADEV_JUNE_SOCKET_PARITY ( GetCharacterSpecializationA / B )
+#endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE needs SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE ( the class-side hyper ball is gone, the gauge UI draws it )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-06
+// Description: June character port ( Raven ) Phase CH1q - temporary [JUNE_CHAR] RAVEN RAGE lines ( hit gain, parry, ball level, the three-orb ball )
+//              for CH1's play-test; they sit inside JUNE_CHAR_RAVEN_RAGE code only.
+//              Revert: undefine the flag ( JUNE_CHAR_RAVEN_RAGE_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+//////////////////////////////////////////////////////////////////////////

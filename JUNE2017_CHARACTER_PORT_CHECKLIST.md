@@ -935,7 +935,7 @@ CH4c added two empty `CX2GUUser` virtuals under `SERV_IRUHADEV_JUNE_USER_PASSIVE
 | vslot `0x428` | Ain `32a4d570`, EL `32b52260`, Ara `32b956a0`, Aisha `32cc28b0` (Aisha: CH4c) | the override, whole |
 | vslot `0x73c` | Add `329d46b0`, Raven `32c3c7f0`, Aisha `32cc5c30` (Aisha: CH4c) | the override, whole |
 | vslot `0x748`, soul gain when hit (`DamageReact @32049d8a`, times `fIncreaseSoulRate`) | Ain `32a387b0`, Chung `32beeca0`, Raven `32c3c820` | the base virtual (1.0) and its engine call, then the override; not ported yet (Chung: CH4b - base `CX2GUUser::GetIncreaseSoulRateOnDamageReact` and its `DamageReact` call under `_PASSIVE`; Chung's is the override; Ain / Raven follow in their ports) |
-| `GetCharacterSpecializationB()` (June `+0x6d04`) readers | Eve `329b407b` (inside `329b4060` = `DoParrying`; CH0 had it in `329b3cc0`) (Eve: CH1q), Add `32a01ca2`, Ain `32a59fc5`, Rose `32ac77ab`, Lu/Ciel `32b14950` / `32b3794d`, Ara `32ba6f31`, Chung `32bf528d`, Raven `32c49410` / `32c507da`, Rena `32c85838` (Aisha `32cd0197`: CH4c) (Chung: CH1q, `UseCannon` `32bf5280` whole; CH4b checked) | the reading function, whole |
+| `GetCharacterSpecializationB()` (June `+0x6d04`) readers | Eve `329b407b` (inside `329b4060` = `DoParrying`; CH0 had it in `329b3cc0`) (Eve: CH1q), Add `32a01ca2`, Ain `32a59fc5`, Rose `32ac77ab`, Lu/Ciel `32b14950` / `32b3794d`, Ara `32ba6f31`, Chung `32bf528d`, Raven `32c49410` / `32c507da` (Raven: CH1q), Rena `32c85838` (Aisha `32cd0197`: CH4c) (Chung: CH1q, `UseCannon` `32bf5280` whole; CH4b checked) | the reading function, whole |
 | `AttackResult`'s Way-of-Sword MP factor (`32012b50 @32012d98`, `@32012ee3`): `1 - SpecializationB` in Vigor / Destruction, else `1 + SpecializationA` | Elsword, Elesis (Elsword: CH1q, it scales the WSP gain, not the MP: `CX2GUUser::ApplyWayOfSwordPointGainRate`, both AttackResult sites; Elesis's vslot `0x720` rate stands in at 1.0) | engine block in `CX2GUUser::AttackResult`, with the class |
 | `GetFinalDamage @32285d0a`: unit type 11 (`UT_ROSE`) in states `0x15a` / `0x15b` scales a term by `+0x9798` | Rose (Stage 8) | the branch, with Rose's member |
 
@@ -993,7 +993,7 @@ attack type but AT_SPECIAL) and `JuneModifySpecialFinalDamageByGameUnitType` (0x
 June draws the "3 orbs held" ball in the class's own gauge UI, on `g_pData+0x84` (`322ceaa0` = March `GetGameMajorParticle()`), OverUI, while gage data `+0xf4` (the orb
 count, written by `SetHyperModeCount` = user vslot 0xa8 `3208eef0`) is 3; `HyperModeStart` zeroes the count, so it is gone during the awakening.
 - **Raven:** `32e6d900`, `raven_powrUp_UI_01` at ( 74, 60 ) x resolution (`3352d6c0` / `33457f50`; March 100, 120). March's `CX2RavenMyGageUI::UpdateHyperOrb` creates it on `GetUIMajorParticle()`, but the
-  template is only in `GameMajorParticle7.txt` (not in `UIMajorParticle.txt`), so March's Raven ball is never made; its dtor already destroys on the game system. Port June's body.
+  template is only in `GameMajorParticle7.txt` (not in `UIMajorParticle.txt`), so March's Raven ball is never made; its dtor already destroys on the game system. Port June's body. (Raven: CH1q)
 - **Eve:** done (CH1q `June_UpdateHyperBall`, `32e6a210`; CH1s).
 
 ### 7ar. Item class compatibility for classes March lacks (from june-march-divergence D0c-2)

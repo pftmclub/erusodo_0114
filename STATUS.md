@@ -177,8 +177,8 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-05, play-test owed** (4,825 assets in 35 koms + 2 guide Lua copied, 6 walk units 72-77; user walks Raven per tier, then `check logs`) | Sonnet 5.5 / high, user play-test | CH0 (done) | koms, save | `CH0b.md` |
-| CH1q | **ready** (`/x2-phase char-raven CH1q` on Opus 5.5 / high): Nasod core / rage gauge / hyper orbs + parrying (15 class fns, gauge UI, DamageReact hooks; `ch0_rage.tsv`), flag `_RAGE` | Opus 5.5 / high, Opus review | CH1p review | `X2GURaven.*`, `X2GUUser.*`, `X2Gage*`, `X2DamageManager.*`, `X2DamageEffect.cpp` | `CH1q.md` |
-| CH1 | blocked (CH1q review, CH0b): define `_LIVE`, adopt the script, copy the held motion koms, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | Always.h, data036, motion kom | `CH1.md` |
+| CH1q | **done 2026-11-06, review next** (`/x2-phase char-raven CH1q review` on Opus 5.5 / high): `_RAGE` (`//#define`): 5 class bodies + the gauge orb ball; engine hooks = March | Opus 5.5 / high, Opus review | CH1p review | `X2GURaven.*`, `X2GageUI.*`, Always.h | `CH1q.md`, `CH1q-review.md` |
+| CH1 | blocked (CH1q review, CH0b): define `_LIVE` + `_RAGE`, adopt the script, copy the held motion koms, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | Always.h, data036, motion kom | `CH1.md` |
 | CH2a | blocked (CH1 review): Raven (4) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GURaven.*`, `MODS.md` | `CH2a.md` |
 | CH2b | blocked (CH2a review): Sword Taker (16) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GURaven.*` | `CH2b.md` |
 | CH2c0 | blocked (CH2b review; added by CH0): June-only `CX2GUUser` left-hand bone scale setter `31fd9f40` (Megadrill Break) | Opus 5.5 / high, Opus review | CH2b review | `X2GUUser.*`, Always.h | `CH2c0.md` |
