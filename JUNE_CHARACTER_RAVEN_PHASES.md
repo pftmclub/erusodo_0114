@@ -1243,6 +1243,41 @@ base is empty, as June's); the call-site difference is the `ADD_RENA_SYSTEM` gat
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-raven CH1o review` (Opus 5.5 high).
 
+### CH1o - Review (2026-11-06)
+
+**Verdict: PASS, no code change** (flag `_LIVE`, still `//#define`). Read from the exe bytes (capstone over `unpacked_x2.exe`, `charport_adis.py raven`):
+- **Vslot 0x300 holds.** `dispsweep.py 300` (770 hits), kept `mov r,[r+0x300]` followed by `call r`: four, `@3262546d` (UnitToUnit, `mov eax,[ebp]`),
+  `@32628652` (MeshToUnit, `[ebx]`), `@3262f1e6` (EffectToUnit, `[edi]`) and `@32779046` inside `CX2GUNPC`'s `32778fe0`; nothing else. At each manager site
+  the DamageData pushed to 0x300 is the one pushed to the defender's vslot 0x60 right after (UnitToUnit / MeshToUnit: ebx / esi; EffectToUnit: esi, with
+  attacker vslot 0x3dc between). Hit-only: UnitToUnit / MeshToUnit reach it through `test ah,5; jp` past the `mov al,1; jmp` avoid exit, EffectToUnit
+  only when the miss byte `[esp+0x6f]` is 0. Attacker: ebp / ebx = March's `pAttacker`; EffectToUnit's `[esp+0x128]` is DD `+0xc` observer `- 0x1a0`
+  (`@3262b848-3262b865`, NULL when unset) = March's `pAttackerGameUnit`, dereferenced unchecked in June as in March's `ADD_RENA_SYSTEM` block. March's
+  three `_LIVE` inserts sit after those blocks, inside `if( bMiss == false )`, directly before `DamageReact`.
+- **Vtables:** `CX2GameUnit` 334883b4 and `CX2GUUser` 334781f4 + 0x300 = `3208ddc0` (`ret 4`; also their 0x3dc), `CX2GUNPC` 334ba584 + 0x300 = `32778fe0`;
+  `32c63660` = `jmp 32c5d540`. `32778fe0`: DD NULL -> return; NPC `+0x7c98` AI type 1, `dynamic_cast` to `CX2AllyNPCAI`, `[+0x80] == 0`, owner by UID
+  (`+0x78/+0x7c`, game vslot 0xc8) -> owner's vslot 0x300. The user-only test is exact for Raven's own hits; an ally NPC owned by a Raven (summon item) would
+  carry his Enchant Hand factor in June: that is the routed char-luciel CH1k port, which widens the guards.
+- **`SetSkillLevelStateData` = `3201f850`.** Templet / `+0x867c` NULL -> return; `32890620( id, 0, 0, 1 )`, `< 1` -> 1 else called again (= `max( 1, .. )`);
+  byte store `+4` (`m_SPLevel` is `char`), `32071720( level )` -> `+8`, id `+8` -> `+0xc`, `( 3201ad10( id ) + 1.0 ) * [+8]` -> `+8`, `ret 8`. 3201ad10 =
+  `GetSkillAdditionalPowerRate` (funcmap 1484). June's 1.0 is a double constant on x87, the C++ `1.f`: same value, as every other port of this term.
+  Raven vtable 0x7a8 = base `32028190` (`ch0_vtable_all.tsv`).
+- **Nine triage rows hold.** `32c28100` = `31fd4450` (`xor al,al; ret 4`) -> always false; `32c69d80` = vptr `334720bc`, delete on bit 1 (scalar deleting
+  dtor); `32c69f40` / `32c69f50` = `sub ecx,0x1a0 / 0x190; jmp 32c6a620`; `32c3d1c0` = `32c28880` + `3226ecc0` (enchant sword particles), `32c28880` = the
+  seven `DamageImpact*` appends (March's major list); `32c35fc0` = `fldz; fcomp` (>= 0), anim time > it, vslot 0x7f4( 2 ), tail-jump to vslot 0x7d4 =
+  `SKILL_CANCEL_AFTER_FLY` then `CommonEventProcess` as the `else if` body (CH1g2's `X2GURaven.cpp:26975`); `32c3c7a0` (24402) and `32c4e5b0` (0.5 HP, 24413,
+  24414 with `32007b10( 24414, 0x91 / 0x7d )` behind `322cc1a0`) = the CH4a amendment (CH4a writes the PvP test as `GetIsNowPVPCorrectionGame()`).
+- **0x4ac / "510":** Raven 0x4ac = base `3208df00` (`ch0_vtable_all.tsv:301`); `32c58c30` = `SpecialAttackLookup`, ported in CH1k (funcmap 8192).
+
+**Hygiene.** `flagcheck JUNE_CHAR_RAVEN_LIVE --with JUNE_CHAR_RAVEN_CORE --range cb099003^..cb099003 --files` the 4: `files: 4 PASS, 0 PASS~, 0 DEFINE,
+0 OTHER, 0 FAIL, 0 ERROR`; `3 deleted line(s)` (the `_CORE` rename), 0 non-ASCII, 0 EOL-mismatched, 0 `#else/#endif` without the token, 0 encoding changes;
+RESULT FAIL only for `define: NOT FOUND` (`//#define`). numstat 21 / 0, 16 / 2, 1 / 1, 5 / 0. `junediverge.py --check-all`: `allow-listed: 186`, `RESULT: PASS`.
+`enumscan.py --check X2GURaven.cpp X2DamageManager.cpp`: `0 A/B row(s)` (two of four runs ended `cl /P failed (exit 2)` with no message, likely a peer
+on the cache; the passing runs agree). Probes (`census.cl_cmd`, `/c /Zs /EHsc`) of `X2GURaven.cpp`, `X2DamageManager.cpp`, `X2GUUser.cpp`, `_LIVE` off / on:
+exit 0, 0 errors each; `cl /P` counts off -> on: `AdjustDamageDataBeforeDamageReact` X2DamageManager 0 -> 4 (3 calls + the base), X2GURaven 2 -> 3,
+`+ 1.f ) * stateData_` 0 -> 1. No build: the review changes no code.
+
+**Nothing to play-test.** CH1p kickoff checked. Next: `/x2-phase char-raven CH1p` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.
