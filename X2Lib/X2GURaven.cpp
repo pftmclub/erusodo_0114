@@ -303,8 +303,82 @@ frameBufferNum, pUnit )
 #endif BALANCE_BLADE_MASTER_20130117
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+namespace _CONST_RAVEN_CH1H_
+{
+	/// June CX2Unit +0x3c ( the transcended test )
+	bool IsTranscendedUnit( const CX2Unit* pUnit_ )
+	{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		return NULL != pUnit_ && 0 != pUnit_->GetUnitData().m_iUnitClassTran;
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		UNREFERENCED_PARAMETER( pUnit_ );
+		return false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	}
+
+}
+using namespace _CONST_RAVEN_CH1H_;
+namespace _CONST_RAVEN_CH1c_
+{
+	bool RavenAwakeningEffectSetPresent();	/// defined with the RidingHyperModeFrameMove stand-ins below
+}
+using namespace _CONST_RAVEN_CH1c_;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 CX2GURaven::~CX2GURaven(void)
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c54c10: no hyper ball handle ( June's layout has none ), the rest in March's order
+	ClearArcEnemyData();
+	ClearNasodBall();
+	m_fRageGauge = 0.f;
+	SetFullHyperMode( false );
+	if( m_hHyperAuraEffectset != INVALID_EFFECTSET_HANDLE )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hHyperAuraEffectset );
+
+	if( m_hEffectDashJumpComboX != INVALID_EFFECTSET_HANDLE )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hEffectDashJumpComboX );
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqSonicStab );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqSonicStab1 );
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqGuardianStrike1 );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqGuardianStrike2 );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqGuardianStrike3 );
+
+	DeleteRavenMajorParticle();
+	DeleteRavenMinorParticle();
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqBloodyAccel );
+
+	for( int i=0; i<3; i++ )
+	{
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqPowerAssault[i] );
+	}
+
+	for( int i=0; i<3; i++ )
+	{
+		g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqSevenBurst[i] );
+	}
+
+	m_iBlackHoleHitCount = 0;
+	m_fBlackHoleTime = 0.f;
+	if( m_hBlackHoleEffectSet != INVALID_EFFECTSET_HANDLE )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hBlackHoleEffectSet );
+
+	g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_hBurstingBladeAttackBox );
+
+	m_fOldHp = 0.0f;
+
+	m_hEffectFrameThrow         = INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hEffectOverHeatFire1 = INVALID_DAMAGE_EFFECT_HANDLE;
+	m_hEffectOverHeatFire2 = INVALID_DAMAGE_EFFECT_HANDLE;
+
+	g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_hOverHeatObject );
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqOverHeatIcon );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqOverHeatOverlapIcon );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	ClearArcEnemyData();
 #ifdef UPGRADE_RAVEN
 	ClearNasodBall();
@@ -386,6 +460,7 @@ CX2GURaven::~CX2GURaven(void)
 	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqOverHeatIcon );
 	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_hSeqOverHeatOverlapIcon );
 #endif SERV_RAVEN_VETERAN_COMMANDER
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -398,6 +473,29 @@ void	CX2GURaven::AppendDeviceToDeviceList( CKTDXDeviceDataList& listInOut_ )
 
 void CX2GURaven::ReInit( bool bRandom, int startPosIndex )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c409b0
+	CX2GUUser::ReInit( bRandom, startPosIndex );
+	m_fReDashJumpXTime      = 0.0f;
+
+	m_bLockOnNpc = false;
+	m_iLockOnUid = -1;
+
+	m_bParrying = false;
+	m_bCanParrying = false;
+	m_fParryingTime = 0.f;
+	m_bAttackNasodBall = false;
+	m_bDelayAttackNasodBall = false;
+	m_fDelayAttackTime = 0.f;
+	m_iNaosdBallLv = 0;
+	m_fRageGauge = 0.f;
+	m_fNasodBallAttackTime = 0.f;
+
+	if( IsMyUnit() )
+	{
+		m_FrameDataFuture.syncData.m_CannonBallCount = GetNasodBall();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::ReInit( bRandom, startPosIndex );
 	m_fReDashJumpXTime		= 0.0f;
 
@@ -422,10 +520,41 @@ void CX2GURaven::ReInit( bool bRandom, int startPosIndex )
 #endif
 
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::DamageReact( CX2DamageManager::DamageData* pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c40b20
+	CX2DamageManager::EXTRA_DAMAGE_TYPE& eEDT = pDamageData->m_ExtraDamage.m_ExtraDamageType;
+	if( eEDT == CX2DamageManager::EDT_LEG_WOUND ||
+		eEDT == CX2DamageManager::EDT_BLEEDING ||
+		eEDT == CX2DamageManager::EDT_BLIND ||
+		eEDT == CX2DamageManager::EDT_SMOKE_BLIND ||
+		eEDT == CX2DamageManager::EDT_STUN ||
+		eEDT == CX2DamageManager::EDT_REVERSE_LEFT_RIGHT ||
+		eEDT == CX2DamageManager::EDT_PANIC ||
+		eEDT == CX2DamageManager::EDT_Y_PRESSED ||
+		eEDT == CX2DamageManager::EDT_DULL ||
+		eEDT == CX2DamageManager::EDT_LEG_SHOT )
+	{
+		pDamageData->m_ExtraDamage.m_fTime *= m_fReduceEDTDurationRate;
+	}
+
+	CX2GUUser::DamageReact( pDamageData );
+	CX2GUUser::DamageReactStateChange( pDamageData );
+
+	if( IsDamagedReaction( pDamageData ) == true &&
+		pDamageData->reActResult != CX2DamageManager::RT_DUMMY_DAMAGE &&
+		pDamageData->m_fHpPercentUp <= 0.f &&
+		pDamageData->m_fMpPercentUp <= 0.f )
+	{
+		m_fBlackHoleTime = 0.f;
+		m_iBlackHoleHitCount = 0;
+		m_eRavenCurrentStage = RBM_COMBO_ZZZXZ;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	KTDXPROFILE();
 	
 #ifdef RAVEN_WEAPON_TAKER
@@ -466,10 +595,15 @@ void CX2GURaven::DamageReact( CX2DamageManager::DamageData* pDamageData )
 			m_eRavenCurrentStage = RBM_COMBO_ZZZXZ;		/// 블레이드 마스터 ZZZXZZZ 콤보 캔슬시 클라간 동기화를 맞추기 위해, 캔슬시 스테이트를 저장
 #endif BALANCE_BLADE_MASTER_20130117
 		}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 /*virtual*/ void CX2GURaven::AttackResultPlayEffect()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25a20: the base only ( the arc enemy lock-on moved into AttackResultByType, AttackResultArcEnemy )
+	CX2GUUser::AttackResultPlayEffect();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::AttackResultPlayEffect();
 
 #ifdef BALANCE_PATCH_20110303
@@ -546,10 +680,20 @@ void CX2GURaven::DamageReact( CX2DamageManager::DamageData* pDamageData )
 				
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::Win()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c281f0
+	CX2GUUser::Win();
+
+	if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		StateChange( USI_RIDING_WAIT_HABIT );
+	else
+		StateChange( USI_WIN );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::Win();
 
 #ifdef RIDING_SYSTEM
@@ -560,10 +704,23 @@ void CX2GURaven::Win()
 #else
 	StateChange( USI_WIN );
 #endif //RIDING_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::Lose()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c3c970
+	CX2GUUser::Lose();
+
+	if ( true == IsMyUnit() && GetNowHp() > 0.f )
+	{
+		if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+			StateChange( USI_RIDING_WAIT );
+		else
+			StateChange( USI_LOSE );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::Lose();
 
 	if( IsMyUnit() == true && 
@@ -578,10 +735,20 @@ void CX2GURaven::Lose()
 		StateChange( USI_LOSE );
 #endif //RIDING_SYSTEM
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::Draw()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c28230
+	CX2GUUser::Draw();
+
+	if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		StateChange( USI_RIDING_WAIT_HABIT );
+	else
+		StateChange( USI_WIN );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::Draw();
 
 #ifdef RIDING_SYSTEM
@@ -592,6 +759,7 @@ void CX2GURaven::Draw()
 #else
 	StateChange( USI_WIN );
 #endif //RIDING_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
@@ -4890,6 +5058,28 @@ void	CX2GURaven::AppendComponentToDeviceList( CKTDXDeviceDataList& listInOut_ )
 
 void CX2GURaven::InitComponent()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c3ca00: AddUnitSlashData runs without March's UNIT_SLASH_TRACE_MANAGER_TEST gate
+	CX2GUUser::InitComponent();
+
+	if( m_LuaManager.BeginTable( "INIT_COMPONENT" ) == true )
+	{
+		float fSlashTraceDisableTime;
+		float fSlashTraceTipDisableTime;
+		LUA_GET_VALUE( m_LuaManager, "SLASH_TRACE_DISABLE_TIME",        fSlashTraceDisableTime,     0.4f );
+		LUA_GET_VALUE( m_LuaManager, "SLASH_TRACE_TIP_DISABLE_TIME",    fSlashTraceTipDisableTime,  0.5f );
+		int slashTraceDrawCount;
+		int slashTraceTipDrawCount;
+		LUA_GET_VALUE( m_LuaManager, "SLASH_TRACE_DRAW_COUNT",          slashTraceDrawCount,        1 );
+		LUA_GET_VALUE( m_LuaManager, "SLASH_TRACE_TIP_DRAW_COUNT",      slashTraceTipDrawCount,     3 );
+
+		AddUnitSlashData( CX2UnitSlashTraceManager::STC_NONE );
+
+		m_LuaManager.EndTable();
+	}
+
+	m_fOldHp = GetMaxHp();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::InitComponent();
 
 	if( m_LuaManager.BeginTable( "INIT_COMPONENT" ) == true )
@@ -4913,6 +5103,7 @@ void CX2GURaven::InitComponent()
 	}
 
 	m_fOldHp = GetMaxHp();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -4927,10 +5118,18 @@ void	CX2GURaven::AppendEffectToDeviceList( CKTDXDeviceDataList& listInOut_, CX2D
 
 void CX2GURaven::InitEffect()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25a60
 	CX2GUUser::InitEffect();
 
 	CreateMajorParticleArray();
 	CreateMinorParticleArray();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CX2GUUser::InitEffect();
+
+	CreateMajorParticleArray();
+	CreateMinorParticleArray();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
@@ -4938,15 +5137,26 @@ void CX2GURaven::InitEffect()
 
 /*virtual*/ void CX2GURaven::InitEnchantWeaponEffectUnitSpecific() 
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c28810
+	for ( UINT i = 0; i < m_vecpWeapon.size(); ++i )
+	{
+		Weapon* pWeapon = m_vecpWeapon[i];
+		pWeapon->InitEnchantParticleForSword();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	for( UINT i=0; i<m_vecpWeapon.size(); ++i )
 	{
 		Weapon* pWeapon = m_vecpWeapon[i];
 		pWeapon->InitEnchantParticleForSword();
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::DeleteRavenMajorParticle()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c43080
 	CX2GUUser::DeleteGUUserMajorParticle();
 
 	CKTDGParticleSystem* pMajorParticleSystem = g_pX2Game->GetMajorParticle();
@@ -4955,6 +5165,16 @@ void CX2GURaven::DeleteRavenMajorParticle()
 	{
 		pMajorParticleSystem->DestroyInstanceHandle( m_ahRavenMajorParticleInstance[index] );
 	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CX2GUUser::DeleteGUUserMajorParticle();
+
+	CKTDGParticleSystem* pMajorParticleSystem = g_pX2Game->GetMajorParticle();
+
+	for ( int index = 0; index < RAVEN_MAJOR_PII_END; index++ )
+	{
+		pMajorParticleSystem->DestroyInstanceHandle( m_ahRavenMajorParticleInstance[index] );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::DeleteRavenMinorParticle()
@@ -5000,6 +5220,40 @@ void	CX2GURaven::AppendMajorParticleToDeviceList( CKTDXDeviceDataList& listInOut
 
 /*virtual*/ void CX2GURaven::CreateMajorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c3e2c0 ( = March )
+	CX2GUUser::CreateMajorParticleArray();
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT,           L"DamageImpact",            2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_CORE,       L"DamageImpactCore",        2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH,      L"DamageImpactSlash",       2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_RED,            L"DamageImpactRed",     2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_RING_RED,   L"DamageImpactRingRed",     1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_CORE_RED,   L"DamageImpactCoreRed",     1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH_RED,  L"DamageImpactSlashRed",    1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::CreateMajorParticleArray();
 
 	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
@@ -5033,6 +5287,7 @@ void	CX2GURaven::AppendMajorParticleToDeviceList( CKTDXDeviceDataList& listInOut
 	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH_RED,	L"DamageImpactSlashRed",	1 );
 	if( pSeq != NULL )
 		pSeq->SetTriggerWait( true );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 CKTDGParticleSystem::CParticleEventSequence* CX2GURaven::SetRavenMajorParticleByEnum( RAVEN_MAJOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ /*= -1*/ )
@@ -5071,7 +5326,12 @@ void	CX2GURaven::AppendMinorParticleToDeviceList( CKTDXDeviceDataList& listInOut
 
 /*virtual*/ void CX2GURaven::CreateMinorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c25aa0
 	CX2GUUser::CreateMinorParticleArray();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CX2GUUser::CreateMinorParticleArray();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 CKTDGParticleSystem::CParticleEventSequence* CX2GURaven::SetRavenMinorParticleByEnum( RAVEN_MINOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ /*= -1*/ )
@@ -13537,6 +13797,35 @@ void CX2GURaven::RSI_SI3_MAGNUM_BLASTER_HYPER_End()
 */
 /*virtual*/ void CX2GURaven::COMMON_BUFF_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c3da10
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.83f ) )
+	{
+		PlayCommonBuffMinorParticle();
+		UpDownCrashCamera( 30.0f, 0.4f );
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+	}
+	else if ( m_pXSkinAnim->EventTimerOneshot( 0.85f ) )
+	{
+		int iSkillSlotIndex = 0;
+		bool bSlotB = false;
+
+		if ( true == GetSkillSlotIndexUsed( iSkillSlotIndex, bSlotB ) )
+		{
+			const CX2Unit::UnitData* pUnitData = &GetUnit()->GetUnitData();
+
+			const CX2UserSkillTree::SkillSlotData* pSkillSlotData = pUnitData->m_UserSkillTree.GetSkillSlot( iSkillSlotIndex, bSlotB );
+			CX2SkillTree::SKILL_ID eSkillID = CX2SkillTree::SI_NONE;
+
+			if( NULL != pSkillSlotData )
+				eSkillID = pSkillSlotData->m_eID;
+
+			ProcessAcceleraterBuff( eSkillID, IsHyperState() );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifndef UPGRADE_SKILL_SYSTEM_2013 // 공통 스킬 개편, 김종훈
 	// 각성 인지 아닌지에 따라 World색 변경
 	ChangeWorldColorByHyperMode();
@@ -13578,6 +13867,7 @@ void CX2GURaven::RSI_SI3_MAGNUM_BLASTER_HYPER_End()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 void CX2GURaven::RSI_SOUL_TAKER_DASH_COMBO_ZZ_EventProcess()
@@ -16676,6 +16966,28 @@ void CX2GURaven::ClearArcEnemyData()
 
 void CX2GURaven::Init( bool bUseTeamPos_, int iStartPosIndex_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c41000
+	CX2GUUser::Init( bUseTeamPos_, iStartPosIndex_ );
+
+	m_bLockOnNpc = false;
+	m_iLockOnUid = -1;
+
+	m_bParrying = false;
+	m_bCanParrying = false;
+	m_fParryingTime = 0.f;
+	m_bAttackNasodBall = false;
+	m_bDelayAttackNasodBall = false;
+	m_fDelayAttackTime = 0.f;
+	m_iNaosdBallLv = 0;
+	m_fRageGauge = 0.f;
+	m_fNasodBallAttackTime = 0.f;
+
+	if( IsMyUnit() )
+	{
+		m_FrameDataFuture.syncData.m_CannonBallCount = GetNasodBall();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::Init( bUseTeamPos_, iStartPosIndex_ );
 
 	m_bLockOnNpc = false;
@@ -16695,6 +17007,7 @@ void CX2GURaven::Init( bool bUseTeamPos_, int iStartPosIndex_ )
 	{
 		m_FrameDataFuture.syncData.m_CannonBallCount = GetNasodBall();
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 
@@ -17021,6 +17334,116 @@ void CX2GURaven::RestoreNasodBall()
 
 void CX2GURaven::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c56be0: the arc enemy lock-on is its own call ( 32c54960 ); the rage fill carries the specialization A term and Open Mind's ability
+	CX2GUUser::AttackResultByType( pDamageData );
+	AttackResultArcEnemy( pDamageData );
+
+	if( GetRemainHyperModeTime() <= 0.f )
+		return;
+
+	if( CX2DamageManager::AT_SPECIAL != pDamageData.attackType )
+	{
+		if( IsMyUnit() == true && false == m_bDelayAttackNasodBall && false == m_bAttackNasodBall )
+		{
+			float fOpenMindRate = 1.f;
+			if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RRF_OPEN_MIND ) )
+				fOpenMindRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_CHARGING_TIME, CX2SkillTree::RNSI_P_RRF_OPEN_MIND );  // June ability 0x18
+
+			m_fRageGauge += static_cast<float>( ( max( pDamageData.damage.fPhysic, pDamageData.damage.fMagic ) * pDamageData.m_fRateModifier * 4.f ) * ( GetCharacterSpecializationA() + 1.0 ) * fOpenMindRate );
+		}
+
+		if( m_fRageGauge > 100.f )
+			m_fRageGauge = 100.f;
+		else if( 1 == static_cast<int>( m_fRageGauge / 20.0 ) )
+			m_fRageGauge = 60.f;    // June: the first ball level jumps to three
+	}
+
+	if( null != pDamageData.optrDefenderGameUnit && pDamageData.optrDefenderGameUnit->GetGameUnitType() == CX2GameUnit::GUT_NPC )
+	{
+		CX2GUNPC *pNpc = (CX2GUNPC *)pDamageData.optrDefenderGameUnit.GetObservable();
+		if( pNpc != NULL && pNpc->GetNPCTemplet().m_ClassType != CX2UnitManager::NCT_BASIC )
+			return;
+	}
+
+	if( true == m_bAttackNasodBall || true == m_bDelayAttackNasodBall )
+		return;
+
+	if( false == pDamageData.IsAttackTrigger( CX2DamageManager::DTT_RAVEN_RAGE_ATTACK ) )
+		return;
+
+	if( true == m_bParrying || NULL == m_pNasodBall )
+		return;
+
+	CX2DamageEffect::CEffect* pNasodBallEffect = g_pX2Game->GetDamageEffect()->GetInstance( m_pNasodBall->m_hEffect );
+	if( NULL == pNasodBallEffect )
+		return;
+
+	m_fDelayAttackTime = 0.f;
+	m_clockLastNasodBallAttack = clock();
+	m_fNasodBallAttackTime = 0.f;
+	m_bDelayAttackNasodBall = true;
+
+	if( CX2DamageManager::AT_UNIT == pDamageData.defenderType )
+	{
+		if( null != pDamageData.optrDefenderGameUnit )
+		{
+			if( CX2GameUnit::GUT_USER == pDamageData.optrDefenderGameUnit->GetGameUnitType() )
+			{
+				m_bLockOnNpc = false;
+				m_iLockOnUid = pDamageData.optrDefenderGameUnit->GetUnitUID();
+			}
+			else if( CX2GameUnit::GUT_NPC == pDamageData.optrDefenderGameUnit->GetGameUnitType() )
+			{
+				m_bLockOnNpc = true;
+				m_iLockOnUid = pDamageData.optrDefenderGameUnit->GetUnitUID();
+			}
+		}
+	}
+
+	CKTDGXMeshPlayer::CXMeshInstance* pNasodBallEffectMeshInstance = pNasodBallEffect->GetMainEffect();
+	if ( pNasodBallEffectMeshInstance != NULL )
+		pNasodBallEffectMeshInstance->SetDirSpeed( 0.f );
+
+	switch( m_iNaosdBallLv )
+	{
+	case 1:
+		if ( pNasodBallEffectMeshInstance == NULL )
+			break;
+		pNasodBallEffectMeshInstance->ChangeAnim(L"Attack1", CKTDGXSkinAnim::XAP_ONE_WAIT, 1.f);
+		pNasodBallEffectMeshInstance->SetScale(1.f, 1.f, 1.f);
+		break;
+	case 2:
+		if ( pNasodBallEffectMeshInstance == NULL )
+			break;
+		pNasodBallEffectMeshInstance->ChangeAnim(L"Attack2", CKTDGXSkinAnim::XAP_ONE_WAIT, 1.f);
+		pNasodBallEffectMeshInstance->SetScale(1.6f, 1.6f, 1.6f);
+		break;
+	case 3:
+		if ( pNasodBallEffectMeshInstance == NULL )
+			break;
+		pNasodBallEffectMeshInstance->ChangeAnim(L"Attack3", CKTDGXSkinAnim::XAP_ONE_WAIT, 1.f);
+		pNasodBallEffectMeshInstance->SetScale(1.4f, 1.4f, 1.4f);
+		break;
+	case 4:
+		if ( pNasodBallEffectMeshInstance == NULL )
+			break;
+		pNasodBallEffectMeshInstance->ChangeAnim(L"Attack4", CKTDGXSkinAnim::XAP_ONE_WAIT, 1.f);
+		pNasodBallEffectMeshInstance->SetScale(1.6f, 1.6f, 1.6f);
+		break;
+	case 5:
+		if ( pNasodBallEffectMeshInstance == NULL )
+			break;
+		pNasodBallEffectMeshInstance->ChangeAnim(L"Attack5", CKTDGXSkinAnim::XAP_ONE_WAIT, 1.f);
+		pNasodBallEffectMeshInstance->SetScale(1.5f, 1.5f, 1.5f);
+		break;
+	default:
+		RestoreNasodBall();
+		return;
+	}
+
+	PlaySound( L"Raven_NasodCore_Trans_Attack.ogg" );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::AttackResultByType( pDamageData );
 
 	if( GetRemainHyperModeTime() <= 0.f )
@@ -17128,8 +17551,90 @@ void CX2GURaven::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 
 		PlaySound( L"Raven_NasodCore_Trans_Attack.ogg" );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+/// June 32c54960: March's arc enemy lock-on of AttackResultPlayEffect, called from AttackResultByType ( referenced only under _LIVE )
+void CX2GURaven::AttackResultArcEnemy( CX2DamageManager::DamageData& damageData_ )
+{
+	if( m_fArcEnemyEachTime > 0.f )
+		return;
+
+	if( CX2DamageManager::RT_DUMMY_DAMAGE == damageData_.reActResult )
+		return;
+
+	if( CX2DamageManager::AT_NORMAL != damageData_.attackType && CX2DamageManager::AT_COMMAND != damageData_.attackType )
+		return;
+
+	if( true == m_vecArcEnemyData.empty() )
+		return;
+
+	ArcEnemyData* pData = m_vecArcEnemyData[0];
+	if( pData == NULL )
+	{
+		ClearArcEnemyData();
+		return;
+	}
+
+	CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->GetInstance( pData->m_hEffect );
+	CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = ( pEffect != NULL ) ? pEffect->GetMainEffect() : NULL;
+	if( NULL == pMainEffect )
+	{
+		ClearArcEnemyData();
+		return;
+	}
+
+	if( CX2DamageManager::AT_UNIT != damageData_.defenderType || null == damageData_.optrDefenderGameUnit )
+		return;
+
+	CX2DamageEffect::LockOnData* pLockOnData = &pEffect->GetLockOnData();
+	if( CX2GameUnit::GUT_USER == damageData_.optrDefenderGameUnit->GetGameUnitType() )
+	{
+		pLockOnData->m_LockOnUnitUID = damageData_.optrDefenderGameUnit->GetUnitUID();
+	}
+	else if( CX2GameUnit::GUT_NPC == damageData_.optrDefenderGameUnit->GetGameUnitType() )
+	{
+		pLockOnData->m_LockOnNPCUID = static_cast<int>( damageData_.optrDefenderGameUnit->GetUnitUID() );
+	}
+
+	D3DXVECTOR3 vDirVec = GetDirVector();
+	if( true == GetIsRight() )
+		vDirVec *= -1;
+
+	pMainEffect->SetPos( pMainEffect->GetPos() + vDirVec * 150.f + D3DXVECTOR3( 0, 0, 0 ) );
+	pEffect->SetAttackTime( D3DXVECTOR2( 0, 9999 ) );
+	pMainEffect->SetDirSpeed( 3000.f );
+	pMainEffect->SetNowLifeTime( 0.f );
+	pMainEffect->SetMaxLifeTime( 0.35f );
+	pEffect->SetLandPos( 0.f );
+
+	PlaySound( L"Raven_OT_SP2_FlyingImpact3.ogg" );
+
+	pData->m_hEffect = INVALID_DAMAGE_EFFECT_HANDLE;
+	SAFE_DELETE( pData );
+	m_vecArcEnemyData.erase( m_vecArcEnemyData.begin() );
+
+	m_fArcEnemyEachTime = 0.3f;
+}
+
+/// June 32c5d540 ( user vslot 0x300, a hook with the damage data; 32c63660 jumps to it ): Enchant Hand adds its debuff factor, without clearing the others, to a hit that creates a damage effect. CH1o adds the CX2GUUser virtual
+void CX2GURaven::ApplyEnchantHandDebuffToDamageData( CX2DamageManager::DamageData* pDamageData_ )
+{
+	if( NULL == pDamageData_ || true == GetRidingOn() || false == HaveThisBuff( BTI_BUFF_ENCHANT_HAND ) )
+		return;
+
+	if( CX2DamageManager::AT_SPECIAL == pDamageData_->attackType || true == pDamageData_->m_wstrCreateDamageEffectName.empty() )
+		return;
+
+	CX2BuffFactorPtr ptrBuffFactor = CX2BuffTempletManager::GetInstance()->GetBuffFactorPtr( BFI_DEBUFF_ENCHANT_HAND );
+	if( NULL == ptrBuffFactor )
+		return;
+
+	const int iSkillLevel = ( NULL != GetUnit() ) ? GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_RRF_ENCHANT_HAND, true, 0, true ) : 1;
+	pDamageData_->PushBuffFactor( ptrBuffFactor->GetClonePtr( iSkillLevel ), false );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 void CX2GURaven::ChangePowerRateNasodBall()
 {
 	float fPhysic = 1.f;
@@ -17496,6 +18001,33 @@ void CX2GURaven::AddRageGuage(float fVal)
 
 /*virtual*/ float CX2GURaven::GetHyperModeTime() const
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c3db70: the remaining hyper time decides, the awakening count times the per-count time, Spiritualized Fury scales it for a transcended unit
+	if ( NULL != GetGageData() && 0.f < GetRemainHyperModeTime() )
+	{
+		const int iLeftHyperModeCount = GetLastStateHyperModeCount() - GetHyperModeCount();
+		float fTotalTime = static_cast<float>( 0 < iLeftHyperModeCount ? iLeftHyperModeCount : 0 ) * GetMaxHyperModeTime();
+
+		if ( true == GetCanChangeHyperModeInHyperModeState() )
+		{
+			const CX2UserSkillTree& cUserSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+			const CX2SkillTree::SkillTemplet* pSkillTempletSpritualizedFury = cUserSkillTree.GetUserSkillTemplet( CX2SkillTree::RNSI_P_RRF_SPIRITUALIZED_FURY, true );
+
+			if ( NULL != pSkillTempletSpritualizedFury )
+			{
+				const int iSkillTempletLevel = max( 1, cUserSkillTree.GetSkillLevel( pSkillTempletSpritualizedFury->m_eID, true, 0, true ) );
+				fTotalTime *= pSkillTempletSpritualizedFury->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel, false );
+			}
+		}
+
+		if ( GetForceHyperModeTime() > 0.0f )
+			return GetForceHyperModeTime();
+
+		return fTotalTime;
+	}
+
+	return CX2GUUser::GetHyperModeTime();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	/// 강제각성 시간이 주어졌으면
 	if ( GetForceHyperModeTime() > 0.0f )
 		return CX2GUUser::GetHyperModeTime();	/// 상위클래스의 GetHyperModeTime() 사용
@@ -17524,6 +18056,7 @@ void CX2GURaven::AddRageGuage(float fVal)
 	}
 	else
 		return CX2GUUser::GetHyperModeTime();	/// 일반적인 각성
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 #endif	NEW_SKILL_2010_11
@@ -23650,9 +24183,16 @@ void CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_END_EventProcess()
 
 void CX2GURaven::DeleteMinorParticle()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c4c4e0
 	CX2GUUser::DeleteMinorParticle();
 
 	DeleteRavenMinorParticle();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	CX2GUUser::DeleteMinorParticle();
+
+	DeleteRavenMinorParticle();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 #ifdef SERV_RAVEN_VETERAN_COMMANDER
@@ -26613,10 +27153,18 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 */
 /*virtual*/ void CX2GURaven::ApplyHyperModeBuff()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c273c0
+	CX2GameUnit::ApplyHyperModeBuff();
+
+	if ( IsFullHyperMode() )
+		PlaySound( L"Raven_ElectricAura_Appear.ogg" );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GameUnit::ApplyHyperModeBuff();
 
 	if ( IsFullHyperMode() )	/// 풀각성 시작시 나오는 사운드
 		PlaySound(L"Raven_ElectricAura_Appear.ogg");
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 /** @function : HyperModeBuffEffectStart
@@ -26624,6 +27172,39 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 */
 /*virtual*/ void CX2GURaven::HyperModeBuffEffectStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c4e7c0: the boost handles are skipped for a transcended unit or an awakening effect set; the rage gauge is filled here
+	CX2GUUser::HyperModeBuffEffectStart();
+
+	if ( !( NULL != GetUnit() && true == IsTranscendedUnit( GetUnit() ) ) && false == RavenAwakeningEffectSetPresent() )
+	{
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
+			m_hHyperBoostRFoot  = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightBlack",   0,0,0, 0, 0 );
+
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLFoot )
+			m_hHyperBoostLFoot  = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftBlack",    0,0,0, 0, 0 );
+
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRArm )
+			m_hHyperBoostRArm   = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightBlack",   0,0,0, 0, 0 );
+
+		if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLArm )
+			m_hHyperBoostLArm   = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftBlack",    0,0,0, 0, 0 );
+	}
+
+	if ( IsFullHyperMode() )
+	{
+		if( INVALID_EFFECTSET_HANDLE == m_hHyperAuraEffectset )
+			m_hHyperAuraEffectset = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_RAVEN_HYPER_AURA", (CX2GameUnit*)this, (CX2GameUnit*)this );
+	}
+
+	if ( true == GetCanChangeHyperModeInHyperModeState() && ( true == HaveThisBuff( BTI_HYPER_MODE ) || true == HaveThisBuff( BTI_TRANSCENDENTAL_HYPER_MODE ) ) )
+		m_fRageGauge = 100.f;
+	else
+	{
+		m_fRageGauge = static_cast<float>( GetLastStateHyperModeCount() * 20.0 );
+		m_fRageGauge = min( m_fRageGauge + 40.0f, 100.0f );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::HyperModeBuffEffectStart();
 
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
@@ -26646,6 +27227,7 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 
 	/// kimhc // 클라이언트간에 m_fRageGauge 수치 싱크는 맞지 않으나, 나소드볼 수치는 p2p로 맞추고 있으므로 괜찮을 듯.
 	m_fRageGauge = min( m_fRageGauge + 40.0f, 100.0f );	
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 /** @function : HyperModeBuffEffectEnd
@@ -26653,6 +27235,33 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 */
 /*virtual*/ void CX2GURaven::HyperModeBuffEffectEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c50fb0 ( = March )
+	CX2GUUser::HyperModeBuffEffectEnd();
+
+	if ( IsFullHyperMode() )
+	{
+		if( m_hHyperAuraEffectset != INVALID_EFFECTSET_HANDLE )
+		{
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hHyperAuraEffectset );
+			PlaySound( L"Raven_ElectricAura_Disappear.ogg" );
+		}
+		SetFullHyperMode( false );
+	}
+
+	if( IsMyUnit() == true && GetNowHp() > 0.f && m_fRageGauge > 0.f )
+	{
+		UpNowHp( GetMaxHp() * (m_fRageGauge * 0.0005f) );
+		UpNowMp( m_fRageGauge );
+	}
+
+	if( m_iNaosdBallLv > 0 )
+		ClearNasodBall();
+
+	m_fRageGauge = 0.f;
+	m_fParryingTime = 0.f;
+	m_bCanParrying = false;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::HyperModeBuffEffectEnd();
 
 	/// 풀각성일 때 해제해야 할 것들
@@ -26680,6 +27289,7 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 	m_fParryingTime = 0.f;
 	m_bCanParrying = false;
 	
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 /** @function : CX2GetActualMPConsume
@@ -26761,6 +27371,31 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 */
 /*virtual*/ void CX2GURaven::AddUnitSlashData( const CX2UnitSlashTraceManager::SLASH_TRACE_CONDITION eSlashTraceCondition_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c3ea70 ( = March, without the UNIT_SLASH_TRACE_MANAGER_TEST gate )
+	if( NULL == m_pUnitSlashTraceManager )
+		m_pUnitSlashTraceManager = CX2UnitSlashTraceManager::CreateUnitSlashTraceManager( this, GetXSkinAnimPtr() );
+
+	if( NULL != m_pUnitSlashTraceManager )
+	{
+		const int vertexNum = (IsMyUnit() ? 400 : 150);
+
+		switch ( eSlashTraceCondition_ )
+		{
+		case CX2UnitSlashTraceManager::STC_NONE:
+			{
+				m_pUnitSlashTraceManager->AddSlashTraceData( L"ATTACK_SPHERE1_Lhand1", L"Bip01_L_Hand",
+					D3DXCOLOR(0xcc5555ff), D3DXCOLOR(0xccff3333), D3DXCOLOR(0xff5555ff), D3DXCOLOR(0xffff3333),
+					vertexNum, 0.4f, 1,
+					vertexNum, 0.5f, 3,
+					false, 0.f, L"" );
+			} break;
+
+		default:
+			break;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef UNIT_SLASH_TRACE_MANAGER_TEST
 	if( NULL == m_pUnitSlashTraceManager )
 		m_pUnitSlashTraceManager = CX2UnitSlashTraceManager::CreateUnitSlashTraceManager( this, GetXSkinAnimPtr() );
@@ -26785,6 +27420,7 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 		}
 	}
 #endif UNIT_SLASH_TRACE_MANAGER_TEST
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 /** @function : SetSpecificValueByBuffTempletID
@@ -26793,6 +27429,23 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 */
 /*virtual*/ void CX2GURaven::SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c38340; the weapon's SetTraceColor is 32c68f90 ( Weapon::SetTraceColor, = March's inline )
+	CX2GUUser::SetSpecificValueByBuffTempletID( eBuffTempletId_ );
+
+	switch ( eBuffTempletId_ )
+	{
+	case BTI_BLOODY_WEAPON:
+		{
+			Weapon* pWeapon = m_vecpWeapon[0];
+			if ( NULL != pWeapon )
+				pWeapon->SetTraceColor( true, 0xccff0000, 0xffff0000 );
+		} break;
+
+	default:
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::SetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
 	switch ( eBuffTempletId_ )
@@ -26807,6 +27460,7 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 	default:
 		break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 /** @function : UnSetSpecificValueByBuffTempletID
@@ -26815,6 +27469,23 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 */
 /*virtual*/ void CX2GURaven::UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c383b0
+	CX2GUUser::UnSetSpecificValueByBuffTempletID( eBuffTempletId_ );
+
+	switch ( eBuffTempletId_ )
+	{
+	case BTI_BLOODY_WEAPON:
+		{
+			Weapon* pWeapon = m_vecpWeapon[0];
+			if ( NULL != pWeapon )
+				pWeapon->SetTraceColor( false, 0xcc5555ff, 0xcc5555ff );
+		} break;
+
+	default:
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	CX2GUUser::UnSetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
 	switch ( eBuffTempletId_ )
@@ -26829,6 +27500,7 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 	default:
 		break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 /** @function : ApplyRenderParam
@@ -26838,6 +27510,27 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 */
 /*virtual*/ void CX2GURaven::ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c38410; the else branch ends in CX2GUUser's 31fd4460 ( CUSTOM_RENDER_STATE setup ), stand-in: CX2GameUnit's, the engine renderer phase is not ported
+	if ( m_bPassDash )
+		return;
+
+	if ( m_fShadowStepTimeLeft > 0.f )
+		return;
+	else if ( true == m_bInvisibility )
+	{
+		pRenderParam_->renderType       = CKTDGXRenderer::RT_CARTOON;
+		pRenderParam_->outLineColor.a   = 0;
+		m_RenderParam.color.a           = 0;
+	}
+	else
+	{
+		if ( false == IsAlphaObject() )
+			m_RenderParam.color.a = 1.f;
+
+		CX2GameUnit::ApplyRenderParam( pRenderParam_ );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef RIDING_SYSTEM
 	if ( m_bPassDash )
 		return;
@@ -26855,10 +27548,26 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 #endif //FINALITY_SKILL_SYSTEM
 	else
 		CX2GameUnit::ApplyRenderParam( pRenderParam_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 /*virtual*/ void CX2GURaven::ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c3deb0 ( = March )
+	if ( GetRemainHyperModeTime() > 0.0f )
+	{
+		pRenderParam_->renderType       = CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
+		pRenderParam_->cartoonTexType   = CKTDGXRenderer::CTT_RED;
+		pRenderParam_->outLineColor     = D3DXCOLOR( 1.f, 0.694f, 0.737f, 1.f );
+	}
+	else
+	{
+		pRenderParam_->renderType       = CKTDGXRenderer::RT_CARTOON_BLACK_EDGE;
+		pRenderParam_->cartoonTexType   = CKTDGXRenderer::CTT_NORMAL;
+		pRenderParam_->outLineColor     = 0xffffffff;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( GetRemainHyperModeTime() > 0.0f )
 	{
 		pRenderParam_->renderType		= CKTDGXRenderer::RT_CARTOON_COLOR_EDGE;
@@ -26871,10 +27580,38 @@ void CX2GURaven::CheckAndDoServivalTechniqueOfMercenary()
 		pRenderParam_->cartoonTexType	= CKTDGXRenderer::CTT_NORMAL;
 		pRenderParam_->outLineColor		= 0xffffffff;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 float CX2GURaven::GetReduceDebuffDurationRate(BUFF_TEMPLET_ID eBuffTempletID_)
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c273f0 ( user vslot 0x29c )
+	float fReduceDebuffDurationRate = 1.f;
+
+	switch( eBuffTempletID_ )
+	{
+	case BTI_DEBUFF_WOUND:
+	case BTI_DEBUFF_PRESS:
+	case BTI_DEBUFF_BLIND:
+	case BTI_DEBUFF_STUN:
+	case BTI_DEBUFF_PANIC:
+	case BTI_DEBUFF_MOVE_JUMP_SLOWDOWN:
+	case BTI_DEBUFF_CONFUSION:
+	case BTI_DEBUFF_MOTION_SLOWDOWN:
+	case BTI_DEBUFF_BLIND_SMOKE:
+	case BTI_DEBUFF_BLEEDING:
+	case BTI_DEBUFF_SUPPRESSION:
+	case BTI_DEBUFF_PANDEMONIUM_FEAR:
+		{
+			fReduceDebuffDurationRate = m_fReduceEDTDurationRate;
+		} break;
+	default:
+		break;
+	}
+
+	return fReduceDebuffDurationRate;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	float fReduceDebuffDurationRate = 1.f;
 
 	switch( eBuffTempletID_ )
@@ -26899,6 +27636,7 @@ float CX2GURaven::GetReduceDebuffDurationRate(BUFF_TEMPLET_ID eBuffTempletID_)
 	}
 
 	return fReduceDebuffDurationRate;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 }
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 /// 김태환

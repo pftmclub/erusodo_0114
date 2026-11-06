@@ -177,7 +177,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | **done 2026-11-05, play-test owed** (4,825 assets in 35 koms + 2 guide Lua copied, 6 walk units 72-77; user walks Raven per tier, then `check logs`) | Sonnet 5.5 / high, user play-test | CH0 (done) | koms, save | `CH0b.md` |
-| CH1h | **ready** (`/x2-phase char-raven CH1h` on Sonnet 5.5 / high): overrides below vslot 0x600, DamageReact, ctor / dtor map | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GURaven.*` | `CH1h.md` |
+| CH1h | **done 2026-11-06, review ready** (`/x2-phase char-raven CH1h review` on Opus 5.5 / high): overrides below vslot 0x600, 37 rows (27 bodies + 4 header inlines + 2 new; 25 = March, 6 differ) | Sonnet 5.5 / high, Opus review | CH1g2 review (done) | `X2GURaven.*`, `X2SkillTree.h`, `X2BuffFactor.h` | `CH1h.md`, `CH1h-review.md` |
 | CH1i | blocked (CH1h review): overrides 0x600-0x7bc | Sonnet 5.5 / high, Opus review | CH1h review | `X2GURaven.*` | `CH1i.md` |
 | CH1j | blocked (CH1i review): Common* overrides (6 uncarved) + CommonFrameMove | Sonnet 5.5 / high, Opus review | CH1i review | `X2GURaven.*` | `CH1j.md` |
 | CH1k | blocked (CH1j review): skill-use overrides + SpecialAttackEventProcess `32c25af0` (uncarved) + `ReservedSkillStart` | Sonnet 5.5 / high, Opus review | CH1j review | `X2GURaven.*`, `X2GUUser.*` | `CH1k.md` |

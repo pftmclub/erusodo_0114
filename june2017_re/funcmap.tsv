@@ -7875,12 +7875,6 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c4ff90	CX2GURaven::ChangePowerRateNasodBall	candidate	Char Raven CH0: March X2GURaven.cpp:14090; CH1q
 32c50060	CX2GURaven::AttackNasodBall	candidate	Char Raven CH0: March X2GURaven.cpp:14132; CH1q
 32c50330	CX2GURaven::DoFrameMoveNasodBall	candidate	Char Raven CH0: March X2GURaven.cpp:14210; caller CommonFrameMove 32c55240; ball level synced in class int +0x7ec0 (no m_CannonBallCount); Specialization B readers @32c507da / @32c50b15 / @32c50c3d; CH1q
-32c56be0	CX2GURaven::AttackResultByType (vslot 0x4e0)	candidate	Char Raven CH0: March X2GURaven.cpp:13979 (rage fill from hits); CH1h
-32c54960	none in March: CX2GURaven Flying Impact arc helper	candidate	Char Raven CH0: called by AttackResultByType 32c56be0; CH1h
-32c4e7c0	CX2GURaven::HyperModeBuffEffectStart (vslot 0xc4)	candidate	Char Raven CH0: March X2GURaven.cpp:21541 (rage +40, hyper aura); the transcended return (7ao) is CH3d; CH1h
-32c50fb0	CX2GURaven::HyperModeBuffEffectEnd (vslot 0xc8)	candidate	Char Raven CH0: March X2GURaven.cpp:21570; CH1h
-32c69f60	CX2GURaven::IsFullHyperMode (vslot 0x9c, uncarved)	confirmed	Char Raven CH0: returns byte +0x97c8 = March m_bHyperAura (inline X2GURaven.h:483); CH1h
-32c68ff0	CX2GURaven::SetFullHyperMode (vslot 0xa0, uncarved)	confirmed	Char Raven CH0: writes byte +0x97c8 (X2GURaven.h:484); CH1h
 32c3c7f0	none in March: CX2GURaven vslot 0x73c (1.0 + protected float +0x95b8, MP rate on damage react)	candidate	Char Raven CH0: uncarved; only engine caller DamageReact; CH4a (7an)
 32c3c820	none in March: CX2GURaven vslot 0x748 GetIncreaseSoulRateOnDamageReact (1.0 + protected float +0x95c4)	candidate	Char Raven CH0: uncarved; base hook ported by Chung CH4b; CH4a (7an)
 32c4dfe0	CX2GURaven::CreateOverHeatObject	PORTED	Char Raven CH1g2: inside; = March; _LIVE
@@ -8145,3 +8139,40 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c5ac10	CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_EventProcess	PORTED	Char Raven CH1g2: inside; cancel chain (skill, back-walk, walk, dash, Z / X) after the end test; _LIVE
 32c61580	CX2GURaven::RVC_DASH_JUMP_COMBO_XX_LOOP_FrameMove	PORTED	Char Raven CH1g2: inside; one-argument _BurnOverheatHP and _SetOverheat; _LIVE
 32c619e0	CX2GURaven::RVC_DASH_COMBO_ZZZPushZ_FrameMove	PORTED	Char Raven CH1g2: inside; one-argument _BurnOverheatHP and _SetOverheat; _LIVE
+32c25a20	CX2GURaven::AttackResultPlayEffect (vslot 0x4dc)	PORTED	Char Raven CH1h: inside; June = the base only (the arc enemy lock-on is AttackResultArcEnemy, called by AttackResultByType); _LIVE
+32c25a60	CX2GURaven::InitEffect (vslot 0x48)	PORTED	Char Raven CH1h: inside; = March; _LIVE
+32c25aa0	CX2GURaven::CreateMinorParticleArray (vslot 0x548)	PORTED	Char Raven CH1h: inside; = March (base only); _LIVE
+32c273c0	CX2GURaven::ApplyHyperModeBuff (vslot 0xc0)	PORTED	Char Raven CH1h: inside; = March; _LIVE
+32c273f0	CX2GURaven::GetReduceDebuffDurationRate (vslot 0x29c)	PORTED	Char Raven CH1h: inside; = March (CH0 had it as new ?); _LIVE
+32c281f0	CX2GURaven::Win (vslot 0x90)	PORTED	Char Raven CH1h: inside; = March; _LIVE
+32c28230	CX2GURaven::Draw (vslot 0x98)	PORTED	Char Raven CH1h: inside; = March; _LIVE
+32c28810	CX2GURaven::InitEnchantWeaponEffectUnitSpecific (vslot 0x54c)	PORTED	Char Raven CH1h: inside; = March; _LIVE
+32c38340	CX2GURaven::SetSpecificValueByBuffTempletID (vslot 0x24c)	PORTED	Char Raven CH1h: inside; = March (BTI 30 = BTI_BLOODY_WEAPON, trace colors 0xccff0000 / 0xffff0000; CH0 had it as new); _LIVE
+32c383b0	CX2GURaven::UnSetSpecificValueByBuffTempletID (vslot 0x250)	PORTED	Char Raven CH1h: inside; = March (trace colors 0xcc5555ff twice; CH0 had it as new); _LIVE
+32c38410	CX2GURaven::ApplyRenderParam (vslot 0x3a8)	PORTED	Char Raven CH1h: inside; differs: the else branch sets m_RenderParam.color.a = 1 when the unit is not an alpha object, then ends in CX2GUUser 31fd4460 (CUSTOM_RENDER_STATE setup; stand-in CX2GameUnit::ApplyRenderParam); _LIVE
+32c3c970	CX2GURaven::Lose (vslot 0x94)	PORTED	Char Raven CH1h: inside; = March; _LIVE
+32c3ca00	CX2GURaven::InitComponent (vslot 0x3c)	PORTED	Char Raven CH1h: inside; = March, AddUnitSlashData runs without the UNIT_SLASH_TRACE_MANAGER_TEST gate; _LIVE
+32c3da10	CX2GURaven::COMMON_BUFF_FrameMove (vslot 0x5f0)	PORTED	Char Raven CH1h: inside; = March (live branch); _LIVE
+32c3db70	CX2GURaven::GetHyperModeTime (vslot 0xb4)	PORTED	Char Raven CH1h: inside; differs: only while the gage has remaining hyper time, count left x max time, x Spiritualized Fury (24405) for the can-change-in-hyper flag, a forced time wins; else the base; _LIVE
+32c3deb0	CX2GURaven::ApplyRenderParamOnEmptyRenderParamByBuff (vslot 0x314)	PORTED	Char Raven CH1h: inside; = March; _LIVE (Char Raven CH1h)
+32c3e2c0	CX2GURaven::CreateMajorParticleArray (vslot 0x540)	PORTED	Char Raven CH1h: inside; = March; _LIVE
+32c3ea70	CX2GURaven::AddUnitSlashData (vslot 0x27c)	PORTED	Char Raven CH1h: inside; = March, without the UNIT_SLASH_TRACE_MANAGER_TEST gate; _LIVE
+32c409b0	CX2GURaven::ReInit (vslot 0x44)	PORTED	Char Raven CH1h: inside; = March; _LIVE
+32c40b20	CX2GURaven::DamageReact (vslot 0x60)	PORTED	Char Raven CH1h: inside; = March (10 EDT ids x m_fReduceEDTDurationRate, RBM_COMBO_ZZZXZ reset); _LIVE
+32c41000	CX2GURaven::Init (vslot 0x40)	PORTED	Char Raven CH1h: inside; = March; _LIVE
+32c43080	CX2GURaven::DeleteRavenMajorParticle	PORTED	Char Raven CH1h: inside; = March (CH0 had it as new ?); _LIVE
+32c4c4e0	CX2GURaven::DeleteMinorParticle (vslot 0x4c)	PORTED	Char Raven CH1h: inside; = March; _LIVE
+32c4e7c0	CX2GURaven::HyperModeBuffEffectStart (vslot 0xc4)	PORTED	Char Raven CH1h: inside; differs: boost handles only for an untranscended unit without an awakening effect set (stand-in), the rage gauge is 100 with hyper-mode buff 5 / 822 (can-change flag), else last-state count x 20 + 40 capped at 100; _LIVE
+32c50fb0	CX2GURaven::HyperModeBuffEffectEnd (vslot 0xc8)	PORTED	Char Raven CH1h: inside; = March; _LIVE
+32c54960	CX2GURaven::AttackResultArcEnemy	PORTED	Char Raven CH1h: new _CORE; March AttackResultPlayEffect's arc enemy lock-on moved here, with an attack type gate (AT_NORMAL or AT_COMMAND); called by AttackResultByType under _LIVE
+32c54c10	CX2GURaven::~CX2GURaven (body)	PORTED	Char Raven CH1h: inside; differs: no m_hSeqHyperBall destroy (June has no such member), the rest in March's order; _LIVE
+32c56be0	CX2GURaven::AttackResultByType (vslot 0x4e0)	PORTED	Char Raven CH1h: inside; differs: the arc helper call, rage gain x (specialization A + 1) x Open Mind ability SA_CHARGING_TIME (0x18) of 24419, a gauge in 20..40 jumps to 60, clock() stamp, the lock-on and ball switch = March; _LIVE
+32c5d540	CX2GURaven::ApplyEnchantHandDebuffToDamageData (vslot 0x300 hook, DamageData*)	PORTED	Char Raven CH1h: new _CORE; Enchant Hand (BTI 543) adds BFI 633 at the level of 24206 without clearing, when not riding, the hit is not special and creates a damage effect (DamageData +0x48c = m_wstrCreateDamageEffectName size); CH1o adds the CX2GUUser virtual
+32c63660	CX2GURaven vslot 0x300 thunk	confirmed	Char Raven CH1h: nothing to write: a jmp to 32c5d540
+32c68f90	CX2GameUnit::Weapon::SetTraceColor	confirmed	Char Raven CH1h: = March's inline (X2GameUnit.h:1728); 32c38340 / 32c383b0 pass the same colors as March's DWORD arguments; Char Raven CH1h
+32c68ff0	CX2GURaven::SetFullHyperMode (vslot 0xa0)	PORTED	Char Raven CH1h: inside (header inline); = March; _LIVE
+32c69f60	CX2GURaven::IsFullHyperMode (vslot 0x9c)	PORTED	Char Raven CH1h: inside (header inline); = March; _LIVE
+32c69f70	CX2GURaven::GetComboZStateID (vslot 0x4b0)	PORTED	Char Raven CH1h: inside (header inline); = March (RSI_COMBO_Z); _LIVE
+32c69f80	CX2GURaven::GetComboXStateID (vslot 0x4b4)	PORTED	Char Raven CH1h: inside (header inline); = March (RSI_COMBO_X); _LIVE
+32c6a450	CX2GURaven::ArcEnemyData::~ArcEnemyData (scalar deleting)	confirmed	Char Raven CH1h: nothing to write: March's ArcEnemyData destructor (destroys the +0x18 handle)
+32c6a620	CX2GURaven scalar deleting destructor	confirmed	Char Raven CH1h: nothing to write: calls 32c54c10 and the delete

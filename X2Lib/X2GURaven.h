@@ -500,9 +500,14 @@ class CX2GURaven : public CX2GUUser
 		bool GetActiveShadowStep() { return m_bActiveShadowStepCombo; }	/// 섀도우 스텝 계열 동작중 여부
 		float GetEDTBleedingTime() { return m_fEDTBleedingTime; }		/// 치명상 유지 시간 반환
 #endif SERV_RAVEN_VETERAN_COMMANDER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+		virtual bool		IsFullHyperMode() const { return m_bHyperAura; }		/// June 32c69f60
+		virtual void		SetFullHyperMode( const bool bFullHyperMode_ ) { m_bHyperAura = bFullHyperMode_; }		/// June 32c68ff0
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 		virtual bool		IsFullHyperMode() const { return m_bHyperAura; }
 		virtual void		SetFullHyperMode( const bool bFullHyperMode_ ) { m_bHyperAura = bFullHyperMode_; }
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 		virtual void ApplyHyperModeBuff();
 		virtual void HyperModeBuffEffectStart();
@@ -576,12 +581,20 @@ class CX2GURaven : public CX2GUUser
 		//레이븐 용병의 처신술 패시브(SI_P_RWT_BEHAVIOR_OF_MERCENARY) 효과를 적용시키기 위해 추가한 함수
 		virtual float GetReduceDebuffDurationRate(BUFF_TEMPLET_ID eBuffTempletID_);
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+		virtual int GetComboZStateID() const { return RSI_COMBO_Z; }		/// June 32c69f70
+		virtual int GetComboXStateID() const { return RSI_COMBO_X; }		/// June 32c69f80
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 		virtual int GetComboZStateID() const { return RSI_COMBO_Z; }
 		virtual int GetComboXStateID() const { return RSI_COMBO_X; }
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	protected:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 		float								m_fEmergencyEscapeElapsedTime;	/// June +0x95a0: time since the last escape ( KProtectedType<float> in June; ctor -1.0f in CH1k, CommonFrameMove 32c42f90 in CH1j )
 		float								m_fEmergencyEscapeCoolTime;		/// June +0x95ac: cool time of the escape ( KProtectedType<float>; InitPassiveSkillState sets it from SA 0x94 in CH4a )
+		clock_t								m_clockLastNasodBallAttack;		/// June +0x9778: clock() when a Nasod ball was sent at an enemy ( AttackResultByType 32c56be0; CommonFrameMove 32c55240 reads it for Open Mind; the ctor sets it in CH1k )
+		void AttackResultArcEnemy( CX2DamageManager::DamageData& damageData_ );							/// June 32c54960
+		void ApplyEnchantHandDebuffToDamageData( CX2DamageManager::DamageData* pDamageData_ );		/// June 32c5d540 ( vslot 0x300 hook )
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 		bool								m_bReAttackZ1Right;
 		float								m_fReAttackZ1Time;

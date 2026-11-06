@@ -530,6 +530,11 @@ enum BUFF_TEMPLET_ID
 	BTI_BUFF_OVER_HEAT_ENHANCE            = 250,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-06 // char-raven CH1h
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	BTI_BUFF_ENCHANT_HAND                 = 543,	// June's Enum.lua
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-26 // June character port Phase CH1l3 (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 	// June BTI names the Eve skill use spells
@@ -738,6 +743,11 @@ enum BUFF_FACTOR_ID
 	BFI_BUFF_ELPIERCE_INNERRAY_HEAL         = 1081,
 	BFI_DECENT_TO_SHADOW                    = 1118,
 	BFI_BUFF_CODE_RECOVERY_ECB_PVP          = 1119,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
+//{{ Iruha : 2026-11-06 // char-raven CH1h
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	BFI_DEBUFF_ENCHANT_HAND               = 633,	// June's Enum.lua
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 //{{ Iruha : 2026-10-26 // June character port Phase CH1l3 (JUNE_CHARACTER_EVE_PHASES.md)
