@@ -1605,6 +1605,9 @@ attacks only; a Veteran Commander enters and leaves overheat as June; 0 Raven `n
   Veteran Commander is named "Veteran Commander"). A skill cut-in on each job plays June's `HQ_CutIn_Raven_*` art (set 0 on 4 / 16 / 17 / 25, `_BM_01` on 106, `_RF_01` on 107, `_VC_01` on 115). The awakening hyper on 106 / 107 / 115 shows
   `HQ_Cutin_R{BM,RRF,RVC}_Transcendence` only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME` (the script has it in three states; the check is CH6's). Raven's skills are unported until CH2a: a cast of a March skill
   that reaches `ShowActiveSkillCutInAndLight` is the test.
+- **Play-test (user, 2026-11-06 16:00-16:02, exe `ce0eebc7`): passed.** Select screen with all nine March characters and Raven's classes OK. Logs: two `[JUNE_CHAR] RAVEN UI cut-in set 1 index 0 name HQ_CutIn_Raven_BM_01` lines, each with
+  `[JUNE_GFX] CUTIN play ui=0xc HQ_CutIn_Raven_BM_01.gfx` in the same second (Blade Master set 1; sets 0 / 2 / 3, indices 1 / 2 and the hyper cut-in are CH6's walk). ErrorLog `Motion Error` 0, KEM 0; the only `[LUA_SRC]` lines are
+  `TutorSystem.lua` (empty, 3 B) and `ChainQuestInfo.lua` (`AddGroupChainQuest` unbound), both quest / tutor files outside CH5, no routing from here.
 
 ## Phase CH-N - not run for Raven
 
