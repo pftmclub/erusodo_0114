@@ -8468,3 +8468,48 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c5a5d0	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_EventProcess	PORTED	Char Raven CH3c: = March ( the LIVE held-key test, CH1p ): key press count, animation end to LOOP
 32c5a6c0	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_EventProcess	PORTED	Char Raven CH3c: inside under _SKILL: three key presses ( March 5 ) show the overheat finish
 32c60fc0	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_FINISH_FrameMove	PORTED	Char Raven CH3c: inside under _SKILL: no memo scale on the smoke, stone and overheat effects
+32c272f0	CX2GURaven::RVC_SI_SA_DEADLY_RAID_Init	PORTED	Char Raven CH3c2: = March: same body
+32c27300	CX2GURaven::RVC_SI_SA_IGNITION_CROW_Init	PORTED	Char Raven CH3c2: = March: same body
+32c27310	CX2GURaven::RVC_SI_SA_IGNITION_CROW_StateEnd	PORTED	Char Raven CH3c2: = March: same body
+32c27b20	CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_Init	PORTED	Char Raven CH3c2: = March: same body
+32c36e00	CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_EventProcess	PORTED	Char Raven CH3c2: = March: same body
+32c36e50	CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT_EventProcess	PORTED	Char Raven CH3c2: = March: same body
+32c36e80	CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_EventProcess	PORTED	Char Raven CH3c2: = March: same body
+32c37080	CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT_EventProcess	PORTED	Char Raven CH3c2: = March: same body
+32c37270	CX2GURaven::RVC_SI_SA_DEADLY_RAID_END_EventProcess	PORTED	Char Raven CH3c2: = March: same body
+32c37470	CX2GURaven::ChangeDeadlyRaidLoop	PORTED	Char Raven CH3c2: = March: same body
+32c374c0	CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_EventProcess	PORTED	Char Raven CH3c2: = March: same body ( shared by the upgrade states )
+32c376c0	CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_EventProcess	PORTED	Char Raven CH3c2: = March: same body ( shared by the upgrade states )
+32c376f0	CX2GURaven::RVC_SI_SA_IGNITION_CROW_OVERHEAT_END_EventProcess	PORTED	Char Raven CH3c2: = March: same body
+32c3a260	CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_EventProcess	PORTED	Char Raven CH3c2: = March: same body ( shared by the upgrade states )
+32c3a460	CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_EventProcess	PORTED	Char Raven CH3c2: = March: same body ( shared by the upgrade states )
+32c3a490	CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_OVERHEAT_END_EventProcess	PORTED	Char Raven CH3c2: = March: same body
+32c3e740	CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FrameMove	PORTED	Char Raven CH3c2: = March: same body
+32c3ea40	CX2GURaven::RVC_SI_SA_IGNITION_CROW_FrameMove	PORTED	Char Raven CH3c2: = March: same body
+32c42690	CX2GURaven::RVC_SI_SA_DEADLY_RAID_StateStart	PORTED	Char Raven CH3c2: = March: same body
+32c427b0	CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_StateStart	PORTED	Char Raven CH3c2: = March: same body
+32c42850	CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_StateStart	PORTED	Char Raven CH3c2: = March: same body
+32c428f0	CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_StateStart	PORTED	Char Raven CH3c2: = March: same body
+32c42990	CX2GURaven::RVC_SI_SA_IGNITION_CROW_StateStart	PORTED	Char Raven CH3c2: = March: same body
+32c42c30	CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_StateStart	PORTED	Char Raven CH3c2: = March: same body
+32c4cba0	CX2GURaven::RVC_SI_SA_DEADLY_RAID_FrameMove	PORTED	Char Raven CH3c2: = March: same body
+32c4cf30	CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_FrameMove	PORTED	Char Raven CH3c2: = March: same body
+32c4d350	CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_FrameMove	PORTED	Char Raven CH3c2: = March: same body
+32c4d770	CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_FrameMove	PORTED	Char Raven CH3c2: = March: same body
+32c4db90	CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_FrameMove	PORTED	Char Raven CH3c2: = March: same body ( shared by the upgrade states )
+32c538c0	CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_StateStart	PORTED	Char Raven CH3c2: inside under _SKILL: one-argument _SetOverheat( true ) ( March passed 5 s )
+32c53b10	CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT_StateStart	PORTED	Char Raven CH3c2: inside under _SKILL: one-argument _SetOverheat( true ) ( March passed 5 s )
+32c53d60	CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT_StateStart	PORTED	Char Raven CH3c2: inside under _SKILL: one-argument _SetOverheat( true ) ( March passed 5 s )
+32c53fb0	CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_StateStart	PORTED	Char Raven CH3c2: inside under _SKILL: one-argument _SetOverheat( true ) ( March passed 5 s ), shared by the upgrade state
+32c54780	CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_StateStart	PORTED	Char Raven CH3c2: inside under _SKILL: one-argument _SetOverheat( true ) ( March passed 5 s ), shared by the upgrade state
+32c5af90	CX2GURaven::PossibleDeadlyRaidLoop	PORTED	Char Raven CH3c2: inside under _SKILL: the overheat icon shows from 2 / 4 / 6 accumulated key presses ( March 3 / 5 / 7 )
+32c5b0a0	CX2GURaven::RVC_SI_SA_IGNITION_CROW_EventProcess	PORTED	Char Raven CH3c2: inside under _SKILL: three key presses show the overheat icon ( March 5 ); the upgraded skill ( m_iDeleteSkillIDByUpgrade ) goes to the _UPGRADE fire states
+32c5b560	CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_EventProcess	PORTED	Char Raven CH3c2: inside under _SKILL: three key presses show the overheat icon ( March 5 ); the upgraded skill ( m_iDeleteSkillIDByUpgrade ) goes to the _UPGRADE fire states
+32c5bb40	CX2GURaven::RVC_SI_SA_DEADLY_RAID_EventProcess	PORTED	Char Raven CH3c2: = March: same body
+32c5be30	CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_EventProcess	PORTED	Char Raven CH3c2: = March: same body
+32c5bf80	CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_EventProcess	PORTED	Char Raven CH3c2: = March: same body
+32c61fa0	CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_FrameMove	PORTED	Char Raven CH3c2: inside under _SKILL: one-argument _BurnOverheatHP ( March passed 0.2 )
+32c623d0	CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT_FrameMove	PORTED	Char Raven CH3c2: inside under _SKILL: one-argument _BurnOverheatHP ( March passed 0.2 )
+32c62800	CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT_FrameMove	PORTED	Char Raven CH3c2: inside under _SKILL: one-argument _BurnOverheatHP ( March passed 0.2 )
+32c62c30	CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_FrameMove	PORTED	Char Raven CH3c2: = March: same body ( shared by the upgrade states )
+32c634f0	CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_FrameMove	PORTED	Char Raven CH3c2: = March: same body ( shared by the upgrade states )

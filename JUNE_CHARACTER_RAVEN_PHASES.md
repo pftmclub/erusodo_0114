@@ -1959,6 +1959,32 @@ Opus 5.5 high. **Verdict: PASS, no code change;** `_SKILL_DEBUG` retired ( `//#d
 
 **Play-test:** none owed ( CH3c passed; this review changes no behaviour ).
 
+### CH3c2 - Done (2026-11-07)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `_SKILL_DEBUG` re-defined): Ignition Crow Napalm 24022 / 24053, Incineration 24023 / 24054, Deadly Raid 24024 / 24055 run June's registrations. All 45 class-map rows read from `charport_adis.py raven --phase CH3c2` listings plus the registration `32c641a0`: **11 written inside March's function** under the flag, **34 are June = March** (no code; the 2 "new ?" helpers `32c37470` / `32c5af90` are March's `ChangeDeadlyRaidLoop` / `PossibleDeadlyRaidLoop`). `funcmap.tsv` rows `Char Raven CH3c2` (45); `MODS.md` "Stage 7 Raven, CH3c2"; checklist L50 marked `(Raven: CH3c2, 7 of them)`. No JUNE_BUGS row.
+
+| June | `CX2GURaven::` | June differs from March |
+|---|---|---|
+| `32c5af90` | `PossibleDeadlyRaidLoop` | icon from 2 / 4 / 6 accumulated key presses (March 3 / 5 / 7; the three `_CONST_RAVEN_` values changed under the flag) |
+| `32c538c0` `32c53b10` `32c53d60` | Deadly Raid LOOP / LOOP_END / FINISH_OVERHEAT `StateStart` | one-argument `_SetOverheat( true )` (March 5 s) |
+| `32c53fb0` `32c54780` | Ignition Crow / Incineration FIRE_OVERHEAT `StateStart` | the same |
+| `32c61fa0` `32c623d0` `32c62800` | Deadly Raid LOOP_OVERHEAT / LOOP_END_OVERHEAT / FINISH_OVERHEAT `FrameMove` | one-argument `_BurnOverheatHP` (March 0.2) |
+| `32c5b0a0` `32c5b560` | Ignition Crow / Incineration `EventProcess` | three key presses for the icon (March 5); at the animation end an upgraded skill (`m_iDeleteSkillIDByUpgrade`, vslot 0x524 = `GetNowStateSkillID`) goes to the `_UPGRADE` fire states 312 / 313 (315 / 316), else 267 / 268 (285 / 286) |
+
+**Registration.** Deadly Raid: June's labels `RNSI_SA_RVC_DEADLY_RAID` / `_UPGRADE` added to March's case (one table for both ids). Ignition Crow and Incineration: the base `RNSI_*` label added; one new case each for the upgrade id (`RVC_SI_SA_IGNITION_CROW_UPGRADE` / `..._INCINERATION_UPGRADE` tables, March's callbacks, `_FIRE_UPGRADE` / `_FIRE_OVERHEAT_UPGRADE` states, the base's overheat end state with the base table, Incineration hyper `m_bHyperState`). `X2SkillTree.h`: `RNSI_*` 24053 / 24054 / 24055. Upgrade-swap check: `SetEquippedSkillLevel` (CH1i) already reads the base id through the swap for all three; no other term reads the ids. `RAVEN_FIGHTER.lua` in `kom_contents` is June's bytecode (has every `_UPGRADE` table). Routed, not ported: none (`..._OVERHEAT_END_UPGRADE` tables are dead data, never registered).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RAVEN_SKILL --with JUNE_CHAR_RAVEN_SKILL_DEBUG --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `0 PASS, 1 PASS~, 1 DEFINE, 1 OTHER ( X2SkillTree.h: JUNE_ENUM_NAMES ), 0 FAIL`; `1 deleted line ( the //#define ), 0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token`; `RESULT: PASS`.
+- `junediverge.py --check X2Lib/X2GURaven.cpp X2Lib/X2SkillTree.h`: `allow-listed: 12`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: `0 A/B row(s) remain`. `skillicons.py check` 24022-24024 and 24053-24055: `skills 3, misses 0`, PASS each. `luabind.py check RAVEN_FIGHTER`: 0 unbound.
+- DEPLOY OK: X2_offline.exe is 26,082,816 B, dated 2026-11-07 00:15:42, md5 bce2f12d2bf5c3d756dba6d8735b2740, equal to X2/US_SERVICE/x2.exe (00:15:35); built at main 97e4721f + 3 uncommitted code files.
+- EXESTR OK: 3 of 3 found (wide): ignition crow end skill, incineration end skill, deadly raid finish loop count.
+
+**Play-test hand-off.** Two new Veteran Commander units (class 115, level 99; `db_backup` taken, no schema change), only the bank under test learned and slotted, no skill in slot 4 / 9. Dev console (END key): `/invin 0`, then `/stage 1`. Bank A keys: A S D = slots 0 / 1 / 2. Each skill twice, enemies in front (slot shows a cool time after the first cast, MP bar drops).
+1. **Unit 84 `VetCommanderC` (base ids).** A: Ignition Crow Napalm 24022 (A), Incineration 24023 (S), Deadly Raid 24024 (D).
+2. **Unit 85 `VetCommanderD` (upgrade ids).** A: Ignition Crow upgrade 24053 (A), Incineration upgrade 24054 (S), Deadly Raid upgrade 24055 (D).
+Look for: Ignition Crow / Incineration: cast, fire, end in WAIT (air: fall), walk / dash cancels after the fire; tap the key 3+ times during the first two seconds for the overheat icon and the overheat fire with its end pose; Deadly Raid: one press = hit, loop-end, finish, end; pressing 2+ / 4+ / 6+ times in total adds loops and shows the overheat icon at each stage, the overheat loops and finish use the larger red-tinted hits and cost HP; hits show damage numbers (not 0), also on unit 85.
+Log: `python tools/logs.py --grep "RAVEN SKILL"` (`ignition crow end skill S upgrade U overheat O`, `incineration end ...`, `deadly raid finish loop count N input count M overheat O`, `deadly raid finish overheat ...`; unit 85 must print `upgrade 1`). Then say "check logs".
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

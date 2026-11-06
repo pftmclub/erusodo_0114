@@ -49,9 +49,16 @@ namespace _CONST_RAVEN_
 	const int MAX_ACTIVE_SHADOW_STEP = 2;
 
 	/// 데들리 레이드 오버 히트 입력 수
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c5af90: the overheat icon shows from 2 / 4 / 6 accumulated key presses ( March 3 / 5 / 7 )
+	const int DEADLY_RAID_OVERHEAT_INPUT_NUM_1 = 2;
+	const int DEADLY_RAID_OVERHEAT_INPUT_NUM_2 = 4;
+	const int DEADLY_RAID_OVERHEAT_INPUT_NUM_3 = 6;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	const int DEADLY_RAID_OVERHEAT_INPUT_NUM_1 = 3;
 	const int DEADLY_RAID_OVERHEAT_INPUT_NUM_2 = 5;
 	const int DEADLY_RAID_OVERHEAT_INPUT_NUM_3 = 7;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 	/// 하푼 스피어 오버 히트 입력 횟수
 	const int HARPOON_SPEAR_OVERHEAT_KEY_PRESS_TIME = 4;
@@ -6342,6 +6349,10 @@ void CX2GURaven::InitStateWeaponTaker()
 
 #ifdef SERV_RAVEN_VETERAN_COMMANDER
 		case CX2SkillTree::SI_SA_RVC_DEADLY_RAID:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		case CX2SkillTree::RNSI_SA_RVC_DEADLY_RAID:	// June 32c641a0: the same tables and states for the base and the upgrade id
+		case CX2SkillTree::RNSI_SA_RVC_DEADLY_RAID_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 			{
 				m_LuaManager.MakeTableReference( "RVC_SI_SA_DEADLY_RAID", normalStateData.stateID );
 				normalStateData.StateInit			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_DEADLY_RAID_Init );
@@ -6418,6 +6429,9 @@ void CX2GURaven::InitStateWeaponTaker()
 #else //UPGRADE_SKILL_SYSTEM_2013
 			case CX2SkillTree::SI_SA_RVC_IGNITION_CROW:
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+			case CX2SkillTree::RNSI_SA_RVC_IGNITION_CROW_NAPALM:	// June 32c641a0
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 			{
 				m_LuaManager.MakeTableReference( "RVC_SI_SA_IGNITION_CROW", normalStateData.stateID );
 				normalStateData.StateInit			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_Init );
@@ -6458,6 +6472,49 @@ void CX2GURaven::InitStateWeaponTaker()
 				}
 			} break;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+			case CX2SkillTree::RNSI_SA_RVC_IGNITION_CROW_NAPALM_UPGRADE:	// June 32c641a0: the upgrade's own tables, the base's callbacks and overheat end state
+			{
+				m_LuaManager.MakeTableReference( "RVC_SI_SA_IGNITION_CROW_UPGRADE", normalStateData.stateID );
+				normalStateData.StateInit			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_Init );
+				normalStateData.StateStart			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_StateStart );
+				normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_FrameMove );
+				normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_EventProcess );
+				normalStateData.StateEnd			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_StateEnd );
+
+				m_LuaManager.MakeTableReference( "RVC_SI_SA_IGNITION_CROW_UPGRADE", hyperStateData.stateID );
+				hyperStateData.StateStart			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_StateStart );
+				hyperStateData.OnFrameMove			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_FrameMove );
+				hyperStateData.OnEventProcess		= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_EventProcess );
+				hyperStateData.StateEnd				= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_StateEnd );
+
+				{
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= RVC_SI_SA_IGNITION_CROW_FIRE_UPGRADE;
+					m_LuaManager.MakeTableReference( "RVC_SI_SA_IGNITION_CROW_FIRE_UPGRADE", stateData.stateID );
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_FIRE_FrameMove );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_FIRE_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_UPGRADE;
+					m_LuaManager.MakeTableReference( "RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_UPGRADE", stateData.stateID );
+					stateData.StateStart		= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_StateStart );
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_FrameMove );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= RVC_SI_SA_IGNITION_CROW_OVERHEAT_END;
+					m_LuaManager.MakeTableReference( "RVC_SI_SA_IGNITION_CROW_OVERHEAT_END", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_OVERHEAT_END_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+				}
+			} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // Raven 스킬 개편, 김종훈
 		case CX2SkillTree::SI_A_ROT_ARMOR_BREAK:
@@ -6475,6 +6532,9 @@ void CX2GURaven::InitStateWeaponTaker()
 			} break;
 
 		case CX2SkillTree::SI_SA_RVC_IGNITION_CROW_INCINERATION:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		case CX2SkillTree::RNSI_SA_RVC_IGNITION_CROW_INCINERATION:	// June 32c641a0
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 			{
 				// 이그니션 크로우 인시너레이션
 				m_LuaManager.MakeTableReference( "RVC_SI_SA_IGNITION_CROW_INCINERATION", normalStateData.stateID );
@@ -6515,6 +6575,49 @@ void CX2GURaven::InitStateWeaponTaker()
 					m_StateList[stateData.stateID] = stateData;
 				}
 			} break;
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		case CX2SkillTree::RNSI_SA_RVC_IGNITION_CROW_INCINERATION_UPGRADE:	// June 32c641a0: the upgrade's own tables, the base's callbacks and overheat end state
+			{
+				m_LuaManager.MakeTableReference( "RVC_SI_SA_IGNITION_CROW_INCINERATION_UPGRADE", normalStateData.stateID );
+				normalStateData.StateInit			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_Init );
+				normalStateData.StateStart			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_StateStart );
+				normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_FrameMove );
+				normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_EventProcess );
+
+				m_LuaManager.MakeTableReference( "RVC_SI_SA_IGNITION_CROW_INCINERATION_UPGRADE", hyperStateData.stateID );
+				hyperStateData.StateInit			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_Init );
+				hyperStateData.StateStart			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_StateStart );
+				hyperStateData.OnFrameMove			= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_FrameMove );
+				hyperStateData.OnEventProcess		= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_EventProcess );
+
+				hyperStateData.m_bHyperState = true;
+
+				{
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_UPGRADE;
+					m_LuaManager.MakeTableReference( "RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_UPGRADE", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_UPGRADE;
+					m_LuaManager.MakeTableReference( "RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_UPGRADE", stateData.stateID );
+					stateData.StateStart		= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_StateStart );
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_FrameMove );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= RVC_SI_SA_IGNITION_CROW_INCINERATION_OVERHEAT_END;
+					m_LuaManager.MakeTableReference( "RVC_SI_SA_IGNITION_CROW_INCINERATION_OVERHEAT_END", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GURaven, RVC_SI_SA_IGNITION_CROW_INCINERATION_OVERHEAT_END_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+				}
+			} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 		// 리볼버 캐논 HE
 		case CX2SkillTree::SI_SA_RWT_REVOLVER_CANNON_HIGH_EXPLOSIVE_SHELL:
@@ -30260,6 +30363,13 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_Init()
 {
 	/// Nothing
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+namespace _CONST_RAVEN_CH3C2_
+{
+	const int IGNITION_CROW_OVERHEAT_KEY_PRESS_TIME = 3;	/// June 32c5b0a0 / 32c5b560: the key count that shows the overheat icon ( March 5 )
+}
+using namespace _CONST_RAVEN_CH3C2_;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 void CX2GURaven::RVC_SI_SA_DEADLY_RAID_StateStart()
 {
 	m_iRVCComboLoopCount	  = 1;	/// 발사 카운트 초기화
@@ -30440,7 +30550,11 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_StateStart()
 {
 	++m_iRVCComboLoopCount;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	_SetOverheat( true );	/// June 32c538c0 inlines the one-argument setter
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	_SetOverheat( true, 5.f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 	CommonStateStart();
 }
@@ -30484,7 +30598,11 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_FrameMove()
 			GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree() );
 
 		if( NULL != pEffect )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+			_BurnOverheatHP( pEffect->GetDamageData() );	/// June 32c61fa0: one argument
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 			_BurnOverheatHP( pEffect->GetDamageData(), 0.2f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	}
 }
 void CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_EventProcess()
@@ -30583,7 +30701,11 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT_StateStart()
 {
 	++m_iRVCComboLoopCount;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	_SetOverheat( true );	/// June 32c53b10 inlines the one-argument setter
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	_SetOverheat( true, 5.f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 	CommonStateStart();
 }
@@ -30630,7 +30752,11 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_END_OVERHEAT_FrameMove()
 		{
 #ifdef BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 			// 오버 히트 횟수 증가에 따른 소모 hp 값 조절 ( 기존 0.2 ~ 0.4 -> 0.2 고정
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+			_BurnOverheatHP( pEffect->GetDamageData() );	/// June 32c623d0: one argument
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 			_BurnOverheatHP( pEffect->GetDamageData(), 0.2f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 #else // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 			if( 4 >= m_iRVCComboLoopCount )
 				_BurnOverheatHP( pEffect->GetDamageData(), 0.2f );
@@ -30656,6 +30782,9 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_StateStart()
 {
 	++m_iRVCComboLoopCount;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL deadly raid finish loop count %d input count %d overheat %d", m_iRVCComboLoopCount, m_iRVCComboLoopInputCount, m_bOverheated ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
 	CommonStateStart();
 }
 
@@ -30718,8 +30847,15 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT_StateStart()
 {
 	++m_iRVCComboLoopCount;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	_SetOverheat( true );	/// June 32c53d60 inlines the one-argument setter
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	_SetOverheat( true, 5.f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL deadly raid finish overheat loop count %d input count %d overheat %d", m_iRVCComboLoopCount, m_iRVCComboLoopInputCount, m_bOverheated ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
 	CommonStateStart();
 }
 
@@ -30765,7 +30901,11 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT_FrameMove()
 		{
 #ifdef BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 			// 오버 히트 횟수 증가에 따른 소모 hp 값 조절 ( 기존 0.2 ~ 0.6 -> 0.2 고정
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+			_BurnOverheatHP( pEffect->GetDamageData() );	/// June 32c62800: one argument
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 			_BurnOverheatHP( pEffect->GetDamageData(), 0.2f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 #else  // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 			if( 2 >= m_iRVCComboLoopCount )
 				_BurnOverheatHP( pEffect->GetDamageData(), 0.2f );
@@ -30919,7 +31059,11 @@ void CX2GURaven::RVC_SI_SA_IGNITION_CROW_EventProcess()
 		{
 			++m_iRVCComboLoopInputCount;		/// 스킬 키 입력 시 누적 입력 카운트 증가
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+			if( IGNITION_CROW_OVERHEAT_KEY_PRESS_TIME <= m_iRVCComboLoopInputCount && true == _CanOverheat() )	/// June 32c5b0a0
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 			if( _CONST_RAVEN_::OVERHEAT_KEY_PRESS_TIME <= m_iRVCComboLoopInputCount && true == _CanOverheat() )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 			{
 				if( false == m_bShowedOverheat )
 					_ShowOverheatIcon();
@@ -30931,10 +31075,33 @@ void CX2GURaven::RVC_SI_SA_IGNITION_CROW_EventProcess()
 
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		/// June 32c5b0a0: the upgraded skill ( m_iDeleteSkillIDByUpgrade ) goes to the upgrade states
+		const CX2SkillTree::SkillTemplet* pStateSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
+		const bool bUpgradedSkill = ( NULL != pStateSkillTemplet && 0 != pStateSkillTemplet->m_iDeleteSkillIDByUpgrade );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL ignition crow end skill %d upgrade %d overheat %d", static_cast<int>( GetNowStateSkillID() ), bUpgradedSkill ? 1 : 0, m_bShowedOverheat ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+		if( true == bUpgradedSkill )
+		{
+			if( true == m_bShowedOverheat )
+				StateChange( RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_UPGRADE );
+			else
+				StateChange( RVC_SI_SA_IGNITION_CROW_FIRE_UPGRADE );
+		}
+		else
+		{
+			if( true == m_bShowedOverheat )
+				StateChange( RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT );
+			else
+				StateChange( RVC_SI_SA_IGNITION_CROW_FIRE );
+		}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 		if( true == m_bShowedOverheat )
 			StateChange( RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT );
 		else
 			StateChange( RVC_SI_SA_IGNITION_CROW_FIRE );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	}
 
 	CommonEventProcess();
@@ -30978,7 +31145,11 @@ void CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_EventProcess()
 
 void CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	_SetOverheat( true );	/// June 32c53fb0 inlines the one-argument setter
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	_SetOverheat( true, 5.f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 	CommonStateStart();
 };
@@ -34243,7 +34414,11 @@ void CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_EventProcess()
 		{
 			++m_iRVCComboLoopInputCount;		/// 스킬 키 입력 시 누적 입력 카운트 증가
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+			if( IGNITION_CROW_OVERHEAT_KEY_PRESS_TIME <= m_iRVCComboLoopInputCount && true == _CanOverheat() )	/// June 32c5b560
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 			if( _CONST_RAVEN_::OVERHEAT_KEY_PRESS_TIME <= m_iRVCComboLoopInputCount && true == _CanOverheat() )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 			{
 				if( false == m_bShowedOverheat )
 					_ShowOverheatIcon();
@@ -34255,10 +34430,33 @@ void CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_EventProcess()
 
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		/// June 32c5b560: the upgraded skill ( m_iDeleteSkillIDByUpgrade ) goes to the upgrade states
+		const CX2SkillTree::SkillTemplet* pStateSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
+		const bool bUpgradedSkill = ( NULL != pStateSkillTemplet && 0 != pStateSkillTemplet->m_iDeleteSkillIDByUpgrade );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL incineration end skill %d upgrade %d overheat %d", static_cast<int>( GetNowStateSkillID() ), bUpgradedSkill ? 1 : 0, m_bShowedOverheat ? 1 : 0 );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+		if( true == bUpgradedSkill )
+		{
+			if( true == m_bShowedOverheat )
+				StateChange( RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_UPGRADE );
+			else
+				StateChange( RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_UPGRADE );
+		}
+		else
+		{
+			if( true == m_bShowedOverheat )
+				StateChange( RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT );
+			else
+				StateChange( RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE );
+		}
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 		if( true == m_bShowedOverheat )
 			StateChange( RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT );
 		else
 			StateChange( RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	}
 
 	CommonEventProcess();
@@ -34283,7 +34481,11 @@ void CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_EventProcess()
 
 void CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	_SetOverheat( true );	/// June 32c54780 inlines the one-argument setter
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 	_SetOverheat( true, 5.f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 	CommonStateStart();
 };

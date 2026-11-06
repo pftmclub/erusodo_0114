@@ -2430,6 +2430,13 @@ public:
 		RNSI_A_RVC_GROUND_IMPACT_UPGRADE                      = 24239,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-07 // char-raven CH3c2
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RVC_IGNITION_CROW_NAPALM_UPGRADE              = 24053,	// June's Enum.lua
+		RNSI_SA_RVC_IGNITION_CROW_INCINERATION_UPGRADE        = 24054,
+		RNSI_SA_RVC_DEADLY_RAID_UPGRADE                       = 24055,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-06 // char-raven CH2c
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG                     = 24005,	// June's Enum.lua

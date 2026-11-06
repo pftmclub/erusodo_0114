@@ -6077,3 +6077,20 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( + `..._SKILL_DEBUG` re-defined, `[J
 | Bursting Blade ( 24040 ) | the script's state tables ( not in the numerical override table ) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the ten ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.
+
+## Stage 7 Raven, CH3c2: Veteran Commander (class 115) Ignition Crow / Incineration / Deadly Raid (2026-11-07)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( + `..._SKILL_DEBUG` re-defined, `[JUNE_CHAR] RAVEN SKILL` lines ). Plan `JUNE_CHARACTER_RAVEN_PHASES.md` "CH3c2 - Done". Client only, no data change ( `skillicons.py` 24022-24024 and 24053-24055: 0 misses ).
+- **What changes in game.** The six ids get cases in `SetEquippedSkillFuncBySkillSlotIndex`: Ignition Crow Napalm 24022 / 24053, Incineration 24023 / 24054, Deadly Raid 24024 / 24055. The base ids add June's `RNSI_*` label to March's case ( Deadly Raid's one case serves both ids, as June's one table ); Ignition Crow and Incineration get one new case each for the upgrade id ( the `_UPGRADE` script tables, March's callbacks, the `_FIRE_UPGRADE` / `_FIRE_OVERHEAT_UPGRADE` fire states, the base's overheat end state ). Three ids named in `X2SkillTree.h` ( 24053 / 24054 / 24055 ).
+- **Differs from March ( 11 of 45 functions ).** Deadly Raid's overheat icon shows from 2 / 4 / 6 accumulated key presses ( March 3 / 5 / 7 ); the three overheat Start states call the one-argument `_SetOverheat( true )` ( March 5 s ) and the three overheat FrameMoves the one-argument `_BurnOverheatHP` ( March 0.2 ); Ignition Crow and Incineration need three key presses for the overheat icon ( March 5 ), their two overheat fire Starts call `_SetOverheat( true )`, and at the end of the cast an upgraded skill ( `m_iDeleteSkillIDByUpgrade` ) goes to the `_UPGRADE` fire states ( March has none ). The other 34 functions are March's.
+- **Damage ( level 1 ).** June's numbers are the numerical override's ( x0.01 of the `NUMERICAL_DATA` row, `june2017_re/c1a_numerical_blocks.tsv` ); March's shipped tables for the old ids were not re-read here.
+
+| Skill | June damage ( physic, level 1 ) |
+|---|---|
+| Ignition Crow ( 24022 ) `DAMAGE_EFFECT_IGNITION_CROW` / `_OVERHEAT` | 21.18 / 29.44 |
+| Ignition Crow ( 24022 ) `..._GROUND` / `_GROUND_OVERHEAT` ( burning ground ) | 1.03 / 1.43 |
+| Incineration ( 24023 ) `..._INCINERATION_HIT_BIG_DAMAGE` / `_OVERHEAT_HIT_BIG_DAMAGE` | 30.49 / 42.38 |
+| Deadly Raid ( 24024 ) `DAMAGE_EFFECT_DEADLY_RAID` / `_FINISH_READY` / `_RAID_FINISH` | 8.5 each |
+| Deadly Raid ( 24024 ) overheat `..._LARGE` / `_FINISH_READY_LARGE` / `_RAID_FINISH_LARGE` | 11.82 each |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the six ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.
