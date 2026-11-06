@@ -1255,6 +1255,10 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
 	m_bSDOnePieceAvatar = false;
 #endif SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
+#ifdef SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
+	m_vHandScale = D3DXVECTOR3( 1.f, 1.f, 1.f );	// June ctor 3203e850 @320430bd-32043103
+	m_vLeftHandScale = D3DXVECTOR3( 1.f, 1.f, 1.f );
+#endif SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
 
 #ifdef SERV_ADD_TITLE_CONDITION
 	m_ucDieReason = KEGS_USER_UNIT_DIE_REQ::UUDR_UNKNOWN;
@@ -38005,6 +38009,41 @@ void CX2GUUser::RestoreHead()
 */
 void CX2GUUser::ScaleHand( D3DXVECTOR3 vChangeScale )
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
+	// June 31fde6d0
+	m_vHandScale = vChangeScale;
+	D3DXVECTOR3 vLeftHandScale( m_vLeftHandScale.x * vChangeScale.x, m_vLeftHandScale.y * vChangeScale.y, m_vLeftHandScale.z * vChangeScale.z );
+
+	if( m_pXSkinAnim != NULL )
+	{
+		const wstring wstrBoneName[] = { L"Bip01_R_Hand", L"Bip01_L_Hand" };
+
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = NULL;
+
+		for ( int i = 0; i < ARRAY_SIZE( wstrBoneName ); ++i )
+		{
+			pFrame = m_pXSkinAnim->GetCloneFrame( wstrBoneName[i].c_str() );
+
+			if( pFrame != NULL )
+				SetFrameScale( ( wstrBoneName[i] == L"Bip01_L_Hand" ? &vLeftHandScale : &vChangeScale ), true, pFrame );
+		}
+
+		if ( NULL != GetUnit() && CX2Unit::UT_EVE == GetUnit()->GetType() )
+		{
+			pFrame = m_pXSkinAnim->GetCloneFrame( L"Dummy1_Rhand" );
+
+			if( pFrame != NULL )
+				SetFrameScale( &vChangeScale, true, pFrame );
+
+			pFrame = m_pXSkinAnim->GetCloneFrame( L"Dummy2_Lhand" );
+
+			if( pFrame != NULL )
+				SetFrameScale( &vChangeScale, true, pFrame );
+		}
+		// stand-in: Lu/Ciel not ported ( June also scales Bone_RFinger0-3 / Bone_LFinger0-3 of UT_LUCIEL here )
+	}
+	// stand-in: Lu/Ciel not ported ( June repeats the hand loop and the Eve test on the second body +0x8e88 )
+#else
 	if( m_pXSkinAnim != NULL )
 	{
 		const wstring wstrBoneName[] = { L"Bip01_R_Hand", L"Bip01_L_Hand" };
@@ -38033,6 +38072,7 @@ void CX2GUUser::ScaleHand( D3DXVECTOR3 vChangeScale )
 				SetFrameScale(&vChangeScale, true, pFrame);
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
 }
 
 /** @function	: RestoreHand
@@ -38040,6 +38080,42 @@ void CX2GUUser::ScaleHand( D3DXVECTOR3 vChangeScale )
 */
 void CX2GUUser::RestoreHand()
 {
+#ifdef SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
+	// June 31fded80: the left hand keeps m_vLeftHandScale, and June does not call SetUnitReForm here ( JUNE_BUGS 548 )
+	m_vHandScale = D3DXVECTOR3( 1.f, 1.f, 1.f );
+	D3DXVECTOR3 vLeftHandScale( m_vLeftHandScale.x * m_vHandScale.x, m_vLeftHandScale.y * m_vHandScale.y, m_vLeftHandScale.z * m_vHandScale.z );
+
+	const wstring wstrBoneName[] = { L"Bip01_R_Hand", L"Bip01_L_Hand" };
+
+	CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = NULL;
+
+	for ( int i = 0; i < ARRAY_SIZE( wstrBoneName ); ++i )
+	{
+		pFrame = m_pXSkinAnim->GetCloneFrame( wstrBoneName[i].c_str() );
+
+		if( pFrame == NULL )
+			continue;
+
+		if( wstrBoneName[i] == L"Bip01_L_Hand" )
+			SetFrameScale( &vLeftHandScale, true, pFrame );
+		else
+			SetFrameScaleRestore( pFrame );
+	}
+
+	if ( NULL != GetUnit() && CX2Unit::UT_EVE == GetUnit()->GetType() )
+	{
+		pFrame = m_pXSkinAnim->GetCloneFrame( L"Dummy1_Rhand" );
+
+		if( pFrame != NULL )
+			SetFrameScaleRestore( pFrame );
+
+		pFrame = m_pXSkinAnim->GetCloneFrame( L"Dummy2_Lhand" );
+
+		if( pFrame != NULL )
+			SetFrameScaleRestore( pFrame );
+	}
+	// stand-in: Lu/Ciel not ported ( June also restores UT_LUCIEL's finger bones and the second body +0x8e88's hands here )
+#else
 	const wstring wstrBoneName[] = { L"Bip01_R_Hand", L"Bip01_L_Hand" };
 
 	CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = NULL;
@@ -38067,9 +38143,25 @@ void CX2GUUser::RestoreHand()
 	}
 
 	SetUnitReForm();	
+#endif SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
 }
 #endif // SERV_NEW_DEFENCE_DUNGEON
 
+#ifdef SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
+// June 31fd9f40
+void CX2GUUser::SetLeftHandScale( D3DXVECTOR3 vScale )
+{
+	m_vLeftHandScale = vScale;
+	D3DXVECTOR3 vLeftHandScale( m_vHandScale.x * m_vLeftHandScale.x, m_vLeftHandScale.y * m_vHandScale.y, m_vLeftHandScale.z * m_vHandScale.z );
+
+	if( GetXSkinAnimPtr() != NULL )
+	{
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pFrame = GetXSkinAnimPtr()->GetCloneFrame( L"Bip01_L_Hand" );
+		if( pFrame != NULL )
+			SetFrameScale( &vLeftHandScale, true, pFrame );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
 #ifdef ELSWORD_SECOND_CLASS_CHANGE
 void CX2GUUser::SetUnitReForm()
 {

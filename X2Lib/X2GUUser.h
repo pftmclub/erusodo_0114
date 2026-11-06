@@ -2783,6 +2783,9 @@ public:
 		void ScaleHand( D3DXVECTOR3 vChangeScale );
 		void RestoreHand();
 #endif // SERV_NEW_DEFENCE_DUNGEON
+#ifdef SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
+		void SetLeftHandScale( D3DXVECTOR3 vScale );	// June 31fd9f40 ( Raven Megadrill Break )
+#endif SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
 
 		//{{ kimhc // 2010.2.10 //	나소드 무기 강화 핸들러
 #ifdef	EVE_SECOND_CLASS_CHANGE
@@ -5100,6 +5103,10 @@ private:
 #ifdef SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
 		bool			m_bSDOnePieceAvatar;	// June +0x8fc0: the one-piece is a DITT_SD_ONE_PEACE_AVATAR item (reader 31fdc070: backlog Stage 11)
 #endif SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP
+#ifdef SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
+		D3DXVECTOR3		m_vHandScale;		// June +0x8e08: ScaleHand's scale, ( 1, 1, 1 ) after RestoreHand
+		D3DXVECTOR3		m_vLeftHandScale;	// June +0x8e14: the left hand's own scale, multiplied into m_vHandScale
+#endif SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
 
 #ifdef SERV_ADD_TITLE_CONDITION
 		unsigned char m_ucDieReason;

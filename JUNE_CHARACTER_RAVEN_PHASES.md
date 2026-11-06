@@ -1642,6 +1642,32 @@ Opus 5.5. **Verdict: PASS, no code change** except retiring `_SKILL_DEBUG`. Read
 
 **Gates.** flagcheck `_SKILL --with _SKILL_DEBUG --range 203286aa^..203286aa`: `2 PASS, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL`, 1 deleted, `RESULT: PASS`. The worktree check (`Always.h`) gives `1 DEFINE, 0 FAIL`, 1 deleted line (the retired `#define`), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 194`, `RESULT: PASS`. `enumscan.py --check` on the `.cpp` / `.h`: `0 A/B row(s) remain`. One-file probe `X2GURaven.cpp` (`census.cl_cmd`, `/c /Zs /EHsc`): exit 0, 0 errors. Build: not awaited (debug retire only).
 
+### CH2c0 - Done (2026-11-06)
+
+Opus 5.5. New flag **`SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE`** (defined, `Always.h` end; `CX2GUUser`, so not a Raven flag). Read from Ghidra's decompile and
+the raw listing (`disasm_range.py --x87`); members found with `dispsweep.py 8e08 .. 8e1c` (only three `CX2GUUser` functions and the ctor touch them).
+- **`31fd9f40` = `CX2GUUser::SetLeftHandScale( D3DXVECTOR3 vScale )`** (new, `X2GUUser.cpp` before `SetUnitReForm`): `m_vLeftHandScale` (+0x8e14) = the argument;
+  `GetXSkinAnimPtr()` non-null -> `GetCloneFrame( L"Bip01_L_Hand" )` -> `SetFrameScale( m_vHandScale * vScale, true )` (frame +0xdc word 0x101 = `m_bScale`,
+  `m_bApplyChild`; +0xe0 = `m_vScaleRel`). Callers: Megadrill Break `32c38710` ( 1, 1, 1 ), `32c5ce40` twice (CH2c).
+- **Members** `m_vHandScale` (+0x8e08) and `m_vLeftHandScale` (+0x8e14), both ( 1, 1, 1 ) in the ctor (`3203e850` @320430bd-32043103).
+- **Divergent pair, replaced in the same commit** (`june_march_divergent.tsv`, 2 rows): June's `ScaleHand` `31fde6d0` stores `m_vHandScale` and gives the left
+  hand `m_vLeftHandScale * arg`; June's `RestoreHand` `31fded80` sets `m_vHandScale` to 1, restores the right hand and the Eve dummies, keeps the left hand at
+  `m_vLeftHandScale`, and does **not** call `SetUnitReForm` (**JUNE_BUGS 548**: a hand-bone reform from `DefaultBoneInfo` stays lost until the next
+  `InitMotion`). June's bodies sit inside March's functions, March's in `#else`. Without these two, the big-hand buff would wipe Megadrill Break's left-hand scale.
+- **Stand-ins (Lu/Ciel not ported):** June's ScaleHand / RestoreHand also handle `UT_LUCIEL`'s `Bone_RFinger0-3` / `Bone_LFinger0-3` and the second body
+  (+0x8e88). One-line comments at the sites; Lu/Ciel's port picks them up.
+- **Not ported, routed:** June's other ScaleHand callers: `SetSpecificValueByBuffTempletID` `3204b5e0` (1.5 / 1.55 @3204c3dd, 2.55 @3204c664: June-only buff
+  cases, funcmap row "3202ed60 / 3204b5e0 (CH4a)", checklist) and the Lu/Ciel second-body setter `3204e030` (1.5). March's one caller (big-hand elixir) is unchanged.
+- **funcmap:** `31fd9f40` re-keyed to `CX2GUUser::SetLeftHandScale` (PORTED); `31fde6d0`, `31fded80` added (`Char Raven CH2c0`). `CH2c.md` amended with the March name.
+
+**Gates.** flagcheck `--worktree --files Always.h X2GUUser.h X2GUUser.cpp`: `2 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`, 0 deleted lines, 0 non-ASCII, 0 EOL mismatches,
+2 plain `#else`, `RESULT: PASS`. `junediverge.py --check X2GUUser.cpp X2GUUser.h`: `RESULT: PASS`. `enumscan.py --check` same files: 2 rows, both
+`X2GUUser.h:2555-2556` (NPC ids, older than this phase), none in CH2c0's lines. Flags probed ON: `SERV_NEW_DEFENCE_DUNGEON`, `ELSWORD_SECOND_CLASS_CHANGE`.
+`DEPLOY OK: X2_offline.exe is 26,048,512 B, dated 2026-11-06 17:36:03, md5 2d11fea5e7b1b0df42eaa3185e31a0d7` (built at main 68bf3047 + the 3 code files).
+
+**Play-test:** none. Nothing calls `SetLeftHandScale` until CH2c, and the rewritten `ScaleHand` / `RestoreHand` are reached only by the big-hand elixir buff.
+CH2c's Megadrill Break play-test is the first in-game check. **Open for the user:** none.
+
 ## Phase CH3 - Skills: second jobs (106, 107, 115), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.

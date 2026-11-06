@@ -54,3 +54,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Depends on CH0's Opus helper phase CH2c0** (`31fd9f40`).
 - Megadrill Break (24203) calls June-only `31fd9f40` (left-hand bone scale, CH2c0) and reads `IGNORE_DEFENCE_RATE` (engine reader ported). `RSI_SA_ROT_CHARGED_BOLT_BLOOD` is dead data in June: the bare `OT_SP1a_ChargedBolt` it names is never played, so no `JUNE_BUGS.md` row.
 - **Amended by CH1j (2026-11-06):** `RSI_SI3_OVER_TAKER_GUARDIAN_STRIKE` FrameMove `32c30cb0` sets `m_fGuardianStrikeRenderTime` (`+0x9774` = 1.4 @32c30d4c) after `SetLayer( XL_EFFECT_2 )`, `m_bSetCustomRenderParam = true`, the colour and `SetAlphaObject( true )` (a 0.001 anim one-shot, then the common FrameMove); CH1j's `CommonFrameMove` restores layer `XL_UNIT_0`, the flag, colour (1,1,1,1) and the alpha object when it runs out. Write the setter side whole.
+
+## Amended by CH2c0 (2026-11-06)
+
+- `31fd9f40` is **`CX2GUUser::SetLeftHandScale( D3DXVECTOR3 vScale )`** (flag `SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE`, defined; base class, call it by name, never copy it).
+  It stores the vector in `m_vLeftHandScale` and scales `Bip01_L_Hand` by `m_vHandScale * vScale`. Megadrill Break `32c38710` @32c3873f passes ( 1, 1, 1 );
+  read `32c5ce40`'s two calls (@32c5d083, @32c5d225) for their vectors. June passes the vector by value (RET 0xc).
+- `ScaleHand` / `RestoreHand` now carry June's bodies (the big-hand buff keeps the left-hand scale; JUNE_BUGS 548).

@@ -176,7 +176,7 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2c0 | **ready** (CH2b review PASS 2026-11-06); `/x2-phase char-raven CH2c0` (added by CH0): June-only `CX2GUUser` left-hand bone scale setter `31fd9f40` (Megadrill Break) | Opus 5.5 / high, Opus review | CH2b review | `X2GUUser.*`, Always.h | `CH2c0.md` |
+| CH2c0 | **review ready** (done 2026-11-06): `CX2GUUser::SetLeftHandScale` + June's `ScaleHand` / `RestoreHand`, flag `_USER_LEFT_HAND_SCALE`; no play-test (no caller until CH2c); `/x2-phase char-raven CH2c0 review` | Opus 5.5 / high, Opus review | CH2b review | `X2GUUser.*`, Always.h | `CH2c0.md`, `CH2c0-review.md` |
 | CH2c | blocked (CH2c0 review): Over Taker (17) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c0 review | `X2GURaven.*` | `CH2c.md` |
 | CH2d | blocked (CH2c review): Weapon Taker (25) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2c review | `X2GURaven.*` | `CH2d.md` |
 | CH3a | blocked (CH2d review): Blade Master (106) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH3a.md` |

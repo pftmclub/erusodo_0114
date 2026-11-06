@@ -11845,3 +11845,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH2b re-defines it for its own lines ( one flash hit count, shockwave counter buff ).
 //#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-06
+// Description: June character port ( Raven ) Phase CH2c0 - June's CX2GUUser left-hand bone scale: SetLeftHandScale ( June 31fd9f40, Raven's
+//              Megadrill Break ) stores m_vLeftHandScale and applies it to Bip01_L_Hand times m_vHandScale; ScaleHand ( 31fde6d0 ) and
+//              RestoreHand ( 31fded80 ) take June's bodies, which multiply it in ( RestoreHand no longer calls SetUnitReForm, JUNE_BUGS 548 ).
+//              Revert: undefine the flag ( March's ScaleHand / RestoreHand come back; nothing calls SetLeftHandScale until CH2c ).
+#define SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
+//////////////////////////////////////////////////////////////////////////
