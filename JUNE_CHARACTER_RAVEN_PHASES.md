@@ -2126,6 +2126,7 @@ decompiles + listings of every address below (`charport_adis.py raven` for the u
 inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (OTHER = the X Crash rename in `_SKILL` code, the names under `JUNE_ENUM_NAMES`).
 `junediverge.py --check` (7 files): `RESULT: PASS`; new divergence row `CX2GURaven::InitPassiveSkillState` (ported). `enumscan.py --check X2Lib/X2GURaven.cpp`: `0 A/B row(s)`.
 `skillicons.py check 24400-24422`: 2 misses, 24417 / 24421 `DLG_SKILL_Passive_12` = JUNE_BUGS 535 (June's own sheet).
+**Range (commit `d76e78b9`):** `--range d76e78b9^..d76e78b9`, same 7 files: `files: 3 PASS, 0 PASS~, 1 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`; 0 deleted (in the flag's files); `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,079,744 B, dated 2026-11-07 05:38:05, md5 8e1b943c7bdb269dad5873a068ce9dc6, equal to X2/US_SERVICE/x2.exe (2026-11-07 05:37:58); built at main bb6f8d03 + 7 uncommitted code file(s).`
 `EXESTR OK: 3 of 3 found in X2_offline.exe, 26079744 B, dated 2026-11-07 05:38:05, md5 8e1b943c7bdb269dad5873a068ce9dc6` (wide: the `init`, `surely victory buff`, `x crash hit` lines); `EXESTR OK: 1 of 1` (`RSI_SHADOW_BACK_SLIDE_END_UPGRADE`).
 
