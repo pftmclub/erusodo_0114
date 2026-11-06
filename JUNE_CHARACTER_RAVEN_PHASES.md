@@ -2141,7 +2141,7 @@ Opus 5.5. **Verdict: passes, no code change; `_PASSIVE_DEBUG` retired.** Commit 
 of both callback sites, the AttackResult switch (`32012b50`, table `320142a4`) and both Spiritualized Fury reads.
 - **`32c57660` block by block.** Base `31fe19d0` first. Every `32890620` push is `( id, 1, 0, 1 )`; Behavior of Mercenary alone goes through `32890720( 24411, 1 )` with level `max( 1, ... )`. Resets come before
   each read, in June's order: `+0x9690` 1.0 / `+0x9650` / `+0x9688` / `+0x968c` 0; the `+0x8dbc` / `+0x8dc0` delegate cleared; `+0x95b8` / `+0x95c4` 0; `+0x9694` 0; `+0x96d0` 1.0 / `+0x9668` 0;
-  `+0x96d4` 1.0 / `+0x9738` = `3350f8c0` (float 0.25); `+0x9734` 0; `+0x966c` / `+0x9670` 0; `+0x9660` / `+0x9721` / `+0x9650` 0. SA ids against a compile probe (44 names = June's values):
+  `+0x96d4` 1.0 / `+0x9738` = `3350f8c0` (float 0.25); `+0x9734` 0; `+0x966c` / `+0x9670` 0; `+0x9660` / `+0x9721` / `+0x9650` 0. SA ids against a compile probe (15 SA, 18 skill ids, DT / GUT / RT = June's values; the six states are March's own enum, 171 / 262-266, bound by table name in the same order):
   24401 0x4d (1 -> DT_PHYSIC, 2 -> DT_MAGIC) / 0xf; 24402 5 on `+0x41d4`, power rate `32071720` on `+0x41d8`; 24404 0x10 on `+0x57f8` (`+0x5810` read), 0x38 on `+0x95b8`, 0xaa on `+0x95c4`;
   24406 0x67 - 1.0 + 5e-8 (`334355b0` / `3346ed68`), 0 when unlearned, untouched when the templet is missing; 24407 0x33; 24410 0x94 on cool `+0x95ac` and elapsed `+0x95a0`.
   **The swap holds:** 24411 writes `+0x96d0` (0x91 when `322cc1a0`, else 0x7d) and `+0x9668` (0x10); 24412 writes `+0x9738` = min( `+0x9738`, SA 0x7d x `33437830` (double 0.25) ) and `+0x96d4` (0x7c).
