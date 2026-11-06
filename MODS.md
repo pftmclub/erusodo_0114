@@ -6014,5 +6014,7 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `..._SKILL_DEBUG` re-defined, `[JU
 | Napalm Grenade ( 24213 ) | `DAMAGE_EFFECT_NAPALM_GRENADE_BULLET_1..3` | the same three effects ( = March ) |
 | Mental Crash ( 24214 ) | none ( no March state ) | the script's state table only |
 
+- **CH2d review ( 2026-11-06 ).** Enhanced Hellfire Gatling ( 24051 ) now also applies its templet's first buff factor, `BFI_JIN_SKILL_BUFF_MAXIMUM` ( 963 ), when the skill starts: June `32c53110` @32c53299 looks up the base skill with the upgrade swap and calls `SetBuffFactorToGameUnit( templet, 0 )` when the state skill is an upgrade. The base 24020 has no buff factor. March: no buff. Same flag; revert as above.
+
 - **Shared engine change.** `X2GUUser.cpp` `IsBlankSlotSkillState` ( the S3 helper that makes `StateChange` refuse a slot state with no callbacks ) also counts `StateStartFuture`; without it June's Barrage Attack slot state ( Init + StartFuture only ) was refused on every press.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the Weapon Taker ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.

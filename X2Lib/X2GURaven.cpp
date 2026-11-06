@@ -27322,6 +27322,16 @@ void CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_StateStart()
 	m_iRWTComboLoopCount = 0;
 	m_iRWTMaxComboLoopCount = _CONST_RAVEN_::MIN_HELLFIRE_GATLING_LOOP_COUNT;
 	m_iOverheatKeyPressTime = 0;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	/// June 32c53110 @32c53299: the upgraded skill also applies the base skill's first buff factor
+	const CX2SkillTree::SkillTemplet* pStateSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
+	if( NULL != pStateSkillTemplet && 0 != pStateSkillTemplet->m_iDeleteSkillIDByUpgrade )
+	{
+		const CX2SkillTree::SkillTemplet* pBaseSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RWT_HELLFIRE_GATLING, true );
+		if( NULL != pBaseSkillTemplet )
+			SetBuffFactorToGameUnit( pBaseSkillTemplet, 0 );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 }
 
 void CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_FrameMove()
