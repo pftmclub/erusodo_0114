@@ -824,6 +824,9 @@ class sites (`> 3`, `-4`, `aNormalSkillStateIDSlotB[idx - 4]`) read it that way.
   (Elsword: CH1p. The class side was June's already (CH1k: the lookup keeps the pressed index, `StateChangeBySkillSlot` / `MarkSkillSlotUsed` take 0-9,
   `m_iNowSpecialAttack = slot + 1`); March's own 4 + 4 decode and `CountUsedSkill` sit only in `#else`. `UT_ELSWORD` joins `CommonSpecialAttackEventProcess`'s
   June set under `_LIVE`. He has no `CurrentSkillKeyManager` or `SAKP_*` reader; June's 10 held-key functions (`+0x8b58`) go to CH2a / CH2c / CH3a / CH3b.)
+  (Raven: CH1p. Class side June's already (CH1k); `UT_RAVEN` joins the June set. June never reads `+0x8ac0` for him: his 12 `SAKP_*` held-key tests are
+  `IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() )` in June and were converted; Limit Crusher's `CurrentSkillKeyManager` moved to `m_kSkillSlotKey`;
+  Shadow Step's June-only `+0x8b58` use goes to CH2a. **A `SAKP_*` held-key test is not a slot + 1 decode in every class: check June's site first.**)
 
 ### 7ah. The 10-slot dialog's class statics and the key-config rows (from June skill system S6)
 

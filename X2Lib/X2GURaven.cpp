@@ -25428,6 +25428,10 @@ void CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_FrameMove()
 
 void CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c59f30 @32c59f56: the key of the slot the state's skill is equipped on
+	if( true == IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.oneA == true ||
 		m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.oneS == true ||
 		m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.oneD == true ||
@@ -25436,6 +25440,7 @@ void CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_EventProcess()
 		m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.oneW == true ||
 		m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.oneE == true ||
 		m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.oneR == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	{
 		if( _CanOverheat() )
 			++m_iOverheatKeyPressTime;
@@ -25529,6 +25534,10 @@ void CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_FrameMove()
 }
 void CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5a020 @32c5a046: the key of the slot the state's skill is equipped on
+	if( true == IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.oneA == true ||
 		m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.oneS == true ||
 		m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.oneD == true ||
@@ -25537,6 +25546,7 @@ void CX2GURaven::RSI_SA_RWT_REVOLVER_CANNON_LOOP_EventProcess()
 		m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.oneW == true ||
 		m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.oneE == true ||
 		m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.oneR == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	{
 		if( _CanOverheat() )
 		{
@@ -25649,6 +25659,10 @@ void CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_FrameMove()
 void CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_EventProcess()
 {
 #ifdef SERV_RAVEN_VETERAN_COMMANDER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5a1e0 @32c5a206: the key of the slot the state's skill is equipped on
+	if( true == IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.oneA == true ||
 		m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.oneS == true ||
 		m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.oneD == true ||
@@ -25657,6 +25671,7 @@ void CX2GURaven::RSI_SA_RWT_HARPOON_SPEAR_EventProcess()
 		m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.oneW == true ||
 		m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.oneE == true ||
 		m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.oneR == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	{
 		if( _CanOverheat() )
 			++m_iRVCComboLoopInputCount;
@@ -25781,6 +25796,10 @@ void CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_FrameMove()
 
 void CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5a310 @32c5a336: the key of the slot the state's skill is equipped on
+	if( true == IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.oneA == true ||
 		m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.oneS == true ||
 		m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.oneD == true ||
@@ -25789,6 +25808,7 @@ void CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_EventProcess()
 		m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.oneW == true ||
 		m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.oneE == true ||
 		m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.oneR == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	{
 		if( _CanOverheat() )
 			++m_iOverheatKeyPressTime;
@@ -25906,6 +25926,10 @@ void CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_LOOP_FrameMove()
 }
 void CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_LOOP_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5a400 @32c5a426: the key of the slot the state's skill is equipped on
+	if( true == IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.oneA == true ||
 		m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.oneS == true ||
 		m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.oneD == true ||
@@ -25914,6 +25938,7 @@ void CX2GURaven::RSI_SA_RWT_HELLFIRE_GATLING_LOOP_EventProcess()
 		m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.oneW == true ||
 		m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.oneE == true ||
 		m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.oneR == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	{
 		if( _CanOverheat() )
 		{
@@ -26006,6 +26031,10 @@ void CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_FrameMove()
 
 void CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5a5d0 @32c5a5f6: the key of the slot the state's skill is equipped on
+	if( true == IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.oneA == true ||
 		m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.oneS == true ||
 		m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.oneD == true ||
@@ -26014,6 +26043,7 @@ void CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_EventProcess()
 		m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.oneW == true ||
 		m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.oneE == true ||
 		m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.oneR == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	{
 		if( _CanOverheat() )
 			++m_iOverheatKeyPressTime;
@@ -26124,6 +26154,10 @@ void CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_FrameMove()
 }
 void CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5a6c0 @32c5a6e6: the key of the slot the state's skill is equipped on
+	if( true == IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.oneA == true ||
 		m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.oneS == true ||
 		m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.oneD == true ||
@@ -26132,6 +26166,7 @@ void CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_EventProcess()
 		m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.oneW == true ||
 		m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.oneE == true ||
 		m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.oneR == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	{
 		if( _CanOverheat() )
 		{
@@ -27570,6 +27605,10 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_FrameMove()
 
 void CX2GURaven::RVC_SI_SA_DEADLY_RAID_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c5bb40 @32c5bb69: the key of the slot the state's skill is equipped on
+	if( true == IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.oneA == true ||
 		m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.oneS == true ||
 		m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.oneD == true ||
@@ -27578,6 +27617,7 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_EventProcess()
 		m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.oneW == true ||
 		m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.oneE == true ||
 		m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.oneR == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	{
 		++m_iRVCComboLoopInputCount;		/// 스킬 키 입력 시 누적 입력 카운트 증가
 
@@ -27648,6 +27688,10 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_EventProcess()
 {
 	if( 0.21 > m_pXSkinAnim->GetNowAnimationTime() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+		// June 32c5be30 @32c5be73: the key of the slot the state's skill is equipped on
+		if( true == IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 		if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.oneA == true ||
 			m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.oneS == true ||
 			m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.oneD == true ||
@@ -27656,6 +27700,7 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_EventProcess()
 			m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.oneW == true ||
 			m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.oneE == true ||
 			m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.oneR == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 		{
 			++m_iRVCComboLoopInputCount;		/// 스킬 키 입력 시 누적 입력 카운트 증가
 
@@ -27740,6 +27785,10 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_EventProcess()
 {
 	if( 0.21 > m_pXSkinAnim->GetNowAnimationTime() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+		// June 32c5bf80 @32c5bfc3: the key of the slot the state's skill is equipped on
+		if( true == IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 		if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.oneA == true ||
 			m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.oneS == true ||
 			m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.oneD == true ||
@@ -27748,6 +27797,7 @@ void CX2GURaven::RVC_SI_SA_DEADLY_RAID_LOOP_OVERHEAT_EventProcess()
 			m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.oneW == true ||
 			m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.oneE == true ||
 			m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.oneR == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 		{
 			++m_iRVCComboLoopInputCount;		/// 스킬 키 입력 시 누적 입력 카운트 증가
 
@@ -28147,6 +28197,10 @@ void CX2GURaven::RVC_SI_SA_IGNITION_CROW_EventProcess()
 {
 	if( 2.01f > m_pXSkinAnimFuture->GetNowAnimationTime() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+		// June 32c5b0a0 @32c5b0e9: the key of the slot the state's skill is equipped on
+		if( true == IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 		if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.oneA == true ||
 			m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.oneS == true ||
 			m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.oneD == true ||
@@ -28155,6 +28209,7 @@ void CX2GURaven::RVC_SI_SA_IGNITION_CROW_EventProcess()
 			m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.oneW == true ||
 			m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.oneE == true ||
 			m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.oneR == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 		{
 			++m_iRVCComboLoopInputCount;		/// 스킬 키 입력 시 누적 입력 카운트 증가
 
@@ -30206,7 +30261,12 @@ void CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_Init()
 // 스킬 개편 2013, 레이븐 레크리스 피스트 리미트 크러셔, 김종훈
 void CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c27860: the held skill key follows the slot the skill was cast from
+	m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	m_sCurrentSkillKeyManager.InitCurrentSkillKeyManager( m_iNowSpecialAttack - 1 );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 	CommonStateStartFuture();
 }
@@ -30220,11 +30280,22 @@ void CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_StateStart()
 
 void CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c38f70 @32c38f7c
+	m_kSkillSlotKey.FollowSlotSwap();
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	m_sCurrentSkillKeyManager.CheckSkillSlotSwap();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 	/// 모션이 끝나거나, 일정 모션이 지난 이후로 스킬 키를 놓았다면
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// June 32c38f70 @32c38fb7
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true ||
+		0.45f <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true ||
 		0.45f <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == m_sCurrentSkillKeyManager.IsUnpressedCurrentSkillKey( m_InputData ) )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	{
 		StateChange( RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK );
 	}
@@ -30790,6 +30861,10 @@ void CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_EventProcess()
 {
 	if( 2.01f > m_pXSkinAnimFuture->GetNowAnimationTime() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+		// June 32c5b560 @32c5b5a9: the key of the slot the state's skill is equipped on
+		if( true == IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() ) )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 		if( m_eSpecialAttackKeyPressed == SAKP_A && m_InputData.oneA == true ||
 			m_eSpecialAttackKeyPressed == SAKP_S && m_InputData.oneS == true ||
 			m_eSpecialAttackKeyPressed == SAKP_D && m_InputData.oneD == true ||
@@ -30798,6 +30873,7 @@ void CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_EventProcess()
 			m_eSpecialAttackKeyPressed == SAKP_W && m_InputData.oneW == true ||
 			m_eSpecialAttackKeyPressed == SAKP_E && m_InputData.oneE == true ||
 			m_eSpecialAttackKeyPressed == SAKP_R && m_InputData.oneR == true )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 		{
 			++m_iRVCComboLoopInputCount;		/// 스킬 키 입력 시 누적 입력 카운트 증가
 

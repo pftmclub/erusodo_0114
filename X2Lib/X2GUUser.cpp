@@ -26678,6 +26678,10 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 	if( true == IsThereEffectiveBlackHoleDamageEffect() || true == m_bSpecialAttackEventProcessedAtThisFrame || true == IsCanNotIntput() )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	// stand-in: Lire, Ara, Elesis, Add not ported: they read March's pressed index ( B 4-7 ) and have no F / T slot
+	const bool bMarchSlotIndex = ( NULL != GetUnit() && CX2Unit::UT_EVE != GetUnit()->GetType() && CX2Unit::UT_ARME != GetUnit()->GetType() && CX2Unit::UT_CHUNG != GetUnit()->GetType() && CX2Unit::UT_ELSWORD != GetUnit()->GetType() && CX2Unit::UT_RAVEN != GetUnit()->GetType() );
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 	// stand-in: Lire, Raven, Ara, Elesis, Add not ported: they read March's pressed index ( B 4-7 ) and have no F / T slot
 	const bool bMarchSlotIndex = ( NULL != GetUnit() && CX2Unit::UT_EVE != GetUnit()->GetType() && CX2Unit::UT_ARME != GetUnit()->GetType() && CX2Unit::UT_CHUNG != GetUnit()->GetType() && CX2Unit::UT_ELSWORD != GetUnit()->GetType() );
@@ -26690,6 +26694,7 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 	const bool bMarchSlotIndex = ( NULL != GetUnit() && CX2Unit::UT_EVE != GetUnit()->GetType() && CX2Unit::UT_ARME != GetUnit()->GetType() );
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 	const bool abKeyA[5] = { m_InputData.oneA, m_InputData.oneS, m_InputData.oneD, m_InputData.oneC, m_InputData.oneSkill5 };
 	for( int i = 0; i < 5; ++i )

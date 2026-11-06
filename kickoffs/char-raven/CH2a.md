@@ -60,3 +60,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   have no case). It holds March's case until here. Write June's registration inside it under `_SKILL`, March's in `#else`: `RSI_SI1_MAXIMUM_CANNON` on
   both slots, Init `32c68a50` -> `32c260a0`, EventProcess `32c69700` -> `32c2dac0`; the hyper slot gets the same table and the EventProcess only (no
   FrameMove, no `_HYPER` table). The `_LIVE` id-switch `default:` already calls it.
+
+## Amended by CH1p (2026-11-06)
+
+- **Shadow Step's held key is June-only** (March reads no key there). `32c30db0` (`RBM_EMERGENCY_ESCAPE_StartFuture`) ends with `m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 )`
+  `@32c30e73`; `32c52550` (`RSI_SI_A_RF_SHADOW_STEP_EventProcess`) starts `m_kSkillSlotKey.FollowSlotSwap()` `@32c5255b` and gates the back slide on
+  `m_bEnableShadowBackSlide` + `m_kSkillSlotKey.IsKeyPressedOnce( m_InputData )` (`31fc8900`) `@32c525f4`. Port both calls with the whole bodies.

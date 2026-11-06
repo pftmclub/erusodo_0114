@@ -1278,6 +1278,51 @@ exit 0, 0 errors each; `cl /P` counts off -> on: `AdjustDamageDataBeforeDamageRe
 
 **Nothing to play-test.** CH1p kickoff checked. Next: `/x2-phase char-raven CH1p` (Opus 5.5 high).
 
+### CH1p - Done (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE` (insert-only, still `//#define`). One new `Always.h` guard: `_LIVE` needs `SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE`, because
+the new reader line keeps `UT_ELSWORD` (and through Elsword's own guard `UT_CHUNG`) in the June set; the `_LIVE` probe compiles, so it is defined at that line.
+
+**Method.** `cl /P` of `X2GURaven.cpp` / `X2GUUser.cpp` with `/DSERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`; every surviving reader of the pressed index, `m_eSpecialAttackKeyPressed`,
+`SAKP_*`, `CountUsedSkill`, `GetPressedSkillState`, `CurrentSkillKeyManager`, `m_kSkillSlotKey` listed. June side: `dispsweep.py 8ac0 8b58`, `charport_adis.py raven`.
+
+**7ag, the pressed-index space.**
+- **Already June's (CH1k / CH1n):** the `_LIVE` `SpecialAttackEventProcess` keeps the pressed index (`:7745-7983`): `m_iChosenSkillSlotIndex`, `StateChangeBySkillSlot`,
+  `MarkSkillSlotUsed` (0-9), `m_iNowSpecialAttack = slot + 1`, and the cooldown's `m_eSpecialAttackKeyPressed = slot + 1` (`:7918` = `32c43bf0 @32c43ed1`). CH0's sites
+  (decode `:5854-5871` now `:8268-8285`, `CountUsedSkill` now `:8194`, the `:8290` write) are March's body in `#else`; none is in the `_LIVE` `.i`.
+- **Fixed: the shared reader.** `CommonSpecialAttackEventProcess` (June `31fcadd0`) still handed Raven March's 4 + 4. `UT_RAVEN` joins the June set under `_LIVE`
+  (`X2GUUser.cpp`, Elsword's block kept as `#else`; stand-in comment lists Lire, Ara, Elesis, Add).
+- **Fixed: 12 held-key tests.** June's Raven never reads `+0x8ac0` (whole-`.text` sweep: readers only Chung `32bfeb80` and Aisha `32cd9af0`). Each March `SAKP_A..R`
+  test is, in June, `IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() )` (`31fce710`, future state data `+0x7cb0 -> +0xc`, input `+0x86da`); under `_LIVE`
+  a June slot + 1 would have made Q read as F and R never match. Converted under `_LIVE`, March in `#else`: Revolver Cannon `32c59f30` / LOOP `32c5a020`, Harpoon Spear
+  `32c5a1e0`, Hellfire Gatling `32c5a310` / LOOP `32c5a400`, Giga Prominence `32c5a5d0` / LOOP `32c5a6c0`, Deadly Raid `32c5bb40` / LOOP `32c5be30` / LOOP_OVERHEAT
+  `32c5bf80`, Ignition Crow `32c5b0a0`, Incineration `32c5b560` (call addresses in each one-line comment). Only the test changed; each body is its skill phase's.
+- **Fixed: Limit Crusher's key tracker** (the checklist's "every class port" rule). March's `CurrentSkillKeyManager` (4 + 4) was fed `m_iNowSpecialAttack - 1` (0-9 now).
+  June: StartFuture `32c27860` = `m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 )` + `CommonStateStartFuture` (whole body); EventProcess `32c38f70` `FollowSlotSwap` `@32c38f7c`,
+  `IsKeyReleased` `@32c38fb7` after the 0.45 time test (= March's shape). Three sites converted; the rest of `32c38f70` is CH3b's.
+- **No change:** `GetSkillSlotIndexUsed` (`:15994`, Magnum Blaster hyper End) reads the slot state id, and `RSI_SI3_MAGNUM_BLASTER*` is June-dead (`ch0_state_skill.tsv`).
+  Revolver Cannon HE / HE_LOOP (`:30645`, `:30752`) keep `SAKP_*`: their states are absent from June's exe and their skill `SI_SA_RWT_REVOLVER_CANNON_HIGH_EXPLOSIVE_SHELL`
+  (4017) is an old-system id June never equips. The `SAKP_` switch `:11229` (`RSI_SUPER_DASH_EventProcess`) is March's body, not in the `.i`.
+- **Routed:** Shadow Step (CH2a). June adds a held key March never reads: `32c30db0` (`RBM_EMERGENCY_ESCAPE_StartFuture`) ends `Set( m_iNowSpecialAttack - 1 )` `@32c30e73`;
+  `32c52550` (`RSI_SI_A_RF_SHADOW_STEP_EventProcess`) `FollowSlotSwap` `@32c5255b`, `IsKeyPressedOnce` (`31fc8900`) `@32c525f4` gating the back slide. CH2a kickoff amended;
+  CH2d / CH3b / CH3c / CH3c2 kickoffs note the converted tests. Checklist 7ag marked `(Raven: CH1p)`.
+
+**Hooks 7h / 7l / 7o / 7p / 7x** (CH0 rows, in the `_LIVE` preprocess): 7h `InitWaitStateChange( "RSI_WAIT_STATE_CHANGE" )` (CH1m); CH0 gave `32c2b360` to CH1d
+(`RSI_COMBO_ZZXX_EventProcess`, done). 7l `InitBoundingStates( "RSI_" )` (CH1m); the three bounding states come with the script (CH1b). 7o `SET_LIMIT_MAX_G_SPEED` (reader
+`X2GUUser.cpp:16520`; `RRF_DASH_JUMP_COMBO_XX` -5000), 7p `TIME_STOP_IMMUNE_STATE` (reader `:18152`; 7 rows in the script) and 7x `AT_COMMAND` (46 tags; user-layer gate
+`32045340 @320453a0` ported at `X2GUUser.cpp:45514`, stand-in `ELYSION_ATTACK_TYPE_STANDIN`) are script data: CH1 final brings them.
+**June-only keys:** none owned here (`ch0_keys.tsv`, CH0 amendment); §5 census rows stay as CH0 left them.
+
+**Checks.** Probes (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GURaven.cpp` 0 errors, 38 / 38 warnings off / on; `X2GUUser.cpp` 0 errors, 39 / 39; no `#error` fired. `cl /P` with
+`_LIVE`: `IsEquippedSkillKeyPressed` 12 in the class, `m_kSkillSlotKey` 3, `m_eSpecialAttackKeyPressed` = the writer + the two HE states; `bMarchSlotIndex` = the `UT_RAVEN` line.
+`flagcheck JUNE_CHAR_RAVEN_LIVE --worktree --files X2GURaven.cpp X2GUUser.cpp Always.h`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s),
+0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only for `define: NOT FOUND`
+(`//#define`). numstat 76 / 0, 5 / 0, 3 / 0. `junediverge.py --check` the 3: `RESULT: PASS`. `enumscan.py --check X2GURaven.cpp X2GUUser.cpp`: `0 A/B row(s) remain`.
+`DEPLOY OK: X2_offline.exe is 26,014,208 B, dated 2026-11-06 13:33:28, md5 78e348486d0420075a7eca4d81aa8aa2, equal to X2/US_SERVICE/x2.exe (2026-11-06 13:33:21); built at main e8ddedb1 + 3 uncommitted code file(s).`
+No `exestr` line: every site is under the undefined `_LIVE`. No funcmap or `JUNE_BUGS` row.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-raven CH1p review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.
