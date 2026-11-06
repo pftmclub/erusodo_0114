@@ -11831,6 +11831,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL ) && !defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL )
 #error SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL needs SERV_IRUHADEV_JUNE_CHAR_ELSWORD_SKILL ( CX2GUUser::PushBuffFactorWithMemoRate )
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE )
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ( CX2GUUser::GetSkillBuffTempletID )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -11839,5 +11842,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Raven ) Phase CH2a - temporary [JUNE_CHAR] RAVEN SKILL lines ( the equipped skill's slot and state, the Shadow Step cool time ) for CH2a's play-test;
 //              they sit inside JUNE_CHAR_RAVEN_SKILL code only.
 //              Revert: undefine the flag ( JUNE_CHAR_RAVEN_SKILL_DEBUG ).
-//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+//              CH2b re-defines it for its own lines ( one flash hit count, shockwave counter buff ).
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////

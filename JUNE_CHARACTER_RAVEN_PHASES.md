@@ -1590,6 +1590,37 @@ Opus 5.5. **Verdict: PASS, no code change.** Read from the `charport_adis.py rav
 
 **Gates.** flagcheck `_SKILL --with _SKILL_DEBUG --range 57959481^..57959481`: `2 PASS, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL`, 0 deleted, `RESULT: PASS`; worktree (`Always.h`): `1 DEFINE, 0 FAIL`, 1 deleted line (the retired `#define`), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 194`, `RESULT: PASS`. `enumscan.py --check` `.cpp` / `.h`: `0 A/B row(s) remain`. One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GURaven.cpp`, `X2GUUser.cpp` exit 0, 0 errors. Build: not awaited (debug retire only).
 
+### CH2b - Done (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `_SKILL_DEBUG` re-defined; `Always.h` now also `#error`s without `..._CHAR_EVE_PASSIVE`, for `GetSkillBuffTempletID`): the twelve Sword Taker ids run June's registrations. All 27 class-map rows are read from `charport_adis.py raven --phase CH2b` listings: **12 written** (11 inside March's function under the flag with March in `#else`, 1 new), **15 are June = March** (no code). `funcmap.tsv` rows `Char Raven CH2b` (28); `MODS.md` "Stage 7 Raven, CH2b" has the damage table; `JUNE_BUGS.md` 547.
+
+| June | `CX2GURaven::` | June differs from March |
+|---|---|---|
+| `32c263e0` `32c26770` `32c26cb0` | `RSI_SI1_SOUL_TAKER_BERSERKER_BLADE_Init`, `RSI_SA_RST_SHOCKWAVE_Init`, `SI_A_RBM_ONE_FLASH_Init` | June's preload lists (10 / 13 / 6 names) |
+| `32c264a0` | `RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_Init` (new) | 12 preloads; March had no Init |
+| `32c26820` | `RSI_SA_RST_SHOCKWAVE_StateEnd` | erases the buff of skill 24418 (`RNSI_P_RBM_COUNTER`, factor 0, learned only) = `3229ea50` ( `GetSkillBuffFactorPtr` vslot 0x238 + find by the factor's id + erase ); written as `GetSkillBuffTempletID` + `EraseBuffTempletFromGameUnit`; JUNE_BUGS 547 |
+| `32c33280` | `SI_A_RBM_ONE_FLASH_StateStart` | templet 24207 upgrade-swapped; level `GetSkillLevel( id, false, 0, true )` min 1; `SA_DAMAGE_TIME` ( 0x4e ) -> `ChangeDamageTimes` |
+| `32c5ccc0` `32c5cd80` | `RVC_SI_A_BLEEDING_SLICER_GROUND_StateStart`, `_AIR_StateStart` | templet 24208 swapped; `PushBuffFactorWithMemoRate` with the skill's memo rate |
+| `32c37dc0` `32c38030` | `..._GROUND_EventProcess`, `..._AIR_EventProcess` | dash / walk cancels need the foot on a line; the fly state's skill cancel keeps June's dangling `else if` |
+| `32c3aab0` | `RSI_A_ROT_ARMOR_BREAK_EventProcess` | no walk cancel; foot-gated dash cancel; any key after 0.66 s -> WAIT |
+| `32c30af0` | `RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_FrameMoveFuture` | thrust speed 1300 ( March 1000 ), `EventTimerOneshot( 0.7 )` without the event flag; the hyper state uses it too |
+| = March | Bleeding Slicer Init / Start / GROUND FrameMove / End / AIR FrameMove / FMF / End / EP, Armor Break Init, Berserker Blade EP, Hypersonic Stab EP, Shockwave Start / EP / FrameMove, One Flash EP | `funcmap.tsv` says which |
+
+**Registration.** Six new cases in the id switch ( base and upgrade ids, raw-id ): Shockwave ( both slots, five callbacks, the normal functions reused for hyper, so the hyper FrameMove is June's 0.01 s ), Berserker Blade ( Init + EP; hyper EP only; one table ), Hypersonic Stab ( Init + FMF + EP; hyper FMF + EP with its own table ), One Flash ( Init / Start / EP both ), Bleeding Slicer ( Init / Start / EP both + the GROUND / FLY states ), Armor Break ( Init + EP both ). Berserker Blade and Hypersonic Stab lose March's FrameMove ( June has none; the script owns particles and cut-in ). `X2SkillTree.h`: twelve `RNSI_*` names ( 24011 / 24012 / 24013 / 24030 / 24033 / 24046 / 24207 / 24209 / 24220 / 24232 / 24233 / 24418 ).
+
+**Findings.** Routed, not ported: `m_fEDTBleedingTime` is still read through March's `SI_A_RVC_BLEEDING_SLICER` in the unit init ( `X2GURaven.cpp` ~4060 ) and by nothing else ( CH4a, `ch0_passive_ids.tsv` row 51 ); the air-slicer test in `SpecialAttackEventProcess` ( ~8185 ) is CH4a's. Checklist rows: L50 marked `(Raven: CH2b)`; L116 / L117 / L178 / L714-733 / L844 covered by this phase's ids ( numerical data is S4's, the states are bound, the BFI push passes June's factor / level / skill id ).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RAVEN_SKILL --with JUNE_CHAR_RAVEN_SKILL_DEBUG --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `2 PASS, 0 PASS~, 1 DEFINE, 1 OTHER (X2SkillTree.h: JUNE_ENUM_NAMES), 0 FAIL, 0 ERROR`; `1 deleted line(s) (the //#define), 0 non-ASCII, 2 EOL-mismatched inserted line(s) (the empty One Flash Init sits between a CR and an LF line), 0 #else/#endif without the flag token`, `RESULT: PASS`.
+- `junediverge.py --check` the four files: `allow-listed: 9`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h`: `0 A/B row(s) remain`. `skillicons.py check` the 12 ids: `skills 12, misses 0`, `RESULT: PASS`. `luabind.py check RAVEN_FIGHTER`: 0 unbound. One-file probe `X2GURaven.cpp` (`/c /Zs /EHsc`): exit 0, 0 errors.
+- DEPLOY OK: X2_offline.exe is 26,048,512 B, dated 2026-11-06 17:00:02, md5 3170bfd7d87a2fc615f6255279e5ed1d, equal to X2/US_SERVICE/x2.exe (2026-11-06 16:59:55); built at main 39f6d5e7 + 4 uncommitted code file(s).
+- EXESTR OK: 4 of 4 found in X2_offline.exe, 26048512 B, md5 3170bfd7 ( wide: `[JUNE_CHAR] RAVEN SKILL one flash skill`, `[JUNE_CHAR] RAVEN SKILL shockwave end counter buff`, `RST_ShockWave_Pro01.Y`, `BerserkerBlade_Weapon.X` ).
+
+**Play-test hand-off.** Unit 73 `SwordTakerT` ( Sword Taker, class 16, lv 99 ). Save set up ( backup taken by `elsdb`, no schema change ): bank A = slot 0 Shockwave 24030, 1 Berserker Blade 24033, 2 Hypersonic Stab 24046, 3 Finishing Slash 24220; bank B = slot 5 Fatal Wound 24232, 6 Armor Crash 24233, 7 Seven Burst 24028, 8 Flame Sword 24218 ( slots 4 / 9 empty ). Dev console ( END key ): `/invin 0`, then `/stage 1`. Each skill twice, enemies in front ( the slot shows a cool time after the first cast, the MP bar drops ):
+1. **Bank A.** Shockwave: unit hovers, June's shockwave blades; Berserker Blade: June's mesh blades; Hypersonic Stab: dash thrust ( longer than March's ); Finishing Slash: several quick hits, then lands.
+2. **Bank B.** Fatal Wound: ground and air versions, bleed on hit; Armor Crash: key press after 0.66 s ends it; Seven Burst ( CH2a, never played ) and Flame Sword ( ground and air ).
+3. Log: `python tools/logs.py --grep "RAVEN SKILL"` ( `equip skill` for 24030 / 24033 / 24046 / 24220 / 24232 / 24233 / 24028 / 24218, `one flash skill ... hits`, `shockwave end counter buff 0` without the Blade Master passive ). Then say "check logs".
+
 ## Phase CH3 - Skills: second jobs (106, 107, 115), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.

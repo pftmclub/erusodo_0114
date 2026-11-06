@@ -8266,3 +8266,31 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c5d330	CX2GURaven::RSI_A_RWT_FLAME_SWORD_GROUND_StateStart	PORTED	Char Raven CH2a: inside under _SKILL; skill 24201 with the swap, the levelled buff factor [0] through PushBuffFactorWithMemoRate; March's in #else
 32c5d3f0	CX2GURaven::RSI_A_RWT_FLAME_SWORD_AIR_StateStart	PORTED	Char Raven CH2a: inside under _SKILL; m_fNowStatePowerRate x 1.2 ( checklist 7 l.256 ), then the same buff factor push; March's in #else
 32c641a0	CX2GURaven::SetMaximumCannonSkillFunc / SetEquippedSkillFuncBySkillSlotIndex	PORTED	Char Raven CH2a: Maximum Cannon ( 24000 / 24025 ) registers Init + EventProcess on both slots under _SKILL; the id switch gains Cannon Blade, Power Assault, Seven Burst, Shadow Step and Flame Sword ( base and upgrade ids ) with their GROUND / FLY states, ahead of the default
+32c263e0	CX2GURaven::RSI_SI1_SOUL_TAKER_BERSERKER_BLADE_Init	PORTED	Char Raven CH2b: inside under _SKILL; June's ten preloads (BerserkerBlade02.X ... WhitePoint.dds), March's five in #else
+32c264a0	CX2GURaven::RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_Init	PORTED	Char Raven CH2b: new under _SKILL (March had no Init); twelve preloads (ALS_SLICER_01 ... WhitePointSmall)
+32c26770	CX2GURaven::RSI_SA_RST_SHOCKWAVE_Init	PORTED	Char Raven CH2b: inside under _SKILL; thirteen preloads (RST_ShockWave_Pro01/02.Y ...); the FRONT state shares it
+32c26820	CX2GURaven::RSI_SA_RST_SHOCKWAVE_StateEnd	PORTED	Char Raven CH2b: inside under _SKILL; 3229ea50 = erase the buff of skill 24418 (RNSI_P_RBM_COUNTER) buff factor 0, learned only (GetSkillBuffTempletID + EraseBuffTempletFromGameUnit), then gravity on, CommonStateEnd
+32c26cb0	CX2GURaven::SI_A_RBM_ONE_FLASH_Init	PORTED	Char Raven CH2b: inside under _SKILL; six preloads (ALS_SLICER_01, RRF_Trace_Gray001, RST_OneFlashM01/02 ...), March's empty body in #else
+32c33280	CX2GURaven::SI_A_RBM_ONE_FLASH_StateStart	PORTED	Char Raven CH2b: inside under _SKILL; templet 24207 upgrade-swapped, level GetSkillLevel(id,false,0,true) min 1, SA_DAMAGE_TIME(0x4e) -> ChangeDamageTimes when > 0
+32c5ccc0	CX2GURaven::RVC_SI_A_BLEEDING_SLICER_GROUND_StateStart	PORTED	Char Raven CH2b: inside under _SKILL; templet 24208 swapped, PushBuffFactorWithMemoRate(m_DamageData, factor 0, level, id)
+32c5cd80	CX2GURaven::RVC_SI_A_BLEEDING_SLICER_AIR_StateStart	PORTED	Char Raven CH2b: inside under _SKILL; same as the ground state (no power-rate multiply)
+32c37dc0	CX2GURaven::RVC_SI_A_BLEEDING_SLICER_GROUND_EventProcess	PORTED	Char Raven CH2b: inside under _SKILL; dash / walk cancels need the foot on a line (RAVEN_GROUND_*), SKILL_CANCEL_AFTER
+32c38030	CX2GURaven::RVC_SI_A_BLEEDING_SLICER_AIR_EventProcess	PORTED	Char Raven CH2b: inside under _SKILL; landing only on foot, foot-gated dash / walk, SKILL_CANCEL_AFTER_FLY (dangling else-if as in June)
+32c3aab0	CX2GURaven::RSI_A_ROT_ARMOR_BREAK_EventProcess	PORTED	Char Raven CH2b: inside under _SKILL; no walk cancel, foot-gated dash cancel, any key after 0.66 s -> WAIT
+32c30af0	CX2GURaven::RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_FrameMoveFuture	PORTED	Char Raven CH2b: inside under _SKILL; thrust speed 1300 (March 1000), EventTimerOneshot(0.7) without the event flag; also the hyper state's
+32c27370	CX2GURaven::RVC_SI_A_BLEEDING_SLICER_Init	PORTED	Char Raven CH2b: June = March, no code: empty body
+32c27380	CX2GURaven::RVC_SI_A_BLEEDING_SLICER_StateStart	PORTED	Char Raven CH2b: June = March, no code: CommonStateStart
+32c27390	CX2GURaven::RVC_SI_A_BLEEDING_SLICER_GROUND_FrameMove	PORTED	Char Raven CH2b: June = March, no code: CommonFrameMove (March's commented code is dead)
+32c273a0	CX2GURaven::RVC_SI_A_BLEEDING_SLICER_GROUND_StateEnd	PORTED	Char Raven CH2b: June = March, no code: CommonStateEnd
+32c273b0	CX2GURaven::RVC_SI_A_BLEEDING_SLICER_AIR_FrameMove	PORTED	Char Raven CH2b: June = March, no code: CommonFrameMove
+32c27be0	CX2GURaven::RSI_A_ROT_ARMOR_BREAK_Init	PORTED	Char Raven CH2b: June = March, no code: Break_Impact01.dds
+32c30a30	CX2GURaven::RSI_SI1_SOUL_TAKER_BERSERKER_BLADE_EventProcess	PORTED	Char Raven CH2b: June = March, no code: end -> WAIT / JUMP_DOWN
+32c30b50	CX2GURaven::RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB_EventProcess	PORTED	Char Raven CH2b: June = March, no code: end -> WAIT / JUMP_DOWN; June registers it for the hyper state too
+32c31030	CX2GURaven::RSI_SA_RST_SHOCKWAVE_StateStart	PORTED	Char Raven CH2b: June = March, no code: gravity off, speed 0, passive speed -1
+32c31090	CX2GURaven::RSI_SA_RST_SHOCKWAVE_EventProcess	PORTED	Char Raven CH2b: June = March, no code: end -> WAIT / JUMP_DOWN
+32c33310	CX2GURaven::SI_A_RBM_ONE_FLASH_EventProcess	PORTED	Char Raven CH2b: June = March, no code: end (y -45 in the air), any key after 1.0 s -> SpecialAttackEventProcess
+32c37d90	CX2GURaven::RVC_SI_A_BLEEDING_SLICER_EventProcess	PORTED	Char Raven CH2b: June = March, no code: FLY when off the line, else GROUND
+32c37fc0	CX2GURaven::RVC_SI_A_BLEEDING_SLICER_AIR_FrameMoveFuture	PORTED	Char Raven CH2b: June = March, no code: walk speed / fall at animation end
+32c3e8a0	CX2GURaven::RSI_SA_RST_SHOCKWAVE_FrameMove	PORTED	Char Raven CH2b: June = March, no code: = March's normal FrameMove (0.01 s, cut-in 1); June gives the hyper state this one too, so the hyper case registers the normal functions
+32c4df80	CX2GURaven::RVC_SI_A_BLEEDING_SLICER_AIR_StateEnd	PORTED	Char Raven CH2b: June = March, no code: clear the sub attack set, destroy the mesh handle, CommonStateEnd
+3229ea50 (CH2b)	CX2GUUser skill-buff erase helper (thiscall on the unit)	PORTED	Char Raven CH2b: GetSkillBuffFactorPtr(skill, index, learned) (vslot 0x238) -> find the buff templet id (+0x28) in the unit's buff vector -> EraseBuffTempletFromGameUnitByIterator; written inline as GetSkillBuffTempletID + EraseBuffTempletFromGameUnit in Shockwave's end

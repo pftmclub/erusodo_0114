@@ -2401,6 +2401,22 @@ public:
 		RNSI_A_RF_FLAME_SWORD_UPGRADE                         = 24218,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-06 // char-raven CH2b
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RST_SHOCKWAVE                                 = 24011,	// June's Enum.lua
+		RNSI_SA_RST_BERSERKER_BLADE                           = 24012,
+		RNSI_SA_RST_HYPER_SONIC_STAB                          = 24013,
+		RNSI_SA_RST_SHOCKWAVE_UPGRADE                         = 24030,
+		RNSI_SA_RST_BERSERKER_BLADE_UPGRADE                   = 24033,
+		RNSI_SA_RST_HYPER_SONIC_STAB_UPGRADE                  = 24046,
+		RNSI_A_RST_ONE_FLASH                                  = 24207,
+		RNSI_A_RST_ARMOR_BREAK                                = 24209,
+		RNSI_A_RST_ONE_FLASH_UPGRADE                          = 24220,
+		RNSI_A_RST_BLEEDING_SLICER_UPGRADE                    = 24232,
+		RNSI_A_RST_ARMOR_BREAK_UPGRADE                        = 24233,
+		RNSI_P_RBM_COUNTER                                    = 24418,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-06 // char-raven CH1k
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY            = 24412,	// June's Enum.lua

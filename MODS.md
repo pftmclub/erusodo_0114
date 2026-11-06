@@ -5961,3 +5961,21 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (`Always.h`; `#error` without `..._RA
 ## Base-class portraits: June's art (data only, 2026-11-06)
 
 No flag, no exe change. The top-left gauge portrait (`CIT_MyGage`, pieces `ELSWORD_STATE` / `RENA_STATE` / `RAVEN_STATE` / `EVE_STATE` / `ARA_FACE` / `EL_FACE`) already pointed at June's rows (June's 870-row image table, ctor `31ef0ef0`, equals March's for every class March has), but the sheets still held March's art: June repainted the base-class heads, the later jobs and the transcendence rows were already June's. `kom.py stage-june` replaced `DLG_UI_Common_Texture16 / 23 / 25 / 45 / 68 / 74_NEW.tga` in data057 (the six `.TET` files are identical to June's; Aisha's Texture21 and Chung's Texture61 already matched). The same sheets feed the party bar, 160 / 50 / 20 pictures and the gray ones, so those follow June too. Texture25 also changes the Raven second-job pieces to June's. `PACK OK data057`; the March copies are in `kom_backup_stage_june/20261106_162238`. To revert: copy that backup over the six files and repack, or copy `kom_backup_tools/data057.kom.*` over the live kom.
+
+## Stage 7 Raven, CH2b: Sword Taker (class 16) skills (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `..._SKILL_DEBUG` re-defined, `[JUNE_CHAR] RAVEN SKILL` lines; `Always.h` now also `#error`s without `..._CHAR_EVE_PASSIVE`). Plan `JUNE_CHARACTER_RAVEN_PHASES.md` "CH2b - Done". Client only, no data change.
+- **What changes in game.** The twelve Sword Taker ids ( Shockwave 24011 / 24030, Berserker Blade 24012 / 24033, Hypersonic Stab 24013 / 24046, Finishing Slash 24207 / 24220, Fatal Wound 24208 / 24232, Armor Crash 24209 / 24233 ) get cases in the id switch of `SetEquippedSkillFuncBySkillSlotIndex` ( before this each fell into the Maximum Cannon default ). `X2SkillTree.h` gains twelve `RNSI_*` names ( `..._ENUM_NAMES` ), `RNSI_P_RBM_COUNTER` = 24418 among them.
+- **Differs from March.** Berserker Blade and Hypersonic Stab lose their FrameMove ( cut-in, particles and hit boxes are the script's ) and share one function set between the normal and hyper states; Shockwave's hyper state uses the normal state's FrameMove ( 0.01 s ); Shockwave's end erases the Counter Wave buff ( JUNE_BUGS 547 ); Hypersonic Stab thrusts at speed 1300 ( March 1000 ); Finishing Slash reads its hit count from the upgrade-swapped templet; Fatal Wound pushes its bleed factor with the skill's memo rate; Armor Crash has no walk cancel; Fatal Wound's and Armor Crash's dash / walk cancels need the foot on a line; every state's preload list is June's.
+- **Damage ( level 1, x0.01 numerical data; March = the shipped state table ).**
+
+| Skill | March damage | June damage |
+|---|---|---|
+| Shockwave - Divider ( 24011 ) | `RSI_SA_RST_SHOCKWAVE` state table | 2.77 |
+| Berserker Blade ( 24012 ) | `RSI_SI1_SOUL_TAKER_BERSERKER_BLADE` state table | 7.31 ( hit and down ) |
+| Hypersonic Stab ( 24013 ) | `RSI_SI3_SOUL_TAKER_HYPERSONIC_STAB` state table | 29.91 ( thrust ), 6.48 ( hyper-state sub hit ) |
+| Finishing Slash ( 24207 ) | `SI_A_RBM_ONE_FLASH` state table | 1.93 per hit ( hit count = SA_DAMAGE_TIME ) |
+| Fatal Wound ( 24208 ) | `RVC_SI_A_BLEEDING_SLICER_*` state tables | 6.23 ( ground table numerical-only ), bleed 9 s |
+| Armor Crash ( 24209 ) | `RSI_A_ROT_ARMOR_BREAK` state table | 7.26 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the Sword Taker ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.
