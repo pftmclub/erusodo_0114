@@ -11846,7 +11846,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH2c re-defines it for its own lines ( Valkyrie's Javelin effect set, Guardian Strike layer, Megadrill second hit and next damage data ).
 //              CH2d re-defines it for its own lines ( barrage stand / air effect, hellfire loop effect set, mental break end ).
 //              CH3a re-defines it for its own lines ( cut tendon / bloody accel buff factor, wolf fang MP refund, giga drive Counter cool time, shockwave front start ).
-//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

@@ -6039,3 +6039,21 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `..._SKILL_DEBUG` re-defined, `[JU
 | Cut Tendon ( 24211 ), Pointed Stiletto ( 24222 ) | the script's state tables ( numerical-only `DAMAGE_DATA` ) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the 16 ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.
+
+## Stage 7 Raven, CH3b: Reckless Fist (class 107) skills (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( + `..._SKILL_DEBUG` re-defined, `[JUNE_CHAR] RAVEN SKILL` lines ). Plan `JUNE_CHARACTER_RAVEN_PHASES.md` "CH3b - Done". Client only, no data change ( the June assets are CH0b's; `skillicons.py` two Enchant Hand picture misses are June's own gap, JUNE_BUGS 552 ).
+- **What changes in game.** The sixteen Reckless Fist ids ( Nuclear 24007 / 24042, Arc Enemy 24008 / 24043, Wild Charge 24009 / 24044, X Crash 24010 / 24045, Maximum Dive 24037, Power Bomb 24038, Devastating Strike 24057, Limit Crusher 24205 / 24230, Enchant Hand 24206 / 24231, Spread 24224 ) get cases in the id switch of `SetEquippedSkillFuncBySkillSlotIndex` with June's state callbacks; Maximum Dive, Power Bomb, Spread, Devastating Strike and Enchant Hand are new states ( empty or preload Init + EventProcess ); the 13 missing `RNSI_*` names are registered in `X2SkillTree.h`, the upgrade revenge state of Limit Crusher in the state enum.
+- **Differs from March.** Arc Enemy: one effect for every spear; the upgrade starts each step 0.3 s earlier and throws a fifth spear. X Crash: no effects drawn in FrameMove; with the upgrade it gives back 30 % of its MP cost at 0.79 s. Wild Charge: the charge is a timer ( the skill's effective time ) instead of lost HP, no 30 % damage reduction while charging, the full-charge effect / sound at that time, the dash's attack effect set carries the power rate x the skill's attack ratio when charged and the unit is black ( effect layer ) for 0.8 s; the ready effect set is deleted when the skill state ends. Limit Crusher: an upgraded skill let go before the animation ends goes to the upgrade's revenge state; walk and dash cancels need a foot on a line. Nuclear: one state for normal and hyper ( March's hyper variant is not used ). Init preload lists are June's.
+- **Damage ( level 1 ).** June's numbers are the numerical override's ( x0.01 of the `NUMERICAL_DATA` row, `june2017_re/c1a_numerical_blocks.tsv` ); March's shipped tables for the old ids were not re-read here.
+
+| Skill | June damage ( physic, level 1 ) |
+|---|---|
+| Nuclear ( 24007 ) `DamageEffect_ROT_NUCLEAR_NEW_Missile` / `_EXPLOSION` | 5.64 / 1.92 |
+| Spread ( 24224 ) `DamageEffect_RRF_A_SPREAD_Damage` | 11.59 |
+| Power Bomb ( 24038 ) `DamageEffect_RRF_SA_POWER_BOMB` | 39.2 |
+| Devastating Strike ( 24057 ) `DamageEffect_SA_RRF_Devastating_Strike_1Fst_Attack` | 85.05 |
+| Maximum Dive ( 24037 ) `DamageEffect_Sa_Maximum_Dive` | 8.22 |
+| Arc Enemy, X Crash, Wild Charge, Limit Crusher, Enchant Hand | the script's state tables ( not in the numerical override table ) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the 16 ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.

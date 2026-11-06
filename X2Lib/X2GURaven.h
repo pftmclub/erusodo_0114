@@ -277,6 +277,7 @@ class CX2GURaven : public CX2GUUser
 			RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_UPGRADE,	/// June script id 315 ( Incineration upgrade )
 			RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_UPGRADE,	/// June script id 316
 			RVC_SI_SA_IGNITION_CROW_INCINERATION_OVERHEAT_END_UPGRADE,	/// June script id 317 ( not registered by name; the slot after 316 )
+			RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK_UPGRADE,	/// June script id 318 ( the upgrade's revenge attack; CH3b )
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 
 		};
@@ -335,9 +336,18 @@ class CX2GURaven : public CX2GUUser
 			bool* m_pChargeKey;							/// 와일드 차지의 키가 눌려있는지 알아내기 위안 용도 (메모리를 생성하는 것이 아니므로 해제하지 않는다.)
 			CX2EffectSet::Handle m_hHandleWildCharingEffectSet;	/// 충전중을 표시하는 이펙트 핸들
 			
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+			float m_fChargeTime;						/// seconds since the charge started ( June +4 )
+			float m_fFullChargeTime;					/// the skill's effective time, the charge is full from here ( June +8 )
+			float m_fFullChargePowerRate;				/// the skill's attack ratio at full charge ( June +0xc )
+			CX2EffectSet::Handle m_hHandleAttackEffectSet;	/// the dash's attack effect set ( June +0x20 )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 			WildChargeData() : m_fHpEachWildChargeFrame( 0.f ), m_fTimeAfterFullCharging( 0.f ),
 				m_fPowerRateWildCharging( 0.f ), m_eSlotID_WildCharge( RSI_BASE ), m_bSlotB( false ),
 				m_pChargeKey( NULL ), m_hHandleWildCharingEffectSet( INVALID_EFFECTSET_HANDLE )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+				, m_fChargeTime( 0.f ), m_fFullChargeTime( 0.f ), m_fFullChargePowerRate( 0.f ), m_hHandleAttackEffectSet( INVALID_EFFECTSET_HANDLE )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
                 , m_uRefCount(0)
 #endif  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
@@ -373,6 +383,19 @@ class CX2GURaven : public CX2GUUser
 			CX2EffectSet::Handle GetHandleWildCharingEffectSet() const { return m_hHandleWildCharingEffectSet; }
 			CX2EffectSet::Handle& GetHandleReferenceWildCharingEffectSet() { return m_hHandleWildCharingEffectSet; }
 			void SetHandleWildCharingEffectSet(CX2EffectSet::Handle hHandle_) { m_hHandleWildCharingEffectSet = hHandle_; }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+			float GetChargeTime() const { return m_fChargeTime; }
+			void SetChargeTime(float fChargeTime_) { m_fChargeTime = fChargeTime_; }
+
+			float GetFullChargeTime() const { return m_fFullChargeTime; }
+			void SetFullChargeTime(float fFullChargeTime_) { m_fFullChargeTime = fFullChargeTime_; }
+
+			float GetFullChargePowerRate() const { return m_fFullChargePowerRate; }
+			void SetFullChargePowerRate(float fFullChargePowerRate_) { m_fFullChargePowerRate = fFullChargePowerRate_; }
+
+			CX2EffectSet::Handle& GetHandleReferenceAttackEffectSet() { return m_hHandleAttackEffectSet; }
+			void SetHandleAttackEffectSet(CX2EffectSet::Handle hHandle_) { m_hHandleAttackEffectSet = hHandle_; }
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
             void    AddRef()    {   ++m_uRefCount; }
@@ -1840,6 +1863,22 @@ class CX2GURaven : public CX2GUUser
 		void RSI_A_RBM_POINTED_STILETTO_EventProcess();
 		void RSI_SA_RBM_SHAPT_CHARGE_Init();
 		void RSI_SA_RBM_SHAPT_CHARGE_EventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		void SI_SA_RRF_X_CRASH_StateStart();
+		void RSI_SA_RRF_WILD_CHARGE_DASH_StateEnd();
+		void RSI_A_RRF_ENCHANT_HAND_Init();
+		void RSI_A_RRF_ENCHANT_HAND_EventProcess();
+		void RSI_SA_RRF_MAXIMUM_DIVE_Init();
+		void RSI_SA_RRF_MAXIMUM_DIVE_EventProcess();
+		void RSI_SA_RRF_POWER_BOMB_Init();
+		void RSI_SA_RRF_POWER_BOMB_EventProcess();
+		void RSI_A_RRF_SPREAD_Init();
+		void RSI_A_RRF_SPREAD_EventProcess();
+		void RSI_SA_RRF_DEVASTATING_STRIKE_Init();
+		void RSI_SA_RRF_DEVASTATING_STRIKE_StateEnd();
+		void RSI_SA_RRF_DEVASTATING_STRIKE_EventProcess();
+		bool m_bXCrashMpRefunded;	/// June +0x978c: set false at the start, never set true
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 		/// RSI_SA_RST_SHOCKWAVE_FRONT 기가 드라이브 - 폭

@@ -2462,6 +2462,23 @@ public:
 		RNSI_A_RBM_CUT_TENDON_UPGRADE                         = 24235,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-06 // char-raven CH3b
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RFF_NUCLEAR                                   = 24007,	// June's Enum.lua
+		RNSI_SA_RFF_ARC_ENEMY                                 = 24008,
+		RNSI_SA_RRF_X_CRASH                                   = 24010,
+		RNSI_SA_RRF_MAXIMUM_DIVE                              = 24037,
+		RNSI_SA_RRF_POWER_BOMB                                = 24038,
+		RNSI_SA_RFF_NUCLEAR_UPGRADE                           = 24042,
+		RNSI_SA_RFF_ARC_ENEMY_UPGRADE                         = 24043,
+		RNSI_SA_RRF_WILD_CHARGE_UPGRADE                       = 24044,
+		RNSI_SA_RRF_X_CRASH_UPGRADE                           = 24045,
+		RNSI_SA_RRF_DEVASTATING_STRIKE                        = 24057,
+		RNSI_A_RRF_SPREAD                                     = 24224,
+		RNSI_A_RRF_LIMIT_CRUSHER_UPGRADE                      = 24230,
+		RNSI_A_RRF_ENCHANT_HAND_UPGRADE                       = 24231,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-06 // char-raven CH1k
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY            = 24412,	// June's Enum.lua

@@ -8393,3 +8393,43 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c42010	CX2GURaven::RSI_SA_RBM_GIGA_DRIVE_FrameMove	PORTED	Char Raven CH3a: inside under _SKILL; ShowActiveSkillCutInAndLight( Dummy2_Lhand, 0.04, 2 ); at 1.1 s templet 24015 ( swap ) buff factor 0, and with the Counter passive ( 24418 ) learned m_fEmergencyEscapeElapsedTime = m_fEmergencyEscapeCoolTime - 1
 32c49930	CX2GURaven::RSI_A_RST_BLOODY_ACCEL_FrameMove	PORTED	Char Raven CH3a: inside under _SKILL; at 1.0 s templet 24014 ( swap ) buff factor 0 if not NULL ( no memo 19, no particle creation, JUNE_BUGS 550 ); then the m_hSeqBloodyAccel update block ( TRACE_END0, y + 30, Dummy1_Rhand rotation x + 90 )
 32c5c4a0	CX2GURaven::RSI_A_RST_CUT_TENDON_StateStart	PORTED	Char Raven CH3a: inside under _SKILL; CommonStateStart; templet 24211 ( swap ) with more than one buff factor and a unit: level = max( 1, GetSkillLevel( id, 0, 0, 1 ) ), factor 0 pushed with the memo rate ( the memo 11 test is the always-false stub )
+32c26570	CX2GURaven::RSI_SI2_OVER_TAKER_ARC_ENEMY_Init	PORTED	Char Raven CH3b: = March: Raven_Overtaker_SP2_FlyingImpact.tga, Raven_OT_SP2_FlyingImpact_Effect.X, Raven_OverTaker_SP2a_FlyingImpact_Start_01-04.X
+32c26a00	CX2GURaven::RSI_A_ROT_NUCLEAR_Init	PORTED	Char Raven CH3b: = March: the twelve SI_SA_ROT_NUCLEAR_Effect_* meshes ( Mushroom_Head twice )
+32c26c50	CX2GURaven::SI_SA_RRF_X_CRASH_Init	PORTED	Char Raven CH3b: inside under _SKILL; Blur_16.dds, RRF_Trace_Gray001.dds, RRF_XCrash_FireDummy.x, RRF_XCrash_ScrachDummy.x
+32c26c90	CX2GURaven::SI_SA_RRF_X_CRASH_StateStart	PORTED	Char Raven CH3b: new under _SKILL: the refund-done flag false, then CommonStateStart ( vslot 0x7c4 tail jump )
+32c26e20	CX2GURaven::RSI_SA_RRF_WILD_CHARGE_READY_Init	PORTED	Char Raven CH3b: inside under _SKILL; nine preloads ( Blur_16, ALS_SLICER_01, ColorBallFire, DummyAttackBox, FireImpactG01.Y / G04.Y, RGA_AeroStrafe_F01.Y, WhitePointSmall, aisha_SA_SCREWDRIVER_circle.X )
+32c277e0	CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_Init	PORTED	Char Raven CH3b: inside under _SKILL; nine preloads ( Blur_16, ColorBallFire, DummyAttackBox, FireImpactG04.Y, LD_Slicer_trace_01, Land_Dimolisher_M01 / M03 / M05, RGA_AeroStrafe_F01.Y )
+32c27860	CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_StateStartFuture	PORTED	Char Raven CH3b: = March under _LIVE ( CH1p: the held skill key set from the slot )
+32c27890	CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_StateStart	PORTED	Char Raven CH3b: = March: charging flag true ( +0x8b60 ), CommonStateStart
+32c278b0	CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_StateEnd	PORTED	Char Raven CH3b: = March: charging flag false, CommonStateEnd
+32c278d0	CX2GURaven::RSI_A_RRF_ENCHANT_HAND_Init	PORTED	Char Raven CH3b: new under _SKILL: DummyAttackBox, EL_FIRE_06, EMK_Fire001, SCA_CRIMSON_BREAK_P01.Y, VERITABLE_PANDEMONIUM_T02, WhitePoint
+32c27c20	CX2GURaven::RSI_SA_RRF_MAXIMUM_DIVE_Init	PORTED	Char Raven CH3b: new under _SKILL: empty
+32c27c30	CX2GURaven::RSI_SA_RRF_POWER_BOMB_Init	PORTED	Char Raven CH3b: new under _SKILL: empty
+32c27c70	CX2GURaven::RSI_A_RRF_SPREAD_Init	PORTED	Char Raven CH3b: new under _SKILL: empty
+32c28140	CX2GURaven::RSI_SA_RRF_DEVASTATING_STRIKE_Init	PORTED	Char Raven CH3b: new under _SKILL: empty
+32c30c70	CX2GURaven::RSI_SI2_OVER_TAKER_ARC_ENEMY_EventProcess	PORTED	Char Raven CH3b: = March: animation end -> JUMP_DOWN / WAIT ( the upgrade shares it )
+32c315c0	CX2GURaven::RSI_A_ROT_NUCLEAR_EventProcess	PORTED	Char Raven CH3b: = March: animation end -> JUMP_DOWN / WAIT, any key from 5.33 s -> WAIT; the hyper state uses it too
+32c331a0	CX2GURaven::SI_SA_RRF_X_CRASH_FrameMove	PORTED	Char Raven CH3b: inside under _SKILL: no effects drawn; 0.79 s ( the future animation ) with the upgrade learned UpNowMpWithText( MP cost x 0.3 ), the done flag is never set ( JUNE_BUGS 551 )
+32c33230	CX2GURaven::SI_SA_RRF_X_CRASH_EventProcess	PORTED	Char Raven CH3b: = March: animation end -> JUMP_DOWN ( y - 45 ) / WAIT
+32c33830	CX2GURaven::RSI_SA_RRF_WILD_CHARGE_READY_StateStart	PORTED	Char Raven CH3b: inside under _SKILL: CommonStateStart, then the charge timer 0 only ( March: three setters )
+32c33850	CX2GURaven::RSI_SA_RRF_WILD_CHARGE_READY_StateStartFuture	PORTED	Char Raven CH3b: = March: the held key pointer from the slot state ( default pureA, no ASSERT )
+32c33930	CX2GURaven::RSI_SA_RRF_WILD_CHARGE_READY_EventProcess	PORTED	Char Raven CH3b: = March: animation end -> the CHARGING state
+32c33960	CX2GURaven::RSI_SA_RRF_WILD_CHARGING_EventProcess	PORTED	Char Raven CH3b: inside under _SKILL: dash when the key is let go or charge time >= full-charge time ( March: 3.0 s after full )
+32c339a0	CX2GURaven::RSI_SA_RRF_WILD_CHARGE_DASH_StateEnd	PORTED	Char Raven CH3b: new under _SKILL: CommonStateEnd, then the render param back to normal ( layer XL_UNIT_0, colour white, not an alpha object )
+32c33a10	CX2GURaven::RSI_SA_RRF_WILD_CHARGE_DASH_EventProcess	PORTED	Char Raven CH3b: = March: animation end -> JUMP_DOWN ( y - 45 ) / WAIT
+32c38f70	CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_CHARGE_EventProcess	PORTED	Char Raven CH3b: inside under _SKILL: an upgraded skill let go before the animation ends -> the upgrade revenge state; walk and dash cancels on a line, then the skill cancel
+32c391f0	CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_REVENGE_ATTACK_EventProcess	PORTED	Char Raven CH3b: inside under _SKILL: walk and dash cancels on a line ( the upgrade revenge state shares it )
+32c393f0	CX2GURaven::RSI_A_RRF_LIMIT_CRUSHER_AVOID_ATTACK_EventProcess	PORTED	Char Raven CH3b: inside under _SKILL: walk and dash cancels on a line
+32c395f0	CX2GURaven::RSI_A_RRF_ENCHANT_HAND_EventProcess	PORTED	Char Raven CH3b: new under _SKILL: animation end -> JUMP_DOWN / WAIT
+32c3b0a0	CX2GURaven::RSI_SA_RRF_MAXIMUM_DIVE_EventProcess	PORTED	Char Raven CH3b: new under _SKILL: = Deadly Blow ( useful value 0 air end, then the cancels on a line )
+32c3b3e0	CX2GURaven::RSI_SA_RRF_POWER_BOMB_EventProcess	PORTED	Char Raven CH3b: new under _SKILL: = Deadly Blow
+32c3c050	CX2GURaven::RSI_A_RRF_SPREAD_EventProcess	PORTED	Char Raven CH3b: new under _SKILL: = Pointed Stiletto
+32c3c8e0	CX2GURaven::RSI_SA_RRF_DEVASTATING_STRIKE_StateEnd	PORTED	Char Raven CH3b: new under _SKILL: m_fNowSlashTraceTipWide = 4.0 ( +0x41dc, named by its 4.0 default )
+32c3c8f0	CX2GURaven::RSI_SA_RRF_DEVASTATING_STRIKE_EventProcess	PORTED	Char Raven CH3b: new under _SKILL: animation end -> JUMP_DOWN / WAIT
+32c3e8d0	CX2GURaven::RSI_A_ROT_NUCLEAR_FrameMove	PORTED	Char Raven CH3b: = March: Dummy2_Lhand cut-in, 2.5 s UpDownCrashCamera( 40, 1.6 ); the hyper state uses it too
+32c4a2a0	CX2GURaven::RSI_SA_RRF_WILD_CHARGE_READY_FrameMove	PORTED	Char Raven CH3b: inside under _SKILL: 0.3 s EffectSet_SA_RRF_WildCharge_Ready, handle kept and deleted at skill-state end ( DCES_SKILL_STATE_END )
+32c4a490	CX2GURaven::RSI_SA_RRF_WILD_CHARGING_FrameMove	PORTED	Char Raven CH3b: inside under _SKILL: charge timer += elapsed; EventTimerOneshot( full-charge time ) -> EffectSet_WILD_CHARGE_MAX + Raven_WildCharge_ChargeFull.ogg
+32c4a670	CX2GURaven::RSI_SA_RRF_WILD_CHARGING_StateEnd	PORTED	Char Raven CH3b: inside under _SKILL: CommonStateEnd, stop the charge effect set; no damage reduction to take back
+32c4a6c0	CX2GURaven::RSI_SA_RRF_WILD_CHARGE_DASH_FrameMove	PORTED	Char Raven CH3b: inside under _SKILL: 0.01 s EffectSet_SA_RRF_WildCharge_Attack ( power rate x full-charge rate when charged ) + black unit on XL_EFFECT_2, 0.35 s stop it, 0.8 s the unit back
+32c560e0	CX2GURaven::RSI_SI2_OVER_TAKER_ARC_ENEMY_FrameMove	PORTED	Char Raven CH3b: inside under _SKILL: upgrade ( templet upgrade-delete id ) = steps 0.3 s earlier + a fifth spear ( -66.6, 318, 21; z -79 ); one effect RAVEN_OVER_TAKER_ARC_ENEMY_MEMO_HYPER for every spear; no m_TimerFlyingImpact.restart
+32c641a0	CX2GURaven::SetEquippedSkillFuncBySkillSlotIndex ( CH3b cases )	PORTED	Char Raven CH3b: 12 case groups for the 16 ids ( Nuclear, Arc Enemy x2 tables, X Crash, Wild Charge + its CHARGING / DASH states and the data object with the skill templet's effective time / attack ratio, Maximum Dive, Power Bomb, Devastating Strike, Limit Crusher + three revenge / avoid states, Enchant Hand x2 tables, Spread )
