@@ -1574,6 +1574,8 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `_SKILL_DEBUG`, `Always.h`; `#erro
 2. **S Shadow Step.** Dashes forward, ends in a dash / jump; Z / X during it do nothing (needs the passive, CH4a); it shows no cool time (JUNE_BUGS 545).
 3. Log: `python tools/logs.py --grep "RAVEN SKILL"` and `[JUNE_SKILL]` `NUM use` ( x0.01 at level 1: Max Cannon 2.63, Cannon Blade 4.15, Power Assault 4.88, Seven Burst 6.43, Flame Sword 0.81 ). Then say "check logs".
 
+**Play-test (2026-11-06, run 16:10-16:12 on md5 d9a2b381): user "all passed"** for unit 72 ( A Maximum Cannon 24025, S Shadow Step 24217, D Cannon Blade 24026, C Power Assault 24027 ): cool time, MP, second-cast refusal, Power Assault's black flash and Shadow Step's plain dash as handed off. Logs: four `RAVEN SKILL equip` lines (slots 0-3, bank A, states 49 / 51 / 53 / 55), ~16 Raven skill cut-ins, `RAVEN_SP_CANONBLADE` / `RAVEN_COMBOZ4AFIRE` sounds; `KEM_ERROR` 0, `Motion Error` 0; new lines only optional `.XET` probes (`RAVEN_SI_A_RF_SHADOW_STEP_MESH01`, `MOTION_RAVEN_RAGEMODE_NASOD`) and `result : 47` sounds. No `NUM use` lines: the engine's NUMERICAL_DEBUG is retired, so the review checks damage another way. **Not yet played:** Seven Burst (24028) and Flame Sword (24218) ( the review's hand-off, or "swap" ).
+
 ## Phase CH3 - Skills: second jobs (106, 107, 115), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.
