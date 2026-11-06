@@ -2042,7 +2042,12 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (the base setter; `_SKILL_DEBUG` re-
 - EXESTR OK: 4 of 4 found (wide): `RAVEN SKILL invisibility`, `B_MASTER`, `V_COMMANDER`, `R_FIST`, md5 87f18ea6.
 
 **Play-test set-up (save, backed up as `pre_raven_ch3d`).** Units 78 `BladeMasterT` (106) 24601 Extreme Blade, 76 `RecklessFistT` (107) 24600 Infernal Arms, 77 `VetCommanderT` (115)
-24602 Burning Buster, each transcended, the hyper active in A-5 (slot 4) and Sharp Charge 24056 / Devastating Strike 24057 / Ifrit Flame 24058 in B-5 (slot 9); upgrade ids not learned.
+24602 Burning Buster, each transcended, the hyper active in A-5 (slot 4) and Sharp Charge 24056 / Devastating Strike 24057 / 
+**Logs ( 2026-11-07, run 04:38-04:41, after deploy md5 87f18ea6 ).** `[JUNE_TRANSCEND] IMAGE` for 106 / 107 / 115: type 9 `list_TR_B_MASTER / R_FIST / V_COMMANDER`, type 2 Texture99 `TR_*_LARGE`,
+type 7 Texture97 `TR_*_STATE`; `UNIT 76 / 77 / 78 transcendence 1 ( room )`; `equip skill 24601 / 24600 / 24602 slot 4 bank A` and `24056 / 24057 / 24058 slot 4 bank B`; Extreme Blade cast twice
+( `Extrem_Blade_Start / Middle / Finish`, `invisibility 1 alpha 1.00` then `invisibility 0 alpha 1.00` each time ); Sharp Charge x2, Devastating Strike x1, `RRF_Reckless_Fiste_NEW` ( Infernal Arms ),
+Burning Buster ( `RVC_Flame_Buster` ) x2, Ifrit Flame x2; the awakenings play `HQ_Cutin_RBM / RRF / RVC_Transcendence.gfx` with the TR wake-up FX. `Motion Error` 0, `KEM_ERROR` 0, `EXCEPTION` 0;
+baseline only ( 5 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, unbound `AddGroupChainQuest` ). Not exercised: the level-70 guide popup ( CH6 walks the transition ). **User's visual verdict owed.**
 
 ## Phase CH4 - Passives and class mechanics
 
