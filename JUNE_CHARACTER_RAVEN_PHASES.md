@@ -1486,6 +1486,42 @@ plus `.gfx`, CH5's), the quest event scene `Quest_N_RAVEN_End`, three texture na
 inside a costume mesh; `ATTRIBUTE_HAND_WHITE.TGA`, where data002 has the `.dds`), and `JUNE_FX MP_CRASH RVC_C_dashJumpX_bullet_M01` traces. Nothing
 broke in play; no new routing. `AddGroupChainQuest` unbound x1 is pre-CH1.
 
+### CH1 - Review (2026-11-06)
+
+Opus 5.5. **Verdict: passes.** One source change: `_RAGE_DEBUG` retired (`Always.h:11803`, `//#define`); the four `RAVEN RAGE` lines go dark, `RAVEN DATA`
+stays (`X2OfflineLog.h` is included under `_LIVE`).
+- **Deploy unit:** data036 `RAVEN_FIGHTER.lua` 210,847 B sha1 `cd55974d...` header `1B 4B 4C 81` = `june_adopt_20261106_143049.tsv:4`; no `.src.lua` sidecar.
+  `stage-june --dry-run ch1_held_motions.tsv`: `1 staged (0 new, 0 replaced, 1 identical)` (`Motion_Raven_OT.x`). `kom.py status data036 data033`: both in sync,
+  `+0 / -0 / ~0` vs live (data036's `[stale .src.lua: compile]` is older non-Raven sidecars). `luabind.py check RAVEN_FIGHTER`: 0 unbound, `RESULT: PASS`.
+- **State counts, exact for all 7 units:** C++ registrations on the class path + 9 `USI_EVENT_*` (`InitEventStates` via `InitStateCommonRandom`, `X2GURaven.cpp:898`)
+  + 20 slot states (`SetEquippedSkillFuncBySkillSlotIndex` `:4222`, normal / hyper x A / B x 5) + 1 key 0 (`GetStateDataIterator( 0 )`, `X2GUUser.cpp:1451`) + learned-skill
+  sub-states (`SetEquippedSkillLevel` `_LIVE`, `:5876`, `m_StateList[ id ]` inserts; the save's base ids reach it through the upgrade swap, 24217 -> 24200 ...):
+  4: 99+9+7+20+1 = 136; 16: 116+9+9+20+1 = 155; 17: 110+9+8+20+1 = 148; 25: 111+9+14+20+1 = 155; 106: 116+9+13+20+1 = 159; 107: 115+9+10+20+1 = 155;
+  115: 117+9+27+20+1 = 174. The tsv has 11 more rows per class than C++: June's Common ids 93-96 (riding) / 123-129 (phoenix, dance), `ch1m_regcheck.py`'s
+  `LEFT` list. As Elsword's: the count follows the unit's skills, not its class.
+- **START / WIN / LOSE:** `list size 0` 0, `re-bind skipped` for `RSI_` 0.
+- **Nasod core** (second run 15:25-15:26, unit 49, user "all test passed"): `parry: rage 80.0, ball level 4` (100 clamped, -20), `parry: rage 60.8, ball level 3`
+  (60.8 is not < 60), `parry: rage 0.0, ball level 0` (41.1 < 60 -> 0, 2 < 3 -> 0), specialization B 0.00 so the cost is always paid; `ball level` = rage / 20
+  (23.6 -> 1, 82.9 -> 4, 100 -> 5); `hit gain` before the clamp; the orb ball at ( 93, 56 ) = ( 74, 60 ) scaled. All four lines as CH1q's review read June.
+- **Z re-attack (CH1d routing):** June's Z-Z-Z (`32c29fd0`) stores only `m_bReAttackZ1Right`; `m_fReAttackZ1Time` stays 0 under `_LIVE` (March's 0.2 s set is
+  in the `#else`, `:11752`), so the Wait / Walk Z gate (`:8564` and three more) never blocks. User run: passed (a Z right after Z-Z-Z restarts the combo).
+- **ErrorLog** (first run, against `ErrorLog_pre_CH1_raven` / `_pre_CH0b_raven`): `KEM_ERROR` 0 / 0 / 0, `Motion Error` 0 / 0 / 0, `[LUA_SRC]` 7 / 7 / 7,
+  `lua error` 3 / 3 / 3; 167 new groups = asset probes (Ruben village `.XET`s, Raven `_SORTED` costume meshes), Raven sounds `result 47`, the cut-in `.gfx` (CH5),
+  `Quest_N_RAVEN_End`, `JUNE_FX MP_CRASH` traces, one item texture (`13Gang_Protect.tga`). Second run: `KEM_ERROR` 0, `Motion Error` 0, `[LUA_SRC]` 7. Nothing to route.
+- **Ghidra spot-checks:** `RSI_PARRYING` Start `32c4a9f0` = port (CommonStateStart, rand % 2 `GuardSmallFront`, `+0x25e8 = 0x101`, time, two bools / floats 0,
+  `DoParrying`). DamageReact's parry gate (`320472c8`-`320473e2`) = `X2GUUser.cpp:10251-10270` term for term (Raven, not RT 7 / 0xa, not a ground hit, hold, grab,
+  riding vslot 0x200, `32070eb0`, `32c3e030` or `+0x97a0`, hyper time `31e4f890` > 0, balls `+0x97b0` > 0 or `+0x97a1`, super armor vslot 0x264, attacker front, foot).
+- **Checklist / bugs:** 8 `(Raven: CH1, ...)` marks at l.16, 120, 423, 427, 509, 548, 592, 674; l.759 reads `(Raven: CH0b / CH1, ...)`, the ninth. `JUNE_BUGS.md` 543 / 544
+  present. `charport_keys` / `charport_scan` = CH0's numbers (Done note).
+- **`SERV_RAVEN_VETERAN_COMMANDER` guard:** `Always.h` keeps only a comment (`:11706`); X2Lib probe after `StdAfx.h` prints `VC DEFINED` (exit 0); `#undef` + the guard
+  text -> C1189; real `X2GURaven.cpp` `/Zs` exit 0.
+
+Hygiene: `flagcheck.py JUNE_CHAR_RAVEN_LIVE --range 6f7c2673^..6f7c2673`: `1 PASS, 1 OTHER (Always.h), 0 FAIL`, `RESULT: PASS`; `_RAGE`: `0 PASS, 2 OTHER, 0 FAIL`,
+`RESULT: PASS`; 0 deleted / non-ASCII / EOL / encoding. `_RAGE_DEBUG --worktree --files KTDXLIB/Always.h`: `1 DEFINE`, 1 deleted line (the define, now `//#define`),
+`RESULT: FAIL` only for that. `junediverge.py --check-all`: `allow-listed: 194`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: `0 A/B row(s)`.
+Build: started after the define change, not awaited (debug-retire rule, user 2026-11-03).
+CH2a and CH5 are ready; their kickoffs still match (CH2a carries the two-casts / `ReservedSkillStart` check).
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

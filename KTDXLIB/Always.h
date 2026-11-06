@@ -11800,5 +11800,5 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Raven ) Phase CH1q - temporary [JUNE_CHAR] RAVEN RAGE lines ( hit gain, parry, ball level, the three-orb ball )
 //              for CH1's play-test; they sit inside JUNE_CHAR_RAVEN_RAGE code only.
 //              Revert: undefine the flag ( JUNE_CHAR_RAVEN_RAGE_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
 //////////////////////////////////////////////////////////////////////////
