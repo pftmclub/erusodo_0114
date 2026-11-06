@@ -176,12 +176,12 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH3a | built 2026-11-06 (Blade Master 106 skills, 16 ids, 8 new functions); **play-test owed** (units 78 `BladeMasterT` / 79 `BladeMasterU`), then `/x2-phase char-raven CH3a review` (Opus 5.5 high); not beside CH4a | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH3a.md` |
-| CH3b | blocked (CH3a review): Reckless Fist (107) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GURaven.*` | `CH3b.md` |
+| CH3a | review PASS 2026-11-06, no code change, `_SKILL_DEBUG` retired; logs passed; **user's visual verdict owed** (motions, effects, cool time, MP) | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH3a.md` |
+| CH3b | ready: Reckless Fist (107) skills; not beside CH4a | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GURaven.*` | `CH3b.md` |
 | CH3c | blocked (CH3b review): Veteran Commander (115) skills but Ignition Crow / Deadly Raid | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GURaven.*` | `CH3c.md` |
 | CH3c2 | blocked (CH3c review; split by CH0): Ignition Crow Napalm / Incineration + Deadly Raid with their overheat states (45 fns) | Sonnet 5.5 / high, Opus review, user play-test | CH3c review | `X2GURaven.*` | `CH3c2.md` |
 | CH3d | blocked (CH3c2 review): hyper actives + transcendence rows, re-awakening 24419, skill icons PASS | Opus 5.5 / high, Opus review, user play-test | CH3c2 review | `X2GURaven.*`, `X2GUUser.*`, `X2Offline*` | `CH3d.md` |
-| CH4a | ready after or instead of CH3a (one `X2GURaven.*` phase at a time): passives `32c57660`, Burning Nasod Hand, 7am delegates, 0x73c / 0x748, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH4a.md` |
+| CH4a | ready, after or instead of CH3b (one `X2GURaven.*` phase at a time): passives `32c57660`, Burning Nasod Hand, 7am delegates, 0x73c / 0x748, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH4a.md` |
 | CH4b | blocked (CH4a review): June-only `SetDamageExceptionProcess` `32c5c080`, uncarved overrides | Opus 5.5 / high, Opus review, user play-test | CH4a review | `X2GURaven.*`, `X2GUUser.*` | `CH4b.md` |
 | CH4c | blocked (CH4b, CH3c2 reviews): Veteran Commander overheat (`ch0_overheat.tsv`), `MemoConditionRaven`, left-arm readers | Opus 5.5 / high, Opus review, user play-test | CH4b review, CH3c2 review | `X2GURaven.*`, `X2Game.cpp`, `X2GameUnit.*` | `CH4c.md` |
 | CH6 | blocked (CH3d, CH4c reviews; CH5 review PASS): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4a-c, CH5 reviews | docs, save | `CH6.md` |
