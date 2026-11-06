@@ -1423,6 +1423,9 @@ int CX2OfflineServer::TranscendCheck( const KOfflineUnitRow& kRow ) const
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND
 	if( CX2Unit::UC_ELSWORD_LORD_KNIGHT != kRow.m_iUnitClass && CX2Unit::UC_ELSWORD_RUNE_SLAYER != kRow.m_iUnitClass && CX2Unit::UC_ELSWORD_INFINITY_SWORD != kRow.m_iUnitClass )
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND
+	if( CX2Unit::UC_RAVEN_BLADE_MASTER != kRow.m_iUnitClass && CX2Unit::UC_RAVEN_RECKLESS_FIST != kRow.m_iUnitClass && CX2Unit::UC_RAVEN_VETERAN_COMMANDER != kRow.m_iUnitClass )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND
 	if( CX2Unit::UC_ARME_ELEMENTAL_MASTER != kRow.m_iUnitClass && CX2Unit::UC_ARME_VOID_PRINCESS != kRow.m_iUnitClass && CX2Unit::UC_ARME_DIMENSION_WITCH != kRow.m_iUnitClass
 		&& CX2Unit::UC_EVE_CODE_NEMESIS != kRow.m_iUnitClass && CX2Unit::UC_EVE_CODE_EMPRESS != kRow.m_iUnitClass && CX2Unit::UC_EVE_BATTLE_SERAPH != kRow.m_iUnitClass )
 		return s_iErrTranscendCannot;

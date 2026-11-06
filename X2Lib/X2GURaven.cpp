@@ -34896,6 +34896,9 @@ void CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH_EventProcess()
 
 	CommonEventProcess();
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+/// June 3200a590: CX2GUUser::SetInvisibility replaces this
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 void CX2GURaven::SetInvisibility(bool bVal_)
 {
 	m_bInvisibility					= bVal_;
@@ -34958,6 +34961,7 @@ void CX2GURaven::SetInvisibility(bool bVal_)
 	}
 }
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 #pragma region SI_HA_RVC_BURNING_BUSTER
 void CX2GURaven::RSI_HA_RVC_BURNING_BUSTER_Init()
 {

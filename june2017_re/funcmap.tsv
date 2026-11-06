@@ -8513,3 +8513,17 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c62800	CX2GURaven::RVC_SI_SA_DEADLY_RAID_FINISH_OVERHEAT_FrameMove	PORTED	Char Raven CH3c2: inside under _SKILL: one-argument _BurnOverheatHP ( March passed 0.2 )
 32c62c30	CX2GURaven::RVC_SI_SA_IGNITION_CROW_FIRE_OVERHEAT_FrameMove	PORTED	Char Raven CH3c2: = March: same body ( shared by the upgrade states )
 32c634f0	CX2GURaven::RVC_SI_SA_IGNITION_CROW_INCINERATION_FIRE_OVERHEAT_FrameMove	PORTED	Char Raven CH3c2: = March: same body ( shared by the upgrade states )
+32c27c90	CX2GURaven::RSI_HA_RRF_INFERNAL_ARM_Init	PORTED	Char Raven CH3d: = March: same 20 preloads, same order and loaders
+32c27d90	CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_READY_Init	PORTED	Char Raven CH3d: = March: same 15 preloads, same order and loaders
+32c27e50	CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_Init	PORTED	Char Raven CH3d: = March: same 14 preloads, same order and loaders
+32c27f10	CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH_Init	PORTED	Char Raven CH3d: = March: same 16 preloads, same order and loaders
+32c27fe0	CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH_StartFuture	PORTED	Char Raven CH3d: = March: future y = pos y - 350, CommonStateStartFuture
+32c28040	CX2GURaven::RSI_HA_RVC_BURNING_BUSTER_Init	PORTED	Char Raven CH3d: = March: same 14 preloads, same order and loaders
+32c3c670	CX2GURaven::RSI_HA_RRF_INFERNAL_ARM_EventProcess	PORTED	Char Raven CH3d: = March: anim end -> JUMP_DOWN off the ground ( +0x7e1c ) else WAIT; CommonEventProcess
+32c3c6b0	CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_READY_EventProcess	PORTED	Char Raven CH3d: = March: anim end -> 0x123 RSI_HA_RBM_EXTREM_BLADE_ATTACK; CommonEventProcess
+32c3c6e0	CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_EventProcess	PORTED	Char Raven CH3d: = March: m_fExtremBladeDelay ( +0x9768 ) > 1 -> 0x124 _ATTACK_FINISH; CommonEventProcess
+32c3c730	CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_FINISH_EventProcess	PORTED	Char Raven CH3d: = March: anim end -> JUMP_DOWN with future y - 45 ( LINE_RADIUS 1.5 ) off the ground, else WAIT
+32c42e10	CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_StateStart	PORTED	Char Raven CH3d: = March: m_fExtremBladeDelay = 0, CommonStateStart
+32c42eb0	CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_StateEnd	PORTED	Char Raven CH3d: = March but the setter: CX2GUUser::SetInvisibility( false ) 3200a590, TransformScale( buff scale 322753a0 ), delay 0, CommonStateEnd
+32c4f0a0	CX2GURaven::RSI_HA_RBM_EXTREM_BLADE_ATTACK_FrameMove	PORTED	Char Raven CH3d: = March but the setter: delay += elapsed; 0.01 one-shot -> CX2GUUser::SetInvisibility( true ), scale 0.01, EffectSet_SA_RBM_Extrem_Blade_Middle, future y + 350; CommonFrameMove
+3200a590	CX2GUUser::SetInvisibility( bool ) (X2GUUser.cpp)	PORTED	Char Raven CH3d: June-only base home of March CX2GURaven::SetInvisibility: +0x3e58 / +0x3e59; alpha +0xc44 restored from / saved to +0x8e98; +0xcb4 bAlphaTestEnable and +0xc74 bAlphaBlend = b; +0x8e9c = 1; skin anim layer 1; no SetAlphaObject; equip particles ( skip: full hyper Ara EP_AC_LEG ), enchant vslot 0x394, gage alpha, 4 boost handles

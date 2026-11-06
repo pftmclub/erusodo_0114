@@ -1264,6 +1264,10 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 	m_vHandScale = D3DXVECTOR3( 1.f, 1.f, 1.f );	// June ctor 3203e850 @320430bd-32043103
 	m_vLeftHandScale = D3DXVECTOR3( 1.f, 1.f, 1.f );
 #endif SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	m_fAlphaBeforeInvisibility = 1.f;	/// June ctor 3203e850 @32040e5c
+	m_fInvisibilityAlpha = 1.f;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 #ifdef SERV_ADD_TITLE_CONDITION
 	m_ucDieReason = KEGS_USER_UNIT_DIE_REQ::UUDR_UNKNOWN;
@@ -38167,6 +38171,52 @@ void CX2GUUser::SetLeftHandScale( D3DXVECTOR3 vScale )
 	}
 }
 #endif SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+/// June 3200a590: March's CX2GURaven::SetInvisibility in the base; keeps the alpha across the hide, sets alpha test, no SetAlphaObject
+void CX2GUUser::SetInvisibility( bool bInvisibility_ )
+{
+	m_bInvisibility			= bInvisibility_;
+	m_bAbsoluteInvisibility	= bInvisibility_;
+
+	if ( false == bInvisibility_ )
+		m_RenderParam.color.a = m_fAlphaBeforeInvisibility;
+	m_fAlphaBeforeInvisibility = m_RenderParam.color.a;
+	m_RenderParam.bAlphaTestEnable = bInvisibility_;
+	m_RenderParam.bAlphaBlend = bInvisibility_;
+	m_fInvisibilityAlpha = 1.f;
+	m_pXSkinAnim->SetLayer( 1 );
+
+	BOOST_TEST_FOREACH( CX2EqipPtr, pEquip, m_ViewEqipList )
+	{
+		if ( pEquip == NULL )
+			continue;
+		/// June @3200a677: an awakened Ara's leg accessory keeps its particles
+		if ( true == IsFullHyperMode() && CX2Unit::UT_ARA == GetUnitType() && CX2Unit::EP_AC_LEG == pEquip->GetEqipPos() )
+			continue;
+		pEquip->SetShowAttachedParticle( !m_bInvisibility );
+	}
+
+	SetShowEnchantWeaponParticle( !m_bInvisibility );
+	if ( false == IsMyUnit() && false == IsNullGageUI() )
+		m_pGageUI->SetAlpha( true == m_bInvisibility ? 0.f : 255.f );
+
+	if ( GetRemainHyperModeTime() > 0.f )
+	{
+		CKTDGParticleSystem::CParticleEventSequenceHandle ahHyperBoost[] = { m_hHyperBoostRFoot, m_hHyperBoostLFoot, m_hHyperBoostRArm, m_hHyperBoostLArm };
+		for ( int i = 0; i < ARRAY_SIZE( ahHyperBoost ); ++i )
+		{
+			if ( INVALID_PARTICLE_SEQUENCE_HANDLE == ahHyperBoost[i] )
+				continue;
+			CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMinorParticle()->GetInstanceSequence( ahHyperBoost[i] );
+			if ( NULL != pSeq )
+				pSeq->SetShowObject( !m_bInvisibility );
+		}
+	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN SKILL invisibility %d alpha %.2f", bInvisibility_ ? 1 : 0, m_RenderParam.color.a );
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 #ifdef ELSWORD_SECOND_CLASS_CHANGE
 void CX2GUUser::SetUnitReForm()
 {

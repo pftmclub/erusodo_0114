@@ -3020,6 +3020,11 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 	case CX2Unit::UC_ELSWORD_RUNE_SLAYER:	pwszPrefix = L"R_SLAYER";	break;
 	case CX2Unit::UC_ELSWORD_INFINITY_SWORD:	pwszPrefix = L"I_SWORD";	break;
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND
+	case CX2Unit::UC_RAVEN_BLADE_MASTER:	pwszPrefix = L"B_MASTER";	break;
+	case CX2Unit::UC_RAVEN_RECKLESS_FIST:	pwszPrefix = L"R_FIST";	break;
+	case CX2Unit::UC_RAVEN_VETERAN_COMMANDER:	pwszPrefix = L"V_COMMANDER";	break;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	default:	return true;
 	}
@@ -3036,8 +3041,15 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 	case CIT_160by160Gray:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
 		/// June 33376520 / 3337b76b ( Eve ) and the same rows for Chung: the large TR pieces are in Texture99
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND
+		/// June @333762c0 ( TR_B_MASTER_LARGE ) and the R_FIST / V_COMMANDER rows: Raven's large TR pieces are in Texture99 too
+		if( CX2Unit::UC_EVE_CODE_NEMESIS == eUnitClass || CX2Unit::UC_EVE_CODE_EMPRESS == eUnitClass || CX2Unit::UC_EVE_BATTLE_SERAPH == eUnitClass
+			|| CX2Unit::UC_CHUNG_IRON_PALADIN == eUnitClass || CX2Unit::UC_CHUNG_DEADLY_CHASER == eUnitClass || CX2Unit::UC_CHUNG_TACTICAL_TROOPER == eUnitClass
+			|| CX2Unit::UC_RAVEN_BLADE_MASTER == eUnitClass || CX2Unit::UC_RAVEN_RECKLESS_FIST == eUnitClass || CX2Unit::UC_RAVEN_VETERAN_COMMANDER == eUnitClass )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND
 		if( CX2Unit::UC_EVE_CODE_NEMESIS == eUnitClass || CX2Unit::UC_EVE_CODE_EMPRESS == eUnitClass || CX2Unit::UC_EVE_BATTLE_SERAPH == eUnitClass
 			|| CX2Unit::UC_CHUNG_IRON_PALADIN == eUnitClass || CX2Unit::UC_CHUNG_DEADLY_CHASER == eUnitClass || CX2Unit::UC_CHUNG_TACTICAL_TROOPER == eUnitClass )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND
 #else SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
 		if( CX2Unit::UC_EVE_CODE_NEMESIS == eUnitClass || CX2Unit::UC_EVE_CODE_EMPRESS == eUnitClass || CX2Unit::UC_EVE_BATTLE_SERAPH == eUnitClass )
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND

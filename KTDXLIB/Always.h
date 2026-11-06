@@ -11848,7 +11848,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              CH3a re-defines it for its own lines ( cut tendon / bloody accel buff factor, wolf fang MP refund, giga drive Counter cool time, shockwave front start ).
 //              CH3c re-defines it for its own lines ( giga prominence finish loops and key presses, ground impact skill level and scale ).
 //              CH3c2 re-defines it for its own lines ( ignition crow / incineration end state, deadly raid finish loop and input counts ).
-//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
+//              CH3d re-defines it for its own lines ( the hyper actives' equip line, SetInvisibility on / off ). CH3d's review retires it.
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL_DEBUG
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -11866,4 +11867,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: the broadcast box on the bottom menu bar ( right of the EXP / stamina gauges ) always shows "Elsword Offline Jun17 by IruhaDev"
 //              Revert: undefine the flag.
 #define SERV_IRUHADEV_BOTTOM_BAR_CREDIT
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-07
+// Description: char-raven CH3d - Blade Master ( 106 ), Reckless Fist ( 107 ) and Veteran Commander ( 115 ) join the transcendence allow-list ( TranscendCheck ) and the
+//              transcended class pictures ( T6c rows TR_B_MASTER / TR_R_FIST / TR_V_COMMANDER: 160by160 and gray in Texture99, 50by50, 20by20, gauge _STATE, party, unit slot ).
+//              Log [JUNE_TRANSCEND] IMAGE. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND ) || !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND needs SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE, SERV_IRUHADEV_JUNE_CHAR_ELSWORD_TRANSCEND and SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND ( the allow-list chain and the Texture99 rows it extends )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND
 //////////////////////////////////////////////////////////////////////////

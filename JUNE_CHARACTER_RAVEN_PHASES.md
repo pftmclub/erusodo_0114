@@ -2004,6 +2004,46 @@ Opus 5.5 high. **Verdict: PASS, no code change;** `_SKILL_DEBUG` retired ( `//#d
 
 **Play-test:** none owed ( CH3c2 passed; this review changes no behaviour ). CH3d kickoff checked.
 
+### CH3d - Done (2026-11-07)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (the base setter; `_SKILL_DEBUG` re-defined) and new `SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND` (needs `_RAVEN_LIVE`, `_ELSWORD_TRANSCEND`,
+`_CHUNG_TRANSCEND`). `MODS.md` "Stage 7 Raven, CH3d"; `funcmap.tsv` rows `Char Raven CH3d` (14); checklist rows marked `(Raven: CH3d)` (§4 L178, 7t L596 / L608, 7ag L812, 7ao L950-957, L969). No JUNE_BUGS row.
+
+**The 13 functions** (`charport_adis.py raven --phase CH3d`); registrations of 24600-24605 are CH1n's.
+- **= March (11):** the five Inits `32c27c90` / `32c27d90` / `32c27e50` / `32c27f10` / `32c28040` (20 / 15 / 14 / 16 / 14 preloads, March's names, order and loaders); FINISH StartFuture
+  `32c27fe0` (y - 350); EventProcesses `32c3c670` (Infernal Arm: anim end -> `JUMP_DOWN` off the ground else `WAIT`), `32c3c6b0` (READY -> 0x123 ATTACK), `32c3c6e0` (delay > 1 -> 0x124
+  FINISH), `32c3c730` (FINISH: `JUMP_DOWN` with y - 45 = `LINE_RADIUS * 1.5`); ATTACK Start `32c42e10` (delay 0). Burning Buster keeps `GenericSpecialActiveSkillEventProcess`.
+- **Differs (2): Extreme Blade ATTACK FrameMove `32c4f0a0` / StateEnd `32c42eb0`** call June's base setter `3200a590` (CH0 routed it here, `ch0_unmapped_callees.tsv` row 95), not Raven's
+  member. June has no Raven `SetInvisibility`: it became `CX2GUUser::SetInvisibility`, which differs from March's Raven one: the colour alpha (`+0xc44`) is put back from `+0x8e98` on show and
+  saved on hide (March: 1 on show); `+0xcb4` = `m_RenderParam.bAlphaTestEnable` (RenderParam at `+0xc10`) and `+0xc74` `bAlphaBlend` = the flag; `+0x8e9c = 1` (read only by two other classes'
+  render-param overrides `32b96a30` / `32c7fa40`); no `SetAlphaObject`; an awakened Ara (`IsFullHyperMode`, `UT_ARA`) keeps her `EP_AC_LEG` (equip `+0x1b0 == 0x15`) particles. Ported whole into
+  `CX2GUUser` with two members (ctor `@32040e5c`: both 1.0); Raven's declaration and definition sit in `#else`. `june_march_divergent.tsv` row `CX2GURaven::SetInvisibility` (replace, ported).
+
+**Transcendence rows (7ao).**
+- Allow-list: `TranscendCheck` takes 106 / 107 / 115 (one brace-less guard after Elsword's).
+- Pictures: prefixes `B_MASTER` / `R_FIST` / `V_COMMANDER` from June's row pushes (subagent, 24 strings `@3345d2bc`-`@33469684`; spot-checked `TR_B_MASTER_LARGE` `@333762c0` -> `Texture99_NEW`,
+  `TR_R_FIST_STATE` `@333711ba` -> `Texture97_NEW`): large + gray in **Texture99** (Raven joins the Eve / Chung condition), gauge `_STATE` for all three, medium / icon / party Texture100, `list_TR_*`
+  in `GUI_character_01` (+ `_gray`). Every piece is in the staged TETs (data215, data057, datai021).
+- `LevelUpEvent.lua` (data036, BOM source) gets `TYPE4` = June's `TYPE3` row (`LevelUpEvent.src.lua:509-527`: LEVEL 70, the three classes, `DLG_Transcendental_Change_Guide_Raven.lua`,
+  `RavenVoice_ClassUpReady01 / 02.ogg`, data097). `luasrc.py refresh`, `ledger --check` PASS; `PACK OK data036` (only `LevelUpEvent.lua` changed); the copy waits for the user's yes.
+- Already June's, verified: the guide dialog (`adopt-june --dry-run` identical) and `POPUP_TR_B_MASTER / R_FIST / V_COMMANDER` (data215); `HQ_Cutin_RBM / RRF / RVC_Transcendence.gfx` (data195)
+  and CH5's `m_HyperCutIn` rows; `GetHyperModeTableName` (CH1m); 18 `SPRT_HYPER_CLASS` ids and 12 `TRANSCENDENTAL_SKILL_DATA` rows (`NewSkillTempletVer2.lua`, `SkillCommandDescriptionData.lua`
+  identical to June); the hyper effect start's transcended return (CH1h, `32c4e7c0`); the 24419 branch of `HyperModeStart` (`JUNE_USER_BASE_STATE_BODIES`, not class-gated); the type-13
+  cut-in (engine, `JUNE_CUTIN_SHOW_OPTION`). Four base helpers: not copied; only `31fceab0` (`GetSkillLevel`) has Raven callers, 28 sites, each its own phase's.
+- **Skill icon gate:** `skillicons.py check 24000-24999`: `skills 124, misses 4, sheets 2`, `RESULT: FAIL` on exactly 24206 / 24231 (`SI_A_RRF_ENHANCE_HAND`) and 24417 / 24421 (`RNSI_P_RBM / RVC_OPEN_MIND`)
+  `NO_PIECE`: June's own gaps (JUNE_BUGS 535 / 552, CH0b; the sheets are June's bytes, staging is a no-op). The plan's "PASS" is not reachable; nothing to stage.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RAVEN_SKILL --with ..._SKILL_DEBUG --worktree --files` the 7 changed code files: `files: 4 PASS, 0 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII,
+  0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `flagcheck JUNE_CHAR_RAVEN_TRANSCEND --worktree --files X2Lib/X2Data.cpp X2Lib/Offline/Handlers_Quest.cpp
+  KTDXLIB/Always.h`: `2 PASS, 1 OTHER, 0 FAIL`, `0 deleted line(s)`, `RESULT: PASS` (with all 7 files it stops on an unrelated `#if` in `X2GUUser.cpp:27042`).
+- `junediverge.py --check` (7 files): `allow-listed: 19`, `RESULT: PASS`. `enumscan.py --check` the four `.cpp`: 4 A/B rows, all pre-existing (104 / 105 / 113, the `< 100` bound).
+- DEPLOY OK: X2_offline.exe is 26,083,328 B, dated 2026-11-07 00:53:59, md5 87f18ea6ae0fc8349864bc696f6e81d1, equal to X2/US_SERVICE/x2.exe (00:53:52); built at main 4d1cb51d + 7 uncommitted code file(s).
+- EXESTR OK: 4 of 4 found (wide): `RAVEN SKILL invisibility`, `B_MASTER`, `V_COMMANDER`, `R_FIST`, md5 87f18ea6.
+
+**Play-test set-up (save, backed up as `pre_raven_ch3d`).** Units 78 `BladeMasterT` (106) 24601 Extreme Blade, 76 `RecklessFistT` (107) 24600 Infernal Arms, 77 `VetCommanderT` (115)
+24602 Burning Buster, each transcended, the hyper active in A-5 (slot 4) and Sharp Charge 24056 / Devastating Strike 24057 / Ifrit Flame 24058 in B-5 (slot 9); upgrade ids not learned.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

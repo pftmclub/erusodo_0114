@@ -6094,3 +6094,12 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( + `..._SKILL_DEBUG` re-defined, `[J
 | Deadly Raid ( 24024 ) overheat `..._LARGE` / `_FINISH_READY_LARGE` / `_RAID_FINISH_LARGE` | 11.82 each |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the six ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.
+
+## Stage 7 Raven, CH3d: hyper actives and Raven on the transcendence list (2026-11-07)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( `CX2GUUser::SetInvisibility`, + `..._SKILL_DEBUG` re-defined ) and new `SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND` ( needs `_RAVEN_LIVE`, `_ELSWORD_TRANSCEND`, `_CHUNG_TRANSCEND` ). Plan `JUNE_CHARACTER_RAVEN_PHASES.md` "CH3d - Done". Client, emulator and data036.
+- **What changes in game.** Blade Master ( 106 ), Reckless Fist ( 107 ) and Veteran Commander ( 115 ) can transcend ( `CX2OfflineServer::TranscendCheck` ); a transcended Raven shows June's TR pictures ( `TR_B_MASTER` / `TR_R_FIST` / `TR_V_COMMANDER`: Texture99 large and gray, Texture100 medium / icon / party, Texture97 gauge, `list_TR_*` unit slot ). Reaching level 70 as one of the three opens June's transcendence guide ( `LevelUpEvent.lua` TYPE4 ).
+- **Extreme Blade's hide** uses June's base `CX2GUUser::SetInvisibility` ( `3200a590` ) instead of Raven's March member: the colour alpha is put back to what it was before the hide ( March: 1 ), alpha test is switched with alpha blend, and the unit is no longer flagged an alpha object. The other 12 hyper-active functions are March's.
+- **Damage:** no change; the hyper actives' numbers are June's `NewSkillTempletVer2.lua` ( June's bytes since the skill-system port ).
+- `data036` ( `LevelUpEvent.lua` TYPE4 = June's TYPE3 row, Raven's three classes, `DLG_Transcendental_Change_Guide_Raven.lua`, `RavenVoice_ClassUpReady01 / 02.ogg` ): the user copies `data036` ( `PACK OK data036` ).
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND` ( allow-list and pictures ), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`; the extra `TYPE4` only adds the level-70 guide popup ( delete the block, `luasrc.py refresh data036 LevelUpEvent.lua`, pack ). The setter goes back with `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( all of Raven's skill port ).

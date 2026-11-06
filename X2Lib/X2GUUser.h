@@ -2786,6 +2786,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
 		void SetLeftHandScale( D3DXVECTOR3 vScale );	// June 31fd9f40 ( Raven Megadrill Break )
 #endif SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		void SetInvisibility( bool bInvisibility_ );	/// June 3200a590 ( Raven's March member moved into the base )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 		//{{ kimhc // 2010.2.10 //	나소드 무기 강화 핸들러
 #ifdef	EVE_SECOND_CLASS_CHANGE
@@ -5107,6 +5110,10 @@ private:
 		D3DXVECTOR3		m_vHandScale;		// June +0x8e08: ScaleHand's scale, ( 1, 1, 1 ) after RestoreHand
 		D3DXVECTOR3		m_vLeftHandScale;	// June +0x8e14: the left hand's own scale, multiplied into m_vHandScale
 #endif SERV_IRUHADEV_JUNE_USER_LEFT_HAND_SCALE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		float			m_fAlphaBeforeInvisibility;	/// June +0x8e98: colour alpha saved by SetInvisibility( true ), put back by ( false )
+		float			m_fInvisibilityAlpha;		/// June +0x8e9c: SetInvisibility writes 1; read only by Ara's and another class's render-param overrides
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 #ifdef SERV_ADD_TITLE_CONDITION
 		unsigned char m_ucDieReason;

@@ -2022,7 +2022,11 @@ class CX2GURaven : public CX2GUUser
 		#pragma endregion ¹ö´× ¹ö½ºÅÍ - ±Ã±Ø±â
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		/// June: SetInvisibility is CX2GUUser's ( 3200a590 )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 		void SetInvisibility(bool bVal_);
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 #endif // FINALITY_SKILL_SYSTEM // ±èÁ¾ÈÆ, ±Ã±Ø±â ½Ã½ºÅÛ
 };
 
