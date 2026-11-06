@@ -1668,6 +1668,24 @@ the raw listing (`disasm_range.py --x87`); members found with `dispsweep.py 8e08
 **Play-test:** none. Nothing calls `SetLeftHandScale` until CH2c, and the rewritten `ScaleHand` / `RestoreHand` are reached only by the big-hand elixir buff.
 CH2c's Megadrill Break play-test is the first in-game check. **Open for the user:** none.
 
+### CH2c0 - Review (2026-11-06)
+
+Opus 5.5. **Verdict: PASS, no code change.** Checked against Ghidra's decompiles of `31fd9f40` / `31fde6d0` / `31fded80` and `disasm_range.py --x87`; commit `6d2c4614`.
+- **`31fd9f40` SetLeftHandScale:** the argument goes to +0x8e14..+0x8e1c. The product is `+0x8e08 * +0x8e14`, `+0x8e18 * +0x8e0c`, `+0x8e1c * +0x8e10`; the port keeps June's operand order.
+  Then the `32071d80` (`GetXSkinAnimPtr`) null test and `31d38a20( L"Bip01_L_Hand" )`; on the frame it writes +0xe0..+0xe8 = the product and word 0x101 at +0xdc.
+  That is `SetFrameScale( &v, true, pFrame )` (`KTDXDeviceXSkinMesh.h:596`: `m_bScale` = true, `m_bApplyChild` = true, `m_vScaleRel`). June also calls `GetXSkinAnimPtr` twice, like the port.
+- **`31fde6d0` ScaleHand:** stores `m_vHandScale` before the +0x87d4 (`m_pXSkinAnim`) test, as the port does. In the two-bone loop `31c1c1a0( 0, size, L"Bip01_L_Hand" ) == 0` gives the left hand
+  `m_vLeftHandScale * arg` and the right hand gets arg (all word 0x101). Eve test (`+0x867c` unit, `+0xaf0` templet type == 5) on Dummy1_Rhand / Dummy2_Lhand with arg is the
+  same as March's `GetUnit()->GetType()` form. Left out, with stand-in comments: the `UT_LUCIEL` (10, `+0xe40 != 1`) finger loop 0-3 and the second body +0x8e88 (hand loop + Eve test).
+- **`31fded80` RestoreHand:** `m_vHandScale` = 0x3f800000 x3, with no `m_pXSkinAnim` test (= March). The left hand gets word 0x101 + `m_vLeftHandScale * m_vHandScale`; the right hand and
+  the Eve dummies get word 0x100 + 1.0 = `SetFrameScaleRestore` (`KTDXDeviceXSkinMesh.h:608`). The Lu/Ciel fingers and the second body's hand loop (no Eve test) are stand-ins.
+  There is no `SetUnitReForm` call: caller `3202ed60` `@3202f17b` `call 31fded80` then `jmp 3202f2c9`, the epilogue. JUNE_BUGS 548 stands.
+- **Ctor `3203e850`:** `fld1` `@3204309f`, then the stores to +0x8e14..+0x8e1c `@320430bd-320430e1` and +0x8e08..+0x8e10 `@320430ef-32043103`: both ( 1, 1, 1 ), = port.
+- **Routing:** the Done note routes `3204b5e0` (1.5 / 1.55 / 2.55, CH4a funcmap row) and `3204e030` (Lu/Ciel). `CH2c.md:60` names `CX2GUUser::SetLeftHandScale( D3DXVECTOR3 vScale )`.
+
+**Gates.** flagcheck `--range 6d2c4614^..6d2c4614`: `2 PASS, 1 DEFINE, 0 OTHER, 0 FAIL`, 0 deleted, 0 non-ASCII, 0 EOL mismatches, 2 plain `#else`, `RESULT: PASS`.
+`junediverge.py --check-all`: `allow-listed: 194`, `RESULT: PASS`. `enumscan.py --check X2GUUser.cpp X2GUUser.h`: 2 rows (`X2GUUser.h:2555-2556`, older NPC ids). No build (no code change).
+
 ## Phase CH3 - Skills: second jobs (106, 107, 115), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.
