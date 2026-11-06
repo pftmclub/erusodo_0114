@@ -1987,6 +1987,23 @@ Log: `python tools/logs.py --grep "RAVEN SKILL"` (`ignition crow end skill S upg
 
 **Logs ( 2026-11-07, run 00:20-00:23, after deploy ).** `equip skill` 24053 / 24054 / 24055 ( unit 85 ) and 24053 / 24023 / 24055 ( unit 84, whose base 24022 / 24024 became level 0 in game: the upgrades were learned ); `ignition crow end skill 24053 upgrade 1 overheat 1` and `overheat 0`; `incineration end skill 24023 upgrade 0 overheat 1`, `24054 upgrade 1 overheat 1` x2; `deadly raid finish overheat loop count 6 input count 10 overheat 1` x2 ( units 84 and 85 ). `Motion Error` 0, `KEM_ERROR` 0, ErrorLog 0 skill lines; the one unbound Lua name is `AddGroupChainQuest` ( a quest script, not this phase ). Not exercised: base ids 24022 / 24024 ( share the upgrades' states ), the plain Deadly Raid finish, a plain Incineration end. **User's visual verdict: passed** ( user, 2026-11-07, "all looked right" ).
 
+### CH3c2 - Review (2026-11-07)
+
+Opus 5.5 high. **Verdict: PASS, no code change;** `_SKILL_DEBUG` retired ( `//#define` ). Read from the `charport_adis.py raven --phase CH3c2` listings and the registration `32c641a0`; Ghidra read-only.
+- **Ignition Crow / Incineration EventProcess `32c5b0a0` / `32c5b560`:** key processing only while the animation time `< 2.01`; slot key of the state's skill; `++m_iRVCComboLoopInputCount`; `cmp edi, 3` @32c5b17a / @32c5b63a then `_CanOverheat( 1 )`, `_ShowOverheatIcon( 0 )` once, `m_bShowedOverheat = 1`. Animation end: `GetEquippedActiveSkillTemplet( vslot 0x524, 1 )`, non-NULL and `+0x178 != 0` -> 0x139 / 0x138 ( 313 / 312 ) and 0x13c / 0x13b ( 316 / 315 ) by overheat, else 0x10c / 0x10b ( 268 / 267 ) and 0x11e / 0x11d ( 286 / 285 ); `StateChange( x, false )`. = the port ( names map to June's script ids through the tables, `X2GURaven.h:275-278` ).
+- **Shared overheat states:** `32c376c0` / `32c3a460` go to 0x10d / 0x11f ( the base `OVERHEAT_END` ) for both ids; `32c376f0` / `32c3a490` = March's end macro ( WAIT / JUMP_DOWN, dash / walk / skill cancels ). The upgrade cases register the base end state, as June ( tsv rows 72 / 77 list both ids ).
+- **`PossibleDeadlyRaidLoop` `32c5af90`:** loop count `<= 1 / 2 / 3` with input count `>= 2 / 4 / 6` ( @32c5afc2 / @32c5b014 / @32c5b066 ), `_CanOverheat( 1 )`, icon 1 / 2 / 3 on `m_bShowedOverheat` / `+0x973c` / `+0x973d`. = the port's `_CONST_RAVEN_` values; no other reader of the three constants.
+- **Overheat Starts** `32c538c0` / `32c53b10` / `32c53d60` ( `++m_iRVCComboLoopCount` first ) and `32c53fb0` / `32c54780`: June's `_SetOverheat` `32c526e0` inlined ( `m_bOverheated`, 0x5f65 buff factor, finalizer, `CreateOverHeatObject` ), then CommonStateStart; the tree's `_SetOverheat` holds that body under `_LIVE`, so `_SetOverheat( true )` = June.
+- **Overheat FrameMoves** `32c61fa0` / `32c623d0` / `32c62800` push only the damage data to `_BurnOverheatHP` `32c5fd90` ( @32c623a2 / @32c627d2 / @32c62c02 ); the "= March" `32c62c30` / `32c634f0` do the same and March already calls them with one argument ( `X2GURaven.cpp` 31174 / 34508 ).
+- **Registration:** rows 68-86 and 101-108 of `ch0_skill_listing_rows.tsv` = the port slot for slot: Ignition Crow upgrade hyper without Init; Incineration hyper with Init and `+0x10 = 1` ( `m_bHyperState`, @32c65f24, as the base @32c65df9 ); Deadly Raid one case for 24024 / 24055. The three new `RNSI_*` = `Enum.src.lua` ( 24053 / 24054 / 24055 ).
+- **"= March" rows:** a Sonnet subagent compared five ( `32c5bb40`, `32c5be30`, `32c4cf30`, `32c37080`, `32c3e740` ): all equal; spot-checked `push 0x104` @32c5bc49, `cmp eax, 2` @32c5bf24, `push 0x10a` @32c3709f.
+- **Logs:** as the CH3c2 Done note ( units 84 / 85 ); base ids 24022 / 24024 and the plain finishes were not played; they share the upgrades' states and EventProcesses.
+
+**Gates.** flagcheck `_SKILL --with _SKILL_DEBUG --range dd18cfa2^..dd18cfa2`: `0 PASS, 1 PASS~, 1 DEFINE, 1 OTHER ( X2SkillTree.h: JUNE_ENUM_NAMES ), 0 FAIL`, 1 deleted line, `RESULT: PASS`. Worktree ( `Always.h` ): `1 DEFINE, 0 FAIL`, 1 deleted line ( the retired `#define` ), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`. `enumscan.py --check X2GURaven.cpp X2GURaven.h`: 0 A/B rows. One-file probe ( `/Zs` ) of `X2GURaven.cpp`: 0 errors.
+- Build: not awaited ( the only change retires a `_DEBUG` define; user rule 2026-11-03 ).
+
+**Play-test:** none owed ( CH3c2 passed; this review changes no behaviour ). CH3d kickoff checked.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).
