@@ -53,3 +53,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Functions: 2** (`awk -F'\t' '$7=="CH1i"' june2017_re/char_raven/ch0_class_map.tsv`; inside 2).
   June addresses: `32c28270` `32c4f640`.
+
+## Amended by the CH1h review (2026-11-06)
+
+- **Comment fix in your edit of `X2GURaven.cpp`:** the one-line comment at the top of `GetHyperModeTime`'s `_LIVE` body (June `32c3db70`)
+  ends "Spiritualized Fury scales it for a transcended unit". The gate is `GetCanChangeHyperModeInHyperModeState()`, which is set when
+  Spiritualized Fury is learned (`X2GURaven.cpp:2569`). Rewrite it, with `bytepatch.py`, as one line, e.g. `// June 32c3db70: while the gage
+  has hyper time left, the awakening counts left x the max time, x Spiritualized Fury when it lets awakening re-trigger; a forced time wins`.
+  Comment only, no code change. Say so in the Done note.
