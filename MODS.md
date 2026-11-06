@@ -6058,3 +6058,22 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( + `..._SKILL_DEBUG` re-defined, `[J
 
 - **Review fix ( 2026-11-06 ).** Devastating Strike's end now starts June's 4 s window in which every hit that names a `CREATE_DAMAGE_EFFECT_NAME` ( Raven's Explosive Nasod Hand ) spawns it at 100 %: `CX2GameUnit::GetHitCreateDamageEffectRate` returns 1.0 while `m_fHitCreateDamageEffectFullRateTime` > 0 ( new member, counted down at the end of `CX2GameUnit::OnFrameMove` ), same flag. CH3b had written the 4.0 into the slash-trace width instead. Wild Charge's held key also follows the two transcendence slots ( A5 / B5 ).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the 16 ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.
+
+## Stage 7 Raven, CH3c: Veteran Commander (class 115) skills but Ignition Crow / Deadly Raid (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( + `..._SKILL_DEBUG` re-defined, `[JUNE_CHAR] RAVEN SKILL` lines ). Plan `JUNE_CHARACTER_RAVEN_PHASES.md` "CH3c - Done". Client only, no data change ( the June assets are CH0b's; `skillicons.py` 10 ids: 0 misses ).
+- **What changes in game.** Ten Veteran Commander ids get cases in the id switch of `SetEquippedSkillFuncBySkillSlotIndex`: Giga Prominence 24021 / 24052, Ground Impact 24216 / 24239, Breaking Fist 24215 / 24238, Hellfire 24039, Bursting Blade 24040, Flame Sword: Flurry 24226, Ifrit Flame 24058. Giga Prominence and Ground Impact add the new ids to March's cases ( the callbacks are June's ); Breaking Fist, Hellfire, Bursting Blade, Flame Sword: Flurry and Ifrit Flame are new cases ( four new states, empty Init + EventProcess ). Nine `RNSI_*` names are registered in `X2SkillTree.h`.
+- **Differs from March.** Giga Prominence: the overheat finish needs three key presses ( March 5 ); no memo effect set / memo scale on the flame, stone, smoke and overheat effects; the overheat finish calls the one-argument `_SetOverheat( true )`. Ground Impact: the size is read from skill 24216 with the upgrade swap ( the upgrade 24239 gives its own size ), the effect set has no life time ( March 1.0 s ), two more textures are preloaded. Breaking Fist: no StateEnd ( March's set `bSuperArmorNotRed` back to true ). Hellfire / Bursting Blade / Flame Sword: Flurry end on the animation end, then the skill / back-walk / walk / dash / attack cancels on a line; Ifrit Flame ends on the animation end only.
+- **Damage ( level 1 ).** June's numbers are the numerical override's ( x0.01 of the `NUMERICAL_DATA` row, `june2017_re/c1a_numerical_blocks.tsv` ); March's shipped tables for the old ids were not re-read here.
+
+| Skill | June damage ( physic, level 1 ) |
+|---|---|
+| Giga Prominence ( 24021 ) `RAVEN_GIGA_PROMINENCE_FLAME` / `_FINISH` / `_FINISH_SMOKE` / `_FINISH_OVERHEAT` / `_GROUND_HIT` / `_SMOKE` | 8.5 each |
+| Ground Impact ( 24216 ) `RRF_GROUND_IMPACT` | 7.09 |
+| Breaking Fist ( 24215 ) `RAVEN_BREAKING_FIST` / upgrade ( 24238 ) `RAVEN_BREAKING_FIST_UpGrade` | 6.12 / 6.12 |
+| Hellfire ( 24039 ) `DamageEffect_SA_RVC_Flame_Hell` | 6.27 |
+| Flame Sword: Flurry ( 24226 ) `DamageEffect_A_RVC_Flame_Sword_Another_Attack_Damage` | 4.64 |
+| Ifrit Flame ( 24058 ) `DamageEffect_SA_RVC_Ifrit_Flame_Projectile_ExplosionFX` | 7.64 |
+| Bursting Blade ( 24040 ) | the script's state tables ( not in the numerical override table ) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the ten ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.

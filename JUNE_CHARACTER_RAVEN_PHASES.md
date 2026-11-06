@@ -1908,6 +1908,37 @@ Opus 5.5 high. **Verdict: two fixes, then PASS;** `_SKILL_DEBUG` retired ( `//#d
 
 **Logs ( 2026-11-06, run 22:55-22:56, after deploy ).** Unit 80 cast Devastating Strike four times ( `JUNE_FX HIT ..._Devastating_Strike_1Fst_Attack` at 16.1 / 21.7 / 27.4 / 49.1 ). `DamageEffect_RRF_ExplosiveHand_Impact_NEW` was created twice, each right after a cast: 17.72 ( Raven's body hit 1.6 s after the 16.1 hit ) and 32.05 ( the body hit at 31.69, about 4.3 s after the 27.4 hit, so inside 4 s of the state's end ). No explosion anywhere else in the run. Unit 80 has June's passive 24402 learned, but March's passive code reads 4410 ( not learned; CH4a moves it to June's id ), so its own chance is 0 and only the window explains them. `Motion Error` 0, `KEM_ERROR` 0, no `EXCEPTION`. Unrelated: OpenXET preload misses, `RAVEN_OT_COMBOX3FRONT.OGG` 3D-position errors, `AddGroupChainQuest` unbound, 2 `E_DISABLE_HB_CHECK_REQ` UNHANDLED.
 
+### CH3c - Done (2026-11-06)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` (+ `_SKILL_DEBUG` re-defined): ten Veteran Commander ids run June's registrations ( Giga Prominence 24021 / 24052, Ground Impact 24216 / 24239, Breaking Fist 24215 / 24238, Hellfire 24039, Bursting Blade 24040, Flame Sword: Flurry 24226, Ifrit Flame 24058 ). All 34 class-map rows are read from `charport_adis.py raven --phase CH3c` listings plus the registration `32c641a0`: **7 written inside March's function** under the flag, **8 new** ( four empty Inits, four EventProcesses ), **19 are June = March** ( no code ). `funcmap.tsv` rows `Char Raven CH3c` ( 34 ); `MODS.md` "Stage 7 Raven, CH3c"; `JUNE_BUGS.md` 554; checklist L50 marked `(Raven: CH3c, 0 of them)`.
+
+| June | `CX2GURaven::` | June differs from March |
+|---|---|---|
+| `32c5a6c0` | Giga Prominence LOOP `EventProcess` | the overheat finish needs 3 key presses ( March 5 ); `WEAPON_TAKER_ACTIVE_OVERHEAT_KEY_PRESS_TIME` reused |
+| `32c536c0` | OVER_FINISH `StateStart` | one-argument `_SetOverheat( true )` ( March passed 5 s ) |
+| `32c4bcd0` `32c4c070` `32c60fc0` | LOOP / FINISH / OVER_FINISH `FrameMove` | no memo effect set, no memo scale ( the memo branches are March's ) |
+| `32c4a080` | Ground Impact `FrameMove` | skill read as 24216 with the upgrade swap, `GetSkillLevel( id, 0, 0, 1 )`; effect set life time -1 ( March 1.0 ) |
+| `32c26bf0` | Ground Impact `Init` | two more textures ( GroundShockWave02, steam_BP ) |
+| `32c3b720` `32c3ba30` `32c3c360` | Hellfire / Bursting Blade / Flame Sword: Flurry `EventProcess` ( new ) | identical to Pointed Stiletto `32c3bd40` / Spread `32c3c050`: animation end, then skill / back-walk / walk / dash / attack cancels on a line |
+| `32c3c930` | Ifrit Flame `EventProcess` ( new ) | animation end only |
+| `32c27c40` `32c27c50` `32c27c80` `32c28150` | the four new states' `Init` | empty |
+| = March | 19 rows: Giga Init / Start / FrameMove / EventProcess / End, LOOP Start / End, FINISH / END / OVER_END EventProcess, OVER_END Start, position helper `32c3e130`, Ground Impact EventProcess, Breaking Fist Init / Start / FrameMove / EventProcess / EndFuture | `funcmap.tsv` says which |
+
+**Registration.** Giga Prominence and Ground Impact: the RNSI labels are added to March's existing cases ( same callbacks and extra states ). Breaking Fist ( two ids, tables `RSI_A_RF_BREAKING_FIST` / `_UPGRADE` ): June has **no StateEnd** and no hyper Init, so two new cases. Hellfire, Bursting Blade, Flame Sword: Flurry, Ifrit Flame: four new cases ( Init + EventProcess, hyper = `CopyStateCallbacks` ). `X2SkillTree.h`: nine `RNSI_*` names ( 24039 / 24040 / 24052 / 24058 / 24215 / 24216 / 24226 / 24238 / 24239 ). `X2GURaven.h`: eight declarations. Upgrade-swap check: June's `SetEquippedSkillLevel` ( CH1i ) already reads Giga Prominence as 24021 with the swap; March's old-id readers sit in the `#else`; Ground Impact's reader is fixed here; no other term reads these ids.
+
+**Findings.** JUNE_BUGS 554: Flame Sword: Flurry's weapon effect names `__Raven_Hand_FireSM_Loop`, defined nowhere ( one of three flames not drawn ). Assets: the 15 `missing` closure rows are sounds CH0b staged in `kom_contents/data069` / `data097`; whether the loaded kom has them is the packed kom's state ( play-test shows ). Routed, not ported: none new.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RAVEN_SKILL --with JUNE_CHAR_RAVEN_SKILL_DEBUG --worktree --files X2Lib/X2GURaven.cpp X2Lib/X2GURaven.h X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `1 PASS, 1 PASS~, 1 DEFINE, 1 OTHER ( X2SkillTree.h: JUNE_ENUM_NAMES ), 0 FAIL`; `1 deleted line ( the //#define ), 0 non-ASCII, 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token`, `RESULT: PASS`.
+- `junediverge.py --check` ( X2GURaven.cpp / .h, X2SkillTree.h ): `allow-listed: 12`, `RESULT: PASS`. `enumscan.py --check`: `0 A/B row(s) remain`. `skillicons.py check` 10 ids: `skills 10, misses 0`, `RESULT: PASS`. `luabind.py check RAVEN_FIGHTER`: 0 unbound.
+- DEPLOY OK: X2_offline.exe is 26,079,744 B, dated 2026-11-06 23:27:22, md5 e74f77440354438fab7f4a660ba55dd5, equal to X2/US_SERVICE/x2.exe ( 23:27:15 ); built at main 8b750acb + 4 uncommitted code files.
+- EXESTR OK: 2 of 2 found ( wide ): giga prominence finish loops, ground impact skill.
+
+**Play-test hand-off.** Two new Veteran Commander units ( class 115, level 99, `elsdb` backups taken, no schema change ), no skill in slot 4 / 9, only the bank under test learned. Dev console ( END key ): `/invin 0`, then `/stage 1`. Keys: bank A = A S D C ( slots 0-3 ), bank B = Q W E R ( slots 5-8 ). Each skill twice, enemies in front ( the slot shows a cool time after the first cast, the MP bar drops ).
+1. **Unit 82 `VetCommanderB` ( base ids ).** A: Giga Prominence 24021 ( slot 0 ), Hellfire 24039 ( 1 ), Bursting Blade 24040 ( 2 ), Ifrit Flame 24058 ( 3 ); B: Breaking Fist 24215 ( 5 ), Ground Impact 24216 ( 6 ), Flame Sword: Flurry 24226 ( 7 ). Look for: Giga Prominence: cut-in, then flame pillars at random left / right spots each loop; finish with stone and flame waves; tap the key 3+ times during the loops for the overheat finish ( smoke, overheat flames, overheat icon ); Breaking Fist plays and a Z / X press after its cancel point returns to WAIT; Ground Impact: ground shock at ~0.47 s, sized by the skill; Hellfire / Bursting Blade / Flame Sword: Flurry / Ifrit Flame play their motion and end in WAIT ( air: fall ), walk / dash cancels on the ground except Ifrit Flame.
+2. **Unit 83 `VetCommanderU` ( upgrade ids ).** A: Giga Prominence upgrade 24052 ( 0 ), Hellfire ( 1 ), Bursting Blade ( 2 ), Ifrit Flame ( 3 ); B: Breaking Fist upgrade 24238 ( 5 ), Ground Impact upgrade 24239 ( 6 ), Flame Sword: Flurry ( 7 ). Same checks; the upgrades use the same states.
+3. Log: `python tools/logs.py --grep "RAVEN SKILL"` ( `equip skill` for each id, `giga prominence finish loops 8 key presses N`, `ground impact skill 24216 level L scale S` ), plus `python tools/logs.py --tag JUNE_SKILL --grep "NUM"`. Then say "check logs".
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as three from the start).

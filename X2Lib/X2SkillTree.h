@@ -2417,6 +2417,19 @@ public:
 		RNSI_P_RBM_COUNTER                                    = 24418,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-06 // char-raven CH3c
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RVC_FLAME_HELL                                = 24039,	// June's Enum.lua
+		RNSI_SA_RVC_BURSTING_BLADE                            = 24040,
+		RNSI_SA_RVC_GIGA_PROMINENCE_UPGRADE                   = 24052,
+		RNSI_SA_RVC_IFRIT_FLAME                               = 24058,
+		RNSI_A_RVC_BREAKING_FIST                              = 24215,
+		RNSI_A_RVC_GROUND_IMPACT                              = 24216,
+		RNSI_A_RVC_FLAME_SWORD_ANOTHER                        = 24226,
+		RNSI_A_RVC_BREAKING_FIST_UPGRADE                      = 24238,
+		RNSI_A_RVC_GROUND_IMPACT_UPGRADE                      = 24239,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-06 // char-raven CH2c
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_SA_ROT_CHARGED_BOLT_HEDGEHOG                     = 24005,	// June's Enum.lua

@@ -8434,3 +8434,37 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32c560e0	CX2GURaven::RSI_SI2_OVER_TAKER_ARC_ENEMY_FrameMove	PORTED	Char Raven CH3b: inside under _SKILL: upgrade ( templet upgrade-delete id ) = steps 0.3 s earlier + a fifth spear ( -66.6, 318, 21; z -79 ); one effect RAVEN_OVER_TAKER_ARC_ENEMY_MEMO_HYPER for every spear; no m_TimerFlyingImpact.restart
 32c641a0	CX2GURaven::SetEquippedSkillFuncBySkillSlotIndex ( CH3b cases )	PORTED	Char Raven CH3b: 12 case groups for the 16 ids ( Nuclear, Arc Enemy x2 tables, X Crash, Wild Charge + its CHARGING / DASH states and the data object with the skill templet's effective time / attack ratio, Maximum Dive, Power Bomb, Devastating Strike, Limit Crusher + three revenge / avoid states, Enchant Hand x2 tables, Spread )
 3226e400	CX2GameUnit::GetHitCreateDamageEffectRate	PORTED	Char Raven CH3b review: out of line in June: +0x41dc ( full-rate timer ) above 0 -> 1.0, else +0x41d4 ( m_fHitCreateDamageEffectRate ); callers CX2GUUser::AttackResult 32012b50 @32013bff / @32013c25, CEffect::AttackResult 31f85910 @31f86901 / @31f86927; timer: ctor 322a2700 @322a4685 = 0, OnFrameMove 3229ecc0 @3229fac1 counts down ( 3226e420 is the same, uncalled ), the only setter 32c3c8e0 ( 4.0 ); m_fHitCreateDamageEffectFullRateTime under SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+32c26bf0	CX2GURaven::SI_A_RRF_GROUND_IMPACT_Init	PORTED	Char Raven CH3c: inside under _SKILL: two more textures, GroundShockWave02.dds and steam_BP.dds
+32c27000	CX2GURaven::RSI_A_RF_BREAKING_FIST_Init	PORTED	Char Raven CH3c: = March: empty ( shared by the upgrade state )
+32c27010	CX2GURaven::RSI_A_RF_BREAKING_FIST_StateStart	PORTED	Char Raven CH3c: = March: CommonStateStart, bSuperArmorNotRed = false
+32c27030	CX2GURaven::RSI_A_RF_BREAKING_FIST_FrameMove	PORTED	Char Raven CH3c: = March: CommonFrameMove
+32c27040	CX2GURaven::RSI_A_RF_BREAKING_FIST_StateEndFuture	PORTED	Char Raven CH3c: = March: nowSpeed.x = 0, CommonStateEndFuture
+32c271a0	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_Init	PORTED	Char Raven CH3c: = March: the eleven PROMINENCE / RWT_GIGA meshes
+32c27230	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_StateEnd	PORTED	Char Raven CH3c: = March: CommonStateEnd tail jump
+32c27240	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_StateEnd	PORTED	Char Raven CH3c: = March: CommonStateEnd tail jump
+32c27c40	CX2GURaven::RSI_SA_RVC_FLAME_HELL_Init	PORTED	Char Raven CH3c: new: empty
+32c27c50	CX2GURaven::RSI_SA_RVC_BURSTING_BLADE_Init	PORTED	Char Raven CH3c: new: empty
+32c27c80	CX2GURaven::RSI_A_RVC_FLAME_SWORD_ANOTHER_Init	PORTED	Char Raven CH3c: new: empty
+32c28150	CX2GURaven::RSI_SA_RVC_IFRIT_FLAME_Init	PORTED	Char Raven CH3c: new: empty
+32c33100	CX2GURaven::SI_A_RRF_GROUND_IMPACT_EventProcess	PORTED	Char Raven CH3c: = March: backward key flag, 1.0 s to WAIT, animation end to JUMP_DOWN ( y - 45 ) / WAIT
+32c35510	CX2GURaven::RSI_A_RF_BREAKING_FIST_EventProcess	PORTED	Char Raven CH3c: = March ( BALANCE_BLADE_MASTER_20130117 branch ): animation end, then Z / X after m_fAttackCancelAfter
+32c35c50	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_FINISH_EventProcess	PORTED	Char Raven CH3c: = March: animation end to END
+32c35c80	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_FINISH_EventProcess	PORTED	Char Raven CH3c: = March: animation end to OVER_END
+32c35cb0	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_END_EventProcess	PORTED	Char Raven CH3c: = March: animation end to JUMP_DOWN / WAIT
+32c35cf0	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_END_EventProcess	PORTED	Char Raven CH3c: = March: animation end to JUMP_DOWN / WAIT
+32c3b720	CX2GURaven::RSI_SA_RVC_FLAME_HELL_EventProcess	PORTED	Char Raven CH3c: new: = Pointed Stiletto 32c3bd40 / Spread 32c3c050 ( animation end, then skill / back-walk / walk / dash / attack cancels on a line )
+32c3ba30	CX2GURaven::RSI_SA_RVC_BURSTING_BLADE_EventProcess	PORTED	Char Raven CH3c: new: same body as 32c3b720
+32c3c360	CX2GURaven::RSI_A_RVC_FLAME_SWORD_ANOTHER_EventProcess	PORTED	Char Raven CH3c: new: same body as 32c3b720
+32c3c930	CX2GURaven::RSI_SA_RVC_IFRIT_FLAME_EventProcess	PORTED	Char Raven CH3c: new: animation end only ( = the END state EventProcess 32c35cb0 )
+32c3e130	CX2GURaven::_GetGigaProminencePosition	PORTED	Char Raven CH3c: = March: both spot lists 1 2 3 refilled when the right one is empty; right when the left list is shorter; index by the right list size; 150 / 375 / 600
+32c3ea10	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_FrameMove	PORTED	Char Raven CH3c: = March: ChangeWorldColorByHyperMode, ShowActiveSkillCutInAndLight( Dummy2_Lhand, 0.01, 1 ), CommonFrameMove
+32c42370	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_StateStart	PORTED	Char Raven CH3c: = March: CommonStateStart, ++loop count
+32c4a080	CX2GURaven::SI_A_RRF_GROUND_IMPACT_FrameMove	PORTED	Char Raven CH3c: inside under _SKILL: skill read as 24216 with the upgrade swap, effect set life time -1 ( March 1.0 )
+32c4bcd0	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_FrameMove	PORTED	Char Raven CH3c: inside under _SKILL: no memo effect set ( March plays _MEMO when the memo is equipped )
+32c4c070	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_FINISH_FrameMove	PORTED	Char Raven CH3c: inside under _SKILL: no memo scale on the four effects
+32c53560	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_StateStart	PORTED	Char Raven CH3c: = March: CommonStateStart, overheat off, counters and spot lists cleared
+32c536c0	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_FINISH_StateStart	PORTED	Char Raven CH3c: inside under _SKILL: _SetOverheat( true ) with one argument ( March passed 5 s the LIVE setter ignores )
+32c538a0	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_END_StateStart	PORTED	Char Raven CH3c: = March: _SetOverheat( false ), CommonStateStart
+32c5a5d0	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_EventProcess	PORTED	Char Raven CH3c: = March ( the LIVE held-key test, CH1p ): key press count, animation end to LOOP
+32c5a6c0	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_LOOP_EventProcess	PORTED	Char Raven CH3c: inside under _SKILL: three key presses ( March 5 ) show the overheat finish
+32c60fc0	CX2GURaven::RSI_SA_RWT_GIGA_PROMINENCE_OVER_FINISH_FrameMove	PORTED	Char Raven CH3c: inside under _SKILL: no memo scale on the smoke, stone and overheat effects
