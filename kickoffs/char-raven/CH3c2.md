@@ -15,6 +15,7 @@
 python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md --no-sub "Rules" "Starting context" "Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)" "Phase CH3 - Skills: second jobs (106, 107, 115), hyper actives, transcendence"
 python tools/docsection.py JUNE2017_CHARACTER_PORT_CHECKLIST.md "1. Blocker: June damage numbers come from a table this build does not have"
 python tools/docsection.py JUNE_CHARACTER_ELSWORD_PHASES.md "CH3c - Done" "CH3c - Review"
+python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md "CH3c - Done (2026-11-06)" "CH3c - Review (2026-11-06)"    # overheat key count 3, one-argument _SetOverheat
 ```
 Then CH0's and CH1's Done notes, and the `CH3c2` rows of `june2017_re/char_raven/ch0_state_skill.tsv` / `ch0_checklist_rows.tsv`.
 If a checklist heading differs, `--list` and pull it by its current name.
