@@ -1851,7 +1851,7 @@ Opus 5.5 high. **Verdict: PASS, no code change;** `_SKILL_DEBUG` retired ( `//#d
 - **Play-test / logs:** unit 78's save has the upgrade ids 24047 / 24048 / 24050 in slots 0 / 1 / 3 ( bases at level 0 ), so both units tested the upgrade path; the base ids share the same cases and functions. Counter Wave lines stay for a transcended unit ( CH3d / CH6 ).
 
 **Gates.** flagcheck `_SKILL --with _SKILL_DEBUG --range 4aaff056^..4aaff056`: `1 PASS, 1 PASS~, 1 DEFINE, 1 OTHER ( X2SkillTree.h: JUNE_ENUM_NAMES ), 0 FAIL`, 1 deleted line, 2 EOL-mismatched, `RESULT: PASS`. Worktree ( `Always.h`, `X2GURaven.cpp` ): `1 DEFINE, 0 FAIL`, 1 deleted line ( the retired `#define` ), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 195`, `RESULT: PASS`. `enumscan.py --check X2GURaven.cpp / .h`: `0 A/B row(s) remain`. No one-file probe: the only change removes `_DEBUG` lines from compilation.
-- Build: started after the retire, not awaited ( user rule 2026-11-03 ).
+- Build: started after the retire, not awaited ( user rule 2026-11-03 ); it finished: DEPLOY OK: X2_offline.exe is 26,061,824 B, dated 2026-11-06 21:41:05, md5 7adf322d198467a741eff70b0a3697c0, built at main 1c8b6a34.
 
 **Owed:** the user's visual verdict on CH3a's motions, effects, cool time and MP ( no re-test needed for the retire ).
 
