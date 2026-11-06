@@ -47,3 +47,4 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Functions: 3** (`awk -F'\t' '$7=="CH4b"' june2017_re/char_raven/ch0_class_map.tsv`; inside 1, new 2).
   June addresses: `32c38180` `32c382d0`(new GetActualCoolTime) `32c5c080`(new SetDamageExceptionProcess).
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §2 L120 "ADDITIONAL_ATTACK_TRIGGER_TYPE x7 in RAVEN_FIGHTER, status ""to-imple; §7b L330 per-class SetDamageExceptionProcess blocks: funcmap 32c5c080 (Raven).
+- **Amended by CH1k (2026-11-06):** the cooldown `32c43bf0` asks `GetActualCoolTime( templet, level )` with the real level; March's memo cool time cut (`SMI_RAVEN_MEMO15`, Revolver Cannon -2 s) is not in June's cooldown, so the `GetActualCoolTime` row `32c382d0` decides whether it survives there. The lookup's MP is `GetActualMPConsume( id, level )` with no Brutal Slayer / Vigor term (Raven's own override, if any, is CH4b's).

@@ -609,6 +609,13 @@ class CX2GURaven : public CX2GUUser
 		bool								m_bBurningNasodHandLearned;		/// June +0x9688: skill 24401 learned; ctor false in CH1k, InitPassiveSkillState 32c57660 sets it in CH4a, CommonStateStart 32c43380 reads it
 		float								m_fGuardianStrikeRenderTime;	/// June +0x9774: seconds until the layer and colour Guardian Strike changed are restored; ctor -1.0f in CH1k, set 1.4 by 32c30cb0 in CH2c
 		void EmergencyEscapeCoolTimeFrameMove();						/// June 32c42f90
+		bool SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );		/// June 32c58c30 ( user vslot 0x7f8, step 510 )
+		void SpecialAttackUse( const int iSkillID_, const bool bUnused_ );		/// June 32c25ba0 ( user vslot 0x7fc, step 511 )
+		void SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );		/// June 32c43bf0 ( user vslot 0x800, step 512 )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+		virtual bool IsNotCommonMoveState();		/// June 32c3e0e0 ( user vslot 0x828 ): overrides a base virtual, so it exists only under _LIVE
+		virtual void ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );		/// June 32057b80 @32057c4c: step 512 and the memo refund
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 		bool								m_bReAttackZ1Right;
 		float								m_fReAttackZ1Time;

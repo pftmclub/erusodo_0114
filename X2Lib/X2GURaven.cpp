@@ -296,6 +296,18 @@ frameBufferNum, pUnit )
 
 #endif SERV_RAVEN_VETERAN_COMMANDER
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+	/// June 32c3ece0: the members June's constructor sets that March has no initialiser for
+	m_fSurelyVictoryCoolTime = 0.f;		// @32c3ed3a
+	m_fEmergencyEscapeElapsedTime = -1.f;		// @32c3ed40
+	m_fEmergencyEscapeCoolTime = -1.f;
+	m_bBurningNasodHandLearned = false;		// @32c404e3
+	m_fGuardianStrikeRenderTime = -1.f;		// @32c4015e
+	m_clockLastNasodBallAttack = clock();		// @32c40164
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	m_fLimitOverHeatHP = 0.25f;		/// June @32c408fd ( March 0.1f )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	m_fOldHp = 0.0f;
 
 #ifdef BALANCE_BLADE_MASTER_20130117
@@ -6169,8 +6181,283 @@ RENDER_HINT CX2GURaven::CommonRender_Prepare()
 //}} robobeg : 2008-10-28
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
+namespace _CONST_RAVEN_CH1K_
+{
+	/// June's pop-up line: font 3, white text with a black outline, centred
+	void PushInfoText( const int iStringID_ )
+	{
+		g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( iStringID_ ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+	}
+
+	/// June 31fd0570: training game ( 0x12 ) or the photo zone ( 0x1a, June-only ); the photo zone has no March state
+	bool IsTrainingOrPhotozone()
+	{
+		return CX2Main::XS_TRAINING_GAME == g_pMain->GetNowStateID();
+	}
+
+	/// June 32205510: a special active skill type ( 7, 14-16 )
+	bool IsSpecialActiveType( const int iSkillType_ )
+	{
+		return CX2SkillTree::ST_SPECIAL_ACTIVE == iSkillType_ ||
+			( CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1 <= iSkillType_ && iSkillType_ <= CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3 );
+	}
+}
+using namespace _CONST_RAVEN_CH1K_;
+
+/// June 32c58c30 ( user vslot 0x7f8, step 510 ): chooses the skill of the pressed slot and checks that it can be used now
+bool CX2GURaven::SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition )
+{
+	if ( true == IsQuickSlotSpecialItemWaiting() )
+		return false;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+	const CX2UserSkillTree::SkillSlotData* pSkillSlotData = NULL;
+	int iPressedSkillSlotIndex = -1;
+
+	if ( false == CommonSpecialAttackEventProcess( accessUserSkillTree, pSkillSlotData, iPressedSkillSlotIndex ) )
+		return false;
+
+	if ( NULL == pSkillSlotData )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( pSkillSlotData->m_eID, true );
+	if ( NULL == pSkillTemplet )
+		return false;
+
+	if ( pSkillTemplet->m_eID != pSkillSlotData->m_eID )
+	{
+		PushInfoText( 0x8bae );
+		return false;
+	}
+
+	m_iChosenSkillID = pSkillTemplet->m_eID;
+
+	/// June @32c58e69: with RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY learned, Barrage Attack and Flame Sword ( upgrade swapped ) are used in the air as on the ground
+	if ( accessUserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RVC_WINNABLE_TECHNIQUE_OF_MERCENARY, true, 0, true ) > 0 &&
+		( pSkillTemplet->m_eID == accessUserSkillTree.GetUpgradeSwappedSkillID( CX2SkillTree::RNSI_A_RWT_BARRAGE_ATTACK ) ||
+		  pSkillTemplet->m_eID == accessUserSkillTree.GetUpgradeSwappedSkillID( CX2SkillTree::RNSI_A_RF_FLAME_SWORD ) ) &&
+		( CX2SkillTree::ASUT_AIR == eActiveSkillUseCondition || CX2SkillTree::ASUT_AIR_ONLY == eActiveSkillUseCondition ) )
+	{
+		eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND;
+	}
+
+	if ( false == CheckSkillUseCondition( eActiveSkillUseCondition, pSkillTemplet->m_eActiveSkillUseCondtion ) )
+		return false;
+
+	if ( false == CheckSkillUsePVPOfficial( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUseNotPve( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUseNotDungeon( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( true == IsRidingKeySkillWaiting() )
+		return false;
+
+	/// June @32c58f0e: no skill while parrying except Shadow Step
+	if ( true == m_bParrying && accessUserSkillTree.GetUpgradeSwappedSkillID( CX2SkillTree::RNSI_A_RF_SHADOW_STEP ) != pSkillTemplet->m_eID )
+		return false;
+
+	/// June @32c58f36: while a Shadow Step chain runs only Shadow Step chains on, with no MP cost and no slot refresh ( JUNE_BUGS )
+	if ( true == m_bActiveShadowStepCombo )
+	{
+		if ( true != m_bEnableShadowBackSlide )
+			return false;
+
+		if ( accessUserSkillTree.GetUpgradeSwappedSkillID( CX2SkillTree::RNSI_A_RF_SHADOW_STEP ) != pSkillTemplet->m_eID )
+			return false;
+
+		if ( m_iRVCComboLoopCount > _CONST_RAVEN_::MAX_ACTIVE_SHADOW_STEP )
+			return false;
+
+		if ( RBM_COMBO_ZZZXZ == m_eRavenCurrentStage )
+		{
+			m_fBlackHoleTime = 0.f;
+			m_iBlackHoleHitCount = 0;
+			m_eRavenCurrentStage = RSI_BASE;
+		}
+
+		return true;
+	}
+
+	int iSkillTempletLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if ( iSkillTempletLevel < 1 )
+		iSkillTempletLevel = 1;
+
+	m_fChosenSkillMp = GetActualMPConsume( pSkillTemplet->m_eID, iSkillTempletLevel );
+
+	const bool bSkillFree = false;	// June 31fdaa70 ( vslot 0x82c ) reads event code 10 and answers false
+#ifdef SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	if ( false == bSkillFree && false == IsDevUnlimitedSkillUse() )
+#else SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	if ( false == bSkillFree )
+#endif SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	{
+		if ( 0.f < pSkillSlotData->m_fCoolTimeLeft )
+		{
+			PushInfoText( 226 );
+			return false;
+		}
+
+		if ( m_fReservedSkillMp + m_fChosenSkillMp > GetNowMp() )
+		{
+			PushInfoText( 2549 );
+			return false;
+		}
+
+		if ( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && false == IsTrainingOrPhotozone() )
+		{
+			if ( g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetNumItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE ) <= 0 )
+			{
+				PushInfoText( 26119 );
+				return false;
+			}
+		}
+	}
+
+	m_iChosenSkillID = pSkillTemplet->m_eID;
+	m_iChosenSkillSlotIndex = iPressedSkillSlotIndex;
+	return true;
+}
+
+/// June 32c25ba0 ( user vslot 0x7fc, step 511 ): the use of the skill the lookup chose
+void CX2GURaven::SpecialAttackUse( const int iSkillID_, const bool bUnused_ )
+{
+	UNREFERENCED_PARAMETER( bUnused_ );
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+
+	if ( true == SpecialAttackNoStageChange( pSkillTemplet ) )
+	{
+		SpecialAttackCooldown( pSkillTemplet->m_eID, m_fChosenSkillMp );
+		SkillMemoMpRefund( iSkillID_, true, m_fChosenSkillMp );
+		m_fChosenSkillMp = 0.0f;
+	}
+	else
+	{
+		ReserveSkillUse( pSkillTemplet->m_eID );
+		StateChangeBySkillSlot( m_iChosenSkillSlotIndex );
+	}
+
+	m_bSpecialAttackEventProcessedAtThisFrame = true;
+}
+
+/// June 32c43bf0 ( user vslot 0x800, step 512 ): the MP, the finality stone, the cool time and the rage of a skill use
+void CX2GURaven::SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ )
+{
+	if ( false == IsMyUnit() )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+	if ( NULL == GetUnit() || NULL == pSkillTemplet )
+		return;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+
+	MarkSkillSlotUsed( m_iChosenSkillSlotIndex, false );
+	UpNowMp( -fMpConsume_ );
+
+	if ( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && false == IsTrainingOrPhotozone() )
+	{
+		CX2Item* pItem = g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE );
+		if ( NULL != pItem )
+			g_pX2Game->Handler_EGS_USE_FINALITY_SKILL_REQ( pItem->GetItemData().m_ItemUID );
+	}
+
+	int iSkillLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if ( iSkillLevel < 1 )
+		iSkillLevel = 1;
+
+	const float fCoolTime = GetActualCoolTime( pSkillTemplet, iSkillLevel );
+
+	/// June @32c43d15: Shadow Step ( any upgrade ) never sets its cool time here
+	if ( CX2SkillTree::RNSI_A_RF_SHADOW_STEP != g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) )
+		accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, fCoolTime );
+
+	/// June @32c43d6c: a special active skill in hyper mode feeds the rage gauge by the specialization A bonus, a third of its MP
+	if ( true == IsSpecialActiveType( pSkillTemplet->m_eType ) && GetRemainHyperModeTime() > 0.f && true == IsMyUnit() )
+	{
+		const float fRageGain = static_cast<float>( ( GetCharacterSpecializationA() + 1.0 ) * ( fMpConsume_ / 3.0 ) );
+		m_fRageGauge = m_fRageGauge + fRageGain;
+		if ( m_fRageGauge > 100.0 )
+			m_fRageGauge = 100.f;
+	}
+
+	m_eSpecialAttackKeyPressed = (SPECIAL_ATTACK_KEY_PRESSED) ( m_iChosenSkillSlotIndex + 1 );
+
+	if ( RBM_COMBO_ZZZXZ == m_eRavenCurrentStage )
+	{
+		m_fBlackHoleTime = 0.f;
+		m_iBlackHoleHitCount = 0;
+		m_eRavenCurrentStage = RSI_BASE;
+	}
+
+	GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
+	CX2RandomMissionManager::GetInstance()->OnSkillUse( pSkillTemplet->m_eID );
+}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+/// June 32c3e0e0 ( user vslot 0x828 ): the base test less the dash jump power landing state ( now )
+bool CX2GURaven::IsNotCommonMoveState()
+{
+	if ( false == CX2GUUser::IsNotCommonMoveState() )	// June 31fd7640
+		return false;
+
+	return RSI_DASH_JUMP_POWER_LANDING != GetNowStateID();
+}
+
+/// June 32057b80 @32057c4c-cb2: the reserved skill's state starts, so step 512 spends its MP and sets the cool time, and 0x764 refunds the memo share
+/*virtual*/ void CX2GURaven::ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
+{
+	const int iNowStateID = GetNowStateID();
+	bool bSkillSlotState = false;	// June's state-data byte +0x11
+	for ( int i = 0; i < ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ); ++i )
+	{
+		if ( _CONST_GUUSER_::aNormalSkillStateID[i] == iNowStateID || _CONST_GUUSER_::aHyperSkillStateID[i] == iNowStateID ||
+			_CONST_GUUSER_::aNormalSkillStateIDSlotB[i] == iNowStateID || _CONST_GUUSER_::aHyperSkillStateIDSlotB[i] == iNowStateID )
+			bSkillSlotState = true;
+	}
+
+	const int iSkillID = static_cast<int>( pSkillTemplet_->m_eID );
+	SpecialAttackCooldown( iSkillID, m_fReservedSkillMp );
+	SkillMemoMpRefund( iSkillID, bSkillSlotState, m_fReservedSkillMp );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 /*virtual*/ bool CX2GURaven::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	/// June 32c25af0 ( user vslot 0x7f4 ): the lookup, then the use; the caller's use condition 3 / 5 gives the chosen values back
+	const float fSavedReservedMp = m_fReservedSkillMp;
+	const int iSavedSlotIndex = m_iChosenSkillSlotIndex;
+	const int iSavedSkillID = m_iChosenSkillID;
+
+	bool bUsed = false;
+	if ( true == SpecialAttackLookup( eActiveSkillUseCondition ) && 0 != m_iChosenSkillID )
+	{
+		bUsed = true;
+		SpecialAttackUse( m_iChosenSkillID, true );
+		Send_SKILL_USE_REQ( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );
+	}
+
+	if ( CX2SkillTree::ASUT_ANYTIME == eActiveSkillUseCondition || CX2SkillTree::ASUT_ANYTIME_EXCEPT_AIR == eActiveSkillUseCondition )
+	{
+		m_iChosenSkillID = iSavedSkillID;
+		m_fReservedSkillMp = fSavedReservedMp;
+		m_iChosenSkillSlotIndex = iSavedSlotIndex;
+	}
+
+	if ( true == bUsed )
+	{
+		m_iNowSpecialAttack = m_iChosenSkillSlotIndex + 1;
+		return true;
+	}
+
+	m_iChosenSkillID = iSavedSkillID;
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	/// June buff port Phase 7d: June Raven 32c58c30 (the skill lookup its SpecialAttackEventProcess calls first) starts with
 	/// "if +0x8d78 > 0 return false": no skill while a quick-slot special item waits
@@ -6490,6 +6777,7 @@ RENDER_HINT CX2GURaven::CommonRender_Prepare()
 #endif SERV_SKILL_USE_SUBQUEST
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	
 }
 
@@ -6509,6 +6797,9 @@ RENDER_HINT CX2GURaven::CommonRender_Prepare()
 
 /*virtual*/void CX2GURaven::NoStateChangeActionFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	UserNoStateChangeActionFrameMove();	/// June 32c25c40: the base action
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 }
 
