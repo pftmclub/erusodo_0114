@@ -2135,6 +2135,39 @@ inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; 
 
 **Logs ( 2026-11-07, run 06:24-06:30, after deploy md5 8e1b943c; 0 EXCEPTION, 0 Motion Error; known `E_DISABLE_HB_CHECK_REQ` x5 and one `AddGroupChainQuest` ).** `init` lines (two per load, values equal): Veteran Commander unit 77 overheat rate 0.250 / limited 0.200 / limit HP 0.020 ( = 0.25 x 24412's 0.08 ), survival 1, reversal 4, force down 0.640, **edt x0.000** ( June's data gives 24412 no `SA_REDUCE_EDT_TIME_REL`; June's code reads it anyway: JUNE_BUGS 557, kept ); Reckless Fist units 76 / 80 burning nasod hand 1 type 1 ( DT_MAGIC ) rel 1.100, explosive rate 0.120, MP / soul on hit x1.100; Blade Master unit 78 crit 0.080, walk / dash x1.100 ( Open Mind, transcended ); shadow step chain 1 on all. Seen: `reversal soldier buff` + `survival technique buff` together at the half-HP crossing ( 24414's rate is 0.500 ), twice; `x crash hit` ( unit 80 ); `explosive nasod hand buff` x3; `surely victory buff` x11, about 1-4 s apart ( cool 1.0 ). Shadow Step chain: Shadow Buster bullets from state 264 ( `RSI_SHADOW_STEP_X_UPGRADE` ) hit. ErrorLog's one `OpenXET RAVEN_SI_A_RF_SHADOW_STEP_MESH01.XET` comes from the March Shadow Step Init preload ( same pattern as CH3b's `RRF_POWER_BOMB_7.XET`; for the review ). Not in the logs: the X Crash refund on a miss ( no log line since `_SKILL_DEBUG` was retired; user's visual ).
 
+### CH4a - Review (2026-11-07)
+
+Opus 5.5. **Verdict: passes, no code change; `_PASSIVE_DEBUG` retired.** Commit `d76e78b9`; Ghidra decompile of `32c57660`, `charport_adis.py raven` of the seven class addresses, `disasm_range.py`
+of both callback sites, the AttackResult switch (`32012b50`, table `320142a4`) and both Spiritualized Fury reads.
+- **`32c57660` block by block.** Base `31fe19d0` first. Every `32890620` push is `( id, 1, 0, 1 )`; Behavior of Mercenary alone goes through `32890720( 24411, 1 )` with level `max( 1, ... )`. Resets come before
+  each read, in June's order: `+0x9690` 1.0 / `+0x9650` / `+0x9688` / `+0x968c` 0; the `+0x8dbc` / `+0x8dc0` delegate cleared; `+0x95b8` / `+0x95c4` 0; `+0x9694` 0; `+0x96d0` 1.0 / `+0x9668` 0;
+  `+0x96d4` 1.0 / `+0x9738` = `3350f8c0` (float 0.25); `+0x9734` 0; `+0x966c` / `+0x9670` 0; `+0x9660` / `+0x9721` / `+0x9650` 0. SA ids against a compile probe (44 names = June's values):
+  24401 0x4d (1 -> DT_PHYSIC, 2 -> DT_MAGIC) / 0xf; 24402 5 on `+0x41d4`, power rate `32071720` on `+0x41d8`; 24404 0x10 on `+0x57f8` (`+0x5810` read), 0x38 on `+0x95b8`, 0xaa on `+0x95c4`;
+  24406 0x67 - 1.0 + 5e-8 (`334355b0` / `3346ed68`), 0 when unlearned, untouched when the templet is missing; 24407 0x33; 24410 0x94 on cool `+0x95ac` and elapsed `+0x95a0`.
+  **The swap holds:** 24411 writes `+0x96d0` (0x91 when `322cc1a0`, else 0x7d) and `+0x9668` (0x10); 24412 writes `+0x9738` = min( `+0x9738`, SA 0x7d x `33437830` (double 0.25) ) and `+0x96d4` (0x7c).
+  CH1g / CH1h's readers: `+0x9668` is the overheat burn's HP share, `+0x96d4` the extra-damage-time multiplier. Force down: `+0x4058` (melee) then `+0x4054` (range, Chung CH4a's `32070b70`),
+  each `+= v - 1 + 5e-8`, then 1.0 when `<= 0` or `> 1` (= March's setters), for 24413 / 24403 / 24408 in that order. The `+0x66cc` push is `24413 level > 0 || +0x9734 == 1`.
+  Shadow Step: `328905b0( 24200 )`; `+0x9650` = 1, MP = templet `+0x130` [level - 1] (0 outside, = `GetSkillMPConsumptionValue`), 305 (Init, EventProcess), `+0x9660` = 1, MP again, 306, `+0x9721` = 1,
+  308 (StartFuture, Start, FrameMove, EventProcess, End), 309 (FrameMoveFuture, EventProcess; SP byte left 0), `+0x9650` = 1, 307 (Init, FrameMove, EventProcess). State 222 takes six callbacks
+  (Init, StartFuture, Start, FrameMove, EventProcess, End) behind 24410's templet. Lists from `3207b770`'s `ecx`: `+0x66ac` for Surely Victory (templet `+0xa0 != +0xa4`) and X Crash (`31fceab0( 24010 ) > 0`),
+  `+0x66cc` for the HP-crossing check. Open Mind: `32007b10( 0x22, 24417 )` on walk `+0x4870` and dash `+0x4924`.
+- **Callbacks.** `32c3c7a0`: 24402 level, templet, vslot 0x228 `( templet, 0 )`. `32c3df50`: combo (`+0xcf0`, protected count) `<= 0` returns; count +1; `< 5` returns; level, templet, factors;
+  `fldz; fcomp cool; test ah,0x41; jnp` = go on only when cool `< 0` or NaN (the port's `0 <= cool` return); buff, cool = SA 0x94, count 0. **JUNE_BUGS 556 holds.** `32c28160`: `+0x5c4 == 24010` -> `+0x978c` = 1.
+  `32c4e5b0`: max HP read once from the gage (1.0 without a gage); unit null -> only `m_fOldHp`; `0.5 < old / max` (`test ah,5; jp`) and `now / max < 0.5` (`test ah,0x41; jne`), then the 24413 level; survival
+  when `+0x9734 == 1`, rate `32007b10( 0x91 / 0x7d, 24414 )`, the same strict pair; `m_fOldHp` written last. 0x73c `32c3c7f0` (`ret 4`) / 0x748 `32c3c820` (`ret`): 1.0 (double) + the protected value.
+- **Engine.** `31fcd640` calls `+0x8dc0` when non-null. AttackResult: `+0x3c4` 0xb -> `32013efa` (RT_CREATE_DAMAGE_EFFECT, `GetPowerRate`), 0xc -> `32013d70` (RT_CREATE_EFFECT_SET), else the default case:
+  game checks and the rate gate (each failure jumps to `32014053`), the spawn `@32013d35`, SetScale on a child, then `31fcd640 @32013d66` whether or not the spawn succeeded. CEffect `@31f86a43-31f86a76`:
+  child null or owner `+0x264 != 0` skips both; else `31fcd640( owner )` before SetScale. Both = the port. Spiritualized Fury: `32890720( 0x5f55, 1 )` at `@32049cf5` and `@32013186`.
+- **Not ported on purpose, confirmed.** June's body has no read of March's Shadow Piercing / Thrust / Punisher / Air Slicer / Bleeding Slicer ids. A skip-data sweep of June's whole `.text` for `+0x9660` / `+0x9661`
+  inside the class finds one writer of `+0x9661`, the ctor's `mov word [esi+0x9660], 0` (`@32c3f73a`); the two readers (`@32c50f10`, `@32c54320`) always see 0.
+- **JUNE_BUGS.** 551 (flag part withdrawn) and 555 hold. **557 holds:** June's loader maps `"SA_REDUCE_EDT_TIME_REL"` to 0x7c (`32216320 @3221a005`), and June's 24412 block has only `SA_OVERHEAT_HP` and
+  `SA_DAMAGED_REL`. **The `OpenXET RAVEN_SI_A_RF_SHADOW_STEP_MESH01.XET` line is June's too:** June's Init `32c26690` preloads the same mesh, and neither June's nor March's `data120` has the `.XET`.
+- **Gates.** `flagcheck JUNE_CHAR_RAVEN_PASSIVE --with ..._PASSIVE_DEBUG --range d76e78b9^..d76e78b9 --files` (7): `files: 3 PASS, 0 PASS~, 1 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`, `0 deleted line(s)`, `RESULT: PASS`;
+  no later commit touches the flag. `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`. `enumscan.py --check X2GURaven.cpp X2GUUser.cpp`: `0 A/B row(s)`.
+  Retirement: `//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG` (bytepatch, CP949 / CRLF unchanged); `flagcheck JUNE_CHAR_RAVEN_PASSIVE_DEBUG --worktree --files KTDXLIB/Always.h`: `1 DEFINE`,
+  `1 deleted line(s)`, `RESULT: FAIL` only because the flag is no longer defined (expected). `junediverge.py --check KTDXLIB/Always.h`: `RESULT: PASS`. Build started, not awaited.
+- **Logs:** the Done note's 06:24-06:30 run covers every line the kickoff names; nothing new to read. Still owed: the user's visual (X Crash's refund on a miss).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI`. Sub-tag `UI`.

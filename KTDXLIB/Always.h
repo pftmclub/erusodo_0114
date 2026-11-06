@@ -11903,5 +11903,5 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-11-07
 // Description: June character port ( Raven ) Phase CH4a - temporary [JUNE_CHAR] RAVEN PASSIVE lines ( the init values, each callback when it fires ) for CH4a's
 //              play-test; they sit inside JUNE_CHAR_RAVEN_PASSIVE code only. CH4a's review retires it. Revert: undefine the flag ( JUNE_CHAR_RAVEN_PASSIVE_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////
