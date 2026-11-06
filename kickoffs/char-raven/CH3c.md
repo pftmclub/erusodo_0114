@@ -57,3 +57,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - Giga Prominence's held-key tests (`32c5a5d0`, LOOP `32c5a6c0`) are already June's `IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() )` under `_LIVE`;
   the whole-body port keeps that call and replaces the `_LIVE` block.
+
+## Amended by the CH3b review (2026-11-06)
+
+- June's held-key switches over the slot state map ten slots: A5 -> `pureSkill5`, B5 -> `pureSkillEx5` (Wild Charge `32c33850`, jump table `32c338ec`). Check every such switch in the CH3c functions; CH3b's Wild Charge had only the eight March cases.
+- A member named only by its default value is checked with `python june2017_re/dispsweep.py <offset>` before it is used: CH3b's `+0x41dc` was a `CX2GameUnit` timer read by `GetHitCreateDamageEffectRate` (`3226e400`), not the slash-trace width.
+- `_SKILL_DEBUG` was retired by the CH3b review: re-define it for CH3c's lines.

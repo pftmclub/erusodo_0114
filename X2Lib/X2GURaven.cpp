@@ -25198,6 +25198,16 @@ void CX2GURaven::RSI_SA_RRF_WILD_CHARGE_READY_StateStartFuture()
 		m_WildChargeDataPtr->SetChargeKeyPointer( &m_InputData.pureR );
 		break;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	case USI_SPECIAL_ATTACK_5:	// June 32c33850 @32c338c9
+		m_WildChargeDataPtr->SetChargeKeyPointer( &m_InputData.pureSkill5 );
+		break;
+
+	case USI_SPECIAL_ATTACK_SLOTB_5:	// June 32c33850 @32c338d4
+		m_WildChargeDataPtr->SetChargeKeyPointer( &m_InputData.pureSkillEx5 );
+		break;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+
 	default:
 		ASSERT( !L"RSI_SA_RRF_WILD_CHARGE_READY_StateStartFuture" );
 		m_WildChargeDataPtr->SetChargeKeyPointer( &m_InputData.pureA );
@@ -33065,8 +33075,8 @@ void CX2GURaven::RSI_SA_RRF_DEVASTATING_STRIKE_Init()
 
 void CX2GURaven::RSI_SA_RRF_DEVASTATING_STRIKE_StateEnd()
 {
-	/// June 32c3c8e0: the slash trace tip width ( +0x41dc, its 4.0 default ) is set back
-	m_fNowSlashTraceTipWide = 4.0f;
+	/// June 32c3c8e0: 4 s of a 100 % hit create-damage-effect rate; no CommonStateEnd ( JUNE_BUGS 553 )
+	SetHitCreateDamageEffectFullRateTime( 4.0f );
 }
 
 void CX2GURaven::RSI_SA_RRF_DEVASTATING_STRIKE_EventProcess()

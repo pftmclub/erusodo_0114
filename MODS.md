@@ -6056,4 +6056,5 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( + `..._SKILL_DEBUG` re-defined, `[J
 | Maximum Dive ( 24037 ) `DamageEffect_Sa_Maximum_Dive` | 8.22 |
 | Arc Enemy, X Crash, Wild Charge, Limit Crusher, Enchant Hand | the script's state tables ( not in the numerical override table ) |
 
+- **Review fix ( 2026-11-06 ).** Devastating Strike's end now starts June's 4 s window in which every hit that names a `CREATE_DAMAGE_EFFECT_NAME` ( Raven's Explosive Nasod Hand ) spawns it at 100 %: `CX2GameUnit::GetHitCreateDamageEffectRate` returns 1.0 while `m_fHitCreateDamageEffectFullRateTime` > 0 ( new member, counted down at the end of `CX2GameUnit::OnFrameMove` ), same flag. CH3b had written the 4.0 into the slash-trace width instead. Wild Charge's held key also follows the two transcendence slots ( A5 / B5 ).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL` ( the 16 ids fall back to the Maximum Cannon default ), `python tools/build.py --deploy`.

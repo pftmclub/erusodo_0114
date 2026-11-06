@@ -3465,7 +3465,12 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 
 #ifdef SERV_ARME_DIMENSION_WITCH
 		void SetHitCreateDamageEffectRate( float fVal ) { m_fHitCreateDamageEffectRate = fVal; }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		float GetHitCreateDamageEffectRate() { return ( 0.f < m_fHitCreateDamageEffectFullRateTime ) ? 1.f : m_fHitCreateDamageEffectRate; }	/// June 3226e400
+		void SetHitCreateDamageEffectFullRateTime( const float fTime_ ) { m_fHitCreateDamageEffectFullRateTime = fTime_; }
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 		float GetHitCreateDamageEffectRate() { return m_fHitCreateDamageEffectRate; }
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 		void SetHitCreateDamageEffectPowerRate( float fVal ) { m_fHitCreateDamageEffectPowerRate = fVal; }
 		float GetHitCreateDamageEffectPowerRate() { return m_fHitCreateDamageEffectPowerRate; }
 #endif
@@ -5187,6 +5192,9 @@ protected:
 		float		m_fHitCreateDamageEffectRate;
 		float		m_fHitCreateDamageEffectPowerRate;
 #endif
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+		float		m_fHitCreateDamageEffectFullRateTime;	/// June +0x41dc: seconds left at a 100 % hit create-damage-effect rate
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 #ifdef SERV_RENA_NIGHT_WATCHER
 		CKTDGParticleSystem::CParticleEventSequenceHandle	m_hSeqEnchant_ArrowOfExplosion;		/// 폭발의 화살 이모티콘 핸들

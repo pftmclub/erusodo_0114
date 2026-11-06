@@ -177,8 +177,8 @@ Plan `JUNE_CHARACTER_RAVEN_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH3a | review PASS 2026-11-06, no code change, `_SKILL_DEBUG` retired; logs passed; **user's visual verdict owed** (motions, effects, cool time, MP) | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH3a.md` |
-| CH3b | built 2026-11-06: Reckless Fist (107) 16 skill ids; play-test passed (user, 2026-11-06), logs checked; **review next** | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GURaven.*` | `CH3b.md`, `CH3b-review.md` |
-| CH3c | blocked (CH3b review): Veteran Commander (115) skills but Ignition Crow / Deadly Raid | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GURaven.*` | `CH3c.md` |
+| CH3b | review 2026-11-06: one fix (Devastating Strike's 4 s full explosion rate, `CX2GameUnit` timer) + Wild Charge A5 / B5 key; `_SKILL_DEBUG` retired; **user's check owed** (unit 80) | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GURaven.*`, `X2GameUnit.*` | `CH3b.md`, `CH3b-review.md` |
+| CH3c | ready (CH3b review done; kickoff amended): Veteran Commander (115) skills but Ignition Crow / Deadly Raid | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GURaven.*` | `CH3c.md` |
 | CH3c2 | blocked (CH3c review; split by CH0): Ignition Crow Napalm / Incineration + Deadly Raid with their overheat states (45 fns) | Sonnet 5.5 / high, Opus review, user play-test | CH3c review | `X2GURaven.*` | `CH3c2.md` |
 | CH3d | blocked (CH3c2 review): hyper actives + transcendence rows, re-awakening 24419, skill icons PASS | Opus 5.5 / high, Opus review, user play-test | CH3c2 review | `X2GURaven.*`, `X2GUUser.*`, `X2Offline*` | `CH3d.md` |
 | CH4a | ready, after or instead of CH3b (one `X2GURaven.*` phase at a time): passives `32c57660`, Burning Nasod Hand, 7am delegates, 0x73c / 0x748, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GURaven.*` | `CH4a.md` |

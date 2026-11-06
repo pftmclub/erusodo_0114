@@ -192,6 +192,9 @@ m_fNoSkillTime( 0 )
 , m_fHitCreateDamageEffectRate ( 0.f )
 , m_fHitCreateDamageEffectPowerRate(1.f)
 #endif
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+, m_fHitCreateDamageEffectFullRateTime( 0.f )	/// June ctor 322a2700 @322a4685
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 #ifdef SERV_RENA_NIGHT_WATCHER
 , m_hSeqEnchant_ArrowOfExplosion( INVALID_PARTICLE_SEQUENCE_HANDLE )			/// 폭발의 화살 이모티콘 핸들
 , m_hStartOfDelayedFiringOverlap( INVALID_PARTICLE_SEQUENCE_HANDLE )			/// 지연의 신호탄 중첩수 출력 이모티콘
@@ -1285,6 +1288,10 @@ void CX2GameUnit::MultiplyStat( float fFactor )
 	/// June effect completion C4: CX2GameUnit::OnFrameMove 3229ecc0 @3229fab5 ticks the DIVISION window map here, last before 32299af0.
 	TickDivisionWindow( m_fElapsedTime );
 #endif SERV_IRUHADEV_JUNE_BUFF_REACT_APPLY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+	if ( 0.f < m_fHitCreateDamageEffectFullRateTime )	/// June 3229ecc0 @3229fac1, last before the return
+		m_fHitCreateDamageEffectFullRateTime -= m_fElapsedTime;
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 
 	return S_OK;
 }
