@@ -3,6 +3,12 @@
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#include "Offline/X2OfflineLog.h"
+#ifndef SERV_RAVEN_VETERAN_COMMANDER
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE needs SERV_RAVEN_VETERAN_COMMANDER ( RVC_DASH_JUMP_COMBO_X )
+#endif SERV_RAVEN_VETERAN_COMMANDER
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 
 #ifdef RAVEN_WEAPON_TAKER
 
@@ -1228,6 +1234,10 @@ void CX2GURaven::InitState()
 	InitPassiveSkillState();					/// June vslot 0x690
 	InitEquippedActiveSkillState( false );		/// June vslot 0x684
 	CX2GUUser::InitState();						/// June 31fd8f00 @32c6839f
+	// Not June: CH1 done-gate line, proves June's script ( its RSI_WAIT_STATE_CHANGE table ) and the motion loaded.
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN DATA class %d script %s motion %s states %d wait_state_change %d", static_cast<int>( eClass ),
+		m_ScriptFileName.c_str(), NULL != m_pMotion ? m_pMotion->GetDeviceID().c_str() : L"(none)", static_cast<int>( m_StateList.size() ),
+		m_StateList.end() != m_StateList.find( static_cast<UserUnitStateDataMap::key_type>( USI_WAIT_STATE_CHANGE ) ) ? 1 : 0 );
 #else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	ASSERT( NULL != GetUnit() );
 

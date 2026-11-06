@@ -1426,6 +1426,53 @@ amended). Next: `/x2-phase char-raven CH1q review` (Opus 5.5 high).
 `enumscan.py --check X2GURaven.cpp X2GageUI.cpp`: `0 A/B row(s) remain`. Probes (`census.cl_cmd`, `/c /Zs /EHsc`) of both files: no flag, `_RAGE`, `_LIVE` + `_RAGE` = 0 errors;
 `_LIVE` alone = C1189 at `Always.h(11792)`. No build: the review changes no code. CH1 kickoff checked: ready once CH0b's walk is done.
 
+### CH1 - Done (2026-11-06)
+
+Opus 5.5. **The deploy unit is live.** `SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE` (`Always.h:11698`) and `SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE` (`Always.h:11772`) are
+defined, so Raven runs June's registration, state bodies, virtuals, skill head, pressed-slot space and Nasod core (CH1a-CH1q). `_RAGE_DEBUG` stays on for the
+play-test (the review retires it). CH0b's walk: user, "walk was done, OK" (2026-11-06).
+- **Script:** `luasrc.py adopt-june data036 RAVEN_FIGHTER.lua` (dry run first): June's file replaces March's whole as `ljconv` bytecode, 210,847 B sha1
+  `cd55974d`, no core-list row, no edit. Record `june2017_re/june_adopt_20261106_143049.tsv`, backup `24965799\kom_backup_stage_june\20261106_143049`.
+  `luabind.py check RAVEN_FIGHTER`: 0 methods, 0 unbound, `RESULT: PASS`.
+- **Motion:** `kom.py stage-june june2017_re/char_raven/ch1_held_motions.tsv`: `Motion_Raven_OT.x` (3,151,017 B) replaces March's in data033 (backup
+  `kom_backup_stage_june\20261106_143106`). March's only name June's file drops was played by March's script, which is gone.
+- **Packed / copied (user approved):** `PACK OK data036` (~1 `RAVEN_FIGHTER.lua`), `PACK OK data033` (~1 `Motion_Raven_OT.x`);
+  `COPY OK data036 ... 14042587 bytes, 270 entries, md5 5c48fe2087b8ad7f8c1e4d17c4eb067d`, `COPY OK data033 ... 168725074 bytes, 165 entries, md5 1321c3464cb7a8033f7a077d4117922b`.
+- **`[JUNE_CHAR] RAVEN DATA`** (`_LIVE`, end of `InitState`, `X2GURaven.cpp:1238`, offline_server.log): class, script, motion, state count, `wait_state_change`, as
+  Elsword's. `X2GURaven.cpp` includes `Offline/X2OfflineLog.h` under `_LIVE` too (it was only under `_RAGE_DEBUG`).
+- **Build fix:** the first build stopped in KTDXLIB at the `_LIVE` guard on `SERV_RAVEN_VETERAN_COMMANDER` (C1189): that flag lives only in `ServerDefine.h`,
+  which KTDXLIB never includes (the X2Lib probes passed because X2Lib does). The guard moved to the top of `X2GURaven.cpp` under `_LIVE`; every other
+  `_LIVE` / `_RAGE` guard flag is `#define`d earlier in `Always.h` (checked line by line).
+- **7h:** June's `RSI_WAIT_STATE_CHANGE` has `ANIM_NAME = ""` (`RAVEN_FIGHTER.src.lua:496`); Raven's `CommonStateStart` (`:7047`) hands off to
+  `CX2GUUser::CommonStateStart`, which takes it as for the four classes before (the pose holds).
+- **`ReservedSkillStart`** (CH1k) is in place under `_LIVE` (`X2GURaven.cpp:7954`): cool time and MP at skill-state start, plus the memo refund.
+- **INIT_PHYSIC:** `SERV_IRUHADEV_JUNE_DAMAGE_EFFECT_INIT_PHYSIC` is on (`Always.h:10293`); June's only reader is `DamageEffect_RF_DASH_COMBO_Z`
+  (`BACK_SPEED_X = INIT_PHYSIC.WALK_SPEED + 250`, `DamageEffect.src.lua:351020`), in live data036 too; the C++ stand-in gives `WALK_SPEED = 500`, the
+  value in `RAVEN_FIGHTER.lua:257`.
+- **Lua load check:** `luasrc.py core --check` `CORE CHECK PASS: 0 FAIL, 0 WARN`, `ledger --check` `LEDGER CHECK PASS`. Core files Raven reads:
+  `Enum.lua`, `UnitTemplet.lua`, `NPCTemplet.lua` (source), `DamageEffect.lua`, `EffectSet.lua` (June bytecode). Load-time errors show only in
+  `ErrorLog.txt`: reference `data\ErrorLog_pre_CH1_raven.txt` (192,987 B; a start-up-only run 2026-11-06 14:35 on the pre-CH1 exe) and, for Raven loads,
+  `ErrorLog_pre_CH0b_raven.txt`.
+- **Scans:** `charport_keys.py RAVEN_FIGHTER`: 251 keys, `june-only=10 neither=6 march-only-site=6 both=229`, CH0's numbers and names. `charport_scan.py`
+  (census rerun first, `census.tsv` / key matrix reverted after): `no NUMERICAL_DATA_INDEX` 70 / `no DAMAGE table` 25, equal to
+  `char_raven/plan_charport_scan_20261105.txt`. Nothing new.
+- **JUNE_BUGS:** rows 543 (`ANUM_SPEED` x1, `RVC_DASH_JUMP_COMBO_XX_START`) and 544 (`STOP_TIME_ATK` x8); no reader either side, March's script has them too.
+- **Checklist:** `(Raven: CH1 ...)` at l.16, 120, 423, 427, 509, 548, 592, 674, 759. CH0's §5 `BURNING_NASOD_HAND_POSSIBLE` row is not in the checklist
+  (the key is read by `CommonStateStart` under `_LIVE`, CH1j); no mark.
+
+Hygiene: `flagcheck.py JUNE_CHAR_RAVEN_LIVE --worktree --files X2Lib/X2GURaven.cpp KTDXLIB/Always.h`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`;
+`0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`.
+The OTHER is `Always.h` (the two defines, their dated lines and the moved guard: `-5` = the two `//#define`s and the three guard lines). `_RAGE` (same files):
+`0 PASS, 2 OTHER, 0 FAIL`, `RESULT: PASS`. `junediverge.py --check X2Lib/X2GURaven.cpp KTDXLIB/Always.h`: `allow-listed: 9`, `RESULT: PASS`.
+`enumscan.py --check X2Lib/X2GURaven.cpp`: `0 A/B row(s)`. One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`, both flags on): `X2GURaven.cpp`, `X2GageUI.cpp`,
+`X2GUUser.cpp`, `X2DamageManager.cpp`, `X2DamageEffect.cpp`, `X2GageData.cpp`, `X2Game.cpp`, `X2GameUnit.cpp` exit 0, 0 errors.
+Build: `DEPLOY OK: X2_offline.exe is 26,039,296 B, dated 2026-11-06 14:49:59, md5 76fc2a9ac22588f39c371b564994b92e, equal to X2/US_SERVICE/x2.exe (2026-11-06 14:49:52); built at main 5c9a9af5 + 2 uncommitted code file(s).`
+`EXESTR OK: 2 of 2 found in X2_offline.exe, 26039296 B, dated 2026-11-06 14:49:59, md5 76fc2a9ac22588f39c371b564994b92e` (`RAVEN DATA` wide x1, `RAVEN RAGE` wide x4).
+
+**Play-test (user) is the gate:** units 72-77 (classes 4 / 16 / 17 / 25 / 107 / 115) and 49 (106), skills 24025 / 24217 / 24026 / 24027 in slots A-S-D-C (bank 0;
+none in slot 4 / 9); combos, dash, jump, a bounding hit, damage and stand-up, riding, parrying, rage gain, Nasod balls, the orb ball, awakening; the Z
+re-attack after a full Z-Z-Z (CH1d); `RAVEN DATA` per class; ErrorLog against the reference. Skills are CH2-CH3's: an unported skill takes March's route.
+
 ## Phase CH2 - Skills: Raven and the first jobs (classes 4, 16, 17, 25)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`.

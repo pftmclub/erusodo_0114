@@ -11694,7 +11694,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Raven ) Phase CH1a - Raven runs on June's class core: June's bodies inside March's own CX2GURaven functions.
 //              Stays commented out until CH1's final sub-phase ships it with June's RAVEN_FIGHTER.lua and motions ( one deploy unit ).
 //              Revert: comment out the #define ( JUNE_CHAR_RAVEN_LIVE ).
-//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+//              CH1 ( 2026-11-06 ): defined, shipped with June's RAVEN_FIGHTER.lua ( data036 ) and Motion_Raven_OT.x ( data033 ).
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 #ifndef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 #error SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE needs SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
@@ -11702,9 +11703,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #ifndef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 #error SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE needs SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK ( TryHyperModeStateChange )
 #endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
-#ifndef SERV_RAVEN_VETERAN_COMMANDER
-#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE needs SERV_RAVEN_VETERAN_COMMANDER ( RVC_DASH_JUMP_COMBO_X )
-#endif SERV_RAVEN_VETERAN_COMMANDER
+// SERV_RAVEN_VETERAN_COMMANDER comes from ServerDefine.h, which KTDXLIB never sees: its guard sits at the top of X2GURaven.cpp.
 #ifndef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #error SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ( SetSkillBuffFactors )
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
@@ -11769,7 +11768,8 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              hit list, and the three-orb ball on the gauge UI ( CX2RavenMyGageUI on the game particle system at ( 74, 60 ) ).
 //              Stays commented out until CH1's final sub-phase defines it with SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE.
 //              Revert: comment out the #define ( JUNE_CHAR_RAVEN_RAGE ).
-//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
+//              CH1 ( 2026-11-06 ): defined with SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE.
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE
 #ifndef SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE
 #error SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE needs SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE ( m_clockLastNasodBallAttack )
