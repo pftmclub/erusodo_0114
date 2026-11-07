@@ -333,7 +333,7 @@ class costume) with `createchar.py`, after a `db_backup`. Gate: `python tools/sk
 
 ### CH0b - Done (2026-11-07)
 
-Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Assets, two guide Lua and the save only. **Copy to the game dir waits on the user's yes.**
+Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Assets, two guide Lua and the save only. **Copied (user approved, 2026-11-07):** `kom.py copy` x32, 32 `COPY OK`; `kom.py status`: 0 `COPY NEEDED`.
 - **Reference:** `ErrorLog.txt` (211,409 B) saved as `data\ErrorLog_pre_CH0b_rena.txt` before staging.
 - **Staged:** `kom.py stage-june --jobs 8 june2017_re/char_rena/ch0b_stage_list.tsv`: `STAGE-JUNE OK: 31 kom(s), 4762 staged (4459 new, 303 replaced, 0 identical), 0 refused, 38s`
   (dry run matched CH0). Replaced March files backed up under `24965799\kom_backup_stage_june61107_112732`. The 5 held motions (`Motion_Lire.x`, `_GA`, `_RTR`, `_SR`, `_WS`, `ch1_held_motions.tsv`) are not in the list: March's copies are untouched; CH1 final stages them.
