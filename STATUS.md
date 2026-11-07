@@ -104,7 +104,6 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0b | **done, play-test owed** (2026-11-07): 4,762 assets staged, 32 koms packed and copied (`COPY OK` x32), 2 guide Lua, units 86-91 added; user: play-test one Rena per tier, say "check logs" | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy), save | `CH0b.md` |
 | CH1a | **ready** (start: `/x2-phase char-rena CH1a`; beside CH0b): movement and slot-head states (32 fn), `_CORE` / `_LIVE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GULire_ElvenRanger.*`, Always.h | `CH1a.md` |
 | CH1b | blocked (CH1a review): reactions (damage 21, stand-up 6, die, start, win / lose) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GULire_ElvenRanger.*` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding 27, pepper, dance | Sonnet 5.5 / high, Opus review | CH1b review | `X2GULire_ElvenRanger.*` | `CH1c.md` |
@@ -143,7 +142,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 | CH6 | blocked (CH3d, CH4a-b, CH5 reviews): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4a-b, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-ara` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0 (2026-11-07).
+Done: CH0 (2026-11-07), CH0b (2026-11-07, 4,762 June files + 2 guide Lua staged, 32 koms packed and copied, units 86-91, play-test passed, 0 KEM_ERROR / Motion Error; June-side texture gaps JUNE_BUGS 562).
 
 ## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.

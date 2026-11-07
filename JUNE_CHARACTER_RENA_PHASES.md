@@ -350,7 +350,12 @@ Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Ass
   (89 / 90 / 91 were created after the game was closed: `createchar` refuses while it runs.)
 - **Play-test (user) is the gate** after the copy. Log tag `[JUNE_CHAR]` has no lines (no code); the check is `ErrorLog.txt` against `ErrorLog_pre_CH0b_rena.txt`
   (`KEM_ERROR`, `Motion Error`, missing texture / mesh). Class script and motions are still March's, so Rena plays as before; her new meshes / textures / sounds load.
-- **Drift:** none new.
+- **Play-test and logs (user: all passed, 2026-11-07; run 11:36-11:40, after the deploy):** `ErrorLog.txt` (1,315 lines) against `ErrorLog_pre_CH0b_rena.txt`: **0** `KEM_ERROR`, **0** `Motion Error`; offline log 0 `EXCEPTION`, the 7 `UNHANDLED` are `E_DISABLE_HB_CHECK_REQ` (known). New lines are the pre log not having used Rena, all June's own or not Rena's:
+  - ~330 `OpenXET` failures (missing `.XET` sidecars, every class logs them; mesh, motion and Ruben-village files); no texture or mesh the stage list should have carried.
+  - 4 `OpenTexture`: `LIRE_BASIC_FACE_LOSE.TGA`, `LIRE_BASIC_FACE.TGA.TGA`, `LIRE_BASIC_FACE_NW.TGA.TGA`, `LIRE_BASIC_FACE_NW,TGA`: June's meshes name them (checked in the bytes, absent from March's), no kom has them: `JUNE_BUGS.md` row 562.
+  - `MOVIE_CREATE_RENA_BASE / WS / GA / NW.LUA` `LoadDataFile` (class-creation movie previews; `.avi` and subtitle scripts are `dangling` in `ch0_assets.tsv`, movie plays on): row 562.
+  - 3 Ruben-village textures (`RUBEN_VILLAGE_HERB01 / 02`, `RUBEN_TECHHOUSE_GANPAN`): not Rena's, not in her list (Stage 15 asset port's); `[LUA_SRC] ChainQuestInfo.lua ... AddGroupChainQuest` (x1, startup): Stage 4 quests, not Rena's.
+- **Drift:** none new (the Ruben textures and `AddGroupChainQuest` are existing backlog stages').
 
 ## Phase CH1 - Deploy unit: June script, motions and the class core
 
