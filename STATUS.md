@@ -100,7 +100,7 @@ Plan `DEV_OVERLAY_PHASES.md` · branch `main` · log tag `[DEV_OVERLAY]` (`data\
 ## char-rena - June character port, Stage 7: Rena
 Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `RENA <sub>`: `DATA`, `CORE`, `NF`, `TRAP`, `SKILL`, `PASSIVE`, `UI`, `NUM`) · flags `SERV_IRUHADEV_JUNE_CHAR_RENA_*` (`_CORE`, `_LIVE`, `_NF`, `_TRAP`, `_SKILL`, `_TRANSCEND`, `_PASSIVE`, `_UI`, + `_DEBUG`) · kickoffs `kickoffs/char-rena/` · backlog Stage 7 · created 2026-11-07.
 
-**Scope:** Rena (`CX2GULire_ElvenRanger`, 7 classes 3 / 12 / 13 / 24 / 102 / 103 / 114) from her March kit to June 2017's, incl. natural force (`ADD_RENA_SYSTEM`, dormant: Open decision 1), her trap summons and her transcendence rows. June class `32c6a8d0`-`32cb6c6d` (467 carved + 24 uncarved overrides, 346 `LESI_` states, 4 trap `CreateNPCReq` sites). CH0 now; code after CH0.
+**Scope:** Rena (`CX2GULire_ElvenRanger`, 7 classes 3 / 12 / 13 / 24 / 102 / 103 / 114) from her March kit to June 2017's, incl. natural force (`ADD_RENA_SYSTEM`, dormant; decision 1 = (a): March's code as the base), her trap summons and her transcendence rows. June class `32c6a8d0`-`32cb6c6d` (467 carved + 24 uncarved overrides, 346 `LESI_` states, 4 trap `CreateNPCReq` sites). CH0 now; code after CH0.
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
@@ -121,7 +121,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 | CH1n | blocked (CH1m review): base callbacks + skill-slot head `32cb06d0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1n.md` |
 | CH1o | blocked (CH1n review): virtuals under `_LIVE`, `SetSkillLevelStateData` term, routed gaps | Opus 5.5 / high, Opus review | CH1n review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index, hooks, June-only keys (`BOW_SKILL_STATE`, `IMMUNE_TO_SUPER_ARMOR_DOWN`) | Opus 5.5 / high, Opus review | CH1o review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1p.md` |
-| CH1q | **decision** (user owes Open decision 1, `ADD_RENA_SYSTEM`) + blocked (CH1p review): natural force, flag `_NF` | Opus 5.5 / high, Opus review | CH1p review, decision 1 | class, `X2GUUser.*`, `X2Gage*`, `X2DamageManager.*`, `X2DamageEffect.cpp`, `X2EffectSet.*`, `X2GUNPC.*`, `CommonPacket.h`, `ServerDefine.h`, `X2Offline*` | `CH1q.md` |
+| CH1q | blocked (CH1p review): natural force on March's dormant `ADD_RENA_SYSTEM` code + June's bodies (decision 1 = (a), 2026-11-07), flag `_NF` | Opus 5.5 / high, Opus review | CH1p review, decision 1 | class, `X2GUUser.*`, `X2Gage*`, `X2DamageManager.*`, `X2DamageEffect.cpp`, `X2EffectSet.*`, `X2GUNPC.*`, `CommonPacket.h`, `ServerDefine.h`, `X2Offline*` | `CH1q.md` |
 | CH1 | blocked (CH1q review, CH0b): define `_LIVE`, adopt the script, copy held motion koms, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | Always.h, data036, motion kom | `CH1.md` |
 | CH2a | blocked (CH1 review): Rena (3) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GULire_ElvenRanger.*`, `MODS.md` | `CH2a.md` |
 | CH2b | blocked (CH2a review): Combat Ranger (12) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GULire_ElvenRanger.*` | `CH2b.md` |

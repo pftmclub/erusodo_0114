@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-rena CH1q` |
 | Plan doc | `JUNE_CHARACTER_RENA_PHASES.md` (branch `main`) |
-| Depends on | CH1p review and Open decision 1 answered. One at a time: `X2GULire_ElvenRanger.*`, `X2GUUser.*`, `X2Gage*.*`, `X2DamageManager.*`, `X2DamageEffect.cpp`, `X2EffectSet.*`, `X2GUNPC.*`, `CommonPacket.h` |
+| Depends on | CH1p review (Open decision 1 answered 2026-11-07: (a)). One at a time: `X2GULire_ElvenRanger.*`, `X2GUUser.*`, `X2Gage*.*`, `X2DamageManager.*`, `X2DamageEffect.cpp`, `X2EffectSet.*`, `X2GUNPC.*`, `CommonPacket.h` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE` (undefined until CH1 final), `SERV_IRUHADEV_JUNE_CHAR_RENA_CORE`, `SERV_IRUHADEV_JUNE_CHAR_RENA_NF` (+ `_NF_DEBUG`; defined only with `_LIVE`) |
 | Log tag | none (nothing runs until `_LIVE`); `[JUNE_CHAR]` (`RENA NF`) from CH1 final |
 | Review | `kickoffs/char-rena/CH1q-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -21,9 +21,9 @@ and Eve's Nasod Core are the worked examples.
 
 ## Task
 
-- **If Open decision 1 is not answered (a / b / c in the plan doc), stop and ask the user.** (a) as Eve's Nasod Core, March's dormant code as the
-  base; (b) June's natural force fresh beside the dead code, `ADD_RENA_SYSTEM` off; (c) no natural force (not recommended).
-- Per the answer, port natural force from `ch0_nf.tsv`. For (a): `_NF` defines `ADD_RENA_SYSTEM` (only with `_LIVE`) with its `ServerDefine.h` second home
+- **Open decision 1 = (a)** (user, 2026-11-07): as Eve's Nasod Core, March's dormant `ADD_RENA_SYSTEM` code is the base, June's whole body
+  wherever it differs.
+- Port natural force from `ch0_nf.tsv`: `_NF` defines `ADD_RENA_SYSTEM` (only with `_LIVE`) with its `ServerDefine.h` second home
   (`CommonPacket.h` is reached before `Always.h`) and a `SECOND_HOMES` row in `tools/flagcheck.py`; then June's whole body inside every March NF function
   that differs: class tail `:23576-24004` (`CreateGageData`, `AttackResultByType`, `Init`, `IsHyperActiveSkill`), `X2GUUser.*`, the first-attack /
   relate-skill copies in `X2DamageManager` / `X2DamageEffect` / `X2EffectSet`, `X2GUNPC.*` incl. `AttackResultByType` `32773ee0`, `CX2RenaGageData` /

@@ -31,8 +31,8 @@ probe compile that defines `_LIVE`. A June function March's class lacks is writt
 **Scope: June 2017 up to transcendence (user, 2026-10-20).** Her third jobs (`UC_LIRE_SWIFT_UPPER` 156, `_DAYBREAKER` 157, `_TWILIGHT` 158) are
 out. Transcendence is live (Stage 6), so her transcendence rows are in CH3d and CH6.
 
-**Order.** char-raven closed 2026-11-07: CH0 runs now, CH0b after CH0, every code phase after CH0. CH1q (natural force) needs Open decision 1
-answered; CH0 maps natural force either way. Lu/Ciel stays parked until Stage 7 closes (user, 2026-11-03).
+**Order.** char-raven closed 2026-11-07: CH0 runs now, CH0b after CH0, every code phase after CH0. CH1q (natural force) follows Open decision 1
+(answered 2026-11-07: (a), March's dormant code as the base). Lu/Ciel stays parked until Stage 7 closes (user, 2026-11-03).
 
 **The state she starts from.**
 - **Skill system (Stage 3).** `s3_reform_ids_no_state.tsv` has 267 Rena rows (3: 15; 12 / 13 / 24: 30 each; 102 / 103 / 114: 54 each), 130
@@ -389,7 +389,7 @@ character (`char-ara`, the first CH-N run).
 Dev console first; copy-ready lines with real values (unit, class, skill id and slot, `/additem`, `/qdone`); per check: where / paste /
 what it does / look for / if not. Log tag `[JUNE_CHAR]`, `python tools/logs.py --grep "JUNE_CHAR RENA <sub>"`.
 
-## Open decisions (for the user)
+## Open decisions (for the user; asked at the end of planning; answered 2026-11-07)
 
 1. **Natural force (`ADD_RENA_SYSTEM`).** June 2017 ships it; March has the studio's 2013-14 code dormant (187 blocks in 23 files: Rena's class,
    `X2GUUser`, the damage / effect-set first-attack copies, the NPC side, the gauge data / UI, `CommonPacket.h`). Options: **(a, recommended)**
@@ -399,6 +399,7 @@ what it does / look for / if not. Log tag `[JUNE_CHAR]`, `python tools/logs.py -
    them). **(b)** transcribe June's natural force fresh beside the dead code, leaving `ADD_RENA_SYSTEM` off. **(c)** leave Rena without natural
    force (against the "June wins" standing rule; not recommended). (a) reuses the members, enums, packet accessor and gauge classes March already
    wired; (b) avoids the flipped arms but rewrites the same members.
+   **Answered (user, 2026-11-07): (a), March's dormant code as the base**, June's whole body wherever it differs.
 
 Settled by standing rules, not decisions: the motion koms deploy with CH1 final if June drops a name March plays (7ad); trap summons get their
 own Opus sub-phase (Eve / Chung lesson); June-side icon gaps are `JUNE_BUGS.md` rows (Raven's 535).
