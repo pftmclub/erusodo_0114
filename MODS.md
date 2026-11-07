@@ -96,6 +96,7 @@ column.
 | `SERV_IRUHADEV_JUNE_UI_SLOT_ITEM_TEX` | 2026-10-21 (pilot-char-revamp CH3a review, crash fix) | `KTDXLIB/Always.h` (after JUNE_PARTICLE_TRACE_INHERIT) | `KTDXLIB/KTDGUISlot.cpp` (both `SetItemTex` overloads = June `31cd0650` / `31cd0850`: the item texture data is kept and refilled in place by `JuneResetTexureData_` = `31c962c0`; March's bodies in the `#else`; JUNE_BUGS 389). Fixes the crash in `CKTDGUIControl::RenderVertex` from the locked TC slots A5 / B5 (disabled slot drew freed texture data, ErrorEnum 131 `SlotA5` / `SlotB5` every frame) | Revert: comment out the define, `python tools/build.py --deploy`. No data change |
 | `SERV_IRUHADEV_OFFLINE_FIRST_SELECT` (offline emulator) | 2026-10-07 (june-buff Phase 14c) | `KTDXLIB/Always.h` (next to the above) | `X2Lib/Offline/Handlers_Unit.cpp` (`PushSelectUnitNotifications`, 5_NOT) | `SERV_IRUHADEV_OFFLINE` |
 | `SERV_IRUHADEV_JUNE_BUFF_DEBUG` | 2026-10-04, **disabled 2026-10-07** (june-buff Phase 14) | `KTDXLIB/Always.h:4787` (`#define` commented out; re-enable to diagnose) | ~250 `[JUNE_BUFF] first ...` debug sites across `X2Lib` (buff templets, game units, users, NPCs, `X2Main.cpp`'s `JuneBuffTestNewStat_LUA` console hook) | -- |
+| `SERV_IRUHADEV_D3D9_LOCAL_DLL` | 2026-11-07 | `KTDXLIB/Always.h` (end) | `KTDXLIB/DXUT/DXUTmisc.cpp` (`DXUT_EnsureD3DAPIs`: bare `LoadLibrary( L"d3d9.dll" )`, so a `d3d9.dll` beside the exe, e.g. DXVK, is loaded before the system one) | -- |
 
 What each one does:
 

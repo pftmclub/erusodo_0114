@@ -2872,7 +2872,12 @@ static bool DXUT_EnsureD3DAPIs( void )
     if( !::GetSystemDirectory( wszPath, MAX_PATH+1 ) )
         return false;
     StringCchCat( wszPath, MAX_PATH, L"\\d3d9.dll" );
+#ifdef SERV_IRUHADEV_D3D9_LOCAL_DLL
+    // bare name: the exe folder is searched before the system folder, so a d3d9.dll beside the exe ( DXVK ) is loaded
+    s_hModD3D9 = LoadLibrary( L"d3d9.dll" );
+#else
     s_hModD3D9 = LoadLibrary( wszPath );
+#endif SERV_IRUHADEV_D3D9_LOCAL_DLL
     if( s_hModD3D9 == NULL ) 
         return false;
     s_DynamicDirect3DCreate9 = (LPDIRECT3DCREATE9)GetProcAddress( s_hModD3D9, "Direct3DCreate9" );

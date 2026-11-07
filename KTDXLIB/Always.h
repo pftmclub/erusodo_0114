@@ -11913,3 +11913,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              Re-opened by CH4c for its play-test ( the Shadow Step slot MP line ); CH4c's review retires it.
 //#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-07
+// Description: DXUT loads d3d9.dll from the exe folder ( bare name ) instead of the full system path, so a drop-in d3d9.dll such as DXVK is used. Revert: undefine the flag.
+#define SERV_IRUHADEV_D3D9_LOCAL_DLL
+//////////////////////////////////////////////////////////////////////////
