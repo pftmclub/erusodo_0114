@@ -2278,6 +2278,30 @@ level grant (`X2OfflineSkill.cpp:949`) re-learned the upgrade at select and move
 the review. Unit 82's bar put back (24039 slot 1, 24217 unslotted). Whether the emulator should keep the base id in the slot (June's client does in-session, `328905b0`) is the
 skill system's question, noted for CH6's walk.
 
+### CH4c - Review (2026-11-07)
+
+Opus 5.5. **Verdict: passes, no code change; `_PASSIVE_DEBUG` retired.** Commit `10d36988`; Ghidra listings of `322e07e0`, `322de5d0` (and its nine callees), `328e0aa0`.
+- **`UpdateSkillCoolTime` `322e07e0` @`322e1114`:** after the Night Watcher test (`32207210( id ) == 0x5ab1`, `+0x9700`), the slot id is XOR-decoded and compared **raw** with `0x5e88`
+  (24200; no base-id helper, unlike the Night Watcher's), then vslot 0x98 (my unit), null -> `322e1225`, `[unit +0x9728] == 1` (`m_bActiveShadowStepCombo`, `ch1_offsets.tsv` row 167)
+  -> `fld [3344a51c]` (10.0, funcmap rows 216 / 1026 / 6084), and both outcomes jump to `322e1225`: the chain after it (`31edf560( id, 0x714f )` Stasis Field @322e1154, then the
+  `[esp+0x50]` test) is an `else`, as March's `else if`. = the port; JUNE_BUGS 559 holds.
+- **`UpdateSkillSlotUI` `322de5d0`:** nine calls after `328dfab0` (`322cd5c0`, `322cda30`, `322d9250`, `322d96b0`, `322d99d0`, `322d9d10`, `322cdd50`, `322da210`, `322d7440`); none compares
+  class 0x73 or holds 0x5e88 (their compares: 0x6272 / 0x627f, 0x72 / 0x5ab1, 0x6d / 0x6401 / 0x6404, 0x73a1 / 0x73a4 / 0xd2, 0x793f / 0x796b; `322cdd50`, `322d7440` none).
+  Dropping `UpdateVeteranCommanderSkillSlotIcon` is right.
+- **`328e0aa0` @`328e0c8f`:** inside `[tree +0x130] == 1` (@328e0b87, else -> `328e0dea`), after the 0x6d / 0x7b / 0x72 blocks: `[g_pData +0x68 -> +0x90 -> +0xaf0] +4 == 0x73`, raw id `== 0x5e88`
+  -> `334c3788` "DLG_SKILL_RavenActive_01.tga", `334c3760` "SI_A_RF_SHADOW_STEP"; a match falls through to `328e0dea` (the 0x7e / 0x24 block, then the tail), as the port runs
+  `SkillIconOverride` after it. `GetClassSkillIconSwap` = `+0x130` (`X2UISkillTreeNew2015.h:335`). JUNE_BUGS 560 holds.
+- **"Already done" spot-checks:** ReInit: the live body (`X2GURaven.cpp:546-567`, June `32c409b0`) has no overheat cleanup; March's never had one either (`dd63297` ReInit :399-425); the
+  cleanup `ch0_overheat.tsv` row 11 cites is the destructor's (`:528-531`). CommonFrameMove: the second `SA_OVERHEAT_HP` read (:8998) sits in `#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE`
+  (from :8705); the live body has none. Both as the Done note says.
+- **Routed, no code:** `june_march_divergent.tsv` rows 436 / 437 (`InitEqip` `32024510`, viewer `31f94360`, `replace`) and `kickoffs/june-engine/R14c.md` "Amended by char-raven CH4c";
+  `stage36-extra-damage.md` "Added by char-raven CH4c" (members 40 / 41); `MemoConditionRaven` `32c28100` is uncarved, funcmap 8211 (CH1o) already holds the always-false decide.
+- **Logs:** no `shadow step slot` line (CH4c's log check: the emulator keeps 24217 in the slot); the compare is confirmed by the listing above. The slot question is CH6's walk item.
+- **Gates:** `flagcheck JUNE_CHAR_RAVEN_PASSIVE --with JUNE_CHAR_RAVEN_PASSIVE_DEBUG --range 10d36988^..10d36988 --files` (3): `files: 1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`,
+  `1 deleted line(s)` (the `//#define`), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2Game.cpp X2Lib/X2UISkillTreeNew2015.cpp`: `0 A/B row(s)`.
+  Retirement: `//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG` (bytepatch, CP949 / CRLF unchanged; worktree flagcheck `RESULT: PASS`). Build started, not awaited.
+  CH6's kickoff checked: ready (every review it waits on is done); it already carries CH4c's slot item.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI`. Sub-tag `UI`.

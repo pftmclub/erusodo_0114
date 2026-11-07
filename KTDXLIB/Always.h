@@ -11911,5 +11911,5 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              play-test; they sit inside JUNE_CHAR_RAVEN_PASSIVE code only. CH4a's review retires it. Revert: undefine the flag ( JUNE_CHAR_RAVEN_PASSIVE_DEBUG ).
 //              Re-opened by CH4b for its play-test ( MP, cool time, Open Mind, Infinity Rage, Win and Win lines ); CH4b's review retires it.
 //              Re-opened by CH4c for its play-test ( the Shadow Step slot MP line ); CH4c's review retires it.
-#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////
