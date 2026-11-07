@@ -1,0 +1,98 @@
+fn	proposed_name	why
+32c6d480	?	called by 32cac200(SpecialAttackEventProcess pa)
+32c6d4d0	?	MemoConditionRena vtable 33516854 slot 1 (pointer @33516858); name by the memo-condition pattern (CH1h / CH4a decision)
+32c6d700	?	called by 32cac200(SpecialAttackEventProcess pa)
+32c6d760	?	called by 32cac200(SpecialAttackEventProcess pa)
+32c6d790	?	called by 32cac200(SpecialAttackEventProcess pa)
+32c6d800	?	called by 32ca81b0(CommonStateStart)
+32c6d870	?	virtual 0x1ec (base 31fca040); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32c6dac0	?	-; delegate stub: thunk 32cb4aa0 pushed in InitPassiveSkillState @32ca7d17
+32c6dbd0	?	-; helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it
+32c6dd10	?	-; helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it
+32c6ddc0	?	-; helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it
+32c7af80	?	-; delegate stub: thunk 32cb4ab0 pushed in InitPassiveSkillState @32ca7e83
+32c7b060	?	called by 32ca68b0(LESI_SA_RTR_FATALITY.Start)
+32c7bd20	?	called by 32c83d00(LESI_SIEGE_READY.EventProces) 32c83f70(LESI_SIEGE_ATTACK.EventProce) 32c84020(LESI_SIEGE_ATTACK_X.EventPro) 32c840d0(LESI_SIEGE_END.EventProcess)
+32c7bdd0	?	called by 32c8d390(LESI_COMBO_Z4a.FrameMove) 32c8e0c0(LESI_COMBO_X3.FrameMove) 32c90130(LESI_DASH_ATTACK_X.FrameMove) 32c90f10(LESI_DASH_JUMP_COMBO_X1.Fram)
+32c7fe20	?	called by 32c8aa40(LESI_SNIPING_RANGER_DOUBLE_J) 32c8b2c0(LESI_SNIPING_RANGER_DOUBLE_J) 32c8d390(LESI_COMBO_Z4a.FrameMove) 32c8d850(LESI_COMBO_X1.FrameMove)
+32c83280	?	called by 32ca81b0(CommonStateStart)
+32c83320	?	virtual 0x824 (base 3208dd70); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32c83580	?	-; helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it
+32c852f0	?	virtual 0x740 (base 32009780); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32c85330	?	called by 32c8aa40(LESI_SNIPING_RANGER_DOUBLE_J) 32c8b2c0(LESI_SNIPING_RANGER_DOUBLE_J) 32c8d390(LESI_COMBO_Z4a.FrameMove) 32c8d850(LESI_COMBO_X1.FrameMove)
+32c85900	?	-; helper: trap summon info, called only from CX2Game summon code @3230bc03 (SetUserSummonedNPCInfo 3230c1a0 region)
+32c85b20	?	-; helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it
+32c85c00	?	virtual 0x850 (base 31fd8230); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32c86340	?	-; helper: trap summon info, called only from CX2Game summon code @3230c423 (SetUserSummonedNPCInfo 3230c1a0 region)
+32c863a0	?	-; helper: trap summon info, called only from CX2Game summon code @3230c8b6 (SetUserSummonedNPCInfo 3230c1a0 region)
+32c863d0	?	virtual 0x774 (base 31f3f070); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32c86620	?	called by 32c86720(LESI_A_LGA_RAPID_SHOT_READY.) 32c9d250(LESI_A_LGA_RAPID_SHOT_ATTACK) 32c9d420(LESI_A_LGA_RAPID_SHOT_FINISH)
+32c86790	?	called by 32cb5dd0(helper)
+32c86890	?	called by 32c86ac0(dead) 32c86af0(ShowActiveSkillCutInAndLight) 32c86b60(LESI_SI_LE_POWER_ATTACK1.Fra) 32c86b90(LESI_SI_LE_POWER_ATTACK1.Fra)
+32c87860	?	-; helper: trap summon info, called only from CX2Game summon code @3230bbbd (SetUserSummonedNPCInfo 3230c1a0 region)
+32c878f0	?	-; helper: trap summon info, called only from CX2Game summon code @3230c712 (SetUserSummonedNPCInfo 3230c1a0 region)
+32c881f0	?	called by 32c886b0(SetEquippedSkillLevel) 32ca78b0(InitPassiveSkillState)
+32c89230	?	virtual 0x744 (base natural force / ADD_RENA_SYSTEM: 0x744 (3204da60): writes the NF gauge (32a317d0 SetChanged, 32a36df0 SetNow)); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32c89270	?	called by 32ca42f0(helper)
+32c89310	?	called by 32ca4e10(CreateMajorParticleArray)
+32c89460	?	called by 32ca5010(CreateMinorParticleArray)
+32c95670	?	called by 32c95790(helper) 32ca4a40(ReInit)
+32c96d60	?	called by 32cadc90(InitState)
+32c96e50	?	called by 32ca5060(CommonStateEnd) 32ca6410(helper) 32ca9680(LESI_DASH_COMBO_RTR_ZX.Frame) 32caca80(LESI_SA_RNW_FURIOUS_ENGAGE.F)
+32c9a5b0	?	called by 32ca69e0(helper)
+32c9a810	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32c9aa60	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32c9aae0	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32c9ac00	?	called by 32c9af70(helper)
+32c9af70	?	called by 32ca5160(NoStateChangeActionFrameMove)
+32c9b320	?	virtual 0x25c (base 32290860); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32c9e130	?	called by 32c9e250(helper) 32ca4a40(ReInit)
+32c9f4f0	?	called by 32ca5310(HyperModeFrameMove) 32ca7040(LESI_RIDING_HYPER_MODE.Frame)
+32ca2010	?	called by 32ca42f0(helper) 32ca4a40(ReInit) 32ca5290(LESI_DIE_FRONT.FrameMove LES) 32ca52d0(LESI_DIE_BACK.FrameMove)
+32ca2180	?	called by 32cb66e0(helper); also called from outside the class: 3275a506 3275a50f
+32ca2390	?	called by 32cb66f0(helper)
+32ca28b0	?	called by 32cb6700(helper)
+32ca2aa0	?	called by 32ca2af0(helper) 32ca2b60(helper) 32ca8bf0(CommonFrameMove)
+32ca2af0	?	called by 32ca50b0(SpecialAttackEventProcess pa)
+32ca2b60	CX2GULire_ElvenRanger	inside: X2GULire_ElvenRanger.h:376 constructor (vtable store 32ca2bc4, body 32ca2b60-32ca42e9)
+32ca42f0	~CX2GULire_ElvenRanger	inside: X2GULire_ElvenRanger.h:383 destructor body (vtable store 32ca431f; the scalar deleting dtor 32cb6c50 calls it, then the delete helper 32fe2300)
+32ca6410	?	called by 32ca6640(LESI_COMBO_RTR_ZZZ.Start) 32ca6670(LESI_COMBO_RTR_ZZZ_DZ.Start) 32ca6690(LESI_COMBO_RTR_ZZZZ.Start) 32ca66c0(LESI_COMBO_RTR_ZZZZZ.Start)
+32ca69e0	?	called by 32ca6be0(helper)
+32ca6b10	?	called by 32ca6be0(helper) 32ca8bf0(CommonFrameMove)
+32ca6be0	?	called by 32ca94c0(LESI_COMBO_RNW_ZZX.FrameMove) 32ca9510(LESI_COMBO_RNW_ZZXX.FrameMov) 32ca9550(LESI_COMBO_RNW_ZZXXX.FrameMo) 32ca9620(LESI_COMBO_RTR_ZZZ.FrameMove)
+32ca6cd0	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32ca6e90	?	called by 32ca9230(LESI_DIE_FRONT.Start LESI_RI) 32ca9360(LESI_DIE_BACK.Start)
+32ca7750	?	called by 32ca8bf0(CommonFrameMove) 32ca9740(helper)
+32ca9740	?	called by 32ca9c20(LESI_RGA_GUNGNIR_READY.Start) 32ca9c50(LESI_RGA_GUNGNIR_CONTROL_FIR)
+32ca9ca0	?	virtual 0x1e8 (base 32011b80); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32cb3200	?	virtual 0x318 (base 3208ddc0); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32cb34e0	?	called by 32cb6c50(~CX2GULire_ElvenRanger (scal); also called from outside the class: 31aaa53b 3215cf8b 321d89fd
+32cb3500	?	-; FriendshipNatureData virtual (vtable 3351666c, COL reads TimeLimited; March X2GULire_ElvenRanger.h:265, live): with DamageReact / ProcessFriendshipNature
+32cb4200	?	-; FriendshipNatureData virtual (vtable 3351666c slot 6)
+32cb4270	?	-; FriendshipNatureData scalar deleting dtor (vtable 3351666c slot 0, writes it @32cb427a)
+32cb4290	?	called by 32cb57b0(helper)
+32cb5060	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32cb5310	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32cb5390	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32cb5430	?	called by 32c86790(helper)
+32cb5550	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32cb56d0	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32cb5760	?	called by 32cb06d0(SetEquippedSkillFuncBySkillS)
+32cb57b0	?	called by 32c86790(helper)
+32cb5810	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32cb5970	?	called by 32c86790(helper)
+32cb5a00	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32cb5a60	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32cb5b70	?	called by 32cb5cb0(helper)
+32cb5c60	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32cb5cb0	?	called by 32c9ac00(helper)
+32cb5d10	?	-; natural force / ADD_RENA_SYSTEM: called by CheckDamageRelateSkillData 32c87780 (also engine 3213681e / 3247cfc9: generic code)
+32cb5dd0	?	called by 32ca78b0(InitPassiveSkillState)
+32cb5df0	?	-; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches
+32cb5ee0	?	-; called by the ctor @32ca3c13 (member init) and engine 322a563c
+32cb5f60	?	-; called by CreateEvoke 32c99690 and 32c87860 (summon info)
+32cb61e0	?	called by 32cb6310(helper)
+32cb6310	?	called by 32ca6e90(helper)
+32cb66e0	?	called by 32ca78b0(InitPassiveSkillState)
+32cb66f0	?	called by 32ca78b0(InitPassiveSkillState)
+32cb6700	?	called by 32ca78b0(InitPassiveSkillState)

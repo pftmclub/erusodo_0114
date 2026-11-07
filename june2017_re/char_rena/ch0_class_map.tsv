@@ -1,0 +1,1498 @@
+june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carved
+32c6a8d0	override 0x48	InitEffect	X2GULire_ElvenRanger.h:418 virtual void InitEffect();	inside	-	CH1h	base 32012760	y
+32c6a900	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c781884000000d00	n
+32c6a920	override 0x684	InitEquippedActiveSkillState	X2GULire_ElvenRanger.h:579 virtual void InitEquippedActiveSkillState( bool bOnlySkillLevel = false );	inside	-	CH1i	base 31fd8f60	n
+32c6a930	override 0x7c0	CommonStateStartFuture	X2GULire_ElvenRanger.h:586 virtual void CommonStateStartFuture();	inside	-	CH1j	base 320506f0	n
+32c6a940	override 0x7d8	CommonStateEndFuture	X2GULire_ElvenRanger.h:591 virtual void CommonStateEndFuture();	inside	-	CH1j	base 31fdd8e0	n
+32c6a950	override 0x7e8	CommonRender_Prepare	X2GULire_ElvenRanger.h:595 virtual RENDER_HINT CommonRender_Prepare();	inside	-	CH1j	base 31fd07b0	y
+32c6a970	override 0x7f4	SpecialAttackEventProcess	X2GULire_ElvenRanger.h:598 virtual bool SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND );	inside	-	CH1k	base 31aa1d30	n
+32c6aa40	state-fn	LESI_DIE_FRONT.EventProcess LESI_RIDING_DIE.EventProcess	inside X2GULire_ElvenRanger.cpp:937 CX2GULire_ElvenRanger::DieFrontEventProcess ; inside X2GULire_ElvenRanger.cpp:1544 CX2GULire_ElvenRanger::DieFrontEventProcess	inside	-	CH1b	2 states	n
+32c6aa70	state-fn	LESI_DIE_BACK.EventProcess	inside X2GULire_ElvenRanger.cpp:946 CX2GULire_ElvenRanger::DieBackEventProcess	inside	-	CH1b	1 states	n
+32c6aaa0	state-fn	LESI_WAIT.StartFuture	inside X2GULire_ElvenRanger.cpp:962 CX2GULire_ElvenRanger::WaitStartFuture	inside	-	CH1a	1 states	y
+32c6aad0	state-fn	LESI_JUMP_UP.EventProcess	inside X2GULire_ElvenRanger.cpp:988 CX2GULire_ElvenRanger::JumpUpEventProcess	inside	-	CH1a	1 states	y
+32c6abb0	state-fn	LESI_DASH_END.StartFuture	inside X2GULire_ElvenRanger.cpp:1055 CX2GULire_ElvenRanger::DashEndStartFuture	inside	-	CH1a	1 states	n
+32c6abc0	state-fn	LESI_DASH_END.Start	inside X2GULire_ElvenRanger.cpp:1056 CX2GULire_ElvenRanger::DashEndStart	inside	-	CH1a	1 states	n
+32c6abd0	state-fn	LESI_DOUBLE_JUMP.StartFuture	inside X2GULire_ElvenRanger.cpp:1075 CX2GULire_ElvenRanger::DoubleJumpStartFuture	inside	-	CH1a	1 states	y
+32c6abf0	state-fn	LESI_DASH_DOUBLE_JUMP.StartFuture	inside X2GULire_ElvenRanger.cpp:1083 CX2GULire_ElvenRanger::DashDoubleJumpStartFuture	inside	-	CH1a	1 states	y
+32c6ac10	state-fn	LESI_DOUBLE_JUMP_ATTACK_Z.StartFuture	inside X2GULire_ElvenRanger.cpp:1789 CX2GULire_ElvenRanger::DoubleJumpAttackZStartFuture	inside	-	CH1d2	1 states	n
+32c6ac20	state-fn	LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X.Start LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX.Start	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:6938 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_StateStart	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX Start	n
+32c6ac40	state-fn	LESI_DOUBLE_JUMP_ATTACK_Z_LANDING.StartFuture	inside X2GULire_ElvenRanger.cpp:1875 CX2GULire_ElvenRanger::DoubleJumpAttackZLandingStartFuture	inside	-	CH1d2	1 states	y
+32c6ac70	state-fn	LESI_DOUBLE_JUMP_ATTACK_Z_LANDING.Start	inside X2GULire_ElvenRanger.cpp:1876 CX2GULire_ElvenRanger::DoubleJumpAttackZLandingStart	inside	-	CH1d2	1 states	y
+32c6ac90	state-fn	LESI_CHARGE_MP.EndFuture	inside X2GULire_ElvenRanger.cpp:1100 CX2GULire_ElvenRanger::ChargeMPEndFuture	inside	-	CH1a	1 states	y
+32c6acc0	state-fn	LESI_HYPER_MODE.Init LESI_LWS_HYPER_MODE.Init LESI_LGA_HYPER_MODE.Init +1	inside X2GULire_ElvenRanger.cpp:1107 CX2GULire_ElvenRanger::HyperModeInit	inside	-	CH1a	4 states	n
+32c6ad20	state-fn	LESI_DAMAGE_AIR_DOWN_LANDING.Init	inside X2GULire_ElvenRanger.cpp:1207 CX2GULire_ElvenRanger::DamageAirDownLandingInit	inside	-	CH1b	1 states	n
+32c6ad50	state-fn	LESI_STANDUP_ROLLING_FRONT_FRONT.EndFuture	inside X2GULire_ElvenRanger.cpp:1249 CX2GULire_ElvenRanger::StandUpRollingFrontFrontEndFuture	inside	-	CH1b	1 states	n
+32c6ad70	state-fn	LESI_STANDUP_ROLLING_FRONT_FRONT.End LESI_P_LE_AGILE_MOVEMENT_FRONT_FRONT.End	inside X2GULire_ElvenRanger.cpp:1250 CX2GULire_ElvenRanger::StandUpRollingFrontFrontEnd ; inside X2GULire_ElvenRanger.cpp:1817 CX2GULire_ElvenRanger::StandUpRollingFrontFrontEnd	inside	-	CH1b	2 states	y
+32c6adb0	state-fn	LESI_STANDUP_ROLLING_FRONT_BACK.EndFuture	inside X2GULire_ElvenRanger.cpp:1257 CX2GULire_ElvenRanger::StandUpRollingFrontBackEndFuture	inside	-	CH1b	1 states	n
+32c6add0	state-fn	LESI_STANDUP_ROLLING_FRONT_BACK.End LESI_P_LE_AGILE_MOVEMENT_FRONT_BACK.End	inside X2GULire_ElvenRanger.cpp:1258 CX2GULire_ElvenRanger::StandUpRollingFrontBackEnd ; inside X2GULire_ElvenRanger.cpp:1824 CX2GULire_ElvenRanger::StandUpRollingFrontBackEnd	inside	-	CH1b	2 states	y
+32c6ae10	state-fn	LESI_STANDUP_ROLLING_BACK_FRONT.EndFuture	inside X2GULire_ElvenRanger.cpp:1265 CX2GULire_ElvenRanger::StandUpRollingBackFrontEndFuture	inside	-	CH1b	1 states	n
+32c6ae30	state-fn	LESI_STANDUP_ROLLING_BACK_FRONT.End LESI_P_LE_AGILE_MOVEMENT_BACK_FRONT.End	inside X2GULire_ElvenRanger.cpp:1266 CX2GULire_ElvenRanger::StandUpRollingBackFrontEnd ; inside X2GULire_ElvenRanger.cpp:1831 CX2GULire_ElvenRanger::StandUpRollingBackFrontEnd	inside	-	CH1b	2 states	y
+32c6ae70	state-fn	LESI_STANDUP_ROLLING_BACK_BACK.EndFuture	inside X2GULire_ElvenRanger.cpp:1273 CX2GULire_ElvenRanger::StandUpRollingBackBackEndFuture	inside	-	CH1b	1 states	n
+32c6ae90	state-fn	LESI_STANDUP_ROLLING_BACK_BACK.End LESI_P_LE_AGILE_MOVEMENT_BACK_BACK.End	inside X2GULire_ElvenRanger.cpp:1274 CX2GULire_ElvenRanger::StandUpRollingBackBackEnd ; inside X2GULire_ElvenRanger.cpp:1839 CX2GULire_ElvenRanger::StandUpRollingBackBackEnd	inside	-	CH1b	2 states	y
+32c6aed0	state-fn	LESI_STANDUP_ATTACK_FRONT.End	inside X2GULire_ElvenRanger.cpp:1282 CX2GULire_ElvenRanger::StandUpAttackFrontEnd	inside	-	CH1b	1 states	y
+32c6af10	state-fn	LESI_STANDUP_ATTACK_BACK.End	inside X2GULire_ElvenRanger.cpp:1290 CX2GULire_ElvenRanger::StandUpAttackBackEnd	inside	-	CH1b	1 states	y
+32c6af50	state-fn	LESI_SIEGE_WAIT.Start	inside X2GULire_ElvenRanger.cpp:1296 CX2GULire_ElvenRanger::SiegeWaitStateStart	inside	-	CH1f	1 states	n
+32c6af60	state-fn	LESI_SIEGE_WAIT.FrameMove	inside X2GULire_ElvenRanger.cpp:1297 CX2GULire_ElvenRanger::SiegeWaitFrameMove	inside	-	CH1f	1 states	n
+32c6afb0	state-fn	LESI_SIEGE_ATTACK.StartFuture	inside X2GULire_ElvenRanger.cpp:1304 CX2GULire_ElvenRanger::SiegeAttackFrontStateStartFuture	inside	-	CH1f	1 states	y
+32c6aff0	state-fn	LESI_SIEGE_ATTACK.Start	inside X2GULire_ElvenRanger.cpp:1305 CX2GULire_ElvenRanger::SiegeAttackFrontStateStart	inside	-	CH1f	1 states	y
+32c6b030	state-fn	LESI_SIEGE_ATTACK_X.StartFuture	inside X2GULire_ElvenRanger.cpp:1313 CX2GULire_ElvenRanger::SiegeAttackXFrontStateStartFuture	inside	-	CH1f	1 states	y
+32c6b070	state-fn	LESI_SIEGE_ATTACK_X.Start	inside X2GULire_ElvenRanger.cpp:1314 CX2GULire_ElvenRanger::SiegeAttackXFrontStateStart	inside	-	CH1f	1 states	y
+32c6b0b0	state-fn	LESI_COMBO_Z1.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:1883 CX2GULire_ElvenRanger::ComboZ1FrameMoveFuture	inside	-	CH1d	1 states	n
+32c6b0c0	state-fn	LESI_COMBO_Z4UP.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:1975 CX2GULire_ElvenRanger::ComboZ4UpFrameMoveFuture	inside	-	CH1d	1 states	n
+32c6b0d0	state-fn	LESI_COMBO_X1.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:1983 CX2GULire_ElvenRanger::ComboX1FrameMoveFuture	inside	-	CH1d	1 states	n
+32c6b0e0	state-fn	LESI_COMBO_X2.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2019 CX2GULire_ElvenRanger::ComboX2FrameMoveFuture	inside	-	CH1d	1 states	n
+32c6b0f0	state-fn	LESI_COMBO_X3.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2027 CX2GULire_ElvenRanger::ComboX3FrameMoveFuture	inside	-	CH1d	1 states	n
+32c6b100	state-fn	LESI_COMBO_X4.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2035 CX2GULire_ElvenRanger::ComboX4FrameMoveFuture	inside	-	CH1d	1 states	n
+32c6b110	state-fn	LESI_COMBO_X4UP.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2045 CX2GULire_ElvenRanger::ComboX4UpFrameMoveFuture	inside	-	CH1d	1 states	n
+32c6b120	state-fn	LESI_COMBO_X4DOWN.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2053 CX2GULire_ElvenRanger::ComboX4DownFrameMoveFuture	inside	-	CH1d	1 states	n
+32c6b130	state-fn	LESI_DASH_COMBO_Z1.FrameMove	inside X2GULire_ElvenRanger.cpp:2073 CX2GULire_ElvenRanger::DashComboZ1FrameMove	inside	-	CH1d2	1 states	n
+32c6b140	state-fn	LESI_DASH_COMBO_Z2.StartFuture	inside X2GULire_ElvenRanger.cpp:2132 CX2GULire_ElvenRanger::DashComboZ2StartFuture	inside	-	CH1d2	1 states	n
+32c6b150	state-fn	LESI_DASH_COMBO_Z2.FrameMove	inside X2GULire_ElvenRanger.cpp:2133 CX2GULire_ElvenRanger::DashComboZ2FrameMove	inside	-	CH1d2	1 states	n
+32c6b160	state-fn	LESI_DASH_ATTACK_X.StartFuture	inside X2GULire_ElvenRanger.cpp:2156 CX2GULire_ElvenRanger::DashAttackXStartFuture	inside	-	CH1d2	1 states	n
+32c6b170	state-fn	LESI_DASH_ATTACK_X.EndFuture	inside X2GULire_ElvenRanger.cpp:2159 CX2GULire_ElvenRanger::DashAttackXEndFuture	inside	-	CH1d2	1 states	y
+32c6b1b0	state-fn	LESI_SNIPING_RANGER_DASH_COMBO_X1.StartFuture	inside X2GULire_ElvenRanger.cpp:2172 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X1_StartFuture	inside	-	CH1f	1 states	n
+32c6b1c0	state-fn	LESI_SNIPING_RANGER_DASH_COMBO_X1.EndFuture	inside X2GULire_ElvenRanger.cpp:2175 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X1_EndFuture	inside	-	CH1f	1 states	y
+32c6b200	state-fn	LESI_JUMP_ATTACK_Z.FrameMove	inside X2GULire_ElvenRanger.cpp:2256 CX2GULire_ElvenRanger::JumpAttackZFrameMove	inside	-	CH1d2	1 states	n
+32c6b210	state-fn	LESI_JUMP_ATTACK_X.StartFuture	inside X2GULire_ElvenRanger.cpp:2282 CX2GULire_ElvenRanger::JumpAttackXStartFuture	inside	-	CH1d2	1 states	n
+32c6b230	state-fn	LESI_DASH_JUMP_ATTACK_Z_LANDING.StartFuture	inside X2GULire_ElvenRanger.cpp:2402 CX2GULire_ElvenRanger::DashJumpAttackZLandingStartFuture	inside	-	CH1d2	1 states	y
+32c6b260	state-fn	LESI_DASH_JUMP_ATTACK_Z_LANDING.Start	inside X2GULire_ElvenRanger.cpp:2403 CX2GULire_ElvenRanger::DashJumpAttackZLandingStart	inside	-	CH1d2	1 states	y
+32c6b280	state-fn	LESI_DASH_JUMP_COMBO_X3.Start LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3.Start	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:11879 CX2GULire_ElvenRanger::DashJumpComboX3StateStart	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: LESI_DASH_JUMP_COMBO_X3 / SNIPING_RANGER_DASH_JUMP_COMBO_X3 Start	n
+32c6b2a0	state-fn	LESI_DASH_JUMP_COMBO_X3.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2447 CX2GULire_ElvenRanger::DashJumpComboX3FrameMoveFuture	inside	-	CH1d2	1 states	n
+32c6b2b0	state-fn	LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2470 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3_FrameMoveFuture	inside	-	CH1f	1 states	n
+32c6b2e0	state-fn	LESI_SI1_LE_PIERCE_ARROW.Init LESI_SI1_LE_PIERCE_ARROW_HYPER.Init	inside X2GULire_ElvenRanger.cpp:3180 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_Init ; inside X2GULire_ElvenRanger.cpp:3187 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_Init	inside	-	CH2a	2 states	n
+32c6b3a0	state-fn	LESI_SI1_LE_PIERCE_ARROW.FrameMoveFuture LESI_SI1_LE_PIERCE_ARROW_HYPER.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3181 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_FrameMoveFuture ; inside X2GULire_ElvenRanger.cpp:3188 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_FrameMoveFuture	inside	-	CH2a	2 states	n
+32c6b3b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c3cccccccccccccc	n
+32c6b3c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90c4070000	n
+32c6b3d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90c8070000	n
+32c6b3e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c3cccccccccccccc	n
+32c6b3f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90c4070000	n
+32c6b400	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90c8070000	n
+32c6b410	state-fn	LESI_SI3_LE_PHOENIX_STRIKE.Init	inside X2GULire_ElvenRanger.cpp:3274 CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_Init	inside	-	CH2a	1 states	n
+32c6b4a0	state-fn	LESI_SI3_LE_PHOENIX_STRIKE.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3275 CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_FrameMoveFuture	inside	-	CH2a	1 states	n
+32c6b4b0	state-fn	LESI_RNW_ACCEL_DASH.StartFuture	inside X2GULire_ElvenRanger.cpp:2609 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_StateStartFuture	inside	-	CH1g3	1 states	y
+32c6b4e0	state-fn	LESI_RNW_ACCEL_DASH.Start	inside X2GULire_ElvenRanger.cpp:2610 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_StateStart	inside	-	CH1g3	1 states	y
+32c6b500	state-fn	LESI_RNW_ACCEL_DASH_JUMP.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2621 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_FrameMoveFuture	inside	-	CH1g3	1 states	n
+32c6b510	state-fn	LESI_RNW_ACCEL_DASH_JUMP.EndFuture	inside X2GULire_ElvenRanger.cpp:2622 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_StateEndFuture	inside	-	CH1g3	1 states	n
+32c6b530	state-fn	LESI_RNW_ACCEL_DASH_JUMP_LANDING.StartFuture	inside X2GULire_ElvenRanger.cpp:2630 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_LANDING_StateStartFuture	inside	-	CH1g3	1 states	y
+32c6b560	state-fn	LESI_RNW_ACCEL_DASH_JUMP_LANDING.Start	inside X2GULire_ElvenRanger.cpp:2631 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_LANDING_StateStart	inside	-	CH1g3	1 states	y
+32c6b580	state-fn	LESI_RNW_ACCEL_DASH_JUMP_Z.FrameMove	inside X2GULire_ElvenRanger.cpp:2640 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_FrameMove	inside	-	CH1g3	1 states	n
+32c6b590	state-fn	LESI_RNW_ACCEL_DASH_JUMP_Z.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2641 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_FrameMoveFuture	inside	-	CH1g3	1 states	n
+32c6b5a0	state-fn	LESI_RNW_ACCEL_DASH_JUMP_Z.EndFuture	inside X2GULire_ElvenRanger.cpp:2643 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_StateEndFuture	inside	-	CH1g3	1 states	y
+32c6b5c0	state-fn	LESI_RNW_ACCEL_DASH_JUMP_ZZ.FrameMove	inside X2GULire_ElvenRanger.cpp:2651 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_FrameMove	inside	-	CH1g3	1 states	n
+32c6b5d0	state-fn	LESI_RNW_ACCEL_DASH_JUMP_ZZ.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2652 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_FrameMoveFuture	inside	-	CH1g3	1 states	n
+32c6b5e0	state-fn	LESI_RNW_ACCEL_DASH_JUMP_ZZ.EndFuture	inside X2GULire_ElvenRanger.cpp:2654 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_StateEndFuture	inside	-	CH1g3	1 states	y
+32c6b600	state-fn	LESI_SA_RNW_FURIOUS_ENGAGE.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:4274 CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_FrameMoveFuture	inside	-	CH3c	1 states	n
+32c6b610	state-fn	LESI_SA_RNW_FURIOUS_ENGAGE.CameraMove	inside X2GULire_ElvenRanger.cpp:4276 CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_CameraMove	inside	-	CH3c	1 states	n
+32c6b620	state-fn	LESI_SI1_LE_ASSAULT_KICK.Init	inside X2GULire_ElvenRanger.cpp:3201 CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_Init	inside	-	CH2a	1 states	n
+32c6b680	state-fn	LESI_SI1_LE_ASSAULT_KICK.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3202 CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_FrameMoveFuture	inside	-	CH2a	1 states	n
+32c6b690	state-fn	LESI_SI1_LE_ASSAULT_KICK.CameraMove	inside X2GULire_ElvenRanger.cpp:3204 CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_CameraMove	inside	-	CH2a	1 states	n
+32c6b6a0	state-fn	LESI_SI1_LE_HUMMING_WIND.Init LESI_SI1_LE_HUMMING_WIND_HYPER.Init	inside X2GULire_ElvenRanger.cpp:3623 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_Init	inside	-	CH2d	2 states	n
+32c6b6e0	state-fn	LESI_SI1_LE_HUMMING_WIND.FrameMoveFuture LESI_SI1_LE_HUMMING_WIND_HYPER.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3624 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_FrameMoveFuture ; inside X2GULire_ElvenRanger.cpp:3630 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_HYPER_FrameMoveFuture	inside	-	CH2d	2 states	n
+32c6b6f0	state-fn	LESI_SI1_LE_HUMMING_WIND.CameraMove LESI_SI1_LE_HUMMING_WIND_HYPER.CameraMove	inside X2GULire_ElvenRanger.cpp:3626 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_CameraMove ; inside X2GULire_ElvenRanger.cpp:3632 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_HYPER_CameraMove	inside	-	CH2d	2 states	n
+32c6b700	state-fn	LESI_SI1_LE_HUMMING_WIND.FrameMoveFuture LESI_SI1_LE_HUMMING_WIND_HYPER.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3624 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_FrameMoveFuture ; inside X2GULire_ElvenRanger.cpp:3630 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_HYPER_FrameMoveFuture	inside	-	CH2d	2 states	n
+32c6b710	state-fn	LESI_SI1_LE_HUMMING_WIND.CameraMove LESI_SI1_LE_HUMMING_WIND_HYPER.CameraMove	inside X2GULire_ElvenRanger.cpp:3626 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_CameraMove ; inside X2GULire_ElvenRanger.cpp:3632 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_HYPER_CameraMove	inside	-	CH2d	2 states	n
+32c6b720	state-fn	LESI_SI2_LE_GUIDED_ARROW.Init LESI_SI2_LE_GUIDED_ARROW_HYPER.Init	inside X2GULire_ElvenRanger.cpp:3640 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_Init	inside	-	CH2c	2 states	n
+32c6b7e0	state-fn	LESI_SI2_LE_GUIDED_ARROW.FrameMoveFuture LESI_SI2_LE_GUIDED_ARROW_HYPER.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3641 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_FrameMoveFuture ; inside X2GULire_ElvenRanger.cpp:3647 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_HYPER_FrameMoveFuture	inside	-	CH2c	2 states	n
+32c6b7f0	state-fn	LESI_SI2_LE_GUIDED_ARROW.CameraMove LESI_SI2_LE_GUIDED_ARROW_HYPER.CameraMove	inside X2GULire_ElvenRanger.cpp:3643 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_CameraMove ; inside X2GULire_ElvenRanger.cpp:3649 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_HYPER_CameraMove	inside	-	CH2c	2 states	n
+32c6b800	state-fn	LESI_SI2_LE_GUIDED_ARROW.FrameMoveFuture LESI_SI2_LE_GUIDED_ARROW_HYPER.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3641 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_FrameMoveFuture ; inside X2GULire_ElvenRanger.cpp:3647 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_HYPER_FrameMoveFuture	inside	-	CH2c	2 states	n
+32c6b810	state-fn	LESI_SI2_LE_GUIDED_ARROW.CameraMove LESI_SI2_LE_GUIDED_ARROW_HYPER.CameraMove	inside X2GULire_ElvenRanger.cpp:3643 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_CameraMove ; inside X2GULire_ElvenRanger.cpp:3649 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_HYPER_CameraMove	inside	-	CH2c	2 states	n
+32c6b820	state-fn	LESI_SI2_LE_PERFECT_STORM.Init	inside X2GULire_ElvenRanger.cpp:3218 CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_Init	inside	-	CH2a	1 states	n
+32c6b870	state-fn	LESI_SI2_LE_PERFECT_STORM.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3219 CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_FrameMoveFuture	inside	-	CH2a	1 states	n
+32c6b880	state-fn	LESI_SI2_LE_PERFECT_STORM.CameraMove	inside X2GULire_ElvenRanger.cpp:3221 CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_CameraMove	inside	-	CH2a	1 states	n
+32c6b890	state-fn	LESI_SI2_LE_PERFECT_STORM.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3219 CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_FrameMoveFuture	inside	-	CH2a	1 states	n
+32c6b8a0	state-fn	LESI_SI2_LE_PERFECT_STORM.CameraMove	inside X2GULire_ElvenRanger.cpp:3221 CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_CameraMove	inside	-	CH2a	1 states	n
+32c6b8b0	state-fn	LESI_SI3_LE_AERO_TORNADO.Init LESI_SI3_LE_AERO_TORNADO_HYPER.Init	inside X2GULire_ElvenRanger.cpp:3256 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_Init	inside	-	CH2a	2 states	n
+32c6b910	state-fn	LESI_SI3_LE_AERO_TORNADO.FrameMoveFuture LESI_SI3_LE_AERO_TORNADO_HYPER.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3257 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_FrameMoveFuture ; inside X2GULire_ElvenRanger.cpp:3263 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_FrameMoveFuture	inside	-	CH2a	2 states	n
+32c6b920	state-fn	LESI_SI3_LE_AERO_TORNADO.CameraMove LESI_SI3_LE_AERO_TORNADO_HYPER.CameraMove	inside X2GULire_ElvenRanger.cpp:3259 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_CameraMove ; inside X2GULire_ElvenRanger.cpp:3265 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_CameraMove	inside	-	CH2a	2 states	n
+32c6b930	state-fn	LESI_SI3_LE_AERO_TORNADO.FrameMoveFuture LESI_SI3_LE_AERO_TORNADO_HYPER.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3257 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_FrameMoveFuture ; inside X2GULire_ElvenRanger.cpp:3263 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_FrameMoveFuture	inside	-	CH2a	2 states	n
+32c6b940	state-fn	LESI_SI3_LE_AERO_TORNADO.CameraMove LESI_SI3_LE_AERO_TORNADO_HYPER.CameraMove	inside X2GULire_ElvenRanger.cpp:3259 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_CameraMove ; inside X2GULire_ElvenRanger.cpp:3265 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_CameraMove	inside	-	CH2a	2 states	n
+32c6b950	state-fn	LESI_SI1_LCR_SPINNING_KICK.Init	inside X2GULire_ElvenRanger.cpp:3577 CX2GULire_ElvenRanger::LESI_SI1_LCR_SPINNING_KICK_Init	inside	-	CH2b	1 states	n
+32c6ba10	state-fn	LESI_SI1_LCR_SPINNING_KICK.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3578 CX2GULire_ElvenRanger::LESI_SI1_LCR_SPINNING_KICK_FrameMoveFuture	inside	-	CH2b	1 states	n
+32c6ba20	state-fn	LESI_SI2_LCR_CRESCENT_KICK.Init LESI_SI2_LCR_CRESCENT_KICK_HYPER.Init	inside X2GULire_ElvenRanger.cpp:3592 CX2GULire_ElvenRanger::LESI_SI2_LCR_CRESCENT_KICK_Init	inside	-	CH2b	2 states	n
+32c6ba70	state-fn	LESI_SI3_LCR_DIVE_KICK_BOMBING.Init LESI_SI3_LCR_DIVE_KICK_BOMBING_HYPER.Init	inside X2GULire_ElvenRanger.cpp:3604 CX2GULire_ElvenRanger::LESI_SI3_LCR_DIVE_KICK_BOMBING_Init	inside	-	CH2b	2 states	n
+32c6bb20	state-fn	LESI_SI3_LSR_CRAZY_SHOT.Init LESI_SI3_LSR_CRAZY_SHOT_HYPER.Init	inside X2GULire_ElvenRanger.cpp:3657 CX2GULire_ElvenRanger::LESI_SI3_LSR_CRAZY_SHOT_Init	inside	-	CH2c	2 states	n
+32c6bc30	state-fn	LESI_SI_A_LE_BACKJUMP_SHOT.Init	inside X2GULire_ElvenRanger.cpp:3686 CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_Init	inside	-	CH2a	1 states	n
+32c6bc80	state-fn	LESI_SI_A_LE_BACKJUMP_SHOT.EndFuture	inside X2GULire_ElvenRanger.cpp:3691 CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_EndFuture	inside	-	CH2a	1 states	n
+32c6bca0	state-fn	LESI_SI_A_LE_REFLEX_MAGIC.Init	inside X2GULire_ElvenRanger.cpp:3721 CX2GULire_ElvenRanger::LESI_SI_A_LE_REFLEX_MAGIC_Init	inside	-	CH3a	1 states	n
+32c6bcf0	state-fn	LESI_SI_A_LE_REFLEX_MAGIC.Start	inside X2GULire_ElvenRanger.cpp:3722 CX2GULire_ElvenRanger::LESI_SI_A_LE_REFLEX_MAGIC_Start	inside	-	CH3a	1 states	n
+32c6bd00	state-fn	LESI_SA_LCR_SHARPFALL.Init LESI_SA_LCR_SHARPFALL_LANDING.Init LESI_SA_LCR_SHARPFALL_HYPER_LANDING.Init	inside X2GULire_ElvenRanger.cpp:3739 CX2GULire_ElvenRanger::LESI_SA_LCR_SHARPFALL_Init	inside	-	CH3a	3 states	n
+32c6bdf0	state-fn	LESI_SA_LCR_SHARPFALL.Start LESI_SA_LCR_SHARPFALL_LANDING.Start LESI_SA_LCR_SHARPFALL_HYPER_LANDING.Start	-	new	LESI_SA_LCR_SHARPFALL_StateStart	CH3a	3 states	y
+32c6be20	state-fn	LESI_SA_LCR_SHARPFALL_LANDING.FrameMove LESI_SA_LCR_SHARPFALL_HYPER_LANDING.FrameMove	inside X2GULire_ElvenRanger.cpp:3759 CX2GULire_ElvenRanger::LESI_SA_LCR_SHARPFALL_LANDING_FrameMove	inside	-	CH3a	2 states	n
+32c6be30	state-fn	LESI_SA_LSR_WINDWARD.Init	inside X2GULire_ElvenRanger.cpp:3772 CX2GULire_ElvenRanger::LESI_SA_LSR_WINDWARD_Init	inside	-	CH2c	1 states	n
+32c6bef0	state-fn	LESI_SA_LSR_WINDWARD.End	inside X2GULire_ElvenRanger.cpp:3776 CX2GULire_ElvenRanger::LESI_SA_LSR_WINDWARD_StateEnd	inside	-	CH2c	1 states	n
+32c6bf10	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 685858513381c190	n
+32c6bf30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90dc070000	n
+32c6bf40	state-fn	LESI_SA_LCR_LOW_KICK.Init	inside X2GULire_ElvenRanger.cpp:3810 CX2GULire_ElvenRanger::LESI_SA_LCR_LOW_KICK_Init	inside	-	CH1e	1 states	n
+32c6bfa0	state-fn	LESI_SA_LCR_LOW_KICK.FrameMove	inside X2GULire_ElvenRanger.cpp:3814 CX2GULire_ElvenRanger::LESI_SA_LCR_LOW_KICK_FrameMove	inside	-	CH1e	1 states	n
+32c6bfb0	state-fn	LESI_SA_LCR_VIOLENT_ATTACK_READY.Init LESI_SA_LCR_VIOLENT_ATTACK.Init LESI_SA_LCR_VIOLENT_ATTACK_LANDING.Init	inside X2GULire_ElvenRanger.cpp:3850 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_READY_Init ; inside X2GULire_ElvenRanger.cpp:3871 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_Init ; inside X2GULire_ElvenRanger.cpp:3889 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_LANDING_Init	inside	-	CH3a	3 states	n
+32c6c060	state-fn	LESI_SA_LCR_VIOLENT_ATTACK_READY.Start LESI_SA_LCR_VIOLENT_ATTACK.Start LESI_SA_LCR_VIOLENT_ATTACK_LANDING.Start	inside X2GULire_ElvenRanger.cpp:3851 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_READY_StateStart	inside	-	CH3a	3 states	n
+32c6c070	state-fn	LESI_SA_LCR_VIOLENT_ATTACK_READY.End LESI_SA_LCR_VIOLENT_ATTACK.End LESI_SA_LCR_VIOLENT_ATTACK_LANDING.End	inside X2GULire_ElvenRanger.cpp:3855 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_READY_StateEnd ; inside X2GULire_ElvenRanger.cpp:3874 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_StateEnd ; inside X2GULire_ElvenRanger.cpp:3892 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_LANDING_StateEnd	inside	-	CH3a	3 states	n
+32c6c080	state-fn	LESI_SA_LCR_VIOLENT_ATTACK.Init	inside X2GULire_ElvenRanger.cpp:3871 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_Init	inside	-	CH3a	1 states	n
+32c6c0c0	state-fn	LESI_SA_LCR_VIOLENT_ATTACK.FrameMove	inside X2GULire_ElvenRanger.cpp:3872 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_FrameMove	inside	-	CH3a	1 states	n
+32c6c0d0	state-fn	LESI_SA_LCR_VIOLENT_ATTACK.End	inside X2GULire_ElvenRanger.cpp:3874 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_StateEnd	inside	-	CH3a	1 states	n
+32c6c0e0	state-fn	LESI_SA_LCR_VIOLENT_ATTACK_LANDING.Init	inside X2GULire_ElvenRanger.cpp:3889 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_LANDING_Init	inside	-	CH3a	1 states	n
+32c6c100	state-fn	LESI_SA_LCR_VIOLENT_ATTACK_LANDING.FrameMove	inside X2GULire_ElvenRanger.cpp:3890 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_LANDING_FrameMove	inside	-	CH3a	1 states	n
+32c6c110	state-fn	LESI_SA_LCR_VIOLENT_ATTACK_LANDING.End	inside X2GULire_ElvenRanger.cpp:3892 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_LANDING_StateEnd	inside	-	CH3a	1 states	n
+32c6c120	state-fn	LESI_LWS_ZZfrontZ.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2496 CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZ_FrameMoveFuture	inside	-	CH1e	1 states	n
+32c6c130	state-fn	LESI_LGA_ZZXX.Start	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:16891 CX2GULire_ElvenRanger::LESI_LGA_ZZXX_StateStart	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: LESI_LGA_ZZXX Start	n
+32c6c150	state-fn	LESI_SA_LWS_SLIDE_KICK.Init LESI_SA_LWS_SLIDE_KICK_PASS_THROUGH.Init LESI_SA_LWS_SLIDE_KICK_FINISH.Init +1	inside X2GULire_ElvenRanger.cpp:3919 CX2GULire_ElvenRanger::LESI_SA_LWS_SLIDE_KICK_Init	inside	-	CH3a	4 states	n
+32c6c1e0	state-fn	LESI_SA_LWS_SLIDE_KICK.End LESI_SA_LWS_SLIDE_KICK_PASS_THROUGH.End LESI_SA_LWS_SLIDE_KICK_FINISH.End +1	inside X2GULire_ElvenRanger.cpp:3922 CX2GULire_ElvenRanger::LESI_SA_LWS_SLIDE_KICK_StateEnd	inside	-	CH3a	4 states	n
+32c6c1f0	state-fn	LESI_SA_LGA_FREEZING_ARROW.Init LESI_SA_LGA_FREEZING_ARROW_HYPER.Init	inside X2GULire_ElvenRanger.cpp:3983 CX2GULire_ElvenRanger::LESI_SA_LGA_FREEZING_ARROW_Init	inside	-	CH3b	2 states	n
+32c6c2e0	state-fn	LESI_A_LWS_NATURE_FORCE.Init	inside X2GULire_ElvenRanger.cpp:4006 CX2GULire_ElvenRanger::LESI_A_LWS_NATURE_FORCE_Init	inside	-	CH3a	1 states	n
+32c6c350	state-fn	LESI_A_LWS_NATURE_FORCE.Start	inside X2GULire_ElvenRanger.cpp:4007 CX2GULire_ElvenRanger::LESI_A_LWS_NATURE_FORCE_StateStart	inside	-	CH3a	1 states	y
+32c6c3a0	state-fn	LESI_A_LGA_STIGMA_ARROW.Init LESI_A_LGA_STIGMA_ARROW_HYPER.Init	inside X2GULire_ElvenRanger.cpp:4030 CX2GULire_ElvenRanger::LESI_A_LGA_STIGMA_ARROW_Init	inside	-	CH3b	2 states	n
+32c6c410	state-fn	LESI_SA_LWS_AIRELINNA.Init	inside X2GULire_ElvenRanger.cpp:4081 CX2GULire_ElvenRanger::LESI_SA_LWS_AIRELINNA_Init	inside	-	CH3a	1 states	n
+32c6c460	state-fn	LESI_SA_LGA_AERO_STRAFE.Init LESI_SA_LGA_AERO_STRAFE_HYPER.Init	inside X2GULire_ElvenRanger.cpp:4053 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_Init	inside	-	CH3b	2 states	n
+32c6c4d0	state-fn	LESI_SA_LGA_AERO_STRAFE.CameraMove LESI_SA_LGA_AERO_STRAFE_HYPER.CameraMove	inside X2GULire_ElvenRanger.cpp:4056 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_CameraMove ; inside X2GULire_ElvenRanger.cpp:4063 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_HYPER_CameraMove	inside	-	CH3b	2 states	n
+32c6c4e0	state-fn	LESI_SA_LGA_AERO_STRAFE.EndFuture LESI_SA_LGA_AERO_STRAFE_HYPER.EndFuture	inside X2GULire_ElvenRanger.cpp:4058 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_StateEndFurtue ; inside X2GULire_ElvenRanger.cpp:4058(=normal CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_StateEndFurtue	inside	-	CH3b	2 states	y
+32c6c500	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c6c530	state-fn	LESI_SA_LGA_AERO_STRAFE.FrameMove LESI_SA_LGA_AERO_STRAFE_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:4055 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_FrameMove ; inside X2GULire_ElvenRanger.cpp:4062 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_HYPER_FrameMove	inside	-	CH3b	2 states	y
+32c6c550	state-fn	LESI_SA_LGA_AERO_STRAFE.CameraMove LESI_SA_LGA_AERO_STRAFE_HYPER.CameraMove	inside X2GULire_ElvenRanger.cpp:4056 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_CameraMove ; inside X2GULire_ElvenRanger.cpp:4063 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_HYPER_CameraMove	inside	-	CH3b	2 states	n
+32c6c560	state-fn	LESI_COMBO_RTR_ZZZ_DZ.FrameMove	inside X2GULire_ElvenRanger.cpp:1936 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_FrameMove	inside	-	CH1g	1 states	n
+32c6c570	state-fn	LESI_DASH_COMBO_RTR_ZX.EndFuture	inside X2GULire_ElvenRanger.cpp:2119 CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_StateEndFuture	inside	-	CH1g	1 states	y
+32c6c5b0	state-fn	LESI_SA_RTR_EVOKE.Init	inside X2GULire_ElvenRanger.cpp:4108 CX2GULire_ElvenRanger::LESI_SA_RTR_EVOKE_Init	inside	-	CH2d	1 states	n
+32c6c600	state-fn	LESI_A_RTR_EXPLOSION_TRAP.Init	inside X2GULire_ElvenRanger.cpp:4136 CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_Init	inside	-	CH2d	1 states	n
+32c6c610	state-fn	LESI_A_RTR_EXPLOSION_TRAP.StartFuture	inside X2GULire_ElvenRanger.cpp:4137 CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_StartFuture	inside	-	CH2d	1 states	y
+32c6c640	state-fn	LESI_A_RTR_EXPLOSION_TRAP.Start	inside X2GULire_ElvenRanger.cpp:4138 CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_Start	inside	-	CH2d	1 states	n
+32c6c650	state-fn	LESI_A_RTR_EXPLOSION_TRAP.EndFuture	inside X2GULire_ElvenRanger.cpp:4142 CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_EndFuture	inside	-	CH2d	1 states	n
+32c6c670	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90c8070000	n
+32c6c680	state-fn	LESI_SA_RTR_KARMA.Init	inside X2GULire_ElvenRanger.cpp:4183 CX2GULire_ElvenRanger::LESI_SA_RTR_KARMA_Init	inside	-	CH2d	1 states	n
+32c6c690	state-fn	LESI_SA_RTR_KARMA.Start	inside X2GULire_ElvenRanger.cpp:4184 CX2GULire_ElvenRanger::LESI_SA_RTR_KARMA_StateStart	inside	-	CH2d	1 states	n
+32c6c6a0	state-fn	LESI_SA_RTR_KARMA.End	inside X2GULire_ElvenRanger.cpp:4187 CX2GULire_ElvenRanger::LESI_SA_RTR_KARMA_StateEnd	inside	-	CH2d	1 states	n
+32c6c6b0	state-fn	LESI_SA_RTR_FATALITY.Init	inside X2GULire_ElvenRanger.cpp:4204 CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_Init	inside	-	CH2d	1 states	n
+32c6c6c0	state-fn	LESI_SA_RTR_FATALITY.StartFuture	inside X2GULire_ElvenRanger.cpp:4206 CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_StateStartFuture	inside	-	CH2d	1 states	y
+32c6c6e0	state-fn	LESI_SA_RTR_FATALITY.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:4207 CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_FrameMoveFuture	inside	-	CH2d	1 states	n
+32c6c6f0	state-fn	LESI_SA_RTR_FATALITY.EndFuture	inside X2GULire_ElvenRanger.cpp:4211 CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_StateEndFuture	inside	-	CH2d	1 states	y
+32c6c710	state-fn	LESI_A_LE_RISING_FALCON.Init	inside X2GULire_ElvenRanger.cpp:4250 CX2GULire_ElvenRanger::LESI_A_LE_RISING_FALCON_Init	inside	-	CH2b	1 states	n
+32c6c790	state-fn	LESI_A_LE_RISING_FALCON.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:4251 CX2GULire_ElvenRanger::LESI_A_LE_RISING_FALCON_FrameMoveFuture	inside	-	CH2b	1 states	n
+32c6c7a0	state-fn	LESI_A_RNW_START_OF_DELAYED_FIRING.Init	inside X2GULire_ElvenRanger.cpp:4319 CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_Init	inside	-	CH3c	1 states	n
+32c6c7b0	state-fn	LESI_A_RNW_START_OF_DELAYED_FIRING.StartFuture	inside X2GULire_ElvenRanger.cpp:4321 CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_StateStartFuture	inside	-	CH3c	1 states	n
+32c6c7c0	state-fn	LESI_A_RNW_START_OF_DELAYED_FIRING.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:4322 CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_FrameMoveFuture	inside	-	CH3c	1 states	n
+32c6c7e0	state-fn	LESI_SA_RNW_GLIDING_STRIKE.Init	inside X2GULire_ElvenRanger.cpp:4295 CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_Init	inside	-	CH3c	1 states	n
+32c6c7f0	state-fn	LESI_SA_RNW_GLIDING_STRIKE.StartFuture	inside X2GULire_ElvenRanger.cpp:4296 CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_StateStartFuture	inside	-	CH3c	1 states	n
+32c6c800	state-fn	LESI_SA_RNW_GLIDING_STRIKE.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:4298 CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_FrameMoveFuture	inside	-	CH3c	1 states	n
+32c6c810	state-fn	LESI_SA_RNW_GLIDING_STRIKE.EndFuture	inside X2GULire_ElvenRanger.cpp:4299 CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_StateEndFuture	inside	-	CH3c	1 states	y
+32c6c830	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c6c860	state-fn	LESI_A_LWS_BACK_KICK.Init	inside X2GULire_ElvenRanger.cpp:3304 CX2GULire_ElvenRanger::LESI_A_LWS_BACK_KICK_Init	inside	-	CH2b	1 states	n
+32c6c8c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c6c8f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c6c970	state-fn	LESI_A_LSR_SHOOTING_MAGNUM.Init	inside X2GULire_ElvenRanger.cpp:3347 CX2GULire_ElvenRanger::LESI_A_LSR_SHOOTING_MAGNUM_Init	inside	-	CH2c	1 states	n
+32c6c9c0	state-fn	LESI_A_LGA_ARC_SHOT.Init	inside X2GULire_ElvenRanger.cpp:3361 CX2GULire_ElvenRanger::LESI_A_LGA_ARC_SHOT_Init	inside	-	CH2c	1 states	n
+32c6ca70	state-fn	LESI_A_LGA_RAPID_SHOT_READY.Init LESI_A_LGA_RAPID_SHOT_ATTACK.Init LESI_A_LGA_RAPID_SHOT_FINISH.Init	inside X2GULire_ElvenRanger.cpp:3374 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_READY_Init	inside	-	CH2c	3 states	n
+32c6cae0	state-fn	LESI_A_LGA_RAPID_SHOT_READY.Start LESI_A_LGA_RAPID_SHOT_ATTACK.Start LESI_A_LGA_RAPID_SHOT_FINISH.Start	-	new	LESI_A_LGA_RAPID_SHOT_READY_StateStart	CH2c	3 states	y
+32c6cb00	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c6cba0	state-fn	LESI_A_LGA_WIND_BLAST.Init	inside X2GULire_ElvenRanger.cpp:3434 CX2GULire_ElvenRanger::LESI_A_LGA_WIND_BLAST_Init	inside	-	CH3b	1 states	n
+32c6cc30	state-fn	LESI_SA_RTR_TRAPPING_ARROW_FUNGUS.Init	inside X2GULire_ElvenRanger.cpp:3454 CX2GULire_ElvenRanger::LESI_SA_RTR_TRAPPING_ARROW_FUNGUS_Init	inside	-	CH3c	1 states	n
+32c6cda0	state-fn	LESI_SA_RTR_TRAPPING_ARROW_FUNGUS.FrameMove	inside X2GULire_ElvenRanger.cpp:3456 CX2GULire_ElvenRanger::LESI_SA_RTR_TRAPPING_ARROW_FUNGUS_FrameMove	inside	-	CH3c	1 states	n
+32c6cdb0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32c6cdf0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c0	y
+32c6ce20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90d8070000	n
+32c6ce40	state-fn	LESI_P_RNW_SEED_OF_RUIN.Init	inside X2GULire_ElvenRanger.cpp:3490 CX2GULire_ElvenRanger::LESI_P_RNW_SEED_OF_RUIN_Init	inside	-	CH3c	1 states	n
+32c6cec0	state-fn	LESI_P_RNW_SEED_OF_RUIN.StartFuture	inside X2GULire_ElvenRanger.cpp:3491 CX2GULire_ElvenRanger::LESI_P_RNW_SEED_OF_RUIN_StartFuture	inside	-	CH3c	1 states	y
+32c6cef0	state-fn	LESI_P_RNW_SEED_OF_RUIN.EndFuture	inside X2GULire_ElvenRanger.cpp:3495 CX2GULire_ElvenRanger::LESI_P_RNW_SEED_OF_RUIN_EndFuture	inside	-	CH3c	1 states	n
+32c6cf10	state-fn	LESI_A_RNW_ANGER_OF_ELF.Init	inside X2GULire_ElvenRanger.cpp:3509 CX2GULire_ElvenRanger::LESI_A_RNW_ANGER_OF_ELF_Init	inside	-	CH2d	1 states	n
+32c6cf30	state-fn	LESI_A_RNW_ROSEBUSH_TRAP.Init	inside X2GULire_ElvenRanger.cpp:3527 CX2GULire_ElvenRanger::LESI_A_RNW_ROSEBUSH_TRAP_Init	inside	-	CH2d	1 states	n
+32c6cf50	state-fn	LESI_A_RNW_ROSEBUSH_TRAP.StartFuture	inside X2GULire_ElvenRanger.cpp:3528 CX2GULire_ElvenRanger::LESI_A_RNW_ROSEBUSH_TRAP_StartFuture	inside	-	CH2d	1 states	n
+32c6cf60	state-fn	LESI_A_RNW_ROSEBUSH_TRAP.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3529 CX2GULire_ElvenRanger::LESI_A_RNW_ROSEBUSH_TRAP_FrameMoveFuture	inside	-	CH2d	1 states	n
+32c6cf70	state-fn	LESI_A_RNW_ROSEBUSH_TRAP.EndFuture	inside X2GULire_ElvenRanger.cpp:3532 CX2GULire_ElvenRanger::LESI_A_RNW_ROSEBUSH_TRAP_EndFuture	inside	-	CH2d	1 states	n
+32c6cf80	state-fn	LESI_A_LWS_ASSAULT_IMPACT.Init	inside X2GULire_ElvenRanger.cpp:3546 CX2GULire_ElvenRanger::LESI_A_LWS_ASSAULT_IMPACT_Init	inside	-	CH2b	1 states	n
+32c6cfc0	state-fn	LESI_A_LTR_ENTANGLE.Init	inside X2GULire_ElvenRanger.cpp:3558 CX2GULire_ElvenRanger::LESI_A_LTR_ENTANGLE_Init	inside	-	CH3b	1 states	n
+32c6d020	state-fn	LESI_SA_RWS_SPINNING_CRESCENT.Init	-	new	LESI_SA_RWS_SPINNING_CRESCENT_Init	CH3a	1 states	n
+32c6d030	state-fn	LESI_SA_RWS_GYRO_KICK.Init	-	new	LESI_SA_RWS_GYRO_KICK_Init	CH3a	1 states	n
+32c6d040	state-fn	LESI_SA_RGA_BLAST_ARROW.Init	-	new	LESI_SA_RGA_BLAST_ARROW_Init	CH3b	1 states	n
+32c6d050	state-fn	LESI_SA_RGA_CUTLASS_WIND.Init	-	new	LESI_SA_RGA_CUTLASS_WIND_Init	CH3b	1 states	n
+32c6d060	state-fn	LESI_SA_RNW_SEED_OF_RUIN_POLE.Init	-	new	LESI_SA_RNW_SEED_OF_RUIN_POLE_Init	CH3c	1 states	n
+32c6d070	state-fn	LESI_SA_RNW_RAGE_FUNGUS.Init	-	new	LESI_SA_RNW_RAGE_FUNGUS_Init	CH3c	1 states	n
+32c6d080	state-fn	LESI_A_RWS_PAIN.Init	-	new	LESI_A_RWS_PAIN_Init	CH3a	1 states	n
+32c6d090	state-fn	LESI_A_RGA_ONE_TARGET_SHOT.Init	-	new	LESI_A_RGA_ONE_TARGET_SHOT_Init	CH3b	1 states	n
+32c6d0a0	state-fn	LESI_A_RNW_BUTTERFLY.Init	-	new	LESI_A_RNW_BUTTERFLY_Init	CH3c	1 states	n
+32c6d0b0	state-fn	LESI_HA_LWS_SPIRAL_STIKE_READY.Init LESI_HA_LWS_SPIRAL_STIKE_SPINING.Init LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK.Init	inside X2GULire_ElvenRanger.cpp:4380 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_READY_Init ; inside X2GULire_ElvenRanger.cpp:4408 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK_Init	inside	-	CH3d	3 states	n
+32c6d1a0	state-fn	LESI_HA_LWS_SPIRAL_STIKE_SPINING.End	inside X2GULire_ElvenRanger.cpp:4400 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_SPINING_StateEnd	inside	-	CH3d	1 states	n
+32c6d1c0	state-fn	LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK.Init	inside X2GULire_ElvenRanger.cpp:4408 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK_Init	inside	-	CH3d	1 states	n
+32c6d290	state-fn	LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT.Init LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT.Init LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING.Init	inside X2GULire_ElvenRanger.cpp:4419 CX2GULire_ElvenRanger::LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT_Init	inside	-	CH3d	3 states	n
+32c6d350	state-fn	LESI_HA_LNW_INNOCENT_START.Init LESI_HA_LNW_INNOCENT_END.Init	inside X2GULire_ElvenRanger.cpp:4454 CX2GULire_ElvenRanger::LESI_HA_LNW_INNOCENT_START_Init ; inside X2GULire_ElvenRanger.cpp:4466 CX2GULire_ElvenRanger::LESI_HA_LNW_INNOCENT_END_Init	inside	-	CH3d	2 states	n
+32c6d3f0	state-fn	LESI_HA_LNW_INNOCENT_END.Init	inside X2GULire_ElvenRanger.cpp:4466 CX2GULire_ElvenRanger::LESI_HA_LNW_INNOCENT_END_Init	inside	-	CH3d	1 states	n
+32c6d420	state-fn	LESI_RIDING_HYPER_MODE.Init	inside X2GULire_ElvenRanger.cpp:1609 CX2GULire_ElvenRanger::RidingHyperModeInit	inside	-	CH1c	1 states	n
+32c6d480	helper	called by 32cac200	-	new	?	CH1k	name: called by 32cac200(SpecialAttackEventProcess pa)	y
+32c6d4a0	override 0x300	?	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23858 CX2GULire_ElvenRanger::AdjustDamageDataBeforeDamageReact	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: AdjustDamageDataBeforeDamageReact (0x300): June empty (ret 4)	n
+32c6d4b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b4424043d100e00	n
+32c6d4d0	helper	-	-	new	?	CH4b	MemoConditionRena vtable 33516854 slot 1 (memo condition decide); name: MemoConditionRena vtable 33516854 slot 1 (pointer @33516858); name by the memo-condition pattern (CH1h / CH4a decision)	n
+32c6d4f0	thunk	jmp 31fc8cf0	-	-	-	n/a	not ported	n
+32c6d500	state-fn	LESI_RSR_DASH_ZX.Start	-	new	LESI_RSR_DASH_ZX_StateStart	CH1f	1 states	n
+32c6d520	state-fn	LESI_RSR_DASH_ZX.StartFuture	-	new	LESI_RSR_DASH_ZX_StateStartFuture	CH1f	1 states	n
+32c6d550	state-fn	LESI_RGA_DASH_JUMP_ZXX.StartFuture	-	new	LESI_RGA_DASH_JUMP_ZXX_StateStartFuture	CH1f2	1 states	n
+32c6d580	state-fn	LESI_RTR_DOUBLE_JUMP_ZX.EndFuture	-	new	LESI_RTR_DOUBLE_JUMP_ZX_StateEndFuture	CH1g	1 states	n
+32c6d5b0	state-fn	LESI_RNW_DASH_XZZ_START.EndFuture	-	new	LESI_RNW_DASH_XZZ_START_StateEndFuture	CH1g2	1 states	n
+32c6d5c0	state-fn	LESI_RNW_DASH_XZZ_END.EndFuture	-	new	LESI_RNW_DASH_XZZ_END_StateEndFuture	CH1g2	1 states	n
+32c6d5f0	state-fn	LESI_RGA_GUNGNIR_READY.Init LESI_RGA_GUNGNIR_CONTROL_IDLE.Init LESI_RGA_GUNGNIR_CONTROL_FIRE.Init +9	-	new	LESI_RGA_GUNGNIR_READY_Init	CH1f2	12 states	n
+32c6d680	state-fn	LESI_RGA_GUNGNIR_READY.End LESI_RGA_GUNGNIR_CONTROL_IDLE.End LESI_RGA_GUNGNIR_CONTROL_FIRE.End +9	-	new	LESI_RGA_GUNGNIR_READY_StateEnd	CH1f2	12 states	n
+32c6d690	state-fn	LESI_A_LSR_MIND_OF_SHARPSHOOTER.Init	-	new	LESI_A_LSR_MIND_OF_SHARPSHOOTER_Init	CH2c	1 states	n
+32c6d6f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6819020000e8f6e3	n
+32c6d700	helper	called by 32cac200	-	new	?	CH1k	name: called by 32cac200(SpecialAttackEventProcess pa)	y
+32c6d730	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b44240450e8d69a	n
+32c6d760	helper	called by 32cac200	-	new	?	CH1k	name: called by 32cac200(SpecialAttackEventProcess pa)	y
+32c6d790	helper	called by 32cac200	-	new	?	CH1k	name: called by 32cac200(SpecialAttackEventProcess pa)	y
+32c6d7d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b44240450e8369a	n
+32c6d800	helper	called by 32ca81b0	-	new	?	CH1j	name: called by 32ca81b0(CommonStateStart)	y
+32c6d870	override 0x1ec	?	- (name unsettled)	new	?	CH1h	base 31fca040; name: virtual 0x1ec (base 31fca040); not named by any sibling class map, funcmap or X2GUUser.h; read the body	n
+32c6d880	state-fn	LESI_SA_RWS_TEMPEST.Init	-	new	LESI_SA_RWS_TEMPEST_Init	CH3a	1 states	n
+32c6d890	state-fn	LESI_SA_RGA_ACEINTHEHOLE_START.Init LESI_SA_RGA_ACEINTHEHOLE_WAIT.Init LESI_SA_RGA_ACEINTHEHOLE_1ST_ATTACK.Init +2	-	new	LESI_SA_RGA_ACEINTHEHOLE_START_Init	CH3b	5 states	n
+32c6d8a0	state-fn	LESI_SA_RGA_ACEINTHEHOLE_START.Start LESI_SA_RGA_ACEINTHEHOLE_WAIT.Start LESI_SA_RGA_ACEINTHEHOLE_1ST_ATTACK.Start +2	-	new	LESI_SA_RGA_ACEINTHEHOLE_START_StateStart	CH3b	5 states	y
+32c6d8f0	state-fn	LESI_SA_RGA_ACEINTHEHOLE_START.StartFuture LESI_SA_RGA_ACEINTHEHOLE_WAIT.StartFuture LESI_SA_RGA_ACEINTHEHOLE_1ST_ATTACK.StartFuture +2	-	new	LESI_SA_RGA_ACEINTHEHOLE_START_StateStartFuture	CH3b	5 states	y
+32c6d910	state-fn	LESI_SA_RNW_ERADICATION_START.Init LESI_SA_RNW_ERADICATION_ATTACK.Init	-	new	LESI_SA_RNW_ERADICATION_START_Init	CH3c	2 states	n
+32c6d920	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec08568d442408	y
+32c6d970	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c085c974063b4c	n
+32c6d990	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c085c974063b4c	n
+32c6d9b0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53558b6c240c5650	n
+32c6da00	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53558b6c240c5650	n
+32c6da50	override 0x60	DamageReact	X2GULire_ElvenRanger.h:412 virtual void DamageReact( CX2DamageManager::DamageData* pDamageData );	inside	-	CH1h	base 320462a0	n
+32c6dac0	helper	-	-	new	?	CH4a	delegate stub: thunk 32cb4aa0 pushed in InitPassiveSkillState @32ca7d17; name: -; delegate stub: thunk 32cb4aa0 pushed in InitPassiveSkillState @32ca7d17	y
+32c6db70	override 0x98	Draw	X2GULire_ElvenRanger.h:416 virtual void Draw();	inside	-	CH1h	base 31ff17c0	y
+32c6dbb0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e868c835ff	y
+32c6dbd0	helper	-	-	new	?	CH1o	helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it; name: -; helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it	y
+32c6dcc0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e838c835ff	y
+32c6dce0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes a1605877338b8888	n
+32c6dd10	helper	-	-	new	?	CH1o	helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it; name: -; helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it	y
+32c6ddc0	helper	-	-	new	?	CH1o	helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it; name: -; helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it	y
+32c6de20	state-fn	LESI_DIE_FRONT.StartFuture LESI_RIDING_DIE.StartFuture	inside X2GULire_ElvenRanger.cpp:934 CX2GULire_ElvenRanger::DieFrontStartFuture ; inside X2GULire_ElvenRanger.cpp:1541 CX2GULire_ElvenRanger::DieFrontStartFuture	inside	-	CH1b	2 states	y
+32c6de80	state-fn	LESI_DIE_BACK.StartFuture	inside X2GULire_ElvenRanger.cpp:943 CX2GULire_ElvenRanger::DieBackStartFuture	inside	-	CH1b	1 states	y
+32c6dee0	state-fn	LESI_WAIT.Start	inside X2GULire_ElvenRanger.cpp:964 CX2GULire_ElvenRanger::WaitStart	inside	-	CH1a	1 states	y
+32c6df30	state-fn	LESI_WALK.Start	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:5856 CX2GULire_ElvenRanger::WalkStart	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: LESI_WALK Start (March WalkStart exists only under ADD_RENA_SYSTEM)	n
+32c6df60	state-fn	LESI_JUMP_DOWN.EventProcess	inside X2GULire_ElvenRanger.cpp:995 CX2GULire_ElvenRanger::JumpDownEventProcess	inside	-	CH1a	1 states	y
+32c6e0c0	state-fn	LESI_DASH.StartFuture	inside X2GULire_ElvenRanger.cpp:1012 CX2GULire_ElvenRanger::LESI_DASH_StateStartFuture	inside	-	CH1a	1 states	n
+32c6e0f0	state-fn	LESI_DASH.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:1018 CX2GULire_ElvenRanger::LESI_DASH_FrameMoveFuture	inside	-	CH1a	1 states	n
+32c6e120	state-fn	LESI_DASH.Start	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:6168 CX2GULire_ElvenRanger::DashStart	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: LESI_DASH Start: June = Rena's DashStart (flag-on arm), not CX2GUUser::DashStart (flag-off arm)	n
+32c6e150	state-fn	LESI_DASH_END.FrameMove	inside X2GULire_ElvenRanger.cpp:1058 CX2GULire_ElvenRanger::DashEndFrameMove	inside	-	CH1a	1 states	y
+32c6e1a0	state-fn	LESI_DASH_DOUBLE_JUMP.EventProcess	inside X2GULire_ElvenRanger.cpp:1085 CX2GULire_ElvenRanger::DashDoubleJumpEventProcess	inside	-	CH1a	1 states	y
+32c6e250	state-fn	LESI_DOUBLE_JUMP_ATTACK_Z.FrameMove	inside X2GULire_ElvenRanger.cpp:1790 CX2GULire_ElvenRanger::DoubleJumpAttackZFrameMove	inside	-	CH1d2	1 states	n
+32c6e290	state-fn	LESI_DOUBLE_JUMP_ATTACK_Z.EventProcess	inside X2GULire_ElvenRanger.cpp:1791 CX2GULire_ElvenRanger::DoubleJumpAttackZEventProcess	inside	-	CH1d2	1 states	y
+32c6e2e0	state-fn	LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z.EventProcess	inside X2GULire_ElvenRanger.cpp:1802 CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z_EventProcess	inside	-	CH1e	1 states	n
+32c6e390	state-fn	LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z_UP.EventProcess	inside X2GULire_ElvenRanger.cpp:1808 CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z_UP_EventProcess	inside	-	CH1e	1 states	y
+32c6e450	state-fn	LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X.EventProcess	inside X2GULire_ElvenRanger.cpp:1858 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X_EventProcess	inside	-	CH1f	1 states	y
+32c6e590	state-fn	LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX.EventProcess	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:6945 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_EventProcess	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX EventProcess	y
+32c6e5e0	state-fn	LESI_DAMAGE_DOWN_FRONT.FrameMove	inside X2GULire_ElvenRanger.cpp:1160 CX2GULire_ElvenRanger::DamageDownFrontFrameMove	inside	-	CH1b	1 states	n
+32c6e630	state-fn	LESI_DAMAGE_DOWN_FRONT.EventProcess	inside X2GULire_ElvenRanger.cpp:1161 CX2GULire_ElvenRanger::DamageDownFrontEventProcess	inside	-	CH1b	1 states	n
+32c6ea30	state-fn	LESI_DAMAGE_DOWN_BACK.FrameMove	inside X2GULire_ElvenRanger.cpp:1167 CX2GULire_ElvenRanger::DamageDownBackFrameMove	inside	-	CH1b	1 states	n
+32c6ea80	state-fn	LESI_DAMAGE_DOWN_BACK.EventProcess	inside X2GULire_ElvenRanger.cpp:1168 CX2GULire_ElvenRanger::DamageDownBackEventProcess	inside	-	CH1b	1 states	n
+32c6ee80	state-fn	LESI_DAMAGE_AIR_DOWN_LANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:1210 CX2GULire_ElvenRanger::DamageAirDownLandingEventProcess	inside	-	CH1b	1 states	n
+32c6f230	state-fn	LESI_STANDUP_ROLLING_FRONT_FRONT.EventProcess LESI_P_LE_AGILE_MOVEMENT_FRONT_FRONT.EventProcess	inside X2GULire_ElvenRanger.cpp:1248 CX2GULire_ElvenRanger::StandUpRollingFrontFrontEventProcess ; inside X2GULire_ElvenRanger.cpp:1816 CX2GULire_ElvenRanger::StandUpRollingFrontFrontEventProcess	inside	-	CH1b	2 states	y
+32c6f290	state-fn	LESI_STANDUP_ROLLING_FRONT_BACK.EventProcess LESI_P_LE_AGILE_MOVEMENT_FRONT_BACK.EventProcess	inside X2GULire_ElvenRanger.cpp:1256 CX2GULire_ElvenRanger::StandUpRollingFrontBackEventProcess ; inside X2GULire_ElvenRanger.cpp:1823 CX2GULire_ElvenRanger::StandUpRollingFrontBackEventProcess	inside	-	CH1b	2 states	y
+32c6f2f0	state-fn	LESI_STANDUP_ROLLING_BACK_FRONT.EventProcess LESI_P_LE_AGILE_MOVEMENT_BACK_FRONT.EventProcess	inside X2GULire_ElvenRanger.cpp:1264 CX2GULire_ElvenRanger::StandUpRollingBackFrontEventProcess ; inside X2GULire_ElvenRanger.cpp:1830 CX2GULire_ElvenRanger::StandUpRollingBackFrontEventProcess	inside	-	CH1b	2 states	y
+32c6f350	state-fn	LESI_STANDUP_ROLLING_BACK_BACK.EventProcess LESI_P_LE_AGILE_MOVEMENT_BACK_BACK.EventProcess	inside X2GULire_ElvenRanger.cpp:1272 CX2GULire_ElvenRanger::StandUpRollingBackBackEventProcess ; inside X2GULire_ElvenRanger.cpp:1838 CX2GULire_ElvenRanger::StandUpRollingBackBackEventProcess	inside	-	CH1b	2 states	y
+32c6f3b0	state-fn	LESI_STANDUP_ATTACK_FRONT.FrameMove	inside X2GULire_ElvenRanger.cpp:1280 CX2GULire_ElvenRanger::StandUpAttackFrontFrameMove	inside	-	CH1b	1 states	n
+32c6f440	state-fn	LESI_STANDUP_ATTACK_FRONT.EventProcess	inside X2GULire_ElvenRanger.cpp:1281 CX2GULire_ElvenRanger::StandUpAttackFrontEventProcess	inside	-	CH1b	1 states	y
+32c6f490	state-fn	LESI_STANDUP_ATTACK_BACK.FrameMove	inside X2GULire_ElvenRanger.cpp:1288 CX2GULire_ElvenRanger::StandUpAttackBackFrameMove	inside	-	CH1b	1 states	y
+32c6f510	state-fn	LESI_STANDUP_ATTACK_BACK.EventProcess	inside X2GULire_ElvenRanger.cpp:1289 CX2GULire_ElvenRanger::StandUpAttackBackEventProcess	inside	-	CH1b	1 states	y
+32c6f560	state-fn	LESI_SIEGE_READY.Start	inside X2GULire_ElvenRanger.cpp:3672 CX2GULire_ElvenRanger::SiegeReadyStateStart	inside	-	CH1f	1 states	n
+32c6f610	state-fn	LESI_COMBO_Z1.FrameMove	inside X2GULire_ElvenRanger.cpp:1884 CX2GULire_ElvenRanger::ComboZ1FrameMove	inside	-	CH1d	1 states	y
+32c6f670	state-fn	LESI_COMBO_Z1.EventProcess	inside X2GULire_ElvenRanger.cpp:1885 CX2GULire_ElvenRanger::ComboZ1EventProcess	inside	-	CH1d	1 states	n
+32c6fa80	state-fn	LESI_COMBO_Z2.FrameMove	inside X2GULire_ElvenRanger.cpp:1892 CX2GULire_ElvenRanger::ComboZ2FrameMove	inside	-	CH1d	1 states	n
+32c6fae0	state-fn	LESI_COMBO_Z2.EventProcess	inside X2GULire_ElvenRanger.cpp:1893 CX2GULire_ElvenRanger::ComboZ2EventProcess	inside	-	CH1d	1 states	n
+32c700b0	state-fn	LESI_COMBO_Z3.FrameMove	inside X2GULire_ElvenRanger.cpp:1905 CX2GULire_ElvenRanger::ComboZ3FrameMove	inside	-	CH1d	1 states	n
+32c70110	state-fn	LESI_COMBO_Z3.EventProcess	inside X2GULire_ElvenRanger.cpp:1906 CX2GULire_ElvenRanger::ComboZ3EventProcess	inside	-	CH1d	1 states	n
+32c706a0	state-fn	LESI_COMBO_Z4.FrameMove	inside X2GULire_ElvenRanger.cpp:1913 CX2GULire_ElvenRanger::ComboZ4FrameMove	inside	-	CH1d	1 states	n
+32c70700	state-fn	LESI_COMBO_Z4.EventProcess	inside X2GULire_ElvenRanger.cpp:1914 CX2GULire_ElvenRanger::ComboZ4EventProcess	inside	-	CH1d	1 states	n
+32c70980	state-fn	LESI_COMBO_Z4a.EventProcess	inside X2GULire_ElvenRanger.cpp:1968 CX2GULire_ElvenRanger::ComboZ4aEventProcess	inside	-	CH1d	1 states	n
+32c70c00	state-fn	LESI_COMBO_Z4UP.FrameMove	inside X2GULire_ElvenRanger.cpp:1976 CX2GULire_ElvenRanger::ComboZ4UpFrameMove	inside	-	CH1d	1 states	y
+32c70c60	state-fn	LESI_COMBO_Z4UP.EventProcess	inside X2GULire_ElvenRanger.cpp:1977 CX2GULire_ElvenRanger::ComboZ4UpEventProcess	inside	-	CH1d	1 states	n
+32c70ee0	state-fn	LESI_COMBO_X1.EventProcess	inside X2GULire_ElvenRanger.cpp:1985 CX2GULire_ElvenRanger::ComboX1EventProcess	inside	-	CH1d	1 states	n
+32c712f0	state-fn	LESI_COMBO_X2.EventProcess	inside X2GULire_ElvenRanger.cpp:2021 CX2GULire_ElvenRanger::ComboX2EventProcess	inside	-	CH1d	1 states	n
+32c71700	state-fn	LESI_COMBO_X3.EventProcess	inside X2GULire_ElvenRanger.cpp:2029 CX2GULire_ElvenRanger::ComboX3EventProcess	inside	-	CH1d	1 states	n
+32c71bc0	state-fn	LESI_COMBO_X4.EventProcess	inside X2GULire_ElvenRanger.cpp:2037 CX2GULire_ElvenRanger::ComboX4EventProcess	inside	-	CH1d	1 states	n
+32c71e40	state-fn	LESI_COMBO_X4UP.EventProcess	inside X2GULire_ElvenRanger.cpp:2047 CX2GULire_ElvenRanger::ComboX4UpEventProcess	inside	-	CH1d	1 states	n
+32c720c0	state-fn	LESI_COMBO_X4DOWN.EventProcess	inside X2GULire_ElvenRanger.cpp:2055 CX2GULire_ElvenRanger::ComboX4DownEventProcess	inside	-	CH1d	1 states	n
+32c72340	state-fn	LESI_DASH_COMBO_Z1.EventProcess	inside X2GULire_ElvenRanger.cpp:2074 CX2GULire_ElvenRanger::DashComboZ1EventProcess	inside	-	CH1d2	1 states	n
+32c72850	state-fn	LESI_COMBAT_RANGER_DASH_COMBO_Z1.EventProcess	inside X2GULire_ElvenRanger.cpp:2087 CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_COMBO_Z1_EventProcess	inside	-	CH1e	1 states	n
+32c72bc0	state-fn	LESI_COMBAT_RANGER_DASH_COMBO_Z2.EventProcess	inside X2GULire_ElvenRanger.cpp:2094 CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_COMBO_Z2_EventProcess	inside	-	CH1e	1 states	n
+32c72f30	state-fn	LESI_DASH_COMBO_Z2.EventProcess	inside X2GULire_ElvenRanger.cpp:2134 CX2GULire_ElvenRanger::DashComboZ2EventProcess	inside	-	CH1d2	1 states	n
+32c731b0	state-fn	LESI_DASH_ATTACK_X.EventProcess	inside X2GULire_ElvenRanger.cpp:2158 CX2GULire_ElvenRanger::DashAttackXEventProcess	inside	-	CH1d2	1 states	n
+32c73500	state-fn	LESI_SNIPING_RANGER_DASH_COMBO_X1.EventProcess	inside X2GULire_ElvenRanger.cpp:2174 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X1_EventProcess	inside	-	CH1f	1 states	n
+32c73960	state-fn	LESI_SNIPING_RANGER_DASH_COMBO_X2.EventProcess	inside X2GULire_ElvenRanger.cpp:2182 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X2_EventProcess	inside	-	CH1f	1 states	n
+32c73c40	state-fn	LESI_JUMP_ATTACK_Z.EventProcess	inside X2GULire_ElvenRanger.cpp:2257 CX2GULire_ElvenRanger::JumpAttackZEventProcess	inside	-	CH1d2	1 states	y
+32c73cb0	state-fn	LESI_JUMP_ATTACK_X.EventProcess	inside X2GULire_ElvenRanger.cpp:2285 CX2GULire_ElvenRanger::JumpAttackXEventProcess	inside	-	CH1d2	1 states	y
+32c73ce0	state-fn	LESI_DASH_JUMP_ATTACK_Z.EventProcess	inside X2GULire_ElvenRanger.cpp:2307 CX2GULire_ElvenRanger::DashJumpAttackZEventProcess	inside	-	CH1d2	1 states	y
+32c73d10	state-fn	LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1.EventProcess	inside X2GULire_ElvenRanger.cpp:2317 CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1_EventProcess	inside	-	CH1e	1 states	y
+32c73e10	state-fn	LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z2.EventProcess	inside X2GULire_ElvenRanger.cpp:2323 CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z2_EventProcess	inside	-	CH1e	1 states	y
+32c73f10	state-fn	LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z3.EventProcess	inside X2GULire_ElvenRanger.cpp:2329 CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z3_EventProcess	inside	-	CH1e	1 states	y
+32c73f40	state-fn	LESI_DASH_JUMP_ATTACK_Z_LANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:2404 CX2GULire_ElvenRanger::DashJumpAttackZLandingEventProcess	inside	-	CH1d2	1 states	n
+32c74140	state-fn	LESI_DASH_JUMP_COMBO_X1.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2410 CX2GULire_ElvenRanger::DashJumpComboX1FrameMoveFuture	inside	-	CH1d2	1 states	n
+32c74180	state-fn	LESI_DASH_JUMP_COMBO_X1.EventProcess	inside X2GULire_ElvenRanger.cpp:2412 CX2GULire_ElvenRanger::DashJumpComboX1EventProcess	inside	-	CH1d2	1 states	y
+32c744e0	state-fn	LESI_DASH_JUMP_COMBO_X2.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2436 CX2GULire_ElvenRanger::DashJumpComboX2FrameMoveFuture	inside	-	CH1d2	1 states	n
+32c74520	state-fn	LESI_DASH_JUMP_COMBO_X2.EventProcess	inside X2GULire_ElvenRanger.cpp:2438 CX2GULire_ElvenRanger::DashJumpComboX2EventProcess	inside	-	CH1d2	1 states	y
+32c747d0	state-fn	LESI_DASH_JUMP_COMBO_X3.EventProcess	inside X2GULire_ElvenRanger.cpp:2449 CX2GULire_ElvenRanger::DashJumpComboX3EventProcess	inside	-	CH1d2	1 states	y
+32c74800	state-fn	LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2459 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2_FrameMoveFuture	inside	-	CH1f	1 states	n
+32c74840	state-fn	LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2.EventProcess	inside X2GULire_ElvenRanger.cpp:2461 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2_EventProcess	inside	-	CH1f	1 states	y
+32c74a10	state-fn	LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3.EventProcess	inside X2GULire_ElvenRanger.cpp:2472 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3_EventProcess	inside	-	CH1f	1 states	y
+32c74a40	state-fn	LESI_SI_LE_POWER_ATTACK1.EventProcess	inside X2GULire_ElvenRanger.cpp:3164 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_EventProcess	inside	-	CH2a	1 states	n
+32c74d50	state-fn	LESI_SI_LE_POWER_ATTACK1.EventProcess	inside X2GULire_ElvenRanger.cpp:3164 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_EventProcess	inside	-	CH2a	1 states	n
+32c75060	state-fn	LESI_SI1_LE_PIERCE_ARROW.EventProcess LESI_SI1_LE_PIERCE_ARROW_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:3184 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_EventProcess ; inside X2GULire_ElvenRanger.cpp:3191 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_EventProcess	inside	-	CH2a	2 states	y
+32c750a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32c750e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32c75120	state-fn	LESI_SI3_LE_PHOENIX_STRIKE.EventProcess	inside X2GULire_ElvenRanger.cpp:3278 CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_EventProcess	inside	-	CH2a	1 states	y
+32c75160	state-fn	LESI_COMBO_RNW_ZZX.EventProcess	inside X2GULire_ElvenRanger.cpp:2581 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZX_EventProcess	inside	-	CH1g2	1 states	n
+32c754d0	state-fn	LESI_COMBO_RNW_ZZXX.EventProcess	inside X2GULire_ElvenRanger.cpp:2591 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXX_EventProcess	inside	-	CH1g2	1 states	n
+32c75840	state-fn	LESI_COMBO_RNW_ZZXXX.EventProcess	inside X2GULire_ElvenRanger.cpp:2601 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXXX_EventProcess	inside	-	CH1g2	1 states	n
+32c75b00	state-fn	LESI_RNW_ACCEL_DASH_JUMP.Start	inside X2GULire_ElvenRanger.cpp:2620 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_StateStart	inside	-	CH1g3	1 states	y
+32c75b50	state-fn	LESI_RNW_ACCEL_DASH_JUMP.EventProcess	inside X2GULire_ElvenRanger.cpp:2623 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_EventProcess	inside	-	CH1g3	1 states	y
+32c75bc0	state-fn	LESI_RNW_ACCEL_DASH_JUMP_Z.EventProcess	inside X2GULire_ElvenRanger.cpp:2642 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_EventProcess	inside	-	CH1g3	1 states	y
+32c75cc0	state-fn	LESI_RNW_ACCEL_DASH_JUMP_ZZ.EventProcess	inside X2GULire_ElvenRanger.cpp:2653 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_EventProcess	inside	-	CH1g3	1 states	y
+32c75cf0	state-fn	LESI_SA_RNW_FURIOUS_ENGAGE.EventProcess	inside X2GULire_ElvenRanger.cpp:4277 CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_EventProcess	inside	-	CH3c	1 states	y
+32c75d80	state-fn	LESI_SI1_LE_ASSAULT_KICK.EventProcess	inside X2GULire_ElvenRanger.cpp:3205 CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_EventProcess	inside	-	CH2a	1 states	y
+32c75e50	state-fn	LESI_SI1_LE_HUMMING_WIND.EventProcess LESI_SI1_LE_HUMMING_WIND_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:3627 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_EventProcess ; inside X2GULire_ElvenRanger.cpp:3633 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_HYPER_EventProcess	inside	-	CH2d	2 states	y
+32c75e90	state-fn	LESI_SI1_LE_HUMMING_WIND.EventProcess LESI_SI1_LE_HUMMING_WIND_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:3627 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_EventProcess ; inside X2GULire_ElvenRanger.cpp:3633 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_HYPER_EventProcess	inside	-	CH2d	2 states	y
+32c75ed0	state-fn	LESI_SI2_LE_GUIDED_ARROW.EventProcess LESI_SI2_LE_GUIDED_ARROW_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:3644 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_EventProcess ; inside X2GULire_ElvenRanger.cpp:3650 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_HYPER_EventProcess	inside	-	CH2c	2 states	y
+32c75fa0	state-fn	LESI_SI2_LE_GUIDED_ARROW.EventProcess LESI_SI2_LE_GUIDED_ARROW_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:3644 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_EventProcess ; inside X2GULire_ElvenRanger.cpp:3650 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_HYPER_EventProcess	inside	-	CH2c	2 states	y
+32c76070	state-fn	LESI_SI2_LE_PERFECT_STORM.EventProcess	inside X2GULire_ElvenRanger.cpp:3222 CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_EventProcess	inside	-	CH2a	1 states	n
+32c76280	state-fn	LESI_SI2_LE_PERFECT_STORM.EventProcess	inside X2GULire_ElvenRanger.cpp:3222 CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_EventProcess	inside	-	CH2a	1 states	n
+32c76490	state-fn	LESI_SI3_LE_AERO_TORNADO.EventProcess LESI_SI3_LE_AERO_TORNADO_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:3260 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_EventProcess ; inside X2GULire_ElvenRanger.cpp:3266 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_EventProcess	inside	-	CH2a	2 states	y
+32c76560	state-fn	LESI_SI3_LE_AERO_TORNADO.EventProcess LESI_SI3_LE_AERO_TORNADO_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:3260 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_EventProcess ; inside X2GULire_ElvenRanger.cpp:3266 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_EventProcess	inside	-	CH2a	2 states	y
+32c76630	state-fn	LESI_SI1_LCR_SPINNING_KICK.EventProcess	inside X2GULire_ElvenRanger.cpp:3580 CX2GULire_ElvenRanger::LESI_SI1_LCR_SPINNING_KICK_EventProcess	inside	-	CH2b	1 states	y
+32c76700	state-fn	LESI_SI2_LCR_CRESCENT_KICK.EventProcess LESI_SI2_LCR_CRESCENT_KICK_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:3594 CX2GULire_ElvenRanger::LESI_SI2_LCR_CRESCENT_KICK_EventProcess ; inside X2GULire_ElvenRanger.cpp:3598 CX2GULire_ElvenRanger::LESI_SI2_LCR_CRESCENT_KICK_HYPER_EventProcess	inside	-	CH2b	2 states	y
+32c76800	state-fn	LESI_SI3_LCR_DIVE_KICK_BOMBING.EventProcess LESI_SI3_LCR_DIVE_KICK_BOMBING_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:3607 CX2GULire_ElvenRanger::LESI_SI3_LCR_DIVE_KICK_BOMBING_EventProcess ; inside X2GULire_ElvenRanger.cpp:3612 CX2GULire_ElvenRanger::LESI_SI3_LCR_DIVE_KICK_BOMBING_HYPER_EventProcess	inside	-	CH2b	2 states	y
+32c76840	state-fn	LESI_SI3_LSR_CRAZY_SHOT.EventProcess LESI_SI3_LSR_CRAZY_SHOT_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:3659 CX2GULire_ElvenRanger::LESI_SI3_LSR_CRAZY_SHOT_EventProcess ; inside X2GULire_ElvenRanger.cpp:3663 CX2GULire_ElvenRanger::LESI_SI3_LSR_CRAZY_SHOT_HYPER_EventProcess	inside	-	CH2c	2 states	y
+32c76880	state-fn	LESI_SI3_LSR_CRAZY_SHOT.EventProcess LESI_SI3_LSR_CRAZY_SHOT_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:3659 CX2GULire_ElvenRanger::LESI_SI3_LSR_CRAZY_SHOT_EventProcess ; inside X2GULire_ElvenRanger.cpp:3663 CX2GULire_ElvenRanger::LESI_SI3_LSR_CRAZY_SHOT_HYPER_EventProcess	inside	-	CH2c	2 states	y
+32c768c0	state-fn	LESI_SI_A_LE_BACKJUMP_SHOT.Start	inside X2GULire_ElvenRanger.cpp:3687 CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_Start	inside	-	CH2a	1 states	y
+32c76960	state-fn	LESI_SI_A_LE_BACKJUMP_SHOT.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3688 CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_FrameMoveFuture	inside	-	CH2a	1 states	n
+32c769b0	state-fn	LESI_SI_A_LE_BACKJUMP_SHOT.EventProcess	inside X2GULire_ElvenRanger.cpp:3690 CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_EventProcess	inside	-	CH2a	1 states	y
+32c769f0	state-fn	LESI_SI_A_LE_REFLEX_MAGIC.EventProcess	inside X2GULire_ElvenRanger.cpp:3723 CX2GULire_ElvenRanger::LESI_SI_A_LE_REFLEX_MAGIC_EventProcess	inside	-	CH3a	1 states	n
+32c76ce0	state-fn	LESI_SI_A_LE_REFLEX_MAGIC_READY.EventProcess LESI_SI_A_LE_REFLEX_MAGIC.EventProcess	inside X2GULire_ElvenRanger.cpp:3709 CX2GULire_ElvenRanger::LESI_SI_A_LE_REFLEX_MAGIC_READY_EventProcess ; inside X2GULire_ElvenRanger.cpp:3723 CX2GULire_ElvenRanger::LESI_SI_A_LE_REFLEX_MAGIC_EventProcess	inside	-	CH3a	2 states	y
+32c76d10	state-fn	LESI_SA_LCR_SHARPFALL.EventProcess LESI_SA_LCR_SHARPFALL_LANDING.EventProcess LESI_SA_LCR_SHARPFALL_HYPER_LANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:3741 CX2GULire_ElvenRanger::LESI_SA_LCR_SHARPFALL_EventProcess ; inside X2GULire_ElvenRanger.cpp:3760 CX2GULire_ElvenRanger::LESI_SA_LCR_SHARPFALL_LANDING_EventProcess	inside	-	CH3a	3 states	n
+32c76d50	state-fn	LESI_SA_LCR_SHARPFALL.EventProcess LESI_SA_LCR_SHARPFALL_LANDING.EventProcess LESI_SA_LCR_SHARPFALL_HYPER_LANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:3741 CX2GULire_ElvenRanger::LESI_SA_LCR_SHARPFALL_EventProcess ; inside X2GULire_ElvenRanger.cpp:3760 CX2GULire_ElvenRanger::LESI_SA_LCR_SHARPFALL_LANDING_EventProcess	inside	-	CH3a	3 states	n
+32c76d90	state-fn	LESI_SA_LCR_SHARPFALL_LANDING.EventProcess LESI_SA_LCR_SHARPFALL_HYPER_LANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:3760 CX2GULire_ElvenRanger::LESI_SA_LCR_SHARPFALL_LANDING_EventProcess	inside	-	CH3a	2 states	n
+32c76dd0	state-fn	LESI_SA_LSR_WINDWARD.Start	inside X2GULire_ElvenRanger.cpp:3773 CX2GULire_ElvenRanger::LESI_SA_LSR_WINDWARD_StateStart	inside	-	CH2c	1 states	y
+32c76e30	state-fn	LESI_SA_LSR_WINDWARD.EventProcess	inside X2GULire_ElvenRanger.cpp:3775 CX2GULire_ElvenRanger::LESI_SA_LSR_WINDWARD_EventProcess	inside	-	CH2c	1 states	y
+32c76e70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c4	y
+32c76f20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c0	y
+32c76fd0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b8ed08700	y
+32c770a0	state-fn	LESI_SA_LCR_LOW_KICK.EventProcess	inside X2GULire_ElvenRanger.cpp:3815 CX2GULire_ElvenRanger::LESI_SA_LCR_LOW_KICK_EventProcess	inside	-	CH1e	1 states	y
+32c77170	state-fn	LESI_SA_LCR_VIOLENT_ATTACK_READY.FrameMoveFuture LESI_SA_LCR_VIOLENT_ATTACK.FrameMoveFuture LESI_SA_LCR_VIOLENT_ATTACK_LANDING.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3853 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_READY_FrameMoveFuture	inside	-	CH3a	3 states	n
+32c77240	state-fn	LESI_SA_LCR_VIOLENT_ATTACK_READY.EventProcess LESI_SA_LCR_VIOLENT_ATTACK.EventProcess LESI_SA_LCR_VIOLENT_ATTACK_LANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:3854 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_READY_EventProcess ; inside X2GULire_ElvenRanger.cpp:3873 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_EventProcess ; inside X2GULire_ElvenRanger.cpp:3891 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_LANDING_EventProcess	inside	-	CH3a	3 states	y
+32c77270	state-fn	LESI_SA_LCR_VIOLENT_ATTACK.EventProcess	inside X2GULire_ElvenRanger.cpp:3873 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_EventProcess	inside	-	CH3a	1 states	y
+32c772a0	state-fn	LESI_SA_LCR_VIOLENT_ATTACK_LANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:3891 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_LANDING_EventProcess	inside	-	CH3a	1 states	y
+32c77370	state-fn	LESI_LWS_ZZfrontZ.EventProcess	inside X2GULire_ElvenRanger.cpp:2497 CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZ_EventProcess	inside	-	CH1e	1 states	n
+32c776d0	state-fn	LESI_LWS_ZZfrontZZ.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2505 CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZZ_FrameMoveFuture	inside	-	CH1e	1 states	n
+32c77710	state-fn	LESI_LWS_ZZfrontZZ.EventProcess	inside X2GULire_ElvenRanger.cpp:2506 CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZZ_EventProcess	inside	-	CH1e	1 states	n
+32c77980	state-fn	LESI_LWS_ZZfrontZZZ.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2513 CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZZZ_FrameMoveFuture	inside	-	CH1e	1 states	n
+32c779c0	state-fn	LESI_LWS_ZZfrontZZZ.EventProcess	inside X2GULire_ElvenRanger.cpp:2514 CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZZZ_EventProcess	inside	-	CH1e	1 states	n
+32c77c50	state-fn	LESI_LWS_ZZfrontZZZ_Landing.EventProcess	inside X2GULire_ElvenRanger.cpp:2521 CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZZZ_Landing_EventProcess	inside	-	CH1e	1 states	n
+32c77f90	state-fn	LESI_SNIPING_RANGER_DASH_COMBO_X1.EventProcess	inside X2GULire_ElvenRanger.cpp:2174 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X1_EventProcess	inside	-	CH1f	1 states	n
+32c782f0	state-fn	LESI_LWS_DASH_XZ.EventProcess	inside X2GULire_ElvenRanger.cpp:2228 CX2GULire_ElvenRanger::LESI_LWS_DASH_XZ_EventProcess	inside	-	CH1e	1 states	n
+32c78610	state-fn	LESI_LWS_DASH_XZZ.EventProcess	inside X2GULire_ElvenRanger.cpp:2235 CX2GULire_ElvenRanger::LESI_LWS_DASH_XZZ_EventProcess	inside	-	CH1e	1 states	n
+32c78880	state-fn	LESI_LGA_ZZX.EventProcess	inside X2GULire_ElvenRanger.cpp:2538 CX2GULire_ElvenRanger::LESI_LGA_ZZX_EventProcess	inside	-	CH1f2	1 states	n
+32c78be0	state-fn	LESI_LGA_ZZXX.EventProcess	inside X2GULire_ElvenRanger.cpp:2549 CX2GULire_ElvenRanger::LESI_LGA_ZZXX_EventProcess	inside	-	CH1f2	1 states	n
+32c78e40	state-fn	LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1.EventProcess	inside X2GULire_ElvenRanger.cpp:2317 CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1_EventProcess	inside	-	CH1e	1 states	y
+32c78f10	state-fn	LESI_LGA_DASH_JUMP_ZX.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2346 CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_FrameMoveFuture	inside	-	CH1f2	1 states	n
+32c78f40	state-fn	LESI_LGA_DASH_JUMP_ZX.EventProcess	inside X2GULire_ElvenRanger.cpp:2348 CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_EventProcess	inside	-	CH1f2	1 states	y
+32c79060	state-fn	LESI_SA_LWS_SLIDE_KICK_CANCEL.EventProcess	inside X2GULire_ElvenRanger.cpp:3967 CX2GULire_ElvenRanger::LESI_SA_LWS_SLIDE_KICK_CANCEL_EventProcess	inside	-	CH3a	1 states	y
+32c79280	state-fn	LESI_SA_LWS_SLIDE_KICK_PASS_THROUGH.EventProcess	inside X2GULire_ElvenRanger.cpp:3940 CX2GULire_ElvenRanger::LESI_SA_LWS_SLIDE_KICK_PASS_THROUGH_EventProcess	inside	-	CH3a	1 states	y
+32c793f0	state-fn	LESI_SA_LGA_AERO_STRAFE.EventProcess LESI_SA_LGA_AERO_STRAFE_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:4057 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_EventProcess ; inside X2GULire_ElvenRanger.cpp:4064 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_HYPER_EventProcess	inside	-	CH3b	2 states	y
+32c79430	state-fn	LESI_SA_LGA_AERO_STRAFE.EventProcess LESI_SA_LGA_AERO_STRAFE_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:4057 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_EventProcess ; inside X2GULire_ElvenRanger.cpp:4064 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_HYPER_EventProcess	inside	-	CH3b	2 states	y
+32c79470	state-fn	LESI_COMBO_RTR_ZZZ.EventProcess	inside X2GULire_ElvenRanger.cpp:1928 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_EventProcess	inside	-	CH1g	1 states	n
+32c79950	state-fn	LESI_COMBO_RTR_ZZZ_DZ.EventProcess	inside X2GULire_ElvenRanger.cpp:1937 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_EventProcess	inside	-	CH1g	1 states	n
+32c79be0	state-fn	LESI_COMBO_RTR_ZZZZ.EventProcess	inside X2GULire_ElvenRanger.cpp:1946 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_EventProcess	inside	-	CH1g	1 states	n
+32c79f50	state-fn	LESI_COMBO_RTR_ZZZZZ.EventProcess	inside X2GULire_ElvenRanger.cpp:1955 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_EventProcess	inside	-	CH1g	1 states	n
+32c7a220	state-fn	LESI_JUMP_ATTACK_RTR_Z.EventProcess	inside X2GULire_ElvenRanger.cpp:2272 CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_EventProcess	inside	-	CH1g	1 states	y
+32c7a290	state-fn	LESI_DASH_COMBO_RTR_ZX.EventProcess	inside X2GULire_ElvenRanger.cpp:2117 CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_EventProcess	inside	-	CH1g	1 states	n
+32c7a510	state-fn	LESI_DASH_JUMP_ATTACK_RTR_Z.EventProcess	inside X2GULire_ElvenRanger.cpp:2364 CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_EventProcess	inside	-	CH1g	1 states	y
+32c7a610	state-fn	LESI_DASH_JUMP_ATTACK_RTR_ZZ.EventProcess	inside X2GULire_ElvenRanger.cpp:2374 CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_EventProcess	inside	-	CH1g	1 states	y
+32c7a640	state-fn	LESI_SA_RTR_FATALITY_SUCCESS.EventProcess	inside X2GULire_ElvenRanger.cpp:2382 CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_SUCCESS_EventProcess	inside	-	CH1g	1 states	y
+32c7a680	state-fn	LESI_SA_RTR_FATALITY_FAIL.EventProcess	inside X2GULire_ElvenRanger.cpp:2388 CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_FAIL_EventProcess	inside	-	CH1g	1 states	y
+32c7a6c0	state-fn	LESI_A_LE_RISING_FALCON_LANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:2667 CX2GULire_ElvenRanger::LESI_SI_A_LE_RISING_FALCON_LANDING_EventProcess	inside	-	CH2b	1 states	y
+32c7a9c0	state-fn	LESI_A_RTR_EXPLOSION_TRAP.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:4139 CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_FrameMoveFuture	inside	-	CH2d	1 states	n
+32c7a9f0	state-fn	LESI_A_RTR_EXPLOSION_TRAP.EventProcess	inside X2GULire_ElvenRanger.cpp:4141 CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_EventProcess	inside	-	CH2d	1 states	n
+32c7aa60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c78190960000ffff	n
+32c7aa80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32c7aac0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90dc	y
+32c7aae0	state-fn	LESI_SA_RTR_KARMA.EventProcess	inside X2GULire_ElvenRanger.cpp:4186 CX2GULire_ElvenRanger::LESI_SA_RTR_KARMA_EventProcess	inside	-	CH2d	1 states	n
+32c7ad50	state-fn	LESI_SA_RTR_FATALITY.EventProcess	inside X2GULire_ElvenRanger.cpp:4209 CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_EventProcess	inside	-	CH2d	1 states	y
+32c7ada0	state-fn	LESI_SA_RTR_CALL_OF_RUIN.Init	inside X2GULire_ElvenRanger.cpp:4231 CX2GULire_ElvenRanger::LESI_SA_RTR_CALL_OF_RUIN_Init	inside	-	CH3c	1 states	n
+32c7adc0	state-fn	LESI_SA_RTR_CALL_OF_RUIN.EventProcess	inside X2GULire_ElvenRanger.cpp:4235 CX2GULire_ElvenRanger::LESI_SA_RTR_CALL_OF_RUIN_EventProcess	inside	-	CH3c	1 states	y
+32c7ae20	state-fn	LESI_A_LE_RISING_FALCON.EventProcess	inside X2GULire_ElvenRanger.cpp:4253 CX2GULire_ElvenRanger::LESI_A_LE_RISING_FALCON_EventProcess	inside	-	CH2b	1 states	y
+32c7ae60	state-fn	LESI_A_RNW_START_OF_DELAYED_FIRING.Start	inside X2GULire_ElvenRanger.cpp:4320 CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_StateStart	inside	-	CH3c	1 states	y
+32c7af00	state-fn	LESI_A_RNW_START_OF_DELAYED_FIRING.EventProcess	inside X2GULire_ElvenRanger.cpp:4325 CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_EventProcess	inside	-	CH3c	1 states	n
+32c7af40	state-fn	LESI_SA_RNW_GLIDING_STRIKE.EventProcess	inside X2GULire_ElvenRanger.cpp:4300 CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_EventProcess	inside	-	CH3c	1 states	y
+32c7af80	helper	-	-	new	?	CH4a	delegate stub: thunk 32cb4ab0 pushed in InitPassiveSkillState @32ca7e83; name: -; delegate stub: thunk 32cb4ab0 pushed in InitPassiveSkillState @32ca7e83	y
+32c7b060	helper	called by 32ca68b0	-	new	?	CH2d	name: called by 32ca68b0(LESI_SA_RTR_FATALITY.Start)	y
+32c7b1b0	state-fn	LESI_SNIPING_RANGER_COMBO_X2.EventProcess	inside X2GULire_ElvenRanger.cpp:1995 CX2GULire_ElvenRanger::SnipingRangerComboX2EventProcess	inside	-	CH1f	1 states	n
+32c7b530	state-fn	LESI_SNIPING_RANGER_COMBO_X3.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2001 CX2GULire_ElvenRanger::SnipingRangerComboX3FrameMoveFuture	inside	-	CH1f	1 states	n
+32c7b570	state-fn	LESI_SNIPING_RANGER_COMBO_X3.EventProcess	inside X2GULire_ElvenRanger.cpp:2003 CX2GULire_ElvenRanger::SnipingRangerComboX3EventProcess	inside	-	CH1f	1 states	n
+32c7ba40	state-fn	LESI_SNIPING_RANGER_COMBO_X4.EventProcess	inside X2GULire_ElvenRanger.cpp:2010 CX2GULire_ElvenRanger::SnipingRangerComboX4EventProcess	inside	-	CH1f	1 states	n
+32c7bd20	helper	called by 32c83d00 32c83f70 32c84020 32c840d0	-	new	?	CH1f	name: called by 32c83d00(LESI_SIEGE_READY.EventProces) 32c83f70(LESI_SIEGE_ATTACK.EventProce) 32c84020(LESI_SIEGE_ATTACK_X.EventPro) 32c840d0(LESI_SIEGE_END.EventProcess)	y
+32c7bdd0	helper	called by 32c8d390 32c8e0c0 32c90130 32c90f10	-	new	?	CH1d	name: called by 32c8d390(LESI_COMBO_Z4a.FrameMove) 32c8e0c0(LESI_COMBO_X3.FrameMove) 32c90130(LESI_DASH_ATTACK_X.FrameMove) 32c90f10(LESI_DASH_JUMP_COMBO_X1.Fram)	y
+32c7be00	override 0x6a4	GetActualCoolTime	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3251 virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;)	new	GetActualCoolTime	CH4b	base 31fd1920	n
+32c7bed0	override 0x6a8	ShownSkillCoolTime	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3490 virtual float ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ ) { return fCoolTime_; })	new	ShownSkillCoolTime	CH1i	base 3208e190	y
+32c7bf30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32c7c1d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32c7c470	state-fn	LESI_A_LSR_SHOOTING_MAGNUM.EventProcess	inside X2GULire_ElvenRanger.cpp:3349 CX2GULire_ElvenRanger::LESI_A_LSR_SHOOTING_MAGNUM_EventProcess	inside	-	CH2c	1 states	n
+32c7c670	state-fn	LESI_A_LGA_ARC_SHOT.EventProcess	inside X2GULire_ElvenRanger.cpp:3363 CX2GULire_ElvenRanger::LESI_A_LGA_ARC_SHOT_EventProcess	inside	-	CH2c	1 states	n
+32c7c870	state-fn	LESI_A_LGA_RAPID_SHOT_READY.StartFuture LESI_A_LGA_RAPID_SHOT_ATTACK.StartFuture LESI_A_LGA_RAPID_SHOT_FINISH.StartFuture	inside X2GULire_ElvenRanger.cpp:3375 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_READY_StartFuture	inside	-	CH2c	3 states	y
+32c7c950	state-fn	LESI_A_LGA_RAPID_SHOT_READY.EventProcess LESI_A_LGA_RAPID_SHOT_ATTACK.EventProcess LESI_A_LGA_RAPID_SHOT_FINISH.EventProcess	inside X2GULire_ElvenRanger.cpp:3376 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_READY_EventProcess ; inside X2GULire_ElvenRanger.cpp:3389 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_ATTACK_EventProcess ; inside X2GULire_ElvenRanger.cpp:3396 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_FINISH_EventProcess	inside	-	CH2c	3 states	y
+32c7c990	state-fn	LESI_A_LGA_RAPID_SHOT_ATTACK.EventProcess	inside X2GULire_ElvenRanger.cpp:3389 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_ATTACK_EventProcess	inside	-	CH2c	1 states	n
+32c7cbe0	state-fn	LESI_A_LGA_RAPID_SHOT_FINISH.EventProcess	inside X2GULire_ElvenRanger.cpp:3396 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_FINISH_EventProcess	inside	-	CH2c	1 states	n
+32c7cde0	state-fn	LESI_SA_RTR_TRAPPING_ARROW_FUNGUS.Start	inside X2GULire_ElvenRanger.cpp:3455 CX2GULire_ElvenRanger::LESI_SA_RTR_TRAPPING_ARROW_FUNGUS_StateStart	inside	-	CH3c	1 states	n
+32c7ce00	state-fn	LESI_SA_RTR_TRAPPING_ARROW_FUNGUS.EventProcess	inside X2GULire_ElvenRanger.cpp:3457 CX2GULire_ElvenRanger::LESI_SA_RTR_TRAPPING_ARROW_FUNGUS_EventProcess	inside	-	CH3c	1 states	n
+32c7d000	state-fn	LESI_SA_RTR_TRAPPING_ARROW_FUNGUS.End	inside X2GULire_ElvenRanger.cpp:3458 CX2GULire_ElvenRanger::LESI_SA_RTR_TRAPPING_ARROW_FUNGUS_StateEnd	inside	-	CH3c	1 states	y
+32c7d020	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b81d0870000d905	n
+32c7d050	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d90518904733568b	n
+32c7d0c0	state-fn	LESI_P_RNW_SEED_OF_RUIN.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3492 CX2GULire_ElvenRanger::LESI_P_RNW_SEED_OF_RUIN_FrameMoveFuture	inside	-	CH3c	1 states	n
+32c7d0f0	state-fn	LESI_P_RNW_SEED_OF_RUIN.EventProcess	inside X2GULire_ElvenRanger.cpp:3494 CX2GULire_ElvenRanger::LESI_P_RNW_SEED_OF_RUIN_EventProcess	inside	-	CH3c	1 states	n
+32c7d160	state-fn	LESI_A_RNW_ANGER_OF_ELF.EventProcess	inside X2GULire_ElvenRanger.cpp:3512 CX2GULire_ElvenRanger::LESI_A_RNW_ANGER_OF_ELF_EventProcess	inside	-	CH2d	1 states	n
+32c7d360	state-fn	LESI_A_RNW_ROSEBUSH_TRAP.EventProcess	inside X2GULire_ElvenRanger.cpp:3531 CX2GULire_ElvenRanger::LESI_A_RNW_ROSEBUSH_TRAP_EventProcess	inside	-	CH2d	1 states	y
+32c7d3a0	state-fn	LESI_A_LWS_ASSAULT_IMPACT.EventProcess	inside X2GULire_ElvenRanger.cpp:3547 CX2GULire_ElvenRanger::LESI_A_LWS_ASSAULT_IMPACT_EventProcess	inside	-	CH2b	1 states	n
+32c7d5a0	state-fn	LESI_A_LTR_ENTANGLE.EventProcess	inside X2GULire_ElvenRanger.cpp:3560 CX2GULire_ElvenRanger::LESI_A_LTR_ENTANGLE_EventProcess	inside	-	CH3b	1 states	n
+32c7d790	state-fn	LESI_SA_RWS_SPINNING_CRESCENT.EventProcess	-	new	LESI_SA_RWS_SPINNING_CRESCENT_EventProcess	CH3a	1 states	n
+32c7daa0	state-fn	LESI_SA_RWS_GYRO_KICK.EventProcess	-	new	LESI_SA_RWS_GYRO_KICK_EventProcess	CH3a	1 states	n
+32c7ddb0	state-fn	LESI_SA_RGA_BLAST_ARROW.EventProcess	-	new	LESI_SA_RGA_BLAST_ARROW_EventProcess	CH3b	1 states	n
+32c7e0c0	state-fn	LESI_SA_RGA_CUTLASS_WIND.EventProcess	-	new	LESI_SA_RGA_CUTLASS_WIND_EventProcess	CH3b	1 states	n
+32c7e3d0	state-fn	LESI_SA_RNW_SEED_OF_RUIN_POLE.EventProcess	-	new	LESI_SA_RNW_SEED_OF_RUIN_POLE_EventProcess	CH3c	1 states	n
+32c7e6e0	state-fn	LESI_SA_RNW_RAGE_FUNGUS.EventProcess	-	new	LESI_SA_RNW_RAGE_FUNGUS_EventProcess	CH3c	1 states	n
+32c7e9f0	state-fn	LESI_A_RWS_PAIN.EventProcess	-	new	LESI_A_RWS_PAIN_EventProcess	CH3a	1 states	n
+32c7ed00	state-fn	LESI_A_RGA_ONE_TARGET_SHOT.EventProcess	-	new	LESI_A_RGA_ONE_TARGET_SHOT_EventProcess	CH3b	1 states	n
+32c7f010	state-fn	LESI_A_RNW_BUTTERFLY.EventProcess	-	new	LESI_A_RNW_BUTTERFLY_EventProcess	CH3c	1 states	n
+32c7f320	state-fn	LESI_HA_LWS_SPIRAL_STIKE_READY.EventProcess LESI_HA_LWS_SPIRAL_STIKE_SPINING.EventProcess LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK.EventProcess	inside X2GULire_ElvenRanger.cpp:4382 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_READY_EventProcess ; inside X2GULire_ElvenRanger.cpp:4399 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_SPINING_EventProcess ; inside X2GULire_ElvenRanger.cpp:4410 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK_EventProcess	inside	-	CH3d	3 states	y
+32c7f350	state-fn	LESI_HA_LWS_SPIRAL_STIKE_SPINING.EventProcess	inside X2GULire_ElvenRanger.cpp:4399 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_SPINING_EventProcess	inside	-	CH3d	1 states	n
+32c7f3a0	state-fn	LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK.EventProcess	inside X2GULire_ElvenRanger.cpp:4410 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK_EventProcess	inside	-	CH3d	1 states	n
+32c7f6c0	state-fn	LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT.EventProcess LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT.EventProcess LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:4422 CX2GULire_ElvenRanger::LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT_EventProcess ; inside X2GULire_ElvenRanger.cpp:4437 CX2GULire_ElvenRanger::LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT_EventProcess ; inside X2GULire_ElvenRanger.cpp:4444 CX2GULire_ElvenRanger::LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING_EventProcess	inside	-	CH3d	3 states	y
+32c7f6f0	state-fn	LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT.EventProcess	inside X2GULire_ElvenRanger.cpp:4437 CX2GULire_ElvenRanger::LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT_EventProcess	inside	-	CH3d	1 states	y
+32c7f720	state-fn	LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:4444 CX2GULire_ElvenRanger::LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING_EventProcess	inside	-	CH3d	1 states	n
+32c7fa40	override 0x3a8	ApplyRenderParam	X2GULire_ElvenRanger.h:632 virtual void ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ );	inside	-	CH1h	base 31fd4460	n
+32c7faa0	state-fn	LESI_HA_LNW_INNOCENT_START.EventProcess LESI_HA_LNW_INNOCENT_END.EventProcess	inside X2GULire_ElvenRanger.cpp:4455 CX2GULire_ElvenRanger::LESI_HA_LNW_INNOCENT_START_EventProcess ; inside X2GULire_ElvenRanger.cpp:4468 CX2GULire_ElvenRanger::LESI_HA_LNW_INNOCENT_END_EventProcess	inside	-	CH3d	2 states	y
+32c7fad0	state-fn	LESI_HA_LNW_INNOCENT_END.EventProcess	inside X2GULire_ElvenRanger.cpp:4468 CX2GULire_ElvenRanger::LESI_HA_LNW_INNOCENT_END_EventProcess	inside	-	CH3d	1 states	n
+32c7fdf0	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23783 CX2GULire_ElvenRanger::GetNaturalForceBuff	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: GetNaturalForceBuff	n
+32c7fe00	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8c88e34ff	y
+32c7fe20	helper	called by 32c8aa40 32c8b2c0 32c8d390 32c8d850	-	new	?	CH1d	name: called by 32c8aa40(LESI_SNIPING_RANGER_DOUBLE_J) 32c8b2c0(LESI_SNIPING_RANGER_DOUBLE_J) 32c8d390(LESI_COMBO_Z4a.FrameMove) 32c8d850(LESI_COMBO_X1.FrameMove)	y
+32c7feb0	state-fn	LESI_RCR_COMBO_XXZ.EventProcess	-	new	LESI_RCR_COMBO_XXZ_EventProcess	CH1e	1 states	n
+32c80200	state-fn	LESI_RCR_COMBO_XXZZ.EventProcess	-	new	LESI_RCR_COMBO_XXZZ_EventProcess	CH1e	1 states	n
+32c80480	state-fn	LESI_RCR_COMBO_XXZZ_LANDING.EventProcess	-	new	LESI_RCR_COMBO_XXZZ_LANDING_EventProcess	CH1e	1 states	n
+32c807c0	state-fn	LESI_RCR_COMBO_XXZZZ.EventProcess	-	new	LESI_RCR_COMBO_XXZZZ_EventProcess	CH1e	1 states	n
+32c80a40	state-fn	LESI_RWS_DASH_JUMP_XXZ_START.EventProcess	-	new	LESI_RWS_DASH_JUMP_XXZ_START_EventProcess	CH1e	1 states	y
+32c80c70	state-fn	LESI_RWS_DASH_JUMP_XXZ_LOOP.EventProcess	-	new	LESI_RWS_DASH_JUMP_XXZ_LOOP_EventProcess	CH1e	1 states	y
+32c80e80	state-fn	LESI_RWS_DASH_JUMP_XXZ_END.EventProcess	-	new	LESI_RWS_DASH_JUMP_XXZ_END_EventProcess	CH1e	1 states	n
+32c810e0	state-fn	LESI_RSR_DASH_ZX.EventProcess	-	new	LESI_RSR_DASH_ZX_EventProcess	CH1f	1 states	n
+32c81340	state-fn	LESI_RGA_DASH_JUMP_ZXX.EventProcess	-	new	LESI_RGA_DASH_JUMP_ZXX_EventProcess	CH1f2	1 states	n
+32c815a0	state-fn	LESI_RGA_DASH_JUMP_XXZ.FrameMoveFuture	-	new	LESI_RGA_DASH_JUMP_XXZ_FrameMoveFuture	CH1f2	1 states	n
+32c815d0	state-fn	LESI_RGA_DASH_JUMP_XXZ.EventProcess	-	new	LESI_RGA_DASH_JUMP_XXZ_EventProcess	CH1f2	1 states	n
+32c818d0	state-fn	LESI_RTR_DOUBLE_JUMP_ZX.EventProcess	-	new	LESI_RTR_DOUBLE_JUMP_ZX_EventProcess	CH1g	1 states	n
+32c81b30	state-fn	LESI_RNW_DASH_XZ.EventProcess	-	new	LESI_RNW_DASH_XZ_EventProcess	CH1g2	1 states	n
+32c81e80	state-fn	LESI_RNW_DASH_XZZ_START.EventProcess	-	new	LESI_RNW_DASH_XZZ_START_EventProcess	CH1g2	1 states	n
+32c82100	state-fn	LESI_RNW_DASH_XZZ_LOOP.EventProcess	-	new	LESI_RNW_DASH_XZZ_LOOP_EventProcess	CH1g2	1 states	n
+32c82390	state-fn	LESI_RNW_DASH_XZZ_FULL_CHARGE_END.EventProcess	-	new	LESI_RNW_DASH_XZZ_FULL_CHARGE_END_EventProcess	CH1g2	1 states	n
+32c825f0	state-fn	LESI_RNW_DASH_XZZ_END.EventProcess	-	new	LESI_RNW_DASH_XZZ_END_EventProcess	CH1g2	1 states	n
+32c82850	state-fn	LESI_RNW_DASH_JUMP_XZ_START.EventProcess LESI_RNW_DASH_JUMP_XXZ_START.EventProcess	-	new	LESI_RNW_DASH_JUMP_XZ_START_EventProcess	CH1g3	2 states	y
+32c828a0	state-fn	LESI_RNW_DASH_JUMP_XXZ_LOOP.EventProcess	-	new	LESI_RNW_DASH_JUMP_XXZ_LOOP_EventProcess	CH1g3	1 states	y
+32c82ab0	state-fn	LESI_RNW_DASH_JUMP_XZ_END.EventProcess LESI_RNW_DASH_JUMP_XXZ_END.EventProcess	-	new	LESI_RNW_DASH_JUMP_XZ_END_EventProcess	CH1g3	2 states	n
+32c82d10	state-fn	LESI_RGA_GUNGNIR_CANCEL.EventProcess	-	new	LESI_RGA_GUNGNIR_CANCEL_EventProcess	CH1f2	1 states	n
+32c82f90	state-fn	LESI_RGA_GUNGNIR_CONTROL_FIRE.EventProcess	-	new	LESI_RGA_GUNGNIR_CONTROL_FIRE_EventProcess	CH1f2	1 states	n
+32c831f0	state-fn	LESI_A_LSR_MIND_OF_SHARPSHOOTER.EventProcess	-	new	LESI_A_LSR_MIND_OF_SHARPSHOOTER_EventProcess	CH2c	1 states	y
+32c83220	state-fn	LESI_A_LSR_MIND_OF_SHARPSHOOTER.FrameMove	-	new	LESI_A_LSR_MIND_OF_SHARPSHOOTER_FrameMove	CH2c	1 states	y
+32c83280	helper	called by 32ca81b0	-	new	?	CH1j	name: called by 32ca81b0(CommonStateStart)	y
+32c83320	override 0x824	?	- (name unsettled)	new	?	CH1k	base 3208dd70; name: virtual 0x824 (base 3208dd70); not named by any sibling class map, funcmap or X2GUUser.h; read the body	n
+32c833b0	state-fn	LESI_SA_RGA_ACEINTHEHOLE_START.EventProcess LESI_SA_RGA_ACEINTHEHOLE_WAIT.EventProcess LESI_SA_RGA_ACEINTHEHOLE_1ST_ATTACK.EventProcess +2	-	new	LESI_SA_RGA_ACEINTHEHOLE_START_EventProcess	CH3b	5 states	y
+32c833e0	state-fn	LESI_SA_RGA_ACEINTHEHOLE_1ST_ATTACK.EventProcess	-	new	LESI_SA_RGA_ACEINTHEHOLE_1ST_ATTACK_EventProcess	CH3b	1 states	y
+32c83410	state-fn	LESI_SA_RGA_ACEINTHEHOLE_2ND_ATTACK.EventProcess	-	new	LESI_SA_RGA_ACEINTHEHOLE_2ND_ATTACK_EventProcess	CH3b	1 states	y
+32c83440	state-fn	LESI_SA_RGA_ACEINTHEHOLE_3RD_ATTACK.EventProcess	-	new	LESI_SA_RGA_ACEINTHEHOLE_3RD_ATTACK_EventProcess	CH3b	1 states	y
+32c83480	state-fn	LESI_SA_RNW_ERADICATION_START.EventProcess LESI_SA_RNW_ERADICATION_ATTACK.EventProcess	-	new	LESI_SA_RNW_ERADICATION_START_EventProcess	CH3c	2 states	y
+32c834b0	state-fn	LESI_SA_RNW_ERADICATION_ATTACK.EventProcess	-	new	LESI_SA_RNW_ERADICATION_ATTACK_EventProcess	CH3c	1 states	y
+32c834f0	override 0x94	Lose	X2GULire_ElvenRanger.h:415 virtual void Lose();	inside	-	CH1h	base 31ff15d0	n
+32c83580	helper	-	-	new	?	CH1o	helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it; name: -; helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it	y
+32c835c0	override 0x54c	InitEnchantWeaponEffectUnitSpecific	X2GULire_ElvenRanger.h:419 virtual void InitEnchantWeaponEffectUnitSpecific();	inside	-	CH1h	base 31aa1d30	y
+32c83760	state-fn	LESI_JUMP_READY.EventProcess	inside X2GULire_ElvenRanger.cpp:981 CX2GULire_ElvenRanger::JumpReadyEventProcess	inside	-	CH1a	1 states	n
+32c83800	state-fn	LESI_DASH_END.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:1057 CX2GULire_ElvenRanger::DashEndFrameMoveFuture	inside	-	CH1a	1 states	n
+32c83850	state-fn	LESI_DASH_JUMP.EventProcess	inside X2GULire_ElvenRanger.cpp:1068 CX2GULire_ElvenRanger::DashJumpEventProcess	inside	-	CH1a	1 states	n
+32c83b90	state-fn	LESI_DOUBLE_JUMP.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:1076 CX2GULire_ElvenRanger::DoubleJumpFrameMoveFuture	inside	-	CH1a	1 states	n
+32c83c10	state-fn	LESI_DASH_DOUBLE_JUMP.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:1084 CX2GULire_ElvenRanger::DashDoubleJumpFrameMoveFuture	inside	-	CH1a	1 states	n
+32c83c90	state-fn	LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X.FrameMoveFuture LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:1856 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X_FrameMoveFuture	inside	-	CH1f	2 states	n
+32c83d00	state-fn	LESI_SIEGE_READY.EventProcess	inside X2GULire_ElvenRanger.cpp:3673 CX2GULire_ElvenRanger::SiegeReadyEventProcess	inside	-	CH1f	1 states	n
+32c83f70	state-fn	LESI_SIEGE_ATTACK.EventProcess	inside X2GULire_ElvenRanger.cpp:1307 CX2GULire_ElvenRanger::SiegeAttackEventProcess	inside	-	CH1f	1 states	n
+32c84020	state-fn	LESI_SIEGE_ATTACK_X.EventProcess	inside X2GULire_ElvenRanger.cpp:1316 CX2GULire_ElvenRanger::SiegeAttackXEventProcess	inside	-	CH1f	1 states	n
+32c840d0	state-fn	LESI_SIEGE_END.EventProcess	inside X2GULire_ElvenRanger.cpp:1323 CX2GULire_ElvenRanger::SiegeEndEventProcess	inside	-	CH1f	1 states	n
+32c84340	state-fn	LESI_COMBO_Z2.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:1891 CX2GULire_ElvenRanger::ComboZ2FrameMoveFuture	inside	-	CH1d	1 states	n
+32c843b0	state-fn	LESI_COMBO_Z3.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:1904 CX2GULire_ElvenRanger::ComboZ3FrameMoveFuture	inside	-	CH1d	1 states	n
+32c84420	state-fn	LESI_COMBO_Z4.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:1912 CX2GULire_ElvenRanger::ComboZ4FrameMoveFuture	inside	-	CH1d	1 states	n
+32c84490	state-fn	LESI_DASH_COMBO_Z1.StartFuture	inside X2GULire_ElvenRanger.cpp:2072 CX2GULire_ElvenRanger::DashComboZ1StartFuture	inside	-	CH1d2	1 states	n
+32c84510	state-fn	LESI_COMBAT_RANGER_DASH_COMBO_Z1.StartFuture	inside X2GULire_ElvenRanger.cpp:2086 CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_COMBO_Z1_StartFuture	inside	-	CH1e	1 states	n
+32c84590	state-fn	LESI_COMBAT_RANGER_DASH_COMBO_Z2.StartFuture	inside X2GULire_ElvenRanger.cpp:2093 CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_COMBO_Z2_StartFuture	inside	-	CH1e	1 states	n
+32c84610	state-fn	LESI_JUMP_ATTACK_Z.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2255 CX2GULire_ElvenRanger::JumpAttackZFrameMoveFuture	inside	-	CH1d2	1 states	n
+32c846a0	state-fn	LESI_JUMP_ATTACK_X.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2283 CX2GULire_ElvenRanger::JumpAttackXFrameMoveFuture	inside	-	CH1d2	1 states	n
+32c84740	state-fn	LESI_SI_LE_POWER_ATTACK1.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3162 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_FrameMoveFuture	inside	-	CH2a	1 states	n
+32c847b0	state-fn	LESI_SI_LE_POWER_ATTACK1.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3162 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_FrameMoveFuture	inside	-	CH2a	1 states	n
+32c84820	state-fn	LESI_RNW_ACCEL_DASH.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2611 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_FrameMoveFuture	inside	-	CH1g3	1 states	n
+32c848c0	state-fn	LESI_RNW_ACCEL_DASH_JUMP.StartFuture	inside X2GULire_ElvenRanger.cpp:2619 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_StateStartFuture	inside	-	CH1g3	1 states	n
+32c84920	state-fn	LESI_RNW_ACCEL_DASH_JUMP_Z.StartFuture	inside X2GULire_ElvenRanger.cpp:2639 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_StateStartFuture	inside	-	CH1g3	1 states	n
+32c84980	state-fn	LESI_RNW_ACCEL_DASH_JUMP_ZZ.StartFuture	inside X2GULire_ElvenRanger.cpp:2650 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_StateStartFuture	inside	-	CH1g3	1 states	n
+32c849f0	override 0x5f0	COMMON_BUFF_FrameMove	X2GULire_ElvenRanger.h:1369 virtual void COMMON_BUFF_FrameMove();	inside	-	CH1h	base 31aa1d30	n
+32c84b50	state-fn	LESI_SA_LGA_AERO_STRAFE.FrameMoveFuture LESI_SA_LGA_AERO_STRAFE_HYPER.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:4054 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_FrameMoveFuture ; inside X2GULire_ElvenRanger.cpp:4061 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_HYPER_FrameMoveFuture	inside	-	CH3b	2 states	n
+32c84c70	state-fn	LESI_SA_LGA_AERO_STRAFE.FrameMoveFuture LESI_SA_LGA_AERO_STRAFE_HYPER.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:4054 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_FrameMoveFuture ; inside X2GULire_ElvenRanger.cpp:4061 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_HYPER_FrameMoveFuture	inside	-	CH3b	2 states	n
+32c84d90	state-fn	LESI_JUMP_ATTACK_RTR_Z.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2271 CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_FrameMoveFuture	inside	-	CH1g	1 states	n
+32c84e20	state-fn	LESI_SA_RTR_CALL_OF_RUIN.StartFuture	-	new	LESI_SA_RTR_CALL_OF_RUIN_StateStartFuture	CH3c	1 states	n
+32c84ea0	state-fn	LESI_A_LWS_BACK_KICK.EventProcess	inside X2GULire_ElvenRanger.cpp:3305 CX2GULire_ElvenRanger::LESI_A_LWS_BACK_KICK_EventProcess	inside	-	CH2b	1 states	n
+32c85200	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23766 CX2GULire_ElvenRanger::SetNaturalForceBuff	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: SetNaturalForceBuff (June stacks BFI 355 per point)	y
+32c85260	override 0x24c	SetSpecificValueByBuffTempletID	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23815 CX2GULire_ElvenRanger::SetSpecificValueByBuffTempletID	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: SetSpecificValueByBuffTempletID (0x24c): BTI 5 / 822	y
+32c85290	override 0x250	UnSetSpecificValueByBuffTempletID	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23835 CX2GULire_ElvenRanger::UnSetSpecificValueByBuffTempletID	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: UnSetSpecificValueByBuffTempletID (0x250)	n
+32c852f0	override 0x740	?	- (name unsettled)	new	?	CH1i	base 32009780; name: virtual 0x740 (base 32009780); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32c85330	helper	called by 32c8aa40 32c8b2c0 32c8d390 32c8d850	-	new	?	CH1d	name: called by 32c8aa40(LESI_SNIPING_RANGER_DOUBLE_J) 32c8b2c0(LESI_SNIPING_RANGER_DOUBLE_J) 32c8d390(LESI_COMBO_Z4a.FrameMove) 32c8d850(LESI_COMBO_X1.FrameMove)	y
+32c85430	state-fn	LESI_SA_RGA_ACEINTHEHOLE_WAIT.EventProcess	-	new	LESI_SA_RGA_ACEINTHEHOLE_WAIT_EventProcess	CH3b	1 states	y
+32c85500	state-fn	LESI_SA_RGA_ACEINTHEHOLE_WAIT.EventProcess	-	new	LESI_SA_RGA_ACEINTHEHOLE_WAIT_EventProcess	CH3b	1 states	y
+32c855d0	state-fn	LESI_SA_RGA_ACEINTHEHOLE_WAIT.EventProcess	-	new	LESI_SA_RGA_ACEINTHEHOLE_WAIT_EventProcess	CH3b	1 states	y
+32c85690	override 0x6a0	GetActualMPConsume	X2GULire_ElvenRanger.h:495 virtual float GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;	inside	-	CH4b	base 31fd1840	y
+32c858c0	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23967 CX2GULire_ElvenRanger::CheckDamageRelateComboData	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: CheckDamageRelateComboData	y
+32c85900	helper	-	-	new	?	CH2d0	helper: trap summon info, called only from CX2Game summon code @3230bc03 (SetUserSummonedNPCInfo 3230c1a0 region); name: -; helper: trap summon info, called only from CX2Game summon code @3230bc03 (SetUserSummonedNPCInfo 3230c1a0 region)	y
+32c85970	override 0x628	CanRidingState	X2GULire_ElvenRanger.h:524 virtual bool CanRidingState();	inside	-	CH1i	base 31fd7930	n
+32c85a60	override 0x828	IsNotCommonMoveState	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3437 virtual bool IsNotCommonMoveState();)	new	IsNotCommonMoveState	CH1k	base 31fd7640	y
+32c85b20	helper	-	-	new	?	CH1o	helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it; name: -; helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it	y
+32c85c00	override 0x850	?	- (name unsettled)	new	?	CH1k	base 31fd8230; name: virtual 0x850 (base 31fd8230); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32c85d50	override 0x38	InitDevice	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3600 virtual void InitDevice();)	new	InitDevice	CH1h	base 31fc79d0	y
+32c861c0	state-fn	LESI_DOUBLE_JUMP.EventProcess	inside X2GULire_ElvenRanger.cpp:1077 CX2GULire_ElvenRanger::DoubleJumpEventProcess	inside	-	CH1a	1 states	y
+32c86340	helper	-	-	new	?	CH2d0	helper: trap summon info, called only from CX2Game summon code @3230c423 (SetUserSummonedNPCInfo 3230c1a0 region); name: -; helper: trap summon info, called only from CX2Game summon code @3230c423 (SetUserSummonedNPCInfo 3230c1a0 region)	y
+32c863a0	helper	-	-	new	?	CH2d0	helper: trap summon info, called only from CX2Game summon code @3230c8b6 (SetUserSummonedNPCInfo 3230c1a0 region); name: -; helper: trap summon info, called only from CX2Game summon code @3230c8b6 (SetUserSummonedNPCInfo 3230c1a0 region)	y
+32c863d0	override 0x774	?	- (name unsettled)	new	?	CH1i	base 31f3f070; name: virtual 0x774 (base 31f3f070); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32c86620	helper	called by 32c86720 32c9d250 32c9d420	-	new	?	CH2c	name: called by 32c86720(LESI_A_LGA_RAPID_SHOT_READY.) 32c9d250(LESI_A_LGA_RAPID_SHOT_ATTACK) 32c9d420(LESI_A_LGA_RAPID_SHOT_FINISH)	y
+32c86720	state-fn	LESI_A_LGA_RAPID_SHOT_READY.FrameMove LESI_A_LGA_RAPID_SHOT_ATTACK.FrameMove LESI_A_LGA_RAPID_SHOT_FINISH.FrameMove	inside X2GULire_ElvenRanger.cpp:3390 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_ATTACK_FrameMove ; inside X2GULire_ElvenRanger.cpp:3397 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_FINISH_FrameMove	inside	-	CH2c	3 states	y
+32c86740	override 0x424	?	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23989 CX2GULire_ElvenRanger::DeleteDamageRelateSkillData	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: DeleteDamageRelateSkillData (0x424)	n
+32c86790	helper	called by 32cb5dd0	-	new	?	CH4a	name: called by 32cb5dd0(helper)	y
+32c86890	helper	called by 32c86ac0 32c86af0 32c86b60 32c86b90	-	new	?	CH1f2	name: called by 32c86ac0(dead) 32c86af0(ShowActiveSkillCutInAndLight) 32c86b60(LESI_SI_LE_POWER_ATTACK1.Fra) 32c86b90(LESI_SI_LE_POWER_ATTACK1.Fra)	y
+32c86ac0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e898a937ff	y
+32c86af0	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GULire_ElvenRanger.h:1677 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	inside	-	CH1k	base 33093ad0	n
+32c86b20	state-fn	LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT.Start LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT.Start LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING.Start	inside X2GULire_ElvenRanger.cpp:4420 CX2GULire_ElvenRanger::LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT_StateStart	inside	-	CH3d	3 states	n
+32c86b60	state-fn	LESI_SI_LE_POWER_ATTACK1.FrameMove	inside X2GULire_ElvenRanger.cpp:3163 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_FrameMove	inside	-	CH2a	1 states	y
+32c86b90	state-fn	LESI_SI_LE_POWER_ATTACK1.FrameMove	inside X2GULire_ElvenRanger.cpp:3163 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_FrameMove	inside	-	CH2a	1 states	y
+32c86bc0	state-fn	LESI_SI1_LE_PIERCE_ARROW.FrameMove LESI_SI1_LE_PIERCE_ARROW_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3182 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_FrameMove ; inside X2GULire_ElvenRanger.cpp:3189 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_FrameMove	inside	-	CH2a	2 states	y
+32c86bf0	state-fn	LESI_SI1_LE_PIERCE_ARROW.FrameMove LESI_SI1_LE_PIERCE_ARROW_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3182 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_FrameMove ; inside X2GULire_ElvenRanger.cpp:3189 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_FrameMove	inside	-	CH2a	2 states	y
+32c86c20	state-fn	LESI_SI3_LE_PHOENIX_STRIKE.FrameMove	inside X2GULire_ElvenRanger.cpp:3276 CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_FrameMove	inside	-	CH2a	1 states	y
+32c86c50	state-fn	LESI_SI1_LE_ASSAULT_KICK.FrameMove	inside X2GULire_ElvenRanger.cpp:3203 CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_FrameMove	inside	-	CH2a	1 states	y
+32c86d00	state-fn	LESI_SI1_LE_HUMMING_WIND.FrameMove LESI_SI1_LE_HUMMING_WIND_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3625 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_FrameMove ; inside X2GULire_ElvenRanger.cpp:3631 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_HYPER_FrameMove	inside	-	CH2d	2 states	y
+32c86d30	state-fn	LESI_SI1_LE_HUMMING_WIND.FrameMove LESI_SI1_LE_HUMMING_WIND_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3625 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_FrameMove ; inside X2GULire_ElvenRanger.cpp:3631 CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_HYPER_FrameMove	inside	-	CH2d	2 states	y
+32c86d60	state-fn	LESI_SI2_LE_GUIDED_ARROW.FrameMove LESI_SI2_LE_GUIDED_ARROW_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3642 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_FrameMove ; inside X2GULire_ElvenRanger.cpp:3648 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_HYPER_FrameMove	inside	-	CH2c	2 states	y
+32c86d90	state-fn	LESI_SI2_LE_GUIDED_ARROW.FrameMove LESI_SI2_LE_GUIDED_ARROW_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3642 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_FrameMove ; inside X2GULire_ElvenRanger.cpp:3648 CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_HYPER_FrameMove	inside	-	CH2c	2 states	y
+32c86dc0	state-fn	LESI_SI2_LE_PERFECT_STORM.FrameMove	inside X2GULire_ElvenRanger.cpp:3220 CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_FrameMove	inside	-	CH2a	1 states	y
+32c86df0	state-fn	LESI_SI2_LE_PERFECT_STORM.FrameMove	inside X2GULire_ElvenRanger.cpp:3220 CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_FrameMove	inside	-	CH2a	1 states	y
+32c86e20	state-fn	LESI_SI3_LE_AERO_TORNADO.FrameMove LESI_SI3_LE_AERO_TORNADO_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3258 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_FrameMove ; inside X2GULire_ElvenRanger.cpp:3264 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_FrameMove	inside	-	CH2a	2 states	y
+32c86e50	state-fn	LESI_SI3_LE_AERO_TORNADO.FrameMove LESI_SI3_LE_AERO_TORNADO_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3258 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_FrameMove ; inside X2GULire_ElvenRanger.cpp:3264 CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_FrameMove	inside	-	CH2a	2 states	y
+32c86e80	state-fn	LESI_SI1_LCR_SPINNING_KICK.FrameMove	inside X2GULire_ElvenRanger.cpp:3579 CX2GULire_ElvenRanger::LESI_SI1_LCR_SPINNING_KICK_FrameMove	inside	-	CH2b	1 states	y
+32c86eb0	state-fn	LESI_SI2_LCR_CRESCENT_KICK.FrameMove LESI_SI2_LCR_CRESCENT_KICK_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3593 CX2GULire_ElvenRanger::LESI_SI2_LCR_CRESCENT_KICK_FrameMove ; inside X2GULire_ElvenRanger.cpp:3597 CX2GULire_ElvenRanger::LESI_SI2_LCR_CRESCENT_KICK_HYPER_FrameMove	inside	-	CH2b	2 states	y
+32c86ee0	state-fn	LESI_SI3_LCR_DIVE_KICK_BOMBING.FrameMove LESI_SI3_LCR_DIVE_KICK_BOMBING_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3606 CX2GULire_ElvenRanger::LESI_SI3_LCR_DIVE_KICK_BOMBING_FrameMove ; inside X2GULire_ElvenRanger.cpp:3611 CX2GULire_ElvenRanger::LESI_SI3_LCR_DIVE_KICK_BOMBING_HYPER_FrameMove	inside	-	CH2b	2 states	y
+32c86f10	state-fn	LESI_SI3_LSR_CRAZY_SHOT.FrameMove LESI_SI3_LSR_CRAZY_SHOT_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3658 CX2GULire_ElvenRanger::LESI_SI3_LSR_CRAZY_SHOT_FrameMove ; inside X2GULire_ElvenRanger.cpp:3662 CX2GULire_ElvenRanger::LESI_SI3_LSR_CRAZY_SHOT_HYPER_FrameMove	inside	-	CH2c	2 states	y
+32c86f40	state-fn	LESI_SI3_LSR_CRAZY_SHOT.FrameMove LESI_SI3_LSR_CRAZY_SHOT_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3658 CX2GULire_ElvenRanger::LESI_SI3_LSR_CRAZY_SHOT_FrameMove ; inside X2GULire_ElvenRanger.cpp:3662 CX2GULire_ElvenRanger::LESI_SI3_LSR_CRAZY_SHOT_HYPER_FrameMove	inside	-	CH2c	2 states	y
+32c86f70	state-fn	LESI_SA_LCR_SHARPFALL.FrameMove LESI_SA_LCR_SHARPFALL_LANDING.FrameMove LESI_SA_LCR_SHARPFALL_HYPER_LANDING.FrameMove	inside X2GULire_ElvenRanger.cpp:3740 CX2GULire_ElvenRanger::LESI_SA_LCR_SHARPFALL_FrameMove ; inside X2GULire_ElvenRanger.cpp:3759 CX2GULire_ElvenRanger::LESI_SA_LCR_SHARPFALL_LANDING_FrameMove	inside	-	CH3a	3 states	y
+32c86fa0	state-fn	LESI_SA_LCR_SHARPFALL.FrameMove LESI_SA_LCR_SHARPFALL_LANDING.FrameMove LESI_SA_LCR_SHARPFALL_HYPER_LANDING.FrameMove	inside X2GULire_ElvenRanger.cpp:3740 CX2GULire_ElvenRanger::LESI_SA_LCR_SHARPFALL_FrameMove ; inside X2GULire_ElvenRanger.cpp:3759 CX2GULire_ElvenRanger::LESI_SA_LCR_SHARPFALL_LANDING_FrameMove	inside	-	CH3a	3 states	y
+32c86fd0	state-fn	LESI_SA_LCR_VIOLENT_ATTACK_READY.FrameMove LESI_SA_LCR_VIOLENT_ATTACK.FrameMove LESI_SA_LCR_VIOLENT_ATTACK_LANDING.FrameMove	inside X2GULire_ElvenRanger.cpp:3852 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_READY_FrameMove ; inside X2GULire_ElvenRanger.cpp:3872 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_FrameMove ; inside X2GULire_ElvenRanger.cpp:3890 CX2GULire_ElvenRanger::LESI_SA_LCR_VIOLENT_ATTACK_LANDING_FrameMove	inside	-	CH3a	3 states	y
+32c87000	state-fn	LESI_SA_LGA_FREEZING_ARROW.FrameMove LESI_SA_LGA_FREEZING_ARROW_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3984 CX2GULire_ElvenRanger::LESI_SA_LGA_FREEZING_ARROW_FrameMove ; inside X2GULire_ElvenRanger.cpp:3992 CX2GULire_ElvenRanger::LESI_SA_LGA_FREEZING_ARROW_HYPER_FrameMove	inside	-	CH3b	2 states	y
+32c87030	state-fn	LESI_SA_LGA_FREEZING_ARROW.FrameMove LESI_SA_LGA_FREEZING_ARROW_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3984 CX2GULire_ElvenRanger::LESI_SA_LGA_FREEZING_ARROW_FrameMove ; inside X2GULire_ElvenRanger.cpp:3992 CX2GULire_ElvenRanger::LESI_SA_LGA_FREEZING_ARROW_HYPER_FrameMove	inside	-	CH3b	2 states	y
+32c87060	state-fn	LESI_SA_LGA_AERO_STRAFE.FrameMove LESI_SA_LGA_AERO_STRAFE_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:4055 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_FrameMove ; inside X2GULire_ElvenRanger.cpp:4062 CX2GULire_ElvenRanger::LESI_SA_LGA_AERO_STRAFE_HYPER_FrameMove	inside	-	CH3b	2 states	y
+32c87090	state-fn	LESI_SA_RTR_KARMA.FrameMove	inside X2GULire_ElvenRanger.cpp:4185 CX2GULire_ElvenRanger::LESI_SA_RTR_KARMA_FrameMove	inside	-	CH2d	1 states	y
+32c870c0	override 0x27c	AddUnitSlashData	X2GULire_ElvenRanger.h:522 virtual void AddUnitSlashData( const CX2UnitSlashTraceManager::SLASH_TRACE_CONDITION eSlashTraceCondition_ );	inside	-	CH1h	base 3208ddc0	y
+32c87780	override 0x420	?	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23947 CX2GULire_ElvenRanger::CheckDamageRelateSkillData	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: CheckDamageRelateSkillData (0x420)	y
+32c87860	helper	-	-	new	?	CH2d0	helper: trap summon info, called only from CX2Game summon code @3230bbbd (SetUserSummonedNPCInfo 3230c1a0 region); name: -; helper: trap summon info, called only from CX2Game summon code @3230bbbd (SetUserSummonedNPCInfo 3230c1a0 region)	y
+32c878f0	helper	-	-	new	?	CH2d0	helper: trap summon info, called only from CX2Game summon code @3230c712 (SetUserSummonedNPCInfo 3230c1a0 region); name: -; helper: trap summon info, called only from CX2Game summon code @3230c712 (SetUserSummonedNPCInfo 3230c1a0 region)	y
+32c87990	override 0x7c8	CommonFrameMoveFuture	X2GULire_ElvenRanger.h:588 virtual void CommonFrameMoveFuture();	inside	-	CH1j	base 32061bf0	y
+32c87ac0	override 0x810	SpecialAttackNoStageChange	X2GULire_ElvenRanger.h:494 virtual bool SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );	inside	-	CH1k	base 31aa1d30	n
+32c87b90	state-fn	LESI_WAIT.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:963 CX2GULire_ElvenRanger::WaitFrameMoveFuture	inside	-	CH1a	1 states	y
+32c87c20	state-fn	LESI_SIEGE_READY.StartFuture	inside X2GULire_ElvenRanger.cpp:3671 CX2GULire_ElvenRanger::SiegeReadyStateStartFuture	inside	-	CH1f	1 states	y
+32c87d30	state-fn	LESI_SIEGE_WAIT.EventProcess	inside X2GULire_ElvenRanger.cpp:1298 CX2GULire_ElvenRanger::SiegeWaitEventProcess	inside	-	CH1f	1 states	n
+32c87ec0	state-fn	LESI_SA_LCR_SHARPFALL_LANDING.Start LESI_SA_LCR_SHARPFALL_HYPER_LANDING.Start	-	new	LESI_SA_LCR_SHARPFALL_LANDING_StateStart	CH3a	2 states	y
+32c88050	state-fn	LESI_A_LGA_RAPID_SHOT_READY.FrameMoveFuture LESI_A_LGA_RAPID_SHOT_ATTACK.FrameMoveFuture LESI_A_LGA_RAPID_SHOT_FINISH.FrameMoveFuture	-	new	LESI_A_LGA_RAPID_SHOT_READY_FrameMoveFuture	CH2c	3 states	y
+32c881f0	helper	called by 32c886b0 32ca78b0	-	new	?	CH1i	name: called by 32c886b0(SetEquippedSkillLevel) 32ca78b0(InitPassiveSkillState)	y
+32c88330	state-fn	LESI_HA_LWS_SPIRAL_STIKE_READY.Start LESI_HA_LWS_SPIRAL_STIKE_SPINING.Start LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK.Start	inside X2GULire_ElvenRanger.cpp:4381 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_READY_StateStart ; inside X2GULire_ElvenRanger.cpp:4397 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_SPINING_StateStart	inside	-	CH3d	3 states	y
+32c883d0	override 0x40	Init	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23791 CX2GULire_ElvenRanger::Init	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: Init (0x40): NF part + the rest	y
+32c885a0	state-fn	LESI_SA_RGA_ACEINTHEHOLE_WAIT.FrameMoveFuture LESI_SA_RGA_ACEINTHEHOLE_1ST_ATTACK.FrameMoveFuture LESI_SA_RGA_ACEINTHEHOLE_2ND_ATTACK.FrameMoveFuture	-	new	LESI_SA_RGA_ACEINTHEHOLE_WAIT_FrameMoveFuture	CH3b	3 states	y
+32c886b0	override 0x7b8	SetEquippedSkillLevel	X2GULire_ElvenRanger.h:582 virtual void SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );	inside	-	CH1i	base 31aa1d30	y
+32c89200	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23757 CX2GULire_ElvenRanger::SetNaturalForceCount	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: SetNaturalForceCount	y
+32c89230	override 0x744	?	- (name unsettled)	new	?	CH1q	natural force / ADD_RENA_SYSTEM: 0x744 (base 3204da60): writes the NF gauge (32a317d0 SetChanged, 32a36df0 SetNow); name: virtual 0x744 (base natural force / ADD_RENA_SYSTEM: 0x744 (3204da60): writes the NF gauge (32a317d0 SetChanged, 32a36df0 SetNow)); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32c89270	helper	called by 32ca42f0	-	new	?	CH1h	name: called by 32ca42f0(helper)	y
+32c892d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8286936ff	y
+32c89310	helper	called by 32ca4e10	-	new	?	CH1h	name: called by 32ca4e10(CreateMajorParticleArray)	y
+32c89460	helper	called by 32ca5010	-	new	?	CH1h	name: called by 32ca5010(CreateMinorParticleArray)	y
+32c895b0	override 0x3c	InitComponent	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3603 virtual void InitComponent();)	new	InitComponent	CH1h	base 31fee090	y
+32c89a20	override 0x800	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	- (no virtual of that name in X2GULire_ElvenRanger.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32c89bd0	state-fn	LESI_WAIT.EventProcess	inside X2GULire_ElvenRanger.cpp:965 CX2GULire_ElvenRanger::WaitEventProcess	inside	-	CH1a	1 states	y
+32c89e80	state-fn	LESI_WALK.EventProcess	inside X2GULire_ElvenRanger.cpp:972 CX2GULire_ElvenRanger::WalkEventProcess	inside	-	CH1a	1 states	y
+32c8a080	state-fn	LESI_JUMP_LANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:1002 CX2GULire_ElvenRanger::JumpLandingEventProcess	inside	-	CH1a	1 states	y
+32c8a2f0	state-fn	LESI_DASH.EventProcess	inside X2GULire_ElvenRanger.cpp:1019 CX2GULire_ElvenRanger::DashEventProcess	inside	-	CH1a	1 states	y
+32c8a4f0	state-fn	LESI_DASH_END.EventProcess	inside X2GULire_ElvenRanger.cpp:1059 CX2GULire_ElvenRanger::DashEndEventProcess	inside	-	CH1a	1 states	y
+32c8a800	state-fn	LESI_DASH_JUMP_LANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:1128 CX2GULire_ElvenRanger::DashJumpLandingEventProcess	inside	-	CH1a	1 states	y
+32c8aa40	state-fn	LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X.FrameMove	inside X2GULire_ElvenRanger.cpp:1857 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X_FrameMove	inside	-	CH1f	1 states	y
+32c8b2c0	state-fn	LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX.FrameMove	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:6959 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_FrameMove	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX FrameMove	y
+32c8b820	state-fn	LESI_DOUBLE_JUMP_ATTACK_Z_LANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:1877 CX2GULire_ElvenRanger::DoubleJumpAttackZLandingEventProcess	inside	-	CH1d2	1 states	y
+32c8bb50	state-fn	LESI_CHARGE_MP.StartFuture	inside X2GULire_ElvenRanger.cpp:1096 CX2GULire_ElvenRanger::ChargeMPStartFuture	inside	-	CH1a	1 states	y
+32c8bdd0	state-fn	LESI_CHARGE_MP.Start	inside X2GULire_ElvenRanger.cpp:1097 CX2GULire_ElvenRanger::ChargeMPStart	inside	-	CH1a	1 states	y
+32c8c080	state-fn	LESI_CHARGE_MP.FrameMove	inside X2GULire_ElvenRanger.cpp:1098 CX2GULire_ElvenRanger::ChargeMPFrameMove	inside	-	CH1a	1 states	y
+32c8cb90	state-fn	LESI_CHARGE_MP.EventProcess	inside X2GULire_ElvenRanger.cpp:1099 CX2GULire_ElvenRanger::ChargeMPEventProcess	inside	-	CH1a	1 states	y
+32c8ce00	state-fn	LESI_CHARGE_MP.End	inside X2GULire_ElvenRanger.cpp:1101 CX2GULire_ElvenRanger::ChargeMPEnd	inside	-	CH1a	1 states	y
+32c8d390	state-fn	LESI_COMBO_Z4a.FrameMove	inside X2GULire_ElvenRanger.cpp:1967 CX2GULire_ElvenRanger::ComboZ4aFrameMove	inside	-	CH1d	1 states	y
+32c8d850	state-fn	LESI_COMBO_X1.FrameMove	inside X2GULire_ElvenRanger.cpp:1984 CX2GULire_ElvenRanger::ComboX1FrameMove	inside	-	CH1d	1 states	y
+32c8dd00	state-fn	LESI_COMBO_X2.FrameMove	inside X2GULire_ElvenRanger.cpp:2020 CX2GULire_ElvenRanger::ComboX2FrameMove	inside	-	CH1d	1 states	y
+32c8e0c0	state-fn	LESI_COMBO_X3.FrameMove	inside X2GULire_ElvenRanger.cpp:2028 CX2GULire_ElvenRanger::ComboX3FrameMove	inside	-	CH1d	1 states	y
+32c8e8b0	state-fn	LESI_COMBO_X4.FrameMove	inside X2GULire_ElvenRanger.cpp:2036 CX2GULire_ElvenRanger::ComboX4FrameMove	inside	-	CH1d	1 states	y
+32c8ec70	state-fn	LESI_COMBO_X4UP.FrameMove	inside X2GULire_ElvenRanger.cpp:2046 CX2GULire_ElvenRanger::ComboX4UpFrameMove	inside	-	CH1d	1 states	y
+32c8f6d0	state-fn	LESI_COMBO_X4DOWN.FrameMove	inside X2GULire_ElvenRanger.cpp:2054 CX2GULire_ElvenRanger::ComboX4DownFrameMove	inside	-	CH1d	1 states	y
+32c90130	state-fn	LESI_DASH_ATTACK_X.FrameMove	inside X2GULire_ElvenRanger.cpp:2157 CX2GULire_ElvenRanger::DashAttackXFrameMove	inside	-	CH1d2	1 states	y
+32c90620	state-fn	LESI_SNIPING_RANGER_DASH_COMBO_X1.FrameMove	inside X2GULire_ElvenRanger.cpp:2173 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X1_FrameMove	inside	-	CH1f	1 states	y
+32c909e0	state-fn	LESI_SNIPING_RANGER_DASH_COMBO_X2.FrameMove	inside X2GULire_ElvenRanger.cpp:2181 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X2_FrameMove	inside	-	CH1f	1 states	y
+32c90c70	state-fn	LESI_JUMP_ATTACK_X.FrameMove	inside X2GULire_ElvenRanger.cpp:2284 CX2GULire_ElvenRanger::JumpAttackXFrameMove	inside	-	CH1d2	1 states	y
+32c90f10	state-fn	LESI_DASH_JUMP_COMBO_X1.FrameMove	inside X2GULire_ElvenRanger.cpp:2411 CX2GULire_ElvenRanger::DashJumpComboX1FrameMove	inside	-	CH1d2	1 states	y
+32c91780	state-fn	LESI_DASH_JUMP_COMBO_X2.FrameMove	inside X2GULire_ElvenRanger.cpp:2437 CX2GULire_ElvenRanger::DashJumpComboX2FrameMove	inside	-	CH1d2	1 states	y
+32c91f10	state-fn	LESI_DASH_JUMP_COMBO_X3.FrameMove	inside X2GULire_ElvenRanger.cpp:2448 CX2GULire_ElvenRanger::DashJumpComboX3FrameMove	inside	-	CH1d2	1 states	y
+32c928f0	state-fn	LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2.FrameMove	inside X2GULire_ElvenRanger.cpp:2460 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2_FrameMove	inside	-	CH1f	1 states	y
+32c92df0	state-fn	LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3.FrameMove	inside X2GULire_ElvenRanger.cpp:2471 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3_FrameMove	inside	-	CH1f	1 states	y
+32c934b0	state-fn	LESI_SI1_LE_PIERCE_ARROW.CameraMove LESI_SI1_LE_PIERCE_ARROW_HYPER.CameraMove	inside X2GULire_ElvenRanger.cpp:3183 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_CameraMove ; inside X2GULire_ElvenRanger.cpp:3190 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_CameraMove	inside	-	CH2a	2 states	y
+32c93580	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec1c535556578b	y
+32c93d80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90d0	y
+32c93ea0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec1c535556578b	y
+32c946a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90d0	y
+32c947c0	state-fn	LESI_SI3_LE_PHOENIX_STRIKE.CameraMove	inside X2GULire_ElvenRanger.cpp:3277 CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_CameraMove	inside	-	CH2a	1 states	y
+32c948e0	state-fn	LESI_RNW_ACCEL_DASH.EventProcess	inside X2GULire_ElvenRanger.cpp:2612 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_EventProcess	inside	-	CH1g3	1 states	y
+32c94ba0	state-fn	LESI_RNW_ACCEL_DASH_JUMP_LANDING.EventProcess	inside X2GULire_ElvenRanger.cpp:2632 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_LANDING_EventProcess	inside	-	CH1g3	1 states	n
+32c94e20	state-fn	LESI_SI_A_LE_BACKJUMP_SHOT.FrameMove	inside X2GULire_ElvenRanger.cpp:3689 CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_FrameMove	inside	-	CH2a	1 states	n
+32c953d0	state-fn	LESI_SA_LSR_WINDWARD.FrameMove	inside X2GULire_ElvenRanger.cpp:3774 CX2GULire_ElvenRanger::LESI_SA_LSR_WINDWARD_FrameMove	inside	-	CH2c	1 states	y
+32c95670	helper	called by 32c95790 32ca4a40	-	new	?	CH1h	name: called by 32c95790(helper) 32ca4a40(ReInit)	y
+32c95790	helper	-	-	-	-	n/a	June CreateEntangleTrap (NUI_ENTANGLE_TRAP_RENA 457, @32c95882): dead in June, its only caller 32c95890 has no call, jmp or pointer reference; June Entangle builds DAMAGE_EFFECT_LENA_TRAPPING_RANGER_ENTANGLE[_MEMO] (32c9e7b0)	y
+32c95890	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d9057c774333568b	n
+32c958e0	state-fn	LESI_LGA_ZZX.FrameMove	inside X2GULire_ElvenRanger.cpp:2537 CX2GULire_ElvenRanger::LESI_LGA_ZZX_FrameMove	inside	-	CH1f2	1 states	y
+32c95b20	state-fn	LESI_LGA_ZZXX.FrameMove	inside X2GULire_ElvenRanger.cpp:2548 CX2GULire_ElvenRanger::LESI_LGA_ZZXX_FrameMove	inside	-	CH1f2	1 states	y
+32c96320	state-fn	LESI_LGA_DASH_JUMP_ZX.FrameMove	inside X2GULire_ElvenRanger.cpp:2347 CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_FrameMove	inside	-	CH1f2	1 states	y
+32c96560	state-fn	LESI_SA_LWS_SLIDE_KICK.FrameMove LESI_SA_LWS_SLIDE_KICK_PASS_THROUGH.FrameMove LESI_SA_LWS_SLIDE_KICK_FINISH.FrameMove +1	inside X2GULire_ElvenRanger.cpp:3920 CX2GULire_ElvenRanger::LESI_SA_LWS_SLIDE_KICK_FrameMove	inside	-	CH3a	4 states	y
+32c96910	state-fn	LESI_SA_LWS_SLIDE_KICK.EventProcess LESI_SA_LWS_SLIDE_KICK_PASS_THROUGH.EventProcess LESI_SA_LWS_SLIDE_KICK_FINISH.EventProcess +1	inside X2GULire_ElvenRanger.cpp:3921 CX2GULire_ElvenRanger::LESI_SA_LWS_SLIDE_KICK_EventProcess ; inside X2GULire_ElvenRanger.cpp:3940 CX2GULire_ElvenRanger::LESI_SA_LWS_SLIDE_KICK_PASS_THROUGH_EventProcess ; inside X2GULire_ElvenRanger.cpp:3948 CX2GUUser::GenericSpecialActiveSkillEventProcess ; inside X2GULire_ElvenRanger.cpp:3967 CX2GULire_ElvenRanger::LESI_SA_LWS_SLIDE_KICK_CANCEL_EventProcess	inside	-	CH3a	4 states	n
+32c96aa0	state-fn	LESI_SA_LWS_AIRELINNA.FrameMove	inside X2GULire_ElvenRanger.cpp:4082 CX2GULire_ElvenRanger::LESI_SA_LWS_AIRELINNA_FrameMove	inside	-	CH3a	1 states	y
+32c96d60	helper	called by 32cadc90	-	new	?	CH1m	name: called by 32cadc90(InitState)	y
+32c96e50	helper	called by 32ca5060 32ca6410 32ca9680 32caca80	-	new	?	CH1g	name: called by 32ca5060(CommonStateEnd) 32ca6410(helper) 32ca9680(LESI_DASH_COMBO_RTR_ZX.Frame) 32caca80(LESI_SA_RNW_FURIOUS_ENGAGE.F)	y
+32c96eb0	state-fn	LESI_COMBO_RTR_ZZZ.End	inside X2GULire_ElvenRanger.cpp:1929 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_StateEnd	inside	-	CH1g	1 states	y
+32c96f10	state-fn	LESI_COMBO_RTR_ZZZ_DZ.End	inside X2GULire_ElvenRanger.cpp:1938 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_StateEnd	inside	-	CH1g	1 states	y
+32c96f70	state-fn	LESI_COMBO_RTR_ZZZZ.End	inside X2GULire_ElvenRanger.cpp:1947 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_StateEnd	inside	-	CH1g	1 states	y
+32c96fd0	state-fn	LESI_COMBO_RTR_ZZZZZ.End	inside X2GULire_ElvenRanger.cpp:1956 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_StateEnd	inside	-	CH1g	1 states	y
+32c97030	state-fn	LESI_JUMP_ATTACK_RTR_Z.End	inside X2GULire_ElvenRanger.cpp:2273 CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_StateEnd	inside	-	CH1g	1 states	y
+32c97090	state-fn	LESI_DASH_COMBO_RTR_ZX.End	inside X2GULire_ElvenRanger.cpp:2118 CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_StateEnd	inside	-	CH1g	1 states	y
+32c970f0	state-fn	LESI_DASH_JUMP_ATTACK_RTR_Z.End	inside X2GULire_ElvenRanger.cpp:2365 CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_StateEnd	inside	-	CH1g	1 states	y
+32c97150	state-fn	LESI_DASH_JUMP_ATTACK_RTR_ZZ.End	inside X2GULire_ElvenRanger.cpp:2375 CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_StateEnd	inside	-	CH1g	1 states	y
+32c971b0	state-fn	LESI_SA_RTR_EVOKE.End	inside X2GULire_ElvenRanger.cpp:4116 CX2GULire_ElvenRanger::LESI_SA_RTR_EVOKE_StateEnd	inside	-	CH2d	1 states	y
+32c97210	state-fn	LESI_A_RTR_EXPLOSION_TRAP.FrameMove	inside X2GULire_ElvenRanger.cpp:4140 CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_FrameMove	inside	-	CH2d	1 states	n
+32c97540	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff682ae0333364	y
+32c97c50	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff685ae0333364	y
+32c98360	state-fn	LESI_SA_RTR_FATALITY.FrameMove	inside X2GULire_ElvenRanger.cpp:4208 CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_FrameMove	inside	-	CH2d	1 states	y
+32c987f0	state-fn	LESI_SA_RTR_FATALITY.FrameMove	inside X2GULire_ElvenRanger.cpp:4208 CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_FrameMove	inside	-	CH2d	1 states	y
+32c98c80	state-fn	LESI_SA_RTR_FATALITY.End	inside X2GULire_ElvenRanger.cpp:4210 CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_StateEnd	inside	-	CH2d	1 states	y
+32c98ce0	state-fn	LESI_SA_RTR_CALL_OF_RUIN.End	inside X2GULire_ElvenRanger.cpp:4236 CX2GULire_ElvenRanger::LESI_SA_RTR_CALL_OF_RUIN_StateEnd	inside	-	CH3c	1 states	y
+32c98d50	state-fn	LESI_A_RNW_START_OF_DELAYED_FIRING.FrameMove	inside X2GULire_ElvenRanger.cpp:4323 CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_FrameMove	inside	-	CH3c	1 states	y
+32c990d0	state-fn	LESI_A_RNW_START_OF_DELAYED_FIRING.End	inside X2GULire_ElvenRanger.cpp:4324 CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_StateEnd	inside	-	CH3c	1 states	y
+32c99280	state-fn	LESI_SA_RNW_GLIDING_STRIKE.FrameMove	inside X2GULire_ElvenRanger.cpp:4297 CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_FrameMove	inside	-	CH3c	1 states	y
+32c99690	helper	-	X2GULire_ElvenRanger.cpp:20053 CX2GULire_ElvenRanger::CreateEvoke	inside	-	CH2d0	CreateEvoke (NUI_EVOKE_TRAP_LIRE 1020 @32c99a1a; callers LESI_SA_RTR_EVOKE FrameMove 32ca6810 / _HYPER 32ca6860)	y
+32c99a40	override 0x4c	DeleteMinorParticle	X2GULire_ElvenRanger.h:474 virtual void DeleteMinorParticle();	inside	-	CH1h	base 31fc87c0	y
+32c99a90	state-fn	LESI_SNIPING_RANGER_COMBO_X2.FrameMove	inside X2GULire_ElvenRanger.cpp:1994 CX2GULire_ElvenRanger::SnipingRangerComboX2FrameMove	inside	-	CH1f	1 states	y
+32c99ec0	state-fn	LESI_SNIPING_RANGER_COMBO_X3.FrameMove	inside X2GULire_ElvenRanger.cpp:2002 CX2GULire_ElvenRanger::SnipingRangerComboX3FrameMove	inside	-	CH1f	1 states	y
+32c9a300	state-fn	LESI_SNIPING_RANGER_COMBO_X4.FrameMove	inside X2GULire_ElvenRanger.cpp:2009 CX2GULire_ElvenRanger::SnipingRangerComboX4FrameMove	inside	-	CH1f	1 states	y
+32c9a5b0	helper	called by 32ca69e0	-	new	?	CH1g	name: called by 32ca69e0(helper)	y
+32c9a7c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 56578bf968702a72	y
+32c9a810	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32c9aa60	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32c9aae0	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32c9ac00	helper	called by 32c9af70	-	new	?	CH1k	name: called by 32c9af70(helper)	y
+32c9af70	helper	called by 32ca5160	-	new	?	CH1k	name: called by 32ca5160(NoStateChangeActionFrameMove)	y
+32c9b320	override 0x25c	?	- (name unsettled)	new	?	CH1h	base 32290860; name: virtual 0x25c (base 32290860); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32c9b3d0	override 0xc4	HyperModeBuffEffectStart	X2GULire_ElvenRanger.h:521 virtual void HyperModeBuffEffectStart();	inside	-	CH1h	base 31fd5cb0	n
+32c9b5d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff6815e2333364	y
+32c9bc60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff684de2333364	y
+32c9bf50	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff6883e2333364	y
+32c9c340	state-fn	LESI_A_LSR_SHOOTING_MAGNUM.FrameMove	inside X2GULire_ElvenRanger.cpp:3348 CX2GULire_ElvenRanger::LESI_A_LSR_SHOOTING_MAGNUM_FrameMove	inside	-	CH2c	1 states	n
+32c9cc10	state-fn	LESI_A_LGA_ARC_SHOT.FrameMove	inside X2GULire_ElvenRanger.cpp:3362 CX2GULire_ElvenRanger::LESI_A_LGA_ARC_SHOT_FrameMove	inside	-	CH2c	1 states	n
+32c9d250	state-fn	LESI_A_LGA_RAPID_SHOT_ATTACK.FrameMove	inside X2GULire_ElvenRanger.cpp:3390 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_ATTACK_FrameMove	inside	-	CH2c	1 states	y
+32c9d420	state-fn	LESI_A_LGA_RAPID_SHOT_FINISH.FrameMove	inside X2GULire_ElvenRanger.cpp:3397 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_FINISH_FrameMove	inside	-	CH2c	1 states	n
+32c9d7b0	state-fn	LESI_A_LGA_WIND_BLAST.FrameMove	inside X2GULire_ElvenRanger.cpp:3435 CX2GULire_ElvenRanger::LESI_A_LGA_WIND_BLAST_FrameMove	inside	-	CH3b	1 states	y
+32c9da00	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d9057c77433383ec	n
+32c9dc40	state-fn	LESI_P_RNW_SEED_OF_RUIN.FrameMove	inside X2GULire_ElvenRanger.cpp:3493 CX2GULire_ElvenRanger::LESI_P_RNW_SEED_OF_RUIN_FrameMove	inside	-	CH3c	1 states	n
+32c9e0d0	state-fn	LESI_A_RNW_ANGER_OF_ELF.End	inside X2GULire_ElvenRanger.cpp:3513 CX2GULire_ElvenRanger::LESI_A_RNW_ANGER_OF_ELF_StateEnd	inside	-	CH2d	1 states	y
+32c9e130	helper	called by 32c9e250 32ca4a40	-	new	?	CH1h	name: called by 32c9e250(helper) 32ca4a40(ReInit)	y
+32c9e250	helper	-	X2GULire_ElvenRanger.cpp:22750 CX2GULire_ElvenRanger::CreateAngerOfElfTrap	inside	-	CH2d0	CreateAngerOfElfTrap (NUI_RENA_ANGER_OF_ELF 1420 @32c9e42e; caller LESI_A_RNW_ANGER_OF_ELF FrameMove 32ca6fb0)	y
+32c9e440	state-fn	LESI_A_RNW_ROSEBUSH_TRAP.FrameMove	inside X2GULire_ElvenRanger.cpp:3530 CX2GULire_ElvenRanger::LESI_A_RNW_ROSEBUSH_TRAP_FrameMove	inside	-	CH2d	1 states	y
+32c9e7b0	state-fn	LESI_A_LTR_ENTANGLE.FrameMove	inside X2GULire_ElvenRanger.cpp:3559 CX2GULire_ElvenRanger::LESI_A_LTR_ENTANGLE_FrameMove	inside	-	CH3b	1 states	y
+32c9eac0	state-fn	LESI_A_RNW_BUTTERFLY.End	-	new	LESI_A_RNW_BUTTERFLY_StateEnd	CH3c	1 states	y
+32c9eb20	state-fn	LESI_HA_LWS_SPIRAL_STIKE_SPINING.Start	inside X2GULire_ElvenRanger.cpp:4397 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_SPINING_StateStart	inside	-	CH3d	1 states	y
+32c9ece0	state-fn	LESI_HA_LWS_SPIRAL_STIKE_SPINING.FrameMove	inside X2GULire_ElvenRanger.cpp:4398 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_SPINING_FrameMove	inside	-	CH3d	1 states	y
+32c9ef20	state-fn	LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK.FrameMove	inside X2GULire_ElvenRanger.cpp:4409 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK_FrameMove	inside	-	CH3d	1 states	n
+32c9efd0	state-fn	LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT.FrameMove LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT.FrameMove LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING.FrameMove	inside X2GULire_ElvenRanger.cpp:4421 CX2GULire_ElvenRanger::LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT_FrameMove	inside	-	CH3d	3 states	y
+32c9f490	state-fn	LESI_HA_LNW_INNOCENT_END.End	inside X2GULire_ElvenRanger.cpp:4469 CX2GULire_ElvenRanger::LESI_HA_LNW_INNOCENT_END_StateEnd	inside	-	CH3d	1 states	y
+32c9f4f0	helper	called by 32ca5310 32ca7040	-	new	?	CH1c	name: called by 32ca5310(HyperModeFrameMove) 32ca7040(LESI_RIDING_HYPER_MODE.Frame)	y
+32c9f7a0	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23710 CX2GULire_ElvenRanger::ConsumeNaturalForce	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: ConsumeNaturalForce (June also UpNowMp n x +0x97e0)	y
+32c9f830	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23871 CX2GULire_ElvenRanger::SetNaturalForceEffect	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: SetNaturalForceEffect	y
+32c9fa50	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23916 CX2GULire_ElvenRanger::UpdateNaturalForceEffect	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: UpdateNaturalForceEffect (also inline in CommonFrameMove 32ca8bf0)	y
+32c9faa0	state-fn	LESI_RSR_DASH_ZX.FrameMove	-	new	LESI_RSR_DASH_ZX_FrameMove	CH1f	1 states	y
+32ca02a0	state-fn	LESI_RGA_DASH_JUMP_ZXX.FrameMove	-	new	LESI_RGA_DASH_JUMP_ZXX_FrameMove	CH1f2	1 states	y
+32ca0a90	state-fn	LESI_RGA_DASH_JUMP_XXZ.FrameMove	-	new	LESI_RGA_DASH_JUMP_XXZ_FrameMove	CH1f2	1 states	y
+32ca0cd0	state-fn	LESI_RTR_DOUBLE_JUMP_ZX.End	-	new	LESI_RTR_DOUBLE_JUMP_ZX_StateEnd	CH1g	1 states	y
+32ca0d30	state-fn	LESI_RNW_DASH_XZ.End	-	new	LESI_RNW_DASH_XZ_StateEnd	CH1g2	1 states	y
+32ca0d90	state-fn	LESI_RNW_DASH_XZZ_START.End	-	new	LESI_RNW_DASH_XZZ_START_StateEnd	CH1g2	1 states	y
+32ca0df0	state-fn	LESI_RNW_DASH_XZZ_LOOP.End	-	new	LESI_RNW_DASH_XZZ_LOOP_StateEnd	CH1g2	1 states	y
+32ca0e60	state-fn	LESI_RNW_DASH_XZZ_FULL_CHARGE_END.End	-	new	LESI_RNW_DASH_XZZ_FULL_CHARGE_END_StateEnd	CH1g2	1 states	y
+32ca0ec0	state-fn	LESI_RNW_DASH_XZZ_END.End	-	new	LESI_RNW_DASH_XZZ_END_StateEnd	CH1g2	1 states	y
+32ca0f20	state-fn	LESI_RNW_DASH_JUMP_XXZ_LOOP.End	-	new	LESI_RNW_DASH_JUMP_XXZ_LOOP_StateEnd	CH1g3	1 states	y
+32ca0f80	state-fn	LESI_RGA_GUNGNIR_READY.FrameMove LESI_RGA_GUNGNIR_CONTROL_IDLE.FrameMove LESI_RGA_GUNGNIR_CONTROL_FIRE.FrameMove +9	-	new	LESI_RGA_GUNGNIR_READY_FrameMove	CH1f2	12 states	n
+32ca1240	state-fn	LESI_RGA_GUNGNIR_READY.EventProcess LESI_RGA_GUNGNIR_CONTROL_IDLE.EventProcess LESI_RGA_GUNGNIR_CONTROL_FIRE.EventProcess +9	-	new	LESI_RGA_GUNGNIR_READY_EventProcess	CH1f2	12 states	y
+32ca1300	state-fn	LESI_RGA_GUNGNIR_CANCEL.Start	-	new	LESI_RGA_GUNGNIR_CANCEL_StateStart	CH1f2	1 states	y
+32ca1360	state-fn	LESI_RGA_GUNGNIR_CONTROL_IDLE.EventProcess LESI_RGA_GUNGNIR_CONTROL_LEFT.EventProcess LESI_RGA_GUNGNIR_CONTROL_UP_RIGHT.EventProcess +6	-	new	LESI_RGA_GUNGNIR_CONTROL_IDLE_EventProcess	CH1f2	9 states	y
+32ca1a00	state-fn	LESI_RGA_GUNGNIR_CONTROL_IDLE.Start	-	new	LESI_RGA_GUNGNIR_CONTROL_IDLE_StateStart	CH1f2	1 states	y
+32ca1bb0	state-fn	LESI_RGA_GUNGNIR_CONTROL_FIRE.Start	-	new	LESI_RGA_GUNGNIR_CONTROL_FIRE_StateStart	CH1f2	1 states	y
+32ca1cc0	state-fn	LESI_RGA_GUNGNIR_CONTROL_FIRE.End	-	new	LESI_RGA_GUNGNIR_CONTROL_FIRE_StateEnd	CH1f2	1 states	y
+32ca1d10	state-fn	LESI_RGA_GUNGNIR_CONTROL_LEFT.Start	-	new	LESI_RGA_GUNGNIR_CONTROL_LEFT_StateStart	CH1f2	1 states	y
+32ca1d70	state-fn	LESI_RGA_GUNGNIR_CONTROL_RIGHT.Start	-	new	LESI_RGA_GUNGNIR_CONTROL_RIGHT_StateStart	CH1f2	1 states	y
+32ca1dd0	state-fn	LESI_RGA_GUNGNIR_CONTROL_UP.Start	-	new	LESI_RGA_GUNGNIR_CONTROL_UP_StateStart	CH1f2	1 states	y
+32ca1e30	state-fn	LESI_RGA_GUNGNIR_CONTROL_DOWN.Start	-	new	LESI_RGA_GUNGNIR_CONTROL_DOWN_StateStart	CH1f2	1 states	y
+32ca1e90	state-fn	LESI_RGA_GUNGNIR_CONTROL_UP_LEFT.Start	-	new	LESI_RGA_GUNGNIR_CONTROL_UP_LEFT_StateStart	CH1f2	1 states	y
+32ca1ef0	state-fn	LESI_RGA_GUNGNIR_CONTROL_UP_RIGHT.Start	-	new	LESI_RGA_GUNGNIR_CONTROL_UP_RIGHT_StateStart	CH1f2	1 states	y
+32ca1f50	state-fn	LESI_RGA_GUNGNIR_CONTROL_DOWN_LEFT.Start	-	new	LESI_RGA_GUNGNIR_CONTROL_DOWN_LEFT_StateStart	CH1f2	1 states	y
+32ca1fb0	state-fn	LESI_RGA_GUNGNIR_CONTROL_DOWN_RIGHT.Start	-	new	LESI_RGA_GUNGNIR_CONTROL_DOWN_RIGHT_StateStart	CH1f2	1 states	y
+32ca2010	helper	called by 32ca42f0 32ca4a40 32ca5290 32ca52d0	-	new	?	CH1b	name: called by 32ca42f0(helper) 32ca4a40(ReInit) 32ca5290(LESI_DIE_FRONT.FrameMove LES) 32ca52d0(LESI_DIE_BACK.FrameMove)	y
+32ca2180	helper	called by 32cb66e0	-	new	?	CH4a	also called from outside the class: 3275a506 3275a50f; name: called by 32cb66e0(helper); also called from outside the class: 3275a506 3275a50f	y
+32ca2390	helper	called by 32cb66f0	-	new	?	CH4a	name: called by 32cb66f0(helper)	y
+32ca2520	state-fn	LESI_SA_RGA_ACEINTHEHOLE_WAIT.FrameMove LESI_SA_RGA_ACEINTHEHOLE_1ST_ATTACK.FrameMove LESI_SA_RGA_ACEINTHEHOLE_2ND_ATTACK.FrameMove +1	-	new	LESI_SA_RGA_ACEINTHEHOLE_WAIT_FrameMove	CH3b	4 states	y
+32ca28b0	helper	called by 32cb6700	-	new	?	CH4a	name: called by 32cb6700(helper)	y
+32ca2aa0	helper	called by 32ca2af0 32ca2b60 32ca8bf0	-	new	?	CH1j	name: called by 32ca2af0(helper) 32ca2b60(helper) 32ca8bf0(CommonFrameMove)	y
+32ca2af0	helper	called by 32ca50b0	-	new	?	CH1k	name: called by 32ca50b0(SpecialAttackEventProcess pa)	y
+32ca2b60	helper	-	-	inside	-	CH1k	ctor: CX2GULire_ElvenRanger::CX2GULire_ElvenRanger (vtable store 32ca2bc4); its only caller 3230f289 is the unit factory, outside the class; inside: X2GULire_ElvenRanger.h:376 constructor (vtable store 32ca2bc4, body 32ca2b60-32ca42e9)	y
+32ca42f0	helper	called by 32cb6c50	-	inside	-	CH1h	inside: X2GULire_ElvenRanger.h:383 destructor body (vtable store 32ca431f; the scalar deleting dtor 32cb6c50 calls it, then the delete helper 32fe2300)	y
+32ca4a40	override 0x44	ReInit	X2GULire_ElvenRanger.h:410 virtual void ReInit( bool bRandom = false, int startPosIndex = -1 );	inside	-	CH1h	base 32022380	y
+32ca4e10	override 0x540	CreateMajorParticleArray	X2GULire_ElvenRanger.h:422 virtual void CreateMajorParticleArray();	inside	-	CH1h	base 32012800	n
+32ca5010	override 0x548	CreateMinorParticleArray	X2GULire_ElvenRanger.h:449 virtual void CreateMinorParticleArray();	inside	-	CH1h	base 32012920	n
+32ca5060	override 0x7dc	CommonStateEnd	X2GULire_ElvenRanger.h:592 virtual void CommonStateEnd();	inside	-	CH1j	base 32015250	y
+32ca50b0	override 0x7fc	SpecialAttackEventProcess part: skill use (slot 511)	- (no virtual of that name in X2GULire_ElvenRanger.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32ca5160	override 0x80c	NoStateChangeActionFrameMove	X2GULire_ElvenRanger.h:599 virtual void NoStateChangeActionFrameMove();	inside	-	CH1k	base 32008e40	y
+32ca5290	state-fn	LESI_DIE_FRONT.FrameMove LESI_RIDING_DIE.FrameMove	inside X2GULire_ElvenRanger.cpp:936 CX2GULire_ElvenRanger::DieFrontFrameMove ; inside X2GULire_ElvenRanger.cpp:1543 CX2GULire_ElvenRanger::DieFrontFrameMove	inside	-	CH1b	2 states	y
+32ca52d0	state-fn	LESI_DIE_BACK.FrameMove	inside X2GULire_ElvenRanger.cpp:945 CX2GULire_ElvenRanger::DieBackFrameMove	inside	-	CH1b	1 states	y
+32ca5310	override 0x600	HyperModeFrameMove	X2GULire_ElvenRanger.h:941 void HyperModeFrameMove(); (no virtual keyword; overrides the CX2GUUser pure virtual)	inside	-	CH1i	base 31aa1d30	n
+32ca5330	state-fn	LESI_SIEGE_ATTACK.FrameMove	inside X2GULire_ElvenRanger.cpp:1306 CX2GULire_ElvenRanger::SiegeAttackFrontFrameMove	inside	-	CH1f	1 states	y
+32ca5aa0	state-fn	LESI_SIEGE_ATTACK_X.FrameMove	inside X2GULire_ElvenRanger.cpp:1315 CX2GULire_ElvenRanger::SiegeAttackXFrontFrameMove	inside	-	CH1f	1 states	y
+32ca62f0	state-fn	LESI_COMBO_RNW_ZZX.End	inside X2GULire_ElvenRanger.cpp:2582 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZX_StateEnd	inside	-	CH1g2	1 states	y
+32ca6350	state-fn	LESI_COMBO_RNW_ZZXX.End	inside X2GULire_ElvenRanger.cpp:2592 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXX_StateEnd	inside	-	CH1g2	1 states	y
+32ca63b0	state-fn	LESI_COMBO_RNW_ZZXXX.End	inside X2GULire_ElvenRanger.cpp:2602 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXXX_StateEnd	inside	-	CH1g2	1 states	y
+32ca6410	helper	called by 32ca6640 32ca6670 32ca6690 32ca66c0	-	new	?	CH1g	name: called by 32ca6640(LESI_COMBO_RTR_ZZZ.Start) 32ca6670(LESI_COMBO_RTR_ZZZ_DZ.Start) 32ca6690(LESI_COMBO_RTR_ZZZZ.Start) 32ca66c0(LESI_COMBO_RTR_ZZZZZ.Start)	y
+32ca6640	state-fn	LESI_COMBO_RTR_ZZZ.Start	inside X2GULire_ElvenRanger.cpp:1926 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_StateStart	inside	-	CH1g	1 states	y
+32ca6670	state-fn	LESI_COMBO_RTR_ZZZ_DZ.Start	inside X2GULire_ElvenRanger.cpp:1935 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_StateStart	inside	-	CH1g	1 states	y
+32ca6690	state-fn	LESI_COMBO_RTR_ZZZZ.Start	inside X2GULire_ElvenRanger.cpp:1944 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_StateStart	inside	-	CH1g	1 states	y
+32ca66c0	state-fn	LESI_COMBO_RTR_ZZZZZ.Start	inside X2GULire_ElvenRanger.cpp:1953 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_StateStart	inside	-	CH1g	1 states	y
+32ca6700	state-fn	LESI_JUMP_ATTACK_RTR_Z.Start	inside X2GULire_ElvenRanger.cpp:2269 CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_StateStart	inside	-	CH1g	1 states	y
+32ca6730	state-fn	LESI_DASH_COMBO_RTR_ZX.Start	inside X2GULire_ElvenRanger.cpp:2115 CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_StateStart	inside	-	CH1g	1 states	y
+32ca6780	state-fn	LESI_DASH_JUMP_ATTACK_RTR_Z.Start	inside X2GULire_ElvenRanger.cpp:2362 CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_StateStart	inside	-	CH1g	1 states	y
+32ca67b0	state-fn	LESI_DASH_JUMP_ATTACK_RTR_ZZ.Start	inside X2GULire_ElvenRanger.cpp:2372 CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_StateStart	inside	-	CH1g	1 states	y
+32ca67f0	state-fn	LESI_SA_RTR_EVOKE.Start	inside X2GULire_ElvenRanger.cpp:4109 CX2GULire_ElvenRanger::LESI_SA_RTR_EVOKE_StateStart	inside	-	CH2d	1 states	y
+32ca6810	state-fn	LESI_SA_RTR_EVOKE.FrameMove	inside X2GULire_ElvenRanger.cpp:4110 CX2GULire_ElvenRanger::LESI_SA_RTR_EVOKE_FrameMove	inside	-	CH2d	1 states	n
+32ca6860	state-fn	LESI_SA_RTR_EVOKE.FrameMove	inside X2GULire_ElvenRanger.cpp:4110 CX2GULire_ElvenRanger::LESI_SA_RTR_EVOKE_FrameMove	inside	-	CH2d	1 states	n
+32ca68b0	state-fn	LESI_SA_RTR_FATALITY.Start	inside X2GULire_ElvenRanger.cpp:4205 CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_StateStart	inside	-	CH2d	1 states	y
+32ca6970	state-fn	LESI_SA_RTR_CALL_OF_RUIN.Start	inside X2GULire_ElvenRanger.cpp:4232 CX2GULire_ElvenRanger::LESI_SA_RTR_CALL_OF_RUIN_StateStart	inside	-	CH3c	1 states	n
+32ca69e0	helper	called by 32ca6be0	-	new	?	CH1g	name: called by 32ca6be0(helper)	y
+32ca6b10	helper	called by 32ca6be0 32ca8bf0	-	new	?	CH1g	name: called by 32ca6be0(helper) 32ca8bf0(CommonFrameMove)	y
+32ca6be0	helper	called by 32ca94c0 32ca9510 32ca9550 32ca9620	-	new	?	CH1g	name: called by 32ca94c0(LESI_COMBO_RNW_ZZX.FrameMove) 32ca9510(LESI_COMBO_RNW_ZZXX.FrameMov) 32ca9550(LESI_COMBO_RNW_ZZXXX.FrameMo) 32ca9620(LESI_COMBO_RTR_ZZZ.FrameMove)	y
+32ca6cd0	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32ca6e90	helper	called by 32ca9230 32ca9360	-	new	?	CH1b	name: called by 32ca9230(LESI_DIE_FRONT.Start LESI_RI) 32ca9360(LESI_DIE_BACK.Start)	y
+32ca6f90	state-fn	LESI_A_RNW_ANGER_OF_ELF.Start	inside X2GULire_ElvenRanger.cpp:3510 CX2GULire_ElvenRanger::LESI_A_RNW_ANGER_OF_ELF_StateStart	inside	-	CH2d	1 states	y
+32ca6fb0	state-fn	LESI_A_RNW_ANGER_OF_ELF.FrameMove	inside X2GULire_ElvenRanger.cpp:3511 CX2GULire_ElvenRanger::LESI_A_RNW_ANGER_OF_ELF_FrameMove	inside	-	CH2d	1 states	n
+32ca7000	state-fn	LESI_A_RNW_BUTTERFLY.Start	-	new	LESI_A_RNW_BUTTERFLY_StateStart	CH3c	1 states	y
+32ca7020	state-fn	LESI_HA_LNW_INNOCENT_END.Start	inside X2GULire_ElvenRanger.cpp:4467 CX2GULire_ElvenRanger::LESI_HA_LNW_INNOCENT_END_StateStart	inside	-	CH3d	1 states	y
+32ca7040	state-fn	LESI_RIDING_HYPER_MODE.FrameMove	inside X2GULire_ElvenRanger.cpp:1611 CX2GULire_ElvenRanger::RidingHyperModeFrameMove	inside	-	CH1c	1 states	y
+32ca7060	override 0xd0	?	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23580 CX2GULire_ElvenRanger::CreateGageData	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: CreateGageData (0xd0)	y
+32ca7130	override 0x4e0	AttackResultByType	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23599 CX2GULire_ElvenRanger::AttackResultByType	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: AttackResultByType (0x4e0)	y
+32ca7670	state-fn	LESI_RTR_DOUBLE_JUMP_ZX.Start	-	new	LESI_RTR_DOUBLE_JUMP_ZX_StateStart	CH1g	1 states	y
+32ca7690	state-fn	LESI_RNW_DASH_XZ.Start	-	new	LESI_RNW_DASH_XZ_StateStart	CH1g2	1 states	y
+32ca76b0	state-fn	LESI_RNW_DASH_XZZ_START.Start	-	new	LESI_RNW_DASH_XZZ_START_StateStart	CH1g2	1 states	y
+32ca76d0	state-fn	LESI_RNW_DASH_XZZ_LOOP.Start	-	new	LESI_RNW_DASH_XZZ_LOOP_StateStart	CH1g2	1 states	y
+32ca76f0	state-fn	LESI_RNW_DASH_XZZ_FULL_CHARGE_END.Start	-	new	LESI_RNW_DASH_XZZ_FULL_CHARGE_END_StateStart	CH1g2	1 states	y
+32ca7710	state-fn	LESI_RNW_DASH_XZZ_END.Start	-	new	LESI_RNW_DASH_XZZ_END_StateStart	CH1g2	1 states	y
+32ca7730	state-fn	LESI_RNW_DASH_JUMP_XXZ_LOOP.Start	-	new	LESI_RNW_DASH_JUMP_XXZ_LOOP_StateStart	CH1g3	1 states	y
+32ca7750	helper	called by 32ca8bf0 32ca9740	-	new	?	CH1f2	name: called by 32ca8bf0(CommonFrameMove) 32ca9740(helper)	y
+32ca7810	state-fn	LESI_SA_RNW_ERADICATION_ATTACK.Start	-	new	LESI_SA_RNW_ERADICATION_ATTACK_StateStart	CH3c	1 states	y
+32ca7860	override 0x90	Win	X2GULire_ElvenRanger.h:414 virtual void Win();	inside	-	CH1h	base 32014660	y
+32ca78b0	override 0x690	InitPassiveSkillState	X2GULire_ElvenRanger.h:580 virtual void InitPassiveSkillState();	inside	-	CH4a	base 31fe19d0	n
+32ca81b0	override 0x7c4	CommonStateStart	X2GULire_ElvenRanger.h:587 virtual void CommonStateStart();	inside	-	CH1j	base 32057b80	y
+32ca8bf0	override 0x7cc	CommonFrameMove	X2GULire_ElvenRanger.h:589 virtual void CommonFrameMove();	inside	-	CH1j	base 32063650	y
+32ca9230	state-fn	LESI_DIE_FRONT.Start LESI_RIDING_DIE.Start	inside X2GULire_ElvenRanger.cpp:935 CX2GULire_ElvenRanger::DieFrontStart ; inside X2GULire_ElvenRanger.cpp:1542 CX2GULire_ElvenRanger::DieFrontStart	inside	-	CH1b	2 states	y
+32ca9360	state-fn	LESI_DIE_BACK.Start	inside X2GULire_ElvenRanger.cpp:944 CX2GULire_ElvenRanger::DieBackStart	inside	-	CH1b	1 states	y
+32ca9490	state-fn	LESI_COMBO_RNW_ZZX.Start	inside X2GULire_ElvenRanger.cpp:2579 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZX_StateStart	inside	-	CH1g2	1 states	y
+32ca94c0	state-fn	LESI_COMBO_RNW_ZZX.FrameMove	inside X2GULire_ElvenRanger.cpp:2580 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZX_FrameMove	inside	-	CH1g2	1 states	y
+32ca94e0	state-fn	LESI_COMBO_RNW_ZZXX.Start	inside X2GULire_ElvenRanger.cpp:2589 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXX_StateStart	inside	-	CH1g2	1 states	y
+32ca9510	state-fn	LESI_COMBO_RNW_ZZXX.FrameMove	inside X2GULire_ElvenRanger.cpp:2590 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXX_FrameMove	inside	-	CH1g2	1 states	y
+32ca9530	state-fn	LESI_COMBO_RNW_ZZXXX.Start	inside X2GULire_ElvenRanger.cpp:2599 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXXX_StateStart	inside	-	CH1g2	1 states	y
+32ca9550	state-fn	LESI_COMBO_RNW_ZZXXX.FrameMove	inside X2GULire_ElvenRanger.cpp:2600 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXXX_FrameMove	inside	-	CH1g2	1 states	y
+32ca95f0	state-fn	LESI_SA_RNW_FURIOUS_ENGAGE.Start	inside X2GULire_ElvenRanger.cpp:4273 CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_StateStart	inside	-	CH3c	1 states	y
+32ca9620	state-fn	LESI_COMBO_RTR_ZZZ.FrameMove	inside X2GULire_ElvenRanger.cpp:1927 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_FrameMove	inside	-	CH1g	1 states	y
+32ca9640	state-fn	LESI_COMBO_RTR_ZZZZ.FrameMove	inside X2GULire_ElvenRanger.cpp:1945 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_FrameMove	inside	-	CH1g	1 states	y
+32ca9660	state-fn	LESI_JUMP_ATTACK_RTR_Z.FrameMove	inside X2GULire_ElvenRanger.cpp:2270 CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_FrameMove	inside	-	CH1g	1 states	y
+32ca9680	state-fn	LESI_DASH_COMBO_RTR_ZX.FrameMove	inside X2GULire_ElvenRanger.cpp:2116 CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_FrameMove	inside	-	CH1g	1 states	n
+32ca9700	state-fn	LESI_DASH_JUMP_ATTACK_RTR_Z.FrameMove	inside X2GULire_ElvenRanger.cpp:2363 CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_FrameMove	inside	-	CH1g	1 states	y
+32ca9720	state-fn	LESI_DASH_JUMP_ATTACK_RTR_ZZ.FrameMove	inside X2GULire_ElvenRanger.cpp:2373 CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_FrameMove	inside	-	CH1g	1 states	y
+32ca9740	helper	called by 32ca9c20 32ca9c50	-	new	?	CH1f2	name: called by 32ca9c20(LESI_RGA_GUNGNIR_READY.Start) 32ca9c50(LESI_RGA_GUNGNIR_CONTROL_FIR)	y
+32ca9c20	state-fn	LESI_RGA_GUNGNIR_READY.Start LESI_RGA_GUNGNIR_CONTROL_IDLE.Start LESI_RGA_GUNGNIR_CONTROL_FIRE.Start +9	-	new	LESI_RGA_GUNGNIR_READY_StateStart	CH1f2	12 states	n
+32ca9c50	state-fn	LESI_RGA_GUNGNIR_CONTROL_FIRE.FrameMove	-	new	LESI_RGA_GUNGNIR_CONTROL_FIRE_FrameMove	CH1f2	1 states	n
+32ca9ca0	override 0x1e8	?	- (name unsettled)	new	?	CH1h	base 32011b80; name: virtual 0x1e8 (base 32011b80); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32ca9dc0	registrar	InitStateCommon (registers the common states + all line states + the hyper row id 23)	X2GULire_ElvenRanger.cpp InitState	inside	-	CH1m		y
+32cac200	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	- (no virtual of that name in X2GULire_ElvenRanger.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32caca80	state-fn	LESI_SA_RNW_FURIOUS_ENGAGE.FrameMove	inside X2GULire_ElvenRanger.cpp:4275 CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_FrameMove	inside	-	CH3c	1 states	y
+32cacda0	state-fn	LESI_A_LGA_STIGMA_ARROW.FrameMove LESI_A_LGA_STIGMA_ARROW_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:4031 CX2GULire_ElvenRanger::LESI_A_LGA_STIGMA_ARROW_FrameMove ; inside X2GULire_ElvenRanger.cpp:4040 CX2GULire_ElvenRanger::LESI_A_LGA_STIGMA_ARROW_FrameMove	inside	-	CH3b	2 states	y
+32cacff0	state-fn	LESI_A_LGA_STIGMA_ARROW.FrameMove LESI_A_LGA_STIGMA_ARROW_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:4031 CX2GULire_ElvenRanger::LESI_A_LGA_STIGMA_ARROW_FrameMove ; inside X2GULire_ElvenRanger.cpp:4040 CX2GULire_ElvenRanger::LESI_A_LGA_STIGMA_ARROW_FrameMove	inside	-	CH3b	2 states	y
+32cad240	state-fn	LESI_COMBO_RTR_ZZZZZ.FrameMove	inside X2GULire_ElvenRanger.cpp:1954 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_FrameMove	inside	-	CH1g	1 states	y
+32cad390	state-fn	LESI_A_LE_RISING_FALCON.FrameMove	inside X2GULire_ElvenRanger.cpp:4252 CX2GULire_ElvenRanger::LESI_A_LE_RISING_FALCON_FrameMove	inside	-	CH2b	1 states	n
+32cad510	override 0x2b8	SetDamageExceptionProcess	X2GULire_ElvenRanger.h:623 virtual void SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_ ,OUT float& fPowerRate);	inside	-	CH4b	base 32045340	y
+32cadc90	override 0x7a4 + registrar	InitState	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3630 virtual void InitState();)	new	InitState	CH1m	base 31aa1d30	y
+32cb06d0	override 0x7b4 + registrar	SetEquippedSkillFuncBySkillSlotIndex	X2GULire_ElvenRanger.h:581 virtual void SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ );	inside	-	CH1n	base 31aa1d30	y
+32cb3200	override 0x318	?	- (name unsettled)	new	?	CH1h	base 3208ddc0; name: virtual 0x318 (base 3208ddc0); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32cb34e0	helper	called by 32cb6c50	-	new	?	CH1h	also called from outside the class: 31aaa53b 3215cf8b 321d89fd; name: called by 32cb6c50(~CX2GULire_ElvenRanger (scal); also called from outside the class: 31aaa53b 3215cf8b 321d89fd	y
+32cb3500	helper	-	-	new	?	CH1h	FriendshipNatureData virtual (vtable 3351666c, COL reads TimeLimited; March X2GULire_ElvenRanger.h:265, live): with DamageReact / ProcessFriendshipNature; name: -; FriendshipNatureData virtual (vtable 3351666c, COL reads TimeLimited; March X2GULire_ElvenRanger.h:265, live): with DamageReact / ProcessFriendshipNature	n
+32cb3540	thunk	jmp 32c6bfa0	-	-	-	n/a	not ported	n
+32cb3550	thunk	jmp 32c6aa40	-	-	-	n/a	not ported	n
+32cb3560	thunk	jmp 32c6aa70	-	-	-	n/a	not ported	n
+32cb3570	thunk	jmp 32c6aaa0	-	-	-	n/a	not ported	n
+32cb3580	thunk	jmp 32c6aad0	-	-	-	n/a	not ported	n
+32cb3590	thunk	jmp 32c6abb0	-	-	-	n/a	not ported	n
+32cb35a0	thunk	jmp 32c6abc0	-	-	-	n/a	not ported	n
+32cb35b0	thunk	jmp 32c6abd0	-	-	-	n/a	not ported	n
+32cb35c0	thunk	jmp 32c6abf0	-	-	-	n/a	not ported	n
+32cb35d0	thunk	jmp 32c6ac90	-	-	-	n/a	not ported	n
+32cb35e0	thunk	jmp 32c6acc0	-	-	-	n/a	not ported	n
+32cb35f0	thunk	jmp 32c6ad20	-	-	-	n/a	not ported	n
+32cb3600	thunk	jmp 32c6ad50	-	-	-	n/a	not ported	n
+32cb3610	thunk	jmp 32c6ad70	-	-	-	n/a	not ported	n
+32cb3620	thunk	jmp 32c6adb0	-	-	-	n/a	not ported	n
+32cb3630	thunk	jmp 32c6add0	-	-	-	n/a	not ported	n
+32cb3640	thunk	jmp 32c6ae10	-	-	-	n/a	not ported	n
+32cb3650	thunk	jmp 32c6ae30	-	-	-	n/a	not ported	n
+32cb3660	thunk	jmp 32c6ae70	-	-	-	n/a	not ported	n
+32cb3670	thunk	jmp 32c6ae90	-	-	-	n/a	not ported	n
+32cb3680	thunk	jmp 32c6aed0	-	-	-	n/a	not ported	n
+32cb3690	thunk	jmp 32c6af10	-	-	-	n/a	not ported	n
+32cb36a0	thunk	jmp 32c6af50	-	-	-	n/a	not ported	n
+32cb36b0	thunk	jmp 32c6af60	-	-	-	n/a	not ported	n
+32cb36c0	thunk	jmp 32c6afb0	-	-	-	n/a	not ported	n
+32cb36d0	thunk	jmp 32c6aff0	-	-	-	n/a	not ported	n
+32cb36e0	thunk	jmp 32c6b030	-	-	-	n/a	not ported	n
+32cb36f0	thunk	jmp 32c6b070	-	-	-	n/a	not ported	n
+32cb3700	thunk	jmp 32c6d420	-	-	-	n/a	not ported	n
+32cb3710	thunk	jmp 32c6ac10	-	-	-	n/a	not ported	n
+32cb3720	thunk	jmp 32c6ac20	-	-	-	n/a	not ported	n
+32cb3730	thunk	jmp 32c6ac40	-	-	-	n/a	not ported	n
+32cb3740	thunk	jmp 32c6ac70	-	-	-	n/a	not ported	n
+32cb3750	thunk	jmp 32c6b0b0	-	-	-	n/a	not ported	n
+32cb3760	thunk	jmp 32c6c560	-	-	-	n/a	not ported	n
+32cb3770	thunk	jmp 32c6b0c0	-	-	-	n/a	not ported	n
+32cb3780	thunk	jmp 32c6b0d0	-	-	-	n/a	not ported	n
+32cb3790	thunk	jmp 32c6b0e0	-	-	-	n/a	not ported	n
+32cb37a0	thunk	jmp 32c6b0f0	-	-	-	n/a	not ported	n
+32cb37b0	thunk	jmp 32c6b100	-	-	-	n/a	not ported	n
+32cb37c0	thunk	jmp 32c6b110	-	-	-	n/a	not ported	n
+32cb37d0	thunk	jmp 32c6b120	-	-	-	n/a	not ported	n
+32cb37e0	thunk	jmp 32c6b130	-	-	-	n/a	not ported	n
+32cb37f0	thunk	jmp 32c6c570	-	-	-	n/a	not ported	n
+32cb3800	thunk	jmp 32c6b140	-	-	-	n/a	not ported	n
+32cb3810	thunk	jmp 32c6b150	-	-	-	n/a	not ported	n
+32cb3820	thunk	jmp 32c6b160	-	-	-	n/a	not ported	n
+32cb3830	thunk	jmp 32c6b170	-	-	-	n/a	not ported	n
+32cb3840	thunk	jmp 32c6b1b0	-	-	-	n/a	not ported	n
+32cb3850	thunk	jmp 32c6b1c0	-	-	-	n/a	not ported	n
+32cb3860	thunk	jmp 32c6b200	-	-	-	n/a	not ported	n
+32cb3870	thunk	jmp 32c6b210	-	-	-	n/a	not ported	n
+32cb3880	thunk	jmp 32c6b230	-	-	-	n/a	not ported	n
+32cb3890	thunk	jmp 32c6b260	-	-	-	n/a	not ported	n
+32cb38a0	thunk	jmp 32c6b280	-	-	-	n/a	not ported	n
+32cb38b0	thunk	jmp 32c6b2a0	-	-	-	n/a	not ported	n
+32cb38c0	thunk	jmp 32c6b2b0	-	-	-	n/a	not ported	n
+32cb38d0	thunk	jmp 32c6c120	-	-	-	n/a	not ported	n
+32cb38e0	thunk	jmp 32c6c130	-	-	-	n/a	not ported	n
+32cb38f0	thunk	jmp 32c6b4b0	-	-	-	n/a	not ported	n
+32cb3900	thunk	jmp 32c6b4e0	-	-	-	n/a	not ported	n
+32cb3910	thunk	jmp 32c6b500	-	-	-	n/a	not ported	n
+32cb3920	thunk	jmp 32c6b510	-	-	-	n/a	not ported	n
+32cb3930	thunk	jmp 32c6b530	-	-	-	n/a	not ported	n
+32cb3940	thunk	jmp 32c6b560	-	-	-	n/a	not ported	n
+32cb3950	thunk	jmp 32c6b580	-	-	-	n/a	not ported	n
+32cb3960	thunk	jmp 32c6b590	-	-	-	n/a	not ported	n
+32cb3970	thunk	jmp 32c6b5a0	-	-	-	n/a	not ported	n
+32cb3980	thunk	jmp 32c6b5c0	-	-	-	n/a	not ported	n
+32cb3990	thunk	jmp 32c6b5d0	-	-	-	n/a	not ported	n
+32cb39a0	thunk	jmp 32c6b5e0	-	-	-	n/a	not ported	n
+32cb39b0	thunk	jmp 32c6d500	-	-	-	n/a	not ported	n
+32cb39c0	thunk	jmp 32c6d520	-	-	-	n/a	not ported	n
+32cb39d0	thunk	jmp 32c6d550	-	-	-	n/a	not ported	n
+32cb39e0	thunk	jmp 32c6d580	-	-	-	n/a	not ported	n
+32cb39f0	thunk	jmp 32c6d5b0	-	-	-	n/a	not ported	n
+32cb3a00	thunk	jmp 32c6d5c0	-	-	-	n/a	not ported	n
+32cb3a10	thunk	jmp 32c6b2e0	-	-	-	n/a	not ported	n
+32cb3a20	thunk	jmp 32c6b3a0	-	-	-	n/a	not ported	n
+32cb3a30	thunk	jmp 32c6b620	-	-	-	n/a	not ported	n
+32cb3a40	thunk	jmp 32c6b680	-	-	-	n/a	not ported	n
+32cb3a50	thunk	jmp 32c6b690	-	-	-	n/a	not ported	n
+32cb3a60	thunk	jmp 32c6b820	-	-	-	n/a	not ported	n
+32cb3a70	thunk	jmp 32c6b870	-	-	-	n/a	not ported	n
+32cb3a80	thunk	jmp 32c6b880	-	-	-	n/a	not ported	n
+32cb3a90	thunk	jmp 32c6b890	-	-	-	n/a	not ported	n
+32cb3aa0	thunk	jmp 32c6b8a0	-	-	-	n/a	not ported	n
+32cb3ab0	thunk	jmp 32c6b8b0	-	-	-	n/a	not ported	n
+32cb3ac0	thunk	jmp 32c6b910	-	-	-	n/a	not ported	n
+32cb3ad0	thunk	jmp 32c6b920	-	-	-	n/a	not ported	n
+32cb3ae0	thunk	jmp 32c6b930	-	-	-	n/a	not ported	n
+32cb3af0	thunk	jmp 32c6b940	-	-	-	n/a	not ported	n
+32cb3b00	thunk	jmp 32c6b410	-	-	-	n/a	not ported	n
+32cb3b10	thunk	jmp 32c6b4a0	-	-	-	n/a	not ported	n
+32cb3b20	thunk	jmp 32c6c860	-	-	-	n/a	not ported	n
+32cb3b30	thunk	jmp 32c6d690	-	-	-	n/a	not ported	n
+32cb3b40	thunk	jmp 32c6c970	-	-	-	n/a	not ported	n
+32cb3b50	thunk	jmp 32c6c9c0	-	-	-	n/a	not ported	n
+32cb3b60	thunk	jmp 32c6ca70	-	-	-	n/a	not ported	n
+32cb3b70	thunk	jmp 32c6cae0	-	-	-	n/a	not ported	n
+32cb3b80	thunk	jmp 32c6cba0	-	-	-	n/a	not ported	n
+32cb3b90	thunk	jmp 32c6cc30	-	-	-	n/a	not ported	n
+32cb3ba0	thunk	jmp 32c6cda0	-	-	-	n/a	not ported	n
+32cb3bb0	thunk	jmp 32c6ce40	-	-	-	n/a	not ported	n
+32cb3bc0	thunk	jmp 32c6cec0	-	-	-	n/a	not ported	n
+32cb3bd0	thunk	jmp 32c6cef0	-	-	-	n/a	not ported	n
+32cb3be0	thunk	jmp 32c6cf10	-	-	-	n/a	not ported	n
+32cb3bf0	thunk	jmp 32c6cf30	-	-	-	n/a	not ported	n
+32cb3c00	thunk	jmp 32c6cf50	-	-	-	n/a	not ported	n
+32cb3c10	thunk	jmp 32c6cf60	-	-	-	n/a	not ported	n
+32cb3c20	thunk	jmp 32c6cf70	-	-	-	n/a	not ported	n
+32cb3c30	thunk	jmp 32c6cf80	-	-	-	n/a	not ported	n
+32cb3c40	thunk	jmp 32c6b950	-	-	-	n/a	not ported	n
+32cb3c50	thunk	jmp 32c6ba10	-	-	-	n/a	not ported	n
+32cb3c60	thunk	jmp 32c6ba20	-	-	-	n/a	not ported	n
+32cb3c70	thunk	jmp 32c6ba70	-	-	-	n/a	not ported	n
+32cb3c80	thunk	jmp 32c6b6a0	-	-	-	n/a	not ported	n
+32cb3c90	thunk	jmp 32c6b6e0	-	-	-	n/a	not ported	n
+32cb3ca0	thunk	jmp 32c6b6f0	-	-	-	n/a	not ported	n
+32cb3cb0	thunk	jmp 32c6b700	-	-	-	n/a	not ported	n
+32cb3cc0	thunk	jmp 32c6b710	-	-	-	n/a	not ported	n
+32cb3cd0	thunk	jmp 32c6b720	-	-	-	n/a	not ported	n
+32cb3ce0	thunk	jmp 32c6b7e0	-	-	-	n/a	not ported	n
+32cb3cf0	thunk	jmp 32c6b7f0	-	-	-	n/a	not ported	n
+32cb3d00	thunk	jmp 32c6b800	-	-	-	n/a	not ported	n
+32cb3d10	thunk	jmp 32c6b810	-	-	-	n/a	not ported	n
+32cb3d20	thunk	jmp 32c6bb20	-	-	-	n/a	not ported	n
+32cb3d30	thunk	jmp 32c6bc30	-	-	-	n/a	not ported	n
+32cb3d40	thunk	jmp 32c6bc80	-	-	-	n/a	not ported	n
+32cb3d50	thunk	jmp 32c6bca0	-	-	-	n/a	not ported	n
+32cb3d60	thunk	jmp 32c6bcf0	-	-	-	n/a	not ported	n
+32cb3d70	thunk	jmp 32c6bd00	-	-	-	n/a	not ported	n
+32cb3d80	thunk	jmp 32c6bdf0	-	-	-	n/a	not ported	n
+32cb3d90	thunk	jmp 32c6be20	-	-	-	n/a	not ported	n
+32cb3da0	thunk	jmp 32c6be30	-	-	-	n/a	not ported	n
+32cb3db0	thunk	jmp 32c6bef0	-	-	-	n/a	not ported	n
+32cb3dc0	thunk	jmp 32c6bf40	-	-	-	n/a	not ported	n
+32cb3dd0	thunk	jmp 32c6d5f0	-	-	-	n/a	not ported	n
+32cb3de0	thunk	jmp 32c6d680	-	-	-	n/a	not ported	n
+32cb3df0	thunk	jmp 32c6bfb0	-	-	-	n/a	not ported	n
+32cb3e00	thunk	jmp 32c6c060	-	-	-	n/a	not ported	n
+32cb3e10	thunk	jmp 32c6c070	-	-	-	n/a	not ported	n
+32cb3e20	thunk	jmp 32c6c080	-	-	-	n/a	not ported	n
+32cb3e30	thunk	jmp 32c6c0c0	-	-	-	n/a	not ported	n
+32cb3e40	thunk	jmp 32c6c0d0	-	-	-	n/a	not ported	n
+32cb3e50	thunk	jmp 32c6c0e0	-	-	-	n/a	not ported	n
+32cb3e60	thunk	jmp 32c6c100	-	-	-	n/a	not ported	n
+32cb3e70	thunk	jmp 32c6c110	-	-	-	n/a	not ported	n
+32cb3e80	thunk	jmp 32c6c150	-	-	-	n/a	not ported	n
+32cb3e90	thunk	jmp 32c6c1e0	-	-	-	n/a	not ported	n
+32cb3ea0	thunk	jmp 32c6c1f0	-	-	-	n/a	not ported	n
+32cb3eb0	thunk	jmp 32c6c2e0	-	-	-	n/a	not ported	n
+32cb3ec0	thunk	jmp 32c6c350	-	-	-	n/a	not ported	n
+32cb3ed0	thunk	jmp 32c6c3a0	-	-	-	n/a	not ported	n
+32cb3ee0	thunk	jmp 32c6c460	-	-	-	n/a	not ported	n
+32cb3ef0	thunk	jmp 32c6c4d0	-	-	-	n/a	not ported	n
+32cb3f00	thunk	jmp 32c6c4e0	-	-	-	n/a	not ported	n
+32cb3f10	thunk	jmp 32c6c530	-	-	-	n/a	not ported	n
+32cb3f20	thunk	jmp 32c6c550	-	-	-	n/a	not ported	n
+32cb3f30	thunk	jmp 32c6c410	-	-	-	n/a	not ported	n
+32cb3f40	thunk	jmp 32c6c5b0	-	-	-	n/a	not ported	n
+32cb3f50	thunk	jmp 32c6c600	-	-	-	n/a	not ported	n
+32cb3f60	thunk	jmp 32c6c610	-	-	-	n/a	not ported	n
+32cb3f70	thunk	jmp 32c6c640	-	-	-	n/a	not ported	n
+32cb3f80	thunk	jmp 32c6c650	-	-	-	n/a	not ported	n
+32cb3f90	thunk	jmp 32c6c680	-	-	-	n/a	not ported	n
+32cb3fa0	thunk	jmp 32c6c690	-	-	-	n/a	not ported	n
+32cb3fb0	thunk	jmp 32c6c6a0	-	-	-	n/a	not ported	n
+32cb3fc0	thunk	jmp 32c6c6b0	-	-	-	n/a	not ported	n
+32cb3fd0	thunk	jmp 32c6c6c0	-	-	-	n/a	not ported	n
+32cb3fe0	thunk	jmp 32c6c6e0	-	-	-	n/a	not ported	n
+32cb3ff0	thunk	jmp 32c6c6f0	-	-	-	n/a	not ported	n
+32cb4000	thunk	jmp 32c6c710	-	-	-	n/a	not ported	n
+32cb4010	thunk	jmp 32c6c790	-	-	-	n/a	not ported	n
+32cb4020	thunk	jmp 32c6cfc0	-	-	-	n/a	not ported	n
+32cb4030	thunk	jmp 32c6b600	-	-	-	n/a	not ported	n
+32cb4040	thunk	jmp 32c6b610	-	-	-	n/a	not ported	n
+32cb4050	thunk	jmp 32c6c7e0	-	-	-	n/a	not ported	n
+32cb4060	thunk	jmp 32c6c7f0	-	-	-	n/a	not ported	n
+32cb4070	thunk	jmp 32c6c800	-	-	-	n/a	not ported	n
+32cb4080	thunk	jmp 32c6c810	-	-	-	n/a	not ported	n
+32cb4090	thunk	jmp 32c6c7a0	-	-	-	n/a	not ported	n
+32cb40a0	thunk	jmp 32c6c7b0	-	-	-	n/a	not ported	n
+32cb40b0	thunk	jmp 32c6c7c0	-	-	-	n/a	not ported	n
+32cb40c0	thunk	jmp 32c6d020	-	-	-	n/a	not ported	n
+32cb40d0	thunk	jmp 32c6d030	-	-	-	n/a	not ported	n
+32cb40e0	thunk	jmp 32c6d040	-	-	-	n/a	not ported	n
+32cb40f0	thunk	jmp 32c6d050	-	-	-	n/a	not ported	n
+32cb4100	thunk	jmp 32c6d060	-	-	-	n/a	not ported	n
+32cb4110	thunk	jmp 32c6d070	-	-	-	n/a	not ported	n
+32cb4120	thunk	jmp 32c6d080	-	-	-	n/a	not ported	n
+32cb4130	thunk	jmp 32c6d090	-	-	-	n/a	not ported	n
+32cb4140	thunk	jmp 32c6d0a0	-	-	-	n/a	not ported	n
+32cb4150	thunk	jmp 32c6d0b0	-	-	-	n/a	not ported	n
+32cb4160	thunk	jmp 32c6d1a0	-	-	-	n/a	not ported	n
+32cb4170	thunk	jmp 32c6d1c0	-	-	-	n/a	not ported	n
+32cb4180	thunk	jmp 32c6d290	-	-	-	n/a	not ported	n
+32cb4190	thunk	jmp 32c6d350	-	-	-	n/a	not ported	n
+32cb41a0	thunk	jmp 32c6d3f0	-	-	-	n/a	not ported	n
+32cb41b0	thunk	jmp 32c6d880	-	-	-	n/a	not ported	n
+32cb41c0	thunk	jmp 32c6d890	-	-	-	n/a	not ported	n
+32cb41d0	thunk	jmp 32c6d8a0	-	-	-	n/a	not ported	n
+32cb41e0	thunk	jmp 32c6d8f0	-	-	-	n/a	not ported	n
+32cb41f0	thunk	jmp 32c6d910	-	-	-	n/a	not ported	n
+32cb4200	helper	-	-	new	?	CH1h	FriendshipNatureData virtual (vtable 3351666c slot 6); name: -; FriendshipNatureData virtual (vtable 3351666c slot 6)	n
+32cb4270	helper	-	-	new	?	CH1h	FriendshipNatureData scalar deleting dtor (vtable 3351666c slot 0, writes it @32cb427a); name: -; FriendshipNatureData scalar deleting dtor (vtable 3351666c slot 0, writes it @32cb427a)	n
+32cb4290	helper	called by 32cb57b0	-	new	?	CH4a	name: called by 32cb57b0(helper)	y
+32cb42d0	thunk	jmp 32c770a0	-	-	-	n/a	not ported	n
+32cb42e0	thunk	jmp 32c6de20	-	-	-	n/a	not ported	n
+32cb42f0	thunk	jmp 32c6de80	-	-	-	n/a	not ported	n
+32cb4300	thunk	jmp 32c6dee0	-	-	-	n/a	not ported	n
+32cb4310	thunk	jmp 32c6df30	-	-	-	n/a	not ported	n
+32cb4320	thunk	jmp 32c6df60	-	-	-	n/a	not ported	n
+32cb4330	thunk	jmp 32c6e0c0	-	-	-	n/a	not ported	n
+32cb4340	thunk	jmp 32c6e120	-	-	-	n/a	not ported	n
+32cb4350	thunk	jmp 32c6e0f0	-	-	-	n/a	not ported	n
+32cb4360	thunk	jmp 32c6e150	-	-	-	n/a	not ported	n
+32cb4370	thunk	jmp 32c6e1a0	-	-	-	n/a	not ported	n
+32cb4380	thunk	jmp 32c6e5e0	-	-	-	n/a	not ported	n
+32cb4390	thunk	jmp 32c6e630	-	-	-	n/a	not ported	n
+32cb43a0	thunk	jmp 32c6ea30	-	-	-	n/a	not ported	n
+32cb43b0	thunk	jmp 32c6ea80	-	-	-	n/a	not ported	n
+32cb43c0	thunk	jmp 32c6ee80	-	-	-	n/a	not ported	n
+32cb43d0	thunk	jmp 32c6f230	-	-	-	n/a	not ported	n
+32cb43e0	thunk	jmp 32c6f290	-	-	-	n/a	not ported	n
+32cb43f0	thunk	jmp 32c6f2f0	-	-	-	n/a	not ported	n
+32cb4400	thunk	jmp 32c6f350	-	-	-	n/a	not ported	n
+32cb4410	thunk	jmp 32c6f3b0	-	-	-	n/a	not ported	n
+32cb4420	thunk	jmp 32c6f440	-	-	-	n/a	not ported	n
+32cb4430	thunk	jmp 32c6f490	-	-	-	n/a	not ported	n
+32cb4440	thunk	jmp 32c6f510	-	-	-	n/a	not ported	n
+32cb4450	thunk	jmp 32c6e250	-	-	-	n/a	not ported	n
+32cb4460	thunk	jmp 32c6e290	-	-	-	n/a	not ported	n
+32cb4470	thunk	jmp 32c6e2e0	-	-	-	n/a	not ported	n
+32cb4480	thunk	jmp 32c6e390	-	-	-	n/a	not ported	n
+32cb4490	thunk	jmp 32c6e450	-	-	-	n/a	not ported	n
+32cb44a0	thunk	jmp 32c6e590	-	-	-	n/a	not ported	n
+32cb44b0	thunk	jmp 32c6f610	-	-	-	n/a	not ported	n
+32cb44c0	thunk	jmp 32c6f670	-	-	-	n/a	not ported	n
+32cb44d0	thunk	jmp 32c6fa80	-	-	-	n/a	not ported	n
+32cb44e0	thunk	jmp 32c6fae0	-	-	-	n/a	not ported	n
+32cb44f0	thunk	jmp 32c700b0	-	-	-	n/a	not ported	n
+32cb4500	thunk	jmp 32c70110	-	-	-	n/a	not ported	n
+32cb4510	thunk	jmp 32c706a0	-	-	-	n/a	not ported	n
+32cb4520	thunk	jmp 32c70700	-	-	-	n/a	not ported	n
+32cb4530	thunk	jmp 32c79470	-	-	-	n/a	not ported	n
+32cb4540	thunk	jmp 32c79950	-	-	-	n/a	not ported	n
+32cb4550	thunk	jmp 32c79be0	-	-	-	n/a	not ported	n
+32cb4560	thunk	jmp 32c79f50	-	-	-	n/a	not ported	n
+32cb4570	thunk	jmp 32c70980	-	-	-	n/a	not ported	n
+32cb4580	thunk	jmp 32c70c00	-	-	-	n/a	not ported	n
+32cb4590	thunk	jmp 32c70c60	-	-	-	n/a	not ported	n
+32cb45a0	thunk	jmp 32c70ee0	-	-	-	n/a	not ported	n
+32cb45b0	thunk	jmp 32c7b1b0	-	-	-	n/a	not ported	n
+32cb45c0	thunk	jmp 32c7b530	-	-	-	n/a	not ported	n
+32cb45d0	thunk	jmp 32c7b570	-	-	-	n/a	not ported	n
+32cb45e0	thunk	jmp 32c7ba40	-	-	-	n/a	not ported	n
+32cb45f0	thunk	jmp 32c712f0	-	-	-	n/a	not ported	n
+32cb4600	thunk	jmp 32c71700	-	-	-	n/a	not ported	n
+32cb4610	thunk	jmp 32c71bc0	-	-	-	n/a	not ported	n
+32cb4620	thunk	jmp 32c71e40	-	-	-	n/a	not ported	n
+32cb4630	thunk	jmp 32c720c0	-	-	-	n/a	not ported	n
+32cb4640	thunk	jmp 32c72340	-	-	-	n/a	not ported	n
+32cb4650	thunk	jmp 32c72850	-	-	-	n/a	not ported	n
+32cb4660	thunk	jmp 32c72bc0	-	-	-	n/a	not ported	n
+32cb4670	thunk	jmp 32c7a290	-	-	-	n/a	not ported	n
+32cb4680	thunk	jmp 32c72f30	-	-	-	n/a	not ported	n
+32cb4690	thunk	jmp 32c731b0	-	-	-	n/a	not ported	n
+32cb46a0	thunk	jmp 32c73500	-	-	-	n/a	not ported	n
+32cb46b0	thunk	jmp 32c73960	-	-	-	n/a	not ported	n
+32cb46c0	thunk	jmp 32c77f90	-	-	-	n/a	not ported	n
+32cb46d0	thunk	jmp 32c782f0	-	-	-	n/a	not ported	n
+32cb46e0	thunk	jmp 32c78610	-	-	-	n/a	not ported	n
+32cb46f0	thunk	jmp 32c73c40	-	-	-	n/a	not ported	n
+32cb4700	thunk	jmp 32c7a220	-	-	-	n/a	not ported	n
+32cb4710	thunk	jmp 32c73cb0	-	-	-	n/a	not ported	n
+32cb4720	thunk	jmp 32c73ce0	-	-	-	n/a	not ported	n
+32cb4730	thunk	jmp 32c73d10	-	-	-	n/a	not ported	n
+32cb4740	thunk	jmp 32c73e10	-	-	-	n/a	not ported	n
+32cb4750	thunk	jmp 32c73f10	-	-	-	n/a	not ported	n
+32cb4760	thunk	jmp 32c78e40	-	-	-	n/a	not ported	n
+32cb4770	thunk	jmp 32c78f10	-	-	-	n/a	not ported	n
+32cb4780	thunk	jmp 32c78f40	-	-	-	n/a	not ported	n
+32cb4790	thunk	jmp 32c7a510	-	-	-	n/a	not ported	n
+32cb47a0	thunk	jmp 32c7a610	-	-	-	n/a	not ported	n
+32cb47b0	thunk	jmp 32c7a640	-	-	-	n/a	not ported	n
+32cb47c0	thunk	jmp 32c7a680	-	-	-	n/a	not ported	n
+32cb47d0	thunk	jmp 32c73f40	-	-	-	n/a	not ported	n
+32cb47e0	thunk	jmp 32c74140	-	-	-	n/a	not ported	n
+32cb47f0	thunk	jmp 32c74180	-	-	-	n/a	not ported	n
+32cb4800	thunk	jmp 32c744e0	-	-	-	n/a	not ported	n
+32cb4810	thunk	jmp 32c74520	-	-	-	n/a	not ported	n
+32cb4820	thunk	jmp 32c747d0	-	-	-	n/a	not ported	n
+32cb4830	thunk	jmp 32c74800	-	-	-	n/a	not ported	n
+32cb4840	thunk	jmp 32c74840	-	-	-	n/a	not ported	n
+32cb4850	thunk	jmp 32c74a10	-	-	-	n/a	not ported	n
+32cb4860	thunk	jmp 32c77370	-	-	-	n/a	not ported	n
+32cb4870	thunk	jmp 32c776d0	-	-	-	n/a	not ported	n
+32cb4880	thunk	jmp 32c77710	-	-	-	n/a	not ported	n
+32cb4890	thunk	jmp 32c77980	-	-	-	n/a	not ported	n
+32cb48a0	thunk	jmp 32c779c0	-	-	-	n/a	not ported	n
+32cb48b0	thunk	jmp 32c77c50	-	-	-	n/a	not ported	n
+32cb48c0	thunk	jmp 32c78880	-	-	-	n/a	not ported	n
+32cb48d0	thunk	jmp 32c78be0	-	-	-	n/a	not ported	n
+32cb48e0	thunk	jmp 32c75160	-	-	-	n/a	not ported	n
+32cb48f0	thunk	jmp 32c754d0	-	-	-	n/a	not ported	n
+32cb4900	thunk	jmp 32c75840	-	-	-	n/a	not ported	n
+32cb4910	thunk	jmp 32c75b00	-	-	-	n/a	not ported	n
+32cb4920	thunk	jmp 32c75b50	-	-	-	n/a	not ported	n
+32cb4930	thunk	jmp 32c75bc0	-	-	-	n/a	not ported	n
+32cb4940	thunk	jmp 32c75cc0	-	-	-	n/a	not ported	n
+32cb4950	thunk	jmp 32c7a6c0	-	-	-	n/a	not ported	n
+32cb4960	thunk	jmp 32c7feb0	-	-	-	n/a	not ported	n
+32cb4970	thunk	jmp 32c80200	-	-	-	n/a	not ported	n
+32cb4980	thunk	jmp 32c80480	-	-	-	n/a	not ported	n
+32cb4990	thunk	jmp 32c807c0	-	-	-	n/a	not ported	n
+32cb49a0	thunk	jmp 32c80a40	-	-	-	n/a	not ported	n
+32cb49b0	thunk	jmp 32c80c70	-	-	-	n/a	not ported	n
+32cb49c0	thunk	jmp 32c80e80	-	-	-	n/a	not ported	n
+32cb49d0	thunk	jmp 32c810e0	-	-	-	n/a	not ported	n
+32cb49e0	thunk	jmp 32c81340	-	-	-	n/a	not ported	n
+32cb49f0	thunk	jmp 32c815a0	-	-	-	n/a	not ported	n
+32cb4a00	thunk	jmp 32c815d0	-	-	-	n/a	not ported	n
+32cb4a10	thunk	jmp 32c818d0	-	-	-	n/a	not ported	n
+32cb4a20	thunk	jmp 32c81b30	-	-	-	n/a	not ported	n
+32cb4a30	thunk	jmp 32c81e80	-	-	-	n/a	not ported	n
+32cb4a40	thunk	jmp 32c82100	-	-	-	n/a	not ported	n
+32cb4a50	thunk	jmp 32c82390	-	-	-	n/a	not ported	n
+32cb4a60	thunk	jmp 32c825f0	-	-	-	n/a	not ported	n
+32cb4a70	thunk	jmp 32c82850	-	-	-	n/a	not ported	n
+32cb4a80	thunk	jmp 32c828a0	-	-	-	n/a	not ported	n
+32cb4a90	thunk	jmp 32c82ab0	-	-	-	n/a	not ported	n
+32cb4aa0	thunk	jmp 32c6dac0	-	-	-	n/a	not ported	n
+32cb4ab0	thunk	jmp 32c7af80	-	-	-	n/a	not ported	n
+32cb4ac0	thunk	jmp 32c74a40	-	-	-	n/a	not ported	n
+32cb4ad0	thunk	jmp 32c74d50	-	-	-	n/a	not ported	n
+32cb4ae0	thunk	jmp 32c75060	-	-	-	n/a	not ported	n
+32cb4af0	thunk	jmp 32c75d80	-	-	-	n/a	not ported	n
+32cb4b00	thunk	jmp 32c76070	-	-	-	n/a	not ported	n
+32cb4b10	thunk	jmp 32c76280	-	-	-	n/a	not ported	n
+32cb4b20	thunk	jmp 32c76490	-	-	-	n/a	not ported	n
+32cb4b30	thunk	jmp 32c76560	-	-	-	n/a	not ported	n
+32cb4b40	thunk	jmp 32c75120	-	-	-	n/a	not ported	n
+32cb4b50	thunk	jmp 32c83220	-	-	-	n/a	not ported	n
+32cb4b60	thunk	jmp 32c831f0	-	-	-	n/a	not ported	n
+32cb4b70	thunk	jmp 32c7c470	-	-	-	n/a	not ported	n
+32cb4b80	thunk	jmp 32c7c670	-	-	-	n/a	not ported	n
+32cb4b90	thunk	jmp 32c7c870	-	-	-	n/a	not ported	n
+32cb4ba0	thunk	jmp 32c7c950	-	-	-	n/a	not ported	n
+32cb4bb0	thunk	jmp 32c7c990	-	-	-	n/a	not ported	n
+32cb4bc0	thunk	jmp 32c7cbe0	-	-	-	n/a	not ported	n
+32cb4bd0	thunk	jmp 32c7cde0	-	-	-	n/a	not ported	n
+32cb4be0	thunk	jmp 32c7ce00	-	-	-	n/a	not ported	n
+32cb4bf0	thunk	jmp 32c7d000	-	-	-	n/a	not ported	n
+32cb4c00	thunk	jmp 32c7d0c0	-	-	-	n/a	not ported	n
+32cb4c10	thunk	jmp 32c7d0f0	-	-	-	n/a	not ported	n
+32cb4c20	thunk	jmp 32c7d160	-	-	-	n/a	not ported	n
+32cb4c30	thunk	jmp 32c7d360	-	-	-	n/a	not ported	n
+32cb4c40	thunk	jmp 32c7d3a0	-	-	-	n/a	not ported	n
+32cb4c50	thunk	jmp 32c76630	-	-	-	n/a	not ported	n
+32cb4c60	thunk	jmp 32c76700	-	-	-	n/a	not ported	n
+32cb4c70	thunk	jmp 32c76800	-	-	-	n/a	not ported	n
+32cb4c80	thunk	jmp 32c75e50	-	-	-	n/a	not ported	n
+32cb4c90	thunk	jmp 32c75e90	-	-	-	n/a	not ported	n
+32cb4ca0	thunk	jmp 32c75ed0	-	-	-	n/a	not ported	n
+32cb4cb0	thunk	jmp 32c75fa0	-	-	-	n/a	not ported	n
+32cb4cc0	thunk	jmp 32c76840	-	-	-	n/a	not ported	n
+32cb4cd0	thunk	jmp 32c76880	-	-	-	n/a	not ported	n
+32cb4ce0	thunk	jmp 32c6f560	-	-	-	n/a	not ported	n
+32cb4cf0	thunk	jmp 32c768c0	-	-	-	n/a	not ported	n
+32cb4d00	thunk	jmp 32c76960	-	-	-	n/a	not ported	n
+32cb4d10	thunk	jmp 32c769b0	-	-	-	n/a	not ported	n
+32cb4d20	thunk	jmp 32c76ce0	-	-	-	n/a	not ported	n
+32cb4d30	thunk	jmp 32c769f0	-	-	-	n/a	not ported	n
+32cb4d40	thunk	jmp 32c76d10	-	-	-	n/a	not ported	n
+32cb4d50	thunk	jmp 32c76d50	-	-	-	n/a	not ported	n
+32cb4d60	thunk	jmp 32c76d90	-	-	-	n/a	not ported	n
+32cb4d70	thunk	jmp 32c76dd0	-	-	-	n/a	not ported	n
+32cb4d80	thunk	jmp 32c76e30	-	-	-	n/a	not ported	n
+32cb4d90	thunk	jmp 32c82d10	-	-	-	n/a	not ported	n
+32cb4da0	thunk	jmp 32c82f90	-	-	-	n/a	not ported	n
+32cb4db0	thunk	jmp 32c77170	-	-	-	n/a	not ported	n
+32cb4dc0	thunk	jmp 32c77240	-	-	-	n/a	not ported	n
+32cb4dd0	thunk	jmp 32c77270	-	-	-	n/a	not ported	n
+32cb4de0	thunk	jmp 32c772a0	-	-	-	n/a	not ported	n
+32cb4df0	thunk	jmp 32c79280	-	-	-	n/a	not ported	n
+32cb4e00	thunk	jmp 32c79060	-	-	-	n/a	not ported	n
+32cb4e10	thunk	jmp 32c793f0	-	-	-	n/a	not ported	n
+32cb4e20	thunk	jmp 32c79430	-	-	-	n/a	not ported	n
+32cb4e30	thunk	jmp 32c7a9c0	-	-	-	n/a	not ported	n
+32cb4e40	thunk	jmp 32c7a9f0	-	-	-	n/a	not ported	n
+32cb4e50	thunk	jmp 32c7aae0	-	-	-	n/a	not ported	n
+32cb4e60	thunk	jmp 32c7ad50	-	-	-	n/a	not ported	n
+32cb4e70	thunk	jmp 32c7ada0	-	-	-	n/a	not ported	n
+32cb4e80	thunk	jmp 32c7adc0	-	-	-	n/a	not ported	n
+32cb4e90	thunk	jmp 32c7ae20	-	-	-	n/a	not ported	n
+32cb4ea0	thunk	jmp 32c7d5a0	-	-	-	n/a	not ported	n
+32cb4eb0	thunk	jmp 32c75cf0	-	-	-	n/a	not ported	n
+32cb4ec0	thunk	jmp 32c7af40	-	-	-	n/a	not ported	n
+32cb4ed0	thunk	jmp 32c7ae60	-	-	-	n/a	not ported	n
+32cb4ee0	thunk	jmp 32c7af00	-	-	-	n/a	not ported	n
+32cb4ef0	thunk	jmp 32c7d790	-	-	-	n/a	not ported	n
+32cb4f00	thunk	jmp 32c7daa0	-	-	-	n/a	not ported	n
+32cb4f10	thunk	jmp 32c7ddb0	-	-	-	n/a	not ported	n
+32cb4f20	thunk	jmp 32c7e0c0	-	-	-	n/a	not ported	n
+32cb4f30	thunk	jmp 32c7e3d0	-	-	-	n/a	not ported	n
+32cb4f40	thunk	jmp 32c7e6e0	-	-	-	n/a	not ported	n
+32cb4f50	thunk	jmp 32c7e9f0	-	-	-	n/a	not ported	n
+32cb4f60	thunk	jmp 32c7ed00	-	-	-	n/a	not ported	n
+32cb4f70	thunk	jmp 32c7f010	-	-	-	n/a	not ported	n
+32cb4f80	thunk	jmp 32c7f320	-	-	-	n/a	not ported	n
+32cb4f90	thunk	jmp 32c7f350	-	-	-	n/a	not ported	n
+32cb4fa0	thunk	jmp 32c7f3a0	-	-	-	n/a	not ported	n
+32cb4fb0	thunk	jmp 32c7f6c0	-	-	-	n/a	not ported	n
+32cb4fc0	thunk	jmp 32c7f6f0	-	-	-	n/a	not ported	n
+32cb4fd0	thunk	jmp 32c7f720	-	-	-	n/a	not ported	n
+32cb4fe0	thunk	jmp 32c7faa0	-	-	-	n/a	not ported	n
+32cb4ff0	thunk	jmp 32c7fad0	-	-	-	n/a	not ported	n
+32cb5000	thunk	jmp 32c833b0	-	-	-	n/a	not ported	n
+32cb5010	thunk	jmp 32c833e0	-	-	-	n/a	not ported	n
+32cb5020	thunk	jmp 32c83410	-	-	-	n/a	not ported	n
+32cb5030	thunk	jmp 32c83440	-	-	-	n/a	not ported	n
+32cb5040	thunk	jmp 32c83480	-	-	-	n/a	not ported	n
+32cb5050	thunk	jmp 32c834b0	-	-	-	n/a	not ported	n
+32cb5060	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32cb50c0	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23722 CX2GULire_ElvenRanger::GetNaturalForceCount	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: GetNaturalForceCount (out of line in June: callers ApplyHyperModeBuff 322985fa, NPC AttackResultByType 327745ec / 327745f7)	y
+32cb50e0	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23741 CX2GULire_ElvenRanger::IsEmptyNaturalForce	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: IsEmptyNaturalForce (caller NPC AttackResultByType 327745b9)	y
+32cb5110	thunk	jmp 32c83760	-	-	-	n/a	not ported	n
+32cb5120	thunk	jmp 32c83800	-	-	-	n/a	not ported	n
+32cb5130	thunk	jmp 32c83850	-	-	-	n/a	not ported	n
+32cb5140	thunk	jmp 32c83b90	-	-	-	n/a	not ported	n
+32cb5150	thunk	jmp 32c83c10	-	-	-	n/a	not ported	n
+32cb5160	thunk	jmp 32c83f70	-	-	-	n/a	not ported	n
+32cb5170	thunk	jmp 32c84020	-	-	-	n/a	not ported	n
+32cb5180	thunk	jmp 32c840d0	-	-	-	n/a	not ported	n
+32cb5190	thunk	jmp 32c83c90	-	-	-	n/a	not ported	n
+32cb51a0	thunk	jmp 32c84340	-	-	-	n/a	not ported	n
+32cb51b0	thunk	jmp 32c843b0	-	-	-	n/a	not ported	n
+32cb51c0	thunk	jmp 32c84420	-	-	-	n/a	not ported	n
+32cb51d0	thunk	jmp 32c84490	-	-	-	n/a	not ported	n
+32cb51e0	thunk	jmp 32c84510	-	-	-	n/a	not ported	n
+32cb51f0	thunk	jmp 32c84590	-	-	-	n/a	not ported	n
+32cb5200	thunk	jmp 32c84610	-	-	-	n/a	not ported	n
+32cb5210	thunk	jmp 32c84d90	-	-	-	n/a	not ported	n
+32cb5220	thunk	jmp 32c846a0	-	-	-	n/a	not ported	n
+32cb5230	thunk	jmp 32c84820	-	-	-	n/a	not ported	n
+32cb5240	thunk	jmp 32c848c0	-	-	-	n/a	not ported	n
+32cb5250	thunk	jmp 32c84920	-	-	-	n/a	not ported	n
+32cb5260	thunk	jmp 32c84980	-	-	-	n/a	not ported	n
+32cb5270	thunk	jmp 32c84740	-	-	-	n/a	not ported	n
+32cb5280	thunk	jmp 32c847b0	-	-	-	n/a	not ported	n
+32cb5290	thunk	jmp 32c84ea0	-	-	-	n/a	not ported	n
+32cb52a0	thunk	jmp 32c83d00	-	-	-	n/a	not ported	n
+32cb52b0	thunk	jmp 32c84b50	-	-	-	n/a	not ported	n
+32cb52c0	thunk	jmp 32c84c70	-	-	-	n/a	not ported	n
+32cb52d0	thunk	jmp 32c84e20	-	-	-	n/a	not ported	n
+32cb52e0	thunk	jmp 32c85430	-	-	-	n/a	not ported	n
+32cb52f0	thunk	jmp 32c85500	-	-	-	n/a	not ported	n
+32cb5300	thunk	jmp 32c855d0	-	-	-	n/a	not ported	n
+32cb5310	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32cb5390	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32cb5430	helper	called by 32c86790	-	new	?	CH4a	name: called by 32c86790(helper)	y
+32cb5550	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32cb56d0	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32cb5760	helper	called by 32cb06d0	-	new	?	CH1n	name: called by 32cb06d0(SetEquippedSkillFuncBySkillS)	y
+32cb57b0	helper	called by 32c86790	-	new	?	CH4a	name: called by 32c86790(helper)	y
+32cb5810	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32cb5970	helper	called by 32c86790	-	new	?	CH4a	name: called by 32c86790(helper)	y
+32cb5a00	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32cb5a60	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32cb5b70	helper	called by 32cb5cb0	-	new	?	CH1k	name: called by 32cb5cb0(helper)	y
+32cb5c60	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32cb5cb0	helper	called by 32c9ac00	-	new	?	CH1k	name: called by 32c9ac00(helper)	y
+32cb5d00	thunk	jmp 32c861c0	-	-	-	n/a	not ported	n
+32cb5d10	helper	-	-	new	?	CH1q	natural force / ADD_RENA_SYSTEM: called by CheckDamageRelateSkillData 32c87780 (also engine 3213681e / 3247cfc9: generic code); name: -; natural force / ADD_RENA_SYSTEM: called by CheckDamageRelateSkillData 32c87780 (also engine 3213681e / 3247cfc9: generic code)	y
+32cb5dd0	helper	called by 32ca78b0	-	new	?	CH4a	name: called by 32ca78b0(InitPassiveSkillState)	n
+32cb5de0	thunk	jmp 32c86720	-	-	-	n/a	not ported	n
+32cb5df0	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
+32cb5ee0	helper	-	-	new	?	CH1k	called by the ctor @32ca3c13 (member init) and engine 322a563c; name: -; called by the ctor @32ca3c13 (member init) and engine 322a563c	y
+32cb5f50	thunk	jmp 32c86b20	-	-	-	n/a	not ported	n
+32cb5f60	helper	-	-	new	?	CH2d0	called by CreateEvoke 32c99690 and 32c87860 (summon info); name: -; called by CreateEvoke 32c99690 and 32c87860 (summon info)	y
+32cb5fd0	thunk	jmp 32c86b60	-	-	-	n/a	not ported	n
+32cb5fe0	thunk	jmp 32c86b90	-	-	-	n/a	not ported	n
+32cb5ff0	thunk	jmp 32c86bc0	-	-	-	n/a	not ported	n
+32cb6000	thunk	jmp 32c86bf0	-	-	-	n/a	not ported	n
+32cb6010	thunk	jmp 32c86c50	-	-	-	n/a	not ported	n
+32cb6020	thunk	jmp 32c86dc0	-	-	-	n/a	not ported	n
+32cb6030	thunk	jmp 32c86df0	-	-	-	n/a	not ported	n
+32cb6040	thunk	jmp 32c86e20	-	-	-	n/a	not ported	n
+32cb6050	thunk	jmp 32c86e50	-	-	-	n/a	not ported	n
+32cb6060	thunk	jmp 32c86c20	-	-	-	n/a	not ported	n
+32cb6070	thunk	jmp 32c86e80	-	-	-	n/a	not ported	n
+32cb6080	thunk	jmp 32c86eb0	-	-	-	n/a	not ported	n
+32cb6090	thunk	jmp 32c86ee0	-	-	-	n/a	not ported	n
+32cb60a0	thunk	jmp 32c86d00	-	-	-	n/a	not ported	n
+32cb60b0	thunk	jmp 32c86d30	-	-	-	n/a	not ported	n
+32cb60c0	thunk	jmp 32c86d60	-	-	-	n/a	not ported	n
+32cb60d0	thunk	jmp 32c86d90	-	-	-	n/a	not ported	n
+32cb60e0	thunk	jmp 32c86f10	-	-	-	n/a	not ported	n
+32cb60f0	thunk	jmp 32c86f40	-	-	-	n/a	not ported	n
+32cb6100	thunk	jmp 32c86f70	-	-	-	n/a	not ported	n
+32cb6110	thunk	jmp 32c86fa0	-	-	-	n/a	not ported	n
+32cb6120	thunk	jmp 32c86fd0	-	-	-	n/a	not ported	n
+32cb6130	thunk	jmp 32c87000	-	-	-	n/a	not ported	n
+32cb6140	thunk	jmp 32c87030	-	-	-	n/a	not ported	n
+32cb6150	thunk	jmp 32c87060	-	-	-	n/a	not ported	n
+32cb6160	thunk	jmp 32c87090	-	-	-	n/a	not ported	n
+32cb6170	thunk	jmp 32c87b90	-	-	-	n/a	not ported	n
+32cb6180	thunk	jmp 32c87d30	-	-	-	n/a	not ported	n
+32cb6190	thunk	jmp 32c88050	-	-	-	n/a	not ported	n
+32cb61a0	thunk	jmp 32c87c20	-	-	-	n/a	not ported	n
+32cb61b0	thunk	jmp 32c87ec0	-	-	-	n/a	not ported	n
+32cb61c0	thunk	jmp 32c88330	-	-	-	n/a	not ported	n
+32cb61d0	thunk	jmp 32c885a0	-	-	-	n/a	not ported	n
+32cb61e0	helper	called by 32cb6310	-	new	?	CH1b	name: called by 32cb6310(helper)	y
+32cb6290	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23730 CX2GULire_ElvenRanger::UpNaturalForce	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: UpNaturalForce (callers ApplyHyperModeBuff 3229862d, F7 training key 322ed57f)	y
+32cb6310	helper	called by 32ca6e90	-	new	?	CH1b	name: called by 32ca6e90(helper)	y
+32cb6360	thunk	jmp 32c89bd0	-	-	-	n/a	not ported	n
+32cb6370	thunk	jmp 32c89e80	-	-	-	n/a	not ported	n
+32cb6380	thunk	jmp 32c8a080	-	-	-	n/a	not ported	n
+32cb6390	thunk	jmp 32c8a2f0	-	-	-	n/a	not ported	n
+32cb63a0	thunk	jmp 32c8a4f0	-	-	-	n/a	not ported	n
+32cb63b0	thunk	jmp 32c8bb50	-	-	-	n/a	not ported	n
+32cb63c0	thunk	jmp 32c8bdd0	-	-	-	n/a	not ported	n
+32cb63d0	thunk	jmp 32c8c080	-	-	-	n/a	not ported	n
+32cb63e0	thunk	jmp 32c8cb90	-	-	-	n/a	not ported	n
+32cb63f0	thunk	jmp 32c8ce00	-	-	-	n/a	not ported	n
+32cb6400	thunk	jmp 32c8a800	-	-	-	n/a	not ported	n
+32cb6410	thunk	jmp 32c8aa40	-	-	-	n/a	not ported	n
+32cb6420	thunk	jmp 32c8b2c0	-	-	-	n/a	not ported	n
+32cb6430	thunk	jmp 32c8b820	-	-	-	n/a	not ported	n
+32cb6440	thunk	jmp 32c96eb0	-	-	-	n/a	not ported	n
+32cb6450	thunk	jmp 32c96f10	-	-	-	n/a	not ported	n
+32cb6460	thunk	jmp 32c96f70	-	-	-	n/a	not ported	n
+32cb6470	thunk	jmp 32c96fd0	-	-	-	n/a	not ported	n
+32cb6480	thunk	jmp 32c8d390	-	-	-	n/a	not ported	n
+32cb6490	thunk	jmp 32c8d850	-	-	-	n/a	not ported	n
+32cb64a0	thunk	jmp 32c99a90	-	-	-	n/a	not ported	n
+32cb64b0	thunk	jmp 32c99ec0	-	-	-	n/a	not ported	n
+32cb64c0	thunk	jmp 32c9a300	-	-	-	n/a	not ported	n
+32cb64d0	thunk	jmp 32c8dd00	-	-	-	n/a	not ported	n
+32cb64e0	thunk	jmp 32c8e0c0	-	-	-	n/a	not ported	n
+32cb64f0	thunk	jmp 32c8e8b0	-	-	-	n/a	not ported	n
+32cb6500	thunk	jmp 32c8ec70	-	-	-	n/a	not ported	n
+32cb6510	thunk	jmp 32c8f6d0	-	-	-	n/a	not ported	n
+32cb6520	thunk	jmp 32c97090	-	-	-	n/a	not ported	n
+32cb6530	thunk	jmp 32c90130	-	-	-	n/a	not ported	n
+32cb6540	thunk	jmp 32c90620	-	-	-	n/a	not ported	n
+32cb6550	thunk	jmp 32c909e0	-	-	-	n/a	not ported	n
+32cb6560	thunk	jmp 32c97030	-	-	-	n/a	not ported	n
+32cb6570	thunk	jmp 32c90c70	-	-	-	n/a	not ported	n
+32cb6580	thunk	jmp 32c96320	-	-	-	n/a	not ported	n
+32cb6590	thunk	jmp 32c970f0	-	-	-	n/a	not ported	n
+32cb65a0	thunk	jmp 32c97150	-	-	-	n/a	not ported	n
+32cb65b0	thunk	jmp 32c90f10	-	-	-	n/a	not ported	n
+32cb65c0	thunk	jmp 32c91780	-	-	-	n/a	not ported	n
+32cb65d0	thunk	jmp 32c91f10	-	-	-	n/a	not ported	n
+32cb65e0	thunk	jmp 32c928f0	-	-	-	n/a	not ported	n
+32cb65f0	thunk	jmp 32c92df0	-	-	-	n/a	not ported	n
+32cb6600	thunk	jmp 32c958e0	-	-	-	n/a	not ported	n
+32cb6610	thunk	jmp 32c95b20	-	-	-	n/a	not ported	n
+32cb6620	thunk	jmp 32c948e0	-	-	-	n/a	not ported	n
+32cb6630	thunk	jmp 32c94ba0	-	-	-	n/a	not ported	n
+32cb6640	thunk	jmp 32c9faa0	-	-	-	n/a	not ported	n
+32cb6650	thunk	jmp 32ca02a0	-	-	-	n/a	not ported	n
+32cb6660	thunk	jmp 32ca0a90	-	-	-	n/a	not ported	n
+32cb6670	thunk	jmp 32ca0cd0	-	-	-	n/a	not ported	n
+32cb6680	thunk	jmp 32ca0d30	-	-	-	n/a	not ported	n
+32cb6690	thunk	jmp 32ca0d90	-	-	-	n/a	not ported	n
+32cb66a0	thunk	jmp 32ca0df0	-	-	-	n/a	not ported	n
+32cb66b0	thunk	jmp 32ca0e60	-	-	-	n/a	not ported	n
+32cb66c0	thunk	jmp 32ca0ec0	-	-	-	n/a	not ported	n
+32cb66d0	thunk	jmp 32ca0f20	-	-	-	n/a	not ported	n
+32cb66e0	helper	called by 32ca78b0	-	new	?	CH4a	name: called by 32ca78b0(InitPassiveSkillState)	n
+32cb66f0	helper	called by 32ca78b0	-	new	?	CH4a	name: called by 32ca78b0(InitPassiveSkillState)	n
+32cb6700	helper	called by 32ca78b0	-	new	?	CH4a	name: called by 32ca78b0(InitPassiveSkillState)	n
+32cb6710	thunk	jmp 32c934b0	-	-	-	n/a	not ported	n
+32cb6720	thunk	jmp 32c947c0	-	-	-	n/a	not ported	n
+32cb6730	thunk	jmp 32c9c340	-	-	-	n/a	not ported	n
+32cb6740	thunk	jmp 32c9cc10	-	-	-	n/a	not ported	n
+32cb6750	thunk	jmp 32c9d250	-	-	-	n/a	not ported	n
+32cb6760	thunk	jmp 32c9d420	-	-	-	n/a	not ported	n
+32cb6770	thunk	jmp 32c9d7b0	-	-	-	n/a	not ported	n
+32cb6780	thunk	jmp 32c9dc40	-	-	-	n/a	not ported	n
+32cb6790	thunk	jmp 32c9e0d0	-	-	-	n/a	not ported	n
+32cb67a0	thunk	jmp 32c9e440	-	-	-	n/a	not ported	n
+32cb67b0	thunk	jmp 32c94e20	-	-	-	n/a	not ported	n
+32cb67c0	thunk	jmp 32c953d0	-	-	-	n/a	not ported	n
+32cb67d0	thunk	jmp 32ca0f80	-	-	-	n/a	not ported	n
+32cb67e0	thunk	jmp 32ca1240	-	-	-	n/a	not ported	n
+32cb67f0	thunk	jmp 32ca1300	-	-	-	n/a	not ported	n
+32cb6800	thunk	jmp 32ca1a00	-	-	-	n/a	not ported	n
+32cb6810	thunk	jmp 32ca1360	-	-	-	n/a	not ported	n
+32cb6820	thunk	jmp 32ca1bb0	-	-	-	n/a	not ported	n
+32cb6830	thunk	jmp 32ca1cc0	-	-	-	n/a	not ported	n
+32cb6840	thunk	jmp 32ca1d10	-	-	-	n/a	not ported	n
+32cb6850	thunk	jmp 32ca1d70	-	-	-	n/a	not ported	n
+32cb6860	thunk	jmp 32ca1dd0	-	-	-	n/a	not ported	n
+32cb6870	thunk	jmp 32ca1e30	-	-	-	n/a	not ported	n
+32cb6880	thunk	jmp 32ca1e90	-	-	-	n/a	not ported	n
+32cb6890	thunk	jmp 32ca1ef0	-	-	-	n/a	not ported	n
+32cb68a0	thunk	jmp 32ca1f50	-	-	-	n/a	not ported	n
+32cb68b0	thunk	jmp 32ca1fb0	-	-	-	n/a	not ported	n
+32cb68c0	thunk	jmp 32c96560	-	-	-	n/a	not ported	n
+32cb68d0	thunk	jmp 32c96910	-	-	-	n/a	not ported	n
+32cb68e0	thunk	jmp 32c96aa0	-	-	-	n/a	not ported	n
+32cb68f0	thunk	jmp 32c971b0	-	-	-	n/a	not ported	n
+32cb6900	thunk	jmp 32c97210	-	-	-	n/a	not ported	n
+32cb6910	thunk	jmp 32c98360	-	-	-	n/a	not ported	n
+32cb6920	thunk	jmp 32c98c80	-	-	-	n/a	not ported	n
+32cb6930	thunk	jmp 32c987f0	-	-	-	n/a	not ported	n
+32cb6940	thunk	jmp 32c98ce0	-	-	-	n/a	not ported	n
+32cb6950	thunk	jmp 32c9e7b0	-	-	-	n/a	not ported	n
+32cb6960	thunk	jmp 32c99280	-	-	-	n/a	not ported	n
+32cb6970	thunk	jmp 32c98d50	-	-	-	n/a	not ported	n
+32cb6980	thunk	jmp 32c990d0	-	-	-	n/a	not ported	n
+32cb6990	thunk	jmp 32c9eac0	-	-	-	n/a	not ported	n
+32cb69a0	thunk	jmp 32c9eb20	-	-	-	n/a	not ported	n
+32cb69b0	thunk	jmp 32c9ece0	-	-	-	n/a	not ported	n
+32cb69c0	thunk	jmp 32c9ef20	-	-	-	n/a	not ported	n
+32cb69d0	thunk	jmp 32c9efd0	-	-	-	n/a	not ported	n
+32cb69e0	thunk	jmp 32c9f490	-	-	-	n/a	not ported	n
+32cb69f0	thunk	jmp 32ca2520	-	-	-	n/a	not ported	n
+32cb6a00	helper	-	-	-	-	n/a	adjustor thunk (ecx -= 0x190) to the scalar dtor 32cb6c50, secondary vtable @335185b0: compiler code	n
+32cb6a10	helper	-	-	-	-	n/a	adjustor thunk (ecx -= 0x1a0) to the scalar dtor 32cb6c50, secondary vtable @335185a8: compiler code	n
+32cb6a20	override 0x4b0	GetComboZStateID	X2GULire_ElvenRanger.h:527 virtual int GetComboZStateID() const { return LESI_COMBO_Z1; }	inside	-	CH1h	base 3208df10	n
+32cb6a30	override 0x4b4	GetComboXStateID	X2GULire_ElvenRanger.h:528 virtual int GetComboXStateID() const { return LESI_COMBO_X1; }	inside	-	CH1h	base 3208df10	n
+32cb6a40	thunk	jmp 32ca5290	-	-	-	n/a	not ported	n
+32cb6a50	thunk	jmp 32ca52d0	-	-	-	n/a	not ported	n
+32cb6a60	thunk	jmp 32ca5330	-	-	-	n/a	not ported	n
+32cb6a70	thunk	jmp 32ca5aa0	-	-	-	n/a	not ported	n
+32cb6a80	thunk	jmp 32ca7040	-	-	-	n/a	not ported	n
+32cb6a90	thunk	jmp 32ca6640	-	-	-	n/a	not ported	n
+32cb6aa0	thunk	jmp 32ca6670	-	-	-	n/a	not ported	n
+32cb6ab0	thunk	jmp 32ca6690	-	-	-	n/a	not ported	n
+32cb6ac0	thunk	jmp 32ca66c0	-	-	-	n/a	not ported	n
+32cb6ad0	thunk	jmp 32ca6730	-	-	-	n/a	not ported	n
+32cb6ae0	thunk	jmp 32ca6700	-	-	-	n/a	not ported	n
+32cb6af0	thunk	jmp 32ca6780	-	-	-	n/a	not ported	n
+32cb6b00	thunk	jmp 32ca67b0	-	-	-	n/a	not ported	n
+32cb6b10	thunk	jmp 32ca62f0	-	-	-	n/a	not ported	n
+32cb6b20	thunk	jmp 32ca6350	-	-	-	n/a	not ported	n
+32cb6b30	thunk	jmp 32ca63b0	-	-	-	n/a	not ported	n
+32cb6b40	thunk	jmp 32ca7670	-	-	-	n/a	not ported	n
+32cb6b50	thunk	jmp 32ca7690	-	-	-	n/a	not ported	n
+32cb6b60	thunk	jmp 32ca76b0	-	-	-	n/a	not ported	n
+32cb6b70	thunk	jmp 32ca76d0	-	-	-	n/a	not ported	n
+32cb6b80	thunk	jmp 32ca76f0	-	-	-	n/a	not ported	n
+32cb6b90	thunk	jmp 32ca7710	-	-	-	n/a	not ported	n
+32cb6ba0	thunk	jmp 32ca7730	-	-	-	n/a	not ported	n
+32cb6bb0	thunk	jmp 32ca6f90	-	-	-	n/a	not ported	n
+32cb6bc0	thunk	jmp 32ca6fb0	-	-	-	n/a	not ported	n
+32cb6bd0	thunk	jmp 32ca67f0	-	-	-	n/a	not ported	n
+32cb6be0	thunk	jmp 32ca6810	-	-	-	n/a	not ported	n
+32cb6bf0	thunk	jmp 32ca6860	-	-	-	n/a	not ported	n
+32cb6c00	thunk	jmp 32ca68b0	-	-	-	n/a	not ported	n
+32cb6c10	thunk	jmp 32ca6970	-	-	-	n/a	not ported	n
+32cb6c20	thunk	jmp 32ca7000	-	-	-	n/a	not ported	n
+32cb6c30	thunk	jmp 32ca7020	-	-	-	n/a	not ported	n
+32cb6c40	thunk	jmp 32ca7810	-	-	-	n/a	not ported	n
+32cb6c50	override 0x0	~CX2GULire_ElvenRanger (scalar deleting dtor)	X2GULire_ElvenRanger.h:383 virtual ~CX2GULire_ElvenRanger(void);	inside	-	CH1h	base 3208f650	y
+# totals kind: dead=57, helper=103, override=62, registrar=1, state-fn=645, thunk=626; functions in range 1494; carved 467; uncarved 1027 (thunks 630)
+# totals per phase (to transcribe): CH1a=32, CH1b=36, CH1c=3, CH1d=38, CH1d2=36, CH1e=29, CH1f=43, CH1f2=37, CH1g=46, CH1g2=29, CH1g3=27, CH1h=33, CH1i=8, CH1j=10, CH1k=21, CH1m=3, CH1n=2, CH1o=5, CH1q=27, CH2a=46, CH2b=19, CH2c=39, CH2d0=8, CH2d=47, CH3a=44, CH3b=39, CH3c0=14, CH3c=46, CH3d=22, CH4a=15, CH4b=4, n/a=3
+# inside/new per phase: CH1a inside=32, CH1b inside=32, CH1b new=4, CH1c inside=2, CH1c new=1, CH1d inside=35, CH1d new=3, CH1d2 inside=36, CH1e inside=22, CH1e new=7, CH1f inside=38, CH1f new=5, CH1f2 inside=7, CH1f2 new=30, CH1g inside=36, CH1g new=10, CH1g2 inside=12, CH1g2 new=17, CH1g3 inside=22, CH1g3 new=5, CH1h inside=18, CH1h new=15, CH1i inside=4, CH1i new=4, CH1j inside=7, CH1j new=3, CH1k inside=8, CH1k new=13, CH1m inside=1, CH1m new=2, CH1n inside=1, CH1n new=1, CH1o new=5, CH1q inside=25, CH1q new=2, CH2a inside=46, CH2b inside=19, CH2c inside=33, CH2c new=6, CH2d0 inside=2, CH2d0 new=6, CH2d inside=46, CH2d new=1, CH3a inside=35, CH3a new=9, CH3b inside=21, CH3b new=18, CH3c0 new=14, CH3c inside=33, CH3c new=13, CH3d inside=22, CH4a inside=1, CH4a new=14, CH4b inside=2, CH4b new=2, n/a -=3

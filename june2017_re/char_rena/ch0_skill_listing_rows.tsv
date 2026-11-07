@@ -1,0 +1,158 @@
+fn	call_va	state_id	table	skill_ids	role	callbacks	listing_note
+32cb06d0	32cb2f7d	-	LESI_THROW_ITEM	900	normal	FrameMove=329ccda0>329cc0d0 EventProcess=329ccdb0>329cc170	V=0/base/id
+32cb06d0	32cb2fa4	-	LESI_THROW_ITEM	900	hyper	FrameMove=329ccda0>329cc0d0 EventProcess=329ccdb0>329cc170	V=0/base/id
+32cb06d0	32cb08b9	-	LESI_SI1_LE_PIERCE_ARROW	23000,23026	normal	Init=32cb3a10>32c6b2e0 FrameMoveFuture=32cb3a20>32c6b3a0 FrameMove=32cb5ff0>32c86bc0 CameraMove=32cb6710>32c934b0 EventProcess=32cb4ae0>32c75060	V=0/base/id
+32cb06d0	32cb0903	-	LESI_SI1_LE_PIERCE_ARROW_HYPER	23000,23026	hyper	FrameMoveFuture=32cb3a20>32c6b3a0 FrameMove=32cb6000>32c86bf0 CameraMove=32cb6710>32c934b0 EventProcess=32cb4ae0>32c75060	V=0/base/id
+32cb06d0	32cb09ce	-	LESI_SI2_LE_PERFECT_STORM	23001,23027	normal	Init=32cb3a60>32c6b820 FrameMoveFuture=32cb3a70>32c6b870 FrameMove=32cb6020>32c86dc0 CameraMove=32cb3a80>32c6b880 EventProcess=32cb4b00>32c76070	V=0/base/id
+32cb06d0	32cb0a18	-	LESI_SI2_LE_PERFECT_STORM	23001,23027	hyper	FrameMoveFuture=32cb3a90>32c6b890 FrameMove=32cb6030>32c86df0 CameraMove=32cb3aa0>32c6b8a0 EventProcess=32cb4b10>32c76280	V=0/base/id
+32cb06d0	32cb0a5d	-	LESI_SI3_LE_AERO_TORNADO	23002,23028	normal	Init=32cb3ab0>32c6b8b0 FrameMoveFuture=32cb3ac0>32c6b910 FrameMove=32cb6040>32c86e20 CameraMove=32cb3ad0>32c6b920 EventProcess=32cb4b20>32c76490	V=0/base/id
+32cb06d0	32cb0aa7	-	LESI_SI3_LE_AERO_TORNADO_HYPER	23002,23028	hyper	FrameMoveFuture=32cb3ae0>32c6b930 FrameMove=32cb6050>32c86e50 CameraMove=32cb3af0>32c6b940 EventProcess=32cb4b30>32c76560	V=0/base/id
+32cb06d0	32cb0952	-	LESI_SI1_LE_ASSAULT_KICK	23003,23029	normal	Init=32cb3a30>32c6b620 FrameMoveFuture=32cb3a40>32c6b680 FrameMove=32cb6010>32c86c50 CameraMove=32cb3a50>32c6b690 EventProcess=32cb4af0>32c75d80	V=0/base/id
+32cb06d0	32cb099a	-	LESI_SI1_LE_ASSAULT_KICK	23003,23029	hyper	FrameMoveFuture=32cb3a40>32c6b680 FrameMove=32cb6010>32c86c50 CameraMove=32cb3a50>32c6b690 EventProcess=32cb4af0>32c75d80	V=0/base/id
+32cb06d0	32cb0af0	-	LESI_SI3_LE_PHOENIX_STRIKE	23004,23030	normal	Init=32cb3b00>32c6b410 FrameMoveFuture=32cb3b10>32c6b4a0 FrameMove=32cb6060>32c86c20 CameraMove=32cb6720>32c947c0 EventProcess=32cb4b40>32c75120	V=0/base/id
+32cb06d0	32cb0b38	-	LESI_SI3_LE_PHOENIX_STRIKE	23004,23030	hyper	FrameMoveFuture=32cb3b10>32c6b4a0 FrameMove=32cb6060>32c86c20 CameraMove=32cb6720>32c947c0 EventProcess=32cb4b40>32c75120	V=0/base/id
+32cb06d0	32cb1282	-	LESI_SI2_LCR_CRESCENT_KICK	23005,23031	normal	Init=32cb3c60>32c6ba20 FrameMove=32cb6080>32c86eb0 EventProcess=32cb4c60>32c76700	V=0/base/id
+32cb06d0	32cb12b4	-	LESI_SI2_LCR_CRESCENT_KICK_HYPER	23005,23031	hyper	FrameMove=32cb6080>32c86eb0 EventProcess=32cb4c60>32c76700	V=0/base/id
+32cb06d0	32cb1201	-	LESI_SI1_LCR_SPINNING_KICK	23006,23034	normal	Init=32cb3c40>32c6b950 FrameMoveFuture=32cb3c50>32c6ba10 FrameMove=32cb6070>32c86e80 EventProcess=32cb4c50>32c76630	V=0/base/id
+32cb06d0	32cb123e	-	LESI_SI1_LCR_SPINNING_KICK	23006,23034	hyper	FrameMoveFuture=32cb3c50>32c6ba10 FrameMove=32cb6070>32c86e80 EventProcess=32cb4c50>32c76630	V=0/base/id
+32cb06d0	32cb12ec	-	LESI_SI3_LCR_DIVE_KICK_BOMBING	23007,23043	normal	Init=32cb3c70>32c6ba70 FrameMove=32cb6090>32c86ee0 EventProcess=32cb4c70>32c76800	V=0/base/id
+32cb06d0	32cb2fa4	-	LESI_SI3_LCR_DIVE_KICK_BOMBING_HYPER	23007,23043	hyper	FrameMove=32cb6090>32c86ee0 EventProcess=32cb4c70>32c76800	V=0/base/id
+32cb06d0	32cb1bbf	-	LESI_SA_LCR_VIOLENT_ATTACK_READY	23008,23044	normal	Init=32cb3df0>32c6bfb0 Start=32cb3e00>32c6c060 FrameMoveFuture=32cb4db0>32c77170 FrameMove=32cb6120>32c86fd0 EventProcess=32cb4dc0>32c77240 End=32cb3e10>32c6c070	V=0/base/id
+32cb06d0	32cb1c14	-	LESI_SA_LCR_VIOLENT_ATTACK_READY	23008,23044	hyper	Start=32cb3e00>32c6c060 FrameMoveFuture=32cb4db0>32c77170 FrameMove=32cb6120>32c86fd0 EventProcess=32cb4dc0>32c77240 End=32cb3e10>32c6c070	V=0/base/id
+32cb06d0	32cb1cb7	203	LESI_SA_LCR_VIOLENT_ATTACK	23008,23044	reg	Init=32cb3e20>32c6c080 FrameMove=32cb3e30>32c6c0c0 EventProcess=32cb4dd0>32c77270 End=32cb3e40>32c6c0d0	V=0/base/id
+32cb06d0	32cb1d0d	204	LESI_SA_LCR_VIOLENT_ATTACK_LANDING	23008,23044	reg	Init=32cb3e50>32c6c0e0 FrameMove=32cb3e60>32c6c100 EventProcess=32cb4de0>32c772a0 End=32cb3e70>32c6c110	V=0/base/id
+32cb06d0	32cb1677	-	LESI_SA_LCR_SHARPFALL	23009,23045	normal	Init=32cb3d70>32c6bd00 Start=32cb3d80>32c6bdf0 FrameMove=32cb6100>32c86f70 EventProcess=32cb4d40>32c76d10	V=0/base/id
+32cb06d0	32cb16b6	-	LESI_SA_LCR_SHARPFALL	23009,23045	hyper	Start=32cb3d80>32c6bdf0 FrameMove=32cb6110>32c86fa0 EventProcess=32cb4d50>32c76d50	V=0/base/id
+32cb06d0	32cb172e	201	LESI_SA_LCR_SHARPFALL_LANDING	23009,23045	reg	Start=32cb61b0>32c87ec0 FrameMove=32cb3d90>32c6be20 EventProcess=32cb4d60>32c76d90	V=0/base/id
+32cb06d0	32cb1774	202	LESI_SA_LCR_SHARPFALL_HYPER_LANDING	23009,23045	reg	Start=32cb61b0>32c87ec0 FrameMove=32cb3d90>32c6be20 EventProcess=32cb4d60>32c76d90	V=0/base/id
+32cb06d0	32cb203d	-	LESI_SA_LWS_AIRELINNA	23010,23046	normal	Init=32cb3f30>32c6c410 FrameMove=32cb68e0>32c96aa0 EventProcess=329cbfc0>31fcc740	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_SA_LWS_AIRELINNA	23010,23046	hyper		V=0/base/id
+32cb06d0	32cb1d3a	-	LESI_SA_LWS_SLIDE_KICK	23011,23047	normal	Init=32cb3e80>32c6c150 FrameMove=32cb68c0>32c96560 EventProcess=32cb68d0>32c96910 End=32cb3e90>32c6c1e0	V=0/base/id
+32cb06d0	32cb1d79	-	LESI_SA_LWS_SLIDE_KICK	23011,23047	hyper	FrameMove=32cb68c0>32c96560 EventProcess=32cb68d0>32c96910 End=32cb3e90>32c6c1e0	V=0/base/id
+32cb06d0	32cb1dd7	215	LESI_SA_LWS_SLIDE_KICK_PASS_THROUGH	23011,23047	reg	EventProcess=32cb4df0>32c79280	V=0/base/id
+32cb06d0	32cb1e03	216	LESI_SA_LWS_SLIDE_KICK_FINISH	23011,23047	reg		V=0/base/id
+32cb06d0	32cb1e2f	217	LESI_SA_LWS_SLIDE_KICK_CANCEL	23011,23047	reg	EventProcess=32cb4e00>32c79060	V=0/base/id
+32cb06d0	32cb13b7	-	LESI_SI2_LE_GUIDED_ARROW	23012,23032	normal	Init=32cb3cd0>32c6b720 FrameMoveFuture=32cb3ce0>32c6b7e0 FrameMove=32cb60c0>32c86d60 CameraMove=32cb3cf0>32c6b7f0 EventProcess=32cb4ca0>32c75ed0	V=0/base/id
+32cb06d0	32cb1401	-	LESI_SI2_LE_GUIDED_ARROW_HYPER	23012,23032	hyper	FrameMoveFuture=32cb3d00>32c6b800 FrameMove=32cb60d0>32c86d90 CameraMove=32cb3d10>32c6b810 EventProcess=32cb4cb0>32c75fa0	V=0/base/id
+32cb06d0	32cb17a5	-	LESI_SA_LSR_WINDWARD	23013,23035	normal	Init=32cb3da0>32c6be30 Start=32cb4d70>32c76dd0 FrameMove=32cb67c0>32c953d0 EventProcess=32cb4d80>32c76e30 End=32cb3db0>32c6bef0	V=0/base/id
+32cb06d0	32cb17ed	-	LESI_SA_LSR_WINDWARD	23013,23035	hyper	Start=32cb4d70>32c76dd0 FrameMove=32cb67c0>32c953d0 EventProcess=32cb4d80>32c76e30 End=32cb3db0>32c6bef0	V=0/base/id
+32cb06d0	32cb1446	-	LESI_SI3_LSR_CRAZY_SHOT	23014,23048	normal	Init=32cb3d20>32c6bb20 FrameMove=32cb60e0>32c86f10 EventProcess=32cb4cc0>32c76840	V=0/base/id
+32cb06d0	32cb147a	-	LESI_SI3_LSR_CRAZY_SHOT_HYPER	23014,23048	hyper	FrameMove=32cb60f0>32c86f40 EventProcess=32cb4cd0>32c76880	V=0/base/id
+32cb06d0	32cb1877	-	LESI_RGA_GUNGNIR_READY	23015,23049	normal	Init=32cb3dd0>32c6d5f0 Start=32cb6d50>32ca9c20 FrameMove=32cb67d0>32ca0f80 EventProcess=32cb67e0>32ca1240 End=32cb3de0>32c6d680	V=0/base/id
+32cb06d0	32cb18c1	-	LESI_RGA_GUNGNIR_READY	23015,23049	hyper	Start=32cb6d50>32ca9c20 FrameMove=32cb67d0>32ca0f80 EventProcess=32cb67e0>32ca1240 End=32cb3de0>32c6d680	V=0/base/id
+32cb06d0	32cb193b	284	LESI_RGA_GUNGNIR_CANCEL	23015,23049	reg	Start=32cb67f0>32ca1300 EventProcess=32cb4d90>32c82d10	V=0/base/id
+32cb06d0	32cb1974	285	LESI_RGA_GUNGNIR_CONTROL_IDLE	23015,23049	reg	Start=32cb6800>32ca1a00 EventProcess=32cb6810>32ca1360	V=0/base/id
+32cb06d0	32cb19ca	286	LESI_RGA_GUNGNIR_CONTROL_FIRE	23015,23049	reg	Start=32cb6820>32ca1bb0 FrameMove=32cb6d60>32ca9c50 EventProcess=32cb4da0>32c82f90 End=32cb6830>32ca1cc0	V=0/base/id
+32cb06d0	32cb1a03	287	LESI_RGA_GUNGNIR_CONTROL_LEFT	23015,23049	reg	Start=32cb6840>32ca1d10 EventProcess=32cb6810>32ca1360	V=0/base/id
+32cb06d0	32cb1a3c	288	LESI_RGA_GUNGNIR_CONTROL_RIGHT	23015,23049	reg	Start=32cb6850>32ca1d70 EventProcess=32cb6810>32ca1360	V=0/base/id
+32cb06d0	32cb1a75	289	LESI_RGA_GUNGNIR_CONTROL_UP	23015,23049	reg	Start=32cb6860>32ca1dd0 EventProcess=32cb6810>32ca1360	V=0/base/id
+32cb06d0	32cb1aae	290	LESI_RGA_GUNGNIR_CONTROL_DOWN	23015,23049	reg	Start=32cb6870>32ca1e30 EventProcess=32cb6810>32ca1360	V=0/base/id
+32cb06d0	32cb1ae7	291	LESI_RGA_GUNGNIR_CONTROL_UP_LEFT	23015,23049	reg	Start=32cb6880>32ca1e90 EventProcess=32cb6810>32ca1360	V=0/base/id
+32cb06d0	32cb1b20	292	LESI_RGA_GUNGNIR_CONTROL_UP_RIGHT	23015,23049	reg	Start=32cb6890>32ca1ef0 EventProcess=32cb6810>32ca1360	V=0/base/id
+32cb06d0	32cb1b59	293	LESI_RGA_GUNGNIR_CONTROL_DOWN_LEFT	23015,23049	reg	Start=32cb68a0>32ca1f50 EventProcess=32cb6810>32ca1360	V=0/base/id
+32cb06d0	32cb1b92	294	LESI_RGA_GUNGNIR_CONTROL_DOWN_RIGHT	23015,23049	reg	Start=32cb68b0>32ca1fb0 EventProcess=32cb6810>32ca1360	V=0/base/id
+32cb06d0	32cb0eb4	-	LESI_A_LGA_WIND_BLAST	23016,23050	normal	Init=32cb3b80>32c6cba0 FrameMove=32cb6770>32c9d7b0 EventProcess=329cbfc0>31fcc740	V=0/base/id
+32cb06d0	32cb0ee8	-	LESI_A_LGA_WIND_BLAST	23016,23050	hyper	FrameMove=32cb6770>32c9d7b0 EventProcess=329cbfc0>31fcc740	V=0/base/id
+32cb06d0	32cb1f90	-	LESI_SA_LGA_AERO_STRAFE	23017,23051	normal	Init=32cb3ee0>32c6c460 FrameMoveFuture=32cb52b0>32c84b50 FrameMove=32cb6150>32c87060 CameraMove=32cb3ef0>32c6c4d0 EventProcess=32cb4e10>32c793f0 EndFuture=32cb3f00>32c6c4e0	V=0/base/id
+32cb06d0	32cb1fe5	-	LESI_SA_LGA_AERO_STRAFE_HYPER	23017,23051	hyper	FrameMoveFuture=32cb52c0>32c84c70 FrameMove=32cb3f10>32c6c530 CameraMove=32cb3f20>32c6c550 EventProcess=32cb4e20>32c79430 EndFuture=32cb3f00>32c6c4e0	V=0/base/id
+32cb06d0	32cb1e5c	-	LESI_SA_LGA_FREEZING_ARROW	23018,23052	normal	Init=32cb3ea0>32c6c1f0 FrameMove=32cb6130>32c87000 EventProcess=329cbfc0>31fcc740	V=0/base/id
+32cb06d0	32cb1e90	-	LESI_SA_LGA_FREEZING_ARROW_HYPER	23018,23052	hyper	FrameMove=32cb6140>32c87030 EventProcess=329cbfc0>31fcc740	V=0/base/id
+32cb06d0	32cb2269	-	LESI_SA_RTR_FATALITY	23019,23033	normal	Init=32cb3fc0>32c6c6b0 StartFuture=32cb3fd0>32c6c6c0 Start=32cb6c00>32ca68b0 FrameMoveFuture=32cb3fe0>32c6c6e0 FrameMove=32cb6910>32c98360 EventProcess=32cb4e60>32c7ad50 EndFuture=32cb3ff0>32c6c6f0 End=32cb6920>32c98c80	V=0/base/id
+32cb06d0	32cb22d4	-	LESI_SA_RTR_FATALITY	23019,23033	hyper	StartFuture=32cb3fd0>32c6c6c0 Start=32cb6c00>32ca68b0 FrameMoveFuture=32cb3fe0>32c6c6e0 FrameMove=32cb6930>32c987f0 EventProcess=32cb4e60>32c7ad50 EndFuture=32cb3ff0>32c6c6f0 End=32cb6920>32c98c80	V=0/base/id
+32cb06d0	32cb1328	-	LESI_SI1_LE_HUMMING_WIND	23020,23036	normal	Init=32cb3c80>32c6b6a0 FrameMoveFuture=32cb3c90>32c6b6e0 FrameMove=32cb60a0>32c86d00 CameraMove=32cb3ca0>32c6b6f0 EventProcess=32cb4c80>32c75e50	V=0/base/id
+32cb06d0	32cb1372	-	LESI_SI1_LE_HUMMING_WIND_HYPER	23020,23036	hyper	FrameMoveFuture=32cb3cb0>32c6b700 FrameMove=32cb60b0>32c86d30 CameraMove=32cb3cc0>32c6b710 EventProcess=32cb4c90>32c75e90	V=0/base/id
+32cb06d0	32cb21d5	-	LESI_SA_RTR_KARMA	23021,23053	normal	Init=32cb3f90>32c6c680 Start=32cb3fa0>32c6c690 FrameMove=32cb6160>32c87090 EventProcess=32cb4e50>32c7aae0 End=32cb3fb0>32c6c6a0	V=0/base/id
+32cb06d0	32cb221d	-	LESI_SA_RTR_KARMA	23021,23053	hyper	Start=32cb3fa0>32c6c690 FrameMove=32cb6160>32c87090 EventProcess=32cb4e50>32c7aae0 End=32cb3fb0>32c6c6a0	V=0/base/id
+32cb06d0	32cb2341	-	LESI_SA_RTR_CALL_OF_RUIN	23022,23054	normal	Init=32cb4e70>32c7ada0 StartFuture=32cb52d0>32c84e20 Start=32cb6c10>32ca6970 EventProcess=32cb4e80>32c7adc0 End=32cb6940>32c98ce0	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_SA_RTR_CALL_OF_RUIN	23022,23054	hyper		V=0/base/id
+32cb06d0	32cb251f	-	LESI_SA_RNW_GLIDING_STRIKE	23023,23055	normal	Init=32cb4050>32c6c7e0 StartFuture=32cb4060>32c6c7f0 FrameMoveFuture=32cb4070>32c6c800 FrameMove=32cb6960>32c99280 EventProcess=32cb4ec0>32c7af40 EndFuture=32cb4080>32c6c810	V=0/base/id
+32cb06d0	32cb2574	-	LESI_SA_RNW_GLIDING_STRIKE	23023,23055	hyper	Init=32cb4050>32c6c7e0 StartFuture=32cb4060>32c6c7f0 FrameMoveFuture=32cb4070>32c6c800 FrameMove=32cb6960>32c99280 EventProcess=32cb4ec0>32c7af40 EndFuture=32cb4080>32c6c810	V=0/base/id
+32cb06d0	32cb0f1c	-	LESI_SA_RTR_TRAPPING_ARROW_FUNGUS	23024,23056	normal	Init=32cb3b90>32c6cc30 Start=32cb4bd0>32c7cde0 FrameMove=32cb3ba0>32c6cda0 EventProcess=32cb4be0>32c7ce00 End=32cb4bf0>32c7d000	V=0/base/id
+32cb06d0	32cb0f64	-	LESI_SA_RTR_TRAPPING_ARROW_FUNGUS	23024,23056	hyper	Init=32cb3b90>32c6cc30 Start=32cb4bd0>32c7cde0 FrameMove=32cb3ba0>32c6cda0 EventProcess=32cb4be0>32c7ce00 End=32cb4bf0>32c7d000	V=0/base/id
+32cb06d0	32cb2485	-	LESI_SA_RNW_FURIOUS_ENGAGE	23025,23057	normal	Start=32cb6d70>32ca95f0 FrameMoveFuture=32cb4030>32c6b600 FrameMove=32cb6dc0>32caca80 CameraMove=32cb4040>32c6b610 EventProcess=32cb4eb0>32c75cf0	V=0/base/id
+32cb06d0	32cb24cf	-	LESI_SA_RNW_FURIOUS_ENGAGE	23025,23057	hyper	Start=32cb6d70>32ca95f0 FrameMoveFuture=32cb4030>32c6b600 FrameMove=32cb6dc0>32caca80 CameraMove=32cb4040>32c6b610 EventProcess=32cb4eb0>32c75cf0	V=0/base/id
+32cb06d0	32cb2703	-	LESI_SA_RWS_SPINNING_CRESCENT	23037	normal	Init=32cb40c0>32c6d020 EventProcess=32cb4ef0>32c7d790	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_SA_RWS_SPINNING_CRESCENT	23037	hyper		V=0/base/id
+32cb06d0	32cb2738	-	LESI_SA_RWS_GYRO_KICK	23038	normal	Init=32cb40d0>32c6d030 EventProcess=32cb4f00>32c7daa0	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_SA_RWS_GYRO_KICK	23038	hyper		V=0/base/id
+32cb06d0	32cb276d	-	LESI_SA_RGA_BLAST_ARROW	23039	normal	Init=32cb40e0>32c6d040 EventProcess=32cb4f10>32c7ddb0	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_SA_RGA_BLAST_ARROW	23039	hyper		V=0/base/id
+32cb06d0	32cb27a2	-	LESI_SA_RGA_CUTLASS_WIND	23040	normal	Init=32cb40f0>32c6d050 EventProcess=32cb4f20>32c7e0c0	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_SA_RGA_CUTLASS_WIND	23040	hyper		V=0/base/id
+32cb06d0	32cb27d7	-	LESI_SA_RNW_SEED_OF_RUIN_POLE	23041	normal	Init=32cb4100>32c6d060 EventProcess=32cb4f30>32c7e3d0	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_SA_RNW_SEED_OF_RUIN_POLE	23041	hyper		V=0/base/id
+32cb06d0	32cb280c	-	LESI_SA_RNW_RAGE_FUNGUS	23042	normal	Init=32cb4110>32c6d070 EventProcess=32cb4f40>32c7e6e0	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_SA_RNW_RAGE_FUNGUS	23042	hyper		V=0/base/id
+32cb06d0	32cb28f9	-	LESI_SA_RWS_TEMPEST	23058	normal	Init=32cb41b0>32c6d880 EventProcess=329cba60>31fcc9d0	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_SA_RWS_TEMPEST	23058	hyper		V=0/base/id
+32cb06d0	32cb292a	-	LESI_SA_RGA_ACEINTHEHOLE_START	23059	normal	Init=32cb41c0>32c6d890 StartFuture=32cb41e0>32c6d8f0 Start=32cb41d0>32c6d8a0 EventProcess=32cb5000>32c833b0	V=0/base/id
+32cb06d0	32cb2969	-	LESI_SA_RGA_ACEINTHEHOLE_START	23059	hyper		V=0/base/id
+32cb06d0	32cb29c8	296	LESI_SA_RGA_ACEINTHEHOLE_WAIT	23059	reg	FrameMoveFuture=32cb61d0>32c885a0 FrameMove=32cb69f0>32ca2520 EventProcess=32cb52e0>32c85430	V=0/base/id
+32cb06d0	32cb2a0e	297	LESI_SA_RGA_ACEINTHEHOLE_1ST_ATTACK	23059	reg	FrameMoveFuture=32cb61d0>32c885a0 FrameMove=32cb69f0>32ca2520 EventProcess=32cb5010>32c833e0	V=0/base/id
+32cb06d0	32cb2a54	298	LESI_SA_RGA_ACEINTHEHOLE_WAIT	23059	reg	FrameMoveFuture=32cb61d0>32c885a0 FrameMove=32cb69f0>32ca2520 EventProcess=32cb52f0>32c85500	V=0/base/id
+32cb06d0	32cb2a9a	299	LESI_SA_RGA_ACEINTHEHOLE_2ND_ATTACK	23059	reg	FrameMoveFuture=32cb61d0>32c885a0 FrameMove=32cb69f0>32ca2520 EventProcess=32cb5020>32c83410	V=0/base/id
+32cb06d0	32cb2ae0	300	LESI_SA_RGA_ACEINTHEHOLE_WAIT	23059	reg	FrameMoveFuture=32cb61d0>32c885a0 FrameMove=32cb69f0>32ca2520 EventProcess=32cb5300>32c855d0	V=0/base/id
+32cb06d0	32cb2b19	301	LESI_SA_RGA_ACEINTHEHOLE_3RD_ATTACK	23059	reg	FrameMove=32cb69f0>32ca2520 EventProcess=32cb5030>32c83440	V=0/base/id
+32cb06d0	32cb2b46	-	LESI_SA_RNW_ERADICATION_START	23060	normal	Init=32cb41f0>32c6d910 EventProcess=32cb5040>32c83480	V=0/base/id
+32cb06d0	32cb2b6f	-	LESI_SA_RNW_ERADICATION_START	23060	hyper		V=0/base/id
+32cb06d0	32cb2bc1	302	LESI_SA_RNW_ERADICATION_ATTACK	23060	reg	Start=32cb6c40>32ca7810 EventProcess=32cb5050>32c834b0	V=0/base/id
+32cb06d0	32cb1517	-	LESI_SI_A_LE_BACKJUMP_SHOT	23200,23220	normal	Init=32cb3d30>32c6bc30 Start=32cb4cf0>32c768c0 FrameMoveFuture=32cb4d00>32c76960 FrameMove=32cb67b0>32c94e20 EventProcess=32cb4d10>32c769b0 EndFuture=32cb3d40>32c6bc80	V=0/base/id
+32cb06d0	32cb156c	-	LESI_SI_A_LE_BACKJUMP_SHOT	23200,23220	hyper	Init=32cb3d30>32c6bc30 Start=32cb4cf0>32c768c0 FrameMoveFuture=32cb4d00>32c76960 FrameMove=32cb67b0>32c94e20 EventProcess=32cb4d10>32c769b0 EndFuture=32cb3d40>32c6bc80	V=0/base/id
+32cb06d0	32cb14a9	-	LESI_SIEGE_READY	23201,23221	normal	StartFuture=32cb61a0>32c87c20 Start=32cb4ce0>32c6f560 EventProcess=32cb52a0>32c83d00	V=0/base/id
+32cb06d0	32cb14dd	-	LESI_SIEGE_READY	23201,23221	hyper	StartFuture=32cb61a0>32c87c20 Start=32cb4ce0>32c6f560 EventProcess=32cb52a0>32c83d00	V=0/base/id
+32cb06d0	32cb2396	-	LESI_A_LE_RISING_FALCON	23202,23222	normal	Init=32cb4000>32c6c710 FrameMoveFuture=32cb4010>32c6c790 FrameMove=32cb6db0>32cad390 EventProcess=32cb4e90>32c7ae20	V=0/base/id
+32cb06d0	32cb23d5	-	LESI_A_LE_RISING_FALCON	23202,23222	hyper	FrameMoveFuture=32cb4010>32c6c790 FrameMove=32cb6db0>32cad390 EventProcess=32cb4e90>32c7ae20	V=0/base/id
+32cb06d0	32cb0b70	-	LESI_A_LWS_BACK_KICK	23203,23228	normal	Init=32cb3b20>32c6c860 EventProcess=32cb5290>32c84ea0	V=0/base/id
+32cb06d0	32cb0b97	-	LESI_A_LWS_BACK_KICK	23203,23228	hyper	Init=32cb3b20>32c6c860 EventProcess=32cb5290>32c84ea0	V=0/base/id
+32cb06d0	32cb1809	-	LESI_SA_LCR_LOW_KICK	23204,23229	normal	Init=32cb3dc0>32c6bf40 FrameMove=32cb3540>32c6bfa0 EventProcess=32cb42d0>32c770a0	V=0/base/id
+32cb06d0	32cb183d	-	LESI_SA_LCR_LOW_KICK	23204,23229	hyper	Init=32cb3dc0>32c6bf40 FrameMove=32cb3540>32c6bfa0 EventProcess=32cb42d0>32c770a0	V=0/base/id
+32cb06d0	32cb1ec3	-	LESI_A_LWS_NATURE_FORCE	23205,23230	normal	Init=32cb3eb0>32c6c2e0 Start=32cb3ec0>32c6c350 EventProcess=329cbfc0>31fcc740	V=0/base/id
+32cb06d0	32cb1ef5	-	LESI_A_LWS_NATURE_FORCE	23205,23230	hyper	Start=32cb3ec0>32c6c350 EventProcess=329cbfc0>31fcc740	V=0/base/id
+32cb06d0	32cb11a2	-	LESI_A_LWS_ASSAULT_IMPACT	23206,23231	normal	Init=32cb3c30>32c6cf80 EventProcess=32cb4c40>32c7d3a0	V=0/base/id
+32cb06d0	32cb11c9	-	LESI_A_LWS_ASSAULT_IMPACT	23206,23231	hyper	Init=32cb3c30>32c6cf80 EventProcess=32cb4c40>32c7d3a0	V=0/base/id
+32cb06d0	32cb15ca	-	LESI_SI_A_LE_REFLEX_MAGIC_READY	23207,23232	normal	EventProcess=32cb4d20>32c76ce0	V=0/base/id
+32cb06d0	32cb15e8	-	LESI_SI_A_LE_REFLEX_MAGIC_READY	23207,23232	hyper	EventProcess=32cb4d20>32c76ce0	V=0/base/id
+32cb06d0	32cb164a	199	LESI_SI_A_LE_REFLEX_MAGIC	23207,23232	reg	Init=32cb3d50>32c6bca0 Start=32cb3d60>32c6bcf0 EventProcess=32cb4d30>32c769f0	V=0/base/id
+32cb06d0	32cb0c87	-	LESI_A_LGA_ARC_SHOT	23208,23223	normal	Init=32cb3b50>32c6c9c0 FrameMove=32cb6740>32c9cc10 EventProcess=32cb4b80>32c7c670	V=0/base/id
+32cb06d0	32cb0cb9	-	LESI_A_LGA_ARC_SHOT	23208,23223	hyper	Init=32cb3b50>32c6c9c0 FrameMove=32cb6740>32c9cc10 EventProcess=32cb4b80>32c7c670	V=0/base/id
+32cb06d0	32cb0c29	-	LESI_A_LSR_SHOOTING_MAGNUM	23209,23233	normal	Init=32cb3b40>32c6c970 FrameMove=32cb6730>32c9c340 EventProcess=32cb4b70>32c7c470	V=0/base/id
+32cb06d0	32cb0c5b	-	LESI_A_LSR_SHOOTING_MAGNUM	23209,23233	hyper	Init=32cb3b40>32c6c970 FrameMove=32cb6730>32c9c340 EventProcess=32cb4b70>32c7c470	V=0/base/id
+32cb06d0	32cb0bcf	-	LESI_A_LSR_MIND_OF_SHARPSHOOTER	23210,23234	normal	Init=32cb3b30>32c6d690 FrameMove=32cb4b50>32c83220 EventProcess=32cb4b60>32c831f0	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_A_LSR_MIND_OF_SHARPSHOOTER	23210,23234	hyper		V=0/base/id
+32cb06d0	32cb1f29	-	LESI_A_LGA_STIGMA_ARROW	23211,23235	normal	Init=32cb3ed0>32c6c3a0 FrameMove=32cb6d90>32cacda0 EventProcess=329cbfc0>31fcc740	V=0/base/id
+32cb06d0	32cb1f5d	-	LESI_A_LGA_STIGMA_ARROW_HYPER	23211,23235	hyper	Init=32cb3ed0>32c6c3a0 FrameMove=32cb6da0>32cacff0 EventProcess=329cbfc0>31fcc740	V=0/base/id
+32cb06d0	32cb0cf9	-	LESI_A_LGA_RAPID_SHOT_READY	23212,23236	normal	Init=32cb3b60>32c6ca70 StartFuture=32cb4b90>32c7c870 Start=32cb3b70>32c6cae0 FrameMoveFuture=32cb6190>32c88050 FrameMove=32cb5de0>32c86720 EventProcess=32cb4ba0>32c7c950	V=0/base/id
+32cb06d0	32cb0d4e	-	LESI_A_LGA_RAPID_SHOT_READY	23212,23236	hyper	Init=32cb3b60>32c6ca70 StartFuture=32cb4b90>32c7c870 Start=32cb3b70>32c6cae0 FrameMoveFuture=32cb6190>32c88050 FrameMove=32cb5de0>32c86720 EventProcess=32cb4ba0>32c7c950	V=0/base/id
+32cb06d0	32cb0ded	240	LESI_A_LGA_RAPID_SHOT_ATTACK	23212,23236	reg	FrameMoveFuture=32cb6190>32c88050 FrameMove=32cb6750>32c9d250 EventProcess=32cb4bb0>32c7c990	V=0/base/id
+32cb06d0	32cb0e33	241	LESI_A_LGA_RAPID_SHOT_FINISH	23212,23236	reg	FrameMoveFuture=32cb6190>32c88050 FrameMove=32cb6760>32c9d420 EventProcess=32cb4bc0>32c7cbe0	V=0/base/id
+32cb06d0	32cb2413	-	LESI_A_LTR_ENTANGLE	23213,23237	normal	Init=32cb4020>32c6cfc0 FrameMove=32cb6950>32c9e7b0 EventProcess=32cb4ea0>32c7d5a0	V=0/base/id
+32cb06d0	32cb2445	-	LESI_A_LTR_ENTANGLE	23213,23237	hyper	Init=32cb4020>32c6cfc0 FrameMove=32cb6950>32c9e7b0 EventProcess=32cb4ea0>32c7d5a0	V=0/base/id
+32cb06d0	32cb2108	-	LESI_A_RTR_EXPLOSION_TRAP	23214,23224	normal	Init=32cb3f50>32c6c600 StartFuture=32cb3f60>32c6c610 Start=32cb3f70>32c6c640 FrameMoveFuture=32cb4e30>32c7a9c0 FrameMove=32cb6900>32c97210 EventProcess=32cb4e40>32c7a9f0 EndFuture=32cb3f80>32c6c650	V=0/base/id
+32cb06d0	32cb2168	-	LESI_A_RTR_EXPLOSION_TRAP	23214,23224	hyper	Init=32cb3f50>32c6c600 StartFuture=32cb3f60>32c6c610 Start=32cb3f70>32c6c640 FrameMoveFuture=32cb4e30>32c7a9c0 FrameMove=32cb6900>32c97210 EventProcess=32cb4e40>32c7a9f0 EndFuture=32cb3f80>32c6c650	V=0/base/id
+32cb06d0	32cb10e7	-	LESI_A_RNW_ROSEBUSH_TRAP	23215,23238	normal	Init=32cb3bf0>32c6cf30 StartFuture=32cb3c00>32c6cf50 FrameMoveFuture=32cb3c10>32c6cf60 FrameMove=32cb67a0>32c9e440 EventProcess=32cb4c30>32c7d360 EndFuture=32cb3c20>32c6cf70	V=0/base/id
+32cb06d0	32cb113a	-	LESI_A_RNW_ROSEBUSH_TRAP	23215,23238	hyper	Init=32cb3bf0>32c6cf30 StartFuture=32cb3c00>32c6cf50 FrameMoveFuture=32cb3c10>32c6cf60 FrameMove=32cb67a0>32c9e440 EventProcess=32cb4c30>32c7d360 EndFuture=32cb3c20>32c6cf70	V=0/base/id
+32cb06d0	32cb107b	-	LESI_A_RNW_ANGER_OF_ELF	23216,23239	normal	Init=32cb3be0>32c6cf10 Start=32cb6bb0>32ca6f90 FrameMove=32cb6bc0>32ca6fb0 EventProcess=32cb4c20>32c7d160 End=32cb6790>32c9e0d0	V=0/base/id
+32cb06d0	32cb10c3	-	LESI_A_RNW_ANGER_OF_ELF	23216,23239	hyper	Init=32cb3be0>32c6cf10 Start=32cb6bb0>32ca6f90 FrameMove=32cb6bc0>32ca6fb0 EventProcess=32cb4c20>32c7d160 End=32cb6790>32c9e0d0	V=0/base/id
+32cb06d0	32cb25cf	-	LESI_A_RNW_START_OF_DELAYED_FIRING	23217,23240	normal	Init=32cb4090>32c6c7a0 StartFuture=32cb40a0>32c6c7b0 Start=32cb4ed0>32c7ae60 FrameMoveFuture=32cb40b0>32c6c7c0 FrameMove=32cb6970>32c98d50 EventProcess=32cb4ee0>32c7af00 End=32cb6980>32c990d0	V=0/base/id
+32cb06d0	32cb262f	-	LESI_A_RNW_START_OF_DELAYED_FIRING	23217,23240	hyper	StartFuture=32cb40a0>32c6c7b0 Start=32cb4ed0>32c7ae60 FrameMoveFuture=32cb40b0>32c6c7c0 FrameMove=32cb6970>32c98d50 EventProcess=32cb4ee0>32c7af00 End=32cb6980>32c990d0	V=0/base/id
+32cb06d0	32cb2076	-	LESI_SA_RTR_EVOKE	23218,23241	normal	Init=32cb3f40>32c6c5b0 Start=32cb6bd0>32ca67f0 FrameMove=32cb6be0>32ca6810 EventProcess=329cba60>31fcc9d0 End=32cb68f0>32c971b0	V=0/base/id
+32cb06d0	32cb20c0	-	LESI_SA_RTR_EVOKE	23218,23241	hyper	Start=32cb6bd0>32ca67f0 FrameMove=32cb6bf0>32ca6860 EventProcess=329cba60>31fcc9d0 End=32cb68f0>32c971b0	V=0/base/id
+32cb06d0	32cb0fc0	-	LESI_P_RNW_SEED_OF_RUIN	23219,23242	normal	Init=32cb3bb0>32c6ce40 StartFuture=32cb3bc0>32c6cec0 FrameMoveFuture=32cb4c00>32c7d0c0 FrameMove=32cb6780>32c9dc40 EventProcess=32cb4c10>32c7d0f0 EndFuture=32cb3bd0>32c6cef0	V=0/base/id
+32cb06d0	32cb1013	-	LESI_P_RNW_SEED_OF_RUIN	23219,23242	hyper	Init=32cb3bb0>32c6ce40 StartFuture=32cb3bc0>32c6cec0 FrameMoveFuture=32cb4c00>32c7d0c0 FrameMove=32cb6780>32c9dc40 EventProcess=32cb4c10>32c7d0f0 EndFuture=32cb3bd0>32c6cef0	V=0/base/id
+32cb06d0	32cb2841	-	LESI_A_RWS_PAIN	23225	normal	Init=32cb4120>32c6d080 EventProcess=32cb4f50>32c7e9f0	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_A_RWS_PAIN	23225	hyper		V=0/base/id
+32cb06d0	32cb2876	-	LESI_A_RGA_ONE_TARGET_SHOT	23226	normal	Init=32cb4130>32c6d090 EventProcess=32cb4f60>32c7ed00	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_A_RGA_ONE_TARGET_SHOT	23226	hyper		V=0/base/id
+32cb06d0	32cb28ab	-	LESI_A_RNW_BUTTERFLY	23227	normal	Init=32cb4140>32c6d0a0 Start=32cb6c20>32ca7000 EventProcess=32cb4f70>32c7f010 End=32cb6990>32c9eac0	V=0/base/id
+32cb06d0	32cb0c01	-	LESI_A_RNW_BUTTERFLY	23227	hyper		V=0/base/id
+32cb06d0	32cb2c03	-	LESI_HA_LWS_SPIRAL_STIKE_READY	23600,23603	normal	Init=32cb4150>32c6d0b0 Start=32cb61c0>32c88330 EventProcess=32cb4f80>32c7f320	V=0/base/id
+32cb06d0	32cb2c37	-	LESI_HA_LWS_SPIRAL_STIKE_READY	23600,23603	hyper	Init=32cb4150>32c6d0b0 Start=32cb61c0>32c88330 EventProcess=32cb4f80>32c7f320	V=0/base/id
+32cb06d0	32cb2cc0	246	LESI_HA_LWS_SPIRAL_STIKE_SPINING	23600,23603	reg	Start=32cb69a0>32c9eb20 FrameMove=32cb69b0>32c9ece0 EventProcess=32cb4f90>32c7f350 End=32cb4160>32c6d1a0	V=0/base/id
+32cb06d0	32cb2d06	247	LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK	23600,23603	reg	Init=32cb4170>32c6d1c0 FrameMove=32cb69c0>32c9ef20 EventProcess=32cb4fa0>32c7f3a0	V=0/base/id
+32cb06d0	32cb2d33	-	LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT	23601,23604	normal	Init=32cb4180>32c6d290 Start=32cb5f50>32c86b20 FrameMove=32cb69d0>32c9efd0 EventProcess=32cb4fb0>32c7f6c0	V=0/base/id
+32cb06d0	32cb2d72	-	LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT	23601,23604	hyper	Init=32cb4180>32c6d290 Start=32cb5f50>32c86b20 FrameMove=32cb69d0>32c9efd0 EventProcess=32cb4fb0>32c7f6c0	V=0/base/id
+32cb06d0	32cb2ddf	248	LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT	23601,23604	reg	EventProcess=32cb4fc0>32c7f6f0	V=0/base/id
+32cb06d0	32cb2e0b	249	LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING	23601,23604	reg	EventProcess=32cb4fd0>32c7f720	V=0/base/id
+32cb06d0	32cb2e38	-	LESI_HA_LNW_INNOCENT_START	23602,23605	normal	Init=32cb4190>32c6d350 EventProcess=32cb4fe0>32c7faa0	V=0/base/id
+32cb06d0	32cb2e61	-	LESI_HA_LNW_INNOCENT_START	23602,23605	hyper	EventProcess=32cb4fe0>32c7faa0	V=0/base/id
+32cb06d0	32cb2ed4	251	LESI_HA_LNW_INNOCENT_END	23602,23605	reg	Init=32cb41a0>32c6d3f0 Start=32cb6c30>32ca7020 EventProcess=32cb4ff0>32c7fad0 End=32cb69e0>32c9f490	V=0/base/id

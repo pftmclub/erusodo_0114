@@ -240,6 +240,7 @@ the rule (`JUNE_ENGINE_REMAINDER_PHASES.md` "Scope audit (2026-10-20)"):
 - **Per-state immunity lists** (pilot-char-revamp CH1m, 2026-10-21). June `31fdaaa0`, called from `CX2GUUser::CommonStateStart` `@32057e68`, reads
   `IMMUNITY_LIST_AT_THIS_STATE` (ints into user `+0x8638`) and `IMMUNITY_EDT_LIST_AT_THIS_STATE` (`+0x8648`); March has neither key. Find the
   readers of `+0x8638 / +0x8648` (buff and extra-damage paths) and port the function with them. Aisha's June script has the EDT key in 12 states.
+  It also reads the XOR key `IMMUNE_TO_SUPER_ARMOR_DOWN` (Rena's script: 10 states; `charport_keys.py`, char-rena CH0): port its reader and consumer with it.
 - **Attack-result / damage-react hooks beside the delegate lists** (pilot-char-revamp CH4b, 2026-10-22). Two June-only unit vslots run right after
   the lists: `0x1e8` (`32011b80`, after the `+0x66ac` run in CEffect / user / NPC AttackResult: BTI 0x382 Celestial Blitz, BFI 0x3a1, 1 s timer
   `+0x94f0`) and `0x1ec` (`32296570`, after the `+0x66dc` run in both DamageReacts: skill 0x7dcd). Also the NPC script key `ATTACK_RESULT%d`

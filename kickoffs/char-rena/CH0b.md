@@ -48,6 +48,7 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7ad L753 stage June Motion_Lire* files with the class script; Lire's ComboX3 / .
+- Stage list, motion answer, named items, closure and icons: CH0 Done note, **Assets** paragraph (`ch0b_stage_list.tsv`, `ch0_motion_question.tsv`, `ch1_held_motions.tsv`).

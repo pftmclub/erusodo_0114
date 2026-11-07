@@ -1,0 +1,132 @@
+file	animation	in_march	in_june	played_by_march_code	played_by_june_script	note
+Motion_Lire.x	ComboX3	yes	no	Lire_ElvenRanger.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Lire.x	ComboX4	yes	no	Lire_ElvenRanger.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Lire.x	ComboX4Down	yes	no	Lire_ElvenRanger.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Lire.x	ComboX4Up	yes	no	Lire_ElvenRanger.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Lire.x	DashAttackX	yes	no	Lire_ElvenRanger.lua bytecode const x2	no	not in any June Eve motion file
+Motion_Lire.x	DoubleJumpAttackX	no	yes	no	Lire_ElvenRanger.src.lua:4782,6467	new in June
+Motion_Lire.x	Lire_ComboX3	no	yes	no	Lire_ElvenRanger.src.lua:4266	new in June
+Motion_Lire.x	Lire_ComboX4	no	yes	no	Lire_ElvenRanger.src.lua:4318	new in June
+Motion_Lire.x	Lire_ComboX4Down	no	yes	no	Lire_ElvenRanger.src.lua:4428	new in June
+Motion_Lire.x	Lire_ComboX4Up	no	yes	no	Lire_ElvenRanger.src.lua:4367	new in June
+Motion_Lire.x	Lire_DashAttackX	no	yes	no	Lire_ElvenRanger.src.lua:4611,6354	new in June
+Motion_Lire.x	SI_A_LE_RISING_FALCON_MEMO	no	yes	no	no	new in June
+Motion_Lire_Common.x	(no name dropped)	-	-	-	-	March 1316379 B, June 6457469 B; 21 new names
+Motion_Lire_Common.x	Cash1_DownLanding	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash1_Wait	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash1_WaitHabit	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash2_DownLanding	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash2_Wait	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash2_WaitHabit	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash3_DownLanding	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash3_Wait	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash3_WaitHabit	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash4_DownLanding	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash4_Wait	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash4_WaitHabit	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash5_DownLanding	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash5_Wait	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash5_WaitHabit	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash6_DownLanding	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash6_Wait	no	yes	no	no	new in June
+Motion_Lire_Common.x	Cash6_WaitHabit	no	yes	no	no	new in June
+Motion_Lire_Common.x	Event1_WaitHabit	no	yes	no	no	new in June
+Motion_Lire_Common.x	Ride_2	no	yes	no	no	new in June
+Motion_Lire_Common.x	Ride_3	no	yes	no	no	new in June
+Motion_Lire_CR.x	(no name dropped)	-	-	-	-	March 2142125 B, June 3246145 B; 7 new names
+Motion_Lire_CR.x	LESI_RCR_COMBO_XZ	no	yes	no	Lire_ElvenRanger.src.lua:3241,4975	new in June
+Motion_Lire_CR.x	LESI_RCR_COMBO_XZZ	no	yes	no	Lire_ElvenRanger.src.lua:3321,5062	new in June
+Motion_Lire_CR.x	LWS_ComboZ3Front	no	yes	Lire_ElvenRanger.lua bytecode const x1	Lire_ElvenRanger.src.lua:3444,5186,5814	new in June
+Motion_Lire_CR.x	LWS_ComboZ5Front	no	yes	Lire_ElvenRanger.lua bytecode const x1	Lire_ElvenRanger.src.lua:5738	new in June
+Motion_Lire_CR.x	LWS_ComboZ5Front_Landing	no	yes	Lire_ElvenRanger.lua bytecode const x1	Lire_ElvenRanger.src.lua:3430,5172,5925	new in June
+Motion_Lire_CR.x	SI_A_LWS_BACK_KICK	no	yes	Lire_ElvenRanger.lua bytecode const x1	Lire_ElvenRanger.src.lua:14677	new in June
+Motion_Lire_CR.x	SI_A_RCR_ASSAULT_IMPACT	no	yes	no	Lire_ElvenRanger.src.lua:15316	new in June
+Motion_Lire_Emotion.x	(no name dropped)	-	-	-	-	March 1421187 B, June 2084827 B; 0 new names
+Motion_Lire_Emotion_APINK.X	(no name dropped)	-	-	-	-	March 838328 B, June 838328 B; 0 new names; identical bytes
+Motion_Lire_Emotion_APINK_LOVE.X	(no name dropped)	-	-	-	-	March 303800 B, June 303800 B; 0 new names; identical bytes
+Motion_Lire_Emotion_BIGBANG.X	(no name dropped)	-	-	-	-	March 1040608 B, June 1040608 B; 0 new names; identical bytes
+Motion_Lire_Emotion_CRAYONPOP_Sorted.X	(no name dropped)	-	-	-	-	March 711985 B, June 711985 B; 0 new names; identical bytes
+Motion_Lire_Emotion_DeepBow.X	(no name dropped)	-	-	-	-	March 433647 B, June 433647 B; 0 new names; identical bytes
+Motion_Lire_Field.x	(no name dropped)	-	-	-	-	March 293357 B, June 479426 B; 2 new names
+Motion_Lire_Field.x	Ride_2	no	yes	no	no	new in June
+Motion_Lire_Field.x	Ride_3	no	yes	no	no	new in June
+Motion_Lire_GA.x	LGA_ComboZ5a	yes	no	Lire_ElvenRanger.lua bytecode const x1	Lire_ElvenRanger.src.lua:6317,6538	moved to June Motion_Lire_SR.x
+Motion_Lire_GA.x	SI_A_LGA_RAPID_SHOT_ATTACK	yes	no	Lire_ElvenRanger.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Lire_GA.x	SI_A_LGA_RAPID_SHOT_END	yes	no	Lire_ElvenRanger.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Lire_GA.x	SI_A_LGA_RAPID_SHOT_READY	yes	no	Lire_ElvenRanger.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Lire_GA.x	SI_A_LGA_STIGMA_ARROW	yes	no	Lire_ElvenRanger.lua bytecode const x2	Lire_ElvenRanger.src.lua:12190,12210,16525	moved to June Motion_Lire_SR.x
+Motion_Lire_GA.x	LGA_DashJumpAttackX3	no	yes	no	no	new in June
+Motion_Lire_GA.x	SI_A_RGA_EXPLOSION_TRAP	no	yes	no	Lire_ElvenRanger.src.lua:15527	new in June
+Motion_Lire_GA.x	SI_SA_RGA_ACEINTHEHOLE_Attack	no	yes	no	Lire_ElvenRanger.src.lua:17035,17069	new in June
+Motion_Lire_GA.x	SI_SA_RGA_ACEINTHEHOLE_End	no	yes	no	Lire_ElvenRanger.src.lua:17099	new in June
+Motion_Lire_GA.x	SI_SA_RGA_ACEINTHEHOLE_Start	no	yes	no	Lire_ElvenRanger.src.lua:16945	new in June
+Motion_Lire_GA.x	SI_SA_RGA_ACEINTHEHOLE_Wait	no	yes	no	Lire_ElvenRanger.src.lua:17003	new in June
+Motion_Lire_GA.x	SI_SA_RGA_BLAST_ARROW	no	yes	no	Lire_ElvenRanger.src.lua:16855	new in June
+Motion_Lire_GA.x	SI_SA_RGA_CUTLASS_WIND	no	yes	no	Lire_ElvenRanger.src.lua:16903	new in June
+Motion_Lire_GA.x	SI_SA_RGA_ONE_TARGET_SHOT	no	yes	no	Lire_ElvenRanger.src.lua:16822	new in June
+Motion_Lire_Lobby.x	(no name dropped)	-	-	-	-	March 1808566 B, June 2766827 B; 0 new names
+Motion_Lire_NW.x	(no name dropped)	-	-	-	-	March 1819993 B, June 3733100 B; 14 new names
+Motion_Lire_NW.x	RNW_DashComboXZ	no	yes	no	Lire_ElvenRanger.src.lua:7486	new in June
+Motion_Lire_NW.x	RNW_DashComboXZZ_End	no	yes	no	Lire_ElvenRanger.src.lua:7662	new in June
+Motion_Lire_NW.x	RNW_DashComboXZZ_End_Full	no	yes	no	Lire_ElvenRanger.src.lua:7716	new in June
+Motion_Lire_NW.x	RNW_DashComboXZZ_Loop	no	yes	no	Lire_ElvenRanger.src.lua:7599	new in June
+Motion_Lire_NW.x	RNW_DashComboXZZ_Ready	no	yes	no	Lire_ElvenRanger.src.lua:7567	new in June
+Motion_Lire_NW.x	RNW_DashJumpComboXXZ_End	no	yes	no	Lire_ElvenRanger.src.lua:7975,8068	new in June
+Motion_Lire_NW.x	RNW_DashJumpComboXXZ_Loop	no	yes	no	Lire_ElvenRanger.src.lua:7932,8021	new in June
+Motion_Lire_NW.x	RNW_DashJumpComboXXZ_Ready	no	yes	no	Lire_ElvenRanger.src.lua:7910,7999	new in June
+Motion_Lire_NW.x	SI_A_RNW_BUTTERFLY	no	yes	no	Lire_ElvenRanger.src.lua:17135	new in June
+Motion_Lire_NW.x	SI_SA_RNW_ERADICATION_Attack	no	yes	no	Lire_ElvenRanger.src.lua:17354	new in June
+Motion_Lire_NW.x	SI_SA_RNW_ERADICATION_Start	no	yes	no	Lire_ElvenRanger.src.lua:17265	new in June
+Motion_Lire_NW.x	SI_SA_RNW_RAGE_FUNGUS	no	yes	no	Lire_ElvenRanger.src.lua:17218	new in June
+Motion_Lire_NW.x	SI_SA_RNW_SEED_OF_RUIN_POLE	no	yes	no	Lire_ElvenRanger.src.lua:17177	new in June
+Motion_Lire_NW.x	SI_SA_RTR_TRAPPING_ARROW_FUNGUS	no	yes	no	Lire_ElvenRanger.src.lua:14992	new in June
+Motion_Lire_RTR.x	LESI_SI_A_RTR_EXPLOSION_TRAP	yes	no	Lire_ElvenRanger.lua bytecode const x5	Lire_ElvenRanger.src.lua:15110	not in any June Eve motion file
+Motion_Lire_RTR.x	LESI_RTR_DoubleJumpAttack_ZX	no	yes	no	Lire_ElvenRanger.src.lua:7094	new in June
+Motion_Lire_RTR.x	SI_A_RTR_EXPLOSION_TRAP	no	yes	no	Lire_ElvenRanger.src.lua:13058,15139,15289	new in June
+Motion_Lire_RTR.x	SI_SA_RTR_HUMMING_WIND	no	yes	no	Lire_ElvenRanger.src.lua:8733,8832	new in June
+Motion_Lire_SR.x	SR_DoubleJumpAttackX	yes	no	Lire_ElvenRanger.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Lire_SR.x	LGA_ComboZ5a	no	yes	Lire_ElvenRanger.lua bytecode const x1	Lire_ElvenRanger.src.lua:6317,6538	new in June
+Motion_Lire_SR.x	SI_A_LGA_STIGMA_ARROW	no	yes	Lire_ElvenRanger.lua bytecode const x2	Lire_ElvenRanger.src.lua:12190,12210,16525	new in June
+Motion_Lire_SR.x	SI_A_RSR_RAPID_SHOT_ATTACK	no	yes	no	Lire_ElvenRanger.src.lua:14888	new in June
+Motion_Lire_SR.x	SI_A_RSR_RAPID_SHOT_END	no	yes	no	Lire_ElvenRanger.src.lua:14900	new in June
+Motion_Lire_SR.x	SI_A_RSR_RAPID_SHOT_READY	no	yes	no	Lire_ElvenRanger.src.lua:14872	new in June
+Motion_Lire_SR.x	SI_SA_LSR_GUNGNIR_End	no	yes	no	Lire_ElvenRanger.src.lua:16330	new in June
+Motion_Lire_SR.x	SI_SA_LSR_GUNGNIR_Loop	no	yes	no	Lire_ElvenRanger.src.lua:16309	new in June
+Motion_Lire_SR.x	SI_SA_LSR_GUNGNIR_Ready	no	yes	no	Lire_ElvenRanger.src.lua:16213	new in June
+Motion_Lire_Stand_LobbyWait.x	(no name dropped)	-	-	-	-	March 577434 B, June 577434 B; 0 new names; identical bytes
+Motion_Lire_WS.x	LWS_ComboZ3Front	yes	no	Lire_ElvenRanger.lua bytecode const x1	Lire_ElvenRanger.src.lua:3444,5186,5814	moved to June Motion_Lire_CR.x
+Motion_Lire_WS.x	LWS_ComboZ5Front	yes	no	Lire_ElvenRanger.lua bytecode const x1	Lire_ElvenRanger.src.lua:5738	moved to June Motion_Lire_CR.x
+Motion_Lire_WS.x	LWS_ComboZ5Front_Landing	yes	no	Lire_ElvenRanger.lua bytecode const x1	Lire_ElvenRanger.src.lua:3430,5172,5925	moved to June Motion_Lire_CR.x
+Motion_Lire_WS.x	LWS_Ultimate_Finish	yes	no	Lire_ElvenRanger.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Lire_WS.x	LWS_Ultimate_Start	yes	no	Lire_ElvenRanger.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Lire_WS.x	SI_A_LWS_ASSAULT_IMPACT	yes	no	Lire_ElvenRanger.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Lire_WS.x	SI_A_LWS_BACK_KICK	yes	no	Lire_ElvenRanger.lua bytecode const x1	Lire_ElvenRanger.src.lua:14677	moved to June Motion_Lire_CR.x
+Motion_Lire_WS.x	LWS_DashJumpComboXXZ_End	no	yes	no	Lire_ElvenRanger.src.lua:3631,6218	new in June
+Motion_Lire_WS.x	LWS_DashJumpComboXXZ_Loop	no	yes	no	Lire_ElvenRanger.src.lua:3580,6166	new in June
+Motion_Lire_WS.x	LWS_DashJumpComboXXZ_Ready	no	yes	no	Lire_ElvenRanger.src.lua:3558,6144	new in June
+Motion_Lire_WS.x	LWS_Spiral_Strike_Ready	no	yes	no	Lire_ElvenRanger.src.lua:15545	new in June
+Motion_Lire_WS.x	LWS_Spiral_Strikee_Finish	no	yes	no	Lire_ElvenRanger.src.lua:15713	new in June
+Motion_Lire_WS.x	SI_A_RWS_SHADOW_RUNNER_END	no	yes	no	no	new in June
+Motion_Lire_WS.x	SI_A_RWS_SHADOW_RUNNER_START	no	yes	no	no	new in June
+Motion_Lire_WS.x	SI_SA_RWS_GYRO_KICK	no	yes	no	Lire_ElvenRanger.src.lua:16669	new in June
+Motion_Lire_WS.x	SI_SA_RWS_PAIN	no	yes	no	Lire_ElvenRanger.src.lua:16582	new in June
+Motion_Lire_WS.x	SI_SA_RWS_SPINING_CRESCENT	no	yes	no	Lire_ElvenRanger.src.lua:16623	new in June
+Motion_Lire_WS.x	SI_SA_RWS_TEMPEST	no	yes	no	Lire_ElvenRanger.src.lua:16742	new in June
+# per file: March bytes, June bytes, dropped names, new names, identical
+# Motion_Lire.x	4407064	6614767	dropped=5	new=7	differs
+# Motion_Lire_Common.x	1316379	6457469	dropped=0	new=21	differs
+# Motion_Lire_CR.x	2142125	3246145	dropped=0	new=7	differs
+# Motion_Lire_Emotion.x	1421187	2084827	dropped=0	new=0	differs
+# Motion_Lire_Emotion_APINK.X	838328	838328	dropped=0	new=0	identical
+# Motion_Lire_Emotion_APINK_LOVE.X	303800	303800	dropped=0	new=0	identical
+# Motion_Lire_Emotion_BIGBANG.X	1040608	1040608	dropped=0	new=0	identical
+# Motion_Lire_Emotion_CRAYONPOP_Sorted.X	711985	711985	dropped=0	new=0	identical
+# Motion_Lire_Emotion_DeepBow.X	433647	433647	dropped=0	new=0	identical
+# Motion_Lire_Field.x	293357	479426	dropped=0	new=2	differs
+# Motion_Lire_GA.x	1636694	2757337	dropped=5	new=9	differs
+# Motion_Lire_Lobby.x	1808566	2766827	dropped=0	new=0	differs
+# Motion_Lire_NW.x	1819993	3733100	dropped=0	new=14	differs
+# Motion_Lire_RTR.x	2089125	2966118	dropped=1	new=3	differs
+# Motion_Lire_SR.x	1767579	3135823	dropped=1	new=8	differs
+# Motion_Lire_Stand_LobbyWait.x	577434	577434	dropped=0	new=0	identical
+# Motion_Lire_WS.x	1685411	2739968	dropped=7	new=11	differs

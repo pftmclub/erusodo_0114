@@ -44,6 +44,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 47** (`awk -F'\t' '$7=="CH2d"' june2017_re/char_rena/ch0_class_map.tsv`; inside 46, new 1).
+  June addresses: `32c6b6a0` `32c6b6e0` `32c6b6f0` `32c6b700` `32c6b710` `32c6c5b0` `32c6c600` `32c6c610` `32c6c640` `32c6c650` `32c6c680` `32c6c690` `32c6c6a0` `32c6c6b0` `32c6c6c0` `32c6c6e0` `32c6c6f0` `32c6cf10` `32c6cf30` `32c6cf50` `32c6cf60` `32c6cf70` `32c75e50` `32c75e90` `32c7a9c0` `32c7a9f0` `32c7aae0` `32c7ad50` `32c7b060`(new ?) `32c7d160` `32c7d360` `32c86d00` `32c86d30` `32c87090` `32c971b0` `32c97210` `32c98360` `32c987f0` `32c98c80` `32c9e0d0` `32c9e440` `32ca67f0` `32ca6810` `32ca6860` `32ca68b0` `32ca6f90` `32ca6fb0`.
+- **States: 8** (`awk -F'\t' '$8=="CH2d"' june2017_re/char_rena/ch0_state_skill.tsv`): `LESI_SI1_LE_HUMMING_WIND`, `LESI_SI1_LE_HUMMING_WIND_HYPER`, `LESI_SA_RTR_EVOKE`, `LESI_A_RTR_EXPLOSION_TRAP`, `LESI_SA_RTR_KARMA`, `LESI_SA_RTR_FATALITY`, `LESI_A_RNW_ANGER_OF_ELF`, `LESI_A_RNW_ROSEBUSH_TRAP`.
+- **Skills: 14** (part 2 of `ch0_state_skill.tsv`, col 6): 23019 RNSI_SA_RTR_FATALITY, 23020 RNSI_SA_RTR_HUMMING_WIND, 23021 RNSI_SA_RTR_KARMA, 23033 RNSI_SA_RTR_FATALITY_UPGRADE, 23036 RNSI_SA_RTR_HUMMING_WIND_UPGRADE, 23053 RNSI_SA_RTR_KARMA_UPGRADE, 23214 RNSI_A_RTR_EXPLOSION_TRAP, 23215 RNSI_A_RTR_ROSEBUSH_TRAP, 23216 RNSI_A_RTR_ANGER_OF_ELF, 23218 RNSI_A_RTR_EVOKE, 23224 RNSI_A_RTR_EXPLOSION_TRAP_UPGRADE, 23238 RNSI_A_RTR_ROSEBUSH_TRAP_UPGRADE, 23239 RNSI_A_RTR_ANGER_OF_ELF_UPGRADE, 23241 RNSI_A_RTR_EVOKE_UPGRADE.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, LIRE_ELVENRANGE; §7 L256 class code scales the cached state power rate (+0x7cc8); §7 L256 March Rena RTR_FATALITY m_fNowStatePowerRate *= m_sFatalityData.GetPow; §7i L431-L445 class code multiplies m_fNowStatePowerRate, never the entry's; §7ae L719 an id of a listed type with no case plays the class's first state (Ren; §7ae L726 types 14-16 / 17 / 18 named in the class switch; §7ai L848 pass June's skip / adjust / level / creator at every ported BFI call.

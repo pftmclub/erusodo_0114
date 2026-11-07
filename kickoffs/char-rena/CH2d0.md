@@ -44,6 +44,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 8** (`awk -F'\t' '$7=="CH2d0"' june2017_re/char_rena/ch0_class_map.tsv`; inside 2, new 6).
+  June addresses: `32c85900`(new ?) `32c86340`(new ?) `32c863a0`(new ?) `32c87860`(new ?) `32c878f0`(new ?) `32c99690` `32c9e250` `32cb5f60`(new ?).
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L255 IsSummonSkill (54 June skill ids) and the summon cases of 3230c1a0 tha; §7 L280 SetUserSummonedNPCInfo summon stats (322ece70 per-case flags) for ever; §7 L291 Evoke trap NPC scripts Lire_Evoke_trap(.src).lua / _Memo (INIT_COMPONE.
+- **Map: `june2017_re/char_rena/ch0_traps.tsv`.** June's live spawns: CreateEvoke `32c99690` (`NUI_EVOKE_TRAP_LIRE` 1020 @32c99a1a, eTeam -1 / eAllyTeam = team: swapped against the others), CreateAngerOfElfTrap `32c9e250` (1420 @32c9e42e), Night Watcher's Gungnir (2083 @32ca11f2, written by CH1g2). June dropped `NUI_EVOKE_TRAP_LIRE_MEMO` (1025) and `NUI_RENA_ANGER_OF_ELF_DELAY` (1421), and its Entangle NPC spawn (`32c95790`, dead). Summon-info setters `32c85900` / `32c86340` / `32c863a0` / `32c87860` / `32c878f0` (called from CX2Game summon code 3230bbbd-3230c8b6) + `32cb5f60`; the Evoke trap scripts `Lire_Evoke_trap.lua` / `_Memo.lua` (l.291, `USE_OWNERS_ENCHANT`) through `luabind.py check`.

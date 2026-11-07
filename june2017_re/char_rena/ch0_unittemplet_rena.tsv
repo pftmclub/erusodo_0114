@@ -1,0 +1,201 @@
+# Rena UnitTemplet rows: June june_src_fixed/data036_kom/UnitTemplet.src.lua vs March live kom_contents/data036_kom/UnitTemplet.lua (7 Rena rows March, 7 June)
+# string table = general.ess (live game-dir text table, 45160 ids, XOR 0x10 utf-16le); sd_live / sd_june = STR_ID_n defined in StringID_def.src.lua (March live 45160 ids / June 45160 ids)
+# UC_LIRE_ELVEN_RANGER: March keys 24 (row at 28), June keys 25 (row at 28); same 24, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 30
+# UC_LIRE_COMBAT_RANGER: March keys 24 (row at 162), June keys 25 (row at 163); same 24, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 30
+# UC_LIRE_SNIPING_RANGER: March keys 24 (row at 188), June keys 25 (row at 190); same 24, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 25
+# UC_LIRE_WIND_SNEAKER: March keys 24 (row at 516), June keys 26 (row at 519); same 23, changed 1, june-only 2, march-only 0
+#    m_HyperCutIn: - -> "HQ_Cutin_RWS_Transcendence"
+#    m_fLobbyRotationY: - -> 30
+#    name: STR_ID_616 -> STR_ID_4783
+# UC_LIRE_GRAND_ARCHER: March keys 24 (row at 542), June keys 26 (row at 547); same 23, changed 1, june-only 2, march-only 0
+#    m_HyperCutIn: - -> "HQ_Cutin_RGA_Transcendence"
+#    m_fLobbyRotationY: - -> 20
+#    name: STR_ID_616 -> STR_ID_4784
+# UC_LIRE_TRAPPING_RANGER: March keys 24 (row at 899), June keys 25 (row at 906); same 24, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 1
+# UC_LIRE_NIGHT_WATCHER: March keys 24 (row at 1036), June keys 26 (row at 1044); same 23, changed 1, june-only 2, march-only 0
+#    m_HyperCutIn: - -> "HQ_Cutin_RNW_Transcendence"
+#    m_fLobbyRotationY: - -> 10
+#    name: STR_ID_616 -> STR_ID_17429
+unit_class	key	march_value	june_value	diff	string_check
+UC_LIRE_ELVEN_RANGER	basicBodyItemID	10	10	same	
+UC_LIRE_ELVEN_RANGER	basicFaceItemID	9	9	same	
+UC_LIRE_ELVEN_RANGER	basicHairItemID	8	8	same	
+UC_LIRE_ELVEN_RANGER	basicWeaponItemID	14	14	same	
+UC_LIRE_ELVEN_RANGER	basicLegItemID	11	11	same	
+UC_LIRE_ELVEN_RANGER	promotionBodyItemID	128006	128006	same	
+UC_LIRE_ELVEN_RANGER	promotionWeaponItemID	128005	128005	same	
+UC_LIRE_ELVEN_RANGER	m_CommonMotion	"Motion_Lire_Common.x"	"Motion_Lire_Common.x"	same	
+UC_LIRE_ELVEN_RANGER	m_FieldMotion	"Motion_Lire_Field.x"	"Motion_Lire_Field.x"	same	
+UC_LIRE_ELVEN_RANGER	m_LobbyMotion	"Motion_Lire_Lobby.x"	"Motion_Lire_Lobby.x"	same	
+UC_LIRE_ELVEN_RANGER	m_EmotionMotion	"Motion_Lire_Emotion.x"	"Motion_Lire_Emotion.x"	same	
+UC_LIRE_ELVEN_RANGER	m_GameMotion0	"Motion_Lire.x"	"Motion_Lire.x"	same	
+UC_LIRE_ELVEN_RANGER	promotionLegItemID	128007	128007	same	
+UC_LIRE_ELVEN_RANGER	m_GameMotion1	""	""	same	
+UC_LIRE_ELVEN_RANGER	m_fLobbyRotationY	-	30	june-only	
+UC_LIRE_ELVEN_RANGER	basicFootItemID	13	13	same	
+UC_LIRE_ELVEN_RANGER	introMovieFIleName	"Movie_Create_Rena_Base.avi"	"Movie_Create_Rena_Base.avi"	same	
+UC_LIRE_ELVEN_RANGER	basicHandItemID	12	12	same	
+UC_LIRE_ELVEN_RANGER	m_GameMotion2	""	""	same	
+UC_LIRE_ELVEN_RANGER	promotionHandItemID	128008	128008	same	
+UC_LIRE_ELVEN_RANGER	promotionFootItemID	128009	128009	same	
+UC_LIRE_ELVEN_RANGER	unitType	UNIT_TYPE.UT_LIRE	UNIT_TYPE.UT_LIRE	same	
+UC_LIRE_ELVEN_RANGER	unitClass	UNIT_CLASS.UC_LIRE_ELVEN_RANGER	UNIT_CLASS.UC_LIRE_ELVEN_RANGER	same	
+UC_LIRE_ELVEN_RANGER	name	STR_ID_616	STR_ID_616	same	STR_ID_616 general.ess=y sd_live=y sd_june=y "Rena"
+UC_LIRE_ELVEN_RANGER	description	STR_ID_616	STR_ID_616	same	STR_ID_616 general.ess=y sd_live=y sd_june=y "Rena"
+UC_LIRE_COMBAT_RANGER	basicBodyItemID	10	10	same	
+UC_LIRE_COMBAT_RANGER	basicFaceItemID	9	9	same	
+UC_LIRE_COMBAT_RANGER	basicHairItemID	24	24	same	
+UC_LIRE_COMBAT_RANGER	basicWeaponItemID	14	14	same	
+UC_LIRE_COMBAT_RANGER	basicLegItemID	11	11	same	
+UC_LIRE_COMBAT_RANGER	promotionBodyItemID	128047	128047	same	
+UC_LIRE_COMBAT_RANGER	promotionWeaponItemID	130372	130372	same	
+UC_LIRE_COMBAT_RANGER	m_CommonMotion	"Motion_Lire_Common.x"	"Motion_Lire_Common.x"	same	
+UC_LIRE_COMBAT_RANGER	m_FieldMotion	"Motion_Lire_Field.x"	"Motion_Lire_Field.x"	same	
+UC_LIRE_COMBAT_RANGER	m_LobbyMotion	"Motion_Lire_Lobby.x"	"Motion_Lire_Lobby.x"	same	
+UC_LIRE_COMBAT_RANGER	m_EmotionMotion	"Motion_Lire_Emotion.x"	"Motion_Lire_Emotion.x"	same	
+UC_LIRE_COMBAT_RANGER	m_GameMotion0	"Motion_Lire.x"	"Motion_Lire.x"	same	
+UC_LIRE_COMBAT_RANGER	promotionLegItemID	128048	128048	same	
+UC_LIRE_COMBAT_RANGER	m_GameMotion1	"Motion_Lire_CR.x"	"Motion_Lire_CR.x"	same	
+UC_LIRE_COMBAT_RANGER	m_fLobbyRotationY	-	30	june-only	
+UC_LIRE_COMBAT_RANGER	basicFootItemID	13	13	same	
+UC_LIRE_COMBAT_RANGER	introMovieFIleName	"Movie_Create_Rena_WS.avi"	"Movie_Create_Rena_WS.avi"	same	
+UC_LIRE_COMBAT_RANGER	basicHandItemID	12	12	same	
+UC_LIRE_COMBAT_RANGER	m_GameMotion2	""	""	same	
+UC_LIRE_COMBAT_RANGER	promotionHandItemID	128049	128049	same	
+UC_LIRE_COMBAT_RANGER	promotionFootItemID	128050	128050	same	
+UC_LIRE_COMBAT_RANGER	unitType	UNIT_TYPE.UT_LIRE	UNIT_TYPE.UT_LIRE	same	
+UC_LIRE_COMBAT_RANGER	unitClass	UNIT_CLASS.UC_LIRE_COMBAT_RANGER	UNIT_CLASS.UC_LIRE_COMBAT_RANGER	same	
+UC_LIRE_COMBAT_RANGER	name	STR_ID_616	STR_ID_616	same	STR_ID_616 general.ess=y sd_live=y sd_june=y "Rena"
+UC_LIRE_COMBAT_RANGER	description	STR_ID_4233	STR_ID_4233	same	STR_ID_4233 general.ess=y sd_live=y sd_june=y "Rena (Combat Ranger)"
+UC_LIRE_SNIPING_RANGER	basicBodyItemID	10	10	same	
+UC_LIRE_SNIPING_RANGER	basicFaceItemID	9	9	same	
+UC_LIRE_SNIPING_RANGER	basicHairItemID	25	25	same	
+UC_LIRE_SNIPING_RANGER	basicWeaponItemID	14	14	same	
+UC_LIRE_SNIPING_RANGER	basicLegItemID	11	11	same	
+UC_LIRE_SNIPING_RANGER	promotionBodyItemID	128052	128052	same	
+UC_LIRE_SNIPING_RANGER	promotionWeaponItemID	130373	130373	same	
+UC_LIRE_SNIPING_RANGER	m_CommonMotion	"Motion_Lire_Common.x"	"Motion_Lire_Common.x"	same	
+UC_LIRE_SNIPING_RANGER	m_FieldMotion	"Motion_Lire_Field.x"	"Motion_Lire_Field.x"	same	
+UC_LIRE_SNIPING_RANGER	m_LobbyMotion	"Motion_Lire_Lobby.x"	"Motion_Lire_Lobby.x"	same	
+UC_LIRE_SNIPING_RANGER	m_EmotionMotion	"Motion_Lire_Emotion.x"	"Motion_Lire_Emotion.x"	same	
+UC_LIRE_SNIPING_RANGER	m_GameMotion0	"Motion_Lire.x"	"Motion_Lire.x"	same	
+UC_LIRE_SNIPING_RANGER	promotionLegItemID	128053	128053	same	
+UC_LIRE_SNIPING_RANGER	m_GameMotion1	"Motion_Lire_SR.x"	"Motion_Lire_SR.x"	same	
+UC_LIRE_SNIPING_RANGER	m_fLobbyRotationY	-	25	june-only	
+UC_LIRE_SNIPING_RANGER	basicFootItemID	13	13	same	
+UC_LIRE_SNIPING_RANGER	introMovieFIleName	"Movie_Create_Rena_GA.avi"	"Movie_Create_Rena_GA.avi"	same	
+UC_LIRE_SNIPING_RANGER	basicHandItemID	12	12	same	
+UC_LIRE_SNIPING_RANGER	m_GameMotion2	""	""	same	
+UC_LIRE_SNIPING_RANGER	promotionHandItemID	128054	128054	same	
+UC_LIRE_SNIPING_RANGER	promotionFootItemID	128055	128055	same	
+UC_LIRE_SNIPING_RANGER	unitType	UNIT_TYPE.UT_LIRE	UNIT_TYPE.UT_LIRE	same	
+UC_LIRE_SNIPING_RANGER	unitClass	UNIT_CLASS.UC_LIRE_SNIPING_RANGER	UNIT_CLASS.UC_LIRE_SNIPING_RANGER	same	
+UC_LIRE_SNIPING_RANGER	name	STR_ID_616	STR_ID_616	same	STR_ID_616 general.ess=y sd_live=y sd_june=y "Rena"
+UC_LIRE_SNIPING_RANGER	description	STR_ID_4234	STR_ID_4234	same	STR_ID_4234 general.ess=y sd_live=y sd_june=y "Rena (Sniping Ranger)"
+UC_LIRE_WIND_SNEAKER	basicBodyItemID	10	10	same	
+UC_LIRE_WIND_SNEAKER	basicFaceItemID	9	9	same	
+UC_LIRE_WIND_SNEAKER	basicHairItemID	46	46	same	
+UC_LIRE_WIND_SNEAKER	basicWeaponItemID	14	14	same	
+UC_LIRE_WIND_SNEAKER	basicLegItemID	11	11	same	
+UC_LIRE_WIND_SNEAKER	promotionBodyItemID	131341	131341	same	
+UC_LIRE_WIND_SNEAKER	promotionWeaponItemID	131340	131340	same	
+UC_LIRE_WIND_SNEAKER	m_CommonMotion	"Motion_Lire_Common.x"	"Motion_Lire_Common.x"	same	
+UC_LIRE_WIND_SNEAKER	m_FieldMotion	"Motion_Lire_Field.x"	"Motion_Lire_Field.x"	same	
+UC_LIRE_WIND_SNEAKER	m_LobbyMotion	"Motion_Lire_Lobby.x"	"Motion_Lire_Lobby.x"	same	
+UC_LIRE_WIND_SNEAKER	m_EmotionMotion	"Motion_Lire_Emotion.x"	"Motion_Lire_Emotion.x"	same	
+UC_LIRE_WIND_SNEAKER	m_GameMotion0	"Motion_Lire.x"	"Motion_Lire.x"	same	
+UC_LIRE_WIND_SNEAKER	promotionLegItemID	131342	131342	same	
+UC_LIRE_WIND_SNEAKER	m_GameMotion1	"Motion_Lire_CR.x"	"Motion_Lire_CR.x"	same	
+UC_LIRE_WIND_SNEAKER	m_HyperCutIn	-	"HQ_Cutin_RWS_Transcendence"	june-only	
+UC_LIRE_WIND_SNEAKER	basicFootItemID	13	13	same	
+UC_LIRE_WIND_SNEAKER	introMovieFIleName	"Movie_Create_Rena_WS.avi"	"Movie_Create_Rena_WS.avi"	same	
+UC_LIRE_WIND_SNEAKER	m_fLobbyRotationY	-	30	june-only	
+UC_LIRE_WIND_SNEAKER	basicHandItemID	12	12	same	
+UC_LIRE_WIND_SNEAKER	m_GameMotion2	"Motion_Lire_WS.x"	"Motion_Lire_WS.x"	same	
+UC_LIRE_WIND_SNEAKER	promotionHandItemID	131343	131343	same	
+UC_LIRE_WIND_SNEAKER	promotionFootItemID	131344	131344	same	
+UC_LIRE_WIND_SNEAKER	unitType	UNIT_TYPE.UT_LIRE	UNIT_TYPE.UT_LIRE	same	
+UC_LIRE_WIND_SNEAKER	unitClass	UNIT_CLASS.UC_LIRE_WIND_SNEAKER	UNIT_CLASS.UC_LIRE_WIND_SNEAKER	same	
+UC_LIRE_WIND_SNEAKER	name	STR_ID_616	STR_ID_4783	changed	STR_ID_616 general.ess=y sd_live=y sd_june=y "Rena" | STR_ID_4783 general.ess=y sd_live=y sd_june=y "Wind Sneaker"
+UC_LIRE_WIND_SNEAKER	description	STR_ID_4781	STR_ID_4781	same	STR_ID_4781 general.ess=y sd_live=y sd_june=y "Rena (Wind Sneaker)"
+UC_LIRE_GRAND_ARCHER	basicBodyItemID	10	10	same	
+UC_LIRE_GRAND_ARCHER	basicFaceItemID	9	9	same	
+UC_LIRE_GRAND_ARCHER	basicHairItemID	47	47	same	
+UC_LIRE_GRAND_ARCHER	basicWeaponItemID	14	14	same	
+UC_LIRE_GRAND_ARCHER	basicLegItemID	11	11	same	
+UC_LIRE_GRAND_ARCHER	promotionBodyItemID	131346	131346	same	
+UC_LIRE_GRAND_ARCHER	promotionWeaponItemID	131345	131345	same	
+UC_LIRE_GRAND_ARCHER	m_CommonMotion	"Motion_Lire_Common.x"	"Motion_Lire_Common.x"	same	
+UC_LIRE_GRAND_ARCHER	m_FieldMotion	"Motion_Lire_Field.x"	"Motion_Lire_Field.x"	same	
+UC_LIRE_GRAND_ARCHER	m_LobbyMotion	"Motion_Lire_Lobby.x"	"Motion_Lire_Lobby.x"	same	
+UC_LIRE_GRAND_ARCHER	m_EmotionMotion	"Motion_Lire_Emotion.x"	"Motion_Lire_Emotion.x"	same	
+UC_LIRE_GRAND_ARCHER	m_GameMotion0	"Motion_Lire.x"	"Motion_Lire.x"	same	
+UC_LIRE_GRAND_ARCHER	promotionLegItemID	131347	131347	same	
+UC_LIRE_GRAND_ARCHER	m_GameMotion1	"Motion_Lire_SR.x"	"Motion_Lire_SR.x"	same	
+UC_LIRE_GRAND_ARCHER	m_HyperCutIn	-	"HQ_Cutin_RGA_Transcendence"	june-only	
+UC_LIRE_GRAND_ARCHER	basicFootItemID	13	13	same	
+UC_LIRE_GRAND_ARCHER	introMovieFIleName	"Movie_Create_Rena_GA.avi"	"Movie_Create_Rena_GA.avi"	same	
+UC_LIRE_GRAND_ARCHER	m_fLobbyRotationY	-	20	june-only	
+UC_LIRE_GRAND_ARCHER	basicHandItemID	12	12	same	
+UC_LIRE_GRAND_ARCHER	m_GameMotion2	"Motion_Lire_GA.x"	"Motion_Lire_GA.x"	same	
+UC_LIRE_GRAND_ARCHER	promotionHandItemID	131348	131348	same	
+UC_LIRE_GRAND_ARCHER	promotionFootItemID	131349	131349	same	
+UC_LIRE_GRAND_ARCHER	unitType	UNIT_TYPE.UT_LIRE	UNIT_TYPE.UT_LIRE	same	
+UC_LIRE_GRAND_ARCHER	unitClass	UNIT_CLASS.UC_LIRE_GRAND_ARCHER	UNIT_CLASS.UC_LIRE_GRAND_ARCHER	same	
+UC_LIRE_GRAND_ARCHER	name	STR_ID_616	STR_ID_4784	changed	STR_ID_616 general.ess=y sd_live=y sd_june=y "Rena" | STR_ID_4784 general.ess=y sd_live=y sd_june=y "Grand Archer "
+UC_LIRE_GRAND_ARCHER	description	STR_ID_4782	STR_ID_4782	same	STR_ID_4782 general.ess=y sd_live=y sd_june=y "Rena (Grand Archer)"
+UC_LIRE_TRAPPING_RANGER	basicBodyItemID	10	10	same	
+UC_LIRE_TRAPPING_RANGER	basicFaceItemID	9	9	same	
+UC_LIRE_TRAPPING_RANGER	basicHairItemID	40520	40520	same	
+UC_LIRE_TRAPPING_RANGER	basicWeaponItemID	14	14	same	
+UC_LIRE_TRAPPING_RANGER	basicLegItemID	11	11	same	
+UC_LIRE_TRAPPING_RANGER	promotionBodyItemID	40780	40780	same	
+UC_LIRE_TRAPPING_RANGER	promotionWeaponItemID	40770	40770	same	
+UC_LIRE_TRAPPING_RANGER	m_CommonMotion	"Motion_Lire_Common.x"	"Motion_Lire_Common.x"	same	
+UC_LIRE_TRAPPING_RANGER	m_FieldMotion	"Motion_Lire_Field.x"	"Motion_Lire_Field.x"	same	
+UC_LIRE_TRAPPING_RANGER	m_LobbyMotion	"Motion_Lire_Lobby.x"	"Motion_Lire_Lobby.x"	same	
+UC_LIRE_TRAPPING_RANGER	m_EmotionMotion	"Motion_Lire_Emotion.x"	"Motion_Lire_Emotion.x"	same	
+UC_LIRE_TRAPPING_RANGER	m_GameMotion0	"Motion_Lire.x"	"Motion_Lire.x"	same	
+UC_LIRE_TRAPPING_RANGER	promotionLegItemID	40790	40790	same	
+UC_LIRE_TRAPPING_RANGER	m_GameMotion1	"Motion_Lire_RTR.x"	"Motion_Lire_RTR.x"	same	
+UC_LIRE_TRAPPING_RANGER	m_fLobbyRotationY	-	1	june-only	
+UC_LIRE_TRAPPING_RANGER	basicFootItemID	13	13	same	
+UC_LIRE_TRAPPING_RANGER	introMovieFIleName	"Movie_Create_Rena_NW.avi"	"Movie_Create_Rena_NW.avi"	same	
+UC_LIRE_TRAPPING_RANGER	basicHandItemID	12	12	same	
+UC_LIRE_TRAPPING_RANGER	m_GameMotion2	""	""	same	
+UC_LIRE_TRAPPING_RANGER	promotionHandItemID	40800	40800	same	
+UC_LIRE_TRAPPING_RANGER	promotionFootItemID	40810	40810	same	
+UC_LIRE_TRAPPING_RANGER	unitType	UNIT_TYPE.UT_LIRE	UNIT_TYPE.UT_LIRE	same	
+UC_LIRE_TRAPPING_RANGER	unitClass	UNIT_CLASS.UC_LIRE_TRAPPING_RANGER	UNIT_CLASS.UC_LIRE_TRAPPING_RANGER	same	
+UC_LIRE_TRAPPING_RANGER	name	STR_ID_616	STR_ID_616	same	STR_ID_616 general.ess=y sd_live=y sd_june=y "Rena"
+UC_LIRE_TRAPPING_RANGER	description	STR_ID_15457	STR_ID_15457	same	STR_ID_15457 general.ess=y sd_live=y sd_june=y "Rena (Trapping Ranger)"
+UC_LIRE_NIGHT_WATCHER	basicBodyItemID	10	10	same	
+UC_LIRE_NIGHT_WATCHER	basicFaceItemID	70	70	same	
+UC_LIRE_NIGHT_WATCHER	basicHairItemID	41270	41270	same	
+UC_LIRE_NIGHT_WATCHER	basicWeaponItemID	14	14	same	
+UC_LIRE_NIGHT_WATCHER	basicLegItemID	11	11	same	
+UC_LIRE_NIGHT_WATCHER	promotionBodyItemID	41060	41060	same	
+UC_LIRE_NIGHT_WATCHER	promotionWeaponItemID	41050	41050	same	
+UC_LIRE_NIGHT_WATCHER	m_CommonMotion	"Motion_Lire_Common.x"	"Motion_Lire_Common.x"	same	
+UC_LIRE_NIGHT_WATCHER	m_FieldMotion	"Motion_Lire_Field.x"	"Motion_Lire_Field.x"	same	
+UC_LIRE_NIGHT_WATCHER	m_LobbyMotion	"Motion_Lire_Lobby.x"	"Motion_Lire_Lobby.x"	same	
+UC_LIRE_NIGHT_WATCHER	m_EmotionMotion	"Motion_Lire_Emotion.x"	"Motion_Lire_Emotion.x"	same	
+UC_LIRE_NIGHT_WATCHER	m_GameMotion0	"Motion_Lire.x"	"Motion_Lire.x"	same	
+UC_LIRE_NIGHT_WATCHER	promotionLegItemID	41070	41070	same	
+UC_LIRE_NIGHT_WATCHER	m_GameMotion1	"Motion_Lire_RTR.x"	"Motion_Lire_RTR.x"	same	
+UC_LIRE_NIGHT_WATCHER	m_HyperCutIn	-	"HQ_Cutin_RNW_Transcendence"	june-only	
+UC_LIRE_NIGHT_WATCHER	basicFootItemID	13	13	same	
+UC_LIRE_NIGHT_WATCHER	introMovieFIleName	"Movie_Create_Rena_NW.avi"	"Movie_Create_Rena_NW.avi"	same	
+UC_LIRE_NIGHT_WATCHER	m_fLobbyRotationY	-	10	june-only	
+UC_LIRE_NIGHT_WATCHER	basicHandItemID	12	12	same	
+UC_LIRE_NIGHT_WATCHER	m_GameMotion2	"Motion_Lire_NW.x"	"Motion_Lire_NW.x"	same	
+UC_LIRE_NIGHT_WATCHER	promotionHandItemID	41080	41080	same	
+UC_LIRE_NIGHT_WATCHER	promotionFootItemID	41090	41090	same	
+UC_LIRE_NIGHT_WATCHER	unitType	UNIT_TYPE.UT_LIRE	UNIT_TYPE.UT_LIRE	same	
+UC_LIRE_NIGHT_WATCHER	unitClass	UNIT_CLASS.UC_LIRE_NIGHT_WATCHER	UNIT_CLASS.UC_LIRE_NIGHT_WATCHER	same	
+UC_LIRE_NIGHT_WATCHER	name	STR_ID_616	STR_ID_17429	changed	STR_ID_616 general.ess=y sd_live=y sd_june=y "Rena" | STR_ID_17429 general.ess=y sd_live=y sd_june=y "Night Watcher"
+UC_LIRE_NIGHT_WATCHER	description	STR_ID_17428	STR_ID_17428	same	STR_ID_17428 general.ess=y sd_live=y sd_june=y "Rena (Night Watcher)"

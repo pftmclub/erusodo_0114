@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-rena CH1h` |
 | Plan doc | `JUNE_CHARACTER_RENA_PHASES.md` (branch `main`) |
-| Depends on | CH1g review. One at a time with CH1a-CH1k: they all edit `X2GULire_ElvenRanger.*` |
+| Depends on | CH1g3 review (CH0 split). One at a time with CH1a-CH1k: they all edit `X2GULire_ElvenRanger.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | `kickoffs/char-rena/CH1h-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -14,7 +14,7 @@
 ```sh
 python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md --no-sub "Rules" "Phase CH0 - Rena map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
 python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md "CH1h - Done" "CH1h - Review"
-awk -F'\t' '$7=="CH1h"' june2017_re/char_rena/ch0_class_map.tsv   # column as Raven's; CH0's amendment corrects it
+awk -F'\t' '$7=="CH1h"' june2017_re/char_rena/ch0_class_map.tsv   # column 7 = phase (CH0 checked)
 ```
 Then CH0's Done note and the earlier Rena CH1 Done notes / reviews (their routed gaps). Raven's matching sub-phase is the worked example.
 
@@ -51,6 +51,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 33** (`awk -F'\t' '$7=="CH1h"' june2017_re/char_rena/ch0_class_map.tsv`; inside 18, new 15).
+  June addresses: `32c6a8d0` `32c6d870`(new ?) `32c6da50` `32c6db70` `32c7fa40` `32c834f0` `32c835c0` `32c849f0` `32c85d50`(new InitDevice) `32c870c0` `32c89270`(new ?) `32c89310`(new ?) `32c89460`(new ?) `32c895b0`(new InitComponent) `32c95670`(new ?) `32c99a40` `32c9b320`(new ?) `32c9b3d0` `32c9e130`(new ?) `32ca42f0` `32ca4a40` `32ca4e10` `32ca5010` `32ca7860` `32ca9ca0`(new ?) `32cb3200`(new ?) `32cb34e0`(new ?) `32cb3500`(new ?) `32cb4200`(new ?) `32cb4270`(new ?) `32cb6a20` `32cb6a30` `32cb6c50`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7c L357 Effect-alpha tags: 8 sites 32c89310, 32c89460, 32c895b0 (32296da0 hand; §7ai L848 pass June's skip / adjust / level / creator at every ported BFI call; §7ao L969 transcend: Rena hyper effect start 32c9b3d0 (vslot 49) returns at once.
+- **Natural-force / combo-revamp rows** (`ch0_nf.tsv` col 8 = `CH1h`): 3; March blocks under `ADD_RENA_SYSTEM` inside your functions stay dead, June's NF lines go under `_NF`.
+- DamageReact `32c6da50` (uncarved), Lose `32c834f0`, HyperModeBuffEffectStart `32c9b3d0` (uncarved; the transcended return is CH3d's, 7ao), CreateMajor / MinorParticleArray `32ca4e10` / `32ca5010` (uncarved; alpha sites `32c893e5` in `32c89310`, `32c89535` in `32c89460`) and InitComponent `32c895b0` (6 alpha sites, 7c; GT_PVP NF reset `@32c895f4` is CH1q's line under `_NF`). `FriendshipNatureData` virtuals `32cb3500` / `32cb4200` / `32cb4270` (vtable `3351666c`; its COL reads `TimeLimited`; March `X2GULire_ElvenRanger.h:265`, live). Init `32c883d0` (0x40), Set/UnSetSpecificValueByBuffTempletID (0x24c / 0x250), AdjustDamageDataBeforeDamageReact (0x300), AttackResultByType (0x4e0), CreateGageData (0xd0), Check / DeleteDamageRelateSkillData (0x420 / 0x424) are **CH1q's**: March declares them only under `ADD_RENA_SYSTEM` (`.h:536-567`).

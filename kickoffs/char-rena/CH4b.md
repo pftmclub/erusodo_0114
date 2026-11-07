@@ -41,6 +41,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 4** (`awk -F'\t' '$7=="CH4b"' june2017_re/char_rena/ch0_class_map.tsv`; inside 2, new 2).
+  June addresses: `32c6d4d0`(new ?) `32c7be00`(new GetActualCoolTime) `32c85690` `32cad510`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7b L330 per-class SetDamageExceptionProcess blocks: funcmap 32cad510 (Rena); §7an L939 GetCharacterSpecializationB() readers: row lists Rena 32c85838; §7an L278 Spec A / Spec B readers (l.278): Rena 32ca7130, 32cb6290 (spec A), 32c.
+- MemoConditionRena vtable `33516854` (TD `3373d730`): slot 1 `32c6d4d0` (decide). GetActualCoolTime 0x6a4 `32c7be00` reads the `BOW_SKILL_STATE` flag `+0x981d`. SetDamageExceptionProcess `32cad510`.

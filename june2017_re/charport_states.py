@@ -68,7 +68,26 @@ def sname(tok):
 
 
 def slotstr(fields):
-    return ' '.join('%s=%s' % (SLOTS[o], resolve(v)) for o, v in sorted(fields.items()) if o in SLOTS and v)
+    """A tuple value is a slot an if / else sets differently per arm (merge_arms): every arm's value, `|`-joined, 0 = unset."""
+    def one(v):
+        return '|'.join(resolve(x) if x else '0' for x in v) if isinstance(v, tuple) else resolve(v)
+    return ' '.join('%s=%s' % (SLOTS[o], one(v)) for o, v in sorted(fields.items()) if o in SLOTS and v)
+
+
+def merge_arms(arms):
+    """char-rena CH0 fix: the slot state after an if / else is every arm's, not the last arm's (Rena's LESI_DASH: Night
+    Watcher's StartFuture / FrameMoveFuture in the else arm, the base ones in the if arm, 32ca9dc0 @32caa647). A slot the
+    arms leave different becomes a tuple of the values; the row that reads it is marked '?' (check the other arm by hand)."""
+    out = {}
+    for k in set().union(*arms):
+        vals = []
+        for a in arms:
+            v = a.get(k)
+            for x in (v if isinstance(v, tuple) else (v,)):
+                if x not in vals:
+                    vals.append(x)
+        out[k] = vals[0] if len(vals) == 1 else tuple(vals)
+    return out
 
 
 def strat(tok):
@@ -178,14 +197,18 @@ def cmd_init(vas):
             while frames and not lab and ind(ln) < frames[-1][0]:
                 frames.pop()
             if frames and ind(ln) == frames[-1][0]:
-                k, kind, scur, sids = frames[-1]
+                k, kind, scur, sids, arms = frames[-1]
                 if (kind == 'switch' and re.match(r'(case [^:]+|default):$', s)) or (kind == 'if' and s.startswith('else')):
+                    if kind == 'if':
+                        arms.append(dict(cur))
                     cur, ids = dict(scur), dict(sids)
                 elif s == '}':
                     if not (i + 1 < len(L) and L[i + 1].strip().startswith('else') and ind(L[i + 1]) == k):
                         frames.pop()
+                        if kind == 'if':      # char-rena CH0: merge the arms (no else: the not-taken path keeps scur)
+                            cur = merge_arms(arms + [dict(cur)] + ([] if arms else [dict(scur)]))
             if re.match(r'(switch\(|if \().*\{$', s):
-                frames.append((ind(ln), 'switch' if s.startswith('switch') else 'if', dict(cur), dict(ids)))
+                frames.append((ind(ln), 'switch' if s.startswith('switch') else 'if', dict(cur), dict(ids), []))
             apply(ln, cur, ids)
             m = NAMESET.match(ln)
             if m:
@@ -212,7 +235,8 @@ def cmd_init(vas):
                 except ValueError:
                     pass
                 fields = {base - n: v for n, v in cur.items() if v is not None and base - n > 0}
-                out.append((i, '%s	%d	%s	%s	%s' % (fva, i + 1, sv, strat(c.group(2).strip()), slotstr(fields))))
+                arm = '?' if any(isinstance(v, tuple) for o, v in fields.items() if o in SLOTS) else ''
+                out.append((i, '%s	%d%s	%s	%s	%s' % (fva, i + 1, arm, sv, strat(c.group(2).strip()), slotstr(fields))))
         for _, row in sorted(out):
             print(row)
 

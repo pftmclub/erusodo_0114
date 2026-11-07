@@ -1,4 +1,4 @@
-# June character Rena (Stage 7) - Phase CH1f - Class core: Sniping Ranger and Grand Archer lines
+# June character Rena (Stage 7) - Phase CH1f - Class core: Sniping Ranger line (`SNIPING`, `SIEGE`, `LSR` / `RSR`)
 
 | | |
 |---|---|
@@ -14,13 +14,13 @@
 ```sh
 python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md --no-sub "Rules" "Phase CH0 - Rena map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
 python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md "CH1f - Done" "CH1f - Review"
-awk -F'\t' '$7=="CH1f"' june2017_re/char_rena/ch0_class_map.tsv   # column as Raven's; CH0's amendment corrects it
+awk -F'\t' '$7=="CH1f"' june2017_re/char_rena/ch0_class_map.tsv   # column 7 = phase (CH0 checked)
 ```
 Then CH0's Done note and the earlier Rena CH1 Done notes / reviews (their routed gaps). Raven's matching sub-phase is the worked example.
 
 ## Task
 
-Transcribe every function the class map gives phase `CH1f` (Sniping Ranger line (`SNIPING`, `SIEGE`, `LSR` / `RSR`) and Grand Archer line (`LGA` / `RGA`)) from Ghidra, **whole**. The plan's "Transcription rules (CH1a-CH1k)" apply:
+Transcribe every function the class map gives phase `CH1f` (Sniping Ranger line: `SNIPING`, `SIEGE`, `LSR` / `RSR`) from Ghidra, **whole**. The plan's "Transcription rules (CH1a-CH1k)" apply:
 - **`inside` rows:** June's body inside March's `CX2GULire_ElvenRanger` function under `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, March's body in `#else`,
   `#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`. Add `_LIVE` to `Always.h` as `//#define` if no earlier phase did. Prove the June path compiles: one `cl /c` of
   `X2GULire_ElvenRanger.cpp` with `/DSERV_IRUHADEV_JUNE_CHAR_RENA_LIVE` (the build's own flags), result in the Done note.
@@ -50,6 +50,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 43** (`awk -F'\t' '$7=="CH1f"' june2017_re/char_rena/ch0_class_map.tsv`; inside 38, new 5).
+  June addresses: `32c6af50` `32c6af60` `32c6afb0` `32c6aff0` `32c6b030` `32c6b070` `32c6b1b0` `32c6b1c0` `32c6b2b0` `32c6d500`(new LESI_RSR_DASH_ZX_StateStart) `32c6d520`(new LESI_RSR_DASH_ZX_StateStartFuture) `32c6e450` `32c6f560` `32c73500` `32c73960` `32c74800` `32c74840` `32c74a10` `32c77f90` `32c7b1b0` `32c7b530` `32c7b570` `32c7ba40` `32c7bd20`(new ?) `32c810e0`(new LESI_RSR_DASH_ZX_EventProcess) `32c83c90` `32c83d00` `32c83f70` `32c84020` `32c840d0` `32c87c20` `32c87d30` `32c8aa40` `32c90620` `32c909e0` `32c928f0` `32c92df0` `32c99a90` `32c99ec0` `32c9a300` `32c9faa0`(new LESI_RSR_DASH_ZX_FrameMove) `32ca5330` `32ca5aa0`.
+- **States: 20** (`awk -F'\t' '$8=="CH1f"' june2017_re/char_rena/ch0_state_skill.tsv`): `LESI_LSR_START`, `LESI_LSR_WIN`, `LESI_LSR_WIN2`, `LESI_LSR_LOSE`, `LESI_LSR_LOSE2`, `LESI_SIEGE_READY`, `LESI_SIEGE_WAIT`, `LESI_SIEGE_ATTACK`, `LESI_SIEGE_ATTACK_X`, `LESI_SIEGE_END`, `LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X`, `LESI_SNIPING_RANGER_COMBO_X2`, `LESI_SNIPING_RANGER_COMBO_X3`, `LESI_SNIPING_RANGER_COMBO_X4`, `LESI_RSR_DASH_ZX`, `LESI_SNIPING_RANGER_DASH_COMBO_X1`, `LESI_SNIPING_RANGER_DASH_COMBO_X2`, `LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2`, `LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3`, `LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, LIRE_ELVENRANGE.
+- **Natural-force / combo-revamp rows** (`ch0_nf.tsv` col 8 = `CH1f`): 10; March blocks under `ADD_RENA_SYSTEM` inside your functions stay dead, June's NF lines go under `_NF`.
+- `LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX` Start / FrameMove / EventProcess (`32c6ac20` / `32c8b2c0` / `32c6e590`) are CH1q's (March: only under `ADD_RENA_SYSTEM`); its FrameMoveFuture `32c83c90` is June-only and stays here (`new`).

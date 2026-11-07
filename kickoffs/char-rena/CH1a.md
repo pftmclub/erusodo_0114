@@ -14,7 +14,7 @@
 ```sh
 python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md --no-sub "Rules" "Phase CH0 - Rena map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
 python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md "CH1a - Done" "CH1a - Review"
-awk -F'\t' '$7=="CH1a"' june2017_re/char_rena/ch0_class_map.tsv   # column as Raven's; CH0's amendment corrects it
+awk -F'\t' '$7=="CH1a"' june2017_re/char_rena/ch0_class_map.tsv   # column 7 = phase (CH0 checked)
 ```
 Then CH0's Done note and the earlier Rena CH1 Done notes / reviews (their routed gaps). Raven's matching sub-phase is the worked example.
 
@@ -50,6 +50,12 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 32** (`awk -F'\t' '$7=="CH1a"' june2017_re/char_rena/ch0_class_map.tsv`; inside 32).
+  June addresses: `32c6aaa0` `32c6aad0` `32c6abb0` `32c6abc0` `32c6abd0` `32c6abf0` `32c6ac90` `32c6acc0` `32c6dee0` `32c6df60` `32c6e0c0` `32c6e0f0` `32c6e150` `32c6e1a0` `32c83760` `32c83800` `32c83850` `32c83b90` `32c83c10` `32c861c0` `32c87b90` `32c89bd0` `32c89e80` `32c8a080` `32c8a2f0` `32c8a4f0` `32c8a800` `32c8bb50` `32c8bdd0` `32c8c080` `32c8cb90` `32c8ce00`.
+- **States: 21** (`awk -F'\t' '$8=="CH1a"' june2017_re/char_rena/ch0_state_skill.tsv`): `LESI_WAIT_STATE_CHANGE`, `LESI_WAIT`, `LESI_WALK`, `LESI_JUMP_READY`, `LESI_JUMP_UP`, `LESI_JUMP_DOWN`, `LESI_JUMP_LANDING`, `LESI_DASH`, `LESI_DASH_END`, `LESI_DASH_JUMP`, `LESI_DASH_JUMP_LANDING`, `LESI_DOUBLE_JUMP`, `LESI_DASH_DOUBLE_JUMP`, `LESI_CHARGE_MP`, `LESI_HYPER_MODE`, `LESI_LWS_HYPER_MODE`, `LESI_LGA_HYPER_MODE`, `LESI_LNW_HYPER_MODE`, `LESI_SI_LE_COMMON_BUFF`, `LESI_SI_LE_COMMON_BUFF_HYPER`, `LESI_THROW_ITEM`.
+- **Skills: 1** (part 2 of `ch0_state_skill.tsv`, col 6): 900 SI_ETC_WS_COMMON_LOVE.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, LIRE_ELVENRANGE; §7h L428 USI_WAIT_STATE_CHANGE registered in every class InitState.
+- **Natural-force / combo-revamp rows** (`ch0_nf.tsv` col 8 = `CH1a`): 5; March blocks under `ADD_RENA_SYSTEM` inside your functions stay dead, June's NF lines go under `_NF`.
+- `LESI_WALK` Start `32c6df30` and `LESI_DASH` Start `32c6e120` are **CH1q's**: March's `WalkStart` / `DashStart` exist only under `ADD_RENA_SYSTEM` (`.cpp:5856` / `:6168`; flag-off `LESI_DASH` uses `CX2GUUser::DashStart`). Declare nothing; CH1m registers them. `LESI_DASH` is the per-arm row: Night Watcher (114) registers StartFuture `32cb4330>32c6e0c0` / FrameMoveFuture `32cb4350>32c6e0f0`, every other class the base `329cc580` / `329cae40` (`32ca9dc0 @32caa647`).

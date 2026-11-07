@@ -157,6 +157,36 @@ CHARS = {
              'npc-lua (check ledger)', '-', 'NPC / clone / shadow / bot copy of the character'),
         ],
     ),
+    'rena': dict(
+        owner='char-rena',
+        script='Lire_ElvenRanger', lo=0x32c6a8d0, hi=0x32cb6c6d,
+        unit_type=3, unit_type_name='UT_LIRE',
+        unit_classes=[3, 12, 13, 24, 102, 103, 114],                 # third jobs (UC_156-158) are out of scope
+        tokens=['rena', 'lire', 'lena'],                             # June names her Rena / Lire / Lena
+        abbr=['RWS', 'RGA', 'RNW', 'RTR', 'LCR', 'LSR', 'LWS', 'LGA', 'LNW'],   # Wind Sneaker, Grand Archer, Night Watcher, Trapping / Combat / Sniping Ranger; not RCR / RSR (Rose's: Motion_ROSE_RCR, RSR_Ancient*)
+        abbr_exclude=re.compile(r'(?i)(^|_)pet_|_EVENT_|^HQ_Shop_Pet|^Motion_NPC_Event_'),
+        short_re=re.compile(r'(?!)'),
+        job_re=re.compile(r'(?i)wind[_ ]?sneaker|grand[_ ]?archer|night[_ ]?watcher|combat[_ ]?ranger|sniping[_ ]?ranger|trapping[_ ]?ranger'),
+        lua_script='Lire_ElvenRanger',
+        skill_lua=['EntangleTrapRena', 'Lire_Evoke_trap', 'Lire_Evoke_trap_Memo', 'AngerOfElfTrapRena', 'AngerOfElfTrapDelayRena'],   # trap NPC scripts (NPCTemplet LUA_FILE_NAME)
+        extra_lua=['EntangleTrapRena', 'Lire_Evoke_trap', 'Lire_Evoke_trap_Memo', 'AngerOfElfTrapRena', 'AngerOfElfTrapDelayRena', 'DLG_Transcendental_Change_Guide_Lena', 'DLG_1ST_Class_Change_Guide_Lena', 'DLG_2ND_Class_Change_Guide_Lena'],
+        skill_icon_ranges=[(106, 106), (900, 900), (23000, 23060), (23200, 23242), (23400, 23417), (23600, 23605)],
+        motion_glob=re.compile(r'(?i)^Motion_(Lire|Rena)'),
+        march_motion_koms=('data033', 'data012'),
+        tutorial_re=re.compile(r'(?i)^tuto'),
+        owner_rules=[
+            (r'(?i)^DLG_PVP_Game_Damaged_(Rena|Lena|Lire)|^DLG_UI_JUMPING_(EVENT|SYSTEM)_(RENA|LENA|LIRE)|^DLG_Unit_(Create|Select)_|^DLG_Class_Change_',
+             'stage9-ui', '-', 'class-change / jumping / unit / PvP dialog'),
+            (r'(?i)^DLG_(1ST|2ND)_Class_Change_Guide_Lena', 'char-rena', 'CH5', 'class-change guide dialog (June-only; adopt-june, not stage-june)'),
+            (r'(?i)^DLG_Transcendental_Change_Guide_Lena', 'char-rena', 'CH3d', 'transcendence guide (Stage 6 pattern)'),
+            (r'(?i)^(PET_|Pet_|HQ_Shop_Pet)', 'stage17-pet', '-', 'pet asset'),
+            (r'(?i)^Motion_EVENT_', 'june-dungeons', '-', 'event NPC motion, not the character'),
+            (r'(?i)^POPUP_TR_(W_SNEAKER|G_ARCHER|N_ARCHER)\.', 'char-rena', 'CH0b', 'transcendence guide picture named by DLG_Transcendental_Change_Guide_Lena'),
+            (r'(?i)^POPUP_TR_', 'stage6-transcendence', '-', 'transcendence job popup UI'),
+            (r'(?i)^((NPC_|Npc_)(Lire|Rena|Lena)|.*_SHADOW_(RENA|LIRE)|PVP_BOT_(RENA|LIRE)|APINK_ANGEL_\d+_(RENA|LIRE)|EVENT_.*(RENA|LIRE)|CSM_(Rena|Lire))',
+             'npc-lua (check ledger)', '-', 'NPC / shadow / bot copy of the character'),
+        ],
+    ),
     'luciel': dict(
         owner='char-luciel',
         script='Luciel_Duo', lo=0x32ae4080, hi=0x32b4e76f,

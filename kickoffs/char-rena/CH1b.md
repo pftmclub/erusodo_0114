@@ -14,7 +14,7 @@
 ```sh
 python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md --no-sub "Rules" "Phase CH0 - Rena map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
 python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md "CH1b - Done" "CH1b - Review"
-awk -F'\t' '$7=="CH1b"' june2017_re/char_rena/ch0_class_map.tsv   # column as Raven's; CH0's amendment corrects it
+awk -F'\t' '$7=="CH1b"' june2017_re/char_rena/ch0_class_map.tsv   # column 7 = phase (CH0 checked)
 ```
 Then CH0's Done note and the earlier Rena CH1 Done notes / reviews (their routed gaps). Raven's matching sub-phase is the worked example.
 
@@ -50,6 +50,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 36** (`awk -F'\t' '$7=="CH1b"' june2017_re/char_rena/ch0_class_map.tsv`; inside 32, new 4).
+  June addresses: `32c6aa40` `32c6aa70` `32c6ad20` `32c6ad50` `32c6ad70` `32c6adb0` `32c6add0` `32c6ae10` `32c6ae30` `32c6ae70` `32c6ae90` `32c6aed0` `32c6af10` `32c6de20` `32c6de80` `32c6e5e0` `32c6e630` `32c6ea30` `32c6ea80` `32c6ee80` `32c6f230` `32c6f290` `32c6f2f0` `32c6f350` `32c6f3b0` `32c6f440` `32c6f490` `32c6f510` `32ca2010`(new ?) `32ca5290` `32ca52d0` `32ca6e90`(new ?) `32ca9230` `32ca9360` `32cb61e0`(new ?) `32cb6310`(new ?).
+- **States: 40** (`awk -F'\t' '$8=="CH1b"' june2017_re/char_rena/ch0_state_skill.tsv`): `LESI_DIE_FRONT`, `LESI_DIE_BACK`, `LESI_START_INTRUDE`, `LESI_START`, `LESI_WIN`, `LESI_WIN2`, `LESI_LOSE`, `LESI_LOSE2`, `LESI_DAMAGE_GROGGY`, `LESI_DAMAGE_SMALL_FRONT`, `LESI_DAMAGE_SMALL_BACK`, `LESI_DAMAGE_BIG_FRONT`, `LESI_DAMAGE_BIG_BACK`, `LESI_DAMAGE_DOWN_FRONT`, `LESI_DAMAGE_DOWN_BACK`, `LESI_DAMAGE_STANDUP_FRONT`, `LESI_DAMAGE_STANDUP_BACK`, `LESI_DAMAGE_BOUNDING_DOWN`, `LESI_DAMAGE_BOUNDING_LANDCRASH`, `LESI_DAMAGE_BOUNDING_UP`, `LESI_DAMAGE_AIR_SMALL`, `LESI_DAMAGE_AIR_DOWN`, `LESI_DAMAGE_AIR_DOWN_INVINCIBLE`, `LESI_DAMAGE_AIR_DOWN_LANDING`, `LESI_DAMAGE_AIR_FALL`, `LESI_DAMAGE_AIR_UP`, `LESI_DAMAGE_AIR_FLY_FRONT`, `LESI_DAMAGE_AIR_FLY_BACK`, `LESI_DAMAGE_REVENGE`, `LESI_STANDUP_ROLLING_FRONT_FRONT`, `LESI_STANDUP_ROLLING_FRONT_BACK`, `LESI_STANDUP_ROLLING_BACK_FRONT`, `LESI_STANDUP_ROLLING_BACK_BACK`, `LESI_STANDUP_ATTACK_FRONT`, `LESI_STANDUP_ATTACK_BACK`, `LESI_WALL_LANDING`, `LESI_P_LE_AGILE_MOVEMENT_FRONT_FRONT`, `LESI_P_LE_AGILE_MOVEMENT_FRONT_BACK`, `LESI_P_LE_AGILE_MOVEMENT_BACK_FRONT`, `LESI_P_LE_AGILE_MOVEMENT_BACK_BACK`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, LIRE_ELVENRANGE.
+- The four `LESI_P_LE_AGILE_MOVEMENT_*` states (ids 242-245) are here: InitState registers them with March's `StandUpRolling*` callbacks (`.cpp:1816-1838`).

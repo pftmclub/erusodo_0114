@@ -1,0 +1,65 @@
+slot_off	vt_entry	fn	base_fn	name	src	march
+0x0	335185bc	32cb6c50	3208f650	~CX2GULire_ElvenRanger (scalar deleting dtor)	CONF: sibling class maps slot 0x0; slot-0 dtor 32cb6c50	X2GULire_ElvenRanger.h:383 virtual ~CX2GULire_ElvenRanger(void);
+0x38	335185f4	32c85d50	31fc79d0	InitDevice	CONF: char_arme class map 0x38	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3600 virtual void InitDevice();)
+0x3c	335185f8	32c895b0	31fee090	InitComponent	CONF: char_raven class map 0x3c	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3603 virtual void InitComponent();)
+0x40	335185fc	32c883d0	3204ea20	Init	CONF: char_raven class map 0x40	X2GULire_ElvenRanger.h:566 virtual void Init( bool bUseTeamPos_, int iStartPosIndex_ );
+0x44	33518600	32ca4a40	32022380	ReInit	CONF: char_raven class map 0x44	X2GULire_ElvenRanger.h:410 virtual void ReInit( bool bRandom = false, int startPosIndex = -1 );
+0x48	33518604	32c6a8d0	32012760	InitEffect	CONF: char_raven class map 0x48	X2GULire_ElvenRanger.h:418 virtual void InitEffect();
+0x4c	33518608	32c99a40	31fc87c0	DeleteMinorParticle	CONF: char_raven class map 0x4c	X2GULire_ElvenRanger.h:474 virtual void DeleteMinorParticle();
+0x60	3351861c	32c6da50	320462a0	DamageReact	CONF: char_raven class map 0x60	X2GULire_ElvenRanger.h:412 virtual void DamageReact( CX2DamageManager::DamageData* pDamageData );
+0x90	3351864c	32ca7860	32014660	Win	CONF: char_raven class map 0x90	X2GULire_ElvenRanger.h:414 virtual void Win();
+0x94	33518650	32c834f0	31ff15d0	Lose	CONF: char_raven class map 0x94	X2GULire_ElvenRanger.h:415 virtual void Lose();
+0x98	33518654	32c6db70	31ff17c0	Draw	CONF: char_raven class map 0x98	X2GULire_ElvenRanger.h:416 virtual void Draw();
+0xc4	33518680	32c9b3d0	31fd5cb0	HyperModeBuffEffectStart	CONF: char_raven class map 0xc4	X2GULire_ElvenRanger.h:521 virtual void HyperModeBuffEffectStart();
+0xd0	3351868c	32ca7060	322984c0	?	HINT: base 322984c0; 38 insns; calls 324943c0 32489200 32fe243e	- (name unsettled)
+0x1e8	335187a4	32ca9ca0	32011b80	?	HINT: base 32011b80; 87 insns; calls 32011b80 31fceab0 32207210	- (name unsettled)
+0x1ec	335187a8	32c6d870	31fca040	?	HINT: base 31fca040; 13 insns; calls -	- (name unsettled)
+0x24c	33518808	32c85260	3204b5e0	SetSpecificValueByBuffTempletID	CONF: char_raven class map 0x24c	X2GULire_ElvenRanger.h:536 virtual void SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
+0x250	3351880c	32c85290	3202ed60	UnSetSpecificValueByBuffTempletID	CONF: char_raven class map 0x250	X2GULire_ElvenRanger.h:537 virtual void UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
+0x25c	33518818	32c9b320	32290860	?	HINT: base 32290860; 30 insns; calls 31aad500	- (name unsettled)
+0x27c	33518838	32c870c0	3208ddc0	AddUnitSlashData	CONF: char_raven class map 0x27c	X2GULire_ElvenRanger.h:522 virtual void AddUnitSlashData( const CX2UnitSlashTraceManager::SLASH_TRACE_CONDITION eSlashTraceCondition_ );
+0x2b8	33518874	32cad510	32045340	SetDamageExceptionProcess	CONF: char_raven class map 0x2b8	X2GULire_ElvenRanger.h:623 virtual void SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_ ,OUT float& fPowerRate);
+0x300	335188bc	32c6d4a0	3208ddc0	?	HINT: base 3208ddc0; 1 insns; calls -	- (name unsettled)
+0x318	335188d4	32cb3200	3208ddc0	?	HINT: base 3208ddc0; 202 insns; calls 32cb6dd0 32610fb0 32cb6dd0	- (name unsettled)
+0x3a8	33518964	32c7fa40	31fd4460	ApplyRenderParam	CONF: char_raven class map 0x3a8	X2GULire_ElvenRanger.h:632 virtual void ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ );
+0x420	335189dc	32c87780	331a4950	?	HINT: base 331a4950; 47 insns; calls 32cb5d10 32fe2300	- (name unsettled)
+0x424	335189e0	32c86740	3208ddc0	?	HINT: base 3208ddc0; 14 insns; calls -	- (name unsettled)
+0x4b0	33518a6c	32cb6a20	3208df10	GetComboZStateID	CONF: char_raven class map 0x4b0	X2GULire_ElvenRanger.h:527 virtual int GetComboZStateID() const { return LESI_COMBO_Z1; }
+0x4b4	33518a70	32cb6a30	3208df10	GetComboXStateID	CONF: char_raven class map 0x4b4	X2GULire_ElvenRanger.h:528 virtual int GetComboXStateID() const { return LESI_COMBO_X1; }
+0x4e0	33518a9c	32ca7130	320144d0	AttackResultByType	CONF: char_raven class map 0x4e0	X2GULire_ElvenRanger.h:562 virtual void AttackResultByType( CX2DamageManager::DamageData &pDamageData );
+0x540	33518afc	32ca4e10	32012800	CreateMajorParticleArray	CONF: char_raven class map 0x540	X2GULire_ElvenRanger.h:422 virtual void CreateMajorParticleArray();
+0x548	33518b04	32ca5010	32012920	CreateMinorParticleArray	CONF: char_raven class map 0x548	X2GULire_ElvenRanger.h:449 virtual void CreateMinorParticleArray();
+0x54c	33518b08	32c835c0	31aa1d30	InitEnchantWeaponEffectUnitSpecific	CONF: char_raven class map 0x54c	X2GULire_ElvenRanger.h:419 virtual void InitEnchantWeaponEffectUnitSpecific();
+0x5f0	33518bac	32c849f0	31aa1d30	COMMON_BUFF_FrameMove	CONF: char_raven class map 0x5f0	X2GULire_ElvenRanger.h:1369 virtual void COMMON_BUFF_FrameMove();
+0x600	33518bbc	32ca5310	31aa1d30	HyperModeFrameMove	CONF: char_raven class map 0x600	X2GULire_ElvenRanger.h:941 void HyperModeFrameMove(); (no virtual keyword; overrides the CX2GUUser pure virtual)
+0x628	33518be4	32c85970	31fd7930	CanRidingState	CONF: char_chung class map 0x628	X2GULire_ElvenRanger.h:524 virtual bool CanRidingState();
+0x684	33518c40	32c6a920	31fd8f60	InitEquippedActiveSkillState	CONF: char_eve class map 0x684	X2GULire_ElvenRanger.h:579 virtual void InitEquippedActiveSkillState( bool bOnlySkillLevel = false );
+0x690	33518c4c	32ca78b0	31fe19d0	InitPassiveSkillState	CONF: char_raven class map 0x690	X2GULire_ElvenRanger.h:580 virtual void InitPassiveSkillState();
+0x6a0	33518c5c	32c85690	31fd1840	GetActualMPConsume	CONF: char_raven class map 0x6a0	X2GULire_ElvenRanger.h:495 virtual float GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;
+0x6a4	33518c60	32c7be00	31fd1920	GetActualCoolTime	CONF: char_raven class map 0x6a4	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3251 virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;)
+0x6a8	33518c64	32c7bed0	3208e190	ShownSkillCoolTime	CONF: char_luciel class map 0x6a8	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3490 virtual float ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ ) { return fCoolTime_; })
+0x740	33518cfc	32c852f0	32009780	?	HINT: base 32009780; 18 insns; calls 32009780	- (name unsettled)
+0x744	33518d00	32c89230	3204da60	?	HINT: base 3204da60; 21 insns; calls 32a317d0 32a36df0	- (name unsettled)
+0x774	33518d30	32c863d0	31f3f070	?	HINT: base 31f3f070; 175 insns; calls 32008660 31f54a10 31fe4870	- (name unsettled)
+0x7a4	33518d60	32cadc90	31aa1d30	InitState	CONF: char_raven class map 0x7a4	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3630 virtual void InitState();)
+0x7b4	33518d70	32cb06d0	31aa1d30	SetEquippedSkillFuncBySkillSlotIndex	CONF: char_raven class map 0x7b4	X2GULire_ElvenRanger.h:581 virtual void SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ );
+0x7b8	33518d74	32c886b0	31aa1d30	SetEquippedSkillLevel	CONF: char_raven class map 0x7b8	X2GULire_ElvenRanger.h:582 virtual void SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );
+0x7c0	33518d7c	32c6a930	320506f0	CommonStateStartFuture	CONF: char_raven class map 0x7c0	X2GULire_ElvenRanger.h:586 virtual void CommonStateStartFuture();
+0x7c4	33518d80	32ca81b0	32057b80	CommonStateStart	CONF: char_raven class map 0x7c4	X2GULire_ElvenRanger.h:587 virtual void CommonStateStart();
+0x7c8	33518d84	32c87990	32061bf0	CommonFrameMoveFuture	CONF: char_raven class map 0x7c8	X2GULire_ElvenRanger.h:588 virtual void CommonFrameMoveFuture();
+0x7cc	33518d88	32ca8bf0	32063650	CommonFrameMove	CONF: char_raven class map 0x7cc	X2GULire_ElvenRanger.h:589 virtual void CommonFrameMove();
+0x7d8	33518d94	32c6a940	31fdd8e0	CommonStateEndFuture	CONF: char_raven class map 0x7d8	X2GULire_ElvenRanger.h:591 virtual void CommonStateEndFuture();
+0x7dc	33518d98	32ca5060	32015250	CommonStateEnd	CONF: char_raven class map 0x7dc	X2GULire_ElvenRanger.h:592 virtual void CommonStateEnd();
+0x7e8	33518da4	32c6a950	31fd07b0	CommonRender_Prepare	CONF: char_raven class map 0x7e8	X2GULire_ElvenRanger.h:595 virtual RENDER_HINT CommonRender_Prepare();
+0x7f4	33518db0	32c6a970	31aa1d30	SpecialAttackEventProcess	CONF: char_raven class map 0x7f4	X2GULire_ElvenRanger.h:598 virtual bool SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND );
+0x7f8	33518db4	32cac200	31aa1d30	SpecialAttackEventProcess part: skill lookup (slot 510)	CONF: char_chung vtable names, same slot (funcmap 32bd8790 note: slot 510 / 511 / 512 parts of SpecialAttackEventProcess)	- (no virtual of that name in X2GULire_ElvenRanger.h / X2GUUser.h / X2GameUnit.h)
+0x7fc	33518db8	32ca50b0	31aa1d30	SpecialAttackEventProcess part: skill use (slot 511)	CONF: char_chung vtable names, same slot (funcmap 32bd8790 note: slot 510 / 511 / 512 parts of SpecialAttackEventProcess)	- (no virtual of that name in X2GULire_ElvenRanger.h / X2GUUser.h / X2GameUnit.h)
+0x800	33518dbc	32c89a20	31aa1d30	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	CONF: char_chung vtable names, same slot (funcmap 32bd8790 note: slot 510 / 511 / 512 parts of SpecialAttackEventProcess)	- (no virtual of that name in X2GULire_ElvenRanger.h / X2GUUser.h / X2GameUnit.h)
+0x80c	33518dc8	32ca5160	32008e40	NoStateChangeActionFrameMove	CONF: char_raven class map 0x80c	X2GULire_ElvenRanger.h:599 virtual void NoStateChangeActionFrameMove();
+0x810	33518dcc	32c87ac0	31aa1d30	SpecialAttackNoStageChange	CONF: char_raven class map 0x810	X2GULire_ElvenRanger.h:494 virtual bool SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );
+0x824	33518de0	32c83320	3208dd70	?	HINT: base 3208dd70; 48 insns; calls 32890620 32206450 32206e50	- (name unsettled)
+0x828	33518de4	32c85a60	31fd7640	IsNotCommonMoveState	CONF: char_raven class map 0x828	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3437 virtual bool IsNotCommonMoveState();)
+0x834	33518df0	32c86af0	33093ad0	ShowActiveSkillCutInAndLightByScript	CONF: char_raven class map 0x834	X2GULire_ElvenRanger.h:1677 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );
+0x850	33518e0c	32c85c00	31fd8230	?	HINT: base 31fd8230; 90 insns; calls -	- (name unsettled)
+# Rena vtable CX2GULire_ElvenRanger 335185bc: 544 slots (0x0-0x87c); in-range entries (target in 32c6a8d0-32cb6c6f): 62 (overrides 62, unnamed 13)
+# base_fn = CX2GUUser vtable 334781f4 (544 slots)

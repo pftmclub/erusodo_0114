@@ -248,6 +248,74 @@ uncarved overrides.
 352 / 352 tables and 130 / 130 ids mapped; the 24 uncarved overrides have rows; assets union routes a / b / c and the motion kom is named;
 the motion question answered; the natural-force and trap maps exist; kickoffs amended; open questions listed.
 
+### CH0 - Done (2026-11-07)
+
+Read-only: no flag, no build. Outputs in `june2017_re/char_rena/`; tables live in the tsvs.
+
+**Tooling.** Raven's builders copied with Rena's range: `ch0_build_vtable.py`, `ch0_skill_listing_emu.py` (32cb06d0's frame: this = edi, normal = esi, hyper = ebp,
+id `[esp+0xac]`), `ch0_march_live_states.py`, `ch0_build_state_skill.py`, `ch0_build_state_enum_names.py`, `ch0_build_keys.py`, `ch0_build_class_map.py`,
+`ch0_make_hand_names.py`, `ch0_unmapped_callees.py`, `ch0_build_enum_names.py`, `ch0_build_unittemplet.py`, `ch0_passive_ids.py`, `ch0_numtables.py`,
+`ch0_build_checklist_rows.py`, `ch0_amend_kickoffs.py`; new `ch0_finalize_maps.py` (NF owners), `ch0_funcmap_rows.py`. `charport_adis.py` and
+`char_eve/ch0_build_assets.py` gained `rena` (Eve / Chung / Elsword / Raven asset outputs unchanged). **Fixes:** `charport_states.py` now merges the
+arms of an if / else (a slot set per arm prints `a|b`, the row is marked `?`; before, the last arm won: Rena's `LESI_DASH`, Raven's LOSE roll row 269,
+whose port already has the condition); `char_arme/ch0c_listing_check.py` accepts an arm row and lists it. Rena's class-map builder: pointer scan
+widened to her range (it still matched Raven's `32c2`-`32c6` bytes), every vtable target is a start (uncarved InitPassiveSkillState `32ca78b0`
+follows Win's `ret 4`), and a block after a mid-function `ret` is no start (instruction check + branch target). Dead rows 129 -> 57.
+
+**Step 0.** InitStateCommon `32ca9dc0`; InitState `32cadc90` registers every line state inline (no line registrars), InitPassiveSkillState registers
+none. `charport_states.py init 32ca9dc0 32cadc90 3202b110` -> `ch0_reg.tsv`; `ch0c_listing_check.py` **202 / 202**; one arm row (`LESI_DASH`:
+class 114 takes StartFuture `32c6e0c0` / FrameMoveFuture `32c6e0f0`, the others the base pair; other arm read by hand at `32caa6fe`).
+`32cb06d0`: type switch, 6-case hyper switch, skill-id switch; `ch0_skill_listing_rows.tsv` 157 rows, 130 / 130 ids (19 leave at the type switch).
+
+**Maps.**
+- `ch0_class_map.tsv`: 1,494 starts (467 carved, 1,027 uncarved); state-fn 645, thunk 626, helper 103, override 62 (24 uncarved, all with rows),
+  dead 57, registrar 1. Per phase: CH1a 32, CH1b 36, CH1c 3, CH1d 38, CH1d2 36, CH1e 29, CH1f 43, CH1f2 37, CH1g 46, CH1g2 29, CH1g3 27, CH1h 33,
+  CH1i 8, CH1j 10, CH1k 21, CH1m 3, CH1n 2, CH1o 5, CH1q 27, CH2a 46, CH2b 19, CH2c 39, CH2d0 8, CH2d 47, CH3a 44, CH3b 39, CH3c0 14, CH3c 46,
+  CH3d 22, CH4a 15, CH4b 4. Hand routings: `ch0_hand_phases.tsv` (col 4 = the March function a row goes inside).
+- **`ADD_RENA_SYSTEM` carries more than natural force:** about 90 of its 111 class blocks are the 2014 combo revamp (registrations, StateChange
+  targets, new states) that June has. 27 March functions exist only under the flag (7 state callbacks such as `WalkStart` / `DashStart`, Init,
+  Set/UnSetSpecificValueByBuffTempletID, AttackResultByType, CreateGageData, the NF tail): their June rows go to **CH1q** inside those functions
+  (flag-off, `LESI_DASH` Start pairs with `CX2GUUser::DashStart`: CH1a must not write June's body there).
+- `ch0_state_skill.tsv`: **352 / 352** (322 mapped, 24 dead data, 6 `INIT_*`), **130 / 130 ids**; 13 March-only states. No `UCHAR` state id.
+  `SIEGE` / `SNIPING` -> CH1f, `COMBAT` -> CH1e, `HA` -> CH3d, `P_RNW_SEED_OF_RUIN` -> CH3c, Agile Movement (4, March StandUpRolling callbacks)
+  -> CH1b, `SI1-3` by skill. `ch0_state_enum_names.tsv`: 89 shared names, all with a June id different from C++ (register by June's id).
+- `ch0_keys.tsv`: `BOW_SKILL_STATE` -> CH1j + CH4b (flag `+0x981d`); `CREATE_TRAP_BLADE` -> CH1j (mesh, not a summon);
+  `IMMUNE_TO_SUPER_ARMOR_DOWN` -> backlog Stage 2 (reader `31fdaaa0`, bullet amended). `DAMAGE_DATA_LAST` / `_THIRD`: Rising Falcon (CH2b),
+  Furious Engage (CH3c). The 3 neither keys and 4 march-only-site keys drop no March input.
+- `ch0_checklist_rows.tsv`: 142 rows, 74 phase, 68 n/a. D8 -> CH4a, l.959 -> CH1q2, 7c -> CH1h, l.358 (Add's 29058) n/a.
+- Item 9: `ch0_enum_names.tsv` (8 / 130 C++ names); `ch0_passive_ids.tsv` (72 live March reads; June-id column is a title match for CH4a to
+  verify; D8 3400 / 3405 live, 4 sites each); `ch0_unittemplet_rena.tsv` (`STR_ID_4783` / `_4784` / `_17429` present). S3 baseline
+  `ch0_s3_baseline.txt`: 267 rows, 260 `no_state`.
+
+**Assets.** `ch0_assets.tsv` 14,046 rows; **`ch0b_stage_list.tsv` 4,762 rows**: `STAGE-JUNE DRY RUN: 31 kom(s), 4762 staged (4459 new, 303
+replaced, 0 identical), 0 refused`; new kom **data201** (54 June-only motions); differing class motions go to data033. **Motion question:**
+`Motion_Lire.x`, `_GA`, `_RTR`, `_SR`, `_WS` drop names March's live script plays (`ComboX3` ..., `SR_DoubleJumpAttackX`, ...): **held for CH1**
+(`ch1_held_motions.tsv`); `_Common`, `_CR`, `_Emotion`, `_Field`, `_Lobby`, `_NW` go now. `POPUP_TR_W_SNEAKER` / `_G_ARCHER` / `_N_ARCHER` (data215)
+in the list; `DLG_1ST` / `2ND_Class_Change_Guide_Lena.lua` by `adopt-june` (dry run 2 new). Closure 7,274 rows, 85 missing (65 in the list).
+Icons: 16 misses on 3 sheets, all covered by the list except 2 pieces June's own `DLG_Lena_SKILL_ScreenShot_04.TET` lacks (CH0b: a JUNE_BUGS row).
+
+**Natural force** (`ch0_nf.tsv`, 225 rows: CH1q 99, CH1q2 27, absent in June 24, the rest combo-revamp rows of the state phases). CH1q split:
+CH1q (class side, flag, flipped arms) and **CH1q2** (gauge data / UI, gauge manager, emulator, `ApplyHyperModeBuff` / NPC `AttackResultByType` /
+F7 key callers). June differs: 3.0 per hit (March 6), BFI 355 stacked per point, MP refund on consume, extra point on a +0x6c50 roll. The
+"NF:" overlay and fill key are absent in June. Flipping the flag would drop `SPAWN_INHERIT`'s child sequence (`X2DamageEffect.cpp:5217`): CH1q keeps it.
+`FriendshipNatureData` is live March code (CH1h), not NF.
+
+**Traps** (`ch0_traps.tsv`). June spawns three: Evoke 1020 (`32c99690`, team args swapped), Anger of Elf 1420 (`32c9e250`), Night Watcher's Gungnir
+2083 (`32ca0e60`, June-only). Entangle's NPC spawn `32c95790` is dead in June (damage effects instead). No memo (1025) / delay (1421) ids in
+June. Summon-info setters (5) -> CH2d0. All trap scripts and the Gungnir script pass `luabind.py check` (0 unbound); their meshes are June's.
+
+**Item 6.** 37 unmapped callees (`ch0_unmapped_identified.tsv`); 2 need Opus, both inside Opus phases (`31c8a5c0` CH1o, `322dea10` CH3d).
+New Opus phase **CH3c0**: Night Watcher engine hook (base `31fcd700` calls `32ca6cd0` for class 114 from user, damage and NPC code; 14 fn).
+`funcmap.tsv`: 34 rows `Char Rena CH0`.
+
+**Splits and kickoffs.** CH1d -> CH1d / CH1d2, CH1f -> CH1f / CH1f2, CH1g -> CH1g / CH1g2 / CH1g3, CH1q -> CH1q / CH1q2, new CH3c0; CH2d (47)
+and CH3c (46) stay whole. Every kickoff CH0b-CH5 has its "Amended by CH0" section; STATUS rows added and Depends rewired.
+
+**Plan-doc / checklist inconsistencies.** Checklist l.912 named Win `32ca7860` for the delegate registrations and l.422 named Arme's `32cb9ee0`
+for Lire: both corrected in place. Plan: CH1p owned `BOW_SKILL_STATE` / `IMMUNE_TO_SUPER_ARMOR_DOWN` (moved as above); "4 trap sites" (3 live);
+the 187 `ADD_RENA_SYSTEM` blocks are not all natural force; the planning digest's vtable `33518d70` is `335185bc`; checklist l.358's "Rena" is Add.
+**Drift:** `IMMUNE_TO_SUPER_ARMOR_DOWN` -> backlog Stage 2 bullet. **Open for the user:** none.
+
 ## Phase CH0b - Every June Rena asset, whole, first
 
 **Run with:** Sonnet 5.5 high, then a user play-test. No C++ unless CH0 found a March reader a June asset breaks (then

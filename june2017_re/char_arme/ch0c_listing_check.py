@@ -119,13 +119,26 @@ for fn in sys.argv[2:]:
             r = simulate(ins, at, block_start(ins, c), None)
             if r and len(r[1]) >= 3 and isinstance(r[1][-3], tuple):
                 got.add((fn, '*', str(r[1][-1]), cbstr(r[2], r[1][-3][1])))
-ok, bad = 0, []
+def arms(cb):
+    """char-rena CH0: a slot an if / else sets per arm is `Slot=a|b` (0 = unset): every arm combination."""
+    combos = ['']
+    for part in cb.split():
+        k, v = part.split('=', 1)
+        combos = [(c + ' ' + (k + '=' + x if x != '0' else '')).strip() for c in combos for x in v.split('|')]
+    return [re.sub(' +', ' ', c) for c in combos]
+
+
+ok, bad, branch = 0, [], []
 for (fn, name), vs in want.items():
     for sid, cb in vs:
-        if (fn, name, sid, cb) in got or (fn, '*', sid, cb) in got:
+        if any((fn, name, sid, c) in got or (fn, '*', sid, c) in got for c in arms(cb)):
             ok += 1
+            if '|' in cb:
+                branch.append((fn, name, sid, cb))
         else:
             bad.append((fn, name, sid, cb))
 print('reg.tsv rows reproduced by the listing: %d / %d' % (ok, ok + len(bad)))
 for b in bad:
     print('NOT REPRODUCED', *b)
+for b in branch:
+    print('ARM ROW (one arm matched the listing; read the other by hand)', *b)

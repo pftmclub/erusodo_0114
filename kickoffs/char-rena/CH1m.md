@@ -43,6 +43,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 3** (`awk -F'\t' '$7=="CH1m"' june2017_re/char_rena/ch0_class_map.tsv`; inside 1, new 2).
+  June addresses: `32c96d60`(new ?) `32ca9dc0` `32cadc90`(new InitState).
+- **States: 5** (`awk -F'\t' '$8=="CH1m"' june2017_re/char_rena/ch0_state_skill.tsv`): `USI_EVENT_PROTON_BOMB_CONTROL_FIRE`, `USI_EVENT_PROTON_BOMB_CONTROL_IDLE`, `USI_EVENT_SNIPER_CONTROL_FIRE`, `USI_EVENT_SNIPER_CONTROL_IDLE`, `USI_EVENT_SNIPER_END`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7h L428 USI_WAIT_STATE_CHANGE registered in every class InitState; §7l L472 bounding user states USI_BOUNDING_DOWN / _LANDCRASH / _UP in every cla; §7ao L951 every class also brings: emulator allow-list id, LevelUpEvent TYPE row.
+- Registrars: InitStateCommon `32ca9dc0` and InitState `32cadc90` (all line states inline; no line registrar functions; InitPassiveSkillState registers no state). `charport_states.py init 32ca9dc0 32cadc90 3202b110` -> `ch0_reg.tsv`; `ch0c_listing_check.py` **202 / 202**, one per-arm row (`LESI_DASH`, other arm read by hand). START / WIN / LOSE rows 9 / 11 / 12 are std::string rolls; a `LESI_RNW_WIN2` roll sets byte `+0x9714`. InitState's tail: vslot 0x690 (InitPassiveSkillState), 0x684( 0 ), `31fd8f00`, `32c96d60`, then `32c85200( 1 )` (SetNaturalForceBuff) when the gauge count > 0 (CH1q's line). State ids: `ch0_state_enum_names.tsv` (218 registered, 89 shared names all with a June id different from the C++ value: register by June's id).

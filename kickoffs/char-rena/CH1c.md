@@ -14,7 +14,7 @@
 ```sh
 python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md --no-sub "Rules" "Phase CH0 - Rena map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
 python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md "CH1c - Done" "CH1c - Review"
-awk -F'\t' '$7=="CH1c"' june2017_re/char_rena/ch0_class_map.tsv   # column as Raven's; CH0's amendment corrects it
+awk -F'\t' '$7=="CH1c"' june2017_re/char_rena/ch0_class_map.tsv   # column 7 = phase (CH0 checked)
 ```
 Then CH0's Done note and the earlier Rena CH1 Done notes / reviews (their routed gaps). Raven's matching sub-phase is the worked example.
 
@@ -50,6 +50,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 3** (`awk -F'\t' '$7=="CH1c"' june2017_re/char_rena/ch0_class_map.tsv`; inside 2, new 1).
+  June addresses: `32c6d420` `32c9f4f0`(new ?) `32ca7040`.
+- **States: 37** (`awk -F'\t' '$8=="CH1c"' june2017_re/char_rena/ch0_state_skill.tsv`): `LESI_PEPPER_RUN_READY`, `LESI_PEPPER_RUN`, `LESI_PEPPER_RUN_END`, `LESI_PEPPER_RUN_JUMP_UP`, `LESI_PEPPER_RUN_JUMP_DOWN`, `LESI_AMUSEMENT_ITEM_PHOENIX_RUN`, `LESI_AMUSEMENT_ITEM_PHOENIX_RUN_END`, `LESI_DANCE_Z`, `LESI_DANCE_X`, `LESI_DANCE_WAIT`, `LESI_RIDING_START`, `LESI_RIDING_ON`, `LESI_RIDING_OFF`, `LESI_RIDING_WAIT_HABIT`, `LESI_RIDING_WAIT`, `LESI_RIDING_WALK`, `LESI_RIDING_JUMP_UP`, `LESI_RIDING_JUMP_DOWN`, `LESI_RIDING_JUMP_LANDING`, `LESI_RIDING_DASH`, `LESI_RIDING_DASH_END`, `LESI_RIDING_DASH_JUMP`, `LESI_RIDING_DASH_JUMP_LANDING`, `LESI_RIDING_DAMAGE_FRONT`, `LESI_RIDING_DAMAGE_FRONT`, `LESI_RIDING_ATTACK_Z`, `LESI_RIDING_ATTACK_X`, `LESI_RIDING_JUMP_ATTACK_Z`, `LESI_RIDING_ATTACK_SPECIAL`, `LESI_RIDING_DIE`, `LESI_RIDING_SPECIAL_MOVE`, `LESI_RIDING_HYPER_MODE`, `LESI_RIDING_SPECIFIC`, `LESI_RIDING_ATTACK_X_READY`, `LESI_RIDING_ATTACK_X_READY_2`, `LESI_RIDING_ATTACK_X_END`, `LESI_RIDING_DAMAGE_BACK`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, LIRE_ELVENRANGE.

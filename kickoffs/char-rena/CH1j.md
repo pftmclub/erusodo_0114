@@ -14,7 +14,7 @@
 ```sh
 python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md --no-sub "Rules" "Phase CH0 - Rena map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
 python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md "CH1j - Done" "CH1j - Review"
-awk -F'\t' '$7=="CH1j"' june2017_re/char_rena/ch0_class_map.tsv   # column as Raven's; CH0's amendment corrects it
+awk -F'\t' '$7=="CH1j"' june2017_re/char_rena/ch0_class_map.tsv   # column 7 = phase (CH0 checked)
 ```
 Then CH0's Done note and the earlier Rena CH1 Done notes / reviews (their routed gaps). Raven's matching sub-phase is the worked example.
 
@@ -50,6 +50,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 10** (`awk -F'\t' '$7=="CH1j"' june2017_re/char_rena/ch0_class_map.tsv`; inside 7, new 3).
+  June addresses: `32c6a930` `32c6a940` `32c6a950` `32c6d800`(new ?) `32c83280`(new ?) `32c87990` `32ca2aa0`(new ?) `32ca5060` `32ca81b0` `32ca8bf0`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §5 L183-L198 class keys BOW_SKILL_STATE x26, CREATE_TRAP_BLADE x2; §7 L256 class code scales the cached state power rate (+0x7cc8).
+- **Natural-force / combo-revamp rows** (`ch0_nf.tsv` col 8 = `CH1j`): 3; March blocks under `ADD_RENA_SYSTEM` inside your functions stay dead, June's NF lines go under `_NF`.
+- CommonStateStart `32ca81b0` reads `BOW_SKILL_STATE` (flag `+0x981d`, @32ca82c2), `CREATE_TRAP_BLADE` and `DAMAGEDATA_CHANGE_TIME*`; CommonStateEnd `32ca5060` reads `+0x981d` @32ca5078; GetActualCoolTime (CH4b) reads it @32c7be7b. CommonFrameMove `32ca8bf0` and CommonFrameMoveFuture `32c87990` hold NF lines (cannon-ball count sync, `UpdateNaturalForceEffect` inline): write them under `_NF`. June passes a skill-templet byte to `31fe28f0` in CommonStateStart (@32ca898c) where March derives an NF count from MP.

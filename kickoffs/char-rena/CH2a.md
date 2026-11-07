@@ -44,6 +44,12 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 46** (`awk -F'\t' '$7=="CH2a"' june2017_re/char_rena/ch0_class_map.tsv`; inside 46).
+  June addresses: `32c6b2e0` `32c6b3a0` `32c6b410` `32c6b4a0` `32c6b620` `32c6b680` `32c6b690` `32c6b820` `32c6b870` `32c6b880` `32c6b890` `32c6b8a0` `32c6b8b0` `32c6b910` `32c6b920` `32c6b930` `32c6b940` `32c6bc30` `32c6bc80` `32c74a40` `32c74d50` `32c75060` `32c75120` `32c75d80` `32c76070` `32c76280` `32c76490` `32c76560` `32c768c0` `32c76960` `32c769b0` `32c84740` `32c847b0` `32c86b60` `32c86b90` `32c86bc0` `32c86bf0` `32c86c20` `32c86c50` `32c86dc0` `32c86df0` `32c86e20` `32c86e50` `32c934b0` `32c947c0` `32c94e20`.
+- **States: 9** (`awk -F'\t' '$8=="CH2a"' june2017_re/char_rena/ch0_state_skill.tsv`): `LESI_SI_LE_POWER_ATTACK1`, `LESI_SI1_LE_PIERCE_ARROW`, `LESI_SI1_LE_PIERCE_ARROW_HYPER`, `LESI_SI3_LE_PHOENIX_STRIKE`, `LESI_SI1_LE_ASSAULT_KICK`, `LESI_SI2_LE_PERFECT_STORM`, `LESI_SI3_LE_AERO_TORNADO`, `LESI_SI3_LE_AERO_TORNADO_HYPER`, `LESI_SI_A_LE_BACKJUMP_SHOT`.
+- **Skills: 14** (part 2 of `ch0_state_skill.tsv`, col 6): 23000 RNSI_SA_RENA_RAIL_STINGER, 23001 RNSI_SA_RENA_PERFECT_STORM, 23002 RNSI_SA_RENA_AERO_TORNADO, 23003 RNSI_SA_RENA_ASSAULT_KICK, 23004 RNSI_SA_RENA_PHOENIX_STRIKE, 23026 RNSI_SA_RENA_RAIL_STINGER_UPGRADE, 23027 RNSI_SA_RENA_PERFECT_STORM_UPGRADE, 23028 RNSI_SA_RENA_AERO_TORNADO_UPGRADE, 23029 RNSI_SA_RENA_ASSAULT_KICK_UPGRADE, 23030 RNSI_SA_RENA_PHOENIX_STRIKE_UPGRADE, 23200 RNSI_A_RENA_BACKJUMP_SHOT, 23201 RNSI_A_RENA_SIEGEMODE, 23220 RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE, 23221 RNSI_A_RENA_SIEGEMODE_UPGRADE.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, LIRE_ELVENRANGE; §7i L431-L445 class code multiplies m_fNowStatePowerRate, never the entry's; §7ae L719 an id of a listed type with no case plays the class's first state (Ren; §7ae L726 types 14-16 / 17 / 18 named in the class switch; §7ai L848 pass June's skip / adjust / level / creator at every ported BFI call.
+- **Natural-force / combo-revamp rows** (`ch0_nf.tsv` col 8 = `CH2a`): 2; March blocks under `ADD_RENA_SYSTEM` inside your functions stay dead, June's NF lines go under `_NF`.
+- `LESI_SI_LE_POWER_ATTACK1` (the skill switch default) is here.

@@ -1,0 +1,66 @@
+fn	phase	why	march_pair
+32ca2b60	CH1k	ctor: CX2GULire_ElvenRanger::CX2GULire_ElvenRanger (vtable store 32ca2bc4); its only caller 3230f289 is the unit factory, outside the class	
+32cb5ee0	CH1k	called by the ctor @32ca3c13 (member init) and engine 322a563c	
+32cb3500	CH1h	FriendshipNatureData virtual (vtable 3351666c, COL reads TimeLimited; March X2GULire_ElvenRanger.h:265, live): with DamageReact / ProcessFriendshipNature	
+32cb4200	CH1h	FriendshipNatureData virtual (vtable 3351666c slot 6)	
+32cb4270	CH1h	FriendshipNatureData scalar deleting dtor (vtable 3351666c slot 0, writes it @32cb427a)	
+32c6dac0	CH4a	delegate stub: thunk 32cb4aa0 pushed in InitPassiveSkillState @32ca7d17	
+32c7af80	CH4a	delegate stub: thunk 32cb4ab0 pushed in InitPassiveSkillState @32ca7e83	
+32c6d4d0	CH4b	MemoConditionRena vtable 33516854 slot 1 (memo condition decide)	
+32cb6a00	n/a	adjustor thunk (ecx -= 0x190) to the scalar dtor 32cb6c50, secondary vtable @335185b0: compiler code	
+32cb6a10	n/a	adjustor thunk (ecx -= 0x1a0) to the scalar dtor 32cb6c50, secondary vtable @335185a8: compiler code	
+32c95790	n/a	June CreateEntangleTrap (NUI_ENTANGLE_TRAP_RENA 457, @32c95882): dead in June, its only caller 32c95890 has no call, jmp or pointer reference; June Entangle builds DAMAGE_EFFECT_LENA_TRAPPING_RANGER_ENTANGLE[_MEMO] (32c9e7b0)	
+32c99690	CH2d0	CreateEvoke (NUI_EVOKE_TRAP_LIRE 1020 @32c99a1a; callers LESI_SA_RTR_EVOKE FrameMove 32ca6810 / _HYPER 32ca6860)	X2GULire_ElvenRanger.cpp:20053 CX2GULire_ElvenRanger::CreateEvoke
+32c9e250	CH2d0	CreateAngerOfElfTrap (NUI_RENA_ANGER_OF_ELF 1420 @32c9e42e; caller LESI_A_RNW_ANGER_OF_ELF FrameMove 32ca6fb0)	X2GULire_ElvenRanger.cpp:22750 CX2GULire_ElvenRanger::CreateAngerOfElfTrap
+32cb5f60	CH2d0	called by CreateEvoke 32c99690 and 32c87860 (summon info)	
+32c85900	CH2d0	helper: trap summon info, called only from CX2Game summon code @3230bc03 (SetUserSummonedNPCInfo 3230c1a0 region)	
+32c86340	CH2d0	helper: trap summon info, called only from CX2Game summon code @3230c423 (SetUserSummonedNPCInfo 3230c1a0 region)	
+32c863a0	CH2d0	helper: trap summon info, called only from CX2Game summon code @3230c8b6 (SetUserSummonedNPCInfo 3230c1a0 region)	
+32c87860	CH2d0	helper: trap summon info, called only from CX2Game summon code @3230bbbd (SetUserSummonedNPCInfo 3230c1a0 region)	
+32c878f0	CH2d0	helper: trap summon info, called only from CX2Game summon code @3230c712 (SetUserSummonedNPCInfo 3230c1a0 region)	
+32ca6cd0	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32c9aae0	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32c9a810	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32c9aa60	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32cb5df0	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32cb5060	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32cb5310	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32cb5390	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32cb5550	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32cb56d0	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32cb5810	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32cb5a00	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32cb5a60	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32cb5c60	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	
+32c83580	CH1o	helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it	
+32c6dbd0	CH1o	helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it	
+32c6dd10	CH1o	helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it	
+32c6ddc0	CH1o	helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it	
+32c85b20	CH1o	helper: class function called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c), as Raven 32c3d1c0: read it	
+32c883d0	CH1q	natural force / ADD_RENA_SYSTEM: Init (0x40): NF part + the rest	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23791 CX2GULire_ElvenRanger::Init
+32c85260	CH1q	natural force / ADD_RENA_SYSTEM: SetSpecificValueByBuffTempletID (0x24c): BTI 5 / 822	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23815 CX2GULire_ElvenRanger::SetSpecificValueByBuffTempletID
+32c85290	CH1q	natural force / ADD_RENA_SYSTEM: UnSetSpecificValueByBuffTempletID (0x250)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23835 CX2GULire_ElvenRanger::UnSetSpecificValueByBuffTempletID
+32c6d4a0	CH1q	natural force / ADD_RENA_SYSTEM: AdjustDamageDataBeforeDamageReact (0x300): June empty (ret 4)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23858 CX2GULire_ElvenRanger::AdjustDamageDataBeforeDamageReact
+32c87780	CH1q	natural force / ADD_RENA_SYSTEM: CheckDamageRelateSkillData (0x420)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23947 CX2GULire_ElvenRanger::CheckDamageRelateSkillData
+32c86740	CH1q	natural force / ADD_RENA_SYSTEM: DeleteDamageRelateSkillData (0x424)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23989 CX2GULire_ElvenRanger::DeleteDamageRelateSkillData
+32c858c0	CH1q	natural force / ADD_RENA_SYSTEM: CheckDamageRelateComboData	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23967 CX2GULire_ElvenRanger::CheckDamageRelateComboData
+32cb5d10	CH1q	natural force / ADD_RENA_SYSTEM: called by CheckDamageRelateSkillData 32c87780 (also engine 3213681e / 3247cfc9: generic code)	
+32ca7130	CH1q	natural force / ADD_RENA_SYSTEM: AttackResultByType (0x4e0)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23599 CX2GULire_ElvenRanger::AttackResultByType
+32ca7060	CH1q	natural force / ADD_RENA_SYSTEM: CreateGageData (0xd0)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23580 CX2GULire_ElvenRanger::CreateGageData
+32c89230	CH1q	natural force / ADD_RENA_SYSTEM: 0x744 (base 3204da60): writes the NF gauge (32a317d0 SetChanged, 32a36df0 SetNow)	
+32c9f7a0	CH1q	natural force / ADD_RENA_SYSTEM: ConsumeNaturalForce (June also UpNowMp n x +0x97e0)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23710 CX2GULire_ElvenRanger::ConsumeNaturalForce
+32c89200	CH1q	natural force / ADD_RENA_SYSTEM: SetNaturalForceCount	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23757 CX2GULire_ElvenRanger::SetNaturalForceCount
+32c85200	CH1q	natural force / ADD_RENA_SYSTEM: SetNaturalForceBuff (June stacks BFI 355 per point)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23766 CX2GULire_ElvenRanger::SetNaturalForceBuff
+32c7fdf0	CH1q	natural force / ADD_RENA_SYSTEM: GetNaturalForceBuff	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23783 CX2GULire_ElvenRanger::GetNaturalForceBuff
+32c9f830	CH1q	natural force / ADD_RENA_SYSTEM: SetNaturalForceEffect	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23871 CX2GULire_ElvenRanger::SetNaturalForceEffect
+32c9fa50	CH1q	natural force / ADD_RENA_SYSTEM: UpdateNaturalForceEffect (also inline in CommonFrameMove 32ca8bf0)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23916 CX2GULire_ElvenRanger::UpdateNaturalForceEffect
+32cb50c0	CH1q	natural force / ADD_RENA_SYSTEM: GetNaturalForceCount (out of line in June: callers ApplyHyperModeBuff 322985fa, NPC AttackResultByType 327745ec / 327745f7)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23722 CX2GULire_ElvenRanger::GetNaturalForceCount
+32cb50e0	CH1q	natural force / ADD_RENA_SYSTEM: IsEmptyNaturalForce (caller NPC AttackResultByType 327745b9)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23741 CX2GULire_ElvenRanger::IsEmptyNaturalForce
+32cb6290	CH1q	natural force / ADD_RENA_SYSTEM: UpNaturalForce (callers ApplyHyperModeBuff 3229862d, F7 training key 322ed57f)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23730 CX2GULire_ElvenRanger::UpNaturalForce
+32c6df30	CH1q	natural force / ADD_RENA_SYSTEM: LESI_WALK Start (March WalkStart exists only under ADD_RENA_SYSTEM)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:5856 CX2GULire_ElvenRanger::WalkStart
+32c6e120	CH1q	natural force / ADD_RENA_SYSTEM: LESI_DASH Start: June = Rena's DashStart (flag-on arm), not CX2GUUser::DashStart (flag-off arm)	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:6168 CX2GULire_ElvenRanger::DashStart
+32c6ac20	CH1q	natural force / ADD_RENA_SYSTEM: LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX Start	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:6938 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_StateStart
+32c6e590	CH1q	natural force / ADD_RENA_SYSTEM: LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX EventProcess	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:6945 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_EventProcess
+32c8b2c0	CH1q	natural force / ADD_RENA_SYSTEM: LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX FrameMove	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:6959 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_FrameMove
+32c6b280	CH1q	natural force / ADD_RENA_SYSTEM: LESI_DASH_JUMP_COMBO_X3 / SNIPING_RANGER_DASH_JUMP_COMBO_X3 Start	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:11879 CX2GULire_ElvenRanger::DashJumpComboX3StateStart
+32c6c130	CH1q	natural force / ADD_RENA_SYSTEM: LESI_LGA_ZZXX Start	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:16891 CX2GULire_ElvenRanger::LESI_LGA_ZZXX_StateStart

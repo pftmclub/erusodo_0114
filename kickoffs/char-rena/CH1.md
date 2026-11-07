@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-rena CH1` |
 | Plan doc | `JUNE_CHARACTER_RENA_PHASES.md` (branch `main`) |
-| Depends on | CH1q review; CH0b done (any motion koms CH0 held are packed and held for this phase) |
+| Depends on | CH1q2 review (CH0 split); CH0b done (the 5 class motions CH0 held are packed and held for this phase) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE` (defined here), `SERV_IRUHADEV_JUNE_CHAR_RENA_CORE`, `SERV_IRUHADEV_JUNE_CHAR_RENA_NF` |
 | Log tag | `[JUNE_CHAR]` (`RENA DATA`, `RENA CORE`, `RENA NF`) |
 | Review | `kickoffs/char-rena/CH1-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -43,6 +43,6 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): intro L14 character script Lire_ElvenRanger.lua feeds SetDamageDataFromLUA; §7h L423 EFFECT_SET_LIST_* variants (_FINAL / _FINAL_ULTIMATE); §7h L427 USEFUL_VALUE rows and getters; §7o L507 SET_LIMIT_MAX_G_SPEED in <prefix>DAMAGE_BOUNDING_DOWN (-4000) and Rave; §7p L548 TIME_STOP_IMMUNE_STATE = TRUE in the class script; §7t L592 SHOW_HYPER_CUT_IN_TIME in the class script; §7x L669 combo hits carry June's AT_COMMAND tag; adopt the script with its tags; §7ad L753 stage June Motion_Lire* files with the class script; Lire's ComboX3 / .

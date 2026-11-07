@@ -1,4 +1,4 @@
-# June character Rena (Stage 7) - Phase CH1d - Class core: ground combos
+# June character Rena (Stage 7) - Phase CH1d - Class core: Rena ground combos (`LESI_COMBO*`)
 
 | | |
 |---|---|
@@ -14,13 +14,13 @@
 ```sh
 python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md --no-sub "Rules" "Phase CH0 - Rena map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
 python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md "CH1d - Done" "CH1d - Review"
-awk -F'\t' '$7=="CH1d"' june2017_re/char_rena/ch0_class_map.tsv   # column as Raven's; CH0's amendment corrects it
+awk -F'\t' '$7=="CH1d"' june2017_re/char_rena/ch0_class_map.tsv   # column 7 = phase (CH0 checked)
 ```
 Then CH0's Done note and the earlier Rena CH1 Done notes / reviews (their routed gaps). Raven's matching sub-phase is the worked example.
 
 ## Task
 
-Transcribe every function the class map gives phase `CH1d` (Rena ground combos (19 `LESI_COMBO*`) and the base dash / jump combos CH0 assigns) from Ghidra, **whole**. The plan's "Transcription rules (CH1a-CH1k)" apply:
+Transcribe every function the class map gives phase `CH1d` (Rena ground combos `LESI_COMBO*`) from Ghidra, **whole**. The plan's "Transcription rules (CH1a-CH1k)" apply:
 - **`inside` rows:** June's body inside March's `CX2GULire_ElvenRanger` function under `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, March's body in `#else`,
   `#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`. Add `_LIVE` to `Always.h` as `//#define` if no earlier phase did. Prove the June path compiles: one `cl /c` of
   `X2GULire_ElvenRanger.cpp` with `/DSERV_IRUHADEV_JUNE_CHAR_RENA_LIVE` (the build's own flags), result in the Done note.
@@ -50,6 +50,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 38** (`awk -F'\t' '$7=="CH1d"' june2017_re/char_rena/ch0_class_map.tsv`; inside 35, new 3).
+  June addresses: `32c6b0b0` `32c6b0c0` `32c6b0d0` `32c6b0e0` `32c6b0f0` `32c6b100` `32c6b110` `32c6b120` `32c6f610` `32c6f670` `32c6fa80` `32c6fae0` `32c700b0` `32c70110` `32c706a0` `32c70700` `32c70980` `32c70c00` `32c70c60` `32c70ee0` `32c712f0` `32c71700` `32c71bc0` `32c71e40` `32c720c0` `32c7bdd0`(new ?) `32c7fe20`(new ?) `32c84340` `32c843b0` `32c84420` `32c85330`(new ?) `32c8d390` `32c8d850` `32c8dd00` `32c8e0c0` `32c8e8b0` `32c8ec70` `32c8f6d0`.
+- **States: 12** (`awk -F'\t' '$8=="CH1d"' june2017_re/char_rena/ch0_state_skill.tsv`): `LESI_COMBO_Z1`, `LESI_COMBO_Z2`, `LESI_COMBO_Z3`, `LESI_COMBO_Z4`, `LESI_COMBO_Z4a`, `LESI_COMBO_Z4UP`, `LESI_COMBO_X1`, `LESI_COMBO_X2`, `LESI_COMBO_X3`, `LESI_COMBO_X4`, `LESI_COMBO_X4UP`, `LESI_COMBO_X4DOWN`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, LIRE_ELVENRANGE; §7x L669 combo hits carry June's AT_COMMAND tag; adopt the script with its tags.
+- **Natural-force / combo-revamp rows** (`ch0_nf.tsv` col 8 = `CH1d`): 15; March blocks under `ADD_RENA_SYSTEM` inside your functions stay dead, June's NF lines go under `_NF`.

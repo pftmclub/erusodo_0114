@@ -39,6 +39,7 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §5 L183-L198 per-character parser census; §7l L472 bounding user states USI_BOUNDING_DOWN / _LANDCRASH / _UP in every cla; §7ag L807 pressed-index space 5 + 5: CommonSpecialAttackEventProcess and every >.
+- CH0 found no June-only key for this phase: `BOW_SKILL_STATE` is CH1j + CH4b, `IMMUNE_TO_SUPER_ARMOR_DOWN` is routed to backlog Stage 2 (per-state immunity lists, reader `31fdaaa0`). Scope: 7ag and the hooks 7h / 7l / 7o / 7p / 7x as the plan says.

@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-rena CH1e` |
 | Plan doc | `JUNE_CHARACTER_RENA_PHASES.md` (branch `main`) |
-| Depends on | CH1d review. One at a time with CH1a-CH1k: they all edit `X2GULire_ElvenRanger.*` |
+| Depends on | CH1d2 review (CH0 split). One at a time with CH1a-CH1k: they all edit `X2GULire_ElvenRanger.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | `kickoffs/char-rena/CH1e-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -14,7 +14,7 @@
 ```sh
 python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md --no-sub "Rules" "Phase CH0 - Rena map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
 python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md "CH1e - Done" "CH1e - Review"
-awk -F'\t' '$7=="CH1e"' june2017_re/char_rena/ch0_class_map.tsv   # column as Raven's; CH0's amendment corrects it
+awk -F'\t' '$7=="CH1e"' june2017_re/char_rena/ch0_class_map.tsv   # column 7 = phase (CH0 checked)
 ```
 Then CH0's Done note and the earlier Rena CH1 Done notes / reviews (their routed gaps). Raven's matching sub-phase is the worked example.
 
@@ -50,6 +50,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 29** (`awk -F'\t' '$7=="CH1e"' june2017_re/char_rena/ch0_class_map.tsv`; inside 22, new 7).
+  June addresses: `32c6bf40` `32c6bfa0` `32c6c120` `32c6e2e0` `32c6e390` `32c72850` `32c72bc0` `32c73d10` `32c73e10` `32c73f10` `32c770a0` `32c77370` `32c776d0` `32c77710` `32c77980` `32c779c0` `32c77c50` `32c782f0` `32c78610` `32c78e40` `32c7feb0`(new LESI_RCR_COMBO_XXZ_EventProcess) `32c80200`(new LESI_RCR_COMBO_XXZZ_EventProcess) `32c80480`(new LESI_RCR_COMBO_XXZZ_LANDING_EventProcess) `32c807c0`(new LESI_RCR_COMBO_XXZZZ_EventProcess) `32c80a40`(new LESI_RWS_DASH_JUMP_XXZ_START_EventProcess) `32c80c70`(new LESI_RWS_DASH_JUMP_XXZ_LOOP_EventProcess) `32c80e80`(new LESI_RWS_DASH_JUMP_XXZ_END_EventProcess) `32c84510` `32c84590`.
+- **States: 31** (`awk -F'\t' '$8=="CH1e"' june2017_re/char_rena/ch0_state_skill.tsv`): `LESI_LCR_START`, `LESI_LCR_WIN`, `LESI_LCR_WIN2`, `LESI_LCR_LOSE`, `LESI_LCR_LOSE2`, `LESI_LWS_START`, `LESI_LWS_WIN`, `LESI_LWS_WIN2`, `LESI_LWS_LOSE`, `LESI_LWS_LOSE2`, `LESI_RCR_COMBO_XXZ`, `LESI_RCR_COMBO_XXZZ`, `LESI_RCR_COMBO_XXZZ_LANDING`, `LESI_RCR_COMBO_XXZZZ`, `LESI_COMBAT_RANGER_DASH_COMBO_Z1`, `LESI_COMBAT_RANGER_DASH_COMBO_Z2`, `LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z`, `LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z_UP`, `LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1`, `LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z2`, `LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z3`, `LESI_LWS_ZZfrontZ`, `LESI_LWS_ZZfrontZZ`, `LESI_LWS_ZZfrontZZZ`, `LESI_LWS_ZZfrontZZZ_Landing`, `LESI_LWS_DASH_XZ`, `LESI_LWS_DASH_XZZ`, `LESI_RWS_DASH_JUMP_XXZ_START`, `LESI_RWS_DASH_JUMP_XXZ_LOOP`, `LESI_RWS_DASH_JUMP_XXZ_END`, `LESI_SA_LCR_LOW_KICK`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, LIRE_ELVENRANGE.
+- **Natural-force / combo-revamp rows** (`ch0_nf.tsv` col 8 = `CH1e`): 10; March blocks under `ADD_RENA_SYSTEM` inside your functions stay dead, June's NF lines go under `_NF`.

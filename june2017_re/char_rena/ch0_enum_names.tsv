@@ -1,0 +1,134 @@
+# skill ids: 130 distinct (Rena tree rows of the s3 run, family X2GULire_ElvenRanger.cpp); June names: Enum.src.lua SKILL_ID (2407 names); March C++: X2SkillTree.h SKILL_ID live branch via cl /P (1246 names); core: live data036_kom/Enum.lua SKILL_ID (805 names)
+# tally: core:absent 68, core:name 62, lookalike 1, name 8, none 121
+# cpp_enum: name = same name+value live; lookalike = RNSI_ -> SI_ name live; value-only = other live name at the value; none = no live member at the value. cpp_state: live / DEAD-BRANCH / COMMENTED / absent
+kind	june_name	june_value	june_enum_line	cpp_enum	cpp_h_line	cpp_state	core_enum_lua	core_line	skill_type	tree_classes	templet_name	note
+skill	RNSI_P_COMMON_HYPER_AURA	106	15375	name	1918	live	absent		1	102,103,114	Awakened One	march live names at value: RNSI_P_COMMON_HYPER_AURA
+skill	SI_ETC_WS_COMMON_LOVE	900	16050	name	132	live	absent		12	3,12,13,24,102,103,114	Extreme Heavenly Love	march live names at value: SI_ETC_WS_COMMON_LOVE
+skill	RNSI_SA_RENA_RAIL_STINGER	23000	15797	none		absent	name	12652	14	3,12,13,24,102,103,114	Rail Stinger	
+skill	RNSI_SA_RENA_PERFECT_STORM	23001	15035	none		absent	name	12650	15	3,12,13,24,102,103,114	Perfect Storm	
+skill	RNSI_SA_RENA_AERO_TORNADO	23002	15664	none		absent	name	12648	16	3,12,13,24,102,103,114	Aero Tornado	
+skill	RNSI_SA_RENA_ASSAULT_KICK	23003	15823	none		absent	name	12649	14	3,12,13,24,102,103,114	Assault Kick	
+skill	RNSI_SA_RENA_PHOENIX_STRIKE	23004	15314	none		absent	name	12651	16	3,12,13,24,102,103,114	Phoenix Strike	
+skill	RNSI_SA_RCR_CRESCENT_KICK	23005	15062	none		absent	name	12642	15	12,102	Crescent Kick	
+skill	RNSI_SA_RCR_SPINNING_KICK	23006	15625	none		absent	name	12847	14	12,102	Spinning Kick	
+skill	RNSI_SA_RCR_DIVE_KICK_BOMBING	23007	14603	none		absent	name	12644	16	12,102	Dive Kick Bombing	
+skill	RNSI_SA_RWS_VIOLENT_ATTACK	23008	15645	none		absent	name	12744	16	102	Violent Attack	
+skill	RNSI_SA_RWS_SHARPFALL	23009	14698	none		absent	name	12740	15	102	Sharp Fall	
+skill	RNSI_SA_RWS_AIRELINNA	23010	15125	none		absent	name	12738	15	102	Airelinna	
+skill	RNSI_SA_RWS_SLIDE_KICK	23011	14609	none		absent	name	12741	14	102	Slide Double Kick	
+skill	RNSI_SA_RSR_GUIDED_ARROW	23012	16137	none		absent	name	12714	15	13,103	Guided Arrow	
+skill	RNSI_SA_RSR_WINDWARD	23013	15379	none		absent	name	12718	14	13,103	Wind Wall	
+skill	RNSI_SA_RSR_CRAZY_SHOT	23014	14957	none		absent	name	12712	16	13,103	Crazy Shot	
+skill	RNSI_SA_RGA_GUNGNIR	23015	14904	name	1673	live	name	12672	16	103	Gungnir	march live names at value: RNSI_SA_RGA_GUNGNIR
+skill	RNSI_SA_RGA_WIND_BLAST	23016	16058	none		absent	name	12673	15	103	Wind Blast	
+skill	RNSI_SA_RGA_AERO_STRAFE	23017	15977	none		absent	name	12668	15	103	Aero Strafe	
+skill	RNSI_SA_RGA_FREEZING_ARROW	23018	15671	none		absent	name	12671	14	103	Freezing Arrow - Sting	
+skill	RNSI_SA_RTR_FATALITY	23019	16375	none		absent	name	12723	15	24,114	Fatality	
+skill	RNSI_SA_RTR_HUMMING_WIND	23020	16475	none		absent	name	12724	14	24,114	Humming Wind	
+skill	RNSI_SA_RTR_KARMA	23021	14877	none		absent	name	12725	16	24,114	Karma	
+skill	RNSI_SA_RNW_CALL_OF_RUIN	23022	14278	none		absent	name	12684	16	114	Call of Ruin	
+skill	RNSI_SA_RNW_GLIDING_STRIKE	23023	15394	none		absent	name	12686	15	114	Gliding Strike	
+skill	RNSI_SA_RNW_TRAPPING_ARROW_FUNGUS	23024	16605	none		absent	name	12689	15	114	Trapping Arrow - Fungus	
+skill	RNSI_SA_RNW_FURIOUS_ENGAGE	23025	14916	none		absent	name	12848	14	114	Furious Engage	
+skill	RNSI_SA_RENA_RAIL_STINGER_UPGRADE	23026	14663	none		absent	absent		14	3,12,13,24,102,103,114	#Cffcc00[Enhanced]#CX\nRail Stinger	
+skill	RNSI_SA_RENA_PERFECT_STORM_UPGRADE	23027	15728	none		absent	absent		15	3,12,13,24,102,103,114	#Cffcc00[Enhanced]#CX\nPerfect Storm	
+skill	RNSI_SA_RENA_AERO_TORNADO_UPGRADE	23028	14976	none		absent	absent		16	3,12,13,24,102,103,114	#Cffcc00[Enhanced]#CX\nAero Tornado	
+skill	RNSI_SA_RENA_ASSAULT_KICK_UPGRADE	23029	14311	none		absent	absent		14	3,12,13,24,102,103,114	#Cffcc00[Enhanced]#CX\nAssault Kick	
+skill	RNSI_SA_RENA_PHOENIX_STRIKE_UPGRADE	23030	14986	none		absent	absent		16	3,12,13,24,102,103,114	#Cffcc00[Enhanced]#CX\nPhoenix Strike	
+skill	RNSI_SA_RCR_CRESCENT_KICK_UPGRADE	23031	14719	none		absent	absent		15	12,102	#Cffcc00[Enhanced]#CX\nCrescent Kick	
+skill	RNSI_SA_RSR_GUIDED_ARROW_UPGRADE	23032	14880	none		absent	absent		15	13,103	#Cffcc00[Enhanced]#CX\nGuided Arrow	
+skill	RNSI_SA_RTR_FATALITY_UPGRADE	23033	14370	none		absent	absent		15	24,114	#Cffcc00[Enhanced]#CX\nFatality	
+skill	RNSI_SA_RCR_SPINNING_KICK_UPGRADE	23034	16400	none		absent	absent		14	12,102	#Cffcc00[Enhanced]#CX\nSpinning Kick	
+skill	RNSI_SA_RSR_WINDWARD_UPGRADE	23035	15856	none		absent	absent		14	13,103	#Cffcc00[Enhanced]#CX\nWind Wall	
+skill	RNSI_SA_RTR_HUMMING_WIND_UPGRADE	23036	15972	none		absent	absent		14	24,114	#Cffcc00[Enhanced]#CX\nHumming Wind	
+skill	RNSI_SA_RWS_SPINNING_CRESCENT	23037	15101	none		absent	name	12742	14	102	Spinning Crescent	
+skill	RNSI_SA_RWS_GYRO_KICK	23038	15975	none		absent	name	12739	15	102	Gyro Kick	
+skill	RNSI_SA_RGA_BLAST_ARROW	23039	14541	none		absent	name	12669	14	103	Blast Arrow	
+skill	RNSI_SA_RGA_CUTLASS_WIND	23040	16205	none		absent	name	12670	15	103	Cutlass Wind	
+skill	RNSI_SA_RNW_SEED_OF_RUIN_POLE	23041	16264	none		absent	name	12688	14	114	Seed of Wrath: Icicle	
+skill	RNSI_SA_RNW_RAGE_FUNGUS	23042	15249	none		absent	name	12687	15	114	Rage Fungus	
+skill	RNSI_SA_RCR_DIVE_KICK_BOMBING_UPGRADE	23043	16019	none		absent	absent		16	12,102	#Cffcc00[Enhanced]#CX Dive Kick Bombing	
+skill	RNSI_SA_RWS_VIOLENT_ATTACK_UPGRADE	23044	14606	none		absent	absent		16	102	#Cffcc00[Enhanced]#CX Violent Attack	
+skill	RNSI_SA_RWS_SHARPFALL_UPGRADE	23045	15247	none		absent	absent		15	102	#Cffcc00[Enhanced]#CX Sharp Fall	
+skill	RNSI_SA_RWS_AIRELINNA_UPGRADE	23046	15677	none		absent	absent		15	102	#Cffcc00[Enhanced]#CX Airelinna	
+skill	RNSI_SA_RWS_SLIDE_KICK_UPGRADE	23047	14458	none		absent	absent		14	102	#Cffcc00[Enhanced]#CX Slide Double Kick	
+skill	RNSI_SA_RSR_CRAZY_SHOT_UPGRADE	23048	14472	none		absent	absent		16	13,103	#Cffcc00[Enhanced]#CX Crazy Shot	
+skill	RNSI_SA_RGA_GUNGNIR_UPGRADE	23049	15955	none		absent	absent		16	103	#Cffcc00[Enhanced]#CX Gungnir	
+skill	RNSI_SA_RGA_WIND_BLAST_UPGRADE	23050	14798	none		absent	absent		15	103	#Cffcc00[Enhanced]#CX Wind Blast	
+skill	RNSI_SA_RGA_AERO_STRAFE_UPGRADE	23051	16357	none		absent	absent		15	103	#Cffcc00[Enhanced]#CX Aero Strafe	
+skill	RNSI_SA_RGA_FREEZING_ARROW_UPGRADE	23052	14272	none		absent	absent		14	103	#Cffcc00[Enhanced]#CX Freezing Arrow	
+skill	RNSI_SA_RTR_KARMA_UPGRADE	23053	16151	none		absent	absent		16	24,114	#Cffcc00[Enhanced]#CX Karma	
+skill	RNSI_SA_RNW_CALL_OF_RUIN_UPGRADE	23054	15261	none		absent	absent		16	114	#Cffcc00[Enhanced]#CX Call of Ruin	
+skill	RNSI_SA_RNW_GLIDING_STRIKE_UPGRADE	23055	14521	none		absent	absent		15	114	#Cffcc00[Enhanced]#CX Gliding Strike	
+skill	RNSI_SA_RNW_TRAPPING_ARROW_FUNGUS_UPGRADE	23056	16349	none		absent	absent		15	114	#Cffcc00[Enhanced]#CX Trapping Arrow - Fungus	
+skill	RNSI_SA_RNW_FURIOUS_ENGAGE_UPGRADE	23057	14328	none		absent	absent		14	114	#Cffcc00[Enhanced]#CX Furious Engage	
+skill	RNSI_SA_RWS_TEMPEST	23058	15153	none		absent	name	12743	16	102	Tempest	
+skill	RNSI_SA_RGA_ACEINTHEHOLE	23059	15840	none		absent	name	12667	16	103	Ace in the Hole	
+skill	RNSI_SA_RNW_ERADICATION	23060	15953	none		absent	name	12685	16	114	Eradication	
+skill	RNSI_A_RENA_BACKJUMP_SHOT	23200	14638	none		absent	name	12200	6	3,12,13,24,102,103,114	Backflip Shot	
+skill	RNSI_A_RENA_SIEGEMODE	23201	15146	none		absent	name	12201	6	3,12,13,24,102,103,114	Siege Mode	
+skill	RNSI_A_RCR_RISING_FALCON	23202	14490	none		absent	name	12198	6	12,102	Rising Falcon	
+skill	RNSI_A_RCR_BACK_KICK	23203	15604	none		absent	name	12193	6	12,102	Back Kick	
+skill	RNSI_A_RCR_LOW_KICK	23204	14907	none		absent	name	12197	6	12,102	Low Kick	
+skill	RNSI_A_RWS_NATURE_FORCE	23205	16431	none		absent	name	12249	6	102	Nature's Force	
+skill	RNSI_A_RCR_ASSAULT_IMPACT	23206	15608	none		absent	name	12192	6	12,102	Assault Impact	
+skill	RNSI_A_RWS_REFLEX_MAGIC	23207	14597	none		absent	name	12251	6	102	Reflective Kick	
+skill	RNSI_A_RSR_ARC_SHOT	23208	15000	none		absent	name	12229	6	13,103	Arc Shot	
+skill	RNSI_A_RSR_SHOOTING_MAGNUM	23209	16289	none		absent	name	12236	6	13,103	Shooting Magnum	
+skill	RNSI_A_RSR_MIND_OF_SHARPSHOOTER	23210	16396	none		absent	name	12232	6	13,103	Hunter's Steadiness	
+skill	RNSI_A_RGA_STIGMA_ARROW	23211	14751	none		absent	name	12210	6	103	Stigma Shot	
+skill	RNSI_A_RSR_RAPID_SHOT	23212	14595	none		absent	name	12235	6	13,103	Rapid Shot	
+skill	RNSI_A_RGA_ENTANGLE	23213	14984	name	1674	live	name	12208	6	103	Invisible Trap	march live names at value: RNSI_A_RGA_ENTANGLE
+skill	RNSI_A_RTR_EXPLOSION_TRAP	23214	15865	none		absent	name	12241	6	24,114	Explosive Trap	
+skill	RNSI_A_RTR_ROSEBUSH_TRAP	23215	14968	none		absent	name	12242	6	24,114	Briar Trap	
+skill	RNSI_A_RTR_ANGER_OF_ELF	23216	15188	name	1675	live	name	12239	6	24,114	Eldrasil's Fury	march live names at value: RNSI_A_RTR_ANGER_OF_ELF
+skill	RNSI_A_RNW_DELAYED_FIRE	23217	15896	none		absent	name	12216	6	114	Delayed Fire	
+skill	RNSI_A_RTR_EVOKE	23218	16306	name	1676	live	name	12240	6	24,114	Evoke	march live names at value: RNSI_A_RTR_EVOKE
+skill	RNSI_A_RNW_SEED_OF_RUIN	23219	14463	lookalike		absent	name	12217	6	114	Seed of Wrath	
+skill	RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE	23220	14723	none		absent	absent		6	3,12,13,24,102,103,114	#Cffcc00[Enhanced]#CX\nBackflip Shot	
+skill	RNSI_A_RENA_SIEGEMODE_UPGRADE	23221	15659	none		absent	absent		6	3,12,13,24,102,103,114	#Cffcc00[Enhanced]#CX\nSiege Mode	
+skill	RNSI_A_RCR_RISING_FALCON_UPGRADE	23222	16052	none		absent	absent		6	12,102	#Cffcc00[Enhanced]#CX\nRising Falcon	
+skill	RNSI_A_RSR_ARC_SHOT_UPGRADE	23223	15399	none		absent	absent		6	13,103	#Cffcc00[Enhanced]#CX\nArc Shot	
+skill	RNSI_A_RTR_EXPLOSION_TRAP_UPGRADE	23224	16267	none		absent	absent		6	24,114	#Cffcc00[Enhanced]#CX\nExplosive Trap	
+skill	RNSI_A_RWS_PAIN	23225	15771	none		absent	name	12250	6	102	Maximum Pain	
+skill	RNSI_A_RGA_ONE_TARGET_SHOT	23226	15729	none		absent	name	12209	6	103	Point Fire	
+skill	RNSI_A_RNW_BUTTERFLY	23227	15781	none		absent	name	12215	6	114	Butterfly	
+skill	RNSI_A_RCR_BACK_KICK_UPGRADE	23228	14465	none		absent	absent		6	12,102	#Cffcc00[Enhanced]#CX Back Kick	
+skill	RNSI_A_RCR_LOW_KICK_UPGRADE	23229	15602	none		absent	absent		6	12,102	#Cffcc00[Enhanced]#CX Low Kick	
+skill	RNSI_A_RWS_NATURE_FORCE_UPGRADE	23230	15457	none		absent	absent		6	102	#Cffcc00[Enhanced]#CX Nature's Force	
+skill	RNSI_A_RCR_ASSAULT_IMPACT_UPGRADE	23231	15817	none		absent	absent		6	12,102	#Cffcc00[Enhanced]#CX Assault Impact	
+skill	RNSI_A_RWS_REFLEX_MAGIC_UPGRADE	23232	15963	none		absent	absent		6	102	#Cffcc00[Enhanced]#CX Reflective Kick	
+skill	RNSI_A_RSR_SHOOTING_MAGNUM_UPGRADE	23233	15879	none		absent	absent		6	13,103	#Cffcc00[Enhanced]#CX Shooting Magnum	
+skill	RNSI_A_RSR_MIND_OF_SHARPSHOOTER_UPGRADE	23234	14691	none		absent	absent		6	13,103	#Cffcc00[Enhanced]#CX Hunter's Steadiness	
+skill	RNSI_A_RGA_STIGMA_ARROW_UPGRADE	23235	16657	none		absent	absent		6	103	#Cffcc00[Enhanced]#CX Stigma Shot	
+skill	RNSI_A_RSR_RAPID_SHOT_UPGRADE	23236	14995	none		absent	absent		6	13,103	#Cffcc00[Enhanced]#CX Rapid Shot	
+skill	RNSI_A_RGA_ENTANGLE_UPGRADE	23237	15252	none		absent	absent		6	103	#Cffcc00[Enhanced]#CX Invisible Trap	
+skill	RNSI_A_RTR_ROSEBUSH_TRAP_UPGRADE	23238	16026	none		absent	absent		6	24,114	#Cffcc00[Enhanced]#CX Briar Trap	
+skill	RNSI_A_RTR_ANGER_OF_ELF_UPGRADE	23239	14745	none		absent	absent		6	24,114	#Cffcc00[Enhanced]#CX Eldrasil's Fury	
+skill	RNSI_A_RNW_DELAYED_FIRE_UPGRADE	23240	16149	none		absent	absent		6	114	#Cffcc00[Enhanced]#CX Delayed Fire	
+skill	RNSI_A_RTR_EVOKE_UPGRADE	23241	14605	none		absent	absent		6	24,114	#Cffcc00[Enhanced]#CX Evoke	
+skill	RNSI_A_RNW_SEED_OF_RUIN_UPGRADE	23242	16297	none		absent	absent		6	114	#Cffcc00[Enhanced]#CX Seed of Wrath	
+skill	RNSI_P_RCR_SHARP_KICK	23400	15519	none		absent	absent		8	12,102	Swift Kicks	
+skill	RNSI_P_RWS_FRIENDSHIP_OF_NATURE	23401	15989	none		absent	absent		8	102	Nature's Affinity	
+skill	RNSI_P_RWS_SOFTBODY	23402	15106	none		absent	absent		8	102	Flexible Movement	
+skill	RNSI_P_RWS_POWERFUL_SHOT	23403	15912	none		absent	absent		8	102	Power Shot	
+skill	RNSI_P_RSR_HAWK_EYE	23404	16054	none		absent	absent		8	13,103	Hawk Eye	
+skill	RNSI_P_RGA_POWERFUL_BOWSTRING	23405	14357	none		absent	absent		8	103	Arrow Mastery	
+skill	RNSI_P_RGA_COMMUNE_OF_NATURE	23406	16043	name	2129	live	absent		8	103	Nature's Sense	march live names at value: RNSI_P_RGA_COMMUNE_OF_NATURE
+skill	RNSI_P_RGA_VIBRATION_SHOOTING	23407	15681	name	2130	live	name	12314	8	103	Vibe Shot	march live names at value: RNSI_P_RGA_VIBRATION_SHOOTING
+skill	RNSI_P_RTR_HUNTERS_ABILITY	23408	16051	none		absent	absent		8	24,114	Hunter's Ability	
+skill	RNSI_P_RNW_PRIOR_PLANNED_BLOW	23409	15487	none		absent	absent		8	114	Calculated Strike	
+skill	RNSI_P_RNW_VITALPOINT_PIERCING	23410	15014	none		absent	absent		8	114	Vital Point Piercing	
+skill	RNSI_P_RNW_SHARPEN_ARROW	23411	15795	none		absent	absent		8	114	Sharpen Arrow	
+skill	RNSI_P_RWS_OPEN_MIND	23412	15425	none		absent	absent		8	102	Awakened Will: Wind Sneaker	
+skill	RNSI_P_RWS_PERSISTENT_MIND	23413	16097	none		absent	absent		8	102	Tenacious Will	
+skill	RNSI_P_RGA_OPEN_MIND	23414	14736	none		absent	absent		8	103	Awakened Will: Grand Archer	
+skill	RNSI_P_RGA_RANDOM_SHOT_PLEASURE	23415	15211	none		absent	absent		8	103	Rapid Archer	
+skill	RNSI_P_RNW_OPEN_MIND	23416	15824	none		absent	absent		8	114	Awakened Will: Night Watcher	
+skill	RNSI_P_RNW_PREDATOR	23417	16314	none		absent	absent		8	114	Predator	
+skill	RNSI_HA_RWS_SPIRAL_STRIKE	23600	15925	none		absent	name	12303	13	102	Spiral Strike	
+skill	RNSI_HA_RGA_SHOOTER_DESTINY	23601	15009	none		absent	name	12297	13	103	Shooter's Destiny	
+skill	RNSI_HA_RLW_INNOCENT	23602	14669	none		absent	name	12298	13	114	Innocent	
+skill	RNSI_HA_RWS_SPIRAL_STRIKE_UPGRADE	23603	14709	none		absent	absent		13	102	#Cffcc00[Enhanced]#CX\nSpiral Strike	
+skill	RNSI_HA_RGA_SHOOTER_DESTINY_UPGRADE	23604	15679	none		absent	absent		13	103	#Cffcc00[Enhanced]#CX\nHunter's Destiny	
+skill	RNSI_HA_RLW_INNOCENT_UPGRADE	23605	15468	none		absent	absent		13	114	#Cffcc00[Enhanced]#CX\nInnocent	

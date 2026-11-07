@@ -39,6 +39,7 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7t L594 June UnitTemplet.lua m_HyperCutIn / m_BerserkCutIn keys and the HQ_Cut; §7t L620 skill cut-in names -> June .gfx: June HQ_CutIn_Rena_*; March HQ_CutIn_; §7ao L951 every class also brings: emulator allow-list id, LevelUpEvent TYPE row.
+- `ch0_unittemplet_rena.tsv`: every class adds `m_fLobbyRotationY` (30 / 30 / 25 / 1 / 30 / 20 / 10 for 3 / 12 / 13 / 24 / 102 / 103 / 114); 102 / 103 / 114 add `m_HyperCutIn` `HQ_Cutin_RWS/RGA/RNW_Transcendence` and change `name` `STR_ID_616` -> `STR_ID_4783` / `_4784` / `_17429` ("Wind Sneaker", "Grand Archer " with a trailing space, "Night Watcher": all in `general.ess` and `StringID_def`).

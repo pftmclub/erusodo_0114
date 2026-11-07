@@ -41,6 +41,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 2** (`awk -F'\t' '$7=="CH1n"' june2017_re/char_rena/ch0_class_map.tsv`; inside 1, new 1).
+  June addresses: `32cb06d0` `32cb5760`(new ?).
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7b L328 skill-memo entry 31fdbbb0 and the class callers of 31fdbcc0; §7i L444 SetEquippedSkillFuncBySkillSlotIndex Lire 32cb06d0: drop the snapshot ; §7ae L726 types 14-16 / 17 / 18 named in the class switch.
+- `32cb06d0` has three switches (skill type: byte tbl `32cb3004` / jump tbl `32cb2ff4`; base-id chain with the 6-case hyper switch, jump tbl `32cb31e0`; skill-id switch: byte tbl `32cb30fc` / jump tbl `32cb3010`): `ch0_skill_listing_rows.tsv` 157 rows, 111 ids with events; 19 ids (106, 23400-23417; types 1 / 8) leave at the type switch. The default branch plays `LESI_SI_LE_POWER_ATTACK1` (CH2a).

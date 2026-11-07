@@ -39,6 +39,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 5** (`awk -F'\t' '$7=="CH1o"' june2017_re/char_rena/ch0_class_map.tsv`; new 5).
+  June addresses: `32c6dbd0`(new ?) `32c6dd10`(new ?) `32c6ddc0`(new ?) `32c83580`(new ?) `32c85b20`(new ?).
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L286 SetSkillLevelStateData hoisted into CX2GUUser; March copy X2GULire_Elv.
+- **Callees this Opus phase maps itself** (`ch0_unmapped_identified.tsv`): `31c8a5c0` ? June-only: looks a name up in the mesh-player templet map (31cda540), then cop.
+- Five class functions called from base code (31fef532 / 31fedfec / 31fca1be / 3229a79c): `32c83580` (+ `32c6dbd0`), `32c6dd10`, `32c6ddc0`, `32c85b20`: read each (Raven's `32c3d1c0` precedent) and give it a home. Plus `SetSkillLevelStateData` (§7 l.286, March `.cpp:22990`).

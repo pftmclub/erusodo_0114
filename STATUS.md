@@ -100,29 +100,33 @@ Plan `DEV_OVERLAY_PHASES.md` · branch `main` · log tag `[DEV_OVERLAY]` (`data\
 ## char-rena - June character port, Stage 7: Rena
 Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `RENA <sub>`: `DATA`, `CORE`, `NF`, `TRAP`, `SKILL`, `PASSIVE`, `UI`, `NUM`) · flags `SERV_IRUHADEV_JUNE_CHAR_RENA_*` (`_CORE`, `_LIVE`, `_NF`, `_TRAP`, `_SKILL`, `_TRANSCEND`, `_PASSIVE`, `_UI`, + `_DEBUG`) · kickoffs `kickoffs/char-rena/` · backlog Stage 7 · created 2026-11-07.
 
-**Scope:** Rena (`CX2GULire_ElvenRanger`, 7 classes 3 / 12 / 13 / 24 / 102 / 103 / 114) from her March kit to June 2017's, incl. natural force (`ADD_RENA_SYSTEM`, dormant; decision 1 = (a): March's code as the base), her trap summons and her transcendence rows. June class `32c6a8d0`-`32cb6c6d` (467 carved + 24 uncarved overrides, 346 `LESI_` states, 4 trap `CreateNPCReq` sites). CH0 now; code after CH0.
+**Scope:** Rena (`CX2GULire_ElvenRanger`, 7 classes 3 / 12 / 13 / 24 / 102 / 103 / 114) from her March kit to June 2017's, incl. natural force (`ADD_RENA_SYSTEM`, dormant; decision 1 = (a): March's code as the base), her trap summons and her transcendence rows. June class `32c6a8d0`-`32cb6c6d` (467 carved + 24 uncarved overrides, 346 `LESI_` states, 4 trap `CreateNPCReq` sites, 3 live). CH0 done 2026-11-07 (map in `june2017_re/char_rena/`); CH0b and CH1a can run side by side.
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0 | **ready** (start: `/x2-phase char-rena CH0`): map (class map + 24 uncarved, states / ids, checklist, assets, natural-force + trap maps, motion question, `data201` target); read-only | Opus 5.5 / high | - | `june2017_re/char_rena/`, funcmap, kickoffs | `CH0.md` |
-| CH0b | blocked (CH0): every June Rena asset staged whole (motion koms held for CH1 if June drops a name), 6 walk units, skill icons PASS | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy), save | `CH0b.md` |
-| CH1a | blocked (CH0): movement and slot-head states, `_CORE` / `_LIVE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GULire_ElvenRanger.*`, Always.h | `CH1a.md` |
+| CH0b | **ready** (start: `/x2-phase char-rena CH0b`): stage 4,762 June assets (31 koms, new data201; 5 class motions held for CH1), 2 guide Lua, 5 walk units, icons PASS | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy), save | `CH0b.md` |
+| CH1a | **ready** (start: `/x2-phase char-rena CH1a`; beside CH0b): movement and slot-head states (32 fn), `_CORE` / `_LIVE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GULire_ElvenRanger.*`, Always.h | `CH1a.md` |
 | CH1b | blocked (CH1a review): reactions (damage 21, stand-up 6, die, start, win / lose) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GULire_ElvenRanger.*` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding 27, pepper, dance | Sonnet 5.5 / high, Opus review | CH1b review | `X2GULire_ElvenRanger.*` | `CH1c.md` |
-| CH1d | blocked (CH1c review): Rena ground combos (19) | Sonnet 5.5 / high, Opus review | CH1c review | `X2GULire_ElvenRanger.*` | `CH1d.md` |
-| CH1e | blocked (CH1d review): Combat Ranger + Wind Sneaker lines | Sonnet 5.5 / high, Opus review | CH1d review | `X2GULire_ElvenRanger.*` | `CH1e.md` |
-| CH1f | blocked (CH1e review): Sniping Ranger + Grand Archer lines | Sonnet 5.5 / high, Opus review | CH1e review | `X2GULire_ElvenRanger.*` | `CH1f.md` |
-| CH1g | blocked (CH1f review): Trapping Ranger + Night Watcher lines | Sonnet 5.5 / high, Opus review | CH1f review | `X2GULire_ElvenRanger.*` | `CH1g.md` |
-| CH1h | blocked (CH1g review): overrides below vslot 0x600, DamageReact (uncarved), ctor / dtor map, 7c alpha sites | Sonnet 5.5 / high, Opus review | CH1g review | `X2GULire_ElvenRanger.*` | `CH1h.md` |
+| CH1d | blocked (CH1c review): Rena ground combos `LESI_COMBO*` (38 fn) | Sonnet 5.5 / high, Opus review | CH1c review | `X2GULire_ElvenRanger.*` | `CH1d.md` |
+| CH1d2 | blocked (CH1d review): dash / jump combos + 7 base jump / dash attacks (36 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1d review | `X2GULire_ElvenRanger.*` | `CH1d2.md` |
+| CH1e | blocked (CH1d2 review): Combat Ranger + Wind Sneaker lines (29 fn) | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GULire_ElvenRanger.*` | `CH1e.md` |
+| CH1f | blocked (CH1e review): Sniping Ranger line `SNIPING` / `SIEGE` / `LSR` / `RSR` (43 fn) | Sonnet 5.5 / high, Opus review | CH1e review | `X2GULire_ElvenRanger.*` | `CH1f.md` |
+| CH1f2 | blocked (CH1f review): Grand Archer line `LGA` / `RGA` (37 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1f review | `X2GULire_ElvenRanger.*` | `CH1f2.md` |
+| CH1g | blocked (CH1f2 review): Trapping Ranger line `RTR` (46 fn) | Sonnet 5.5 / high, Opus review | CH1f2 review | `X2GULire_ElvenRanger.*` | `CH1g.md` |
+| CH1g2 | blocked (CH1g review): Night Watcher combos, dash XZ / XZZ (Gungnir spawn), start / win / lose (29 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1g review | `X2GULire_ElvenRanger.*` | `CH1g2.md` |
+| CH1g3 | blocked (CH1g2 review): Night Watcher accel dash + dash-jump states (27 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GULire_ElvenRanger.*` | `CH1g3.md` |
+| CH1h | blocked (CH1g3 review): overrides below vslot 0x600 (33 fn), DamageReact (uncarved), dtor, FriendshipNatureData, 7c alpha sites | Sonnet 5.5 / high, Opus review | CH1g3 review | `X2GULire_ElvenRanger.*` | `CH1h.md` |
 | CH1i | blocked (CH1h review): overrides 0x600-0x7bc | Sonnet 5.5 / high, Opus review | CH1h review | `X2GULire_ElvenRanger.*` | `CH1i.md` |
 | CH1j | blocked (CH1i review): Common* overrides (2 uncarved) + CommonFrameMove | Sonnet 5.5 / high, Opus review | CH1i review | `X2GULire_ElvenRanger.*` | `CH1j.md` |
 | CH1k | blocked (CH1j review): skill-use overrides + SpecialAttackEventProcess `32c6a970` (uncarved) + `ReservedSkillStart` | Sonnet 5.5 / high, Opus review | CH1j review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1k.md` |
 | CH1m | blocked (CH1k review): registration (InitState `32cadc90`), `_LIVE` gate | Opus 5.5 / high, Opus review | CH1k review | `X2GULire_ElvenRanger.*`, Always.h | `CH1m.md` |
 | CH1n | blocked (CH1m review): base callbacks + skill-slot head `32cb06d0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1n.md` |
 | CH1o | blocked (CH1n review): virtuals under `_LIVE`, `SetSkillLevelStateData` term, routed gaps | Opus 5.5 / high, Opus review | CH1n review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1o.md` |
-| CH1p | blocked (CH1o review): 7ag pressed-index, hooks, June-only keys (`BOW_SKILL_STATE`, `IMMUNE_TO_SUPER_ARMOR_DOWN`) | Opus 5.5 / high, Opus review | CH1o review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1p.md` |
-| CH1q | blocked (CH1p review): natural force on March's dormant `ADD_RENA_SYSTEM` code + June's bodies (decision 1 = (a), 2026-11-07), flag `_NF` | Opus 5.5 / high, Opus review | CH1p review, decision 1 | class, `X2GUUser.*`, `X2Gage*`, `X2DamageManager.*`, `X2DamageEffect.cpp`, `X2EffectSet.*`, `X2GUNPC.*`, `CommonPacket.h`, `ServerDefine.h`, `X2Offline*` | `CH1q.md` |
-| CH1 | blocked (CH1q review, CH0b): define `_LIVE`, adopt the script, copy held motion koms, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | Always.h, data036, motion kom | `CH1.md` |
+| CH1p | blocked (CH1o review): 7ag pressed-index, hooks 7h / 7l / 7o / 7p / 7x (CH0: no June-only key left for it) | Opus 5.5 / high, Opus review | CH1o review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1p.md` |
+| CH1q | blocked (CH1p review): natural force, class side: 27 fn whose March twin is `ADD_RENA_SYSTEM`-only (decision 1 = (a)), flipped arms, flag `_NF` | Opus 5.5 / high, Opus review | CH1p review, decision 1 | class, `X2GUUser.*`, `X2Gage*`, `X2DamageManager.*`, `X2DamageEffect.cpp`, `X2EffectSet.*`, `X2GUNPC.*`, `CommonPacket.h`, `ServerDefine.h`, `X2Offline*` | `CH1q.md` |
+| CH1q2 | blocked (CH1q review): natural force, engine side: `CX2RenaGageData` / `CX2RenaMyGageUI`, gauge manager, emulator `CAC_NATURAL_FORCE`, engine callers (CH0 split) | Opus 5.5 / high, Opus review | CH1q review | `X2Gage*`, `X2GUNPC.*`, `X2BuffFactor` / hyper buff, `X2Game.cpp`, `X2Offline*`, `CommonPacket.h` | `CH1q2.md` |
+| CH1 | blocked (CH1q2 review, CH0b): define `_LIVE` + `_NF`, adopt the script, copy the 5 held motions, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036, motion kom | `CH1.md` |
 | CH2a | blocked (CH1 review): Rena (3) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GULire_ElvenRanger.*`, `MODS.md` | `CH2a.md` |
 | CH2b | blocked (CH2a review): Combat Ranger (12) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GULire_ElvenRanger.*` | `CH2b.md` |
 | CH2c | blocked (CH2b review): Sniping Ranger (13) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2b review | `X2GULire_ElvenRanger.*` | `CH2c.md` |
@@ -130,15 +134,16 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 | CH2d | blocked (CH2d0 review): Trapping Ranger (24) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d0 review | `X2GULire_ElvenRanger.*` | `CH2d.md` |
 | CH3a | blocked (CH2d review): Wind Sneaker (102) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GULire_ElvenRanger.*` | `CH3a.md` |
 | CH3b | blocked (CH3a review): Grand Archer (103) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GULire_ElvenRanger.*` | `CH3b.md` |
-| CH3c | blocked (CH3b review): Night Watcher (114) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GULire_ElvenRanger.*` | `CH3c.md` |
+| CH3c0 | blocked (CH3b review): Night Watcher engine hook (base `31fcd700` -> `32ca6cd0`, 14 fn; CH0 found it unmapped) | Opus 5.5 / high, Opus review | CH3b review | `X2GULire_ElvenRanger.*`, `X2GUUser.*`, `X2GUNPC.*`, `X2DamageManager.*` | `CH3c0.md` |
+| CH3c | blocked (CH3c0 review): Night Watcher (114) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3c0 review | `X2GULire_ElvenRanger.*` | `CH3c.md` |
 | CH3d | blocked (CH3c review): hyper actives + transcendence rows, skill icons PASS | Opus 5.5 / high, Opus review, user play-test | CH3c review | `X2GULire_ElvenRanger.*`, `X2GUUser.*`, `X2Offline*` | `CH3d.md` |
 | CH4a | blocked (CH2d review): passives `32ca78b0`, D8 re-keys 3405 / 3400 -> 23405 / 23400, delegates, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GULire_ElvenRanger.*` | `CH4a.md` |
-| CH4b | blocked (CH4a, CH3c reviews): `SetDamageExceptionProcess` `32cad510`, uncarved overrides, `MemoConditionRena` | Opus 5.5 / high, Opus review, user play-test | CH4a review, CH3c review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH4b.md` |
+| CH4b | blocked (CH4a, CH3c reviews): `SetDamageExceptionProcess` `32cad510`, GetActualCoolTime / MPConsume, `MemoConditionRena` | Opus 5.5 / high, Opus review, user play-test | CH4a review, CH3c review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH4b.md` |
 | CH5 | blocked (CH1 review): 7 `UnitTemplet` rows, cut-in table, flag `_UI`; beside CH2-CH4 | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, cut-in lines of the class `.cpp`, data036 | `CH5.md` |
 | CH6 | blocked (CH3d, CH4a-b, CH5 reviews): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4a-b, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-ara` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: none yet.
+Done: CH0 (2026-11-07).
 
 ## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.

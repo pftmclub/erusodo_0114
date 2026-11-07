@@ -14,7 +14,7 @@
 ```sh
 python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md --no-sub "Rules" "Phase CH0 - Rena map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
 python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md "CH1i - Done" "CH1i - Review"
-awk -F'\t' '$7=="CH1i"' june2017_re/char_rena/ch0_class_map.tsv   # column as Raven's; CH0's amendment corrects it
+awk -F'\t' '$7=="CH1i"' june2017_re/char_rena/ch0_class_map.tsv   # column 7 = phase (CH0 checked)
 ```
 Then CH0's Done note and the earlier Rena CH1 Done notes / reviews (their routed gaps). Raven's matching sub-phase is the worked example.
 
@@ -50,6 +50,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 
-## Amended by CH0
+## Amended by CH0 (2026-11-07)
 
-(CH0 fills this: filters with real column numbers, addresses, counts, any split.)
+- **Functions: 8** (`awk -F'\t' '$7=="CH1i"' june2017_re/char_rena/ch0_class_map.tsv`; inside 4, new 4).
+  June addresses: `32c6a920` `32c7bed0`(new ShownSkillCoolTime) `32c852f0`(new ?) `32c85970` `32c863d0`(new ?) `32c881f0`(new ?) `32c886b0` `32ca5310`.
+- **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7 L258 death-prevention pre-apply: gauge snapshot overrides (vslot 0x740 / 0x; §7ap L987 June slots CH1o2 gave a base: Lire 0x6a8 32c7bed0 (skill use 32cac5a0).
+- **Natural-force / combo-revamp rows** (`ch0_nf.tsv` col 8 = `CH1i`): 1; March blocks under `ADD_RENA_SYSTEM` inside your functions stay dead, June's NF lines go under `_NF`.
+- 0x740 `32c852f0` (calls base `32009780`) stays here; 0x744 `32c89230` writes the NF gauge (`32a317d0`, `32a36df0`) and is CH1q's. ShownSkillCoolTime 0x6a8 `32c7bed0` (7ap).
