@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1c | **ready** (start: `/x2-phase char-rena CH1c`): riding 27, pepper, dance | Sonnet 5.5 / high, Opus review | CH1b review | `X2GULire_ElvenRanger.*` | `CH1c.md` |
+| CH1c | **done, review owed** (start: `/x2-phase char-rena CH1c review`): 3 fn inside (riding init / frame move, `CommonHyperModeFrameMove`); DEPLOY OK; nothing to play-test | Opus 5.5 / high | CH1b review | `X2GULire_ElvenRanger.*` | `CH1c-review.md` |
 | CH1d | blocked (CH1c review): Rena ground combos `LESI_COMBO*` (38 fn) | Sonnet 5.5 / high, Opus review | CH1c review | `X2GULire_ElvenRanger.*` | `CH1d.md` |
 | CH1d2 | blocked (CH1d review): dash / jump combos + 7 base jump / dash attacks (36 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1d review | `X2GULire_ElvenRanger.*` | `CH1d2.md` |
 | CH1e | blocked (CH1d2 review): Combat Ranger + Wind Sneaker lines (29 fn) | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GULire_ElvenRanger.*` | `CH1e.md` |

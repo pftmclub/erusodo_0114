@@ -709,7 +709,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c9ef20	state-fn	LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK.FrameMove	inside X2GULire_ElvenRanger.cpp:4409 CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK_FrameMove	inside	-	CH3d	1 states	n
 32c9efd0	state-fn	LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT.FrameMove LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT.FrameMove LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING.FrameMove	inside X2GULire_ElvenRanger.cpp:4421 CX2GULire_ElvenRanger::LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT_FrameMove	inside	-	CH3d	3 states	y
 32c9f490	state-fn	LESI_HA_LNW_INNOCENT_END.End	inside X2GULire_ElvenRanger.cpp:4469 CX2GULire_ElvenRanger::LESI_HA_LNW_INNOCENT_END_StateEnd	inside	-	CH3d	1 states	y
-32c9f4f0	helper	called by 32ca5310 32ca7040	-	new	?	CH1c	name: called by 32ca5310(HyperModeFrameMove) 32ca7040(LESI_RIDING_HYPER_MODE.Frame)	y
+32c9f4f0	helper	called by 32ca5310 32ca7040	inside X2GULire_ElvenRanger.cpp:25335 CX2GULire_ElvenRanger::CommonHyperModeFrameMove	inside	-	CH1c	CH1c: March function (MODIFY_RIDING_PET_AWAKE); CH0 said new ?	y
 32c9f7a0	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23710 CX2GULire_ElvenRanger::ConsumeNaturalForce	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: ConsumeNaturalForce (June also UpNowMp n x +0x97e0)	y
 32c9f830	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23871 CX2GULire_ElvenRanger::SetNaturalForceEffect	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: SetNaturalForceEffect	y
 32c9fa50	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23916 CX2GULire_ElvenRanger::UpdateNaturalForceEffect	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: UpdateNaturalForceEffect (also inline in CommonFrameMove 32ca8bf0)	y

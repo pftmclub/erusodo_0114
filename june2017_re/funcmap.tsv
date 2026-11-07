@@ -8651,3 +8651,6 @@ CX2Game +0xc20 (Rena CH1a)	none in March: CX2Game byte read by the Rena wait / c
 32ca9360	CX2GULire_ElvenRanger::DieBackStart	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
 32cb61e0	CX2GULire_ElvenRanger::ClearStartOfDelayedFiringData lambda	confirmed	Char Rena CH1b: = March lambda; types 2/4/6/10/12/14 (the six *_GROUND DET_), attacker unit index == mine -> DestroyInstanceHandleSilently (31f83a80); no code
 32cb6310	CX2DamageEffect::ApplyFunctionToLiveInstances instantiation (ClearStartOfDelayedFiringData lambda)	confirmed	Char Rena CH1b: compiler instantiation of March ApplyFunctionToLiveInstances with the lambda; live flag +0xf5; no code
+32c6d420	CX2GULire_ElvenRanger::RidingHyperModeInit	PORTED	Char Rena CH1c: inside, June body under JUNE_CHAR_RENA_LIVE; = HyperModeInit's six textures written out
+32ca7040	CX2GULire_ElvenRanger::RidingHyperModeFrameMove	PORTED	Char Rena CH1c: inside, June body under JUNE_CHAR_RENA_LIVE; = March ( 0, 0.1, true )
+32c9f4f0	CX2GULire_ElvenRanger::CommonHyperModeFrameMove	PORTED	Char Rena CH1c: inside (CH0 said new ?), June body under JUNE_CHAR_RENA_LIVE; March + awakening stand-ins, trace only without the awakening set

@@ -514,6 +514,32 @@ All 36 class-map rows of phase CH1b are handled. 33 are `inside`: June's body in
 
 Nothing to play-test. Next: `/x2-phase char-rena CH1c` (Sonnet 5.5 high).
 
+### CH1c - Done (2026-11-07)
+
+All 3 class-map rows of phase CH1c are written, all `inside`: June's body in March's own `CX2GULire_ElvenRanger` function under `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, March's in `#else`. No `new` row, no `_CORE` code; `_LIVE` stays `//#define`. 3 funcmap rows `Char Rena CH1c`.
+CH0 listed `32c9f4f0` as `new ?`; March has `CommonHyperModeFrameMove` (`MODIFY_RIDING_PET_AWAKE`, on), so it is `inside` (class-map row corrected). The 37 riding / pepper run / dance / amusement states have no other class-range function (CH0): they are registered in CH1m with base callbacks.
+
+| June | `CX2GULire_ElvenRanger::` | Note |
+|---|---|---|
+| `32c6d420` | `RidingHyperModeInit` | the six textures of `HyperModeInit` (`32c6acc0`, byte-identical listing), written out |
+| `32ca7040` | `RidingHyperModeFrameMove` | `CommonHyperModeFrameMove( 0.f, 0.1f, true )` = March |
+| `32c9f4f0` | `CommonHyperModeFrameMove( fTime1_, fTime2_, bSound_ )` | March + awakening stand-ins |
+
+**Where June differs from March** (read from the listing, `charport_adis.py rena 32c6d420 32ca7040 32c9f4f0`):
+- Timer 1 and timer 2 stay an `else if` (the timer-1 arm jumps to the closing `CommonFrameMove`); Raven's are two independent `if`s. Both timers are the inlined `EventTimerOneshot`; world colour `0xff222222`; timer 1 `ShowMinorParticleHyperModeChange( L"Dummy1_Rhand" )` with no sound.
+- Timer 2: the awakening effect-set family `32011d20` (begin) and `31fd66b0` (present test, `32011f50` play when true) before the Shock, and `ShowMinorParticleHyperModeTrace` only when the set is absent. Stand-ins in `_CONST_RENA_CH1C_` (no-op, `false`, no-op = June's empty-name default), the same as Raven's, Chung's, Eve's and Elsword's (Stage 12 owns the reader).
+- Rena has no Open Mind line and no `Raven_Slash1` sound: `Energy`, `Break`, `Change` = March. `UpDownCrashCamera( 20, 0.3 )` and the inline `ClearScreen()` = March. No `JUNE_BUGS` row.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE --with SERV_IRUHADEV_JUNE_CHAR_RENA_CORE --worktree --files X2Lib/X2GULire_ElvenRanger.cpp`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). `git diff --patience --numstat`: `.cpp` 60 / 0.
+- One-file `/Zs` probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH) of `X2GULire_ElvenRanger.cpp`: exit 0, 0 errors with no extra defines, with `/D SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`. `cl /P`: `RenaAwakeningEffectBegin` 0 lines off / 2 on, so the flag took effect.
+- `junediverge.py --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `RESULT: PASS` (0 allow-listed). `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: 0 A/B rows.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,078,720 B, 2026-11-07 12:56:52`; `DEPLOY OK: X2_offline.exe is 26,078,720 B, dated 2026-11-07 12:56:59, md5 3d80b388a5ba5f913a243ede92d2ef2b, equal to X2/US_SERVICE/x2.exe (2026-11-07 12:56:52); built at main 3335d9da + 1 uncommitted code file(s).` `_LIVE` is off and no string was added, so no `exestr` line.
+
+**Routed.** CH1i: `HyperModeFrameMove` `32ca5310` calls this function with its own times (March: `0.2f, 0.75f`). CH1m: register the riding / pepper / dance states' base callbacks. Stage 12: the awakening reader behind the three stand-ins.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1c review` (Opus 5.5 high), then CH1d.
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

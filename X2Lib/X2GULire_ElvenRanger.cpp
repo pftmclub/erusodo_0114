@@ -25324,16 +25324,75 @@ void CX2GULire_ElvenRanger::LESI_HA_LNW_INNOCENT_END_StateEnd()
 #endif // FINALITY_SKILL_SYSTEM // ±èÁ¾ÈÆ, ±Ã±Ø±â ½Ã½ºÅÛ
 
 #ifdef MODIFY_RIDING_PET_AWAKE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+namespace _CONST_RENA_CH1C_
+{
+	// June 32011d20 / 31fd66b0 / 32011f50: the awakening effect-set family; stand-in: not ported ( Stage 12 ), June's empty-name default
+	void RenaAwakeningEffectBegin()			{}
+	bool RenaAwakeningEffectSetPresent()	{ return false; }
+	void RenaAwakeningEffectPlay()			{}
+}
+using namespace _CONST_RENA_CH1C_;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 void CX2GULire_ElvenRanger::RidingHyperModeInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6d420: the six textures of HyperModeInit ( 32c6acc0 ), written out
+	TextureReadyInBackground( L"ColorBallBlue.dds" );
+	TextureReadyInBackground( L"GroundShockWave.dds" );
+	TextureReadyInBackground( L"WhiteCircle.dds" );
+	TextureReadyInBackground( L"WhitePoint.dds" );
+	TextureReadyInBackground( L"ToKang.dds" );
+	TextureReadyInBackground( L"Energy.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	HyperModeInit();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 void CX2GULire_ElvenRanger::RidingHyperModeFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca7040
+	CommonHyperModeFrameMove( 0.f, 0.1f, true );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonHyperModeFrameMove(0.f, 0.1f, true);
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 void CX2GULire_ElvenRanger::CommonHyperModeFrameMove( float fTime1_, float fTime2_, bool bSound_ /*= false*/  )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c9f4f0: March's body with the awakening stand-ins; the trace only without the awakening set
+	g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
+
+	if( true == m_pXSkinAnim->EventTimerOneshot( fTime1_ ) )
+	{
+		ShowMinorParticleHyperModeChange();
+	}
+	else if( true == m_pXSkinAnim->EventTimerOneshot( fTime2_ ) )
+	{
+		RenaAwakeningEffectBegin();
+		if( true == RenaAwakeningEffectSetPresent() )
+			RenaAwakeningEffectPlay();
+
+		ShowMinorParticleHyperModeShock();
+
+		UpDownCrashCamera( 20.0f, 0.3f );
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+
+		if( false == RenaAwakeningEffectSetPresent() )
+			ShowMinorParticleHyperModeTrace();
+
+		ApplyHyperModeBuff();
+
+		if( true == bSound_ )
+		{
+			PlaySound( L"Energy.ogg" );
+			PlaySound( L"Break.ogg" );
+			PlaySound( L"Change.ogg" );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -25368,6 +25427,7 @@ void CX2GULire_ElvenRanger::CommonHyperModeFrameMove( float fTime1_, float fTime
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 #endif // MODIFY_RIDING_PET_AWAKE
 
