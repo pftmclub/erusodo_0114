@@ -473,6 +473,47 @@ All 36 class-map rows of phase CH1b are handled. 33 are `inside`: June's body in
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1b review` (Opus 5.5 high), then CH1c.
 
+### CH1b - Review (2026-11-07, Opus 5.5 high)
+
+**Verdict: pass, no code change.** I found no transcription error. Every branch order, `StateChange` target, compare direction and constant I checked matches the `charport_adis.py rena` listing.
+- **DamageDownFront `32c6e630`, read end to end:**
+  - Not on a line: `USI_DAMAGE_AIR_FALL`, then `+0x7e40 -= 45` (= `LINE_RADIUS * 1.5`).
+  - Animation end: flag 4 rolls `GetRandomInt( 0 )` (vslot 0x1c8) against `+0x4060`. Both outcomes push `0xa5`; the `jge` only skips to the shared call. Then flag 1 -> 0xa5, 2 -> 0xa1, 3 -> 0xa2, else 0x20.
+  - Flags 5 / 6 / 7 (`+0x7d8a`-`+0x7d8c`): change on `stateChange < time` (`test ah,5; jnp`) or `IsAnimationEnd`, giving 0xf2 / 0xa2 (`ROLLING_FRONT_BACK`, not the agile state, = March) / 0xa5. The window test `time < keyInputEnd`, then `keyInputStart <= time` (`test ah,0x41; jp`), then agile, the key flag and class 12 / 102. The macro expands in exactly that order.
+  - Key arm: `fInputStartTime < time` is strict. oneX, oneZ, then facing; the word and dword stores (`word +0x7d87`, `dword +0x7d86 = 0x10000`) decode to the flag sets the code writes.
+- **DamageDownBack `32c6ea80`:** the listing differs from Front only in the state ids (0xa6 / 0xa3 / 0xa4 / 0x21 / 0xf4 / 0xa4 / 0xa6) and in the key arm's left / right test order. With facing right, pureLeft -> flag 2; with facing left, pureLeft -> flag 3. The code matches.
+- **AirDownLanding `32c6ee80`:** animation end goes 1 -> 0xa5, 2 -> 0xa1, 3 -> 0xa2, else 0x20. Flags 4 / 5 / 6 give 0xf2 / 0xf3 (`AGILE_FRONT_BACK` here) / 0xa5. `oneZ || oneX` sets only flag 1. The facing arms are as written.
+- **`KillMySummonedNPC` `32ca2010`:**
+  - The loop calls `GetUnitNum` (vslot 0xf8) again on every pass. `+0x264 == GUT_NPC` (1). The templet test `+0x85f8 [0] == id` is skipped when the id is 0.
+  - Gage `+0xc04`: when it is NULL, June skips the HP test. March's `GetNowHp()` returns 1 in that case, so the result is the same. When `+0x20` is NULL, June skips the unit, and `CX2GageData::GetNowHp()` returns 0 there, so the result is again the same.
+  - AI: `+0x7c98`, then `+0x38 == NAT_ALLY` (1), then the 64-bit `+0x78` / `+0x7c` against vslot 0x54 `GetUnitUID()`. Then `0x823` (= `NUI_RENA_TARGETING_GUNGNIR`, 2083) and `SetNowHp( 0 )` (vslot 0xf4).
+  - `ret 8` with only `[esp+0x1c]` read: the float argument is never read. Confirmed.
+- **`ClearStartOfDelayedFiringData` `32ca6e90` = March:**
+  - Unit walk: entries `+4` `m_iAttackerIndex` against `+0x268`, and `+0x10 = 0.01`. Then `ApplyFunctionToLiveInstances` (`32cb6310`, which tests the live flag at `+0xf5`) with the lambda `32cb61e0`.
+  - The lambda tests the attacker observer, switches on `type - 2` (0..12) through the byte table at `32cb6278` (`00 01 00 01 00 01 01 01 00 01 00 01 00`), and calls `DestroyInstanceHandleSilently`. Index 0 is the destroy arm, so the types are 2 / 4 / 6 / 10 / 12 / 14. These are the six `DET_*_GROUND` values in `X2DamageEffect.h:92-105`.
+- **Die:**
+  - Start `32ca9230` / `32ca9360` (identical listings): `CommonStateStart`, `DyingStart` (vslot 0x338), play speed 0.5. Then `DeletePriorPlannedBlowEffect` inlined: stop `+0x96f8`, write -1, `+0x96fc = 0`, which is March's body. Then stop `+0x970c`, `+0x9700 = 0`, `IsMyUnit` -> `UpdateSkillSlotUI( false )` (March's default), and a tail jump into `ClearStartOfDelayedFiringData`. None of this is guarded in June.
+  - FrameMove `32ca5290` / `32ca52d0`: `DieFrameMove( 0.19, 1.12 )` / `( 0.32, 0.9 )`, then `KillMySummonedNPC( 0x823, 3.0 )`.
+- **StandUpAttack:**
+  - Front FrameMove: `EventTimer( 0.36 ) || EventTimer( 0.8 )` (a short-circuit `je`) with an empty body.
+  - Back: an inlined `EventTimerOneshot( 0.43 )` with an empty body.
+  - Both: `0.15 < t < 0.5` -> `DamageCheck`.
+  - EventProcess: on animation end, `JUMP_DOWN` (-45) or `WAIT`. End: invincible 0.3 / 0.3.
+- **Rolling** EventProcess `32c6f230` (JUMP_DOWN -45 / WAIT): matches.
+- **`ch1_offsets.tsv`:** the 10 CH1b rows (`0x7d8a`, `0x4060`, `0x9724`, `0x96f8`, `0x970c`, `0x85f8`, `0x7c98`, `0xc04`, `0x393c`, `0x268`) agree with every listing I read.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE --with SERV_IRUHADEV_JUNE_CHAR_RENA_CORE --range 5090b818^..5090b818`:
+  - `files: 0 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`.
+  - `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+  - `RESULT: FAIL` only because `_LIVE` is `//#define`, which is by design. The OTHER row is the `.h` declaration under `_CORE`.
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_CORE --range 5090b818^..5090b818`: `RESULT: PASS`.
+- `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`.
+- One-file `/Zs` probe of `X2GULire_ElvenRanger.cpp` (`june2017_re/census.py` `cl_cmd`, no PCH): 0 errors three ways (no extra defines; with `_LIVE`; with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`).
+- No code changed, so there is no build. CH1b's `DEPLOY OK` (md5 `eea2e628...`) stands.
+
+Nothing to play-test. Next: `/x2-phase char-rena CH1c` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
