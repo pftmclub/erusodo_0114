@@ -2195,6 +2195,7 @@ buff helpers, `JUNE_DIVERGE_SKILL_LEVEL_VALUE`, `JUNE_SKILL_TYPE`, `JUNE_ENUM_NA
 `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; `1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s),
 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (OTHER = the two enum headers under `JUNE_ENUM_NAMES`; the deleted line is `//#define ..._PASSIVE_DEBUG`).
 `junediverge.py --check` (5 files): `allow-listed: 12`, `RESULT: PASS`. `enumscan.py --check X2GURaven.cpp`: `0 A/B row(s)`.
+**Range (commit `f6866212`):** `--range f6866212^..f6866212`, same 5 files: `files: 2 PASS, 0 PASS~, 1 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; 1 deleted (the `//#define`); `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,081,280 B, dated 2026-11-07 07:12:48, md5 0bb93350b8fee024e74ae2f0980be015, equal to X2/US_SERVICE/x2.exe (2026-11-07 07:12:40); built at main 450a00e1 + 5 uncommitted code file(s).`
 `EXESTR OK: 6 of 6 found in X2_offline.exe, 26081280 B, dated 2026-11-07 07:12:48, md5 0bb93350b8fee024e74ae2f0980be015` (the five log lines and the effect name, wide).
 **Save** (backup `els_db_20261107_070425_pre_sql.sql`): unit 49 `Raven99` (Blade Master) + Counter 24418 (unsealed), Shockwave Front 24016 in slot 7 (24026 out), Divider 24030
