@@ -42,3 +42,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH5 (2026-11-06)
 
 - **CH5's walk items** (not reached in CH5's own play-test, which only needs one cut-in per set): the select screen with all nine March characters and Raven's seven classes (lobby pose turns 10 / 30 / 10 / 1 / 30 / 20 / 40 for 4 / 16 / 17 / 25 / 106 / 107 / 115 as June has them), the name "Veteran Commander" on 115; a skill cut-in on each class (`[JUNE_CHAR] RAVEN UI cut-in set 0..3 index 0..2`, art `HQ_CutIn_Raven_*`); the awakening hyper cut-in on 106 / 107 / 115 (`[JUNE_CHAR] RAVEN UI hyper cut-in class <c> name HQ_Cutin_R*_Transcendence`, only when the awakening state sets `SHOW_HYPER_CUT_IN_TIME`).
+
+## Amended by CH4c (2026-11-07)
+
+- The emulator moves an upgraded skill into its base's slot (`X2OfflineSkill.cpp:949`); June's client keeps the base id there in-session (`328905b0`), and June's
+  Shadow Step 10 MP display (`322e07e0`) and icon block test the base id 24200 only. Walk item: say whether the bar should keep the base id (a skill-system
+  question, JUNE_BUGS 559), not a Raven fix.

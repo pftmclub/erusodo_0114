@@ -2271,6 +2271,13 @@ unlearned. Unit 77 was touched and put back (24200 unlearned again; 24217 stays 
 **In game:** `[JUNE_CHAR] RAVEN PASSIVE shadow step slot: combo 1, mp 10.0` when the back-slide window opens after Shadow Step, `combo 0, mp 40.0` when it closes (one line per change);
 the slot's icon stays Shadow Step throughout.
 
+**Log check (run 07:58-07:59 on md5 `1228c52c`; 0 EXCEPTION; known `E_DISABLE_HB_CHECK_REQ` UNHANDLED x2, one `AddGroupChainQuest`): no `shadow step slot` line, not reachable here.**
+Unit 82 cast Shadow Step (`APPLIED_SKILL_ID` 24200, 07:59:28) and its Z follow-up (`DAMAGE_EFFECT_SHADOW_BACK_SLIDE_BULLET_1..3`, 07:59:29), but the slot held 24217: the emulator's
+level grant (`X2OfflineSkill.cpp:949`) re-learned the upgrade at select and moved it into the base's slot (`SLOT sent unit 82: A 24052/24200/...` at login, `A 24052/24217/...` at
+07:58:32). June's test is 24200-only, so it did not fire, as JUNE_BUGS 559 says. A level-99 Veteran Commander cannot keep the base id here; the June compare is checked by reading in
+the review. Unit 82's bar put back (24039 slot 1, 24217 unslotted). Whether the emulator should keep the base id in the slot (June's client does in-session, `328905b0`) is the
+skill system's question, noted for CH6's walk.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI`. Sub-tag `UI`.
