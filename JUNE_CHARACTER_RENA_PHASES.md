@@ -394,6 +394,36 @@ function a CH1a-CH1k phase transcribes stays as it is (dead) until CH1q:** the J
 natural force fills, spends and shows on the gauge as June (per decision 1); each skill cast twice shows its cool time and spends MP;
 `charport_scan.py` / `charport_keys.py Lire_ElvenRanger` show nothing new.
 
+### CH1a - Done (2026-11-07)
+
+All 32 class-map rows of phase CH1a are written, all `inside`: June's body in March's own `CX2GULire_ElvenRanger` function under `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, March's in `#else`. No `new` row, so no `_CORE` define yet.
+`Always.h` gets `_LIVE` and `_NF` as `//#define` (guards: `_LIVE` needs `SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK`; `_NF` needs `_LIVE`). New file-local namespace `_CONST_RENA_CH1A_` (after the `_CONST_RENA_` block): `IsMPChargeBlockedByGame()` = false.
+36 funcmap rows `Char Rena CH1a`; `june2017_re/char_rena/ch1_offsets.tsv` is new (Raven's base rows + 16 Rena rows).
+
+| June | `CX2GULire_ElvenRanger::` | June | `CX2GULire_ElvenRanger::` |
+|---|---|---|---|
+| `32c6aaa0` `32c87b90` `32c6dee0` `32c89bd0` | Wait StartFuture / FrameMoveFuture / Start / EventProcess | `32c89e80` `32c83760` | Walk / JumpReady EventProcess |
+| `32c6aad0` `32c6df60` `32c8a080` | JumpUp / JumpDown / JumpLanding EventProcess | `32c6e0c0` `32c6e0f0` `32c8a2f0` | LESI_DASH StartFuture / FrameMoveFuture, Dash EventProcess |
+| `32c6abb0` `32c6abc0` `32c83800` `32c6e150` `32c8a4f0` | DashEnd StartFuture / Start / FrameMoveFuture / FrameMove / EventProcess | `32c83850` `32c8a800` | DashJump / DashJumpLanding EventProcess |
+| `32c6abd0` `32c83b90` `32c861c0` | DoubleJump StartFuture / FrameMoveFuture / EventProcess | `32c6abf0` `32c83c10` `32c6e1a0` | DashDoubleJump StartFuture / FrameMoveFuture / EventProcess |
+| `32c8bb50` `32c8bdd0` `32c8c080` `32c8cb90` `32c6ac90` `32c8ce00` | ChargeMP StartFuture / Start / FrameMove / EventProcess / EndFuture / End | `32c6acc0` | HyperModeInit |
+
+**Where June differs from March** (everything else is March's logic written out whole; read from `charport_adis.py rena` listings and the Ghidra decompile):
+- **Wait charges MP from the state time:** `fStateTime >= 1.0` (+0x7de8) replaces `m_fChangeMPTime >= 1.0`; June neither resets nor sums `m_fChangeMPTime`. The inner test adds `g_pX2Game` and the CX2Game `+0xc20` byte (clear to enter; ChargeMP EventProcess leaves to WAIT when it is set). `+0xc20` has no March member and no June writer but its constructor (same byte as Arme's): false.
+- **Both keys held** (`pureRight && pureLeft`): DashJump (as Raven: only a fresh press against the facing clamps the jump speed and picks JUMP_UP / JUMP_DOWN); DoubleJump / DashDoubleJump FrameMoveFuture (a fresh press picks the facing, the speed is set either way).
+- **ADD_RENA_SYSTEM branches June runs unconditionally**, written plain (every state they name exists in March): JumpUp / JumpDown dash-jump (`GetEnableDash( EDS_END )`), both double jumps send X to `LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X` (the JJX guide only outside classes 13 / 103; DashDoubleJump has no class switch). `_NF`: WaitStart's `m_eSaveStateSkillId = SI_NONE` and relate-data `>= 10 -> 0` only.
+- **ChargeMP StartFuture:** the x0.8 dungeon / battle-field scale goes through June's `32071a50` (skipped for a user with byte `+0x6894` == 1). A scan of the exe finds 7 readers and no writer, so the gate always passes = March's `SetChangeRateMp`. `ResetMPChangeRate` `31fd9e00` has the same gate (stage33 row, not mine).
+- **= March after the macros:** Walk, JumpReady, JumpLanding (skip-point chain), Dash, DashEnd (split at `( max - transition ) / 8`, Night Watcher accel dash, `EventTimerOneshot( 0.4 )`), DashJumpLanding, the DoubleJump StartFutures, ChargeMP Start / FrameMove / End (strings, 8 / 15 / 10 / 5 / 200 / 85 constants checked), HyperModeInit. Hyper test = `TryHyperModeStateChange( USI_HYPER_MODE )`, `SpecialAttackEventProcess` gets `ASUT_GROUND` / `ASUT_AIR`.
+- Candidates, not proven (review confirms): `322cdfa0` = `GetSlideShot()->IsPresentNow()`, `31aadcb0` = `g_pX2Game != NULL`. `LESI_WAIT_STATE_CHANGE` / COMMON_BUFF / THROW_ITEM callbacks are shared base targets (nothing in the Rena range); registration is CH1m. No `JUNE_BUGS` row: nothing here is a June defect.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE --with SERV_IRUHADEV_JUNE_CHAR_RENA_NF --worktree --files X2Lib/X2GULire_ElvenRanger.cpp KTDXLIB/Always.h`: `files: 0 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). `git diff --patience --numstat`: 1,169 / 0 in the `.cpp`, 27 / 0 in `Always.h`.
+- One-file `/Zs` probe of `X2GULire_ElvenRanger.cpp` (no PCH): 0 errors with `_LIVE` off, with `/D SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`.
+- `junediverge.py --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `RESULT: PASS` (0 allow-listed). `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: 0 A/B rows.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,078,208 B, 2026-11-07 12:01:37`; `DEPLOY OK: X2_offline.exe is 26,078,208 B, dated 2026-11-07 12:01:44, md5 6dcf1ace179ee0392bc292fbe72a37ab, equal to X2/US_SERVICE/x2.exe`. No new string in the exe (`_LIVE` off), so no `exestr` line.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1a review` (Opus 5.5 high), then CH1b.
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

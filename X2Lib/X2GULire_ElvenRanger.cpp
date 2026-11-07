@@ -39,6 +39,18 @@ namespace _CONST_RENA_
 
 #endif  SERV_RENA_NIGHT_WATCHER
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+namespace _CONST_RENA_CH1A_
+{
+	// June CX2Game +0xc20 byte ( no March member ): only its constructor 32306600 writes it ( false ); read by 32c89bd0 / 32c8cb90
+	bool IsMPChargeBlockedByGame()
+	{
+		return false;
+	}
+}
+using namespace _CONST_RENA_CH1A_;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+
 
 
 
@@ -5706,15 +5718,34 @@ void CX2GULire_ElvenRanger::DieBackEventProcess()
 //LESI_WAIT
 void CX2GULire_ElvenRanger::WaitStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6aaa0 ( no m_fChangeMPTime reset: the charge test reads the state time )
+	CommonStateStartFuture();
+	PlayAnimationWaitStart( m_pXSkinAnimFuture, m_FrameDataFuture );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonStateStartFuture();
 	PlayAnimationWaitStart( m_pXSkinAnimFuture, m_FrameDataFuture );
 	m_fChangeMPTime = 0.0f;
 
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::WaitStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6dee0
+	CommonStateStart();
+	PlayAnimationWaitStart( m_pXSkinAnim.get(), m_FrameDataNow );
+
+	m_bIsSiegeSkill = false;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	m_eSaveStateSkillId = CX2SkillTree::SI_NONE;
+
+	if( GetAccessNowDamageRelateSkillData().m_byteRelateData >= 10 )
+		GetAccessNowDamageRelateSkillData().m_byteRelateData = 0;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonStateStart();
 	PlayAnimationWaitStart( m_pXSkinAnim.get(), m_FrameDataNow );
 
@@ -5729,20 +5760,80 @@ void CX2GULire_ElvenRanger::WaitStart()
 	if( GetAccessNowDamageRelateSkillData().m_byteRelateData >= 10 )
 		GetAccessNowDamageRelateSkillData().m_byteRelateData = 0;
 #endif //ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::WaitFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c87b90 ( no m_fChangeMPTime; the siege attack count is written only when it is not 0 )
+	CommonFrameMoveFuture();
+
+	m_iSiegeAttackCount = 0;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonFrameMoveFuture();
 
 	m_fChangeMPTime += m_fElapsedTime;
 #ifdef BALANCE_PATCH_20120329
 	m_iSiegeAttackCount = 0;
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::WaitEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c89bd0 ( the charge-MP test reads the state time and the CX2Game +0xc20 byte, not m_fChangeMPTime )
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true && ( m_bReAttackZ1Right != m_FrameDataFuture.syncData.bIsRight || m_fReAttackZ1Time <= 0.0f ) )
+	{
+		StateChange( LESI_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( LESI_COMBO_X1 );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	else if( true == TryHyperModeStateChange( USI_HYPER_MODE ) )
+	{
+	}
+	else if( m_FrameDataFuture.unitCondition.fStateTime >= 1.0f && GetNowMp() != GetMaxMp() &&
+		g_pX2Game->GetSlideShot()->IsPresentNow() == false && false == GetActiveStartOfDelayedFiring() )
+	{
+		if( m_ePlayedEmotion == CX2Unit::ET_NONE && NULL != g_pX2Game && false == IsMPChargeBlockedByGame() )
+			StateChange( LESI_CHARGE_MP );
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -5800,10 +5891,57 @@ void CX2GULire_ElvenRanger::WaitEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::WalkEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c89e80
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true && ( m_bReAttackZ1Right != m_FrameDataFuture.syncData.bIsRight || m_fReAttackZ1Time <= 0.0f ) )
+	{
+		StateChange( LESI_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( LESI_COMBO_X1 );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == false && m_InputData.pureLeft == false )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	else if( true == TryHyperModeStateChange( USI_HYPER_MODE ) )
+	{
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -5851,6 +5989,7 @@ void CX2GULire_ElvenRanger::WalkEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 #ifdef ADD_RENA_SYSTEM //김창한
 void CX2GULire_ElvenRanger::WalkStart()
@@ -5867,6 +6006,8 @@ void CX2GULire_ElvenRanger::WalkStart()
 //LESI_JUMP_READY
 void CX2GULire_ElvenRanger::JumpReadyEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c83760
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -5882,10 +6023,59 @@ void CX2GULire_ElvenRanger::JumpReadyEventProcess()
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true
+		|| m_InputData.pureRight == true
+		|| m_InputData.pureLeft == true )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::JumpUpEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6aad0
+	if( m_InputData.oneUp == true && m_iDoubleJumpCount == 0 && m_FrameDataFuture.unitCondition.bFootOnWall == false )
+	{
+		StateChange( LESI_DOUBLE_JUMP );
+	}
+	else if( ( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true ) && GetEnableDash() == true )
+	{
+		StateChange( USI_DASH_JUMP );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( LESI_JUMP_ATTACK_Z );
+	}
+	else if( m_InputData.oneX == true && ( m_JumpXCount < 3 || m_fJumpXTime <= 0.0f ) )
+	{
+		StateChange( LESI_JUMP_ATTACK_X );
+	}
+	else if( m_PhysicParam.nowSpeed.y <= 0.0f )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef WALL_JUMP_TEST
 	if( m_InputData.oneUp == true && m_iDoubleJumpCount == 0 && m_FrameDataFuture.unitCondition.bFootOnWall == false )
 #else
@@ -5930,10 +6120,74 @@ void CX2GULire_ElvenRanger::JumpUpEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::JumpDownEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6df60
+	if( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( m_FrameDataFuture.unitCondition.bFootOnWall == true && m_iDoubleJumpCount == 0 &&
+		( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( LESI_WALL_LANDING );
+	}
+	else if( m_InputData.oneUp == true && m_iDoubleJumpCount == 0 )
+	{
+		StateChange( LESI_DOUBLE_JUMP );
+	}
+	else if( true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+		{
+			if( m_InputData.pureLeft == true )
+			{
+				StateChangeDashIfPossible();
+			}
+			else if( m_InputData.pureRight == true )
+			{
+				StateChangeDashIfPossible();
+			}
+			else
+			{
+				StateChange( USI_JUMP_LANDING );
+			}
+		}
+		else
+			StateChange( USI_JUMP_LANDING );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( LESI_JUMP_ATTACK_Z );
+	}
+	else if( m_InputData.oneX == true && ( m_JumpXCount < 3 || m_fJumpXTime <= 0.0f ) )
+	{
+		StateChange( LESI_JUMP_ATTACK_X );
+	}
+	else if( m_PhysicParam.nowSpeed.y >= 0.0f )
+	{
+		StateChange( USI_JUMP_UP );
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+	else if( ( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true ) && GetEnableDash() == true )
+	{
+		StateChange( USI_DASH_JUMP );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true )
 	{
 		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
@@ -6009,10 +6263,61 @@ void CX2GULire_ElvenRanger::JumpDownEventProcess()
 	}
 #endif //ADD_RENA_SYSTEM
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::JumpLandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8a080
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true && ( m_bReAttackZ1Right != m_FrameDataFuture.syncData.bIsRight || m_fReAttackZ1Time <= 0.0f ) )
+	{
+		StateChange( LESI_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( LESI_COMBO_X1 );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	else if( true == TryHyperModeStateChange( USI_HYPER_MODE ) )
+	{
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -6065,11 +6370,21 @@ void CX2GULire_ElvenRanger::JumpLandingEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 #ifdef SERV_RENA_NIGHT_WATCHER
 void CX2GULire_ElvenRanger::LESI_DASH_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6e0c0
+	if( GetUnitClass() == CX2Unit::UC_LIRE_NIGHT_WATCHER )
+	{
+		m_bAccelDashEventFlag = false;
+	}
+
+	DashStartFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( GetUnitClass() == CX2Unit::UC_LIRE_NIGHT_WATCHER )
 	{
 		//액셀 대시 사용 조건 초기화( 임시 )
@@ -6077,10 +6392,24 @@ void CX2GULire_ElvenRanger::LESI_DASH_StateStartFuture()
 	}
 
 	DashStartFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_DASH_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6e0f0
+	if( GetUnitClass() == CX2Unit::UC_LIRE_NIGHT_WATCHER )
+	{
+		const float iAccelDashTime = 0.0666f;
+		if( m_FrameDataNow.unitCondition.fStateTime >= iAccelDashTime )
+		{
+			m_bAccelDashEventFlag = true;
+		}
+	}
+
+	DashFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( GetUnitClass() == CX2Unit::UC_LIRE_NIGHT_WATCHER )
 	{
 		//0.13초 이상 대시를 할 때, 액셀 대시를 사용할 수 있다.( 임시 )
@@ -6092,11 +6421,67 @@ void CX2GULire_ElvenRanger::LESI_DASH_FrameMoveFuture()
 	}
 
 	DashFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 #endif SERV_RENA_NIGHT_WATCHER
 
 void CX2GULire_ElvenRanger::DashEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8a2f0
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( LESI_DASH_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( LESI_DASH_ATTACK_X );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.oneUp == true )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+	}
+	else if( true == TryHyperModeStateChange( USI_HYPER_MODE ) )
+	{
+	}
+	else if( m_InputData.pureRight == false && m_InputData.pureLeft == false )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureRight == true && m_InputData.pureLeft == true )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DASH_JUMP );
@@ -6163,6 +6548,7 @@ void CX2GULire_ElvenRanger::DashEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 #ifdef ADD_RENA_SYSTEM //김창한
 void CX2GULire_ElvenRanger::DashStart()
@@ -6179,27 +6565,56 @@ void CX2GULire_ElvenRanger::DashStart()
 //LESI_DASH_END
 void CX2GULire_ElvenRanger::DashEndStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6abb0
 	CommonStateStartFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateStartFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DashEndStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6abc0
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonStateStart();
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DashEndFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c83800
 	if( m_pXSkinAnimFuture->GetNowAnimationTime() < 0.3f )
 	{
 		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
 	}
 
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( m_pXSkinAnimFuture->GetNowAnimationTime() < 0.3f )
+	{
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+	}
+
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DashEndFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6e150 ( EventTimerOneshot as March's X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE branch )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.4f ) )
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.4f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -6210,10 +6625,101 @@ void CX2GULire_ElvenRanger::DashEndFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DashEndEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8a4f0
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true && ( m_bReAttackZ1Right != m_FrameDataFuture.syncData.bIsRight || m_fReAttackZ1Time <= 0.0f ) )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > m_pXSkinAnimFuture->GetMaxAnimationTime() / 8.0f )
+		{
+			StateChange( LESI_COMBO_Z1 );
+		}
+		else
+		{
+			StateChange( LESI_DASH_COMBO_Z1 );
+		}
+	}
+	else if( m_InputData.oneX == true )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > m_pXSkinAnimFuture->GetMaxAnimationTime() / 8.0f )
+		{
+			StateChange( LESI_COMBO_X1 );
+		}
+		else
+		{
+			StateChange( LESI_DASH_ATTACK_X );
+		}
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.oneRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		if( GetUnitClass() == CX2Unit::UC_LIRE_NIGHT_WATCHER && true == m_bAccelDashEventFlag &&
+			m_pXSkinAnimFuture->GetNowAnimationTime() > 0.1f )
+		{
+			m_bAccelDashEventFlag = false;
+			StateChange( LESI_RNW_ACCEL_DASH );
+		}
+		else
+		{
+			StateChangeDashIfPossible();
+		}
+	}
+	else if( m_InputData.oneLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		if( GetUnitClass() == CX2Unit::UC_LIRE_NIGHT_WATCHER && true == m_bAccelDashEventFlag &&
+			m_pXSkinAnimFuture->GetNowAnimationTime() > 0.1f )
+		{
+			m_bAccelDashEventFlag = false;
+			StateChange( LESI_RNW_ACCEL_DASH );
+		}
+		else
+		{
+			StateChangeDashIfPossible();
+		}
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	else if( true == TryHyperModeStateChange( USI_HYPER_MODE ) )
+	{
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -6327,6 +6833,7 @@ void CX2GULire_ElvenRanger::DashEndEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -6366,6 +6873,124 @@ void CX2GULire_ElvenRanger::DashJumpFrameMoveFuture()
 
 void CX2GULire_ElvenRanger::DashJumpEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c83850 ( both keys held: only a fresh press against the facing turns the unit, March sent it into the pureRight branch )
+	if( m_FrameDataFuture.unitCondition.bFootOnWall == true && m_iDoubleJumpCount == 0 &&
+		( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( LESI_WALL_LANDING );
+	}
+	else if( m_InputData.oneUp == true )
+	{
+		StateChange( LESI_DASH_DOUBLE_JUMP );
+	}
+	else if( true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+		{
+			StateChange( USI_DASH_JUMP );
+			m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+			m_bDownForce = false;
+		}
+		else
+		{
+			if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+			{
+				StateChangeDashIfPossible();
+			}
+			else
+				StateChange( USI_DASH_JUMP_LANDING );
+			m_bDownForce = false;
+		}
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		switch( GetUnitClass() )
+		{
+		default:
+			{
+				StateChange( LESI_DASH_JUMP_ATTACK_Z );
+			} break;
+
+		case CX2Unit::UC_LIRE_GRAND_ARCHER:
+			{
+				StateChange( LESI_LGA_DASH_JUMP_Z );
+			} break;
+
+		case CX2Unit::UC_LIRE_TRAPPING_RANGER:
+		case CX2Unit::UC_LIRE_NIGHT_WATCHER:
+			{
+				StateChange( LESI_DASH_JUMP_ATTACK_RTR_Z );
+			} break;
+		}
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( LESI_DASH_JUMP_COMBO_X1 );
+	}
+	else if( m_InputData.pureRight == true && m_InputData.pureLeft == true )
+	{
+		if( ( m_InputData.oneRight == true && m_FrameDataFuture.syncData.bIsRight == false )
+			|| ( m_InputData.oneLeft == true && m_FrameDataFuture.syncData.bIsRight == true ) )
+		{
+			if( m_PhysicParam.nowSpeed.y > GetJumpSpeed() )
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+			if( m_PhysicParam.nowSpeed.y > 0.0f )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+	else if( m_InputData.pureRight == true )
+	{
+		if( m_FrameDataFuture.syncData.bIsRight == false )
+		{
+			if( m_PhysicParam.nowSpeed.y > GetJumpSpeed() )
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+			if( m_PhysicParam.nowSpeed.y > 0.0f )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+	else if( m_InputData.pureLeft == true )
+	{
+		if( m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			if( m_PhysicParam.nowSpeed.y > GetJumpSpeed() )
+				m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+
+			if( m_PhysicParam.nowSpeed.y > 0.0f )
+				StateChange( USI_JUMP_UP );
+			else
+				StateChange( USI_JUMP_DOWN );
+		}
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	if( m_InputData.oneUp == true && m_FrameDataFuture.syncData.position.y - m_FrameDataFuture.unitCondition.landPosition.y < LINE_RADIUS * 2.0f )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( m_InputData.oneDown == true )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed;
+		m_bDownForce = true;
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 #ifdef WALL_JUMP_TEST
 	if( m_FrameDataFuture.unitCondition.bFootOnWall == true && m_iDoubleJumpCount == 0 &&
@@ -6483,6 +7108,7 @@ void CX2GULire_ElvenRanger::DashJumpEventProcess()
 
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DashJumpEndFuture()
@@ -6493,6 +7119,60 @@ void CX2GULire_ElvenRanger::DashJumpEndFuture()
 
 void CX2GULire_ElvenRanger::DashJumpLandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8a800
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	if( m_InputData.oneZ == true && ( m_bReAttackZ1Right != m_FrameDataFuture.syncData.bIsRight || m_fReAttackZ1Time <= 0.0f ) )
+	{
+		StateChange( LESI_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( LESI_COMBO_X1 );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	else if( true == TryHyperModeStateChange( USI_HYPER_MODE ) )
+	{
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -6549,19 +7229,50 @@ void CX2GULire_ElvenRanger::DashJumpLandingEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_DOUBLE_JUMP
 void CX2GULire_ElvenRanger::DoubleJumpStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6abd0
 	CommonStateStartFuture();
 	m_iDoubleJumpCount += 1;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateStartFuture();
+	m_iDoubleJumpCount += 1;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
 
 void CX2GULire_ElvenRanger::DoubleJumpFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c83b90 ( both keys held: a fresh press picks the facing, the speed is set either way )
+	if( m_InputData.pureRight == true && m_InputData.pureLeft == true )
+	{
+		if( m_InputData.oneRight == true )
+			m_FrameDataFuture.syncData.bIsRight = true;
+		else if( m_InputData.oneLeft == true )
+			m_FrameDataFuture.syncData.bIsRight = false;
+
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+	}
+	else if( m_InputData.pureRight == true )
+	{
+		m_FrameDataFuture.syncData.bIsRight = true;
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+	}
+	else if( m_InputData.pureLeft == true )
+	{
+		m_FrameDataFuture.syncData.bIsRight = false;
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( m_InputData.pureRight == true )
 	{
 		m_FrameDataFuture.syncData.bIsRight = true;
@@ -6577,10 +7288,65 @@ void CX2GULire_ElvenRanger::DoubleJumpFrameMoveFuture()
 	//m_PhysicParam.nowSpeed.x				+= 250.0f * m_pXSkinAnimLocal->GetNowAnimationTime();
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DoubleJumpEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c861c0 ( every X case but the Sniping Ranger / Grand Archer one also shows the JJX combo guide )
+	if( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	if( true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+		{
+			if( m_InputData.pureLeft == true )
+			{
+				StateChangeDashIfPossible();
+			}
+			else if( m_InputData.pureRight == true )
+			{
+				StateChangeDashIfPossible();
+			}
+			else
+			{
+				StateChange( USI_JUMP_DOWN );
+			}
+		}
+		else
+			StateChange( USI_JUMP_DOWN );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( LESI_DOUBLE_JUMP_ATTACK_Z );
+		m_pComboGuide->ShowComboCommand( L"j", L"JJZ" );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		switch( GetUnitClass() )
+		{
+		case CX2Unit::UC_LIRE_SNIPING_RANGER:
+		case CX2Unit::UC_LIRE_GRAND_ARCHER:
+			{
+				StateChange( LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X );
+			} break;
+
+		default:
+			{
+				StateChange( LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X );
+				m_pComboGuide->ShowComboCommand( L"j", L"JJX" );
+			} break;
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true )
 	{
 		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
@@ -6636,17 +7402,48 @@ void CX2GULire_ElvenRanger::DoubleJumpEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_DASH_DOUBLE_JUMP
 void CX2GULire_ElvenRanger::DashDoubleJumpStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6abf0
 	CommonStateStartFuture();
 	m_iDoubleJumpCount += 1;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateStartFuture();
+	m_iDoubleJumpCount += 1;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DashDoubleJumpFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c83c10 ( both keys held: a fresh press picks the facing, the speed is set either way )
+	if( m_InputData.pureRight == true && m_InputData.pureLeft == true )
+	{
+		if( m_InputData.oneRight == true )
+			m_FrameDataFuture.syncData.bIsRight = true;
+		else if( m_InputData.oneLeft == true )
+			m_FrameDataFuture.syncData.bIsRight = false;
+
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+	else if( m_InputData.pureRight == true )
+	{
+		m_FrameDataFuture.syncData.bIsRight = true;
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+	else if( m_InputData.pureLeft == true )
+	{
+		m_FrameDataFuture.syncData.bIsRight = false;
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( m_InputData.pureRight == true )
 	{
 		m_FrameDataFuture.syncData.bIsRight = true;
@@ -6662,10 +7459,52 @@ void CX2GULire_ElvenRanger::DashDoubleJumpFrameMoveFuture()
 	//m_PhysicParam.nowSpeed.x				+= 250.0f * m_pXSkinAnimFuture->GetNowAnimationTime();
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DashDoubleJumpEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6e1a0 ( no class switch: every X goes to the Sniping Ranger double-jump attack )
+	if( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	if( true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+		{
+			if( m_InputData.pureLeft == true )
+			{
+				StateChangeDashIfPossible();
+			}
+			else if( m_InputData.pureRight == true )
+			{
+				StateChangeDashIfPossible();
+			}
+			else
+			{
+				StateChange( USI_JUMP_DOWN );
+			}
+		}
+		else
+			StateChange( USI_JUMP_DOWN );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( LESI_DOUBLE_JUMP_ATTACK_Z );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( m_InputData.pureDoubleLeft == true || m_InputData.pureDoubleRight == true )
 	{
 		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
@@ -6724,6 +7563,7 @@ void CX2GULire_ElvenRanger::DashDoubleJumpEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_DOUBLE_JUMP_ATTACK_Z
@@ -7087,6 +7927,20 @@ void CX2GULire_ElvenRanger::DoubleJumpAttackZLandingEventProcess()
 //LESI_CHARGE_MP
 void CX2GULire_ElvenRanger::ChargeMPStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8bb50 ( the x0.8 scale goes through June's SetChangeRateMp 32071a50: skipped only for a user with byte +0x6894 set, which nothing writes )
+	CommonStateStartFuture();
+
+	float fAddMPChangeRate = 0.f;
+	LUA_GET_VALUE( m_LuaManager, "ADD_MP_CHANGE_RATE", fAddMPChangeRate, 0.f );
+
+	ResetMPChangeRate( ( GetOriginalMPChangeRate() + fAddMPChangeRate + m_ChargeMPData.m_fChargeStateMP ) * ( 1.f + m_SocketData.m_fSpeedUpManaGather ) );
+
+	if( g_pX2Game->GetGameType() == CX2Game::GT_DUNGEON || g_pX2Game->GetGameType() == CX2Game::GT_BATTLE_FIELD )
+	{
+		SetChangeRateMp( GetChangeRateMp() * 0.8f );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonStateStartFuture();
 
 	float fAddMPChangeRate = 0.f;
@@ -7105,10 +7959,45 @@ void CX2GULire_ElvenRanger::ChargeMPStartFuture()
 	{
 		SetChangeRateMp( GetChangeRateMp() * 0.8f );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ChargeMPStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8bdd0
+	CommonStateStart();
+
+	m_pMPChargeA->ChangeAnim( L"ChargeSoulA" );
+	m_pMPChargeA->SetPlaySpeed( 1.5f );
+	m_pMPChargeA->Play( CKTDGXSkinAnim::XAP_LOOP );
+
+	m_pMPChargeB->ChangeAnim( L"ChargeSoulB" );
+	m_pMPChargeB->SetPlaySpeed( 1.0f );
+	m_pMPChargeB->GetMatrix().Scale( 1.0f, 0.0f, 1.0f );
+
+	m_pMPChargeC->ChangeAnim( L"ChargeSoulA_1" );
+	m_pMPChargeC->SetPlaySpeed( 1.0f );
+	m_pMPChargeC->GetRenderParam()->color.a = 0.0f;
+	m_pMPChargeC->GetMatrix().Scale( 1.2f, 1.3f, 1.2f );
+	m_pMPChargeC->Play( CKTDGXSkinAnim::XAP_LOOP );
+
+	m_fMPChargeSoundTime = 1.5f;
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2Up	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2Up );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2UpHigh	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2UpHigh );
+
+	if( NULL != pSeqMPCharge2Up )
+	{
+		pSeqMPCharge2Up->SetPosition( m_FrameDataNow.unitCondition.landPosition );
+		pSeqMPCharge2Up->SetEmitRate( CMinMax<float>(10.0f,10.0f) );
+	}
+
+	if( NULL != pSeqMPCharge2UpHigh )
+	{
+		pSeqMPCharge2UpHigh->SetPosition( m_FrameDataNow.unitCondition.landPosition );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonStateStart();
 
 	m_pMPChargeA->ChangeAnim( L"ChargeSoulA" );
@@ -7145,10 +8034,155 @@ void CX2GULire_ElvenRanger::ChargeMPStart()
 		//m_pMPCharge2UpHigh->SetEmitRate( CMinMax<float>(10.0f,10.0f) );
 	}
 	
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ChargeMPFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8c080
+	D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+	pos.y += 30.0f;
+
+	m_pMPChargeC->GetRenderParam()->color.a += 0.2f * m_fElapsedTime;
+	if( m_pMPChargeC->GetRenderParam()->color.a > 1.0f )
+		m_pMPChargeC->GetRenderParam()->color.a = 1.0f;
+	m_pMPChargeC->GetMatrix().RotateRel( 0.0f, -D3DXToRadian(300.0f * m_fElapsedTime), 0.0f );
+
+	if( m_hSeqMPEnergy != INVALID_PARTICLE_SEQUENCE_HANDLE &&
+		m_hSeqMPEnergyCenter != INVALID_PARTICLE_SEQUENCE_HANDLE &&
+		m_hSeqMPChargeWave != INVALID_PARTICLE_SEQUENCE_HANDLE &&
+		m_hSeqMPChargeFeather != INVALID_PARTICLE_SEQUENCE_HANDLE )
+	{
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPEnergy			= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergy );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPEnergyCenter 	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergyCenter );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPChargeWave		= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPChargeWave );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPChargeFeather	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPChargeFeather );
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2Up		= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2Up );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2UpHigh	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2UpHigh );
+
+		if( NULL != pSeqMPEnergy )
+		{
+			pSeqMPEnergy->SetPosition( pos );
+			pSeqMPEnergy->SetBlackHolePosition( pos );
+			pSeqMPEnergy->SetLookPoint( pos );
+		}
+
+		if( NULL != pSeqMPEnergyCenter )
+		{
+			pSeqMPEnergyCenter->SetPosition( pos );
+		}
+
+		D3DXVECTOR3 pos2 = GetMatrix().GetPos();
+		pos2.y += 10.0f;
+		if( NULL != pSeqMPChargeWave )
+		{
+			pSeqMPChargeWave->SetPosition( pos2 );
+		}
+
+		if( NULL != pSeqMPChargeFeather )
+		{
+			pSeqMPChargeFeather->SetPosition( pos2 );
+		}
+
+		if( pSeqMPCharge2Up != NULL )
+			pSeqMPCharge2Up->SetPosition( m_FrameDataNow.unitCondition.landPosition );
+		if( pSeqMPCharge2UpHigh != NULL )
+			pSeqMPCharge2UpHigh->SetPosition( m_FrameDataNow.unitCondition.landPosition );
+	}
+
+	float alpha = m_pMPChargeA->GetNowAnimationTime() / m_pMPChargeA->GetMaxAnimationTime();
+	m_pMPChargeA->GetRenderParam()->color.a = 1.0f - alpha;
+	m_pMPChargeA->GetRenderParam()->color.a *= 2.0f;
+	if( m_pMPChargeA->GetRenderParam()->color.a > 1.0f )
+		m_pMPChargeA->GetRenderParam()->color.a = 1.0f;
+
+	if( m_FrameDataNow.unitCondition.fStateTime < 5.0f )
+	{
+		m_pMPChargeA->GetMatrix().Scale( 1.0f, 1.0f, 1.0f );
+	}
+	else
+	{
+		m_pMPChargeA->GetMatrix().Scale( 1.0f, 1.2f, 1.0f );
+	}
+
+	if( EventTimer(5.0f, false) == true )
+	{
+		m_pMPChargeB->SetPlaySpeed( 1.5f );
+
+		if ( IsMyUnit() )
+		{
+			UpDownCrashCamera( 5.0f, 0.2f );
+			g_pX2Game->GetWorld()->SetWorldColor( 0xff333333 );
+			g_pX2Game->GetWorld()->FadeWorldColor( g_pX2Game->GetWorld()->GetOriginColor(), 2.0f );
+		}
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPEnergy			= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergy );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPEnergyCenter 	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergyCenter );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPChargeFeather	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPChargeFeather );
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2Up		= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2Up );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2UpHigh	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2UpHigh );
+		CKTDGParticleSystem::CParticleEventSequence* pSeqImpactTickBlue		= g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleRenaMinorParticleByEnum( RENA_MINOR_PII_IMPACT_TICK_BLUE ) );
+
+		if( NULL != pSeqMPChargeFeather )
+			pSeqMPChargeFeather->SetEmitRate( CMinMax<float>(8.0f,15.0f) );
+		if( NULL != pSeqMPCharge2Up )
+			pSeqMPCharge2Up->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+		if( NULL != pSeqMPCharge2UpHigh )
+			pSeqMPCharge2UpHigh->SetEmitRate( CMinMax<float>(10.0f,10.0f) );
+
+		if( NULL != pSeqMPEnergy )
+			pSeqMPEnergy->SetEmitRate( CMinMax<float>(5.0f,15.0f) );
+		if( NULL != pSeqMPEnergyCenter )
+			pSeqMPEnergyCenter->SetEmitRate( CMinMax<float>(5.0f,15.0f) );
+
+		if( NULL != pSeqImpactTickBlue )
+		{
+			PlaySequenceByTriggerCount( pSeqImpactTickBlue, pos, 200, 200, 20 );
+			pSeqImpactTickBlue->SetLandPosition( m_FrameDataNow.unitCondition.landPosition.y );
+		}
+
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+
+		PlaySound( L"Break.ogg" );
+		PlaySound( L"Charge.ogg" );
+	}
+
+	m_fMPChargeSoundTime -= m_fElapsedTime;
+	if( m_fMPChargeSoundTime <= 0.0f )
+	{
+		if( m_FrameDataNow.unitCondition.fStateTime > 5.0f )
+		{
+			PlaySound( L"Charge.ogg" );
+		}
+		PlaySound( L"wind.ogg" );
+		m_fMPChargeSoundTime = 1.5f;
+	}
+
+	if( m_ChargeMPData.m_fChargeStateMP > 0.f )
+	{
+		D3DXVECTOR3 vPos = GetPos() + D3DXVECTOR3( 0.f, 55.f + 30.f, 0.f );
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPChargePlus );
+		if( NULL == pSeq )
+		{
+			pSeq = g_pX2Game->GetMinorParticle()->CreateSequence( (CKTDGObject*) this,  L"LightParticle_Lire_Plus_ChargeSoul01", vPos );
+			if( NULL != pSeq )
+			{
+				m_hSeqMPChargePlus = pSeq->GetHandle();
+			}
+		}
+
+		if( NULL != pSeq )
+		{
+			pSeq->SetPosition( vPos );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
 	pos.y += 30.0f;
 
@@ -7320,10 +8354,69 @@ void CX2GULire_ElvenRanger::ChargeMPFrameMove()
 
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ChargeMPEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8cb90 ( the CX2Game +0xc20 byte ends the charge too )
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true && ( m_bReAttackZ1Right != m_FrameDataFuture.syncData.bIsRight || m_fReAttackZ1Time <= 0.0f ) )
+	{
+		StateChange( LESI_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( LESI_COMBO_X1 );
+	}
+	else if( SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) == true )
+	{
+	}
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	else if( true == TryHyperModeStateChange( USI_HYPER_MODE ) )
+	{
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &m_FrameDataFuture.unitCondition.landPosition, &m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( GetNowMp() == GetMaxMp() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( g_pX2Game->GetSlideShot()->IsPresentNow() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+	else if( true == IsMPChargeBlockedByGame() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -7382,10 +8475,17 @@ void CX2GULire_ElvenRanger::ChargeMPEventProcess()
 	//}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ChargeMPEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6ac90
+	CommonStateEndFuture();
+
+	ResetMPChangeRate( GetOriginalMPChangeRate() );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonStateEndFuture();
 
 	//{{ kimhc // 2010.6.14	// 드래고닉셋트 효과 적용 여부 포함 
@@ -7396,10 +8496,68 @@ void CX2GULire_ElvenRanger::ChargeMPEndFuture()
 	ResetMPChangeRate( m_fOriginalMPChangeRate );
 #endif	SERV_SECRET_HELL
 	//}} kimhc // 2010.6.14 // 드래고닉셋트 효과 적용 여부 포함
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ChargeMPEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8ce00
+	CommonStateEnd();
+
+	if( m_ChargeMPData.m_fChargeStateMP > 0.f )
+	{
+		g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPChargePlus );
+	}
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPEnergy			= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergy );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPEnergyCenter 	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergyCenter );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPChargeWave		= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPChargeWave );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPChargeFeather	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPChargeFeather );
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2Up		= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2Up );
+	CKTDGParticleSystem::CParticleEventSequence* pSeqMPCharge2UpHigh	= g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPCharge2UpHigh );
+
+	if( NULL != pSeqMPEnergy )
+		pSeqMPEnergy->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+	if( NULL != pSeqMPEnergyCenter )
+		pSeqMPEnergyCenter->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+	if( NULL != pSeqMPChargeWave )
+		pSeqMPChargeWave->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+	if( NULL != pSeqMPChargeFeather )
+		pSeqMPChargeFeather->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+	if( NULL != pSeqMPCharge2Up )
+		pSeqMPCharge2Up->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+	if( NULL != pSeqMPCharge2UpHigh )
+		pSeqMPCharge2UpHigh->SetEmitRate( CMinMax<float>(0.0f,0.0f) );
+
+	g_pKTDXApp->GetDeviceManager()->StopSound( L"wind.ogg" );
+	g_pKTDXApp->GetDeviceManager()->StopSound( L"Charge.ogg" );
+
+	if( GetNowMp() == GetMaxMp() )
+	{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+		pos.y += 30.0f;
+
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleRenaMinorParticleByEnum( RENA_MINOR_PII_IMPACT_TICK_BLUE ) );
+		if( NULL != pSeq )
+		{
+			PlaySequenceByTriggerCount( pSeq, pos, 200, 200, 20 );
+			pSeq->SetLandPosition( m_FrameDataNow.unitCondition.landPosition.y );
+		}
+
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+
+		PlaySound( L"Break.ogg" );
+
+		if ( IsMyUnit() )
+		{
+			UpDownCrashCamera( 5.0f, 0.2f );
+			g_pX2Game->GetWorld()->SetWorldColor( 0xff333333 );
+			g_pX2Game->GetWorld()->FadeWorldColor( g_pX2Game->GetWorld()->GetOriginColor(), 2.0f );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonStateEnd();
 
 
@@ -7469,6 +8627,7 @@ void CX2GULire_ElvenRanger::ChargeMPEnd()
 			g_pX2Game->GetWorld()->FadeWorldColor( g_pX2Game->GetWorld()->GetOriginColor(), 2.0f );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -7477,12 +8636,22 @@ void CX2GULire_ElvenRanger::ChargeMPEnd()
 //LESI_HYPER_MODE
 void CX2GULire_ElvenRanger::HyperModeInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6acc0
 	TextureReadyInBackground( L"ColorBallBlue.dds" );
 	TextureReadyInBackground( L"GroundShockWave.dds" );
 	TextureReadyInBackground( L"WhiteCircle.dds" );
 	TextureReadyInBackground( L"WhitePoint.dds" );
 	TextureReadyInBackground( L"ToKang.dds" );
 	TextureReadyInBackground( L"Energy.dds" );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	TextureReadyInBackground( L"ColorBallBlue.dds" );
+	TextureReadyInBackground( L"GroundShockWave.dds" );
+	TextureReadyInBackground( L"WhiteCircle.dds" );
+	TextureReadyInBackground( L"WhitePoint.dds" );
+	TextureReadyInBackground( L"ToKang.dds" );
+	TextureReadyInBackground( L"Energy.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::HyperModeFrameMove()

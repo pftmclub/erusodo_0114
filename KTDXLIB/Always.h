@@ -11920,3 +11920,30 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: DXUT loads d3d9.dll from the exe folder ( bare name ) instead of the full system path, so a drop-in d3d9.dll such as DXVK is used. Revert: undefine the flag.
 #define SERV_IRUHADEV_D3D9_LOCAL_DLL
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-07
+// Description: June character port ( Rena ) Phase CH1a - Rena runs on June's class core: June's bodies inside March's own CX2GULire_ElvenRanger functions.
+//              Stays commented out until CH1's final sub-phase ships it with June's Lire_ElvenRanger.lua and motions ( one deploy unit ).
+//              Revert: comment out the #define ( JUNE_CHAR_RENA_LIVE ).
+//#define SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+#ifndef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE needs SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK ( TryHyperModeStateChange )
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-07
+// Description: June character port ( Rena ) - the natural-force / combo-revamp lines inside June's bodies ( CH1a: WaitStart ); they need March's ADD_RENA_SYSTEM members,
+//              so CH1q defines this flag together with ADD_RENA_SYSTEM. Revert: comment out the #define ( JUNE_CHAR_RENA_NF ).
+//#define SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+#ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_NF needs SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+//////////////////////////////////////////////////////////////////////////

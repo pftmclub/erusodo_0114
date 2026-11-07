@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1a | **ready** (start: `/x2-phase char-rena CH1a`; beside CH0b): movement and slot-head states (32 fn), `_CORE` / `_LIVE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GULire_ElvenRanger.*`, Always.h | `CH1a.md` |
+| CH1a | **done, review owed** (start: `/x2-phase char-rena CH1a review`): 32 fn inside under `_LIVE` (`//#define`), `_NF` flag added; DEPLOY OK; nothing to play-test | Opus 5.5 / high | CH0 | `X2GULire_ElvenRanger.*`, Always.h | `CH1a-review.md` |
 | CH1b | blocked (CH1a review): reactions (damage 21, stand-up 6, die, start, win / lose) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GULire_ElvenRanger.*` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding 27, pepper, dance | Sonnet 5.5 / high, Opus review | CH1b review | `X2GULire_ElvenRanger.*` | `CH1c.md` |
 | CH1d | blocked (CH1c review): Rena ground combos `LESI_COMBO*` (38 fn) | Sonnet 5.5 / high, Opus review | CH1c review | `X2GULire_ElvenRanger.*` | `CH1d.md` |

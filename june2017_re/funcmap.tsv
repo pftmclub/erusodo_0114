@@ -8579,3 +8579,39 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 32ca6cd0	CX2GULire_ElvenRanger::Night Watcher engine hook body	candidate	Char Rena CH0: reached only from 31fcd700; calls 32c9aae0, 32cb5df0, 32c9a810, 32c9aa60; CH3c0 identifies it
 31f64770	CX2DamageEffect::GetInstance( CEffectHandle )	confirmed	Char Rena CH0: June handle lookup on g_pX2Game->GetDamageEffect() (+0x3b4); March X2DamageEffect.h:1785
 32cb6dd0	none in March: copy of the DamageData member at this+0x763c into the argument	confirmed	Char Rena CH0: called by vslot 0x318 32cb3200; 31e9cb70 = DamageData copy ctor; sits between Rena and Arme
+32c6aaa0	CX2GULire_ElvenRanger::WaitStartFuture	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; no m_fChangeMPTime reset (June charges from the state time); else = March
+32c6dee0	CX2GULire_ElvenRanger::WaitStart	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March; m_eSaveStateSkillId / relate-data (>= 10 -> 0) lines under JUNE_CHAR_RENA_NF
+32c87b90	CX2GULire_ElvenRanger::WaitFrameMoveFuture	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; no m_fChangeMPTime sum; siege attack count (KProtectedType<int> in June) cleared
+32c89bd0	CX2GULire_ElvenRanger::WaitEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; charge-MP test: fStateTime >= 1.0 (March m_fChangeMPTime >= 1.0), plus emotion none, g_pX2Game, CX2Game +0xc20 clear; SpecialAttackEventProcess( ASUT_GROUND ), TryHyperModeStateChange
+32c89e80	CX2GULire_ElvenRanger::WalkEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March (ASUT_GROUND, TryHyperModeStateChange)
+32c83760	CX2GULire_ElvenRanger::JumpReadyEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6aad0	CX2GULire_ElvenRanger::JumpUpEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March with the ADD_RENA_SYSTEM dash-jump branch live (GetEnableDash( EDS_END ) -> USI_DASH_JUMP) and the wall-jump test
+32c6df60	CX2GULire_ElvenRanger::JumpDownEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March with the ADD_RENA_SYSTEM dash-jump branch live after riding
+32c8a080	CX2GULire_ElvenRanger::JumpLandingEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March (skip-point chain = ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS)
+32c6e0c0	CX2GULire_ElvenRanger::LESI_DASH_StateStartFuture	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March (Night Watcher clears the accel-dash flag +0x96c8)
+32c6e0f0	CX2GULire_ElvenRanger::LESI_DASH_FrameMoveFuture	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March (Night Watcher sets the accel-dash flag at state time >= 0.0666; jumps to DashFrameMoveFuture 31fd25e0)
+32c8a2f0	CX2GULire_ElvenRanger::DashEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6abb0	CX2GULire_ElvenRanger::DashEndStartFuture	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March (CommonStateStartFuture)
+32c6abc0	CX2GULire_ElvenRanger::DashEndStart	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March (CommonStateStart)
+32c83800	CX2GULire_ElvenRanger::DashEndFrameMoveFuture	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6e150	CX2GULire_ElvenRanger::DashEndFrameMove	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE branch (EventTimerOneshot( 0.4 ))
+32c8a4f0	CX2GULire_ElvenRanger::DashEndEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March (split at ( max - transition ) / 8; Night Watcher accel dash on a fresh key press)
+32c83850	CX2GULire_ElvenRanger::DashJumpEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; both keys held: only ( oneRight against a left facing ) or ( oneLeft against a right facing ) clamps the speed and picks JUMP_UP / JUMP_DOWN; else = March (class Z: 24 / 114 RTR_Z, 103 LGA_Z)
+32c8a800	CX2GULire_ElvenRanger::DashJumpLandingEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March (first JUMP_DOWN test is a separate if)
+32c6abd0	CX2GULire_ElvenRanger::DoubleJumpStartFuture	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c83b90	CX2GULire_ElvenRanger::DoubleJumpFrameMoveFuture	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; both keys held: fresh right / left press picks the facing, speed set either way; else = March
+32c861c0	CX2GULire_ElvenRanger::DoubleJumpEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; X: every class goes to LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X (March flag-off: DOUBLE_JUMP_ATTACK_Z); the JJX guide only outside classes 13 / 103
+32c6abf0	CX2GULire_ElvenRanger::DashDoubleJumpStartFuture	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c83c10	CX2GULire_ElvenRanger::DashDoubleJumpFrameMoveFuture	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; both keys held as DoubleJump; speed = GetDashSpeed
+32c6e1a0	CX2GULire_ElvenRanger::DashDoubleJumpEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; X: always LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X, no class switch
+32c8bb50	CX2GULire_ElvenRanger::ChargeMPStartFuture	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March ( ADD_MP_CHANGE_RATE, ResetMPChangeRate 31fd9e00, x0.8 in dungeon / battle field through 32071a50 )
+32c8bdd0	CX2GULire_ElvenRanger::ChargeMPStart	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c8c080	CX2GULire_ElvenRanger::ChargeMPFrameMove	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c8cb90	CX2GULire_ElvenRanger::ChargeMPEventProcess	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March plus the CX2Game +0xc20 exit (never set)
+32c6ac90	CX2GULire_ElvenRanger::ChargeMPEndFuture	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c8ce00	CX2GULire_ElvenRanger::ChargeMPEnd	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6acc0	CX2GULire_ElvenRanger::HyperModeInit	PORTED	Char Rena CH1a: inside, June body under JUNE_CHAR_RENA_LIVE; = March (6 textures)
+322cdfa0	CX2Game slide-show getter ( ecx = g_pX2Game, returns the bool IsPresentNow reads )	candidate	Char Rena CH1a: read as g_pX2Game->GetSlideShot()->IsPresentNow() in 32c89bd0 / 32c8cb90 (the slot March reads it in)
+31aadcb0	g_pX2Game != NULL ( handle form )	candidate	Char Rena CH1a: 32c89bd0 passes ( 0, &g_pX2Game holder ); written NULL != g_pX2Game
+CX2Game +0xc20 (Rena CH1a)	none in March: CX2Game byte read by the Rena wait / charge-MP events	confirmed	Char Rena CH1a: 32c89bd0 (entry needs it clear) and 32c8cb90 (exit when set); same byte as Arme; IsMPChargeBlockedByGame() = false in _CONST_RENA_CH1A_
+32071a50	CX2GUUser::SetChangeRateMp( float ) ( June gate )	confirmed	Char Rena CH1a: sets the gage rate unless byte +0x6894 == 1 on a user (+0x264 == 0); no instruction anywhere writes +0x6894 (scan: 7 readers, no writer), so the gate always passes = March SetChangeRateMp; ResetMPChangeRate 31fd9e00 has the same gate (stage33 row)
