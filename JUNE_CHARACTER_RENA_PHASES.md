@@ -540,6 +540,31 @@ CH0 listed `32c9f4f0` as `new ?`; March has `CommonHyperModeFrameMove` (`MODIFY_
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1c review` (Opus 5.5 high), then CH1d.
 
+### CH1c - Review (2026-11-07, Opus 5.5 high)
+
+**Verdict: pass, no code change.** I found no transcription error. I read all three listings (`charport_adis.py rena 32c6d420 32ca7040 32c9f4f0`) end to end.
+- **`CommonHyperModeFrameMove` `32c9f4f0`:**
+  - World colour: the inlined `SetWorldColor` writes 0.1333 x3 / 1.0 to `m_NowColor` (`+0xb4`) and `m_FadeColor` (`+0xc4`), then `m_fFadeTime` (`+0xd4`) = 0. That is `0xff222222` = March.
+  - Both timers are the inlined `EventTimerOneshot` (`m_fAnimOneshotTimer < fTime`, `test ah,0x41; jne`, then `EventTimer`). Timer 1's arm jumps to `32c9f77f` (`CommonFrameMove`), and both failure exits fall into timer 2, so it is an `else if`.
+  - Timer 1: `ShowMinorParticleHyperModeChange( L"Dummy1_Rhand" )` and no sound. March's no-argument call is the same: the parameter defaults to `L"Dummy1_Rhand"` (`X2GUUser.h:2608`).
+  - Timer 2, in order: `32011d20`; `31fd66b0`, `cmp al,1` -> `32011f50`; `Shock( L"Dummy1_Rhand" )`; `UpDownCrashCamera( 20, 0.3 )`. Then the inlined `ClearScreen()` (manager `+0x1fc`: colour 1,1,1,1 and count 1, the `KTDGManager.h:133` defaults). Then `31fd66b0` again, and `Trace` only on false. Then vslot 0xc0 `ApplyHyperModeBuff`, then `bSound_ == 1` -> `Energy` / `Break` / `Change`. `PlaySound( name, 1, 0 )` matches March's defaults. There is no Open Mind line and no `Raven_Slash1`.
+  - Then vslot 0x7cc `CommonFrameMove`, `ret 0xc`.
+  - The three stand-ins in `_CONST_RENA_CH1C_` (no-op, `false`, no-op) match Raven's, Chung's, Eve's and Elsword's.
+- **`RidingHyperModeFrameMove` `32ca7040`:** `fld 0.1` -> `[esp+4]`, `fldz` -> `[esp]`, `push 1`. That is `( 0, 0.1, true )` = March.
+- **`RidingHyperModeInit` `32c6d420`:** six `TextureReadyInBackground` calls (ColorBallBlue, GroundShockWave, WhiteCircle, WhitePoint, ToKang, Energy), in the order written.
+- **State coverage (`ch0_reg.tsv` x `ch0_class_map.tsv`):** the riding / pepper / dance / amusement registrations have class-range callbacks only in `LESI_RIDING_HYPER_MODE` (Init / FrameMove, CH1c) and `LESI_RIDING_DIE` (`32c6de20` / `32ca9230` / `32ca5290` / `32c6aa40`, all CH1b rows). No row is missing. The registration table has 38 such states (riding 26, pepper 5, dance 3, amusement 4), not 37. That is a count slip in CH0 / CH1c, with no effect on the map.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE --with SERV_IRUHADEV_JUNE_CHAR_RENA_CORE --range 036f0b04^..036f0b04`:
+  - `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`.
+  - `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`.
+  - `RESULT: FAIL` only because `_LIVE` is `//#define`, which is by design.
+- `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`.
+- One-file `/Zs` probe of `X2GULire_ElvenRanger.cpp` (`census.py` `cl_cmd`, no PCH): exit 0 and 0 errors three ways (no extra defines; with `_LIVE`; with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`).
+- No code changed, so there is no build. CH1c's `DEPLOY OK` (md5 `3d80b388...`) stands.
+
+Nothing to play-test. Next: `/x2-phase char-rena CH1d` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
