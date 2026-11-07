@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0b | **ready** (start: `/x2-phase char-rena CH0b`): stage 4,762 June assets (31 koms, new data201; 5 class motions held for CH1), 2 guide Lua, 5 walk units, icons PASS | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy), save | `CH0b.md` |
+| CH0b | **done, copy + play-test owed** (2026-11-07): 4,762 assets staged, 32 koms packed (`PACK OK`), 2 guide Lua, units 86-91 added; user: approve `kom.py copy` of 32 koms, then play-test one Rena per tier, say "check logs" | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy), save | `CH0b.md` |
 | CH1a | **ready** (start: `/x2-phase char-rena CH1a`; beside CH0b): movement and slot-head states (32 fn), `_CORE` / `_LIVE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GULire_ElvenRanger.*`, Always.h | `CH1a.md` |
 | CH1b | blocked (CH1a review): reactions (damage 21, stand-up 6, die, start, win / lose) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GULire_ElvenRanger.*` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding 27, pepper, dance | Sonnet 5.5 / high, Opus review | CH1b review | `X2GULire_ElvenRanger.*` | `CH1c.md` |

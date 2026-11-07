@@ -331,6 +331,27 @@ class costume) with `createchar.py`, after a `db_backup`. Gate: `python tools/sk
 **Done gate:** the stage list re-runs 0 `missing` / `march-copy`; in game one Rena per job tier, village and dungeon, no new `KEM_ERROR` /
 `Motion Error` / missing texture or mesh against the pre-CH0b log; a costume, a weapon and three skills look right.
 
+### CH0b - Done (2026-11-07)
+
+Sonnet 5.5. No C++, no flag (CH0 found no March reader a June asset breaks). Assets, two guide Lua and the save only. **Copy to the game dir waits on the user's yes.**
+- **Reference:** `ErrorLog.txt` (211,409 B) saved as `data\ErrorLog_pre_CH0b_rena.txt` before staging.
+- **Staged:** `kom.py stage-june --jobs 8 june2017_re/char_rena/ch0b_stage_list.tsv`: `STAGE-JUNE OK: 31 kom(s), 4762 staged (4459 new, 303 replaced, 0 identical), 0 refused, 38s`
+  (dry run matched CH0). Replaced March files backed up under `24965799\kom_backup_stage_june61107_112732`. The 5 held motions (`Motion_Lire.x`, `_GA`, `_RTR`, `_SR`, `_WS`, `ch1_held_motions.tsv`) are not in the list: March's copies are untouched; CH1 final stages them.
+  Differing class motions went to data033, the 54 June-only motions to new data201.
+- **Lua:** `luasrc.py adopt-june data034 DLG_1ST_Class_Change_Guide_Lena.lua DLG_2ND_Class_Change_Guide_Lena.lua`: `ADOPT-JUNE OK (bytecode): 2 staged, 0 refused` (record `june2017_re/june_adopt_20261107_112754.tsv`).
+  `luabind.py check`: 21 / 22 methods, 0 unbound, `RESULT: PASS`; `luasrc.py ledger --check` PASS (0 FAIL, 0 WARN); `core --check` PASS.
+- **Packed:** `kom.py pack` x32 (31 + data034), 32 `PACK OK`, 0 removed entries. (A first pack run was stopped by the user after 12 koms; all 32 were re-packed from scratch.)
+  Kom list to copy: data002 013 016 019 021 033 034 044 052 063 067 068 069 095 121 130 151 191 192 198 201 215 222 226 datai004 007 012 019 020 023 027 031. `kom.py status`: 32 `COPY NEEDED`.
+- **Done-gate re-run:** `stage-june --dry-run` over the same list: `4762 staged (0 new, 0 replaced, 4762 identical), 0 refused`. 0 `missing` / `march-copy`.
+- **Skill icons:** `skillicons.py check 106 900 23000-23060 23200-23242 23400-23417 23600-23605`: 130 skills, **2 misses**, `RESULT: FAIL` on two `NO_PIECE` rows: 23210 / 23234 `SI_A_RSR_MIND_OF_SHARPSHOOTER`
+  (`DLG_Lena_SKILL_ScreenShot_04`). June's own `.TET` lacks the piece; `stage-june` reports both sheet files identical. June's gap, kept: `JUNE_BUGS.md` row 561. Icons are fine; nothing left to stage.
+- **Save:** backup `db_backup\els_db_20261107_112929_pre_manual.sql`; added with `createchar.py` (lv 99, class costume + top gear +10): unit 86 ElvenRangerT (3), 87 CombatRangerT (12),
+  88 SnipingRangerT (13), 89 WindSneakerT (102), 90 NightWatcherT (114), 91 TrapRanger99 (24). Existing: 12 reyaa (103 lv99), 35 TrapRangerT (24 lv70).
+  (89 / 90 / 91 were created after the game was closed: `createchar` refuses while it runs.)
+- **Play-test (user) is the gate** after the copy. Log tag `[JUNE_CHAR]` has no lines (no code); the check is `ErrorLog.txt` against `ErrorLog_pre_CH0b_rena.txt`
+  (`KEM_ERROR`, `Motion Error`, missing texture / mesh). Class script and motions are still March's, so Rena plays as before; her new meshes / textures / sounds load.
+- **Drift:** none new.
+
 ## Phase CH1 - Deploy unit: June script, motions and the class core
 
 **Groups** (CH0's map fills the counts and the exact function lists; the kickoffs carry the filters):
