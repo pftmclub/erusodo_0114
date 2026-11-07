@@ -2198,8 +2198,9 @@ buff helpers, `JUNE_DIVERGE_SKILL_LEVEL_VALUE`, `JUNE_SKILL_TYPE`, `JUNE_ENUM_NA
 **Range (commit `f6866212`):** `--range f6866212^..f6866212`, same 5 files: `files: 2 PASS, 0 PASS~, 1 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; 1 deleted (the `//#define`); `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,081,280 B, dated 2026-11-07 07:12:48, md5 0bb93350b8fee024e74ae2f0980be015, equal to X2/US_SERVICE/x2.exe (2026-11-07 07:12:40); built at main 450a00e1 + 5 uncommitted code file(s).`
 `EXESTR OK: 6 of 6 found in X2_offline.exe, 26081280 B, dated 2026-11-07 07:12:48, md5 0bb93350b8fee024e74ae2f0980be015` (the five log lines and the effect name, wide).
-**Save** (backup `els_db_20261107_070425_pre_sql.sql`): unit 49 `Raven99` (Blade Master) + Counter 24418 (unsealed), Shockwave Front 24016 in slot 7 (24026 out), Divider 24030
-slot 8; unit 76 `RecklessFistT` + Infinity Rage 24420 (unsealed), Hell Dive 24219 slot 5, Megadrill Break 24228 slot 6; unit 77 `VetCommanderT` + Win and Win 24422 (unsealed),
+**Save** (backup `els_db_20261107_070425_pre_sql.sql`): unit 78 `BladeMasterT` (transcended Blade Master; Open Mind, Cutter 24016 slot 2, Divider 24030 slot 7 already) + Counter 24418
+(unsealed). First run (07:20-07:22) used un-transcended unit 49: no `open mind` / `mp:` line, as June (all four are `SPRT_HYPER_CLASS` passives, no level until
+transcended; init line `walk x1.000` vs 78's `x1.100`); 49 keeps 24418 and 24016 in slot 7 (24026 out). Then unit 76 `RecklessFistT` + Infinity Rage 24420 (unsealed), Hell Dive 24219 slot 5, Megadrill Break 24228 slot 6; unit 77 `VetCommanderT` + Win and Win 24422 (unsealed),
 Flame Sword 24218 slot 7 (24034 out), Ignition Crow Napalm 24053 slot 8.
 **In game:** `[JUNE_CHAR] RAVEN PASSIVE open mind: skill 24030 type 15 damage x 1.050`; `mp: skill 24030 base 200.00 -> 160.00` after Shockwave Front; `infinity rage: magic hit ...,
 effect DamageEffect_RRF_ExplosiveHand_Impact_NEW` on Hell Dive / Megadrill; `win and win: self damage hit, factor found`, then `mp: skill 24218 base 30.00 -> 15.00` and
