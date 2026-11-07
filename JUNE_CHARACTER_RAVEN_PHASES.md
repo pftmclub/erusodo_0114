@@ -2212,6 +2212,28 @@ Unit 76: `infinity rage: magic hit ... ( damage rel 1.100 ), effect DamageEffect
 `win and win: self damage hit, factor found, 1 factor(s)` x3, each followed by `mp: skill 24218 base 30.00 -> 15.00`, and `win and win cool time: skill 24218 base 3.00 -> 2.10`.
 No Mental Crash cast (JUNE_BUGS 558 not exercised).
 
+### CH4b - Review (2026-11-07)
+
+Opus 5.5. **Verdict: passes, no code change; `_PASSIVE_DEBUG` retired.** Commit `f6866212`; listings `charport_adis.py raven 32c5c080 32c38180 32c382d0`, `funcdis.py --func 32633650`, `xorstrings.tsv`.
+- **`SetDamageExceptionProcess` `32c5c080`:** base `32045340( dd, rate )` first. Open Mind: `31fceab0( 0x5f61 ) > 0`; vslot 0x524 is called, then `[dd+0x5c4]` (APPLIED_SKILL_ID, funcmap rows 373 / 631) replaces it when
+  `> 0`; `32206450( id, 1 )` (= March's one-argument `GetSkillTemplet` under `UPGRADE_SKILL_SYSTEM_2013`); type 13 and 12 leave, 7 or `type - 14 <= 2` go on: `{ 7, 14, 15, 16 }` as the port.
+  `32007b10( 0xf, 0x5f61 )` x `+0x3c` (fMagic) stored first, then x `+0x38` (fPhysic). Infinity Rage: `31fceab0( 0x5f64 ) > 0`, `32610fb0( 0x12 )`; `[dd] = 1` (`DT_MAGIC`); `+0x3c = +0x38 + +0x3c`; `+0x38 = 0`;
+  `fld rel; fld1; fsub st1,st0; fxch; fmul 0.5; faddp` = `( rel - 1 ) x 0.5 + 1`, x `+0x3c`; `31f54a10( L"DamageEffect_RRF_ExplosiveHand_Impact_NEW", 0x29 )` (41 = the name's length) on `+0x47c`.
+  **`+0x47c` is `CREATE_DAMAGE_EFFECT_NAME`:** June's parser `32632390` builds that key in buffer `337a5fd4` (`xorstrings.tsv`, use `326334db`) and its last bytes (`337a5fe9`) are read at `3263363e`, just before
+  `lea edi,[ebp+0x47c]` @32633650; `_SCALE_X/Y/Z` follow into `+0x498` / `+0x49c` @32633ed0. Win and Win: `31fceab0( 0x5f66 ) > 0`, `32610fb0( 0x13 )`, vslot 0x238 `( &ret, 0x5f66, 0, 1 )`,
+  `329cf6d0( ptr, 1 )` (= March's `PushBuffFactor`, null-safe; Eve CH4b row 5652), then the smart-pointer release. The port's null `dd` return is a stand-in (June reads it unchecked).
+- **`GetActualMPConsume` `32c38180`:** base `31fd1840( id, level, 1 )`. `id > 24011` -> `== 24030` or fall to the second test; `== 24011` -> Counter; below: 4017 -> memo `0x9377c` x1.1, 4203 -> memo `0x93765` x0.5,
+  both through `31fca9e0` (stub, 0): not transcribed, as the note says. Counter: vslot 0x240 `( 0x5f62, 0, 1 )` -> x `32007b10( 0x1b, 0x5f62 )`, then the second test. Second test: 24214 / 24201 / 24218 / 24226
+  with `HaveThisBuff( 3229a3d0( 0x5f66, 0, 1 ) )` -> x0.5 (JUNE_BUGS 558 holds). `fcomp 0.0; test ah,5; jp` clamps only `< 0` (NaN kept) = the port's `< 0.f`. `31fca8e0( id, 1 )` non-null ->
+  `3234d840( id, templet +4 )` on `g_pData +0x68 -> +0x90`, else 1.0; result = rate x MP. `SERV_BALANCE_FINALITY_SKILL_EVENT` is ON (`flagprobe.py`), so the port takes the same path.
+- **`GetActualCoolTime` `32c382d0`:** null -> `fldz`; base `31fd1920( t, level, 0 )`; `HaveThisBuff( 3229a3d0( 0x5f66, 0, 1 ) )` -> x `32007b10( 0x94, 0x5f66 )`; no clamp. = the port.
+- **Names** against `Enum.src.lua`: `RNSI_P_RRF_INFINITY_RAGE` 24420 (l.15940), `RNSI_P_RVC_WIN_AND_WIN` 24422 (l.14816), `DTT_RRF_BURNING_NASOD_HAND_POSSIBLE_WITH_INFINITY_RAGE` 18 (l.7297),
+  `DTT_RVC_IGNITION_CROW_SELF_DAMAGE` 19 (l.7283); the MP set 24214 / 24201 / 24218 / 24226 and 24011 / 24030 / 24417 / 24418 equal June's and `X2SkillTree.h`; `DT_MAGIC` = 1.
+- **Logs:** the CH4b log check above holds every line the kickoff names (`mp:`, `win and win cool time`, `win and win: self damage hit`, `open mind`, `infinity rage`). Mental Crash not cast (558 unexercised).
+- **Gates:** `flagcheck JUNE_CHAR_RAVEN_PASSIVE --with JUNE_CHAR_RAVEN_PASSIVE_DEBUG --range f6866212^..f6866212 --files` (5): `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`,
+  `1 deleted line(s)` (the `//#define`), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: `0 A/B row(s)`.
+  Retirement: `//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG` (bytepatch, CP949 / CRLF unchanged). Build started, not awaited. CH4c's kickoff checked: ready (CH3c2 and CH4b reviews done).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI`. Sub-tag `UI`.
