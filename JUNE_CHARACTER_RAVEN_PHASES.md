@@ -2420,3 +2420,7 @@ what it does / look for / if not. Log tag `[JUNE_CHAR]`, `python tools/logs.py -
 None open. Settled by standing rules, not decisions: the motion koms deploy with CH1 final (7ad); `OT_SP1a_ChargedBolt`, if June's motion lacks
 it, is a June bug kept verbatim (CH2c); Burning Nasod Hand's `= 2` write ships only with June's script (7b); CH0b waits for char-elsword CH6's
 walk and the code for char-elsword Z (Order). CH0 may raise one if the rage map finds a March system June removed.
+
+### Phase Z - Done (2026-11-07, Sonnet 5.5)
+
+Docs only: no code, no build, no flag, no kom. `MODS.md` section `June character: Raven, the whole port` (flags, data, revert order: exe + data036 + motion koms together); checklist rows already carry `(Raven: CHn)` marks (45); Raven paragraph and lessons added to the Aisha plan's "Template for Stage 7"; backlog Stage 7 closing note; `stage7-plan` row now points at `char-rena` (ready: `/x2-phase new-plan char-rena`, asks `ADD_RENA_SYSTEM`); the `char-raven` block moved to `STATUS_ARCHIVE.md` with a *Closed plans* row. `Always.h`: `JUNE_CHAR_RAVEN_CORE / LIVE / RAGE / SKILL / TRANSCEND / PASSIVE / UI` defined; every `_DEBUG` (`RAGE`, `SKILL`, `PASSIVE`) is commented out. Left open and routed: Shadow Step base-id question (`JUNE_BUGS` 559, the user's call). User owes nothing.

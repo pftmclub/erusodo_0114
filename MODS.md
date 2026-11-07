@@ -6111,3 +6111,19 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE` ( needs `_RAVEN_SKILL`, `_USER_SKIL
 - **Engine:** `CX2GUUser` gains June's class callback for a hit's create-damage-effect ( run by the user attack and the damage-effect random spawn ); user DamageReact / AttackResult read Spiritualized Fury's June id 24405 for the soul rate.
 - **Damage:** the passives' numbers are June's `NewSkillTempletVer2.lua`; March applied none of them on a June save, so every learned passive above is new damage / defence in play.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE` ( March's `InitPassiveSkillState` comes back, reading the 44xx ids ), `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. The X Crash member rename ( `m_bXCrashHit` ) stays with `_RAVEN_SKILL`.
+
+### June character: Raven, the whole port (char-raven, closed 2026-11-07)
+
+Plan `JUNE_CHARACTER_RAVEN_PHASES.md` (CH0-CH6, Z, 98 commits from 2026-11-05); per-phase entries are the `Stage 7 Raven` sections above. All seven classes (4, 16, 17, 25, 106, 107, 115) run on June's class core, Nasod core / rage gauge and hyper orbs (live March code), skills, passives, Veteran Commander overheat, cut-in table and transcendence rows. CH6 walk PASSED (all seven classes, the becoming-transcended transition on 106 / 107 / 115, skill cut-in sets 0-3, hyper cut-ins; 0 KEM_ERROR, 0 Motion Error).
+
+| Flag (all in `KTDXLIB/Always.h`) | What it holds |
+|---|---|
+| `SERV_IRUHADEV_JUNE_CHAR_RAVEN_CORE`, `_LIVE`, `_RAGE` | class core (inert until LIVE); LIVE is the switch (June's bodies inside March's `CX2GURaven` functions, March's in `#else`); RAGE = Nasod core / rage gauge / hyper orbs (CH1q; live March code) |
+| `SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL`, `_TRANSCEND` | skill states CH2 / CH3 (incl. Veteran Commander's Ignition Crow / Incineration / Deadly Raid); Blade Master / Reckless Fist / Veteran Commander transcended hyper actives, allow-list 106 / 107 / 115, pictures |
+| `SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE`, `_UI` | CH4a-CH4c passives, overrides and Veteran Commander overheat; CH5 skill cut-in table |
+
+No `SERV_IRUHADEV_JUNE_CHAR_RAVEN_*_DEBUG` flag is defined (`_RAGE_DEBUG`, `_SKILL_DEBUG`, `_PASSIVE_DEBUG` all commented out, retired in their reviews). JUNE_BUGS rows for Raven: 535-560 (537 withdrawn).
+
+**Data (one deploy unit):** the Raven motion / mesh / texture / cut-in koms staged byte-exact by CH0b (4,825 files in 35 koms, 4,490 new, 335 replaced; backup `kom_backup_stage_june/20261105_201955`; `data202` is a new archive); `Motion_Raven_OT.x` (data033) moved to June's at CH1 final together with the exe; data036 `RAVEN_FIGHTER.lua` = June's bytecode, `UnitTemplet.lua` (Raven's 7 blocks, core-list source, CH5), `LevelUpEvent.lua` (`TYPE4`, CH3d), `DLG_Transcendental_Change_Guide_Raven.lua`, `RavenVoice_ClassUpReady01 / 02.ogg` and the other core-list files carry June's Raven rows / lines only; data034 class-change guide dialogs; skill icon sheets (known misses `JUNE_BUGS` 535 / 552); transcended portraits and `POPUP_TR_*` guide textures. Damage numbers per skill are in the `Stage 7 Raven` sections.
+
+**Revert, in this order:** (1) comment out `SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE` (the other Raven flags then compile March's code), (2) restore data036 files from the `kom_backup_tools` backups and `kom.py copy data036`, (3) restore the replaced motion / texture files from `kom_backup_stage_june/20261105_201955` (and data033's `Motion_Raven_OT.x` backup) and `kom.py pack` / `copy` the koms, (4) `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Exe, data036 and the motion koms must change together. Save: unchanged (units 72-83 were added for the walk).
