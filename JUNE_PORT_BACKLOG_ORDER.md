@@ -1481,6 +1481,8 @@ D1-2b found two June systems that `Process_ExtraDamage` (`32034e50`, tsv `out`, 
 out of the divergence plan (no `replace` row, nothing blocks play), so they are a stage of their own.
 - **Black-out screens:** `EDT_BLIND` (`@32035ff7`) and `EDT_AMUSEMENT_ITEM_DARK_CLOUD` (`@320392cd`), their user state, and `DyingStart`'s cleanup (a stand-in comment today).
 - **The timed mark list** `CX2GameUnit +0x3b84`, its unit effect set `+0x41ec` and the NPC side `327995c0`.
+- **Two June-only extra-damage pack members** (char-raven CH4c, 2026-11-07): June's list `+0x3fb8` has 37 entries, March's 35; the extra two are
+  `+0x3aa4` / `+0x3bc0` (the mark list's `+0x3b84` falls inside the first).
 - **Brief:** `kickoffs/june-backlog/stage36-extra-damage.md` (`/x2-phase new-plan june-extra-damage`). **Depends on:** nothing. Priority: scattered systems.
 
 ### Stage 37: June HUD, buff icon row and quick slot (user, 2026-10-31; split out of Stage 9)

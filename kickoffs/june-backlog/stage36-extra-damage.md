@@ -42,6 +42,13 @@ Delegate bytepatch specs you write, builds and flagcheck runs to Sonnet subagent
 No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): `EDT_*` ids by name; register June's name and value under a `SERV_IRUHADEV_`
 flag if C++ lacks it. No `June` prefix (user, 2026-10-28): members and functions in the class's own pattern.
 
+## Added by char-raven CH4c (2026-11-07)
+
+- **Two June-only extra-damage pack members.** June's list `CX2GameUnit +0x3fb8` has 37 pointers (ctor `322a2700` @`322a5c20`-`322a5dd2`), March's 35:
+  the same members 0-34 plus `+0x3aa4` and `+0x3bc0` (pack members 40 / 41, 0x11c each). Name their EDTs (the reader that maps a type to a member),
+  add them to `CX2GameUnit::ExtraDamagePack`, the list and `NUM_OF_EXTRA_DAMAGE_PACK_MEMBER`. Check first: the mark list `+0x3b84` above lies
+  inside member 40's bytes (`+0x3aa4`-`+0x3bbf`), so it may be that member, not a separate list. funcmap row `322a2700 @322a5c20-322a5dd2 (Raven CH4c)`.
+
 ## Lessons from D1-1 / D1-2b (2026-10-29)
 
 - Uncarved functions: `python june2017_re/funcdis.py --func <va>`; Ghidra's decompile of the XOR-keyed Lua reads is unreadable, use the asm.

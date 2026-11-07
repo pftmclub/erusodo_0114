@@ -617,6 +617,16 @@ namespace _CONST_EQUIPPEDSKILLSLOT_CH1o2_
 		}
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_UI
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+		/// June @328e0c8f: a Veteran Commander's Shadow Step takes its own icon, only behind the tree's +0x130 byte ( JUNE_BUGS 560 )
+		if ( true == g_pData->GetUIManager()->GetUISkillTree()->GetClassSkillIconSwap() && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() &&
+			 CX2Unit::UC_RAVEN_VETERAN_COMMANDER == g_pData->GetMyUser()->GetSelectUnit()->GetClass() && CX2SkillTree::RNSI_A_RF_SHADOW_STEP == iSkillID_ )
+		{
+			wstrIconTexName_ = L"DLG_SKILL_RavenActive_01.tga";
+			wstrIconTexKey_ = L"SI_A_RF_SHADOW_STEP";
+		}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+
 		g_pX2Game->GetMyUnit()->SkillIconOverride( iSkillID_, wstrIconTexName_, wstrIconTexKey_ );
 	}
 }

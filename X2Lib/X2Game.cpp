@@ -13470,7 +13470,11 @@ void CX2Game::UpdateSkillSlotUI(bool bUpdateEquipSkill /*= false*/)
 #endif //SERV_RENA_NIGHT_WATCHER
 
 #ifdef SERV_RAVEN_VETERAN_COMMANDER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+	// June 322de5d0 runs no Veteran Commander slot-icon pass ( Shadow Back Slide's icon is gone )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 	UpdateVeteranCommanderSkillSlotIcon();
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 #endif //SERV_RAVEN_VETERAN_COMMANDER
 
 #ifdef FINALITY_SKILL_SYSTEM //±èÃ¢ÇÑ
@@ -14947,7 +14951,11 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 #endif SERV_RENA_NIGHT_WATCHER
 
 #ifdef SERV_RAVEN_VETERAN_COMMANDER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+						if( CX2SkillTree::RNSI_A_RF_SHADOW_STEP == pSlotData->m_eID )	// June 322e07e0 @322e1114: the base id only ( JUNE_BUGS 559 )
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 						if( pSlotData->m_eID == CX2SkillTree::SI_A_RF_SHADOW_STEP )						/// ¼¨µµ¿ì ½ºÅÜ ÄÞº¸
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 						{
 							CX2GURaven* pRaven = static_cast< CX2GURaven* >( GetMyUnit() );
 
@@ -14955,6 +14963,16 @@ void CX2Game::UpdateSkillCoolTime( float fElapsedTime )
 							{
 								fRequiredMPConsumption = 10.f;
 							}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+							static bool s_bShadowStepComboLogged = false;
+							if( s_bShadowStepComboLogged != ( NULL != pRaven && true == pRaven->GetActiveShadowStep() ) )
+							{
+								s_bShadowStepComboLogged = !s_bShadowStepComboLogged;
+								CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN PASSIVE shadow step slot: combo %d, mp %.1f", s_bShadowStepComboLogged ? 1 : 0, fRequiredMPConsumption );
+							}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 						}
 #endif SERV_RAVEN_VETERAN_COMMANDER
 

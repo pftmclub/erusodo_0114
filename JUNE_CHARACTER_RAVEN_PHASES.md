@@ -2234,6 +2234,42 @@ Opus 5.5. **Verdict: passes, no code change; `_PASSIVE_DEBUG` retired.** Commit 
   `1 deleted line(s)` (the `//#define`), `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GURaven.cpp`: `0 A/B row(s)`.
   Retirement: `//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG` (bytepatch, CP949 / CRLF unchanged). Build started, not awaited. CH4c's kickoff checked: ready (CH3c2 and CH4b reviews done).
 
+### CH4c - Done (2026-11-07)
+**Landed.** Commit: see `git log`, "char-raven Phase CH4c". Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE` (new guard line: with `JUNE_USER_SKILL_ICON_OVERRIDE` it needs
+`JUNE_CHAR_EVE_UI` for `GetClassSkillIconSwap`; all ON by a `cl /P` probe); `_PASSIVE_DEBUG` re-opened for the log. Files: `X2Game.cpp`, `X2UISkillTreeNew2015.cpp`, `Always.h`.
+Rows `(Raven CH4c)` at the end of `june2017_re/funcmap.tsv`. Most of `ch0_overheat.tsv`'s 24 CH4c rows were taken earlier, as below.
+- **Shadow Step slot MP, `UpdateSkillCoolTime` `322e07e0` @`322e1114`:** June's test is March's (my unit's `m_bActiveShadowStepCombo` `+0x9728` -> MP 10.0, the `else if` chain after it
+  unchanged) with June's id: `RNSI_A_RF_SHADOW_STEP` 24200 in place of March's `SI_A_RF_SHADOW_STEP` 4205, which no June slot holds (March's test was dead). June compares the base id
+  only, so a slot holding the upgrade 24217 keeps showing 40 MP: **JUNE_BUGS 559** (every Veteran Commander save here has 24217).
+- **Veteran Commander slot icon:** June's `UpdateSkillSlotUI` `322de5d0` runs nine class passes (Elsword, Rose, Eve, Night Watcher, Code Empress, Add, G-Core, two more) and none for the
+  Veteran Commander, so March's `UpdateVeteranCommanderSkillSlotIcon` call is dropped (March's swap to the Shadow Back Slide icon is gone; it tested id 4205, so it was dead here too).
+  June's icon override `328e0aa0` @`328e0c8f` has a class-115 block (24200 -> `DLG_SKILL_RavenActive_01.tga` / `SI_A_RF_SHADOW_STEP`, the templet's own icon) inside the tree's
+  `+0x130` test, which only the Eve / Night Watcher / Code Empress / Add passes write: ported into `ApplyEquippedSkillIconOverride` as June has it (**JUNE_BUGS 560**, no visible effect).
+- **Taken by earlier phases (no code):** `_SetOverheat` / `_CanOverheat` / `_BurnOverheatHP` (CH1g), `CreateOverHeatObject` / `DeleteOverHeatObject` / `_ShowOverheatIcon` (CH1g2, = March),
+  ReInit without the overheat cleanup (CH1h), `CommonFrameMove` without March's second `SA_OVERHEAT_HP` read (CH1j), the Overheat Mode id 24415 and the `SA_OVERHEAT_HP` / `_PVP` reads
+  (CH4a), Bleeding in `DamageReact` (CH1h). Specialization B readers `32c49410` / `32c507da`: CH1q (7an). `SA_OVERHEAT_HP` 125 / `_PVP` 145, `CTI_X_CONTINUE_OVERHEAT` 76 /
+  `CTI_PUSH_Z_OVERHEAT` 82 (counted in `X2ComboTree.h`) equal June's.
+- **`MemoConditionRaven`: n/a**, as Chung's and Elsword's: its decide `32c28100` = `31fd4450( arg ) != 0`, always false; the ctor `32c3c780` has no reference. No memo reader to port.
+- **Extra-damage pack:** June's list (`CX2GameUnit` ctor `322a2700` @`322a5c20`-`322a5dd2`) is March's 35 (Raven's `m_SmokeBlind` 30 and `m_Bleeding` 34 at the same places) plus
+  two June-only members `+0x3aa4` / `+0x3bc0`, not Raven's: routed to backlog **Stage 36** (bullet + brief amended; the mark list `+0x3b84` lies inside the first).
+- **Left arm:** June reads division group 47 (`DITT_ITEM_ID_NOT_RENDERING_NASOD_HAND`) in three places only: `3201c3a0` (already June's), Lu/Ciel `32b18220`, and the viewer `31f94360`;
+  no June code holds March's three `IsNoRenderNasodHand` ids. June's `InitEqip` `32024510` has no nasod-hand / one-piece pass at all. Both March functions differ whole (two `replace` rows in
+  `june_march_divergent.tsv`), so they are routed to **june-engine R14c** (kickoff, STATUS row and checklist 7aa amended), not half-ported here.
+- **Checklist:** 7aj and 7aa marked `(Raven: CH4c)`.
+
+**Hygiene.** One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`): `X2Game.cpp`, `X2UISkillTreeNew2015.cpp` exit 0, 0 errors. `cl /P` probe: `JUNE_CHAR_RAVEN_PASSIVE`, `_PASSIVE_DEBUG`,
+`JUNE_CHAR_EVE_UI`, `JUNE_USER_SKILL_ICON_OVERRIDE`, `SERV_RAVEN_VETERAN_COMMANDER` all ON.
+`flagcheck.py JUNE_CHAR_RAVEN_PASSIVE --with JUNE_CHAR_RAVEN_PASSIVE_DEBUG --worktree --files` (3): `files: 1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (the deleted line is
+`//#define ..._PASSIVE_DEBUG`). `junediverge.py --check` (2 files): `allow-listed: 33`, `RESULT: PASS`; `--check-all` after the two new rows: `allow-listed: 197`, `RESULT: PASS`.
+`enumscan.py --check X2Game.cpp X2UISkillTreeNew2015.cpp`: `0 A/B row(s)`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,082,304 B, dated 2026-11-07 07:56:12, md5 1228c52c6ba600366c045424c2ad19fa, equal to X2/US_SERVICE/x2.exe (2026-11-07 07:56:05); built at main f36ec5f3 + 3 uncommitted code file(s).`
+`EXESTR OK: 2 of 2 found in X2_offline.exe, 26082304 B, dated 2026-11-07 07:56:12, md5 1228c52c6ba600366c045424c2ad19fa` (the log line and `SI_A_RF_SHADOW_STEP`, wide).
+**Save** (backups `els_db_20261107_074709_pre_sql.sql` and the next two): unit 82 `VetCommanderB` (not transcended): Shadow Step 24200 learned, slot 1 (24039 out), the upgrade 24217
+unlearned. Unit 77 was touched and put back (24200 unlearned again; 24217 stays in its slot 1).
+**In game:** `[JUNE_CHAR] RAVEN PASSIVE shadow step slot: combo 1, mp 10.0` when the back-slide window opens after Shadow Step, `combo 0, mp 40.0` when it closes (one line per change);
+the slot's icon stays Shadow Step throughout.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI`. Sub-tag `UI`.

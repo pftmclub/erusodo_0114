@@ -702,6 +702,7 @@ owner and the templet's unit type is not 9 / 0xb: the owner templet's minor-unit
 `basicFoot`, `m_RavenLeftArmItemID`), not minor-unit ones, so this pair exists for **every class**: June's `UpdateEquipCollisionData` (`31fd8c00`,
 Aisha `32cc8d30`) takes a non-Add / non-Rose item's hit lines from the basic item's anim. Not Lu/Ciel-only: it belongs to the engine plan (with its
 `3295a570` ChangeAnim and the equip frame move / delete). Until then D1-3h's sites use the worn item's own anim (stand-in, same lines, worn weapon's reach).
+(Raven: CH4c - the left-arm readers: `3201c3a0` already June's; `CX2GUUser::InitEqip` `32024510` and the viewer `31f94360` differ, routed whole to june-engine R14c.)
 
 ### 7ab. Rose weapon attach frames (from June engine R14b)
 
@@ -868,7 +869,7 @@ rescales the factor by the state's reserved-buff skill id (`+0x9274`) when that 
 S7b ports June's skill tree UI (`CX2UISkillTreeNew2015`). These parts of its class block only do something for one class and need that class's runtime state, so the class port adds them:
 - **Equipped-slot icon overrides** `328e0aa0` (from the equipped slot's `UpdateUI` `328e18d0`): per class type (0x6d, 0x7b, 0x72, 0x73, 0x1a Eve, 0x7e, 0x24) a skill shows another icon while a class state holds
   (Eve's El Crystal index at tree `+0x134`, Add's `+0x138` / `+0x139`, the game unit's vslot 0x98 / 0x56c). March keeps only its Eve `UpdateEveElectraSkillSlotIcon` call, which S7b ports as June's tail.
-  (Eve: CH4c - tree `+0x130` / `+0x134` = `CX2UISkillTreeNew::m_bClassSkillIconSwap` / `m_iElectraFormationType`, written by June's bodies of `CX2Game::UpdateEveElectraSkillSlotIcon` (`322d9250`) and `UpdateCodeEmpressSkillSlotIcon` (`322d99d0`, March's namesake under `FINALITY_SKILL_SYSTEM`), read by `328e0aa0`'s 0x6d / 0x1a blocks in `JuneApplyEquippedSkillIconOverride`; the 0x7b / 0x72 / 0x73 / 0x7e and Add blocks stay with their classes.)
+  (Eve: CH4c - tree `+0x130` / `+0x134` = `CX2UISkillTreeNew::m_bClassSkillIconSwap` / `m_iElectraFormationType`, written by June's bodies of `CX2Game::UpdateEveElectraSkillSlotIcon` (`322d9250`) and `UpdateCodeEmpressSkillSlotIcon` (`322d99d0`, March's namesake under `FINALITY_SKILL_SYSTEM`), read by `328e0aa0`'s 0x6d / 0x1a blocks in `JuneApplyEquippedSkillIconOverride`; the 0x7b / 0x72 / 0x73 / 0x7e and Add blocks stay with their classes.) (Raven: CH4c - the 0x73 block, Shadow Step 24200's own icon, in `ApplyEquippedSkillIconOverride`; June's `322de5d0` has no Veteran Commander pass, so March's `UpdateVeteranCommanderSkillSlotIcon` call is dropped.)
 - **Install / G-Core marks** `328e0290`: classes 9 and 0xb toggle `Static_Install_Skill` / `Static_GCore_Skill` per slot through the game unit's vslot 0x71c.
 - **Slot data types 5 and 6** (`328d9ac0` / `328e0f10` Aisha memorize slots, ctor caller `322deb80`; `328d9b00` / `328da050` Luciel transform slot, caller `3200f380`), the equipped slot's
   `SESAPT_MEMORIZE` picture (`328e0460` case 2, `AISHA_MEMORIZE_SIGN`, `328df840` through vslot 0x714), the memorize mouse-in case 29059 (`328ec719`) and the transform-slot cases 29078 / 29079 (`328ed6a8`; 29079 only hides the tooltip, ported).
