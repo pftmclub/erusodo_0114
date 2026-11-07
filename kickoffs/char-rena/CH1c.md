@@ -56,3 +56,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   June addresses: `32c6d420` `32c9f4f0`(new ?) `32ca7040`.
 - **States: 37** (`awk -F'\t' '$8=="CH1c"' june2017_re/char_rena/ch0_state_skill.tsv`): `LESI_PEPPER_RUN_READY`, `LESI_PEPPER_RUN`, `LESI_PEPPER_RUN_END`, `LESI_PEPPER_RUN_JUMP_UP`, `LESI_PEPPER_RUN_JUMP_DOWN`, `LESI_AMUSEMENT_ITEM_PHOENIX_RUN`, `LESI_AMUSEMENT_ITEM_PHOENIX_RUN_END`, `LESI_DANCE_Z`, `LESI_DANCE_X`, `LESI_DANCE_WAIT`, `LESI_RIDING_START`, `LESI_RIDING_ON`, `LESI_RIDING_OFF`, `LESI_RIDING_WAIT_HABIT`, `LESI_RIDING_WAIT`, `LESI_RIDING_WALK`, `LESI_RIDING_JUMP_UP`, `LESI_RIDING_JUMP_DOWN`, `LESI_RIDING_JUMP_LANDING`, `LESI_RIDING_DASH`, `LESI_RIDING_DASH_END`, `LESI_RIDING_DASH_JUMP`, `LESI_RIDING_DASH_JUMP_LANDING`, `LESI_RIDING_DAMAGE_FRONT`, `LESI_RIDING_DAMAGE_FRONT`, `LESI_RIDING_ATTACK_Z`, `LESI_RIDING_ATTACK_X`, `LESI_RIDING_JUMP_ATTACK_Z`, `LESI_RIDING_ATTACK_SPECIAL`, `LESI_RIDING_DIE`, `LESI_RIDING_SPECIAL_MOVE`, `LESI_RIDING_HYPER_MODE`, `LESI_RIDING_SPECIFIC`, `LESI_RIDING_ATTACK_X_READY`, `LESI_RIDING_ATTACK_X_READY_2`, `LESI_RIDING_ATTACK_X_END`, `LESI_RIDING_DAMAGE_BACK`.
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, LIRE_ELVENRANGE.
+
+## Amended by CH1b (2026-11-07)
+
+- `SERV_IRUHADEV_JUNE_CHAR_RENA_CORE` is now defined (`Always.h`; `_LIVE needs _CORE` guard added). Its first member is `CX2GULire_ElvenRanger::KillMySummonedNPC( iNPCID, float )` (June `32ca2010`): a later phase with a `new` row adds to the same `#ifdef`.
+- A stand-up flag that also fires on animation end uses the file-local macro `ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_` (Rena `.cpp` top, `_LIVE`), the same expansion as Chung's.
+- CH0's `new ?` rows can be March functions: `32ca6e90` was `ClearStartOfDelayedFiringData`, `32cb6310` / `32cb61e0` its lambda instantiations. Read the callee's listing before naming a `new` row.

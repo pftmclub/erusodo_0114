@@ -440,6 +440,39 @@ All 32 class-map rows of phase CH1a are written, all `inside`: June's body in Ma
 
 Nothing to play-test. Next: `/x2-phase char-rena CH1b` (Sonnet 5.5 high).
 
+### CH1b - Done (2026-11-07)
+
+All 36 class-map rows of phase CH1b are handled. 33 are `inside`: June's body in March's own `CX2GULire_ElvenRanger` function under `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, March's in `#else`. 1 is `new` (`_CORE`, compiled, referenced only by `_LIVE` bodies). 2 need no code. `_LIVE` stays `//#define`. 36 funcmap rows `Char Rena CH1b`; 10 rows added to `june2017_re/char_rena/ch1_offsets.tsv`.
+
+**CH0's three `new ?` helpers were March code.** `32ca6e90` = March `ClearStartOfDelayedFiringData` (now `inside`); `32cb6310` / `32cb61e0` = its lambda and the `ApplyFunctionToLiveInstances` instantiation (no code; types 2 / 4 / 6 / 10 / 12 / 14 read from the byte table at `32cb6278` = the six `DET_*_GROUND` March tests). The only truly new function is `32ca2010`.
+`Always.h`: `SERV_IRUHADEV_JUNE_CHAR_RENA_CORE` defined, and `_LIVE needs _CORE` added to the guard.
+
+| June | `CX2GULire_ElvenRanger::` | June | `CX2GULire_ElvenRanger::` |
+|---|---|---|---|
+| `32c6de20` `32ca9230` `32ca5290` `32c6aa40` | DieFront StartFuture / Start / FrameMove / EventProcess (also `LESI_RIDING_DIE`) | `32c6de80` `32ca9360` `32ca52d0` `32c6aa70` | DieBack StartFuture / Start / FrameMove / EventProcess |
+| `32c6e5e0` `32c6e630` | DamageDownFront FrameMove / EventProcess | `32c6ea30` `32c6ea80` | DamageDownBack FrameMove / EventProcess |
+| `32c6ad20` `32c6ee80` | DamageAirDownLanding Init / EventProcess | `32c6f230` `32c6f290` `32c6f2f0` `32c6f350` | StandUpRolling FrontFront / FrontBack / BackFront / BackBack EventProcess (also the four `P_LE_AGILE_MOVEMENT`) |
+| `32c6ad50` `32c6adb0` `32c6ae10` `32c6ae70` | the four Rolling EndFuture | `32c6ad70` `32c6add0` `32c6ae30` `32c6ae90` | the four Rolling End |
+| `32c6f3b0` `32c6f440` `32c6aed0` | StandUpAttackFront FrameMove / EventProcess / End | `32c6f490` `32c6f510` `32c6af10` | StandUpAttackBack FrameMove / EventProcess / End |
+| `32ca6e90` | ClearStartOfDelayedFiringData | `32ca2010` | **new** `KillMySummonedNPC( int iNPCID_, float )` (`.h` next to `SetActiveStartOfDelayedFiring`) |
+
+**Where June differs from March** (everything else is March's logic written out whole, read from `charport_adis.py rena --phase CH1b`):
+- **Stand-up flags also fire on animation end** (DamageDownFront / Back flags 5 / 6 / 7, AirDownLanding 4 / 5 / 6): June tests `stateChange < time || IsAnimationEnd()` and runs the time-window tests before the key test. This is the expansion Chung already uses; the same macro, `ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_`, is defined at the top of the Rena `.cpp` under `_LIVE`. The rest (agile gate, classes 12 / 102, `fInputStartTime`, flag writes, Back's swapped left / right) = March. The no-down roll at `+0x4060` leads to the same attack state both ways (March has it too, `// fix!!`), so no `JUNE_BUGS` row.
+- **Die FrameMove adds `KillMySummonedNPC( NUI_RENA_TARGETING_GUNGNIR, 3.0f )`** after `DieFrameMove` (`32ca2010`: walks the game's units; NPC, templet id match, HP > 0, AI `NAT_ALLY` with my UID as owner; `SetNowHp( 0 )` only when the id is `0x823`). The second argument is never read; the other callers (`32ca42f0` ctor-side, `32ca4a40` ReInit) are CH1h's. Modelled on `CX2GUUser::KillOlderSummonsOfSameID` (Eve CH2b2).
+- **= March after the macros:** Die Start (`DyingStart`, play speed 0.5, the Night Watcher block unconditional in June), DamageDown FrameMove (`EventTimerOneshot` 0.19 / 0.32), AirDownLanding Init, the four Rolling EventProcess (listings identical), EndFuture (`bIsRight` false / true / false / true), End (0.3 / 0.3), StandUpAttack FrameMove (Front: `EventTimer` 0.36 / 0.8, Back: `EventTimerOneshot` 0.43, both then `DamageCheck` for 0.15 < t < 0.5), `ClearStartOfDelayedFiringData`.
+- Ids: March names throughout (`USI_DAMAGE_AIR_FALL`, `USI_WAIT`, `LESI_STANDUP_*`, `LESI_P_LE_AGILE_MOVEMENT_*`); June's registration ids map in CH1m. `LESI_DIE_*` stays as March registers it. The Luciel second-body future-animation accessor (`32070cf0`) is read as `m_pXSkinAnimFuture` (not in March).
+- Not in this phase although the class map's CH1b state list names them: the Start / FrameMove of the damage, win / lose and wall states are base callbacks (nothing in the Rena range); CH1m registers them.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE --with SERV_IRUHADEV_JUNE_CHAR_RENA_CORE --worktree --files X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h KTDXLIB/Always.h`: `files: 0 PASS, 1 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). `--with` omitted: `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_CORE`: `RESULT: PASS`. `git diff --patience --numstat`: `.cpp` 649 / 0, `.h` 3 / 0, `Always.h` 11 / 0.
+- One-file `/Zs` probe (`census.cl_cmd`, no PCH) of `X2GULire_ElvenRanger.cpp`: 0 errors with no extra defines, with `/D SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`. `cl /P`: `KillMySummonedNPC` 2 lines off / 4 on, so the flag took effect.
+- `junediverge.py --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: 0 A/B rows.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,078,720 B, 2026-11-07 12:44:42`; `DEPLOY OK: X2_offline.exe is 26,078,720 B, dated 2026-11-07 12:44:49, md5 eea2e62875b79a16b770d31a8a085381, equal to X2/US_SERVICE/x2.exe`. `_LIVE` is off and no string was added, so no `exestr` line.
+
+**Routed.** CH1h: ctor-side `32ca42f0` and ReInit `32ca4a40` call `KillMySummonedNPC` (the `_CORE` function is ready). CH1m: register June ids for the stand-up and agile-movement states.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1b review` (Opus 5.5 high), then CH1c.
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

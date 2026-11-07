@@ -1790,6 +1790,9 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		/// 지연의 신호탄 적용 여부 제어
 		bool GetActiveStartOfDelayedFiring() const { return m_bActiveStartOfDelayedFiring; }
 		void SetActiveStartOfDelayedFiring( bool bActive ) { m_bActiveStartOfDelayedFiring = bActive; }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+		void KillMySummonedNPC( const int iNPCID_, const float fUnusedTime_ );	/// June 32ca2010
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 		/// 지연의 신호탄
 		void UpdateStartOfDelayedFiring( bool bInsertUnit = true );																			/// 공격자가 발사한 지연의 신호탄 정보 갱신

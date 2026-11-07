@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1b | **ready** (start: `/x2-phase char-rena CH1b`): reactions (damage 21, stand-up 6, die, start, win / lose) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GULire_ElvenRanger.*` | `CH1b.md` |
+| CH1b | **done, review owed** (start: `/x2-phase char-rena CH1b review`): 33 fn inside + 1 new (`KillMySummonedNPC`, `_CORE` defined); DEPLOY OK; nothing to play-test | Opus 5.5 / high | CH1a review | `X2GULire_ElvenRanger.*`, Always.h | `CH1b-review.md` |
 | CH1c | blocked (CH1b review): riding 27, pepper, dance | Sonnet 5.5 / high, Opus review | CH1b review | `X2GULire_ElvenRanger.*` | `CH1c.md` |
 | CH1d | blocked (CH1c review): Rena ground combos `LESI_COMBO*` (38 fn) | Sonnet 5.5 / high, Opus review | CH1c review | `X2GULire_ElvenRanger.*` | `CH1d.md` |
 | CH1d2 | blocked (CH1d review): dash / jump combos + 7 base jump / dash attacks (36 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1d review | `X2GULire_ElvenRanger.*` | `CH1d2.md` |

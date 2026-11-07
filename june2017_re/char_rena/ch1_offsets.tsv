@@ -106,3 +106,13 @@ offset	kind	name	note
 0x9758	field	m_eSaveStateSkillId	Rena; WaitStart = SI_NONE ( CH1a, NF )
 0x6894	field	(byte, CX2GUUser)	gate of June SetChangeRateMp 32071a50 / ResetMPChangeRate; only the constructor's zero-init writes it ( word store @322a5120 ) ( CH1a, review )
 0x264	field	m_GameUnitType	CX2GameUnit; 0 = user
+0x7d8a	field	m_FrameDataFuture.stateParam.bEventFlagList[5]	+0x7d8b [6], +0x7d8c [7]; DamageDown / AirDownLanding agile-movement and stand-up flags ( CH1b )
+0x4060	field	m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent	CX2GameUnit; DamageDown Front / Back roll, both outcomes go to the stand-up attack ( CH1b )
+0x9724	field	m_bAbleAgileMovement	Rena; DamageDown / AirDownLanding: 1 = the key window starts at m_fEventTime[0].keyInputStart, else 0.66 ( CH1b )
+0x96f8	field	m_hPriorPlannedBlowEffect	Rena; Die Start stops it, writes -1 ( DeletePriorPlannedBlowEffect inlined ); +0x96fc m_iNowPriorPlannedBlowLevel = 0 ( CH1b )
+0x970c	field	m_hActiveStartOfDelayedFiring	Rena; Die Start stops the effect set ( CH1b )
+0x85f8	field	CX2GUNPC::m_pNPCTemplet	+0 = NPC unit id ( KillMySummonedNPC ), +4 = class ( CH1b )
+0x7c98	field	CX2GUNPC::m_pAI	+0x38 = m_eAIType ( NAT_ALLY 1 ), CX2AllyNPCAI +0x78 / +0x7c = the owner's UID ( CH1b )
+0xc04	field	m_pGageData	CX2GameUnit; +0x20 = the HP gage, KProtectedType<float> now HP at +4 ( KillMySummonedNPC: HP > 0 ) ( CH1b )
+0x393c	field	m_vecStartOfDelayedFiringData	CX2GameUnit begin; +0x3940 end; entry +4 m_iAttackerIndex, +0x10 m_fCoolTime ( ClearStartOfDelayedFiringData ) ( CH1b )
+0x268	field	m_iUnitIndex	CX2GameUnit::GetUnitIndex ( ClearStartOfDelayedFiringData ) ( CH1b )

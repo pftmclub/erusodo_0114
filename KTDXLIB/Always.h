@@ -11924,6 +11924,14 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-11-07
+// Description: June character port ( Rena ) Phase CH1b - June-only class-core functions that March's CX2GULire_ElvenRanger lacks ( KillMySummonedNPC ),
+//              compiled in every build and referenced by nothing until CH1h / CH1m use them.
+//              Revert: undefine the flag ( JUNE_CHAR_RENA_CORE ).
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-07
 // Description: June character port ( Rena ) Phase CH1a - Rena runs on June's class core: June's bodies inside March's own CX2GULire_ElvenRanger functions.
 //              Stays commented out until CH1's final sub-phase ships it with June's Lire_ElvenRanger.lua and motions ( one deploy unit ).
 //              Revert: comment out the #define ( JUNE_CHAR_RENA_LIVE ).
@@ -11932,6 +11940,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #ifndef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE needs SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK ( TryHyperModeStateChange )
 #endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE needs SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 //////////////////////////////////////////////////////////////////////////
 

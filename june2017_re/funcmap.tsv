@@ -8615,3 +8615,39 @@ ESSI_ESK_DASH_COMBO_ZChargeX / ESSI_ESK_DASH_JUMP_ZZZ / ESSI_ELK_DASH_COMBO_XCha
 31aadcb0	g_pX2Game != NULL ( handle form )	confirmed	Char Rena CH1a: 32c89bd0 passes ( 0, &g_pX2Game holder ); written NULL != g_pX2Game | CH1a review: returns ( arg1 != resolved handle ) = ( 0 != g_pX2Game ); same use as 3206d480 @3206d6ab
 CX2Game +0xc20 (Rena CH1a)	none in March: CX2Game byte read by the Rena wait / charge-MP events	confirmed	Char Rena CH1a: 32c89bd0 (entry needs it clear) and 32c8cb90 (exit when set); same byte as Arme; IsMPChargeBlockedByGame() = false in _CONST_RENA_CH1A_
 32071a50	CX2GUUser::SetChangeRateMp( float ) ( June gate )	confirmed	Char Rena CH1a: sets the gage rate unless byte +0x6894 == 1 on a user (+0x264 == 0); no runtime writer of +0x6894 | CH1a review: object reads at 31fd9e03, 32071a50, 3277cbad, 32c8bd8e, 32ee33c6; the only write is the CX2GameUnit constructor's zero-init `mov word [esi+0x6893], bx` (ebx = 0) at 322a5120, so the gate always passes, so the gate always passes = March SetChangeRateMp; ResetMPChangeRate 31fd9e00 has the same gate (stage33 row)
+32c6aa40	CX2GULire_ElvenRanger::DieFrontEventProcess	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6aa70	CX2GULire_ElvenRanger::DieBackEventProcess	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6ad20	CX2GULire_ElvenRanger::DamageAirDownLandingInit	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6ad50	CX2GULire_ElvenRanger::StandUpRollingFrontFrontEndFuture	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6ad70	CX2GULire_ElvenRanger::StandUpRollingFrontFrontEnd	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6adb0	CX2GULire_ElvenRanger::StandUpRollingFrontBackEndFuture	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6add0	CX2GULire_ElvenRanger::StandUpRollingFrontBackEnd	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6ae10	CX2GULire_ElvenRanger::StandUpRollingBackFrontEndFuture	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6ae30	CX2GULire_ElvenRanger::StandUpRollingBackFrontEnd	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6ae70	CX2GULire_ElvenRanger::StandUpRollingBackBackEndFuture	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6ae90	CX2GULire_ElvenRanger::StandUpRollingBackBackEnd	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6aed0	CX2GULire_ElvenRanger::StandUpAttackFrontEnd	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6af10	CX2GULire_ElvenRanger::StandUpAttackBackEnd	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6de20	CX2GULire_ElvenRanger::DieFrontStartFuture	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6de80	CX2GULire_ElvenRanger::DieBackStartFuture	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6e5e0	CX2GULire_ElvenRanger::DamageDownFrontFrameMove	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6e630	CX2GULire_ElvenRanger::DamageDownFrontEventProcess	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; stand-up flags use the OR-animation-end expansion
+32c6ea30	CX2GULire_ElvenRanger::DamageDownBackFrameMove	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6ea80	CX2GULire_ElvenRanger::DamageDownBackEventProcess	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; stand-up flags use the OR-animation-end expansion
+32c6ee80	CX2GULire_ElvenRanger::DamageAirDownLandingEventProcess	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; stand-up flags use the OR-animation-end expansion
+32c6f230	CX2GULire_ElvenRanger::StandUpRollingFrontFrontEventProcess	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6f290	CX2GULire_ElvenRanger::StandUpRollingFrontBackEventProcess	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6f2f0	CX2GULire_ElvenRanger::StandUpRollingBackFrontEventProcess	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6f350	CX2GULire_ElvenRanger::StandUpRollingBackBackEventProcess	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6f3b0	CX2GULire_ElvenRanger::StandUpAttackFrontFrameMove	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6f440	CX2GULire_ElvenRanger::StandUpAttackFrontEventProcess	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6f490	CX2GULire_ElvenRanger::StandUpAttackBackFrameMove	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32c6f510	CX2GULire_ElvenRanger::StandUpAttackBackEventProcess	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32ca2010	CX2GULire_ElvenRanger::KillMySummonedNPC( iNPCID, float )	PORTED	Char Rena CH1b: new (CH0 said new ?), under JUNE_CHAR_RENA_CORE; my live ally NPCs of the id (AI NAT_ALLY, owner UID = mine, HP > 0): SetNowHp( 0 ) only for NUI_RENA_TARGETING_GUNGNIR; 2nd arg (3.0) never read; callers: Die FrameMove (here), 32ca42f0 / 32ca4a40 (CH1h)
+32ca5290	CX2GULire_ElvenRanger::DieFrontFrameMove	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; + KillMySummonedNPC( NUI_RENA_TARGETING_GUNGNIR )
+32ca52d0	CX2GULire_ElvenRanger::DieBackFrameMove	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; + KillMySummonedNPC( NUI_RENA_TARGETING_GUNGNIR )
+32ca6e90	CX2GULire_ElvenRanger::ClearStartOfDelayedFiringData	PORTED	Char Rena CH1b: inside (CH0 said new ?), June body under JUNE_CHAR_RENA_LIVE; = March (cool time 0.01 on my arrows, then the live-instance walk 32cb6310)
+32ca9230	CX2GULire_ElvenRanger::DieFrontStart	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32ca9360	CX2GULire_ElvenRanger::DieBackStart	PORTED	Char Rena CH1b: inside, June body under JUNE_CHAR_RENA_LIVE; = March
+32cb61e0	CX2GULire_ElvenRanger::ClearStartOfDelayedFiringData lambda	confirmed	Char Rena CH1b: = March lambda; types 2/4/6/10/12/14 (the six *_GROUND DET_), attacker unit index == mine -> DestroyInstanceHandleSilently (31f83a80); no code
+32cb6310	CX2DamageEffect::ApplyFunctionToLiveInstances instantiation (ClearStartOfDelayedFiringData lambda)	confirmed	Char Rena CH1b: compiler instantiation of March ApplyFunctionToLiveInstances with the lambda; live flag +0xf5; no code

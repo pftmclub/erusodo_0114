@@ -51,6 +51,16 @@ namespace _CONST_RENA_CH1A_
 using namespace _CONST_RENA_CH1A_;
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+/// June's expansion of ELSE_IF_STATE_CHANGE_ON_EX_ in the stand-up states: the flag also fires when the future animation ends, the time tests run before the key test
+#define ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( iEventFlagIndex, fInputTimingStart, fInputTiming, fChangeTiming, bCondition, iStateID ) \
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] == true && \
+		( (float)(fChangeTiming) < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) ) \
+	{ StateChange( (iStateID) ); m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = false; } \
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() < (float)(fInputTiming) && (float)(fInputTimingStart) <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == (bCondition) ) \
+	{ m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = true; }
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+
 
 
 
@@ -5626,13 +5636,37 @@ RENDER_HINT CX2GULire_ElvenRanger::CommonRender_Prepare()
 //LESI_DIE_FRONT
 void CX2GULire_ElvenRanger::DieFrontStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6de20 ( = March )
 	CommonStateStartFuture();
 
 	m_pXSkinAnimFuture->SetPlaySpeed( 0.5f );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateStartFuture();
+
+	m_pXSkinAnimFuture->SetPlaySpeed( 0.5f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DieFrontStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca9230 ( = March; 32ca6e90 is ClearStartOfDelayedFiringData )
+	CommonStateStart();
+	DyingStart();
+
+	m_pXSkinAnim->SetPlaySpeed( 0.5f );
+
+	DeletePriorPlannedBlowEffect();
+
+	g_pX2Game->GetEffectSet()->StopEffectSet( m_hActiveStartOfDelayedFiring );
+	SetActiveStartOfDelayedFiring( false );
+
+	if ( IsMyUnit() )
+		g_pX2Game->UpdateSkillSlotUI();
+
+	ClearStartOfDelayedFiringData();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonStateStart();
 	DyingStart();
 
@@ -5649,35 +5683,77 @@ void CX2GULire_ElvenRanger::DieFrontStart()
 
 	ClearStartOfDelayedFiringData();											/// 사망 혹은 이탈시, 해당 유저가 적용한 지연의 신호탄 정보 삭제
 #endif SERV_RENA_NIGHT_WATCHER
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DieFrontFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca5290 ( DieFrameMove, then the owner's targeting Gungnir NPCs die )
+	const float TIME_CREATE_STEP_DUST = 0.19f;
+	const float TIME_SACRIFICE_OF_HERO = 1.12f;
+
+	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+	KillMySummonedNPC( CX2UnitManager::NUI_RENA_TARGETING_GUNGNIR, 3.0f );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	const float TIME_CREATE_STEP_DUST = 0.19f;		// 연기가 발생되야하는 애니메이션 시간
 	const float TIME_SACRIFICE_OF_HERO = 1.12f;		// 영웅의 희생이 실행되어야 하는 애니메이션 시간
 
 	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DieFrontEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6aa40 ( = March )
 	if( EventTimer( 4.0f, true ) == true )
 	{
 		StateChange( GUSI_DIE );
 	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( EventTimer( 4.0f, true ) == true )
+	{
+		StateChange( GUSI_DIE );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
 //LESI_DIE_BACK
 void CX2GULire_ElvenRanger::DieBackStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6de80 ( = March )
 	CommonStateStartFuture();
 
 	m_pXSkinAnimFuture->SetPlaySpeed( 0.5f );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateStartFuture();
+
+	m_pXSkinAnimFuture->SetPlaySpeed( 0.5f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DieBackStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca9360 ( = March )
+	CommonStateStart();
+	DyingStart();
+
+	m_pXSkinAnim->SetPlaySpeed( 0.5f );
+
+	DeletePriorPlannedBlowEffect();
+
+	g_pX2Game->GetEffectSet()->StopEffectSet( m_hActiveStartOfDelayedFiring );
+	SetActiveStartOfDelayedFiring( false );
+
+	if ( IsMyUnit() )
+		g_pX2Game->UpdateSkillSlotUI();
+
+	ClearStartOfDelayedFiringData();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonStateStart();
 	DyingStart();
 
@@ -5694,23 +5770,74 @@ void CX2GULire_ElvenRanger::DieBackStart()
 
 	ClearStartOfDelayedFiringData();											/// 사망 혹은 이탈시, 해당 유저가 적용한 지연의 신호탄 정보 삭제
 #endif SERV_RENA_NIGHT_WATCHER
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DieBackFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca52d0 ( DieFrameMove, then the owner's targeting Gungnir NPCs die )
+	const float TIME_CREATE_STEP_DUST = 0.32f;
+	const float TIME_SACRIFICE_OF_HERO = 0.9f;
+
+	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+	KillMySummonedNPC( CX2UnitManager::NUI_RENA_TARGETING_GUNGNIR, 3.0f );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	const float TIME_CREATE_STEP_DUST = 0.32f;		// 연기가 발생되야하는 애니메이션 시간
 	const float TIME_SACRIFICE_OF_HERO = 0.9f;		// 영웅의 희생이 실행되어야 하는 애니메이션 시간
 
 	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DieBackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6aa70 ( = March )
 	if( EventTimer( 4.0f, true ) == true )
 	{
 		StateChange( GUSI_DIE );
 	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( EventTimer( 4.0f, true ) == true )
+	{
+		StateChange( GUSI_DIE );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+// June 32ca2010: kills my live ally NPCs of the id ( only the targeting Gungnir ), the second argument is never read
+void CX2GULire_ElvenRanger::KillMySummonedNPC( const int iNPCID_, const float /*fUnusedTime_*/ )
+{
+	if( NULL == g_pX2Game )
+		return;
+
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); i++ )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if( NULL == pUnit || CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() )
+			continue;
+
+		CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
+		if( 0 != iNPCID_ && pNPC->GetNPCTemplet().m_nNPCUnitID != iNPCID_ )
+			continue;
+
+		if( pNPC->GetNowHp() <= 0.f )
+			continue;
+
+		if( NULL == pNPC->GetNPCAI() || CX2NPCAI::NAT_ALLY != pNPC->GetNPCAI()->GetAIType() )
+			continue;
+
+		CX2AllyNPCAI* pAllyAI = static_cast<CX2AllyNPCAI*>( pNPC->GetNPCAI() );
+		if( GetUnitUID() != pAllyAI->GetAllyUnitUID() )
+			continue;
+
+		if( CX2UnitManager::NUI_RENA_TARGETING_GUNGNIR == iNPCID_ )
+			pNPC->SetNowHp( 0.f );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 
 #pragma DMLEE_NOTE( "이 함수 각 캐릭터 별로 동일하게 정리되면 GUUSER로 옮겨서 하나로 정리하자" )
@@ -8793,6 +8920,15 @@ void CX2GULire_ElvenRanger::DamageBigBackEventProcess()
 //LESI_DAMAGE_DOWN_FRONT
 void CX2GULire_ElvenRanger::DamageDownFrontFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6e5e0 ( = March )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.19f ) )
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.19f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -8804,11 +8940,106 @@ void CX2GULire_ElvenRanger::DamageDownFrontFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
 void CX2GULire_ElvenRanger::DamageDownFrontEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6e630 ( the agile-movement and stand-up flags also fire when the future animation ends; the no-down roll leads to the same state both ways )
+	float fInputStartTime = ( true == m_bAbleAgileMovement ) ? m_fEventTime[0].keyInputStart : 0.66f;
+	CX2Unit::UNIT_CLASS eUnitClass = GetUnit()->GetClass();
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[4] == true )
+		{
+			if( GetRandomInt() < m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent )
+			{
+				StateChange( LESI_STANDUP_ATTACK_FRONT );
+			}
+			else
+			{
+				StateChange( LESI_STANDUP_ATTACK_FRONT );
+			}
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+		{
+			StateChange( LESI_STANDUP_ATTACK_FRONT );
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true )
+			StateChange( LESI_STANDUP_ROLLING_FRONT_FRONT );
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[3] == true )
+			StateChange( LESI_STANDUP_ROLLING_FRONT_BACK );
+		else
+			StateChange( USI_DAMAGE_STANDUP_FRONT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 5, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange, true == m_bAbleAgileMovement
+		&& true == m_FrameDataFuture.stateParam.bEventFlagList[2] && ( CX2Unit::UC_LIRE_COMBAT_RANGER == eUnitClass || CX2Unit::UC_LIRE_WIND_SNEAKER == eUnitClass ), LESI_P_LE_AGILE_MOVEMENT_FRONT_FRONT )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 6, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange, true == m_bAbleAgileMovement
+		&& true == m_FrameDataFuture.stateParam.bEventFlagList[3] && ( CX2Unit::UC_LIRE_COMBAT_RANGER == eUnitClass || CX2Unit::UC_LIRE_WIND_SNEAKER == eUnitClass ), LESI_STANDUP_ROLLING_FRONT_BACK )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 7, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange, true == m_bAbleAgileMovement
+		&& true == m_FrameDataFuture.stateParam.bEventFlagList[1] && ( CX2Unit::UC_LIRE_COMBAT_RANGER == eUnitClass || CX2Unit::UC_LIRE_WIND_SNEAKER == eUnitClass ), LESI_STANDUP_ATTACK_FRONT )
+	else if( fInputStartTime < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if( m_InputData.oneX == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= true;
+		}
+		else if( m_InputData.oneZ == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			if( m_InputData.pureRight == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+			else if( m_InputData.pureLeft == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+		}
+		else
+		{
+			if( m_InputData.pureRight == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+			else if( m_InputData.pureLeft == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //김창한
 	//재빠른 몸놀림을 배웠다면 스테이트에서 지정 한 시간으로 변경
 	float fInputStartTime = ( true == m_bAbleAgileMovement ) ? m_fEventTime[0].keyInputStart : 0.66f;
@@ -8906,10 +9137,20 @@ void CX2GULire_ElvenRanger::DamageDownFrontEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DamageDownBackFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6ea30 ( = March )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.32f ) )
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.32f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -8921,11 +9162,106 @@ void CX2GULire_ElvenRanger::DamageDownBackFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
 void CX2GULire_ElvenRanger::DamageDownBackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6ea80 ( the agile-movement and stand-up flags also fire when the future animation ends; the no-down roll leads to the same state both ways )
+	float fInputStartTime = ( true == m_bAbleAgileMovement ) ? m_fEventTime[0].keyInputStart : 0.66f;
+	CX2Unit::UNIT_CLASS eUnitClass = GetUnit()->GetClass();
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[4] == true )
+		{
+			if( GetRandomInt() < m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent )
+			{
+				StateChange( LESI_STANDUP_ATTACK_BACK );
+			}
+			else
+			{
+				StateChange( LESI_STANDUP_ATTACK_BACK );
+			}
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+		{
+			StateChange( LESI_STANDUP_ATTACK_BACK );
+		}
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true )
+			StateChange( LESI_STANDUP_ROLLING_BACK_FRONT );
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[3] == true )
+			StateChange( LESI_STANDUP_ROLLING_BACK_BACK );
+		else
+			StateChange( USI_DAMAGE_STANDUP_BACK );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 5, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange, true == m_bAbleAgileMovement
+		&& true == m_FrameDataFuture.stateParam.bEventFlagList[2] && ( CX2Unit::UC_LIRE_COMBAT_RANGER == eUnitClass || CX2Unit::UC_LIRE_WIND_SNEAKER == eUnitClass ), LESI_P_LE_AGILE_MOVEMENT_BACK_FRONT )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 6, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange, true == m_bAbleAgileMovement
+		&& true == m_FrameDataFuture.stateParam.bEventFlagList[3] && ( CX2Unit::UC_LIRE_COMBAT_RANGER == eUnitClass || CX2Unit::UC_LIRE_WIND_SNEAKER == eUnitClass ), LESI_STANDUP_ROLLING_BACK_BACK )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 7, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange, true == m_bAbleAgileMovement
+		&& true == m_FrameDataFuture.stateParam.bEventFlagList[1] && ( CX2Unit::UC_LIRE_COMBAT_RANGER == eUnitClass || CX2Unit::UC_LIRE_WIND_SNEAKER == eUnitClass ), LESI_STANDUP_ATTACK_BACK )
+	else if( fInputStartTime < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if( m_InputData.oneX == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= true;
+		}
+		else if( m_InputData.oneZ == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= true;
+			m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+		}
+		else if( m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			if( m_InputData.pureLeft == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+			else if( m_InputData.pureRight == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+		}
+		else
+		{
+			if( m_InputData.pureLeft == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+			else if( m_InputData.pureRight == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+				m_FrameDataFuture.stateParam.bEventFlagList[4]	= false;
+			}
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //김창한
 	//재빠른 몸놀림을 배웠다면 스테이트에서 지정 한 시간으로 변경
 	float fInputStartTime = ( true == m_bAbleAgileMovement ) ? m_fEventTime[0].keyInputStart : 0.66f;
@@ -9023,17 +9359,93 @@ void CX2GULire_ElvenRanger::DamageDownBackEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_DAMAGE_AIR_DOWN_LANDING
 void CX2GULire_ElvenRanger::DamageAirDownLandingInit()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6ad20 ( = March )
 	TextureReadyInBackground( L"stone.dds" );
 	XSkinMeshReadyInBackground( L"Effect_ElSword_dropdown.X" );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	TextureReadyInBackground( L"stone.dds" );
+	XSkinMeshReadyInBackground( L"Effect_ElSword_dropdown.X" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DamageAirDownLandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6ee80 ( the agile-movement flags also fire when the future animation ends )
+	float fInputStartTime = ( true == m_bAbleAgileMovement ) ? m_fEventTime[0].keyInputStart : 0.66f;
+	CX2Unit::UNIT_CLASS eUnitClass = GetUnit()->GetClass();
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[1] == true )
+			StateChange( LESI_STANDUP_ATTACK_FRONT );
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[2] == true )
+			StateChange( LESI_STANDUP_ROLLING_FRONT_FRONT );
+		else if( m_FrameDataFuture.stateParam.bEventFlagList[3] == true )
+			StateChange( LESI_STANDUP_ROLLING_FRONT_BACK );
+		else
+			StateChange( USI_DAMAGE_STANDUP_FRONT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 4, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange, true == m_bAbleAgileMovement
+		&& true == m_FrameDataFuture.stateParam.bEventFlagList[2] && ( CX2Unit::UC_LIRE_COMBAT_RANGER == eUnitClass || CX2Unit::UC_LIRE_WIND_SNEAKER == eUnitClass ), LESI_P_LE_AGILE_MOVEMENT_FRONT_FRONT )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 5, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange, true == m_bAbleAgileMovement
+		&& true == m_FrameDataFuture.stateParam.bEventFlagList[3] && ( CX2Unit::UC_LIRE_COMBAT_RANGER == eUnitClass || CX2Unit::UC_LIRE_WIND_SNEAKER == eUnitClass ), LESI_P_LE_AGILE_MOVEMENT_FRONT_BACK )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 6, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange, true == m_bAbleAgileMovement
+		&& true == m_FrameDataFuture.stateParam.bEventFlagList[1] && ( CX2Unit::UC_LIRE_COMBAT_RANGER == eUnitClass || CX2Unit::UC_LIRE_WIND_SNEAKER == eUnitClass ), LESI_STANDUP_ATTACK_FRONT )
+	else if( fInputStartTime < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if( m_InputData.oneZ == true || m_InputData.oneX == true )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+			m_FrameDataFuture.stateParam.bEventFlagList[1]	= true;
+		}
+		else if( m_FrameDataFuture.syncData.bIsRight == true )
+		{
+			if( m_InputData.pureRight == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+			}
+			else if( m_InputData.pureLeft == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+			}
+		}
+		else
+		{
+			if( m_InputData.pureRight == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= true;
+			}
+			else if( m_InputData.pureLeft == true )
+			{
+				m_FrameDataFuture.stateParam.bEventFlagList[1]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[3]	= false;
+				m_FrameDataFuture.stateParam.bEventFlagList[2]	= true;
+			}
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //김창한
 	//재빠른 몸놀림을 배웠다면 스테이트에서 지정 한 시간으로 변경
 	float fInputStartTime = ( true == m_bAbleAgileMovement ) ? m_fEventTime[0].keyInputStart : 0.66f;
@@ -9108,11 +9520,26 @@ else if( fInputStartTime < m_pXSkinAnimFuture->GetNowAnimationTime() )
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_STANDUP_ROLLING_FRONT_FRONT
 void CX2GULire_ElvenRanger::StandUpRollingFrontFrontEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6f230 ( = March; the four rolling EventProcess listings are identical )
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT, false );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -9124,26 +9551,55 @@ void CX2GULire_ElvenRanger::StandUpRollingFrontFrontEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::StandUpRollingFrontFrontEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6ad50 ( = March )
 	m_FrameDataFuture.syncData.bIsRight = false;
 
 	CommonStateEndFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	m_FrameDataFuture.syncData.bIsRight = false;
+
+	CommonStateEndFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::StandUpRollingFrontFrontEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6ad70 ( = March )
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
 //LESI_STANDUP_ROLLING_FRONT_BACK
 void CX2GULire_ElvenRanger::StandUpRollingFrontBackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6f290 ( = March )
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -9155,20 +9611,35 @@ void CX2GULire_ElvenRanger::StandUpRollingFrontBackEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::StandUpRollingFrontBackEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6adb0 ( = March )
 	m_FrameDataFuture.syncData.bIsRight = true;
 
 	CommonStateEndFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	m_FrameDataFuture.syncData.bIsRight = true;
+
+	CommonStateEndFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::StandUpRollingFrontBackEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6add0 ( = March )
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -9176,6 +9647,20 @@ void CX2GULire_ElvenRanger::StandUpRollingFrontBackEnd()
 //LESI_STANDUP_ROLLING_BACK_FRONT
 void CX2GULire_ElvenRanger::StandUpRollingBackFrontEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6f2f0 ( = March )
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -9187,20 +9672,35 @@ void CX2GULire_ElvenRanger::StandUpRollingBackFrontEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::StandUpRollingBackFrontEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6ae10 ( = March )
 	m_FrameDataFuture.syncData.bIsRight = false;
 
 	CommonStateEndFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	m_FrameDataFuture.syncData.bIsRight = false;
+
+	CommonStateEndFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::StandUpRollingBackFrontEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6ae30 ( = March )
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -9208,6 +9708,20 @@ void CX2GULire_ElvenRanger::StandUpRollingBackFrontEnd()
 //LESI_STANDUP_ROLLING_BACK_BACK
 void CX2GULire_ElvenRanger::StandUpRollingBackBackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6f350 ( = March )
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -9219,20 +9733,35 @@ void CX2GULire_ElvenRanger::StandUpRollingBackBackEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::StandUpRollingBackBackEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6ae70 ( = March )
 	m_FrameDataFuture.syncData.bIsRight = true;
 
 	CommonStateEndFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	m_FrameDataFuture.syncData.bIsRight = true;
+
+	CommonStateEndFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::StandUpRollingBackBackEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6ae90 ( = March )
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -9240,6 +9769,19 @@ void CX2GULire_ElvenRanger::StandUpRollingBackBackEnd()
 //LESI_STANDUP_ATTACK_FRONT
 void CX2GULire_ElvenRanger::StandUpAttackFrontFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6f3b0 ( = March )
+	if( m_pXSkinAnim->EventTimer( 0.36f ) == true || m_pXSkinAnim->EventTimer( 0.8f ) == true )
+	{
+	}
+
+	if( (m_pXSkinAnim->GetNowAnimationTime() > 0.15f && m_pXSkinAnim->GetNowAnimationTime() < 0.5f) )
+	{
+		g_pData->GetDamageManager()->DamageCheck( &m_DamageData );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( m_pXSkinAnim->EventTimer( 0.36f ) == true || m_pXSkinAnim->EventTimer( 0.8f ) == true )
 	{
 		//m_pSoundSlash->Set3DPosition( m_FrameDataNow.syncData.position );
@@ -9252,10 +9794,13 @@ void CX2GULire_ElvenRanger::StandUpAttackFrontFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::StandUpAttackFrontEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6f440 ( = March )
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -9267,19 +9812,52 @@ void CX2GULire_ElvenRanger::StandUpAttackFrontEventProcess()
 			StateChange( USI_WAIT );
 	}
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::StandUpAttackFrontEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6aed0 ( = March )
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
 //LESI_STANDUP_ATTACK_BACK
 void CX2GULire_ElvenRanger::StandUpAttackBackFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6f490 ( = March )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.43f ) )
+	{
+	}
+
+	if( (m_pXSkinAnim->GetNowAnimationTime() > 0.15f && m_pXSkinAnim->GetNowAnimationTime() < 0.5f) )
+	{
+		g_pData->GetDamageManager()->DamageCheck( &m_DamageData );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.43f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -9296,10 +9874,13 @@ void CX2GULire_ElvenRanger::StandUpAttackBackFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::StandUpAttackBackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6f510 ( = March )
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -9311,13 +9892,33 @@ void CX2GULire_ElvenRanger::StandUpAttackBackEventProcess()
 			StateChange( USI_WAIT );
 	}
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::StandUpAttackBackEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6af10 ( = March )
 	CommonStateEnd();
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -22342,6 +22943,53 @@ void CX2GULire_ElvenRanger::EntireExplosion()		/// 지연의 신호탄 전체 폭발
 
 void CX2GULire_ElvenRanger::ClearStartOfDelayedFiringData()		/// 사망 혹은 이탈시, 해당 유저가 적용한 지연의 신호탄 정보 삭제
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca6e90 ( = March; the lambda is 32cb61e0, the live-instance walk 32cb6310 )
+	unsigned uNumUnit = g_pX2Game->GetUnitNum();
+
+	for( UINT i = 0; i < uNumUnit; ++i )
+	{
+		CX2GameUnit* pGameUnit = g_pX2Game->GetUnit( i );
+		if( pGameUnit == NULL )
+			continue;
+		vector<CX2DamageManager::StartOfDelayedFiringData*>& vecStart = pGameUnit->AccessStartOfDelayedFiringData();
+		if ( true == vecStart.empty() )
+			continue;
+
+		for( UINT j = 0; j < vecStart.size(); ++j )
+		{
+			CX2DamageManager::StartOfDelayedFiringData* pArrowData = vecStart[j];
+			if( pArrowData != NULL && GetUnitIndex() == pArrowData->m_iAttackerIndex )
+			{
+				pArrowData->m_fCoolTime = 0.01f;
+			}
+		}
+	}
+
+	int iUnitIndex = GetUnitIndex();
+	auto ClearStartOfDelayedFiringDataCB = [iUnitIndex]( CX2DamageEffect::CEffect& kEffect )
+	{
+		if( null == kEffect.GetDamageData().optrAttackerGameUnit )
+			return;
+
+		switch( kEffect.GetType() )
+		{
+		case CX2DamageEffect::DET_SEED_OF_RUIN_GROUND:
+		case CX2DamageEffect::DET_TRAPPING_ARROW_BURSTR_GROUND:
+		case CX2DamageEffect::DET_TRAPPING_ARROW_FUNGUS_GROUND:
+		case CX2DamageEffect::DET_ARROW_OF_EXPLOSION_DELAY_GROUND:
+		case CX2DamageEffect::DET_START_OF_DELAYED_FIRING_GROUND:
+		case CX2DamageEffect::DET_EXPLOSION_TRAP_GROUND:
+			{
+				if( iUnitIndex == kEffect.GetDamageData().optrAttackerGameUnit->GetUnitIndex() )
+				{
+					g_pX2Game->GetDamageEffect()->DestroyInstanceHandleSilently( kEffect.GetHandle() );
+				}
+			} break;
+		}
+	};
+	g_pX2Game->GetDamageEffect()->ApplyFunctionToLiveInstances( ClearStartOfDelayedFiringDataCB );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
     unsigned    uNumUnit = g_pX2Game->GetUnitNum();
 
 	/// 유닛에 적용된 화살 정보 검사
@@ -22430,6 +23078,7 @@ void CX2GULire_ElvenRanger::ClearStartOfDelayedFiringData()		/// 사망 혹은 이탈�
     }
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_INFINITE_LOOP_BUG_FIX
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 int CX2GULire_ElvenRanger::CreateDamageEffectIndex()	/// 폭발의 화살 DamageEffect의 Index 생성 함수

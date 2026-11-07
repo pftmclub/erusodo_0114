@@ -68,3 +68,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1a review (2026-11-07)
 
 - `322cdfa0` (`g_pX2Game->GetSlideShot()`, byte 0 = `IsPresentNow()`) and `31aadcb0` (`g_pX2Game != NULL`) are now `confirmed` in `funcmap.tsv`: call them by their March names.
+
+## Done (2026-11-07)
+
+Handled by commit `char-rena Phase CH1b`; the review is `CH1b-review.md`. CH1c's kickoff carries the "Amended by CH1b" facts.
