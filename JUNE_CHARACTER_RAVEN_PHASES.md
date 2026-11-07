@@ -2401,6 +2401,8 @@ relog. A defect goes back to its phase's flag.
 
 **Walk units (in the save).** Un-transcended: 72 (4), 73 (16), 74 (17), 75 (25), 23 / 49 / 79 (106), 80 / 81 (107), 83 (115). Transcended: 76 (107), 77 (115), 78 (106). Transition test: 79 (106), 81 (107), 83 (115), each lv99 with no quest 42030 row.
 
+**Gate status: PASSED (2026-11-07).** User walk over all seven classes, the transition on 106 / 107 / 115 ("all tested and passed"). Logs: skill cut-in sets 0 / 1 / 2 / 3 (16 / 9 / 7 / 6 lines; `HQ_CutIn_Raven_01` / `_BM_01` / `_RF_01` / `_VC_01`); `RAVEN UI hyper cut-in class 106 / 107 / 115 name HQ_Cutin_R{BM,RRF,RVC}_Transcendence`; `JUNE_TRANSCEND` book 288493 / quest 42030 / guide popup `DLG_Transcendental_Change_Guide_Raven.lua` for 106 / 107 / 115, IMAGE `TR_{B_MASTER,R_FIST,V_COMMANDER}_{LARGE,STATE}`, awakening `BFI 845` (115 seen); `ErrorLog.txt` 0 `KEM_ERROR`, 0 `Motion Error`; packets 0 EXCEPTION, 11 UNHANDLED all `E_DISABLE_HB_CHECK_REQ` (heartbeat, harmless offline). Exe md5 3cce7e5f = CH4c's deploy. Not log-visible (no debug lines): rage gauge, Nasod balls, overheat; the user reported no defect. Shadow Step base-id question (JUNE_BUGS 559) stays open for the user.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium. `MODS.md` "June character: Raven" section (flags, files, data, revert order: exe + data036 + motion koms
