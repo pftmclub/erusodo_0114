@@ -505,6 +505,12 @@ class CX2GURaven : public CX2GUUser
 
 		virtual bool		SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );
 		virtual float		GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+		virtual float		GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;	/// June 32c382d0 ( vslot 0x6a4, base 31fd1920 )
+#ifdef MODIFY_SET_DAMAGE_DATA
+		virtual void		SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate );	/// June 32c5c080 ( vslot 0x2b8, base 32045340 )
+#endif MODIFY_SET_DAMAGE_DATA
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 
 #ifdef UPGRADE_RAVEN
 		virtual void		Init( bool bUseTeamPos_, int iStartPosIndex_ );	

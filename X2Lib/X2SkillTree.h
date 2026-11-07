@@ -2430,6 +2430,12 @@ public:
 		RNSI_A_RVC_GROUND_IMPACT_UPGRADE                      = 24239,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-07 // char-raven CH4b
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_P_RRF_INFINITY_RAGE                              = 24420,	// June's Enum.lua
+		RNSI_P_RVC_WIN_AND_WIN                                = 24422,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-07 // char-raven CH3c2
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_SA_RVC_IGNITION_CROW_NAPALM_UPGRADE              = 24053,	// June's Enum.lua

@@ -11896,6 +11896,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) || !defined( SERV_IRUHADEV_JUNE_USER_STATE_ID16 ) )
 #error SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE ( vslot 0x748 ), SERV_IRUHADEV_JUNE_DAMAGEDATA ( the random-spawn child ) and SERV_IRUHADEV_JUNE_USER_STATE_ID16 ( state ids above 255 )
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TYPE ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE ( CH4b: SetDamageExceptionProcess, GetActualMPConsume, GetActualCoolTime ) needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ( the skill buff helpers ), SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE, SERV_IRUHADEV_JUNE_SKILL_TYPE and SERV_IRUHADEV_JUNE_ENUM_NAMES ( the trigger names )
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -11903,5 +11906,6 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-11-07
 // Description: June character port ( Raven ) Phase CH4a - temporary [JUNE_CHAR] RAVEN PASSIVE lines ( the init values, each callback when it fires ) for CH4a's
 //              play-test; they sit inside JUNE_CHAR_RAVEN_PASSIVE code only. CH4a's review retires it. Revert: undefine the flag ( JUNE_CHAR_RAVEN_PASSIVE_DEBUG ).
-//#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+//              Re-opened by CH4b for its play-test ( MP, cool time, Open Mind, Infinity Rage, Win and Win lines ); CH4b's review retires it.
+#define SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////

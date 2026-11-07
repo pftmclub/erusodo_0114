@@ -2168,6 +2168,42 @@ of both callback sites, the AttackResult switch (`32012b50`, table `320142a4`) a
   `1 deleted line(s)`, `RESULT: FAIL` only because the flag is no longer defined (expected). `junediverge.py --check KTDXLIB/Always.h`: `RESULT: PASS`. Build started, not awaited.
 - **Logs:** the Done note's 06:24-06:30 run covers every line the kickoff names; nothing new to read. Still owed: the user's visual (X Crash's refund on a miss).
 
+### CH4b - Done (2026-11-07)
+**Landed.** Commit: see `git log`, "char-raven Phase CH4b". Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE` (new guard line: needs `JUNE_CHAR_EVE_PASSIVE` for the skill
+buff helpers, `JUNE_DIVERGE_SKILL_LEVEL_VALUE`, `JUNE_SKILL_TYPE`, `JUNE_ENUM_NAMES`; all ON by `flagprobe.py`); `_PASSIVE_DEBUG` re-opened for the log. Files:
+`X2GURaven.cpp` / `.h`, `X2DamageManager.h`, `X2SkillTree.h`, `Always.h`. Read from `charport_adis.py raven`; rows `(CH4b)` at the end of `june2017_re/funcmap.tsv`.
+- **`SetDamageExceptionProcess` `32c5c080`** (new override, vslot 0x2b8, under `MODIFY_SET_DAMAGE_DATA`): base `32045340` first. Open Mind 24417 learned: the skill is DD
+  `m_iAppliedSkillID` (`+0x5c4`) if > 0, else `GetNowStateSkillID` (vslot 0x524); its templet type in { `ST_SPECIAL_ACTIVE` 7, `_GRADE_1-3` 14-16 } -> fMagic then fPhysic
+  x `SA_DAMAGE_REL` (1.05). Infinity Rage 24420 and `IsAttackTrigger( 18 )` -> `DT_MAGIC`, magic = physic + magic, physic 0, magic x `( m_fChangeDamageRelRaven - 1 ) x 0.5 + 1`,
+  `m_wstrCreateDamageEffectName` (`+0x47c`, the wstring before CREATE_DAMAGE_EFFECT_NAME_SCALE `+0x498`) = `DamageEffect_RRF_ExplosiveHand_Impact_NEW` (in the live
+  `DamageEffect.lua`). Trigger 18 is on 7 states of June's `RAVEN_FIGHTER.lua` (Hell Dive / Megadrill Break / Limit Crusher and upgrades). Win and Win 24422 and
+  `IsAttackTrigger( 19 )` (`DamageEffect_Ignition_Crow_Ground_Win_And_Win`, a no-damage self hit spawned by Ignition Crow's drop fire) -> `PushBuffFactor(
+  GetSkillBuffFactorPtr( 24422, 0, true ), true )` (`329cf6d0`; BTI 844, 1.5 s). Stand-in: a null damage data returns.
+- **`GetActualMPConsume` `32c38180`** whole inside March's: Shockwave 24011 / 24030 with Counter's buff on (`HaveSkillBuff( 24418, 0, true )`, vslot 0x240; put on by Shockwave
+  Front, CH3a) -> x `SA_MP_CONSUME_REL` (0.8: 200 -> 160); Mental Crash 24214, Flame Sword 24201 / 24218, Flurry 24226 with Win and Win's buff -> x0.5 (**JUNE_BUGS 558**: Mental Crash
+  is not in June's description); clamp < 0; then the finality-event rate (`3234d840`). June's memo 5 / 28 cases sit behind `GetEqippedSkillMemo` `31fca9e0`, which
+  returns 0 in June, so they are not transcribed (one comment line); March's memo 8 / 9 / 15 cases stay in `#else`.
+- **`GetActualCoolTime` `32c382d0`** (new override, vslot 0x6a4): null -> 0; base; x `SA_COOLTIME_1` of 24422 (0.7) while Win and Win's buff is up; no clamp. This answers
+  CH1k's amendment: March's memo 15 Revolver Cannon -2 s is not in June and is gone.
+- **Uncarved buff-templet set / unset** `32c38340` / `32c383b0`: already ported by CH1h (= March, BTI 30). **§7 power-rate socket row (`3201ad10`, checklist l.283):** no
+  caller in Raven's range, n/a. Checklist rows §2 `ADDITIONAL_ATTACK_TRIGGER_TYPE` and §7b (l.330) marked `(Raven: CH4b)`. CH0's three CH4b functions are all done.
+- **Names / values** (compile probe): `RNSI_P_RRF_INFINITY_RAGE` 24420, `RNSI_P_RVC_WIN_AND_WIN` 24422 (`X2SkillTree.h`), `DTT_RRF_BURNING_NASOD_HAND_POSSIBLE_WITH_INFINITY_RAGE`
+  18, `DTT_RVC_IGNITION_CROW_SELF_DAMAGE` 19 (`X2DamageManager.h`), all `Enum.src.lua`, under `JUNE_ENUM_NAMES`; `SA_DAMAGE_REL` 15, `SA_MP_CONSUME_REL` 27, `SA_COOLTIME_1` 148,
+  `ST_SPECIAL_ACTIVE` 7. The 0.5 constants stay numbers (no Enum entry).
+
+**Hygiene.** One-file probe (`census.cl_cmd`, `/Zs /EHsc`): `X2GURaven.cpp` exit 0. `flagcheck.py JUNE_CHAR_RAVEN_PASSIVE --with JUNE_CHAR_RAVEN_PASSIVE_DEBUG --worktree --files` (5):
+`files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`; `1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s),
+0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (OTHER = the two enum headers under `JUNE_ENUM_NAMES`; the deleted line is `//#define ..._PASSIVE_DEBUG`).
+`junediverge.py --check` (5 files): `allow-listed: 12`, `RESULT: PASS`. `enumscan.py --check X2GURaven.cpp`: `0 A/B row(s)`.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,081,280 B, dated 2026-11-07 07:12:48, md5 0bb93350b8fee024e74ae2f0980be015, equal to X2/US_SERVICE/x2.exe (2026-11-07 07:12:40); built at main 450a00e1 + 5 uncommitted code file(s).`
+`EXESTR OK: 6 of 6 found in X2_offline.exe, 26081280 B, dated 2026-11-07 07:12:48, md5 0bb93350b8fee024e74ae2f0980be015` (the five log lines and the effect name, wide).
+**Save** (backup `els_db_20261107_070425_pre_sql.sql`): unit 49 `Raven99` (Blade Master) + Counter 24418 (unsealed), Shockwave Front 24016 in slot 7 (24026 out), Divider 24030
+slot 8; unit 76 `RecklessFistT` + Infinity Rage 24420 (unsealed), Hell Dive 24219 slot 5, Megadrill Break 24228 slot 6; unit 77 `VetCommanderT` + Win and Win 24422 (unsealed),
+Flame Sword 24218 slot 7 (24034 out), Ignition Crow Napalm 24053 slot 8.
+**In game:** `[JUNE_CHAR] RAVEN PASSIVE open mind: skill 24030 type 15 damage x 1.050`; `mp: skill 24030 base 200.00 -> 160.00` after Shockwave Front; `infinity rage: magic hit ...,
+effect DamageEffect_RRF_ExplosiveHand_Impact_NEW` on Hell Dive / Megadrill; `win and win: self damage hit, factor found`, then `mp: skill 24218 base 30.00 -> 15.00` and
+`win and win cool time: ... -> x0.7` within 1.5 s. All at most once a second.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI`. Sub-tag `UI`.

@@ -32934,6 +32934,58 @@ void CX2GURaven::CheckAndDoReversalSoldierAndSurvivalTechnique()
 */
 /*virtual*/ float CX2GURaven::GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+	// June 32c38180; its memo 5 / 28 cases call GetEqippedSkillMemo 31fca9e0, which returns 0 in June, so they never apply
+	CX2GURaven* pThis = const_cast<CX2GURaven*>( this );
+	const float fBaseMpConsumption = CX2GUUser::GetActualMPConsume( eSkillID_, iSkillLevel_ );
+	float fMpConsumption = fBaseMpConsumption;
+
+	switch ( eSkillID_ )
+	{
+	case CX2SkillTree::RNSI_SA_RST_SHOCKWAVE:
+	case CX2SkillTree::RNSI_SA_RST_SHOCKWAVE_UPGRADE:
+		if ( true == pThis->HaveSkillBuff( CX2SkillTree::RNSI_P_RBM_COUNTER, 0, true ) )
+			fMpConsumption = GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_RBM_COUNTER ) * fMpConsumption;
+		break;
+
+	default:
+		break;
+	}
+
+	switch ( eSkillID_ )
+	{
+	case CX2SkillTree::RNSI_A_RWT_MENTAL_BREAK:
+	case CX2SkillTree::RNSI_A_RF_FLAME_SWORD:
+	case CX2SkillTree::RNSI_A_RF_FLAME_SWORD_UPGRADE:
+	case CX2SkillTree::RNSI_A_RVC_FLAME_SWORD_ANOTHER:
+		if ( true == pThis->HaveThisBuff( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_RVC_WIN_AND_WIN, 0, true ) ) )
+			fMpConsumption = static_cast<float>( fMpConsumption * 0.5 );
+		break;
+
+	default:
+		break;
+	}
+
+	if ( fMpConsumption < 0.f )
+		fMpConsumption = 0.f;
+
+	float fMpDecreaseRate = 1.0f;
+#ifdef SERV_BALANCE_FINALITY_SKILL_EVENT
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillID_, true );
+	if ( NULL != pSkillTemplet )
+		fMpDecreaseRate = g_pData->GetMyUser()->GetSelectUnit()->GetSkillMpDecreaseRate( eSkillID_, pSkillTemplet->m_eType );	// June 3234d840 on my unit
+#endif SERV_BALANCE_FINALITY_SKILL_EVENT
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+	static DWORD s_dwMpConsumeLogTime = 0;
+	if ( fMpConsumption != fBaseMpConsumption && timeGetTime() - s_dwMpConsumeLogTime > 1000 )
+	{
+		s_dwMpConsumeLogTime = timeGetTime();
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN PASSIVE mp: skill %d base %.2f -> %.2f ( event rate %.3f )", static_cast<int>( eSkillID_ ), fBaseMpConsumption, fMpConsumption, fMpDecreaseRate );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+	return fMpConsumption * fMpDecreaseRate;
+#else SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 	float fMpConsumption = CX2GUUser::GetActualMPConsume( eSkillID_, iSkillLevel_ );
 
 	switch ( eSkillID_ )
@@ -32998,8 +33050,107 @@ void CX2GURaven::CheckAndDoReversalSoldierAndSurvivalTechnique()
 #else SERV_BALANCE_FINALITY_SKILL_EVENT
 	return fMpConsumption;
 #endif //SERV_BALANCE_FINALITY_SKILL_EVENT
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
+//{{ Iruha : 2026-11-07 // char-raven CH4b
+// June 32c382d0 ( vslot 0x6a4 ): Win and Win's buff scales every cool time by its SA_COOLTIME_1; no clamp
+/*virtual*/ float CX2GURaven::GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const
+{
+	if ( NULL == pSkillTemplet_ )
+		return 0.f;
+
+	const float fBaseCoolTime = CX2GUUser::GetActualCoolTime( pSkillTemplet_, iSkillLevel );
+	float fSkillCoolTime = fBaseCoolTime;
+	if ( true == const_cast<CX2GURaven*>( this )->HaveThisBuff( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_RVC_WIN_AND_WIN, 0, true ) ) )
+	{
+		fSkillCoolTime = GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, CX2SkillTree::RNSI_P_RVC_WIN_AND_WIN ) * fSkillCoolTime;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+		static DWORD s_dwCoolTimeLogTime = 0;
+		if ( timeGetTime() - s_dwCoolTimeLogTime > 1000 )
+		{
+			s_dwCoolTimeLogTime = timeGetTime();
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN PASSIVE win and win cool time: skill %d base %.2f -> %.2f", static_cast<int>( pSkillTemplet_->m_eID ), fBaseCoolTime, fSkillCoolTime );
+		}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+	}
+	return fSkillCoolTime;
+}
+
+#ifdef MODIFY_SET_DAMAGE_DATA
+// June 32c5c080 ( vslot 0x2b8 ), June-only: Open Mind's special-active damage, Infinity Rage's magic Burning Nasod Hand hit, Win and Win's buff on Ignition Crow's self damage
+/*virtual*/ void CX2GURaven::SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate )
+{
+	CX2GUUser::SetDamageExceptionProcess( pDamageData_, fPowerRate );
+	if ( NULL == pDamageData_ )	// June reads it unchecked
+		return;
+
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_RBM_OPEN_MIND ) > 0 )
+	{
+		const int iSkillID = ( pDamageData_->m_iAppliedSkillID > 0 ) ? pDamageData_->m_iAppliedSkillID : static_cast<int>( GetNowStateSkillID() );
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID ) );
+		if ( NULL != pSkillTemplet )
+		{
+			switch ( pSkillTemplet->m_eType )
+			{
+			case CX2SkillTree::ST_SPECIAL_ACTIVE:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+			case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+				{
+					pDamageData_->damage.fMagic = GetLearnedSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, CX2SkillTree::RNSI_P_RBM_OPEN_MIND ) * pDamageData_->damage.fMagic;
+					pDamageData_->damage.fPhysic = GetLearnedSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, CX2SkillTree::RNSI_P_RBM_OPEN_MIND ) * pDamageData_->damage.fPhysic;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+					static DWORD s_dwOpenMindLogTime = 0;
+					if ( timeGetTime() - s_dwOpenMindLogTime > 1000 )
+					{
+						s_dwOpenMindLogTime = timeGetTime();
+						CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN PASSIVE open mind: skill %d type %d damage x %.3f", iSkillID, static_cast<int>( pSkillTemplet->m_eType ), GetLearnedSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, CX2SkillTree::RNSI_P_RBM_OPEN_MIND ) );
+					}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+				} break;
+
+			default:
+				break;
+			}
+		}
+	}
+
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_RRF_INFINITY_RAGE ) > 0 && true == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_RRF_BURNING_NASOD_HAND_POSSIBLE_WITH_INFINITY_RAGE ) )
+	{
+		pDamageData_->damageType = CX2DamageManager::DT_MAGIC;
+		pDamageData_->damage.fMagic = pDamageData_->damage.fPhysic + pDamageData_->damage.fMagic;
+		pDamageData_->damage.fPhysic = 0.f;
+		pDamageData_->damage.fMagic = static_cast<float>( ( ( m_fChangeDamageRelRaven - 1.0 ) * 0.5 + 1.0 ) * pDamageData_->damage.fMagic );
+		pDamageData_->m_wstrCreateDamageEffectName = L"DamageEffect_RRF_ExplosiveHand_Impact_NEW";
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+		static DWORD s_dwInfinityRageLogTime = 0;
+		if ( timeGetTime() - s_dwInfinityRageLogTime > 1000 )
+		{
+			s_dwInfinityRageLogTime = timeGetTime();
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN PASSIVE infinity rage: magic hit %.2f ( damage rel %.3f ), effect %s", pDamageData_->damage.fMagic, m_fChangeDamageRelRaven, pDamageData_->m_wstrCreateDamageEffectName.c_str() );
+		}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+	}
+
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_RVC_WIN_AND_WIN ) > 0 && true == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_RVC_IGNITION_CROW_SELF_DAMAGE ) )
+	{
+		CX2BuffFactorPtr ptrBuffFactor = GetSkillBuffFactorPtr( CX2SkillTree::RNSI_P_RVC_WIN_AND_WIN, 0, true );
+		pDamageData_->PushBuffFactor( ptrBuffFactor, true );	// June 329cf6d0
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+		static DWORD s_dwWinAndWinLogTime = 0;
+		if ( timeGetTime() - s_dwWinAndWinLogTime > 1000 )
+		{
+			s_dwWinAndWinLogTime = timeGetTime();
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RAVEN PASSIVE win and win: self damage hit, factor %s, %d factor(s) on the damage data", ( NULL != ptrBuffFactor ) ? L"found" : L"missing", static_cast<int>( pDamageData_->m_vecBuffFactorPtr.size() ) );
+		}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE_DEBUG
+	}
+}
+#endif MODIFY_SET_DAMAGE_DATA
+//}}
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 /** @function : AddUnitSlashData
 	@brief : 유닛에 트레이스 붙이기 (실행은 아님)
 	@param : 트레이스 종류(eSlashTraceCondition_)
