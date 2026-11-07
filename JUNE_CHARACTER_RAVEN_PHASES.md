@@ -2382,6 +2382,25 @@ relog. A defect goes back to its phase's flag.
 
 **Done gate:** the walk passes; 0 unexplained `no_state` rows; no new `KEM_ERROR`.
 
+### CH6 - Done (2026-11-07, Sonnet 5.5): scans PASSED, walk owed
+
+**No code change, no flag, no build** (deployed exe is CH4c's). Save backed up first: `data\db_backup\els_db_20261107_080946_pre_pre_ch6_raven_walk.sql`.
+
+| Scan | Before (CH0) | After |
+|---|---|---|
+| `census.py --summary` | n/a | 26 PASS, 0 FAIL, `to-implement 0` |
+| `charport_scan.py` (`C:/tmp/cps6r`) | `RAVEN_FIGHTER` 25 numerical-only (planning) | `{'no NUMERICAL_DATA_INDEX': 70, 'no DAMAGE table': 25}`, src/bytecode mismatch none |
+| `charport_keys.py RAVEN_FIGHTER` | 251 keys | 229 both / 10 june-only / 6 neither / 6 march-only-site (june-only = `BBT_` / `BFT_` engine keys, camera pair Stage 9, `IMMUNITY_EDT` backlog Stage 2; as CH0) |
+| `s3_no_state.py --family X2GURaven.cpp --preprocess` | 254 rows, 247 `no_state` | 254 rows, `no_state=79` (37 ids), **0 unexplained** |
+
+**The 37 `no_state` ids** (the generator resolves unqualified `case SI_*` only):
+- 12 actives / hypers with a `case CX2SkillTree::RNSI_*` state: 24200, 24011, 24004, 24005, 24014, 24007, 24206, 24600, 24039, 24031 (Harpoon Spear), 24053 (Ignition Crow), plus 24401's Burning Nasod Hand reader; checked at `X2GURaven.cpp` 4805 / 4855 / 4986 / 4958 / 5257 / 5437 / 5615 / 4606 / 5678 / 5156 / 6729.
+- 24000 Maximum Cannon: state under March's `SI_SA_RF_MAXIMUM_CANNON` (`:5729`); 24025 its upgrade, no state of its own.
+- Upgrade ids ride on the base skill's state.
+- Type 8 / 1 / 12 passives and common auras (24400-24422, 106, 900): no class state in June; read through `GetSkillLevelValue` / buff factors (CH4a-CH4c).
+
+**Walk units (in the save).** Un-transcended: 72 (4), 73 (16), 74 (17), 75 (25), 23 / 49 / 79 (106), 80 / 81 (107), 83 (115). Transcended: 76 (107), 77 (115), 78 (106). Transition test: 79 (106), 81 (107), 83 (115), each lv99 with no quest 42030 row.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium. `MODS.md` "June character: Raven" section (flags, files, data, revert order: exe + data036 + motion koms
