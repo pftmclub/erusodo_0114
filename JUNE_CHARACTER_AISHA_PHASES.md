@@ -2582,7 +2582,7 @@ What differs per character, as known on 2026-10-22 (gap = June attacks whose dam
 | Chung | 15 | - | `ChangeMaxCharacterAddResource` already ported; 49 unnamed upgrade ids (7ae); cinematic UI (7r) |
 | Elsword (closed 2026-11-05) | 20 | - | `DAMAGE_SKILL_ID` x103 in `Elsword_DamageData.lua` (§2) is Rose's data, no Elsword work (char-elsword planning, 2026-11-03); Rune Slayer reflect (7j); S3d memo consumers; Way of the Sword (CH1q) |
 | Raven (closed 2026-11-07) | 25 | - | 7b passive setter `+0x4108`; 7u effect names (17 `c11a` rows); power-rate operator (§7 l.256); Nasod core / rage (CH1q) and Veteran Commander overheat (CH4c), both live March code; motions deploy with CH1 (char-raven planning, 2026-11-05) |
-| Rena | 12 | - | **`ADD_RENA_SYSTEM` decision** (natural force, 77 uses); 7ad renames (`Lire_*`); D8 3405 -> 23405 |
+| Rena | 12 | - | **`ADD_RENA_SYSTEM` decision** (natural force: 187 dormant blocks in 23 files, CH1q); 7ad renames (`Lire_*`); D8 3405 -> 23405; trap summons (4 June `CreateNPCReq` sites, CH2d0); 8 alpha-tag sites (char-rena planning, 2026-11-07) |
 | Ara | 14 | 34, 124 | `CUSTOM_RENDER_STATE` (7w); 2 new motion files; orb handle retirement needs the user's OK (7e) |
 | Elesis | 20 | 35, 125 | already on June base / SK motions (6 anims lost, accepted); first live reserved-buff path (7ai) |
 | Add | 0 (skeleton) | 33, 36, 123, 126 | March kit incomplete ("the user ports Add from June", l.237); `CUSTOM_RENDER_STATE`; no stat rows for 9 / 32 / 122 at all; 4 new motion files; 13 §7 rows |

@@ -1,0 +1,390 @@
+PLANNING EVIDENCE 2026-11-07 (Rena port planning; read-only tools)
+
+census.py (cd june2017_re): status: to-implement 0, unsupported 5, binary-only 4, handed-off 9, declined 3, implemented 652, june-ignores 305; checks: 26 PASS, 0 FAIL (identical to Raven's 2026-11-05 run)
+  (census.tsv / JUNE2017_EFFECT_KEY_MATRIX.md regenerated then reverted with git checkout)
+
+charport_scan.py C:/tmp/cps_rena: Lire_ElvenRanger {'no NUMERICAL_DATA_INDEX': 65, 'no DAMAGE table': 12}; no Lire ENUM or KEYS line.
+  Whole output vs Raven's 20261105 body: IDENTICAL (line endings aside), Raven's own line included (RAVEN_FIGHTER 70/25 unchanged).
+
+s3_no_state.py --family X2GULire_ElvenRanger.cpp --preprocess: # totals rows=267 no_state=260 has_state=7
+
+===== full charport_scan.py output =====
+KEYS (exact sub-path under DAMAGE_DATA*)
+KEYS-BYNAME (bytecode, any table; leads only)
+NUMERIC (DAMAGE_DATA* tables)
+  Ara_Martial_Artist           {'no NUMERICAL_DATA_INDEX': 49, 'no DAMAGE table': 14}
+  Arme_VioletMage              {'no NUMERICAL_DATA_INDEX': 36, 'no DAMAGE table': 1}
+  Chung_Iron_Cannon            {'no NUMERICAL_DATA_INDEX': 74, 'no DAMAGE table': 15}
+  ELESIS_KNIGHT                {'no NUMERICAL_DATA_INDEX': 69, 'no DAMAGE table': 20}
+  Elsword_SwordMan             {'no NUMERICAL_DATA_INDEX': 87, 'no DAMAGE table': 20}
+  Eve_Nasod                    {'no NUMERICAL_DATA_INDEX': 25, 'no DAMAGE table': 3}
+  Lire_ElvenRanger             {'no NUMERICAL_DATA_INDEX': 65, 'no DAMAGE table': 12}
+  Luciel_Demonio               {'no NUMERICAL_DATA_INDEX': 11, 'no DAMAGE table': 2}
+  Luciel_Duo                   {'no NUMERICAL_DATA_INDEX': 67, 'no DAMAGE table': 15}
+  RAVEN_FIGHTER                {'no NUMERICAL_DATA_INDEX': 70, 'no DAMAGE table': 25}
+  Rose_Freyja                  {'no NUMERICAL_DATA_INDEX': 2, 'no DAMAGE table': 2}
+  Rose_Gunner                  {'no NUMERICAL_DATA_INDEX': 17, 'no DAMAGE table': 2}
+  Rose_StormTrooper            {'no NUMERICAL_DATA_INDEX': 4, 'no DAMAGE table': 1}
+ENUM (June-only Enum.lua tables indexed)
+  AchievementConditionData     {'ACHIEVEMENT_CONDITION_TYPE': 243, 'PROFESSION_TYPE': 15}
+  AchievementData              {'ACHIEVEMENT_CATEGORY': 243}
+  Add_NasodRuler               {'CUSTOM_RENDER_STATE': 7}
+  Ain_Apostasia                {'MOTION_CHANGE_CONDITION': 1, 'CUSTOM_RENDER_STATE': 1}
+  Ain_Erbluhen_Emotion         {'CUSTOM_RENDER_STATE': 1}
+  AnimationNameTable           {'UNIT_VIEWER_UI_MOTION_TYPE': 384}
+  Ara_Martial_Artist           {'CUSTOM_RENDER_STATE': 1}
+  BattleFieldData              {'BATTLE_FIELD_TYPE': 10}
+  ChainCashItem                {'CHAIN_CASH_ITEM_CATEGORY': 1}
+  CharCustomData               {'CUSTOM_MOTION_EFFECT_TYPE': 1087, 'CUSTOM_HYPER_EFFECT_TYPE': 15}
+  DefaultBoneInfo              {'CHARACTER_ID': 13, 'MODIFY_BONE_STYLE': 125}
+  DivisionItemTemplet          {'READ_TYPE': 24, 'DIVISION_ITEM_TEMPLET_TYPE': 24}
+  DungeonClearMovieTemplet     {'SCENARIO_MOVIE_CATEGORY': 13}
+  ElResonanceTable             {'EL_RESONANCE_TYPE': 15}
+  EmotionData                  {'CHANGE_EMOTION_CONDITION': 20}
+  EnchantItemInfoNew           {'ENCHANT_TALISMAN_USE_TYPE': 32}
+  EventButtonIconInfo          {'X2_STATE': 122, 'CUSTOM_EVENT_CUSTOM_MSG': 2}
+  FieldSubQuest                {'PVP_TOURNAMENT_TYPE': 1}
+  GuildAgitShopItem            {'GUILD_AGIT_SHOP_SALE_TAB_ID': 2}
+  Luciel_Demonio               {'CUSTOM_RENDER_STATE': 3}
+  MagicalClosetFilterInfo      {'AVATAR_TICKET_SET_ID': 13}
+  ManufactureItem              {'PROFESSION_TYPE': 29}
+  MediaInfoScript              {'MEDIA_TYPE': 24}
+  PetInteractionData           {'PET_INTERACTION_TYPE': 24, 'PET_ACTION_COMMAND': 21}
+  ProfessionTemplet            {'PROFESSION_TYPE': 3, 'ACHIEVEMENT_GRADE_TYPE': 4, 'PROFESSION_ACHIEVEMENT_TYPE': 13}
+  RenderDivisionItemTemplet    {'READ_TYPE': 113, 'DIVISION_ITEM_TEMPLET_TYPE': 113, 'CONDITION_EQUIP_PLAY_EFFECT_SET': 5}
+  Rose_Freyja                  {'ROSE_WEAPON_TYPE': 10}
+  Rose_Gunner                  {'ROSE_WEAPON_TYPE': 17}
+  Rose_Mechanic                {'ROSE_WEAPON_TYPE': 4}
+  Rose_Ranger                  {'ROSE_WEAPON_TYPE': 11, 'CUSTOM_RENDER_STATE': 1}
+  Rose_StormTrooper            {'ROSE_WEAPON_TYPE': 4}
+  SelectVoiceTable             {'SOUND_PLAY_TYPE': 400}
+  ShareMotionInfoData          {'APPLYING_SHARE_BONE_DATA_TYPE': 134}
+  SkillNoteTemplet             {'MEMO_ID': 1155}
+  SubTitleMission              {'BATTLE_FIELD_ID': 2}
+  SubTitleMission_LA           {'BATTLE_FIELD_ID': 2}
+  UserUnitBoneSetting          {'USER_UNIT_BONE_SETTING_TYPE': 10, 'USER_UNIT_BONE_SETTING_CONDITION': 1}
+  WorldTourInfoData            {'WORLD_TOUR_SLOT_TYPE': 38}
+SKIPPED ['AccountQuest', 'AccountQuest_LA', 'FieldQuest', 'FieldQuest_LA', 'FieldSubQuest_LA', 'GuildQuest', 'GuildQuest_LA', 'NewSkillTempletVer2', 'NewSkillTempletVer2_LA', 'OptionItemData', 'OptionItemData_LA', 'PetTemplet', 'PetTemplet_LA', 'TitleTable', 'TitleTable_LA']
+SRC/BYTECODE MISMATCH (not path-checked) []
+
+===== census.py --summary =====
+status: to-implement 0, unsupported 5, binary-only 4, handed-off 9, declined 3, implemented 652, june-ignores 305
+phase   to-implement unsupported binary-only handed-off declined implemented june-ignores
+2                   0           1           0          1        0           8           11
+3                   0           1           0          0        0          97           19
+5                   0           1           0          1        0          49           42
+6a                  0           0           2          0        0          72           21
+6b                  0           0           2          0        0         113           25
+8a                  0           0           0          0        0         153            0
+8b                  0           0           0          0        0           0           37
+8c                  0           2           0          6        0           0            0
+9                   0           0           0          0        0           9            0
+-                   0           0           0          0        0           0          150
+unassigned            0           0           0          1        3         151            0
+semantics-differ: 2
+KTDGXMeshPlayer: to-implement 0, unsupported 1, implemented 64, march-only 1, june-ignores 0
+KTDGParticleSystem: to-implement 0, unsupported 1, implemented 60, march-only 0, june-ignores 0
+handed-off/declined: 12
+open rows by owner: C10 6, C11 3
+PASS every `june-ignores` row has a certain reason (no `name-collision` / `plain-only` / `decoder-miss?` / unrooted sub-table)
+PASS every open row has an owning phase
+PASS every code-built key is covered by a declared row
+PASS every March function in the scope table was found in its preprocessed TU, except the declared compiled-out ones: `CX2EffectSet::AddEffectSet_Description_LUA` (#ifdef EFFECT_TOOL, X2EffectSet.cpp:3380)
+PASS every row has exactly one status
+PASS every hand-written `RUNTIME` citation names a row of the matrix
+PASS every hand-verified `HAND_SEMANTICS` verdict (Phase 8a) names a March-read row
+PASS every key March reads in `ES.templet`, `ES.EFFECT`, `ES.CAMERA_SHAKE`, `ES.SOUND`, at every sub-path, has a runtime citation (Phase 4b exit; `ES.Description` is EFFECT_TOOL-only)
+PASS no runtime citation is a phase placeholder (`4b@VA`)
+PASS every runtime citation is transcribed: no `stage N` state left (Phase 4b done)
+PASS every hand-written `ES_LEVELS` range of 321e48e0 starts at a BeginTable on its own name and ends at its re-test / EndTable
+PASS every phase-8c `DE.DAMAGE_DATA` row (absent or gated-off system) has a March parse site: parsed, stored and logged under plan rule 5 (Phase 8c exit)
+PASS KTDGXMeshPlayer: 0 keys `to-implement` (Phase 10 exit)
+PASS KTDGXMeshPlayer: every `unsupported` key is still parsed by March (plan rule 5)
+PASS KTDGXMeshPlayer: no June data key is one June's own parser rejects
+PASS KTDGXMeshPlayer: every hand-written runtime citation names a key March now reads
+PASS KTDGParticleSystem: 0 keys `to-implement` (Phase 10 exit)
+PASS KTDGParticleSystem: every `unsupported` key is still parsed by March (plan rule 5)
+PASS KTDGParticleSystem: no June data key is one June's own parser rejects
+PASS KTDGParticleSystem: every hand-written runtime citation names a key March now reads
+PASS every open row has an owning C-phase (or is handed-off / declined)
+PASS every `unsupported` row names a recorded decision (build / handed-off / declined / pending), definition item 4
+PASS every `handed-off` / `declined` row names its receiver (document + phase or section)
+PASS definition item 3: every binary-only row has a March parse site (4 sited; 0 owed to the phase that closes them: )
+PASS definition item 1, numerical skill data (June SetDamageDataFromLUA override, 32632390@3263fe41): handed-off to JUNE2017_CHARACTER_PORT_CHECKLIST.md section 1 (character ports: June skill reform) (D7 2026-10-06: C1a found every block uses June reform skill IDs no March character learns); 1913 of 7948
+PASS definition item 1, HP-rate damage (HP_RATE_DAMAGE_TYPE/VALUE; C10a confirms the formula): 0 of 7948 June DAMAGE_DATA* blocks get damage only from it
+
+===== s3_no_state.py output =====
+# s3_no_state.py --family X2GULire_ElvenRanger.cpp
+# mode: cl /P (live branches exact; line numbers are positions in the preprocessed stream)
+# enum SKILL_ID: 1176 enumerators, 0 unresolved initialisers
+# verdict: has_state = a case label resolves to the id (strict)
+# case labels not resolved (not in enum / consts): 49
+unit_class_name	unit_class_value	family_cpp_file	skill_id	skill_name	templet_name	skill_type	master_level	row	column	in_cpp_enum	cpp_case_in_family	verdict	march_value_of_name	march_names_at_same_id	cpp_any_token_in_family	case_in_X2GUUser_cpp	lookalike_march_name	lookalike_march_value	lookalike_case_in_family	evidence
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23200	RNSI_A_RENA_BACKJUMP_SHOT	Backflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23220	RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nBackflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23000	RNSI_SA_RENA_RAIL_STINGER	Rail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23026	RNSI_SA_RENA_RAIL_STINGER_UPGRADE	#Cffcc00[Enhanced]#CX\nRail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GULire_ElvenRanger.cpp:2904
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23001	RNSI_SA_RENA_PERFECT_STORM	Perfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23027	RNSI_SA_RENA_PERFECT_STORM_UPGRADE	#Cffcc00[Enhanced]#CX\nPerfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23002	RNSI_SA_RENA_AERO_TORNADO	Aero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23028	RNSI_SA_RENA_AERO_TORNADO_UPGRADE	#Cffcc00[Enhanced]#CX\nAero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23003	RNSI_SA_RENA_ASSAULT_KICK	Assault Kick	14	1	3	1	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23029	RNSI_SA_RENA_ASSAULT_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Kick	14	1	3	1	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23004	RNSI_SA_RENA_PHOENIX_STRIKE	Phoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23030	RNSI_SA_RENA_PHOENIX_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX\nPhoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23201	RNSI_A_RENA_SIEGEMODE	Siege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_ELVEN_RANGER	3	X2GULire_ElvenRanger.cpp	23221	RNSI_A_RENA_SIEGEMODE_UPGRADE	#Cffcc00[Enhanced]#CX\nSiege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23200	RNSI_A_RENA_BACKJUMP_SHOT	Backflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23220	RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nBackflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23000	RNSI_SA_RENA_RAIL_STINGER	Rail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23026	RNSI_SA_RENA_RAIL_STINGER_UPGRADE	#Cffcc00[Enhanced]#CX\nRail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GULire_ElvenRanger.cpp:2904
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23001	RNSI_SA_RENA_PERFECT_STORM	Perfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23027	RNSI_SA_RENA_PERFECT_STORM_UPGRADE	#Cffcc00[Enhanced]#CX\nPerfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23002	RNSI_SA_RENA_AERO_TORNADO	Aero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23028	RNSI_SA_RENA_AERO_TORNADO_UPGRADE	#Cffcc00[Enhanced]#CX\nAero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23003	RNSI_SA_RENA_ASSAULT_KICK	Assault Kick	14	1	3	0	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23029	RNSI_SA_RENA_ASSAULT_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Kick	14	1	3	0	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23202	RNSI_A_RCR_RISING_FALCON	Rising Falcon	6	1	3	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23222	RNSI_A_RCR_RISING_FALCON_UPGRADE	#Cffcc00[Enhanced]#CX\nRising Falcon	6	1	3	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23005	RNSI_SA_RCR_CRESCENT_KICK	Crescent Kick	15	1	3	2	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23031	RNSI_SA_RCR_CRESCENT_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nCrescent Kick	15	1	3	2	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23400	RNSI_P_RCR_SHARP_KICK	Swift Kicks	8	4	3	3	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23004	RNSI_SA_RENA_PHOENIX_STRIKE	Phoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23030	RNSI_SA_RENA_PHOENIX_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX\nPhoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23201	RNSI_A_RENA_SIEGEMODE	Siege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23221	RNSI_A_RENA_SIEGEMODE_UPGRADE	#Cffcc00[Enhanced]#CX\nSiege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23006	RNSI_SA_RCR_SPINNING_KICK	Spinning Kick	14	1	5	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23034	RNSI_SA_RCR_SPINNING_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nSpinning Kick	14	1	5	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23204	RNSI_A_RCR_LOW_KICK	Low Kick	6	1	6	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23229	RNSI_A_RCR_LOW_KICK_UPGRADE	#Cffcc00[Enhanced]#CX Low Kick	6	1	6	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23203	RNSI_A_RCR_BACK_KICK	Back Kick	6	1	6	4	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23228	RNSI_A_RCR_BACK_KICK_UPGRADE	#Cffcc00[Enhanced]#CX Back Kick	6	1	6	4	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23007	RNSI_SA_RCR_DIVE_KICK_BOMBING	Dive Kick Bombing	16	1	7	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23043	RNSI_SA_RCR_DIVE_KICK_BOMBING_UPGRADE	#Cffcc00[Enhanced]#CX Dive Kick Bombing	16	1	7	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23206	RNSI_A_RCR_ASSAULT_IMPACT	Assault Impact	6	1	8	1	n	n	no_state			n	n				
+UC_LIRE_COMBAT_RANGER	12	X2GULire_ElvenRanger.cpp	23231	RNSI_A_RCR_ASSAULT_IMPACT_UPGRADE	#Cffcc00[Enhanced]#CX Assault Impact	6	1	8	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23200	RNSI_A_RENA_BACKJUMP_SHOT	Backflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23220	RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nBackflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23000	RNSI_SA_RENA_RAIL_STINGER	Rail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23026	RNSI_SA_RENA_RAIL_STINGER_UPGRADE	#Cffcc00[Enhanced]#CX\nRail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GULire_ElvenRanger.cpp:2904
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23001	RNSI_SA_RENA_PERFECT_STORM	Perfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23027	RNSI_SA_RENA_PERFECT_STORM_UPGRADE	#Cffcc00[Enhanced]#CX\nPerfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23002	RNSI_SA_RENA_AERO_TORNADO	Aero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23028	RNSI_SA_RENA_AERO_TORNADO_UPGRADE	#Cffcc00[Enhanced]#CX\nAero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23003	RNSI_SA_RENA_ASSAULT_KICK	Assault Kick	14	1	3	0	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23029	RNSI_SA_RENA_ASSAULT_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Kick	14	1	3	0	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23208	RNSI_A_RSR_ARC_SHOT	Arc Shot	6	1	3	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23223	RNSI_A_RSR_ARC_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nArc Shot	6	1	3	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23012	RNSI_SA_RSR_GUIDED_ARROW	Guided Arrow	15	1	3	2	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23032	RNSI_SA_RSR_GUIDED_ARROW_UPGRADE	#Cffcc00[Enhanced]#CX\nGuided Arrow	15	1	3	2	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23404	RNSI_P_RSR_HAWK_EYE	Hawk Eye	8	4	3	3	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23004	RNSI_SA_RENA_PHOENIX_STRIKE	Phoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23030	RNSI_SA_RENA_PHOENIX_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX\nPhoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23201	RNSI_A_RENA_SIEGEMODE	Siege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23221	RNSI_A_RENA_SIEGEMODE_UPGRADE	#Cffcc00[Enhanced]#CX\nSiege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23013	RNSI_SA_RSR_WINDWARD	Wind Wall	14	1	5	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23035	RNSI_SA_RSR_WINDWARD_UPGRADE	#Cffcc00[Enhanced]#CX\nWind Wall	14	1	5	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23210	RNSI_A_RSR_MIND_OF_SHARPSHOOTER	Hunter's Steadiness	6	1	6	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23234	RNSI_A_RSR_MIND_OF_SHARPSHOOTER_UPGRADE	#Cffcc00[Enhanced]#CX Hunter's Steadiness	6	1	6	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23209	RNSI_A_RSR_SHOOTING_MAGNUM	Shooting Magnum	6	1	6	4	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23233	RNSI_A_RSR_SHOOTING_MAGNUM_UPGRADE	#Cffcc00[Enhanced]#CX Shooting Magnum	6	1	6	4	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23014	RNSI_SA_RSR_CRAZY_SHOT	Crazy Shot	16	1	7	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23048	RNSI_SA_RSR_CRAZY_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX Crazy Shot	16	1	7	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23212	RNSI_A_RSR_RAPID_SHOT	Rapid Shot	6	1	8	1	n	n	no_state			n	n				
+UC_LIRE_SNIPING_RANGER	13	X2GULire_ElvenRanger.cpp	23236	RNSI_A_RSR_RAPID_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX Rapid Shot	6	1	8	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23200	RNSI_A_RENA_BACKJUMP_SHOT	Backflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23220	RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nBackflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23000	RNSI_SA_RENA_RAIL_STINGER	Rail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23026	RNSI_SA_RENA_RAIL_STINGER_UPGRADE	#Cffcc00[Enhanced]#CX\nRail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GULire_ElvenRanger.cpp:2904
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23001	RNSI_SA_RENA_PERFECT_STORM	Perfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23027	RNSI_SA_RENA_PERFECT_STORM_UPGRADE	#Cffcc00[Enhanced]#CX\nPerfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23002	RNSI_SA_RENA_AERO_TORNADO	Aero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23028	RNSI_SA_RENA_AERO_TORNADO_UPGRADE	#Cffcc00[Enhanced]#CX\nAero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23003	RNSI_SA_RENA_ASSAULT_KICK	Assault Kick	14	1	3	0	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23029	RNSI_SA_RENA_ASSAULT_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Kick	14	1	3	0	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23214	RNSI_A_RTR_EXPLOSION_TRAP	Explosive Trap	6	1	3	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23224	RNSI_A_RTR_EXPLOSION_TRAP_UPGRADE	#Cffcc00[Enhanced]#CX\nExplosive Trap	6	1	3	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23019	RNSI_SA_RTR_FATALITY	Fatality	15	1	3	2	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23033	RNSI_SA_RTR_FATALITY_UPGRADE	#Cffcc00[Enhanced]#CX\nFatality	15	1	3	2	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23408	RNSI_P_RTR_HUNTERS_ABILITY	Hunter's Ability	8	4	3	3	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23004	RNSI_SA_RENA_PHOENIX_STRIKE	Phoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23030	RNSI_SA_RENA_PHOENIX_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX\nPhoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23201	RNSI_A_RENA_SIEGEMODE	Siege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23221	RNSI_A_RENA_SIEGEMODE_UPGRADE	#Cffcc00[Enhanced]#CX\nSiege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23020	RNSI_SA_RTR_HUMMING_WIND	Humming Wind	14	1	5	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23036	RNSI_SA_RTR_HUMMING_WIND_UPGRADE	#Cffcc00[Enhanced]#CX\nHumming Wind	14	1	5	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23216	RNSI_A_RTR_ANGER_OF_ELF	Eldrasil's Fury	6	1	6	1	y	n	no_state	23216	RNSI_A_RTR_ANGER_OF_ELF	n	y				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23239	RNSI_A_RTR_ANGER_OF_ELF_UPGRADE	#Cffcc00[Enhanced]#CX Eldrasil's Fury	6	1	6	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23215	RNSI_A_RTR_ROSEBUSH_TRAP	Briar Trap	6	1	6	4	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23238	RNSI_A_RTR_ROSEBUSH_TRAP_UPGRADE	#Cffcc00[Enhanced]#CX Briar Trap	6	1	6	4	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23021	RNSI_SA_RTR_KARMA	Karma	16	1	7	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23053	RNSI_SA_RTR_KARMA_UPGRADE	#Cffcc00[Enhanced]#CX Karma	16	1	7	1	n	n	no_state			n	n				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23218	RNSI_A_RTR_EVOKE	Evoke	6	1	8	1	y	n	no_state	23218	RNSI_A_RTR_EVOKE	n	y				
+UC_LIRE_TRAPPING_RANGER	24	X2GULire_ElvenRanger.cpp	23241	RNSI_A_RTR_EVOKE_UPGRADE	#Cffcc00[Enhanced]#CX Evoke	6	1	8	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23200	RNSI_A_RENA_BACKJUMP_SHOT	Backflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23220	RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nBackflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23000	RNSI_SA_RENA_RAIL_STINGER	Rail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23026	RNSI_SA_RENA_RAIL_STINGER_UPGRADE	#Cffcc00[Enhanced]#CX\nRail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GULire_ElvenRanger.cpp:2904
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23001	RNSI_SA_RENA_PERFECT_STORM	Perfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23027	RNSI_SA_RENA_PERFECT_STORM_UPGRADE	#Cffcc00[Enhanced]#CX\nPerfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23002	RNSI_SA_RENA_AERO_TORNADO	Aero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23028	RNSI_SA_RENA_AERO_TORNADO_UPGRADE	#Cffcc00[Enhanced]#CX\nAero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23003	RNSI_SA_RENA_ASSAULT_KICK	Assault Kick	14	1	3	0	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23029	RNSI_SA_RENA_ASSAULT_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Kick	14	1	3	0	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23202	RNSI_A_RCR_RISING_FALCON	Rising Falcon	6	1	3	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23222	RNSI_A_RCR_RISING_FALCON_UPGRADE	#Cffcc00[Enhanced]#CX\nRising Falcon	6	1	3	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23005	RNSI_SA_RCR_CRESCENT_KICK	Crescent Kick	15	1	3	2	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23031	RNSI_SA_RCR_CRESCENT_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nCrescent Kick	15	1	3	2	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23400	RNSI_P_RCR_SHARP_KICK	Swift Kicks	8	4	3	3	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23004	RNSI_SA_RENA_PHOENIX_STRIKE	Phoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23030	RNSI_SA_RENA_PHOENIX_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX\nPhoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23201	RNSI_A_RENA_SIEGEMODE	Siege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23221	RNSI_A_RENA_SIEGEMODE_UPGRADE	#Cffcc00[Enhanced]#CX\nSiege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23006	RNSI_SA_RCR_SPINNING_KICK	Spinning Kick	14	1	5	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23034	RNSI_SA_RCR_SPINNING_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nSpinning Kick	14	1	5	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23204	RNSI_A_RCR_LOW_KICK	Low Kick	6	1	6	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23229	RNSI_A_RCR_LOW_KICK_UPGRADE	#Cffcc00[Enhanced]#CX Low Kick	6	1	6	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23203	RNSI_A_RCR_BACK_KICK	Back Kick	6	1	6	4	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23228	RNSI_A_RCR_BACK_KICK_UPGRADE	#Cffcc00[Enhanced]#CX Back Kick	6	1	6	4	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23007	RNSI_SA_RCR_DIVE_KICK_BOMBING	Dive Kick Bombing	16	1	7	0	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23043	RNSI_SA_RCR_DIVE_KICK_BOMBING_UPGRADE	#Cffcc00[Enhanced]#CX Dive Kick Bombing	16	1	7	0	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23205	RNSI_A_RWS_NATURE_FORCE	Nature's Force	6	1	7	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23230	RNSI_A_RWS_NATURE_FORCE_UPGRADE	#Cffcc00[Enhanced]#CX Nature's Force	6	1	7	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23008	RNSI_SA_RWS_VIOLENT_ATTACK	Violent Attack	16	1	7	2	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23044	RNSI_SA_RWS_VIOLENT_ATTACK_UPGRADE	#Cffcc00[Enhanced]#CX Violent Attack	16	1	7	2	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23401	RNSI_P_RWS_FRIENDSHIP_OF_NATURE	Nature's Affinity	8	4	7	3	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23206	RNSI_A_RCR_ASSAULT_IMPACT	Assault Impact	6	1	8	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23231	RNSI_A_RCR_ASSAULT_IMPACT_UPGRADE	#Cffcc00[Enhanced]#CX Assault Impact	6	1	8	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23010	RNSI_SA_RWS_AIRELINNA	Airelinna	15	1	9	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23046	RNSI_SA_RWS_AIRELINNA_UPGRADE	#Cffcc00[Enhanced]#CX Airelinna	15	1	9	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23009	RNSI_SA_RWS_SHARPFALL	Sharp Fall	15	1	9	4	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23045	RNSI_SA_RWS_SHARPFALL_UPGRADE	#Cffcc00[Enhanced]#CX Sharp Fall	15	1	9	4	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23207	RNSI_A_RWS_REFLEX_MAGIC	Reflective Kick	6	1	10	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23232	RNSI_A_RWS_REFLEX_MAGIC_UPGRADE	#Cffcc00[Enhanced]#CX Reflective Kick	6	1	10	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23011	RNSI_SA_RWS_SLIDE_KICK	Slide Double Kick	14	1	11	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23047	RNSI_SA_RWS_SLIDE_KICK_UPGRADE	#Cffcc00[Enhanced]#CX Slide Double Kick	14	1	11	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23403	RNSI_P_RWS_POWERFUL_SHOT	Power Shot	8	4	12	3	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23402	RNSI_P_RWS_SOFTBODY	Flexible Movement	8	4	12	4	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23600	RNSI_HA_RWS_SPIRAL_STRIKE	Spiral Strike	13	1	13	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23603	RNSI_HA_RWS_SPIRAL_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX\nSpiral Strike	13	1	13	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23037	RNSI_SA_RWS_SPINNING_CRESCENT	Spinning Crescent	14	1	14	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23412	RNSI_P_RWS_OPEN_MIND	Awakened Will: Wind Sneaker	8	1	14	3	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23225	RNSI_A_RWS_PAIN	Maximum Pain	6	1	15	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	n	n	no_state			n	y				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23038	RNSI_SA_RWS_GYRO_KICK	Gyro Kick	15	1	16	1	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23413	RNSI_P_RWS_PERSISTENT_MIND	Tenacious Will	8	1	16	4	n	n	no_state			n	n				
+UC_LIRE_WIND_SNEAKER	102	X2GULire_ElvenRanger.cpp	23058	RNSI_SA_RWS_TEMPEST	Tempest	16	1	17	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23200	RNSI_A_RENA_BACKJUMP_SHOT	Backflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23220	RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nBackflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23000	RNSI_SA_RENA_RAIL_STINGER	Rail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23026	RNSI_SA_RENA_RAIL_STINGER_UPGRADE	#Cffcc00[Enhanced]#CX\nRail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GULire_ElvenRanger.cpp:2904
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23001	RNSI_SA_RENA_PERFECT_STORM	Perfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23027	RNSI_SA_RENA_PERFECT_STORM_UPGRADE	#Cffcc00[Enhanced]#CX\nPerfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23002	RNSI_SA_RENA_AERO_TORNADO	Aero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23028	RNSI_SA_RENA_AERO_TORNADO_UPGRADE	#Cffcc00[Enhanced]#CX\nAero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23003	RNSI_SA_RENA_ASSAULT_KICK	Assault Kick	14	1	3	0	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23029	RNSI_SA_RENA_ASSAULT_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Kick	14	1	3	0	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23208	RNSI_A_RSR_ARC_SHOT	Arc Shot	6	1	3	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23223	RNSI_A_RSR_ARC_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nArc Shot	6	1	3	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23012	RNSI_SA_RSR_GUIDED_ARROW	Guided Arrow	15	1	3	2	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23032	RNSI_SA_RSR_GUIDED_ARROW_UPGRADE	#Cffcc00[Enhanced]#CX\nGuided Arrow	15	1	3	2	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23404	RNSI_P_RSR_HAWK_EYE	Hawk Eye	8	4	3	3	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23004	RNSI_SA_RENA_PHOENIX_STRIKE	Phoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23030	RNSI_SA_RENA_PHOENIX_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX\nPhoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23201	RNSI_A_RENA_SIEGEMODE	Siege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23221	RNSI_A_RENA_SIEGEMODE_UPGRADE	#Cffcc00[Enhanced]#CX\nSiege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23013	RNSI_SA_RSR_WINDWARD	Wind Wall	14	1	5	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23035	RNSI_SA_RSR_WINDWARD_UPGRADE	#Cffcc00[Enhanced]#CX\nWind Wall	14	1	5	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23210	RNSI_A_RSR_MIND_OF_SHARPSHOOTER	Hunter's Steadiness	6	1	6	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23234	RNSI_A_RSR_MIND_OF_SHARPSHOOTER_UPGRADE	#Cffcc00[Enhanced]#CX Hunter's Steadiness	6	1	6	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23209	RNSI_A_RSR_SHOOTING_MAGNUM	Shooting Magnum	6	1	6	4	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23233	RNSI_A_RSR_SHOOTING_MAGNUM_UPGRADE	#Cffcc00[Enhanced]#CX Shooting Magnum	6	1	6	4	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23014	RNSI_SA_RSR_CRAZY_SHOT	Crazy Shot	16	1	7	0	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23048	RNSI_SA_RSR_CRAZY_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX Crazy Shot	16	1	7	0	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23211	RNSI_A_RGA_STIGMA_ARROW	Stigma Shot	6	1	7	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23235	RNSI_A_RGA_STIGMA_ARROW_UPGRADE	#Cffcc00[Enhanced]#CX Stigma Shot	6	1	7	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23015	RNSI_SA_RGA_GUNGNIR	Gungnir	16	1	7	2	y	n	no_state	23015	RNSI_SA_RGA_GUNGNIR	n	y				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23049	RNSI_SA_RGA_GUNGNIR_UPGRADE	#Cffcc00[Enhanced]#CX Gungnir	16	1	7	2	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23405	RNSI_P_RGA_POWERFUL_BOWSTRING	Arrow Mastery	8	4	7	3	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23212	RNSI_A_RSR_RAPID_SHOT	Rapid Shot	6	1	8	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23236	RNSI_A_RSR_RAPID_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX Rapid Shot	6	1	8	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23016	RNSI_SA_RGA_WIND_BLAST	Wind Blast	15	1	9	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23050	RNSI_SA_RGA_WIND_BLAST_UPGRADE	#Cffcc00[Enhanced]#CX Wind Blast	15	1	9	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23017	RNSI_SA_RGA_AERO_STRAFE	Aero Strafe	15	1	9	4	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23051	RNSI_SA_RGA_AERO_STRAFE_UPGRADE	#Cffcc00[Enhanced]#CX Aero Strafe	15	1	9	4	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23213	RNSI_A_RGA_ENTANGLE	Invisible Trap	6	1	10	1	y	n	no_state	23213	RNSI_A_RGA_ENTANGLE	n	y				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23237	RNSI_A_RGA_ENTANGLE_UPGRADE	#Cffcc00[Enhanced]#CX Invisible Trap	6	1	10	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23018	RNSI_SA_RGA_FREEZING_ARROW	Freezing Arrow - Sting	14	1	11	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23052	RNSI_SA_RGA_FREEZING_ARROW_UPGRADE	#Cffcc00[Enhanced]#CX Freezing Arrow	14	1	11	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23407	RNSI_P_RGA_VIBRATION_SHOOTING	Vibe Shot	8	4	12	3	y	n	no_state	23407	RNSI_P_RGA_VIBRATION_SHOOTING	n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23406	RNSI_P_RGA_COMMUNE_OF_NATURE	Nature's Sense	8	4	12	4	y	n	no_state	23406	RNSI_P_RGA_COMMUNE_OF_NATURE	n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23601	RNSI_HA_RGA_SHOOTER_DESTINY	Shooter's Destiny	13	1	13	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23604	RNSI_HA_RGA_SHOOTER_DESTINY_UPGRADE	#Cffcc00[Enhanced]#CX\nHunter's Destiny	13	1	13	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23039	RNSI_SA_RGA_BLAST_ARROW	Blast Arrow	14	1	14	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23414	RNSI_P_RGA_OPEN_MIND	Awakened Will: Grand Archer	8	1	14	3	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23226	RNSI_A_RGA_ONE_TARGET_SHOT	Point Fire	6	1	15	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	n	n	no_state			n	y				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23040	RNSI_SA_RGA_CUTLASS_WIND	Cutlass Wind	15	1	16	1	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23415	RNSI_P_RGA_RANDOM_SHOT_PLEASURE	Rapid Archer	8	1	16	4	n	n	no_state			n	n				
+UC_LIRE_GRAND_ARCHER	103	X2GULire_ElvenRanger.cpp	23059	RNSI_SA_RGA_ACEINTHEHOLE	Ace in the Hole	16	1	17	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23200	RNSI_A_RENA_BACKJUMP_SHOT	Backflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23220	RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE	#Cffcc00[Enhanced]#CX\nBackflip Shot	6	1	0	0	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23000	RNSI_SA_RENA_RAIL_STINGER	Rail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23026	RNSI_SA_RENA_RAIL_STINGER_UPGRADE	#Cffcc00[Enhanced]#CX\nRail Stinger	14	1	0	2	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	y	y	has_state	900	SI_ETC_WS_COMMON_LOVE	y	n				case@X2GULire_ElvenRanger.cpp:2904
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23001	RNSI_SA_RENA_PERFECT_STORM	Perfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23027	RNSI_SA_RENA_PERFECT_STORM_UPGRADE	#Cffcc00[Enhanced]#CX\nPerfect Storm	15	1	1	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23002	RNSI_SA_RENA_AERO_TORNADO	Aero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23028	RNSI_SA_RENA_AERO_TORNADO_UPGRADE	#Cffcc00[Enhanced]#CX\nAero Tornado	16	1	2	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23003	RNSI_SA_RENA_ASSAULT_KICK	Assault Kick	14	1	3	0	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23029	RNSI_SA_RENA_ASSAULT_KICK_UPGRADE	#Cffcc00[Enhanced]#CX\nAssault Kick	14	1	3	0	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23214	RNSI_A_RTR_EXPLOSION_TRAP	Explosive Trap	6	1	3	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23224	RNSI_A_RTR_EXPLOSION_TRAP_UPGRADE	#Cffcc00[Enhanced]#CX\nExplosive Trap	6	1	3	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23019	RNSI_SA_RTR_FATALITY	Fatality	15	1	3	2	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23033	RNSI_SA_RTR_FATALITY_UPGRADE	#Cffcc00[Enhanced]#CX\nFatality	15	1	3	2	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23408	RNSI_P_RTR_HUNTERS_ABILITY	Hunter's Ability	8	4	3	3	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23004	RNSI_SA_RENA_PHOENIX_STRIKE	Phoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23030	RNSI_SA_RENA_PHOENIX_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX\nPhoenix Strike	16	1	4	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23201	RNSI_A_RENA_SIEGEMODE	Siege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23221	RNSI_A_RENA_SIEGEMODE_UPGRADE	#Cffcc00[Enhanced]#CX\nSiege Mode	6	1	4	4	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23020	RNSI_SA_RTR_HUMMING_WIND	Humming Wind	14	1	5	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23036	RNSI_SA_RTR_HUMMING_WIND_UPGRADE	#Cffcc00[Enhanced]#CX\nHumming Wind	14	1	5	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23216	RNSI_A_RTR_ANGER_OF_ELF	Eldrasil's Fury	6	1	6	1	y	n	no_state	23216	RNSI_A_RTR_ANGER_OF_ELF	n	y				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23239	RNSI_A_RTR_ANGER_OF_ELF_UPGRADE	#Cffcc00[Enhanced]#CX Eldrasil's Fury	6	1	6	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23215	RNSI_A_RTR_ROSEBUSH_TRAP	Briar Trap	6	1	6	4	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23238	RNSI_A_RTR_ROSEBUSH_TRAP_UPGRADE	#Cffcc00[Enhanced]#CX Briar Trap	6	1	6	4	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23021	RNSI_SA_RTR_KARMA	Karma	16	1	7	0	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23053	RNSI_SA_RTR_KARMA_UPGRADE	#Cffcc00[Enhanced]#CX Karma	16	1	7	0	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23217	RNSI_A_RNW_DELAYED_FIRE	Delayed Fire	6	1	7	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23240	RNSI_A_RNW_DELAYED_FIRE_UPGRADE	#Cffcc00[Enhanced]#CX Delayed Fire	6	1	7	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23022	RNSI_SA_RNW_CALL_OF_RUIN	Call of Ruin	16	1	7	2	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23054	RNSI_SA_RNW_CALL_OF_RUIN_UPGRADE	#Cffcc00[Enhanced]#CX Call of Ruin	16	1	7	2	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23409	RNSI_P_RNW_PRIOR_PLANNED_BLOW	Calculated Strike	8	4	7	3	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23218	RNSI_A_RTR_EVOKE	Evoke	6	1	8	1	y	n	no_state	23218	RNSI_A_RTR_EVOKE	n	y				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23241	RNSI_A_RTR_EVOKE_UPGRADE	#Cffcc00[Enhanced]#CX Evoke	6	1	8	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23024	RNSI_SA_RNW_TRAPPING_ARROW_FUNGUS	Trapping Arrow - Fungus	15	1	9	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23056	RNSI_SA_RNW_TRAPPING_ARROW_FUNGUS_UPGRADE	#Cffcc00[Enhanced]#CX Trapping Arrow - Fungus	15	1	9	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23023	RNSI_SA_RNW_GLIDING_STRIKE	Gliding Strike	15	1	9	4	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23055	RNSI_SA_RNW_GLIDING_STRIKE_UPGRADE	#Cffcc00[Enhanced]#CX Gliding Strike	15	1	9	4	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23219	RNSI_A_RNW_SEED_OF_RUIN	Seed of Wrath	6	1	10	1	n	n	no_state			n	n	SI_A_RNW_SEED_OF_RUIN	3230	y	
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23242	RNSI_A_RNW_SEED_OF_RUIN_UPGRADE	#Cffcc00[Enhanced]#CX Seed of Wrath	6	1	10	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23025	RNSI_SA_RNW_FURIOUS_ENGAGE	Furious Engage	14	1	11	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23057	RNSI_SA_RNW_FURIOUS_ENGAGE_UPGRADE	#Cffcc00[Enhanced]#CX Furious Engage	14	1	11	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23411	RNSI_P_RNW_SHARPEN_ARROW	Sharpen Arrow	8	4	12	3	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23410	RNSI_P_RNW_VITALPOINT_PIERCING	Vital Point Piercing	8	4	12	4	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23602	RNSI_HA_RLW_INNOCENT	Innocent	13	1	13	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23605	RNSI_HA_RLW_INNOCENT_UPGRADE	#Cffcc00[Enhanced]#CX\nInnocent	13	1	13	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23041	RNSI_SA_RNW_SEED_OF_RUIN_POLE	Seed of Wrath: Icicle	14	1	14	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23416	RNSI_P_RNW_OPEN_MIND	Awakened Will: Night Watcher	8	1	14	3	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23227	RNSI_A_RNW_BUTTERFLY	Butterfly	6	1	15	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	n	n	no_state			n	y				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23042	RNSI_SA_RNW_RAGE_FUNGUS	Rage Fungus	15	1	16	1	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23417	RNSI_P_RNW_PREDATOR	Predator	8	1	16	4	n	n	no_state			n	n				
+UC_LIRE_NIGHT_WATCHER	114	X2GULire_ElvenRanger.cpp	23060	RNSI_SA_RNW_ERADICATION	Eradication	16	1	17	1	n	n	no_state			n	n				
+# totals	rows=267	no_state=260	has_state=7

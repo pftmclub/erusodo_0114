@@ -1,0 +1,404 @@
+# June character port: Rena (Stage 7, fifth character after the pilot)
+
+Plan key `char-rena` · branch `main` · kickoffs `kickoffs/char-rena/` · log tag `[JUNE_CHAR]` (lines start `[JUNE_CHAR] RENA <sub>`,
+sub-tags `DATA`, `CORE`, `NF`, `TRAP`, `SKILL`, `PASSIVE`, `UI`, `NUM`) · flags `SERV_IRUHADEV_JUNE_CHAR_RENA_*` for Rena's class code,
+`SERV_IRUHADEV_JUNE_CHAR_*` for class-agnostic pieces (+ a temporary `..._DEBUG` per sub-phase) · backlog Stage 7
+(`JUNE_PORT_BACKLOG_ORDER.md`, brief `kickoffs/june-backlog/stage7-plan.md`) · written 2026-11-07 by the `new-plan char-rena` session from
+the Aisha plan's "Template for Stage 7" and the Raven plan (`JUNE_CHARACTER_RAVEN_PHASES.md`), the most recent worked example.
+
+## Context
+
+**What this plan does.** It moves Rena (unit type `UT_LIRE` 3, script `Lire_ElvenRanger.lua`, class `CX2GULire_ElvenRanger` in
+`X2Lib/X2GULire_ElvenRanger.cpp` / `.h`, seven classes: Elven Ranger 3, Combat Ranger 12, Sniping Ranger 13, Trapping Ranger 24, Wind Sneaker
+102, Grand Archer 103, Night Watcher 114) from her March kit to her June 2017 kit, end to end: June script, skill states for June's tree,
+numerical damage, motions, class-only engine hooks (`JUNE2017_CHARACTER_PORT_CHECKLIST.md` §1-§7au), **natural force** (`ADD_RENA_SYSTEM`,
+off in March: Open decision 1), her trap summons, UI pieces, data and her transcendence rows.
+
+**Why Rena is fifth (stage7-plan, 2026-10-22).** Gap 12 would have put her second, but natural force needs the user's decision; it is asked at
+the end of this planning session (Open decisions). The brief's premises hold: the checklist's natural-force row (l.149: "a decision for you"),
+the D8 re-keys (l.330: Powerful Bowstring 3405 -> 23405, Sharp Kick 3400 -> 23400), the Rena branch of `ApplyHyperModeBuff` (l.959).
+
+**Her size.** June's class spans `0x32c6a8d0`-`0x32cb6c6d` (Raven's last function is `32c6a620`; Arme's first override is `32cb6e00`, funcmap
+row `32cb6e00-32cf2da0 (Char CH0)` "Rena ends 32cb6c6e"): **467** carved functions plus **24 uncarved vtable overrides** (list in
+`plan_june_side.md` §1: SpecialAttackEventProcess `32c6a970`, InitPassiveSkillState `32ca78b0`, DamageReact `32c6da50`, hyper effect start
+`32c9b3d0`, Common* `0x7c0` / `0x7d8`, ...), against Raven's 440 + 28. June's script has **346** state tables, all `LESI_` (Raven 346 under five
+prefixes). Expect about Raven's size (98 commits). The phase table names 16 CH1 sub-phases up front (Raven planned 17 and ran 17).
+
+**Written June-body-inside-March from the start (CLAUDE.md, 2026-10-28), as Chung, Elsword and Raven.** Most June bodies have a March function
+of the same name: **the body goes inside that function under `_LIVE`, March's in `#else`**, and each CH1 sub-phase proves it with a one-file
+probe compile that defines `_LIVE`. A June function March's class lacks is written under `_CORE` with a plain name in the class's pattern.
+
+**Scope: June 2017 up to transcendence (user, 2026-10-20).** Her third jobs (`UC_LIRE_SWIFT_UPPER` 156, `_DAYBREAKER` 157, `_TWILIGHT` 158) are
+out. Transcendence is live (Stage 6), so her transcendence rows are in CH3d and CH6.
+
+**Order.** char-raven closed 2026-11-07: CH0 runs now, CH0b after CH0, every code phase after CH0. CH1q (natural force) needs Open decision 1
+answered; CH0 maps natural force either way. Lu/Ciel stays parked until Stage 7 closes (user, 2026-11-03).
+
+**The state she starts from.**
+- **Skill system (Stage 3).** `s3_reform_ids_no_state.tsv` has 267 Rena rows (3: 15; 12 / 13 / 24: 30 each; 102 / 103 / 114: 54 each), 130
+  distinct ids (106, 900, 23000-23060, 23200-23242, 23400-23417, 23600-23605, no gaps); **260 have no class state** (only 900 has one).
+  **Every row has a June `SKILL_ID` name** (7ae: no unnamed-id task).
+- **Effect engine (June's).** `DamageEffect.lua` / `EffectSet.lua` ship merged; **5** Rena rows in `c11a_march_only_templets.tsv`
+  (`DamageEffect_Cryotron_Bolt_GUIDED_ARROW`, `DamageEffect_LGA_Arc_Shot` with a March consumer in the class; `Effectset_Rena_DiveKickBombingA` /
+  `B` / `B_Memo` read by March's script; 7u); **8 alpha-tag sites** (7c, `c10a_alpha_sites.tsv` l.206-213: 6 in InitComponent `32c895b0`,
+  `32c893e5`, `32c89535`).
+- **Motions.** June 71 (data201 + data012), March 18 (17 `Motion_Lire*` in data033 + `Motion_Rena_Buff_NPC.X`); 7 the same size, the 11 class
+  files much larger in June (`Motion_Lire.x` 4.4 -> 6.6 MB, `_Common` 1.3 -> 6.5 MB). Whether June drops names March's script plays decides if
+  they deploy in CH0b or with CH1 final (7ad): CH0 answers. March's game dir has no `data201.kom`: CH0 names the target kom.
+- **Natural force (dormant March code, `ADD_RENA_SYSTEM`).** Undefined under `US_SERVICE` (`cl /EP` probe, `plan_add_rena_system.md`): 187
+  `#ifdef` / `#ifndef` blocks in 23 files (class 111 + 9 in `.h`; `X2DamageManager.*`, `X2DamageEffect.cpp`, `X2EffectSet.*`, `X2GUNPC.*`,
+  `X2GUUser.*`, `X2Gage{Data,Manager,UI}.*`, `X2Game.cpp`, `X2Define.h`, `CommonPacket.h`). The class tail `:23576-24004` (NF functions,
+  `CreateGageData`, `AttackResultByType`, `Init`, `IsHyperActiveSkill`) is all inside it; `CX2RenaGageData` / `CX2RenaMyGageUI`;
+  `CommonPacket.h` adds `CAC_NATURAL_FORCE` and `KGamePlayStatus::GetNaturalForce()` (no layout change; a second `#define` in `ServerDefine.h` +
+  `SECOND_HOMES` if switched on); the emulator returns `CAC_NONE` for Lire (`X2OfflineStatTable.cpp:289-313`) and has no NF save column. June's
+  pieces seen so far: `ApplyHyperModeBuff` Rena branch `32cb50c0` / `32cb6290( 5 )` (l.959), `CX2GUNPC::AttackResultByType` `32773ee0` for
+  non-user attackers (backlog l.1413), the first-attack / relate-skill copies June has unconditionally (l.149, C6a2 `DD+0x5a4`), RTTI
+  `FriendshipNatureData@CX2GULire_ElvenRanger` `3373d6fc`. **Switching the flag on flips June-port arms already in the tree**: `X2DamageManager.h`
+  `:1386` / `:1663` and `.cpp:314` / `:2202` / `:3038` / `:3506` (`m_iNaturalForceType`, June `+0x56c`), `X2GUUser.h:1410`, `X2GUUser.cpp:10893`,
+  `X2DamageEffect.cpp:5217` (drops `SERV_IRUHADEV_JUNE_SPAWN_INHERIT`'s child sequence), `X2GUNPC.cpp:11404`; it also compiles a studio "NF:"
+  debug overlay (`X2GUUser.cpp:29719`) and a dev fill key (`X2Game.cpp:5855`). Phase CH1q, as Eve's Nasod Core.
+- **Trap summons (live March code).** June calls `CreateNPCReq` `322e67c0` from 4 sites in her range, all uncarved (`32c95882`, `32c99a1a`,
+  `32c9e42e`, `32ca11f2`); March has 21 `CreateNPCReq` sites (`NUI_ENTANGLE_TRAP_RENA`, `NUI_EVOKE_TRAP_LIRE` / `_MEMO`,
+  `NUI_RENA_ANGER_OF_ELF` / `_DELAY`; Entangle `:15884`, Trap Blade `:17797`, Guide Arrow `:21554`, Anger of Elf `:22713`). June's script has no
+  NPC key; the June-only key `CREATE_TRAP_BLADE` x2 has a reader `32ca81b0`. Eve and Chung each needed an Opus sub-phase for summon spawn
+  rules: **CH2d0** (below), CH0 settles which skill owns each site.
+- **Hooks waiting on the class port.** Checklist: about 34 Rena rows (`june2017_re/char_rena/plan_checklist_rows.md`). Rena extras: D8 re-keys
+  (l.330-331: 3405 -> 23405, 3400 -> 23400; Powerful Bowstring's ignore-defence write `32cada25`, funcmap l.925); her June-only
+  `SetDamageExceptionProcess` `32cad510` (funcmap l.202 / l.1289); §7 l.286 her own `SetSkillLevelStateData` (`:22990-23003`); delegate
+  registrations (l.912-925); the hyper / transcendence hooks (l.959, l.969); the animation-rate row (l.1045); `32cb06d0` (l.444). June-only state
+  keys `BOW_SKILL_STATE` x26 and `IMMUNE_TO_SUPER_ARMOR_DOWN` x10 (readers `32ca81b0` / `31fdaaa0`) get owners in CH0.
+
+**Out of scope (owned elsewhere).** Third jobs; new characters (Stage 8); UI that is not Rena's own (Stage 9); creation-screen buttons (Stage 9);
+tutorials and training dungeons (june-dungeons); NPC / boss copies of Rena (whichever plan adopted June's NPC Lua); emotion motions' behaviour
+(Stage 10; CH0b stages the files); `FORCE_DYNAMIC_CAMERA_INDEX` x15 / `RETAIN_CAMERA_STATE` (Stage 9); `IMMUNITY_EDT_LIST_AT_THIS_STATE` (backlog
+Stage 2); PvP-only dialogs and paths (no PvP offline).
+
+## Rules
+
+The Raven plan's Rules hold (`python tools/docsection.py JUNE_CHARACTER_RAVEN_PHASES.md "Rules"`), with Rena's names and these changes:
+- **Standing rules** (`JUNE_PORT_BACKLOG_ORDER.md`, "Standing rules"): scope rule, no partial June updates, June wins, June bugs verbatim
+  with a `JUNE_BUGS.md` row, cite June addresses, dev free-skill gate (`CX2GUUser::IsDevUnlimitedSkillUse()`) in her skill-use check.
+- **`ReservedSkillStart` (user, 2026-11-05).** `CX2GULire_ElvenRanger::ReservedSkillStart` = `SpecialAttackCooldown( skillID, m_fReservedSkillMp )`
+  then `SkillMemoMpRefund( ... )`, and the base hook chain in `X2GUUser.h` / `.cpp` widened with Rena's `_LIVE` flag (copy Raven's). CH1k writes
+  it; CH1 final's play-test casts each skill twice (cool time shows, MP drops).
+- **June's ids in passive code.** Every `SI_*` id March's `InitPassiveSkillState` / skill code reads is checked against June's `RNSI_*` id,
+  the D8 pair 3405 / 3400 included. CH0 lists them; CH4a fixes what CH1 did not.
+- **The checklist is the work list.** Every Rena row in §1-§7au is ported by a phase here or marked n/a by CH0 with the reason. The phase that
+  ports a row appends `(Rena: CHn)` to it in place.
+- **One deploy unit.** June's `Lire_ElvenRanger.lua`, her June motions (if CH0 finds a name June drops, the motion koms are held for CH1) and the
+  C++ that reads them go live together in CH1 final, behind `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE` (`//#define` in `Always.h` until then). Between
+  phases Rena stays playable on her March kit.
+- **Flags:** `_CORE` (June functions March lacks, compiled, unreferenced), `_LIVE` (June bodies inside March's functions, the registration, the
+  switch), `_NF` (natural force; defined only with `_LIVE`, and per Open decision 1 it defines `ADD_RENA_SYSTEM`), `_TRAP` (trap summon spawn
+  rules, CH2d0), `_SKILL`, `_TRANSCEND`, `_PASSIVE`, `_UI`, `_ASSET` (only if a June asset breaks a March reader), and a temporary `_DEBUG` per
+  sub-phase, retired in its review. New namespaces are `_CONST_RENA_<phase>_` (March already has `_CONST_RENA_` at `.cpp:6`).
+- **Names (CLAUDE.md, 2026-10-28).** No `June` in any identifier, no Ghidra address or phase tag in a name. `python tools/junediverge.py --list`
+  before transcribing; `--check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h <other files>` = `RESULT: PASS` at every finish.
+- **Shared `CX2GUUser` helpers, never copied into the class:** `GetSkillLevel` / `GetLearnedSkillAbilityValue`
+  (`SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS`); the seven skill-use helpers and their fields (`SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS`);
+  Aisha's, Eve's, Chung's, Elsword's and Raven's `CX2GUUser` bases: a phase that needs one under its own flag widens the `#if` instead of copying it.
+- **No hardcoded enum literals** (CLAUDE.md, 2026-10-26): every June id by name; `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp` stays 0.
+  March's C++ enum `LIRE_ELVENRANGER_STATE_ID` (`.h:6-191`, 107 `LESI_` members) takes June's missing names with June's ids (CH0 lists them).
+- **Shared Lua per character.** `UnitTemplet.lua` is core-list source: CH5 replaces only Rena's 7 rows. Her class script is adopted whole
+  (`adopt-june`, bytecode unless a phase must edit it) and passes `python tools/luabind.py check Lire_ElvenRanger`; her trap NPC scripts pass
+  `luabind.py check` in CH2d0.
+- **Assets first, whole** (CH0b), byte-exact through `kom.py stage-june`; pack yourself, ask before every copy.
+- **CP949.** `X2GULire_ElvenRanger.cpp` (mixed endings: 23,856 LF, 147 CRLF), `.h` (1,864 LF, 80 CRLF), `X2GUUser.*`, `X2Gage*.*`,
+  `X2DamageManager.*`, `X2DamageEffect.cpp`, `X2EffectSet.*`, `X2GUNPC.*`, `X2Game.cpp`, `CommonPacket.h` are CP949: `bytepatch.py` only;
+  `cl /P` decides every `#ifdef` branch (`ADD_RENA_SYSTEM`, `SERV_RENA_NIGHT_WATCHER`, `SERV_TRAPPING_RANGER_TEST`, `RENA_SECOND_CLASS_CHANGE`,
+  `UPGRADE_SKILL_SYSTEM_2013`, `NEW_SKILL_2010_11`, `BALANCE_PATCH_20120329`, the dead `RENA_SIEGE_MODE_ANGLE_TEST`).
+- **Uncarved overrides.** Ghidra stays read-only: the 24 uncarved functions are read from the raw listing (`charport_adis.py rena <va>`; CH0
+  adds `rena` to its `CLASS_RANGE`), never by creating functions.
+- **Damage numbers.** Record March vs June damage per changed skill in `MODS.md`.
+- **Saves.** Natural force has no save column today: CH1q decides with the map whether June keeps it across a relog (no schema change unless
+  June's packet carries it; a phase that needs one snapshots `db_backup/` first). Play-test saves never slot a skill in slot 4 / 9 before
+  transcendence, and learn only the ids of the bank being tested.
+- **Offline reach (Raven lesson 4).** Each phase's hand-off names only checks the offline client can reach; a June path that only a server
+  or PvP drives is a stand-in or a routed item, decided in the phase, not found in CH6.
+- **One code phase at a time in `X2GULire_ElvenRanger.*`** (CH1-CH4). CH5 may run beside CH2-CH4.
+
+## Starting context
+
+| Need | Command |
+|---|---|
+| One section of this doc | `python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md "<heading>"` (`--no-sub` to skip Done notes) |
+| Checklist rows | `python tools/docsection.py JUNE2017_CHARACTER_PORT_CHECKLIST.md "<heading>"`; Rena's rows with line numbers: `june2017_re/char_rena/plan_checklist_rows.md` |
+| Planning evidence | `june2017_re/char_rena/plan_*` (below); CH0 writes `ch0_*` beside them |
+| Character tools | `june2017_re/charport_states.py`, `charport_keys.py`, `charport_closure.py`, `charport_adis.py` (CH0 adds `rena`), `charport_regsim.py`, `s3_no_state.py`; Raven's builders `june2017_re/char_raven/ch0_*.py` (copy into `char_rena/` with the range changed); `char_arme/ch0c_listing_check.py`; `char_eve/ch0_build_assets.py` (CH0 adds `rena`) |
+| June Lua (reading) | `june_src_fixed/data036_kom/Lire_ElvenRanger.src.lua`, `UnitTemplet.src.lua`, `Enum.src.lua`; `DLG_Transcendental_Change_Guide_Lena.src.lua` |
+| Ghidra | `ghidra` skill; Rena's range `0x32c6a8d0-0x32cb6c6d`, vtable `335185bc` (544 slots, 62 overrides, all in range, 24 uncarved), RTTI `3373d770`, ctor `32ca2b60` (vtable write `32ca2bc2`), dtor `32ca42f0`, `MemoConditionRena` RTTI `3373d738` (vtable: CH0); read-only in CH0 and reviews |
+| Gap scan | `cd june2017_re && python census.py && python charport_scan.py <short scratch dir>` (slow; revert the regenerated `census.tsv` and `JUNE2017_EFFECT_KEY_MATRIX.md` after), `python charport_keys.py Lire_ElvenRanger` |
+| Bring June Lua in | `/x2-adopt-june` (`luasrc.py adopt-june data036 Lire_ElvenRanger.lua`, `--dry-run` first) |
+| Stage June assets | `python tools/kom.py stage-june <list>`, `/elstools pack dataNNN`, `/x2-kom-packed copy dataNNN` (ask first) |
+| Edit a CP949 source | `python tools/bytepatch.py show / find / apply` (x2-byte-edit) |
+| Hygiene / build / logs | `flagcheck.py <FLAG> --worktree --files ...`, `junediverge.py --check ...`, `enumscan.py --check ...`, `build.py --deploy` (background), `logs.py --grep "JUNE_CHAR RENA"` |
+| Save / test character | `/x2-db` (`tools/elsdb.py setchar`, `settranscend <unit> 1`), `/x2-create-char <name> <class> <level>` |
+| Dev console | auth level 3, END key; items `/additem <id> [qty]`, quests `/qdone <id>`, `/tc 1` |
+
+## Planning evidence (2026-11-07)
+
+Kept in `june2017_re/char_rena/` (digests by Sonnet subagents, spot-checked: the range end against funcmap's Arme row "Rena ends 32cb6c6e",
+the D8 and `ApplyHyperModeBuff` checklist rows; CH0 re-verifies anything it builds on): `plan_charport_scan_20261107.txt`,
+`plan_charport_keys.txt` / `.tsv`, `plan_march_side.md`, `plan_june_side.md`, `plan_numerical_rows.tsv` (141 rows), `plan_checklist_rows.md`,
+`plan_add_rena_system.md` (the natural-force census).
+
+Scans re-run 2026-11-07: `census.py` 26 PASS, 0 FAIL, 0 `to-implement` rows (implemented 652, june-ignores 305, handed-off 9; regenerated
+`census.tsv` / matrix reverted); `charport_scan.py` (scratch `C:/tmp/cps_rena`, output identical to Raven's 2026-11-05 run but for her line):
+`Lire_ElvenRanger {'no NUMERICAL_DATA_INDEX': 65, 'no DAMAGE table': 12}` (the brief's gap 12 holds), no Lire ENUM or KEYS line;
+`s3_no_state.py --family X2GULire_ElvenRanger.cpp --preprocess`: `rows=267 no_state=260 has_state=7`.
+
+| Measure | Rena | (Raven) |
+|---|---|---|
+| June class range | `32c6a8d0`-`32cb6c6d`, 467 carved + 24 uncarved overrides; 62 vtable overrides, all in range; 0x9c / 0xa0 / 0xa4 not overridden | 440 + 28, 57 |
+| June skill-tree rows | 267 over 7 classes; 130 distinct ids; 0 unnamed | 254 / 126 / 0 |
+| Rows with no class state | **260** | 247 |
+| Rows by June skill type | 6: 91, 14: 49, 16: 49, 15: 41, 8: 21, 12: 7, 13 (hyper): 6, 1: 3 | |
+| June script | `Lire_ElvenRanger.src.lua` 17,385 lines, data only: 346 `LESI_` states + 6 `INIT_*` (`INIT_COMMON_RANDOM_STATE` keyed by class name; `MAX_HYPER_MODE_TIME` 30, `HYPER_MODE_COUNT` 1); groups SA 43, RIDING 27, A 27, DAMAGE 21, RNW 21, COMBO 19, DASH 16, RGA 14, LWS 12, LGA 9, SNIPING 9, RCR 8, SI 8, HA 8, JUMP 7, COMBAT 7, SI1-3 20, STANDUP 6, RWS 6, RTR 6, LCR 5, LSR 5, SIEGE 5, PEPPER 5, P 5, then small groups | 346 |
+| Script keys | `DAMAGE_DATA` 68 (+6 `_NEXT`, 2 `_LAST`, 1 `_THIRD`), `AT_COMMAND` 52, `APPLIED_SKILL_ID` 17, `TIME_STOP_IMMUNE_STATE` 18, `SHOW_HYPER_CUT_IN_TIME` 3, `SHOW_SKILL_CUT_IN_TIME` 14; class keys `BOW_SKILL_STATE` x26, `CREATE_TRAP_BLADE` x2, `IMMUNE_TO_SUPER_ARMOR_DOWN` x10 | 88 / 46 / 29 |
+| Key census (`charport_keys.py Lire_ElvenRanger`) | 256 keys: both 241; june-only **8** (the 3 class keys above, `BBT_` / `BFT_` x2 no reader, the camera pair (Stage 9), `IMMUNITY_EDT` (Stage 2)); neither 3 (`ATTACK_ACTION_TYPE`, `HEAD_IK`, `JUMP_CANCEL_AFTER`); march-only-site 4 (`AFTER_IMAGE`, `READY_SOUND`, `UNIT_SLASH_TRACE0` / `1`) | 229 / 10 / 6 / 6 |
+| Numerical blocks | 141 `c1a` rows keyed to 57 ids, all `ok` | 113 / 55 |
+| Motions | June 71 / March 18; 11 class files differ in size; names dropped: CH0 | 73 / 20 |
+| Alpha-tag sites (7c) | **8** (6 in InitComponent) | 0 |
+| Summons | **traps**: 4 June `CreateNPCReq` sites (uncarved), 21 March | none |
+| Natural force | dormant (`ADD_RENA_SYSTEM` off): 187 blocks in 23 files | live March code (rage) |
+| March class | `.cpp` 24,004 lines, `.h` 1,945 (`LIRE_ELVENRANGER_STATE_ID` 107 `LESI_`); cut-in table `:50-82`, ctor `:92`, dtor `:292`, ReInit `:364`, DamageReact `:409`, InitComponent `:785`, InitStateCommon `:924-1662`, InitState `:1665` (cut-in switch `:1672-1715`), InitPassiveSkillState `:2711-3084`, `SetEquippedSkillFuncBySkillSlotIndex` `:3086-4475` (74 `case SI_*`), SetEquippedSkillLevel `:4477`, CommonFrameMove `:5087-5200`, SpecialAttackEventProcess `:5236-5518`, HyperModeFrameMove `:7488`, `SetSkillLevelStateData` `:22990-23003`, NF tail `:23576-24004` | 23,343 |
+| June class | InitState `32cadc90` (0x7a4), `SetEquippedSkillFuncBySkillSlotIndex` `32cb06d0` (0x7b4), InitComponent `32c895b0`, InitPassiveSkillState `32ca78b0` (0x690, uncarved), `SetDamageExceptionProcess` `32cad510` (0x2b8), SpecialAttackEventProcess `32c6a970` (0x7f4, uncarved; parts `32cac200`, `32ca50b0`, `32c89a20`), hyper effect start `32c9b3d0` (0xc4, uncarved), DamageReact `32c6da50` (uncarved), ReInit `32ca4a40`, InitEffect `32c6a8d0` | |
+| Stat rows | `StatTable.lua` 1-99 for all 7 classes, no duplicate, no gap | same |
+| Save | units 12 `reyaa` (103 lv99), 35 `TrapRangerT` (24 lv70); transcendence 0; **no unit of 3, 12, 13, 102, 114** | |
+| Cut-ins | 4 sets: `HQ_CutIn_Lena_1/2/3.dds` for 3 / 12 / 13 / 24, `_Rena_Wind_Sneaker_1`, `_Grand_Archer_1`, `_Night_Watcher_1`; June's 33 `HQ_CutIn_Rena_*.gfx` and 3 `HQ_Cutin_R{WS,GA,NW}_Transcendence.gfx` already in March's kom_contents; June's `UnitTemplet` adds `m_fLobbyRotationY` (30 / 30 / 25 / 1 / 30 / 20 / 10 for 3 / 12 / 13 / 24 / 102 / 103 / 114), `m_HyperCutIn` for 102 / 103 / 114, names `STR_ID_4783` / `_4784` / `_17429` for 102 / 103 / 114 (March: `STR_ID_616` on all 7) | |
+| Transcendence | `DLG_Transcendental_Change_Guide_Lena.lua` (March ships a same-name file, md5 differs); `POPUP_TR_W_SNEAKER` / `_G_ARCHER` / `_N_ARCHER` none in March; March lacks `DLG_1ST` / `2ND_Class_Change_Guide_Lena.lua` | |
+
+## Phases
+
+| Phase | What | Model | Depends |
+|---|---|---|---|
+| CH0 | Rena map: class map (uncarved overrides included), state / skill table, checklist rows, assets + effect closure, keys, registration listing check, unmapped helpers, the natural-force map, the trap map, the motion question, the `data201` target | Opus high | - |
+| CH0b | Every June Rena asset, whole, first; the walk units the save lacks | Sonnet high, user play-test | CH0 |
+| CH1a-CH1k | Class core transcription by state group and vslot band (11 sub-phases, below) | Sonnet high, Opus review each | CH0; one at a time |
+| CH1m-CH1p | Wiring behind `_LIVE` (registration; base callbacks + slot head; virtuals; 7ag + hooks + June-only keys) | Opus high, Opus review each | CH1a-CH1k reviews |
+| CH1q | Natural force, flag `_NF` (Open decision 1) | Opus high, Opus review | CH1p review, decision 1 |
+| CH1 | Final: define `_LIVE`, adopt the script, copy any held motion koms, play-test | Opus high, Opus review, user play-test | CH1q review, CH0b |
+| CH2a-CH2d | Skills: Rena + first jobs (3, 12, 13, 24) | Sonnet high, Opus review, user play-test | CH1 review |
+| CH2d0 | Trap summons: spawn rules, the 4 June `CreateNPCReq` sites, trap NPC scripts' binder gate, flag `_TRAP` | Opus high, Opus review | CH2c review |
+| CH3a-CH3d | Skills: second jobs (102, 103, 114), hyper actives, transcendence rows | Sonnet high (CH3d Opus), Opus review, user play-test | CH2 reviews |
+| CH`n`0 | One Opus sub-phase per unmapped helper CH0 finds, before the Sonnet phase that needs it | Opus high, Opus review | as its phase |
+| CH4a-CH4b | Passives (InitPassiveSkillState, D8 re-keys, delegates); damage exception + overrides + memo | Opus high, Opus review, user play-test | CH2 reviews (CH4b: CH3c review) |
+| CH5 | UI and data: Rena's `UnitTemplet` rows, cut-in table | Sonnet high, Opus review, user play-test | CH1 review; beside CH2-CH4 |
+| CH-N | Not run: Rena has no templet-backed June-only class | - | - |
+| CH6 | Whole-character walk + gap reruns | Sonnet medium, user walk | CH3, CH4, CH5 reviews |
+| Z | Close-out | Sonnet medium | CH6 |
+
+CH1-CH4 all edit `X2GULire_ElvenRanger.*`: one at a time. CH5 runs beside CH2-CH4. If CH0's counts put a group over ~45 functions, CH0 splits
+it with a digit suffix (`CH1e2`) and writes the kickoff and STATUS row; it does not merge groups. Play-test follow-ups after CH1 final get the
+next letters (`CH1r`).
+
+## Phase CH0 - Rena map (read-only)
+
+**Run with:** Opus 5.5 high. No code, no flag, no build. Ghidra read-only. Delegate reads, greps, tsv joins and known-address dumps to
+subagents. Outputs in `june2017_re/char_rena/`.
+
+**Step 0 (the pilot's recipe fixes).** Build the registration map with `charport_states.py init <InitStateCommon> 32cadc90 <base> <line
+registrars> <InitPassiveSkillState if it registers>` and `skill 32cb06d0` (find InitStateCommon from vtable `335185bc`; Raven's call is in his
+CH0 Done note), then run `ch0c_listing_check.py` on it: every row must match the raw listing; all `~` rows and std::string-named rows
+(`USI_HYPER_MODE`, START / WIN / LOSE roll) by hand. Map every switch in `32cb06d0` (skill type, any hyper switch, the skill switch). Raven's
+builders are copied into `char_rena/` with Rena's range: say which. Add `rena` to `charport_adis.py`'s `CLASS_RANGE`; confirm it lists the 24
+uncarved overrides.
+
+**Scope** (Raven's CH0 items, with Rena's numbers):
+1. **Class map** `ch0_class_map.tsv`: every function in `0x32c6a8d0-0x32cb6c6d` **plus the 24 uncarved overrides**, March pair, verdict, target
+   sub-phase, and the **`inside` / `new`** column (propose the plain name for every `new` row). Funcmap rows `Char Rena CH0`. Confirm the role of
+   each override by its body, not only its vslot offset (the planning took Raven's offsets).
+2. **State and skill table** `ch0_state_skill.tsv`: 352 / 352 script tables, 130 / 130 skill ids; dead-data and March-only states listed;
+   confirm nothing in `X2GULire_ElvenRanger.*` still stores a state id in a `UCHAR` (7l). Map June's groups to the jobs (the planning guessed
+   `LCR` / `RCR` Combat, `LSR` / `RSR` Sniping, `RTR` Trapping, `LWS` / `RWS` Wind Sneaker, `LGA` / `RGA` Grand Archer, `LNW` / `RNW` Night Watcher)
+   and say what `SIEGE`, `SNIPING`, `COMBAT`, `DOUBLE`, `CHARGE`, `HA`, `P`, `SI1` / `SI2` / `SI3` are and which phase each goes to; list June's ids
+   for every `LESI_` name `LIRE_ELVENRANGER_STATE_ID` lacks or numbers differently.
+3. **Keys** `ch0_keys.tsv`: `BOW_SKILL_STATE` x26, `CREATE_TRAP_BLADE` x2 (reader `32ca81b0`), `IMMUNE_TO_SUPER_ARMOR_DOWN` x10 (reader
+   `31fdaaa0`) get an owner (class or engine; an engine reader is a `CH<n>0` or a routed item); the 3 neither keys and the 4 march-only-site keys
+   (`AFTER_IMAGE`, `READY_SOUND`, `UNIT_SLASH_TRACE0` / `1`): does June's script drop a March reader's input or does June read it elsewhere;
+   `MAX_HYPER_MODE_TIME` / `HYPER_MODE_COUNT` and `DAMAGE_DATA_LAST` / `_THIRD` get their readers.
+4. **Checklist rows** `ch0_checklist_rows.tsv`: every §1-§7au row -> phase or n/a with reason (start from `plan_checklist_rows.md`; its
+   class-generic rows l.258 / l.262 / l.278 / l.423 matched only through a June address: confirm). D8 (l.330-331) goes to CH4a; l.959's
+   `ApplyHyperModeBuff` branch to CH1q; 7c's 8 alpha sites to the phase that owns InitComponent.
+5. **Assets** `ch0_assets.tsv` + `ch0b_stage_list.tsv` (routes a name / b data / c `item.kim` Rena items, unioned; `ch0_build_assets.py` gains
+   `rena`) and **effect closure** `ch0_effect_closure.tsv` (`charport_closure.py`, run-time-built names included). **The motion kom:** June's
+   data201 motions have no March `data201.kom`: name the March kom each goes to (March's class motions are in data033). **The motion question:**
+   for each of the 11 differing class motions, the animation names March's script or class code plays that June's file lacks; if any, those files
+   are held for CH1 final (`ch1_held_motions.tsv`), else CH0b copies them. Stage `POPUP_TR_W_SNEAKER` / `_G_ARCHER` / `_N_ARCHER` (find June's
+   kom), `DLG_1ST` / `2ND_Class_Change_Guide_Lena.lua`, the trap NPC meshes / scripts (`npc_mesh_census.py`), the cut-in `.gfx` CH5 needs.
+6. **Unmapped helpers.** Per skill, the callees outside the class range funcmap does not map (`ch0_unmapped_callees.py`). Each gets an Opus
+   `CH<n>0` sub-phase before the Sonnet phase that needs it (kickoff + STATUS row written by CH0).
+7. **Natural-force map** `ch0_nf.tsv` (start from `plan_add_rena_system.md`): every March block paired with June's function or "absent in June",
+   plus June-only pieces: `FriendshipNatureData` (RTTI `3373d6fc`), `32cb50c0` / `32cb6290` and every caller (`ApplyHyperModeBuff` `32298590
+   @322985ec`), `CX2GUNPC::AttackResultByType` `32773ee0`, the gauge data / UI (June's `CX2RenaGageData` / `CX2RenaMyGageUI` vtables), the
+   first-attack / relate-skill copies (C6a2 funcmap `321ef5ea-321ef632`), the `KGamePlayStatus` charm field June sends and whether June persists
+   NF. For each June-port arm the flag would flip (`X2DamageManager.*` `m_iNaturalForceType`, `X2DamageEffect.cpp:5217` spawn inherit,
+   `X2GUUser.*:1410` / `:10893`, `X2GUNPC.cpp:11404`) say which branch is June's. Whether June keeps the studio's "NF:" overlay and dev key.
+   Sized for CH1q; split if over ~45 functions (e.g. CH1q2 for the gauge UI and emulator).
+8. **Trap map** `ch0_traps.tsv`: the 4 June `CreateNPCReq` sites (`32c95882`, `32c99a1a`, `32c9e42e`, `32ca11f2`) against March's 21, each with its
+   skill, NPC id (June `NUI_*` name and value), spawn arguments, and the NPC's own script / mesh; `CREATE_TRAP_BLADE`; the summoned-monster test
+   (`IsSkillSummonedMonster`-style) and the master link; owners: CH2d0 for spawn rules shared by her traps, the skill phases for the rest.
+9. **Shared data.** Which state names the C++ enum needs (raw id + comment, as Raven); every `SI_*` id March's passive / skill code reads with its
+   June `RNSI_*` id (the Rules' passive-id check, D8 included); Rena's 7 `UnitTemplet` rows June vs March (are `STR_ID_4783` / `_4784` /
+   `_17429` in our string table?).
+10. **S3 census baseline:** `s3_no_state.py --family X2GULire_ElvenRanger.cpp --preprocess` (260 expected) so CH6 compares like with like.
+11. **Amend the kickoffs** CH0b-CH5 ("Amended by CH0" sections: filters with real column numbers, addresses, counts, any split).
+
+**Done gate:** the tsvs exist; `ch0c_listing_check.py` passes on every registration row; every Rena checklist row has a phase or n/a;
+352 / 352 tables and 130 / 130 ids mapped; the 24 uncarved overrides have rows; assets union routes a / b / c and the motion kom is named;
+the motion question answered; the natural-force and trap maps exist; kickoffs amended; open questions listed.
+
+## Phase CH0b - Every June Rena asset, whole, first
+
+**Run with:** Sonnet 5.5 high, then a user play-test. No C++ unless CH0 found a March reader a June asset breaks (then
+`SERV_IRUHADEV_JUNE_CHAR_RENA_ASSET`). Sub-tag `DATA`.
+
+**Scope:** every non-Lua row of `ch0b_stage_list.tsv`: motions (to the kom CH0 named; held ones packed and kept for CH1 final), body / face /
+hair, equipment, textures, effect meshes, sounds, cut-in art, portraits, `POPUP_TR_*`, trap NPC meshes; the class-change guide dialogs
+(`adopt-june`, `luabind.py check`). Stage byte-exact (`kom.py stage-june`), pack each kom, ask once with the whole kom list, copy what the user
+approves. Save `data\ErrorLog_pre_CH0b_rena.txt` first. Create the walk units the save lacks (classes 3, 12, 13, 102, 114 and a level-99 24,
+class costume) with `createchar.py`, after a `db_backup`. Gate: `python tools/skillicons.py check 106 900 23000-23060 23200-23242 23400-23417
+23600-23605` = PASS (stage what it lists; the shared `DLG_SKILL_Passive_*` sheets included; a June-side gap is a `JUNE_BUGS.md` row, as Raven's 535).
+
+**Done gate:** the stage list re-runs 0 `missing` / `march-copy`; in game one Rena per job tier, village and dungeon, no new `KEM_ERROR` /
+`Motion Error` / missing texture or mesh against the pre-CH0b log; a costume, a weapon and three skills look right.
+
+## Phase CH1 - Deploy unit: June script, motions and the class core
+
+**Groups** (CH0's map fills the counts and the exact function lists; the kickoffs carry the filters):
+
+| Sub-phase | Run with | Scope |
+|---|---|---|
+| CH1a | Sonnet high, Opus review | Movement and slot-head states: wait (2) + wait-state-change, walk, jump (7), dash (16), double jump (3), throw item, common buff, hyper, charge |
+| CH1b | Sonnet high, Opus review | Reactions: damage (21 `LESI_DAMAGE*`), stand-up (6), die (2), start (2), win / lose blocks, wall, amusement (2), frozen, transformed |
+| CH1c | Sonnet high, Opus review | Riding (27 `LESI_RIDING*`), pepper run (5), dance (3) |
+| CH1d | Sonnet high, Opus review | Rena ground combos (19 `LESI_COMBO*`) and the base dash / jump combos CH0 assigns |
+| CH1e | Sonnet high, Opus review | Combat Ranger line (`COMBAT`, `LCR` / `RCR`) and Wind Sneaker line (`LWS` / `RWS`) |
+| CH1f | Sonnet high, Opus review | Sniping Ranger line (`SNIPING`, `SIEGE`, `LSR` / `RSR`) and Grand Archer line (`LGA` / `RGA`) |
+| CH1g | Sonnet high, Opus review | Trapping Ranger line (`RTR`) and Night Watcher line (`LNW` / `RNW`, 22 tables) |
+| CH1h | Sonnet high, Opus review | Overrides below vslot 0x600 (lifecycle, render, reaction virtuals; DamageReact `32c6da50` uncarved; ctor `32ca2b60` / dtor `32ca42f0` offset map; InitComponent `32c895b0` with 7c's alpha sites; the uncarved ones read from the listing) |
+| CH1i | Sonnet high, Opus review | Overrides 0x600-0x7bc (InitPassiveSkillState `32ca78b0` only as a declaration: CH4a) |
+| CH1j | Sonnet high, Opus review | Common* overrides 0x7c0-0x7ec (`0x7c0` / `0x7d8` uncarved), CommonFrameMove and the helpers only it reaches |
+| CH1k | Sonnet high, Opus review | Skill-use overrides from 0x7f0 (the seven `CX2GUUser` skill-use helpers are called, never copied), SpecialAttackEventProcess `32c6a970` (uncarved) with its parts `32cac200` / `32ca50b0` / `32c89a20`, 0x810 / 0x824 / 0x834 (uncarved), and **`ReservedSkillStart`** (Rules) |
+| CH1m | Opus high, Opus review | Registration: June's `InitState` `32cadc90` / `InitStateCommon`, the hyper-mode table name (`GetHyperModeTableName`, `31fdd490`), START / WIN / LOSE roll (June's `INIT_COMMON_RANDOM_STATE` keyed by class name), base event states, the `_LIVE` gate |
+| CH1n | Opus high, Opus review | The `CX2GUUser` base callbacks Rena registers (Raven's CH1n triage first: only rows earlier characters did not cover); `SetEquippedSkillFuncBySkillSlotIndex` `32cb06d0` head (bounds, slot tables, the 7i rule, the pre-switches) + the dev free-skill gate |
+| CH1o | Opus high, Opus review | The virtuals under `_LIVE`; June-only and changed user virtuals Rena overrides; `SetSkillLevelStateData` `:22990` with the `( 3201ad10( skill ) + 1.0 )` term (§7 l.286); gaps the CH1a-CH1k reviews routed |
+| CH1p | Opus high, Opus review | 7ag pressed-index space (her decode, `CountUsedSkill`, every reader together); hooks 7h / 7l / 7o / 7p / 7x; the June-only script keys CH0 gives an owner here (`BOW_SKILL_STATE`, `IMMUNE_TO_SUPER_ARMOR_DOWN`) |
+| CH1q | Opus high, Opus review | Natural force (`ch0_nf.tsv`, Open decision 1): per the answer, `_NF` defines `ADD_RENA_SYSTEM` (with its `ServerDefine.h` second home and `SECOND_HOMES` row), then June's bodies inside every March NF function that differs (class tail, `X2GUUser`, `X2DamageManager` / `X2DamageEffect` / `X2EffectSet` first-attack copies, `X2GUNPC` incl. `AttackResultByType` `32773ee0`, `CX2RenaGageData` / `CX2RenaMyGageUI`, `X2GageManager`), June-only pieces under plain names (`FriendshipNatureData`, `32cb50c0` / `32cb6290`, the `ApplyHyperModeBuff` Rena branch l.959), each flipped June-port arm resolved to June's branch, the studio overlay / dev key dropped if June has none, the emulator's `CAC_NATURAL_FORCE` case; sub-tag `NF` |
+| CH1 | Opus high, Opus review, user play-test | Define `_LIVE`; adopt `Lire_ElvenRanger.lua`; copy CH0b's held motion koms (if any); pack, ask, copy; the play-test |
+
+**Transcription rules (CH1a-CH1k):** as Raven's (`JUNE_CHARACTER_RAVEN_PHASES.md`, "Phase CH1 - Deploy unit: June script, motions and the class
+core", "Transcription rules"), with Rena's flags and her class range `0x32c6a8d0`-`0x32cb6c6d`: `inside` rows inside March's function under
+`SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE` with March's in `#else` and a one-file probe compile; `new` rows under `SERV_IRUHADEV_JUNE_CHAR_RENA_CORE`;
+a later group's callee declared with `// June <va>: body in <phase>`; an unmapped engine callee is "this needs Opus" (stop). June's numbers and
+quirks verbatim; `m_fNowStatePowerRate` (7i) with June's operator; June's BFI arguments (7ai). **A March block under `ADD_RENA_SYSTEM` inside a
+function a CH1a-CH1k phase transcribes stays as it is (dead) until CH1q:** the June body's natural-force lines are written under
+`SERV_IRUHADEV_JUNE_CHAR_RENA_NF` (an `#ifdef` inside the `_LIVE` body), never under the studio macro, so CH1q switches them on together.
+
+**Done gate (CH1 final):** Rena (any class) loads June's script and motions; `[JUNE_CHAR] RENA DATA` logs the load; no new `KEM_ERROR` /
+`Motion Error` / missing-animation line against a pre-CH1 run; combos, dash, jump, double jump, damage and riding play June's animations;
+natural force fills, spends and shows on the gauge as June (per decision 1); each skill cast twice shows its cool time and spends MP;
+`charport_scan.py` / `charport_keys.py Lire_ElvenRanger` show nothing new.
+
+## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
+
+**Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
+Sub-tags `SKILL`, `NUM`. A skill's line decides its phase: class 3 has it -> CH2a; else the first of 12 / 13 / 24.
+
+| Sub-phase | Scope |
+|---|---|
+| CH2a | Rena (3) skills |
+| CH2b | Combat Ranger (12) skills (`Effectset_Rena_DiveKickBombingA` / `B` / `B_Memo` March-only templets, 7u, if CH0 puts them here) |
+| CH2c | Sniping Ranger (13) skills (`DamageEffect_Cryotron_Bolt_GUIDED_ARROW`, 7u; the Guide Arrow `:21554` if CH0 puts it here) |
+| CH2d0 | **Opus.** Trap summons (`ch0_traps.tsv`): the spawn rules shared by her traps (June's `CreateNPCReq` arguments at the 4 sites, the master / summoned link, the trap's life and removal), `CREATE_TRAP_BLADE`'s reader `32ca81b0` if CH0 puts it here, every trap NPC script through `luabind.py check` (unbound names bound whole or `lua_unbound_known.tsv`), flag `_TRAP`, sub-tag `TRAP` |
+| CH2d | Trapping Ranger (24) skills (Entangle `:15884`, Evoke trap, Trap Blade `:17797` states, on CH2d0's spawn rules) |
+
+For each id: its case in `SetEquippedSkillFuncBySkillSlotIndex` with June's state functions whole; its attached rows (7u names, 7ai BFI
+arguments, 7h UPDOWN cancels, the power-rate operator, the numerical-only tables of `plan_numerical_rows.tsv`); its effect closure (a name found
+only now is staged and added to `ch0_assets.tsv`); its natural-force gain / cost lines under `_NF`. Upgrade ids reach their base through the
+templet's `m_iDeleteSkillIDByUpgrade` (June `32071720`): check the templet swap for every term that reads the id. `NUM use` lines for Rena
+skills; March vs June damage in `MODS.md`.
+
+**Done gate:** every class-3 / 12 / 13 / 24 id in the S3 census has a state (except CH0's passive / CH4 ids); each skill in an A and a B slot
+casts June's state, motion and effect, deals damage, shows its cool time and spends MP; traps spawn, hit and expire as June; no missing particle /
+mesh / texture line.
+
+## Phase CH3 - Skills: second jobs (102, 103, 114), hyper actives, transcendence
+
+**Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.
+
+| Sub-phase | Scope |
+|---|---|
+| CH3a | Wind Sneaker (102) skills |
+| CH3b | Grand Archer (103) skills (`DamageEffect_LGA_Arc_Shot`, 7u; Anger of Elf `:22713` if CH0 puts it here) |
+| CH3c | Night Watcher (114) skills (the `RNW` / `LNW` skill states, her traps' Night Watcher variants on CH2d0's rules) |
+| CH3d | **Opus.** Hyper actives (type 13, 6 rows; June's hyper switch in `32cb06d0`), the 3 `SHOW_HYPER_CUT_IN_TIME` states (7t), and the **transcendence rows** (template, Stage 6 close-out): Rena's classes on the offline transcend allow-list (`CX2OfflineServer::TranscendCheck`, `Handlers_Quest.cpp`), her `LevelUpEvent.lua` TYPE row + `DLG_Transcendental_Change_Guide_Lena.lua`; checklist 7ao whole (hyper effect start `32c9b3d0`, uncarved; the four base helpers `31fcac90` / `31fcad70` / `31fceab0` `== 1` / `31ff1e80`; l.969); her hyper-class skills (`SPRT_HYPER_CLASS`) and `TRANSCENDENTAL_SKILL_DATA` rows; `GetHyperModeTableName` (`31fdd490`) and `HQ_Cutin_RWS/RGA/RNW_Transcendence`; `list_TR_*` rows in `GetCharacterImageName` (T6c) and her transcended pictures, read from June's row pushes; `POPUP_TR_W_SNEAKER` / `_G_ARCHER` / `_N_ARCHER` present |
+
+**Done gate:** as CH2 for 102 / 103 / 114 and the hyper actives; a transcended Rena (`settranscend`) casts her hyper-class skills, slots A-5 /
+B-5 work, the transcended picture and cut-in show; `python tools/skillicons.py check <Rena's skill-id range>` = PASS after the transcendence rows.
+
+## Phase CH4 - Passives and class mechanics
+
+**Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as two from the start; CH0 adds CH4c if the
+memo or a passive engine piece is over ~45 functions).
+
+| Sub-phase | Scope |
+|---|---|
+| CH4a | `InitPassiveSkillState` `32ca78b0` (vslot 0x690, uncarved) and Rena's passive ids (types 1 / 8: 3 + 21 rows), their objects and readers; **D8** (checklist l.330-331): March's Powerful Bowstring 3405 and Sharp Kick 3400 blocks replaced by June's 23405 / 23400 together with the reform skills; the delegate registrations (l.912-925) replacing March's own pushes; the passive-id check of the Rules; flag `_PASSIVE` |
+| CH4b | `SetDamageExceptionProcess` `32cad510` whole (June-only, 7b: per-skill triggers, Powerful Bowstring's ignore-defence write `32cada25`, funcmap l.925); the overrides CH0 finds (`GetActualMPConsume` / `GetActualCoolTime` 0x6a0 / 0x6a4, buff-templet set / unset 0x24c / 0x250, uncarved where so); `MemoConditionRena` (RTTI `3373d738`, vtable from CH0) and the memo readers; §7 l.281 power-rate socket range if a Rena function calls `3201ad10` |
+
+**Done gate:** each passive's effect shows (CH0 names the stat or log line per passive); Powerful Bowstring / Sharp Kick act on June's ids; 0
+Rena `no_state` rows left except passives with no state in June.
+
+## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
+
+**Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_UI`. Sub-tag `UI`.
+
+**Scope:** Rena's 7 `UnitTemplet.lua` rows become June's (BOM source, `luasrc.py refresh` after; every other row stays): `m_fLobbyRotationY`,
+`m_HyperCutIn` for 102 / 103 / 114, the names `STR_ID_4783` / `_4784` / `_17429`; the cut-in table `X2GULire_ElvenRanger.cpp:50-82` and the
+InitState index switch `:1672-1715` replaced by June's names and layout (7t cut-in `.gfx` names); 7ah; the gauge pieces CH1q does not take.
+**Done gate:** a select-screen pass of all nine March characters with no new error; Rena's skill and hyper cut-ins play June's art; the three
+second-job names show June's strings.
+
+## Phase CH-N - not run for Rena
+
+All seven June Rena classes up to transcendence exist in March. The template block is `JUNE_CHARACTER_AISHA_PHASES.md` "Phase CH-N"; Ara
+runs it first.
+
+## Phase CH6 - Whole-character walk and gap reruns
+
+**Run with:** Sonnet 5.5 medium, then the user's walk. Back up the save; one Rena per class (CH0b creates 3 / 12 / 13 / 24 / 102 / 114), one
+transcended per second job. Walk: every skill in an A and a B slot (each cast twice: cool time and MP), a hyper, natural force (fill, spend,
+gauge, hyper buff), each trap, the passives, one dungeon per job, then **leave the game and return to the village**. Re-run `census.py`,
+`charport_scan.py`, `charport_keys.py Lire_ElvenRanger` and `s3_no_state.py`; before / after numbers in the Done note. **The becoming-transcended
+transition on un-transcended units (user rule, 2026-10-28):** one unit per second-job class by `/tc 1`, quest 42030 (`/qdone 42030`) and the book
+288493 (`/additem 288493 1`), each showing the guide popup with that class's picture, the new skill-tree rows, the HUD portrait, and surviving a
+relog. A defect goes back to its phase's flag.
+
+**Done gate:** the walk passes; 0 unexplained `no_state` rows; no new `KEM_ERROR`.
+
+## Phase Z - Close-out
+
+**Run with:** Sonnet 5.5 medium. `MODS.md` "June character: Rena" section (flags, files, data, revert order: exe + data036 + motion koms
+together; natural force's `ServerDefine.h` second home); no `_DEBUG` flag left defined; checklist rows marked `(Rena: CHn)`; the Aisha plan's
+"Template for Stage 7" gets a Rena row (what she took against this plan); backlog Stage 7 note; the `stage7-plan` row points at the next
+character (`char-ara`, the first CH-N run).
+
+## Play-test hand-off (every phase)
+
+Dev console first; copy-ready lines with real values (unit, class, skill id and slot, `/additem`, `/qdone`); per check: where / paste /
+what it does / look for / if not. Log tag `[JUNE_CHAR]`, `python tools/logs.py --grep "JUNE_CHAR RENA <sub>"`.
+
+## Open decisions (for the user)
+
+1. **Natural force (`ADD_RENA_SYSTEM`).** June 2017 ships it; March has the studio's 2013-14 code dormant (187 blocks in 23 files: Rena's class,
+   `X2GUUser`, the damage / effect-set first-attack copies, the NPC side, the gauge data / UI, `CommonPacket.h`). Options: **(a, recommended)**
+   as Eve's Nasod Core: March's dormant code as the base. CH1q defines `ADD_RENA_SYSTEM` under `SERV_IRUHADEV_JUNE_CHAR_RENA_NF` (only with
+   `_LIVE`; plus the `ServerDefine.h` second home `CommonPacket.h` needs), then replaces every function that differs from June with June's whole
+   body, resolves the June-port arms the flag flips to June's branch, and drops what June removed (the studio overlay / dev key if June lacks
+   them). **(b)** transcribe June's natural force fresh beside the dead code, leaving `ADD_RENA_SYSTEM` off. **(c)** leave Rena without natural
+   force (against the "June wins" standing rule; not recommended). (a) reuses the members, enums, packet accessor and gauge classes March already
+   wired; (b) avoids the flipped arms but rewrites the same members.
+
+Settled by standing rules, not decisions: the motion koms deploy with CH1 final if June drops a name March plays (7ad); trap summons get their
+own Opus sub-phase (Eve / Chung lesson); June-side icon gaps are `JUNE_BUGS.md` rows (Raven's 535).

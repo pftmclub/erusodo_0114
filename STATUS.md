@@ -97,6 +97,49 @@ Plan `DEV_OVERLAY_PHASES.md` · branch `main` · log tag `[DEV_OVERLAY]` (`data\
 | O5 | waiting (O4) | Opus 5.5 / high | O4 | CLAUDE.md, `.claude/skills/` (x2-lua, x2-phase, elstools, x2-kom-packed, x2-check-logs), ... | `O5.md` |
 | O5 review | waiting (O5) | Opus 5.5 / high | O5 | docs (fixes only) | `O5-review.md` |
 
+## char-rena - June character port, Stage 7: Rena
+Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `RENA <sub>`: `DATA`, `CORE`, `NF`, `TRAP`, `SKILL`, `PASSIVE`, `UI`, `NUM`) · flags `SERV_IRUHADEV_JUNE_CHAR_RENA_*` (`_CORE`, `_LIVE`, `_NF`, `_TRAP`, `_SKILL`, `_TRANSCEND`, `_PASSIVE`, `_UI`, + `_DEBUG`) · kickoffs `kickoffs/char-rena/` · backlog Stage 7 · created 2026-11-07.
+
+**Scope:** Rena (`CX2GULire_ElvenRanger`, 7 classes 3 / 12 / 13 / 24 / 102 / 103 / 114) from her March kit to June 2017's, incl. natural force (`ADD_RENA_SYSTEM`, dormant: Open decision 1), her trap summons and her transcendence rows. June class `32c6a8d0`-`32cb6c6d` (467 carved + 24 uncarved overrides, 346 `LESI_` states, 4 trap `CreateNPCReq` sites). CH0 now; code after CH0.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| CH0 | **ready** (start: `/x2-phase char-rena CH0`): map (class map + 24 uncarved, states / ids, checklist, assets, natural-force + trap maps, motion question, `data201` target); read-only | Opus 5.5 / high | - | `june2017_re/char_rena/`, funcmap, kickoffs | `CH0.md` |
+| CH0b | blocked (CH0): every June Rena asset staged whole (motion koms held for CH1 if June drops a name), 6 walk units, skill icons PASS | Sonnet 5.5 / high, user play-test | CH0 | koms (ask before copy), save | `CH0b.md` |
+| CH1a | blocked (CH0): movement and slot-head states, `_CORE` / `_LIVE` | Sonnet 5.5 / high, Opus review | CH0 | `X2GULire_ElvenRanger.*`, Always.h | `CH1a.md` |
+| CH1b | blocked (CH1a review): reactions (damage 21, stand-up 6, die, start, win / lose) | Sonnet 5.5 / high, Opus review | CH1a review | `X2GULire_ElvenRanger.*` | `CH1b.md` |
+| CH1c | blocked (CH1b review): riding 27, pepper, dance | Sonnet 5.5 / high, Opus review | CH1b review | `X2GULire_ElvenRanger.*` | `CH1c.md` |
+| CH1d | blocked (CH1c review): Rena ground combos (19) | Sonnet 5.5 / high, Opus review | CH1c review | `X2GULire_ElvenRanger.*` | `CH1d.md` |
+| CH1e | blocked (CH1d review): Combat Ranger + Wind Sneaker lines | Sonnet 5.5 / high, Opus review | CH1d review | `X2GULire_ElvenRanger.*` | `CH1e.md` |
+| CH1f | blocked (CH1e review): Sniping Ranger + Grand Archer lines | Sonnet 5.5 / high, Opus review | CH1e review | `X2GULire_ElvenRanger.*` | `CH1f.md` |
+| CH1g | blocked (CH1f review): Trapping Ranger + Night Watcher lines | Sonnet 5.5 / high, Opus review | CH1f review | `X2GULire_ElvenRanger.*` | `CH1g.md` |
+| CH1h | blocked (CH1g review): overrides below vslot 0x600, DamageReact (uncarved), ctor / dtor map, 7c alpha sites | Sonnet 5.5 / high, Opus review | CH1g review | `X2GULire_ElvenRanger.*` | `CH1h.md` |
+| CH1i | blocked (CH1h review): overrides 0x600-0x7bc | Sonnet 5.5 / high, Opus review | CH1h review | `X2GULire_ElvenRanger.*` | `CH1i.md` |
+| CH1j | blocked (CH1i review): Common* overrides (2 uncarved) + CommonFrameMove | Sonnet 5.5 / high, Opus review | CH1i review | `X2GULire_ElvenRanger.*` | `CH1j.md` |
+| CH1k | blocked (CH1j review): skill-use overrides + SpecialAttackEventProcess `32c6a970` (uncarved) + `ReservedSkillStart` | Sonnet 5.5 / high, Opus review | CH1j review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1k.md` |
+| CH1m | blocked (CH1k review): registration (InitState `32cadc90`), `_LIVE` gate | Opus 5.5 / high, Opus review | CH1k review | `X2GULire_ElvenRanger.*`, Always.h | `CH1m.md` |
+| CH1n | blocked (CH1m review): base callbacks + skill-slot head `32cb06d0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1n.md` |
+| CH1o | blocked (CH1n review): virtuals under `_LIVE`, `SetSkillLevelStateData` term, routed gaps | Opus 5.5 / high, Opus review | CH1n review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1o.md` |
+| CH1p | blocked (CH1o review): 7ag pressed-index, hooks, June-only keys (`BOW_SKILL_STATE`, `IMMUNE_TO_SUPER_ARMOR_DOWN`) | Opus 5.5 / high, Opus review | CH1o review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1p.md` |
+| CH1q | **decision** (user owes Open decision 1, `ADD_RENA_SYSTEM`) + blocked (CH1p review): natural force, flag `_NF` | Opus 5.5 / high, Opus review | CH1p review, decision 1 | class, `X2GUUser.*`, `X2Gage*`, `X2DamageManager.*`, `X2DamageEffect.cpp`, `X2EffectSet.*`, `X2GUNPC.*`, `CommonPacket.h`, `ServerDefine.h`, `X2Offline*` | `CH1q.md` |
+| CH1 | blocked (CH1q review, CH0b): define `_LIVE`, adopt the script, copy held motion koms, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | Always.h, data036, motion kom | `CH1.md` |
+| CH2a | blocked (CH1 review): Rena (3) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GULire_ElvenRanger.*`, `MODS.md` | `CH2a.md` |
+| CH2b | blocked (CH2a review): Combat Ranger (12) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GULire_ElvenRanger.*` | `CH2b.md` |
+| CH2c | blocked (CH2b review): Sniping Ranger (13) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2b review | `X2GULire_ElvenRanger.*` | `CH2c.md` |
+| CH2d0 | blocked (CH2c review): trap summons (4 June `CreateNPCReq` sites, spawn rules, trap NPC Lua binder gate), flag `_TRAP` | Opus 5.5 / high, Opus review | CH2c review | `X2GULire_ElvenRanger.*`, `X2GUNPC.*`, NPC Lua | `CH2d0.md` |
+| CH2d | blocked (CH2d0 review): Trapping Ranger (24) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d0 review | `X2GULire_ElvenRanger.*` | `CH2d.md` |
+| CH3a | blocked (CH2d review): Wind Sneaker (102) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d review | `X2GULire_ElvenRanger.*` | `CH3a.md` |
+| CH3b | blocked (CH3a review): Grand Archer (103) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3a review | `X2GULire_ElvenRanger.*` | `CH3b.md` |
+| CH3c | blocked (CH3b review): Night Watcher (114) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3b review | `X2GULire_ElvenRanger.*` | `CH3c.md` |
+| CH3d | blocked (CH3c review): hyper actives + transcendence rows, skill icons PASS | Opus 5.5 / high, Opus review, user play-test | CH3c review | `X2GULire_ElvenRanger.*`, `X2GUUser.*`, `X2Offline*` | `CH3d.md` |
+| CH4a | blocked (CH2d review): passives `32ca78b0`, D8 re-keys 3405 / 3400 -> 23405 / 23400, delegates, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GULire_ElvenRanger.*` | `CH4a.md` |
+| CH4b | blocked (CH4a, CH3c reviews): `SetDamageExceptionProcess` `32cad510`, uncarved overrides, `MemoConditionRena` | Opus 5.5 / high, Opus review, user play-test | CH4a review, CH3c review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH4b.md` |
+| CH5 | blocked (CH1 review): 7 `UnitTemplet` rows, cut-in table, flag `_UI`; beside CH2-CH4 | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, cut-in lines of the class `.cpp`, data036 | `CH5.md` |
+| CH6 | blocked (CH3d, CH4a-b, CH5 reviews): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4a-b, CH5 reviews | docs, save | `CH6.md` |
+| Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-ara` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
+
+Done: none yet.
+
 ## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.
 
@@ -113,7 +156,7 @@ Done: stage2-plan, stage3-plan, stage4-plan, stage29-plan, stage5-plan, stage6-p
 | stage30-plan | ready (start: `/x2-phase new-plan june-resonance`): June's level-99 resonance system (`KUnitInfo` tail -> CX2Unit `+0xa99`..`+0xaa9`, gate `3247b460`, EXP `322f8920`; found by june-result R0, identified by Stage 6 ...) | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Resonance S30`) | `stage30-plan.md` |
 | stage31-plan | ready (start: `/x2-phase new-plan june-achievement`): June's achievement system (`CX2AchievementManager`, `AchievementData` / `AchievementConditionData.lua`, `DLG_Achievement_System_UI`; none in March) -> ... | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Achievement S31`) | `stage31-plan.md` |
 | stage33-plan | ready (start: `/x2-phase new-plan june-stat-calc`): June's damage and character stat calculation. Map every stat / damage formula as June / March / mixed, then replace each mixed one with June's whole function ... | Opus 5.5 / xhigh | dep: -; runs with anything (read-only); code after the character ports, Stages ... | docs, `june2017_re/statcalc/`, funcmap rows (`StatCalc S33`) | `stage33-plan.md` |
-| stage7-plan | Eve closed 2026-10-28; **Chung closed 2026-11-03**; **Elsword closed 2026-11-05**; **Raven closed 2026-11-07**. **ready (start: `/x2-phase new-plan char-rena`**, asks `ADD_RENA_SYSTEM`) | Opus 5.5 / high | dep: pilot-char-revamp Z (done) | docs, kickoffs | `stage7-plan.md` |
+| stage7-plan | Eve, Chung, Elsword, Raven closed (Raven 2026-11-07); **Rena planned 2026-11-07** (`JUNE_CHARACTER_RENA_PHASES.md` + `kickoffs/char-rena/` + the `char-rena` block). queued: `/x2-phase new-plan char-ara` (first CH-N), set ready by char-rena Z | Opus 5.5 / high | dep: pilot-char-revamp Z (done) | docs, kickoffs | `stage7-plan.md` |
 | stage8-plan | **Lu/Ciel planned 2026-11-02; parked by the user 2026-11-03 until Stage 7 closes** (`JUNE_CHARACTER_LUCIEL_PHASES.md` + `kickoffs/char-luciel/` + the `char-luciel` block). queued: `/x2-phase new-plan char-rose` (then `char-ain`), set ready by char-luciel Z | Opus 5.5 / high | dep: char-luciel Z (NU / DU foundation) | docs, kickoffs | `stage8-plan.md` |
 
 ## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline

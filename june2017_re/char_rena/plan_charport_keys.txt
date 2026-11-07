@@ -1,0 +1,17 @@
+script: june_src_fixed/data036_kom/Lire_ElvenRanger.src.lua
+top-level tables: 352 (INIT_*: 6)   distinct keys: 256   key occurrences: 9073
+verdicts: june-only=8  neither=3  march-only-site=4  both=241
+june-only keys (a port item):
+  BBT_CHANGE_NOW_HP_PER_SECOND             x3     damage-data            june=plain readers=none census=implemented/unassigned
+  BFT_TIME                                 x3     damage-data            june=plain readers=none census=implemented/unassigned
+  BOW_SKILL_STATE                          x26    state                  june=xor readers=32ca81b0:? 
+  CREATE_TRAP_BLADE                        x2     state                  june=xor readers=32ca81b0:? 
+  FORCE_DYNAMIC_CAMERA_INDEX               x15    state                  june=xor readers=32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+  IMMUNE_TO_SUPER_ARMOR_DOWN               x10    state                  june=xor readers=31fdaaa0:? 
+  IMMUNITY_EDT_LIST_AT_THIS_STATE          x14    state                  june=plain readers=none 
+  RETAIN_CAMERA_STATE                      x1     state                  june=xor readers=32057b80:CX2GUUser::CommonStateStart: detonation bytes 
+neither (no reader found on either side):
+  ATTACK_ACTION_TYPE                       x12    damage-data
+  HEAD_IK                                  x9     state
+  JUMP_CANCEL_AFTER                        x4     state
+note: March sites are grep-based literals; confirm the #ifdef branch with cl /P in the port phase.
