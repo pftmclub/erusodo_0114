@@ -2206,6 +2206,12 @@ Flame Sword 24218 slot 7 (24034 out), Ignition Crow Napalm 24053 slot 8.
 effect DamageEffect_RRF_ExplosiveHand_Impact_NEW` on Hell Dive / Megadrill; `win and win: self damage hit, factor found`, then `mp: skill 24218 base 30.00 -> 15.00` and
 `win and win cool time: ... -> x0.7` within 1.5 s. All at most once a second.
 
+**Log check PASS (run 07:24-07:26 on md5 `0bb93350`; 0 EXCEPTION, 0 ErrorLog lines; known `E_DISABLE_HB_CHECK_REQ` UNHANDLED x4, one `AddGroupChainQuest`).** Unit 78:
+`open mind: skill 24011 / 24016 type 15 damage x 1.050` x3; after Cutter `mp: skill 24030 base 200.00 -> 160.00` x5 (polled about once a second while the buff is up).
+Unit 76: `infinity rage: magic hit ... ( damage rel 1.100 ), effect DamageEffect_RRF_ExplosiveHand_Impact_NEW` x4 (rel 1.1 = Burning Nasod Hand 24401). Unit 77:
+`win and win: self damage hit, factor found, 1 factor(s)` x3, each followed by `mp: skill 24218 base 30.00 -> 15.00`, and `win and win cool time: skill 24218 base 3.00 -> 2.10`.
+No Mental Crash cast (JUNE_BUGS 558 not exercised).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RAVEN_UI`. Sub-tag `UI`.
