@@ -64,3 +64,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - File-local helpers go in `_CONST_RENA_<phase>_` after the `_CONST_RENA_` block at the top of the `.cpp` (CH1a's `_CONST_RENA_CH1A_` holds `IsMPChargeBlockedByGame()` = CX2Game +0xc20, always false).
 - `ADD_RENA_SYSTEM` arms: write June's branch plain when every name it uses exists in March without the macro; use `_NF` only for lines that need an `ADD_RENA_SYSTEM` member (`m_eSaveStateSkillId`, ...).
 - Generating a `bytepatch` spec from a bodies file with a small script worked (anchors need exact lines incl. trailing whitespace; short functions anchor on the `}` plus the next lines); `junediverge --check` passed with PlaySound calls.
+
+## Amended by CH1a review (2026-11-07)
+
+- `322cdfa0` (`g_pX2Game->GetSlideShot()`, byte 0 = `IsPresentNow()`) and `31aadcb0` (`g_pX2Game != NULL`) are now `confirmed` in `funcmap.tsv`: call them by their March names.
