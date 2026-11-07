@@ -2263,6 +2263,7 @@ Rows `(Raven CH4c)` at the end of `june2017_re/funcmap.tsv`. Most of `ch0_overhe
 `1 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS` (the deleted line is
 `//#define ..._PASSIVE_DEBUG`). `junediverge.py --check` (2 files): `allow-listed: 33`, `RESULT: PASS`; `--check-all` after the two new rows: `allow-listed: 197`, `RESULT: PASS`.
 `enumscan.py --check X2Game.cpp X2UISkillTreeNew2015.cpp`: `0 A/B row(s)`.
+**Range (commit `10d36988`):** `--range 10d36988^..10d36988`, same 3 files: `files: 1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; 1 deleted (the `//#define`); `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,082,304 B, dated 2026-11-07 07:56:12, md5 1228c52c6ba600366c045424c2ad19fa, equal to X2/US_SERVICE/x2.exe (2026-11-07 07:56:05); built at main f36ec5f3 + 3 uncommitted code file(s).`
 `EXESTR OK: 2 of 2 found in X2_offline.exe, 26082304 B, dated 2026-11-07 07:56:12, md5 1228c52c6ba600366c045424c2ad19fa` (the log line and `SI_A_RF_SHADOW_STEP`, wide).
 **Save** (backups `els_db_20261107_074709_pre_sql.sql` and the next two): unit 82 `VetCommanderB` (not transcended): Shadow Step 24200 learned, slot 1 (24039 out), the upgrade 24217
