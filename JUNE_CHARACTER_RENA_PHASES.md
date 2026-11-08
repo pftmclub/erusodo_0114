@@ -661,6 +661,36 @@ All 36 class-map rows of phase CH1d2 are written, every one `inside`: June's bod
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1d2 review` (Opus 5.5 high), then CH1e.
 
+### CH1d2 - Review (2026-11-09, Opus 5.5 high)
+
+**Verdict: pass, no code change.** I read all 36 rows against `charport_adis.py rena --phase CH1d2`, each cut at its first `int3`. The x87 tests read the same way as in CH1d's review.
+- **Follow-ups** (`stateChange < t || animation end`; window `t < keyInputEnd && keyInputStart <= t && cond`; event time `[i]` at `+0x8c10 + 12 i`):
+  - Dash Z1: flag 2 / `[2]` (`+0x8c30`), class 13 or 103 X -> `0x10b` (267); then 1 / `[1]`, class 114 or 24 X -> `0xde` (`LESI_DASH_COMBO_RTR_ZX`); then 0 / `[0]` Z -> `0xba` (Z2). The direction clear is a word write at `+0x7d85` (flags 0-1). On the animation end: off a line, `JUMP_DOWN` and y - 45; on a line, `WAIT` and `+0xde0 = 0.2` (`m_fCanNotAttackTime`). Dash Z2 and dash attack X do not write `+0xde0`.
+  - Dash attack X: 0 / `[0]`, class 114 Z -> `0x110` (272).
+  - Double-jump landing: dash inputs first, then 0 / `[0]` class 12 or 102 Z -> `0x9d` (Z up), then 1 / `[1]` class 24 or 114 X -> `0x10f` (271), then walk, up, down (`CanDown`, y - 45) and the animation end -> `WAIT`.
+  - Dash-jump X1: 0 X -> `0xc4`; 1 class 102 Z -> `0x105` (261); 2 class 103 Z -> `0x10d` (269); 3 class 114 Z -> `0x115` (277), event time `[3]` at `+0x8c34..3c`. X2: 0 X -> `0xc5`; 1 class 102 Z -> `0x108` (264); 2 class 114 Z -> `0x118` (280). X3: landing only.
+  - The class tests come in the port's order: 114 before 24 in Dash Z1, 24 before 114 in the landing, 12 before 102.
+- **Cancels** (Dash Z1, Dash Z2, dash attack X): skill `+0x8c90` (foot test, then the awakening arm), walk `+0x8c98`, back-walk `+0x8c94`, dash `+0x8c9c`, each with the foot test. No `+0x8c8c`.
+- **Arrows:**
+  - Timers 0.3 / 0.21 / 0.23 / 0.2 / 0.233, each an inlined `EventTimerOneshot` (max-time pre-test). MP through `32c85330` with 4, 9 if class 114 / 4 / 4 / 6 / 8.
+  - Dash attack X: `Dummy1_Rhand`, y - 20, `angle.y` + 180; class 114 gets `ARROW_OF_EXPLOSION_DELAY` (`+0xb04 = 1`, then `+0xb00 =` `32c7bdd0`) or `ARROW_OF_EXPLOSION` (`+0xb04 = 0`); the others get `DamageEffect_Rena_Dash_Combo_X_Arrow`. Not enough MP: `( Dummy2_Lhand, 0, 180, 0 )`. Jump attack X: `DamageEffect_Rena_Jump_Combo_X_Arrow`, `( pos, 0, 0, 0 )`.
+  - Dash-jump X1 / X2: `ARROW_DEGREE_Z` (`xorstrings.tsv`: `337ae4fc` / `337ae4ec` in `32c90f10`, `337ae520` / `337ae510` in `32c91780`) into `degree.z` and as the fourth not-enough-MP argument. Class 114 starts at `Bip01` + 30 / + 20 with the `_DOWN` explosion arrows. In X1, class 13 or 103 jumps to the `_RSR_` block (`32c9146f`), everyone else gets `_Rena_`. X2 has no RSR branch (`_XX_`).
+  - X3: one `ARROW_DEGREE_Z` read, then three arrows at z, z - 20, z - 40 (`fsub 20` after arrows 1 and 2). The class 114 test is repeated per arrow (`_RNW_` / `_Rena_`); the port tests once, which behaves the same. `+0x76c = 1` (NF) on each. Not enough MP: `-25` as z.
+  - Every arrow has the `GetMainEffect` NULL test, then the `+0x44c` tail through `32c7fe20`.
+- **FrameMoveFuture:**
+  - Jump attack X: `0.26 < t` lets the walk key work (walk speed triple x `m_fRunJumpSpeedRate`); otherwise `y = 0`, and `x = 0` once `0.13 <= t`.
+  - Dash-jump X3 `32c6b2a0` is a bare vslot `0x7c8` thunk. X1 / X2 zero x and y while `t < 0.5` (= March). Jump attack Z (walk key, pure down without up: flag 0 and `y -= fGAccel * dt`) = March.
+- **The other rows** = March: the StartFutures (`/ 1.5`, `x 0.5` under a `GetDashSpeed` test, the `m_JumpXCount` / 0.3 pair), the Start + `CreateStepDust` pair, `DamageCheck` -> `bHit` (`+0x80cc`), `EndFuture` (flip + 180), the landing EventProcess functions, and dash-jump Z landing (dash, walk, up and the hyper-mode else after `SKILL_CANCEL_AFTER( 0.01f )`).
+- **Enum:** the eight `_CORE` members follow `LESI_RCR_COMBO_XXZ_FROM_X2`. `ch0_state_enum_names.tsv` has registration rows for 261 / 267 / 269 / 271 / 272 / 277 / 280 (`32cadc90`) and no `Enum.lua` value for any of them. 264 has no row because it is the second registration of 261's table, the same case as 257. CH1e adds `_LOOP` / `_END` (262 / 263) as `new` rows. `kickoffs/char-rena/CH1e.md` already says not to add 261 / 264 again, so it is unchanged.
+
+**Gates.**
+- `flagcheck ..._LIVE --with ..._CORE --range ccc7321f^..ccc7321f`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only for the commented `_LIVE` define.
+- `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s)`.
+- One-file `/Zs` probe (`census.cl_cmd`, no PCH): exit 0, 0 errors with no extra defines, with `_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`.
+- No code changed, so there is no build; CH1d2's `DEPLOY OK` (md5 `d712257b...`) stands.
+
+Nothing to play-test. Next: `/x2-phase char-rena CH1e` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
