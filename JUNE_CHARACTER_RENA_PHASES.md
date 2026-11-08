@@ -629,6 +629,38 @@ All 38 class-map rows of phase CH1d are written. 35 are `inside`: June's body in
 
 Nothing to play-test. Next: `/x2-phase char-rena CH1d2` (Sonnet 5.5 high).
 
+### CH1d2 - Done (2026-11-09)
+
+All 36 class-map rows of phase CH1d2 are written, every one `inside`: June's body in March's own `CX2GULire_ElvenRanger` function under `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, March's in `#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`. No `new` rows. `_LIVE` stays `//#define`. 36 funcmap rows `Char Rena CH1d2`. Eight `_CORE` enum members appended after `LESI_RCR_COMBO_XXZ_FROM_X2` (below).
+
+| June | `CX2GULire_ElvenRanger::` |
+|---|---|
+| `32c6ac10` `32c6ac40` `32c6ac70` `32c6e250` `32c6e290` `32c8b820` | `DoubleJumpAttackZ` StartFuture / `Landing` StartFuture / `Landing` Start / FrameMove / EventProcess / `Landing` EventProcess |
+| `32c84490` `32c6b130` `32c72340` `32c6b140` `32c6b150` `32c72f30` | `DashComboZ1` StartFuture / FrameMove / EventProcess, `DashComboZ2` StartFuture / FrameMove / EventProcess |
+| `32c6b160` `32c90130` `32c731b0` `32c6b170` | `DashAttackX` StartFuture / FrameMove / EventProcess / EndFuture |
+| `32c84610` `32c6b200` `32c73c40` `32c6b210` `32c846a0` `32c90c70` `32c73cb0` | `JumpAttackZ` FrameMoveFuture / FrameMove / EventProcess, `JumpAttackX` StartFuture / FrameMoveFuture / FrameMove / EventProcess |
+| `32c73ce0` `32c6b230` `32c6b260` `32c73f40` | `DashJumpAttackZ` EventProcess, `DashJumpAttackZLanding` StartFuture / Start / EventProcess |
+| `32c74140` `32c90f10` `32c74180` `32c744e0` `32c91780` `32c74520` `32c6b2a0` `32c91f10` `32c747d0` | `DashJumpComboX1` FrameMoveFuture / FrameMove / EventProcess, `X2` the same three, `X3` FrameMoveFuture / FrameMove / EventProcess |
+
+**Where June differs from March** (read from `charport_adis.py rena --phase CH1d2`; everything not listed is March's logic written out whole, with `// June <va> ( = March )`):
+- **EventProcess = March's `ADD_RENA_SYSTEM` revamp** (dead until CH1q) with the animation-end follow-up (`ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_`) and the foot test on the cancels (`RENA_GROUND_*`), as CH1d. Flag / event-time pairs:
+  - Dash Z1: 2 X (class 13 / 103) `LESI_RSR_DASH_ZX`, 1 X (24 / 114) `LESI_DASH_COMBO_RTR_ZX`, 0 Z `LESI_DASH_COMBO_Z2`; the direction clear covers flags 0-1 only. `m_fCanNotAttackTime` 0.2 on the animation end. Dash Z2: cancels only.
+  - Dash attack X: 0 Z (114) `LESI_RNW_DASH_XZ`. Double-jump landing: 0 Z (12 / 102) `..._DOUBLE_JUMP_ATTACK_Z_UP`, 1 X (24 / 114) `LESI_RTR_DOUBLE_JUMP_ZX` (March had flag 0 only).
+  - Dash-jump X1: 0 X `X2`; 1 Z (102) 261; 2 Z (103) 269; 3 Z (114) 277. X2: 0 X `X3`; 1 Z (102) 264; 2 Z (114) 280.
+- **Dash attack X / jump attack X / dash-jump X1-X3 arrows**: MP through `GetArrowMpConsumption` (dash X 4, 9 for a Night Watcher; jump X 4; X1 4; X2 6; X3 8; March paid fixed costs) and the `GetMainEffect` max-life tail through `GetArrowMaxLifeTime`. Names: dash X `DamageEffect_Rena_Dash_Combo_X_Arrow` (Night Watcher keeps the explosion arrows), jump X `DamageEffect_Rena_Jump_Combo_X_Arrow`, X1 `_RSR_` for 13 / 103 else `_Rena_Dash_Jump_Combo_X_Arrow`, X2 `_XX_`, X3 `_XXX_` (`_RNW_` for 114). Night Watcher dash-jump arrows start at `Bip01` + 30 / + 20. Timers 0.3 / 0.21 / 0.23 / 0.2 / 0.233, all `EventTimerOneshot`. `ARROW_DEGREE_Z` read per arrow (X3: `degree.z`, `-20`, `-20`; not-enough-MP `-25`).
+- **Natural force** (`_NF`, off): `m_NaturalForceType = NFT_COMBO_BOMB` on each of X3's three arrows. No other CH1d2 arrow has it (March had it on X3 only, under `ADD_RENA_SYSTEM`).
+- **FrameMoveFuture**: dash-jump X3 is a bare thunk (March freezes the speed below 0.3 s); jump attack X zeroes `y` for the whole first 0.26 s, `x` from 0.13 s, and the walk key only works after 0.26 s (March froze both in 0.13 - 0.26 s). Both are June differences, not a `JUNE_BUGS` row.
+- **Enum** (`_CORE`, June script ids, no `Enum.lua` value; CH1e / f / g own the states, CH1m maps the ids): `LESI_RWS_DASH_JUMP_XXZ_START` 261, `LESI_RWS_DASH_JUMP_XXZ_START_FROM_X2` 264 (same table registered twice, as `LESI_RCR_COMBO_XXZ_FROM_X2`), `LESI_RSR_DASH_ZX` 267, `LESI_RGA_DASH_JUMP_XXZ` 269, `LESI_RTR_DOUBLE_JUMP_ZX` 271, `LESI_RNW_DASH_XZ` 272, `LESI_RNW_DASH_JUMP_XZ_START` 277, `LESI_RNW_DASH_JUMP_XXZ_START` 280. The CH1e / f / g kickoffs say not to add them again.
+- **Not here:** `DashJumpComboX3` Start `32c6b280` is CH1q's (March: `ADD_RENA_SYSTEM` only).
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE --with ..._CORE --worktree --files X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). OTHER = the `.h` (`flagcheck ..._CORE` on it: `RESULT: PASS`). `git diff --patience --numstat`: `.cpp` 716 / 0, `.h` 8 / 0.
+- One-file `/Zs` probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH) of `X2GULire_ElvenRanger.cpp`: exit 0, 0 errors with no extra defines, with `/D SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`. `cl /P`: `EventTimerOneshot( 0.233f )` 0 lines off / 1 on; `DamageEffect_Rena_Dash_Jump_Combo_XXX_Arrow` 0 / 1 / 1; `NFT_COMBO_BOMB` 0 / 0 / 22 (March's three X3 lines leave with the `#else`, June's three come in).
+- `junediverge.py --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s)`.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,078,720 B, 2026-11-09 05:10:07`; `DEPLOY OK: X2_offline.exe is 26,078,720 B, dated 2026-11-09 05:10:13, md5 d712257be85ebace3ce99eb63abeefde, equal to X2/US_SERVICE/x2.exe (2026-11-09 05:10:07); built at main 98d58ac4 + 2 uncommitted code file(s).` `_LIVE` is off and no string was added to a live path, so no `exestr` line.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1d2 review` (Opus 5.5 high), then CH1e.
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

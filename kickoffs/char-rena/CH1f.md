@@ -58,3 +58,4 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, LIRE_ELVENRANGE.
 - **Natural-force / combo-revamp rows** (`ch0_nf.tsv` col 8 = `CH1f`): 10; March blocks under `ADD_RENA_SYSTEM` inside your functions stay dead, June's NF lines go under `_NF`.
 - `LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX` Start / FrameMove / EventProcess (`32c6ac20` / `32c8b2c0` / `32c6e590`) are CH1q's (March: only under `ADD_RENA_SYSTEM`); its FrameMoveFuture `32c83c90` is June-only and stays here (`new`).
+- **Amended by CH1d2 (2026-11-09):** `LESI_RSR_DASH_ZX` (June id 267) and `LESI_RGA_DASH_JUMP_XXZ` (269) already exist as `_CORE` enum members in `X2GULire_ElvenRanger.h`; CH1d2's dash Z1 EventProcess (class 13 / 103, `oneX`, flag 2 / event time 2) and dash-jump X1 EventProcess (class 103, `oneZ`) change into them. Do not add them again.

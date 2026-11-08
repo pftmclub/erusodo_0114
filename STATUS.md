@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1d2 | **ready** (start: `/x2-phase char-rena CH1d2`): dash / jump combos + 7 base jump / dash attacks (36 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1d review | `X2GULire_ElvenRanger.*` | `CH1d2.md` |
+| CH1d2 | **done, review owed** (start: `/x2-phase char-rena CH1d2 review`): 36 fn inside + 8 `_CORE` enum members; DEPLOY OK; nothing to play-test | Opus 5.5 / high | CH1d review | `X2GULire_ElvenRanger.*` | `CH1d2-review.md` |
 | CH1e | blocked (CH1d2 review): Combat Ranger + Wind Sneaker lines (29 fn) | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GULire_ElvenRanger.*` | `CH1e.md` |
 | CH1f | blocked (CH1e review): Sniping Ranger line `SNIPING` / `SIEGE` / `LSR` / `RSR` (43 fn) | Sonnet 5.5 / high, Opus review | CH1e review | `X2GULire_ElvenRanger.*` | `CH1f.md` |
 | CH1f2 | blocked (CH1f review): Grand Archer line `LGA` / `RGA` (37 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1f review | `X2GULire_ElvenRanger.*` | `CH1f2.md` |
