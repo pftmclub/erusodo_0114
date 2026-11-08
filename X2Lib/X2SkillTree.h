@@ -1791,6 +1791,11 @@ public:
 		RNSI_A_EEL_ILLUSION_RAY_UPGRADE                       = 25220,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-09 // char-rena CH1d
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_A_RSR_MIND_OF_SHARPSHOOTER                       = 23210,	// June's Enum.lua; the arrow helpers read its buff abilities
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)

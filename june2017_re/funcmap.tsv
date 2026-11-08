@@ -8654,3 +8654,41 @@ CX2Game +0xc20 (Rena CH1a)	none in March: CX2Game byte read by the Rena wait / c
 32c6d420	CX2GULire_ElvenRanger::RidingHyperModeInit	PORTED	Char Rena CH1c: inside, June body under JUNE_CHAR_RENA_LIVE; = HyperModeInit's six textures written out
 32ca7040	CX2GULire_ElvenRanger::RidingHyperModeFrameMove	PORTED	Char Rena CH1c: inside, June body under JUNE_CHAR_RENA_LIVE; = March ( 0, 0.1, true )
 32c9f4f0	CX2GULire_ElvenRanger::CommonHyperModeFrameMove	PORTED	Char Rena CH1c: inside (CH0 said new ?), June body under JUNE_CHAR_RENA_LIVE; March + awakening stand-ins, trace only without the awakening set
+32c6b0b0	CX2GULire_ElvenRanger::ComboZ1FrameMoveFuture	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6b0c0	CX2GULire_ElvenRanger::ComboZ4UpFrameMoveFuture	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6b0d0	CX2GULire_ElvenRanger::ComboX1FrameMoveFuture	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6b0e0	CX2GULire_ElvenRanger::ComboX2FrameMoveFuture	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6b0f0	CX2GULire_ElvenRanger::ComboX3FrameMoveFuture	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6b100	CX2GULire_ElvenRanger::ComboX4FrameMoveFuture	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6b110	CX2GULire_ElvenRanger::ComboX4UpFrameMoveFuture	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6b120	CX2GULire_ElvenRanger::ComboX4DownFrameMoveFuture	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6f610	CX2GULire_ElvenRanger::ComboZ1FrameMove	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6f670	CX2GULire_ElvenRanger::ComboZ1EventProcess	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6fa80	CX2GULire_ElvenRanger::ComboZ2FrameMove	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6fae0	CX2GULire_ElvenRanger::ComboZ2EventProcess	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c700b0	CX2GULire_ElvenRanger::ComboZ3FrameMove	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c70110	CX2GULire_ElvenRanger::ComboZ3EventProcess	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c706a0	CX2GULire_ElvenRanger::ComboZ4FrameMove	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c70700	CX2GULire_ElvenRanger::ComboZ4EventProcess	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c70980	CX2GULire_ElvenRanger::ComboZ4aEventProcess	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c70c00	CX2GULire_ElvenRanger::ComboZ4UpFrameMove	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c70c60	CX2GULire_ElvenRanger::ComboZ4UpEventProcess	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c70ee0	CX2GULire_ElvenRanger::ComboX1EventProcess	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c712f0	CX2GULire_ElvenRanger::ComboX2EventProcess	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c71700	CX2GULire_ElvenRanger::ComboX3EventProcess	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c71bc0	CX2GULire_ElvenRanger::ComboX4EventProcess	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c71e40	CX2GULire_ElvenRanger::ComboX4UpEventProcess	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c720c0	CX2GULire_ElvenRanger::ComboX4DownEventProcess	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c7bdd0	CX2GULire_ElvenRanger::CreateDamageEffectIndex	PORTED	Char Rena CH1d: = March CreateDamageEffectIndex (m_iIndexNum +0x9718, unit index x 100); no code
+32c7fe20	CX2GULire_ElvenRanger::GetArrowMaxLifeTime	PORTED	Char Rena CH1d: new (_CORE): main effect life time x Hunter's Steadiness projectile range ability while BTI_BUFF_MIND_OF_MARKMAN
+32c84340	CX2GULire_ElvenRanger::ComboZ2FrameMoveFuture	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c843b0	CX2GULire_ElvenRanger::ComboZ3FrameMoveFuture	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c84420	CX2GULire_ElvenRanger::ComboZ4FrameMoveFuture	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c85330	CX2GULire_ElvenRanger::GetArrowMpConsumption	PORTED	Char Rena CH1d: new (_CORE): arrow MP x Hunter's Steadiness MP ability, minus 0.1 per natural force point (_NF), clamped at 0
+32c8d390	CX2GULire_ElvenRanger::ComboZ4aFrameMove	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c8d850	CX2GULire_ElvenRanger::ComboX1FrameMove	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c8dd00	CX2GULire_ElvenRanger::ComboX2FrameMove	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c8e0c0	CX2GULire_ElvenRanger::ComboX3FrameMove	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c8e8b0	CX2GULire_ElvenRanger::ComboX4FrameMove	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c8ec70	CX2GULire_ElvenRanger::ComboX4UpFrameMove	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE
+32c8f6d0	CX2GULire_ElvenRanger::ComboX4DownFrameMove	PORTED	Char Rena CH1d: inside: June body under JUNE_CHAR_RENA_LIVE

@@ -180,6 +180,10 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 
 
 			LESI_TRANSFORMED,
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+			LESI_RCR_COMBO_XXZ,	/// June script id 253 ( Combat Ranger / Wind Sneaker follow-up after X-X; CH1m maps, CH1e owns the state )
+			LESI_RCR_COMBO_XXZ_FROM_X2,	/// June script id 257 ( the same script table registered a second time, entered from X-X; CH1m maps )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 
 
@@ -1792,6 +1796,8 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void SetActiveStartOfDelayedFiring( bool bActive ) { m_bActiveStartOfDelayedFiring = bActive; }
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 		void KillMySummonedNPC( const int iNPCID_, const float fUnusedTime_ );	/// June 32ca2010
+		float GetArrowMpConsumption( const float fMp_ );	/// June 32c85330
+		float GetArrowMaxLifeTime( const float fMaxLifeTime_ );	/// June 32c7fe20
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 		/// 지연의 신호탄

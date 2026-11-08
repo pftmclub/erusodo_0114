@@ -565,6 +565,36 @@ CH0 listed `32c9f4f0` as `new ?`; March has `CommonHyperModeFrameMove` (`MODIFY_
 
 Nothing to play-test. Next: `/x2-phase char-rena CH1d` (Sonnet 5.5 high).
 
+### CH1d - Done (2026-11-09)
+
+All 38 class-map rows of phase CH1d are written. 35 are `inside`: June's body in March's own `CX2GULire_ElvenRanger` function under `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, March's in `#else`. 2 are `new` (`_CORE`, compiled, referenced only by `_LIVE` bodies): `32c85330` `GetArrowMpConsumption( fMp_ )`, `32c7fe20` `GetArrowMaxLifeTime( fMaxLifeTime_ )`. 1 needs no code: `32c7bdd0` is March's `CreateDamageEffectIndex` (CH0 said `new ?`; class-map row corrected). `_LIVE` stays `//#define`. 38 funcmap rows `Char Rena CH1d`.
+
+| June | `CX2GULire_ElvenRanger::` |
+|---|---|
+| `32c6b0b0` `32c6b0c0` `32c6b0d0` `32c6b0e0` `32c6b0f0` `32c6b100` `32c6b110` `32c6b120` | `ComboZ1` / `Z4Up` / `X1` / `X2` / `X3` / `X4` / `X4Up` / `X4Down` FrameMoveFuture (thunks to `CommonFrameMoveFuture`) |
+| `32c84340` `32c843b0` `32c84420` | `ComboZ2` / `Z3` / `Z4` FrameMoveFuture (0.3 / 0.125 / 0.28 oneshot, walk / walk / dash speed) |
+| `32c6f610` `32c6fa80` `32c700b0` `32c706a0` `32c70c00` | `ComboZ1` / `Z2` / `Z3` / `Z4` / `Z4Up` FrameMove (damage windows = March) |
+| `32c6f670` `32c6fae0` `32c70110` `32c70700` `32c70980` `32c70c60` | `ComboZ1` / `Z2` / `Z3` / `Z4` / `Z4a` / `Z4Up` EventProcess |
+| `32c8d390` `32c8d850` `32c8dd00` `32c8e0c0` `32c8e8b0` `32c8ec70` `32c8f6d0` | `ComboZ4a` / `X1` / `X2` / `X3` / `X4` / `X4Up` / `X4Down` FrameMove (the arrows) |
+| `32c70ee0` `32c712f0` `32c71700` `32c71bc0` `32c71e40` `32c720c0` | `ComboX1` / `X2` / `X3` / `X4` / `X4Up` / `X4Down` EventProcess |
+
+**Where June differs from March** (read from `charport_adis.py rena --phase CH1d`):
+- **EventProcess = March's `ADD_RENA_SYSTEM` combo revamp** (which stays dead until CH1q), with two changes: every flagged follow-up also fires when the future animation ends (`ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_`, the `m_fEventTime` form), and the walk / back-walk / dash cancels also need the foot on a line (`RENA_GROUND_*`; `SKILL_CANCEL_AFTER` already has it). Rena's order is skill, walk, back-walk, dash; no Z / X cancel.
+- **X1 / X2** add a Combat Ranger / Wind Sneaker (12 / 102) `oneZ` follow-up: X1 to `LESI_RCR_COMBO_XXZ` (June id 253), X2 to June id 257, the same script table registered a second time (`LESI_RCR_COMBO_XXZ_FROM_X2`). CH1m maps both ids. Both are `_CORE` enum members appended after `LESI_TRANSFORMED`.
+- **Z1 and X3 FrameMoveFuture** no longer zero `nowSpeed` (March does; June's are bare thunks).
+- **Arrows:** MP goes through `GetArrowMpConsumption` (Z4a 9, X1 4, X2 6, X3 8, X4 / X4 up / X4 down 9; March 6 / 4 / 3-4 / 1.5-4 / 3-4 / 15 / 15) and every arrow's main effect life time through `GetArrowMaxLifeTime`. Timers 0.3 / 0.24 / 0.28 / 0.38 + 0.43 / 0.431 x3, all `EventTimerOneshot`. Names by class: Z4a Night Watcher keeps the explosion arrows, else `DamageEffect_Rena_Combo_ZZZX_Arrow`; X1 `_RSR_` (13 / 103), `_RNW_` (114), else `_Rena_Combo_X_Arrow`; X2 / X4 `_RNW_` or `_Rena_Combo_XX` / `XXXX`; X3 Night Watcher explosion arrows else `_Rena_Combo_XXX_Arrow`; X4 up / down `_Up_XXXX_` / `_Down_XXXX_` for all three arrows. X3: first arrow `degree.z += 2`, second at 0.43 s `posR.y += 10`, `degree.z -= 2`. The `CreateInstance` argument lists equal March's (checked site by site against the listing).
+- **Natural force** (`_NF`, off): `m_NaturalForceType = NFT_COMBO_BOMB` on the Z4a non-Night-Watcher arrow and every X4 / X4 up / X4 down arrow; `GetArrowMpConsumption` takes 0.1 per natural force point.
+- **The helpers:** `GetArrowMpConsumption`: rate 1, with the buff `BTI_BUFF_MIND_OF_MARKMAN` (536) the equipped Hunter's Steadiness (`RNSI_A_RSR_MIND_OF_SHARPSHOOTER` 23210) gives `SA_MP_CONSUMPTION`; minus 0.1 per natural force point; clamp at 0. `GetArrowMaxLifeTime`: same buff, `SA_PROJECTILE_RANGE_REL`. Both names registered under `JUNE_ENUM_NAMES` (`X2SkillTree.h`, `X2BuffFactor.h`).
+- **Routed:** the same helpers are called by the Sniping Ranger double-jump attacks (`32c8aa40`, `32c8b2c0`, CH1e / f) and by dash attack X / dash-jump X1 (`32c90130`, `32c90f10`, CH1d2): they use the declared functions. March's `SnipingRangerComboX2/X3/X4` stay as they are until CH1m registers June's single set. No `JUNE_BUGS` row (no June quirk found).
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE --with ..._CORE --worktree --files` (the four files): `files: 0 PASS, 1 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR` (OTHER = `.h` under `_CORE`, `X2SkillTree.h` / `X2BuffFactor.h` under `JUNE_ENUM_NAMES`); `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out. `git diff --patience --numstat`: `.cpp` 941 / 0, `.h` 6 / 0, `X2SkillTree.h` 5 / 0, `X2BuffFactor.h` 5 / 0.
+- One-file `/Zs` probe (`census.cl_cmd`, no PCH) of `X2GULire_ElvenRanger.cpp`: exit 0, 0 errors with no extra defines, with `/D SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`. `cl /P`: `EventTimerOneshot( 0.431f )` 0 lines off / 3 on; `NFT_COMBO_BOMB` 0 / 0 / 22 (with `_NF`).
+- `junediverge.py --check` on the four files: `RESULT: PASS` (0 allow-listed). `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: 0 A/B rows.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,078,720 B, 2026-11-09 03:54:52`; `DEPLOY OK: X2_offline.exe is 26,078,720 B, dated 2026-11-09 03:54:58, md5 a255684a375de5275f642bfec66164e9, equal to X2/US_SERVICE/x2.exe (2026-11-09 03:54:52); built at main d105cff5 + 4 uncommitted code file(s).` `_LIVE` is off and no string was added to a live path, so no `exestr` line.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1d review` (Opus 5.5 high), then CH1d2.
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

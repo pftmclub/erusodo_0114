@@ -418,7 +418,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c7b570	state-fn	LESI_SNIPING_RANGER_COMBO_X3.EventProcess	inside X2GULire_ElvenRanger.cpp:2003 CX2GULire_ElvenRanger::SnipingRangerComboX3EventProcess	inside	-	CH1f	1 states	n
 32c7ba40	state-fn	LESI_SNIPING_RANGER_COMBO_X4.EventProcess	inside X2GULire_ElvenRanger.cpp:2010 CX2GULire_ElvenRanger::SnipingRangerComboX4EventProcess	inside	-	CH1f	1 states	n
 32c7bd20	helper	called by 32c83d00 32c83f70 32c84020 32c840d0	-	new	?	CH1f	name: called by 32c83d00(LESI_SIEGE_READY.EventProces) 32c83f70(LESI_SIEGE_ATTACK.EventProce) 32c84020(LESI_SIEGE_ATTACK_X.EventPro) 32c840d0(LESI_SIEGE_END.EventProcess)	y
-32c7bdd0	helper	called by 32c8d390 32c8e0c0 32c90130 32c90f10	-	new	?	CH1d	name: called by 32c8d390(LESI_COMBO_Z4a.FrameMove) 32c8e0c0(LESI_COMBO_X3.FrameMove) 32c90130(LESI_DASH_ATTACK_X.FrameMove) 32c90f10(LESI_DASH_JUMP_COMBO_X1.Fram)	y
+32c7bdd0	helper	called by 32c8d390 32c8e0c0 32c90130 32c90f10	X2GULire_ElvenRanger.cpp CX2GULire_ElvenRanger::CreateDamageEffectIndex	inside	-	CH1d	name: called by 32c8d390(LESI_COMBO_Z4a.FrameMove) 32c8e0c0(LESI_COMBO_X3.FrameMove) 32c90130(LESI_DASH_ATTACK_X.FrameMove) 32c90f10(LESI_DASH_JUMP_COMBO_X1.Fram)	y
 32c7be00	override 0x6a4	GetActualCoolTime	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3251 virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;)	new	GetActualCoolTime	CH4b	base 31fd1920	n
 32c7bed0	override 0x6a8	ShownSkillCoolTime	- (CX2GULire_ElvenRanger does not declare it in March; X2GUUser.h:3490 virtual float ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ ) { return fCoolTime_; })	new	ShownSkillCoolTime	CH1i	base 3208e190	y
 32c7bf30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
@@ -460,7 +460,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c7fad0	state-fn	LESI_HA_LNW_INNOCENT_END.EventProcess	inside X2GULire_ElvenRanger.cpp:4468 CX2GULire_ElvenRanger::LESI_HA_LNW_INNOCENT_END_EventProcess	inside	-	CH3d	1 states	n
 32c7fdf0	helper	-	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23783 CX2GULire_ElvenRanger::GetNaturalForceBuff	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: GetNaturalForceBuff	n
 32c7fe00	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8c88e34ff	y
-32c7fe20	helper	called by 32c8aa40 32c8b2c0 32c8d390 32c8d850	-	new	?	CH1d	name: called by 32c8aa40(LESI_SNIPING_RANGER_DOUBLE_J) 32c8b2c0(LESI_SNIPING_RANGER_DOUBLE_J) 32c8d390(LESI_COMBO_Z4a.FrameMove) 32c8d850(LESI_COMBO_X1.FrameMove)	y
+32c7fe20	helper	called by 32c8aa40 32c8b2c0 32c8d390 32c8d850	-	new	GetArrowMaxLifeTime	CH1d	name: called by 32c8aa40(LESI_SNIPING_RANGER_DOUBLE_J) 32c8b2c0(LESI_SNIPING_RANGER_DOUBLE_J) 32c8d390(LESI_COMBO_Z4a.FrameMove) 32c8d850(LESI_COMBO_X1.FrameMove)	y
 32c7feb0	state-fn	LESI_RCR_COMBO_XXZ.EventProcess	-	new	LESI_RCR_COMBO_XXZ_EventProcess	CH1e	1 states	n
 32c80200	state-fn	LESI_RCR_COMBO_XXZZ.EventProcess	-	new	LESI_RCR_COMBO_XXZZ_EventProcess	CH1e	1 states	n
 32c80480	state-fn	LESI_RCR_COMBO_XXZZ_LANDING.EventProcess	-	new	LESI_RCR_COMBO_XXZZ_LANDING_EventProcess	CH1e	1 states	n
@@ -530,7 +530,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c85260	override 0x24c	SetSpecificValueByBuffTempletID	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23815 CX2GULire_ElvenRanger::SetSpecificValueByBuffTempletID	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: SetSpecificValueByBuffTempletID (0x24c): BTI 5 / 822	y
 32c85290	override 0x250	UnSetSpecificValueByBuffTempletID	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23835 CX2GULire_ElvenRanger::UnSetSpecificValueByBuffTempletID	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: UnSetSpecificValueByBuffTempletID (0x250)	n
 32c852f0	override 0x740	?	- (name unsettled)	new	?	CH1i	base 32009780; name: virtual 0x740 (base 32009780); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
-32c85330	helper	called by 32c8aa40 32c8b2c0 32c8d390 32c8d850	-	new	?	CH1d	name: called by 32c8aa40(LESI_SNIPING_RANGER_DOUBLE_J) 32c8b2c0(LESI_SNIPING_RANGER_DOUBLE_J) 32c8d390(LESI_COMBO_Z4a.FrameMove) 32c8d850(LESI_COMBO_X1.FrameMove)	y
+32c85330	helper	called by 32c8aa40 32c8b2c0 32c8d390 32c8d850	-	new	GetArrowMpConsumption	CH1d	name: called by 32c8aa40(LESI_SNIPING_RANGER_DOUBLE_J) 32c8b2c0(LESI_SNIPING_RANGER_DOUBLE_J) 32c8d390(LESI_COMBO_Z4a.FrameMove) 32c8d850(LESI_COMBO_X1.FrameMove)	y
 32c85430	state-fn	LESI_SA_RGA_ACEINTHEHOLE_WAIT.EventProcess	-	new	LESI_SA_RGA_ACEINTHEHOLE_WAIT_EventProcess	CH3b	1 states	y
 32c85500	state-fn	LESI_SA_RGA_ACEINTHEHOLE_WAIT.EventProcess	-	new	LESI_SA_RGA_ACEINTHEHOLE_WAIT_EventProcess	CH3b	1 states	y
 32c855d0	state-fn	LESI_SA_RGA_ACEINTHEHOLE_WAIT.EventProcess	-	new	LESI_SA_RGA_ACEINTHEHOLE_WAIT_EventProcess	CH3b	1 states	y

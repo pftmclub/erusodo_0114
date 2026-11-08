@@ -585,6 +585,11 @@ enum BUFF_TEMPLET_ID
 	BTI_SI_A_ES_ENDURANCE = 18,	// June's Enum.lua; Fight God's CREATE_EFFECT_SET bonus tests it
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-09 // char-rena CH1d
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	BTI_BUFF_MIND_OF_MARKMAN              = 536,	// June's Enum.lua; Hunter's Steadiness, the arrow helpers test it
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 };
 
 enum BUFF_FACTOR_ID

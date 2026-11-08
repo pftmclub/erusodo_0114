@@ -61,6 +61,33 @@ using namespace _CONST_RENA_CH1A_;
 	{ m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = true; }
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+/// June 32c6f670: the combo states' flagged follow-up starts once its event-time change time has passed or the animation has ended; the key sets the flag inside the event-time input window
+#define ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( iEventFlagIndex, iEventTimeIndex, bCondition, iStateID ) \
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] == true && \
+		( (float)(m_fEventTime[iEventTimeIndex].stateChange) < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) ) \
+	{ StateChange( (iStateID) ); m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = false; } \
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() < (float)(m_fEventTime[iEventTimeIndex].keyInputEnd) && (float)(m_fEventTime[iEventTimeIndex].keyInputStart) <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == (bCondition) ) \
+	{ m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = true; }
+
+/// June 32c6f670: the combo states' walk, back-walk and dash cancels also need the foot on a line
+#define RENA_GROUND_WALK_CANCEL \
+	else if ( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( true == m_InputData.pureRight || true == m_InputData.pureLeft ) ) \
+	{ StateChange( USI_WAIT ); }
+
+#define RENA_GROUND_BWALK_CANCEL \
+	else if ( 0.f <= m_fBWalkCancelAfter && m_fBWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight ) || \
+		( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) ) ) \
+	{ StateChange( USI_WAIT ); }
+
+#define RENA_GROUND_DASH_CANCEL \
+	else if ( 0.f <= m_fDashCancelAfter && m_fDashCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() && \
+		( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) ) \
+	{ StateChangeDashIfPossible(); }
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+
 
 
 
@@ -5839,6 +5866,54 @@ void CX2GULire_ElvenRanger::KillMySummonedNPC( const int iNPCID_, const float /*
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+// June 32c85330: the MP an arrow costs; the buff of Hunter's Steadiness scales it by the skill's MP ability, every natural force point takes a tenth off, never below zero
+float CX2GULire_ElvenRanger::GetArrowMpConsumption( const float fMp_ )
+{
+	float fRate = 1.f;
+
+	if( NULL != GetUnit() )
+	{
+		if( true == HaveThisBuff( BTI_BUFF_MIND_OF_MARKMAN ) )
+		{
+			const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_RSR_MIND_OF_SHARPSHOOTER, true, 0, true );
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RSR_MIND_OF_SHARPSHOOTER, true );
+
+			if( 0 < iSkillLevel && NULL != pSkillTemplet )
+				fRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUMPTION, iSkillLevel, false );
+		}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+		const int iNaturalForceCount = GetNaturalForceCount();
+		if( 0 < iNaturalForceCount )
+			fRate -= static_cast<float>( iNaturalForceCount ) * 0.1f;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+
+		if( fRate < 0.f )
+			fRate = 0.f;
+	}
+
+	return fMp_ * fRate;
+}
+
+// June 32c7fe20: an arrow's main effect life time; the buff of Hunter's Steadiness scales it by the skill's projectile range ability
+float CX2GULire_ElvenRanger::GetArrowMaxLifeTime( const float fMaxLifeTime_ )
+{
+	float fRate = 1.f;
+
+	if( NULL != GetUnit() && true == HaveThisBuff( BTI_BUFF_MIND_OF_MARKMAN ) )
+	{
+		const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_RSR_MIND_OF_SHARPSHOOTER, true, 0, true );
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RSR_MIND_OF_SHARPSHOOTER, true );
+
+		if( 0 < iSkillLevel && NULL != pSkillTemplet )
+			fRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel, false );
+	}
+
+	return fMaxLifeTime_ * fRate;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+
 
 #pragma DMLEE_NOTE( "ÀÌ ÇÔ¼ö °¢ Ä³¸¯ÅÍ º°·Î µ¿ÀÏÇÏ°Ô Á¤¸®µÇ¸é GUUSER·Î ¿Å°Ü¼­ ÇÏ³ª·Î Á¤¸®ÇÏÀÚ" )
 
@@ -10649,14 +10724,31 @@ void CX2GULire_ElvenRanger::SiegeEndEventProcess()
 //LESI_COMBO_Z1
 void CX2GULire_ElvenRanger::ComboZ1FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b0b0 ( no speed reset: March zeroes nowSpeed first )
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	m_PhysicParam.nowSpeed.x = 0.0f;
 	m_PhysicParam.nowSpeed.y = 0.0f;
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboZ1FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6f610 ( = March )
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.1f && m_pXSkinAnim->GetNowAnimationTime() < 0.24f )
+	{
+		if( g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) == true )
+		{
+			m_FrameDataNow.unitCondition.bHit = true;
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 	if( m_pXSkinAnim->GetNowAnimationTime() > 0.1f && m_pXSkinAnim->GetNowAnimationTime() < 0.24f )
 	{
@@ -10667,10 +10759,41 @@ void CX2GULire_ElvenRanger::ComboZ1FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboZ1EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6f670 ( March's combo revamp with the animation-end follow-up and the foot test on the cancels )
+	if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		m_fCanNotAttackTime = 0.1f;
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 1, 1, GetUnitClass() == CX2Unit::UC_LIRE_NIGHT_WATCHER && m_InputData.oneX == true, LESI_COMBO_RNW_ZZX )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneZ == true, LESI_COMBO_Z2 )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
 	{
@@ -10754,11 +10877,19 @@ void CX2GULire_ElvenRanger::ComboZ1EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_COMBO_Z2
 void CX2GULire_ElvenRanger::ComboZ2FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c84340 ( = March )
+	if( m_pXSkinAnimFuture->EventTimerOneshot( 0.3f ) )
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnimFuture->EventTimerOneshot( 0.3f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -10767,10 +10898,23 @@ void CX2GULire_ElvenRanger::ComboZ2FrameMoveFuture()
 		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboZ2FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6fa80 ( = March )
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.31f && m_pXSkinAnim->GetNowAnimationTime() < 0.4f )
+	{
+		if( g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) == true )
+		{
+			m_FrameDataNow.unitCondition.bHit = true;
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 	if( m_pXSkinAnim->GetNowAnimationTime() > 0.31f && m_pXSkinAnim->GetNowAnimationTime() < 0.4f )
 	{
@@ -10781,10 +10925,39 @@ void CX2GULire_ElvenRanger::ComboZ2FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboZ2EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6fae0 ( March's combo revamp with the animation-end follow-up and the foot test on the cancels )
+	CANCEL_COMBO_ON_DIRECTION_CHANGE( 3 );
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		m_fCanNotAttackTime = 0.2f;
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, GetUnitClass() == CX2Unit::UC_LIRE_WIND_SNEAKER && m_InputData.oneZ == true &&
+		( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false ) ||
+		( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true ) ), LESI_LWS_ZZfrontZ )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 2, 2, ( GetUnitClass() == CX2Unit::UC_LIRE_TRAPPING_RANGER ||
+		GetUnitClass() == CX2Unit::UC_LIRE_NIGHT_WATCHER ) && m_InputData.oneZ == true, LESI_COMBO_RTR_ZZZ )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 1, 1, m_InputData.oneZ == true, LESI_COMBO_Z3 )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 3, 3, m_InputData.oneX == true && GetUnitClass() == CX2Unit::UC_LIRE_GRAND_ARCHER, LESI_LGA_ZZX )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	CANCEL_COMBO_ON_DIRECTION_CHANGE( 3 );
 
@@ -10855,11 +11028,19 @@ void CX2GULire_ElvenRanger::ComboZ2EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_COMBO_Z3
 void CX2GULire_ElvenRanger::ComboZ3FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c843b0 ( = March )
+	if( m_pXSkinAnimFuture->EventTimerOneshot( 0.125f ) )
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnimFuture->EventTimerOneshot( 0.125f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -10868,10 +11049,23 @@ void CX2GULire_ElvenRanger::ComboZ3FrameMoveFuture()
 		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboZ3FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c700b0 ( = March )
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.125f && m_pXSkinAnim->GetNowAnimationTime() < 0.21f )
+	{
+		if( g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) == true )
+		{
+			m_FrameDataNow.unitCondition.bHit = true;
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 	if( m_pXSkinAnim->GetNowAnimationTime() > 0.125f && m_pXSkinAnim->GetNowAnimationTime() < 0.21f )
 	{
@@ -10882,10 +11076,35 @@ void CX2GULire_ElvenRanger::ComboZ3FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboZ3EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c70110 ( March's combo revamp with the animation-end follow-up and the foot test on the cancels )
+	CANCEL_COMBO_ON_DIRECTION_CHANGE( 4 )
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 2, 2, m_InputData.pureUp == true && m_InputData.oneZ == true, LESI_COMBO_Z4UP )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneZ == true, LESI_COMBO_Z4 )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 1, 1, m_InputData.oneX == true && GetUnitClass() != CX2Unit::UC_LIRE_GRAND_ARCHER, LESI_COMBO_Z4a )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 3, 3, m_InputData.oneX == true && GetUnitClass() == CX2Unit::UC_LIRE_GRAND_ARCHER, LESI_LGA_ZZX )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	CANCEL_COMBO_ON_DIRECTION_CHANGE( 4 )
 
@@ -10971,11 +11190,21 @@ void CX2GULire_ElvenRanger::ComboZ3EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_COMBO_Z4
 void CX2GULire_ElvenRanger::ComboZ4FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c84420 ( = March )
+	if( m_pXSkinAnimFuture->EventTimerOneshot( 0.28f ) )
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnimFuture->EventTimerOneshot( 0.28f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -10986,10 +11215,23 @@ void CX2GULire_ElvenRanger::ComboZ4FrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboZ4FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c706a0 ( = March )
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.28f && m_pXSkinAnim->GetNowAnimationTime() < 0.37f )
+	{
+		if( g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) == true )
+		{
+			m_FrameDataNow.unitCondition.bHit = true;
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 	if( m_pXSkinAnim->GetNowAnimationTime() > 0.28f && m_pXSkinAnim->GetNowAnimationTime() < 0.37f )
 	{
@@ -11000,10 +11242,30 @@ void CX2GULire_ElvenRanger::ComboZ4FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboZ4EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c70700 ( = March's combo revamp with the foot test on the cancels )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{	
@@ -11047,6 +11309,7 @@ void CX2GULire_ElvenRanger::ComboZ4EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_COMBO_Z4a
@@ -11057,6 +11320,69 @@ void CX2GULire_ElvenRanger::ComboZ4EventProcess()
 
 void CX2GULire_ElvenRanger::ComboZ4aFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8d390 ( the arrow costs more MP, Night Watcher keeps the explosion arrows, the others shoot the combo arrow )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+	{
+		if( FlushMp( GetArrowMpConsumption( 9.0f ) ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+			D3DXVECTOR3 angle = GetRotateDegree();
+			angle.y += 180;
+			CX2DamageEffect::CEffect* pDE = NULL;
+
+			if( CX2Unit::UC_LIRE_NIGHT_WATCHER == GetUnitClass() )
+			{
+				if( true == GetActiveStartOfDelayedFiring() )
+				{
+					pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"ARROW_OF_EXPLOSION_DELAY", GetPowerRate() * m_fAttackPowerRateArrow, posR, angle, angle, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+					if( NULL != pDE )
+					{
+						pDE->SetType( CX2DamageEffect::DET_ARROW_OF_EXPLOSION_DELAY );
+						pDE->SetIndex( CreateDamageEffectIndex() );
+					}
+				}
+				else
+				{
+					pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"ARROW_OF_EXPLOSION", GetPowerRate() * m_fAttackPowerRateArrow, posR, angle, angle, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+					if( NULL != pDE )
+					{
+						pDE->SetType( CX2DamageEffect::DET_ARROW_OF_EXPLOSION );
+					}
+				}
+			}
+			else
+			{
+				pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_Rena_Combo_ZZZX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, angle, angle, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				if( NULL != pDE )
+					pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			}
+
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 180.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -11127,10 +11453,29 @@ void CX2GULire_ElvenRanger::ComboZ4aFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboZ4aEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c70980 ( = March's combo revamp with the foot test on the cancels )
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	if ( false == IsOnSomethingFuture() )
 	{
@@ -11171,6 +11516,7 @@ void CX2GULire_ElvenRanger::ComboZ4aEventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //void CX2GULire_ElvenRanger::ComboZ4aEndFuture()
@@ -11185,11 +11531,28 @@ void CX2GULire_ElvenRanger::ComboZ4aEventProcess()
 //LESI_COMBO_Z4UP
 void CX2GULire_ElvenRanger::ComboZ4UpFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b0c0 ( = March )
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboZ4UpFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c70c00 ( = March )
+	if( m_pXSkinAnim->GetNowAnimationTime() > 0.24f && m_pXSkinAnim->GetNowAnimationTime() < 0.35f )
+	{
+		if( g_pData->GetDamageManager()->DamageCheck( &m_DamageData ) == true )
+		{
+			m_FrameDataNow.unitCondition.bHit = true;
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 	if( m_pXSkinAnim->GetNowAnimationTime() > 0.24f && m_pXSkinAnim->GetNowAnimationTime() < 0.35f )
 	{
@@ -11200,10 +11563,29 @@ void CX2GULire_ElvenRanger::ComboZ4UpFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboZ4UpEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c70c60 ( = March's combo revamp with the foot test on the cancels )
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	if ( false == IsOnSomethingFuture() )
 	{
@@ -11245,16 +11627,59 @@ void CX2GULire_ElvenRanger::ComboZ4UpEventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_COMBO_X1
 void CX2GULire_ElvenRanger::ComboX1FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b0d0 ( = March )
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboX1FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8d850 ( the arrow costs MP through the helper; Sniping Ranger / Grand Archer, Night Watcher and the others shoot their own combo arrow )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.24f ) )
+	{
+		if( FlushMp( GetArrowMpConsumption( 4.0f ) ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+			CX2DamageEffect::CEffect* pDE = NULL;
+
+			const WCHAR* pwszArrowName = L"DamageEffect_Rena_Combo_X_Arrow";
+			if( CX2Unit::UC_LIRE_SNIPING_RANGER == GetUnitClass() || CX2Unit::UC_LIRE_GRAND_ARCHER == GetUnitClass() )
+				pwszArrowName = L"DamageEffect_RSR_Combo_X_Arrow";
+			else if( CX2Unit::UC_LIRE_NIGHT_WATCHER == GetUnitClass() )
+				pwszArrowName = L"DamageEffect_RNW_Combo_X_Arrow";
+
+			pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, pwszArrowName, GetPowerRate() * m_fAttackPowerRateArrow, posR, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.24f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -11293,10 +11718,40 @@ void CX2GULire_ElvenRanger::ComboX1FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboX1EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c70ee0 ( March's combo revamp with the animation-end follow-up, the Combat Ranger / Wind Sneaker X-Z follow-up and the foot test on the cancels )
+	if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneX == true, LESI_COMBO_X2 )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 1, 1, ( GetUnitClass() == CX2Unit::UC_LIRE_COMBAT_RANGER || GetUnitClass() == CX2Unit::UC_LIRE_WIND_SNEAKER ) && m_InputData.oneZ == true, LESI_RCR_COMBO_XXZ )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
 	{
@@ -11379,16 +11834,57 @@ void CX2GULire_ElvenRanger::ComboX1EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_COMBO_X2
 void CX2GULire_ElvenRanger::ComboX2FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b0e0 ( = March )
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboX2FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8dd00 ( the arrow costs MP through the helper; Night Watcher and the others shoot their own combo arrow )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.28f ) )
+	{
+		if( FlushMp( GetArrowMpConsumption( 6.0f ) ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+			CX2DamageEffect::CEffect* pDE = NULL;
+
+			const WCHAR* pwszArrowName = L"DamageEffect_Rena_Combo_XX_Arrow";
+			if( CX2Unit::UC_LIRE_NIGHT_WATCHER == GetUnitClass() )
+				pwszArrowName = L"DamageEffect_RNW_Combo_XX_Arrow";
+
+			pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, pwszArrowName, GetPowerRate() * m_fAttackPowerRateArrow, posR, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.28f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -11425,10 +11921,40 @@ void CX2GULire_ElvenRanger::ComboX2FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboX2EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c712f0 ( as X1: the second Combat Ranger / Wind Sneaker follow-up is a second registration of the same script table )
+	if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneX == true, LESI_COMBO_X3 )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 1, 1, ( GetUnitClass() == CX2Unit::UC_LIRE_COMBAT_RANGER || GetUnitClass() == CX2Unit::UC_LIRE_WIND_SNEAKER ) && m_InputData.oneZ == true, LESI_RCR_COMBO_XXZ_FROM_X2 )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
 	{
@@ -11497,11 +12023,16 @@ void CX2GULire_ElvenRanger::ComboX2EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_COMBO_X3
 void CX2GULire_ElvenRanger::ComboX3FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b0f0 ( no speed reset: March zeroes nowSpeed early in the animation )
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef BALANCE_PATCH_20120329
 	if(m_pXSkinAnimFuture->GetNowAnimationTime() <= 0.5f )
 #else
@@ -11513,10 +12044,125 @@ void CX2GULire_ElvenRanger::ComboX3FrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboX3FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8e0c0 ( two arrows: the first at 0.38 s turned up 2 degrees, the second at 0.43 s 10 higher and turned down 2 )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.38f ) )
+	{
+		if( FlushMp( GetArrowMpConsumption( 8.0f ) ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+			D3DXVECTOR3 degree = GetRotateDegree();
+			degree.z += 2.0f;
+
+			CX2DamageEffect::CEffect* pDE = NULL;
+
+			if( CX2Unit::UC_LIRE_NIGHT_WATCHER == GetUnitClass() )
+			{
+				if( true == GetActiveStartOfDelayedFiring() )
+				{
+					pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"ARROW_OF_EXPLOSION_DELAY", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+					if( NULL != pDE )
+					{
+						pDE->SetType( CX2DamageEffect::DET_ARROW_OF_EXPLOSION_DELAY );
+						pDE->SetIndex( CreateDamageEffectIndex() );
+					}
+				}
+				else
+				{
+					pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"ARROW_OF_EXPLOSION", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+					if( NULL != pDE )
+					{
+						pDE->SetType( CX2DamageEffect::DET_ARROW_OF_EXPLOSION );
+					}
+				}
+			}
+			else
+			{
+				pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_Rena_Combo_XXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+			}
+
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.43f ) )
+	{
+		if( FlushMp( GetArrowMpConsumption( 8.0f ) ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+			posR.y += 10.0f;
+			D3DXVECTOR3 degree = GetRotateDegree();
+			degree.z -= 2.0f;
+
+			CX2DamageEffect::CEffect* pDE = NULL;
+
+			if( CX2Unit::UC_LIRE_NIGHT_WATCHER == GetUnitClass() )
+			{
+				if( true == GetActiveStartOfDelayedFiring() )
+				{
+					pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"ARROW_OF_EXPLOSION_DELAY", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+					if( NULL != pDE )
+					{
+						pDE->SetType( CX2DamageEffect::DET_ARROW_OF_EXPLOSION_DELAY );
+						pDE->SetIndex( CreateDamageEffectIndex() );
+					}
+				}
+				else
+				{
+					pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"ARROW_OF_EXPLOSION", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+					if( NULL != pDE )
+					{
+						pDE->SetType( CX2DamageEffect::DET_ARROW_OF_EXPLOSION );
+					}
+				}
+			}
+			else
+			{
+				pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_Rena_Combo_XXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+			}
+
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	float fFlushMp = 6.f;
 
 #ifdef BALANCE_PATCH_20120329
@@ -11665,10 +12311,45 @@ void CX2GULire_ElvenRanger::ComboX3FrameMove()
 #endif
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboX3EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c71700 ( March's combo revamp with the animation-end follow-up and the foot test on the cancels )
+	if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+		m_FrameDataFuture.stateParam.bEventFlagList[2] = false;
+	}
+	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+		m_FrameDataFuture.stateParam.bEventFlagList[2] = false;
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 2, 2, m_InputData.pureDown && m_InputData.oneX == true, LESI_COMBO_X4DOWN )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 1, 1, m_InputData.pureUp && m_InputData.oneX == true, LESI_COMBO_X4UP )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneX == true, LESI_COMBO_X4 )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
 	{
@@ -11783,16 +12464,60 @@ void CX2GULire_ElvenRanger::ComboX3EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_COMBO_X4
 void CX2GULire_ElvenRanger::ComboX4FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b100 ( = March )
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboX4FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8e8b0 ( the arrow costs MP through the helper; Night Watcher and the others shoot their own combo arrow )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.431f ) )
+	{
+		if( FlushMp( GetArrowMpConsumption( 9.0f ) ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+			CX2DamageEffect::CEffect* pDE = NULL;
+
+			const WCHAR* pwszArrowName = L"DamageEffect_Rena_Combo_XXXX_Arrow";
+			if( CX2Unit::UC_LIRE_NIGHT_WATCHER == GetUnitClass() )
+				pwszArrowName = L"DamageEffect_RNW_Combo_XXXX_Arrow";
+
+			pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, pwszArrowName, GetPowerRate() * m_fAttackPowerRateArrow, posR, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, 0.f );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef BALANCE_PATCH_20120329
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.366f ) )
@@ -11842,10 +12567,29 @@ void CX2GULire_ElvenRanger::ComboX4FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboX4EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c71bc0 ( = March's combo revamp with the foot test on the cancels )
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	if ( false == IsOnSomethingFuture() )
 	{
@@ -11879,16 +12623,95 @@ void CX2GULire_ElvenRanger::ComboX4EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_COMBO_X4UP
 void CX2GULire_ElvenRanger::ComboX4UpFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b110 ( = March )
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboX4UpFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8ec70 ( three combo arrows at 0.431 s, each turned by its ARROW_DEGREE key )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.431f ) )
+	{
+		if( FlushMp( GetArrowMpConsumption( 9.0f ) ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+			D3DXVECTOR3 degree = GetRotateDegree();
+
+			LUA_GET_VALUE( m_LuaManager, "ARROW_DEGREE1_Z", degree.z, 0.0f );
+			CX2DamageEffect::CEffect* pDE = NULL;
+
+			pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_Rena_Combo_Up_XXXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+
+			LUA_GET_VALUE( m_LuaManager, "ARROW_DEGREE2_Z", degree.z, 0.0f );
+			pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_Rena_Combo_Up_XXXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+
+			LUA_GET_VALUE( m_LuaManager, "ARROW_DEGREE3_Z", degree.z, 0.0f );
+			pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_Rena_Combo_Up_XXXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			float fDegreeZ = 0.f;
+			LUA_GET_VALUE( m_LuaManager, "ARROW_DEGREE2_Z", fDegreeZ, 0.0f );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, fDegreeZ );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef BALANCE_PATCH_20120329
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
@@ -11971,10 +12794,29 @@ void CX2GULire_ElvenRanger::ComboX4UpFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboX4UpEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c71e40 ( = March's combo revamp with the foot test on the cancels )
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	if ( false == IsOnSomethingFuture() )
 	{
@@ -12008,16 +12850,95 @@ void CX2GULire_ElvenRanger::ComboX4UpEventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_COMBO_X4DOWN
 void CX2GULire_ElvenRanger::ComboX4DownFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b120 ( = March )
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboX4DownFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c8f6d0 ( as X4 up, with the down combo arrow )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.431f ) )
+	{
+		if( FlushMp( GetArrowMpConsumption( 9.0f ) ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+			D3DXVECTOR3 degree = GetRotateDegree();
+
+			LUA_GET_VALUE( m_LuaManager, "ARROW_DEGREE1_Z", degree.z, 0.0f );
+			CX2DamageEffect::CEffect* pDE = NULL;
+
+			pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_Rena_Combo_Down_XXXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+
+			LUA_GET_VALUE( m_LuaManager, "ARROW_DEGREE2_Z", degree.z, 0.0f );
+			pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_Rena_Combo_Down_XXXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+
+			LUA_GET_VALUE( m_LuaManager, "ARROW_DEGREE3_Z", degree.z, 0.0f );
+			pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_Rena_Combo_Down_XXXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			float fDegreeZ = 0.f;
+			LUA_GET_VALUE( m_LuaManager, "ARROW_DEGREE2_Z", fDegreeZ, 0.0f );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, fDegreeZ );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef BALANCE_PATCH_20120329
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
@@ -12104,10 +13025,29 @@ void CX2GULire_ElvenRanger::ComboX4DownFrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ComboX4DownEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c720c0 ( = March's combo revamp with the foot test on the cancels )
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	if ( false == IsOnSomethingFuture() )
 	{
@@ -12142,6 +13082,7 @@ void CX2GULire_ElvenRanger::ComboX4DownEventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_DASH_COMBO_Z1
