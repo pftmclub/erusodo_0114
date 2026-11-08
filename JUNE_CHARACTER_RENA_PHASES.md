@@ -595,6 +595,40 @@ All 38 class-map rows of phase CH1d are written. 35 are `inside`: June's body in
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1d review` (Opus 5.5 high), then CH1d2.
 
+### CH1d - Review (2026-11-09, Opus 5.5 high)
+
+**Verdict: pass, no code change.** I read all 38 rows against `charport_adis.py rena --phase CH1d`, each cut at its first `int3`. Cancel tests were read by their x87 flag tests: `test ah,0x41` / `jp` = `0 <=`; `test ah,5` / `jp` = `<`.
+- **Cancel chain** (all 11 EventProcess): skill `+0x8c90`, with the foot test and the awakening arm inside `SKILL_CANCEL_AFTER`; then walk `+0x8c98` (foot, right or left), back-walk `+0x8c94` (foot, key against facing) and dash `+0x8c9c` (foot, double right or left), in that order. No listing reads `+0x8c8c` or `+0x8ca4`. Z4a / Z4Up / X4 / X4Up / X4Down are the same listing apart from addresses.
+- **Follow-ups:** each one changes on `stateChange < t || animation end` and sets its flag on `t < keyInputEnd && keyInputStart <= t && cond`. Flag / event-time pairs, in order:
+  - Z1: 1/1 class 114 X -> `LESI_COMBO_RNW_ZZX`, then 0/0 Z.
+  - Z2: 0/0 class 102 Z with the key toward the facing -> `LWS_ZZfrontZ`; 2/2 class 24 or 114 Z -> `RTR_ZZZ`; 1/1 Z -> Z3; 3/3 X class 103 -> `LGA_ZZX`.
+  - Z3: 2/2 up Z -> Z4Up; 0/0 Z -> Z4; 1/1 X not class 103 -> Z4a; 3/3 X class 103 -> `LGA_ZZX`.
+  - X1 / X2: 0/0 X; then 1/1 class 12 or 102 Z -> ids `0xfd` (253) and `0x101` (257).
+  - X3: 2/2 down X, 1/1 up X, 0/0 X.
+  - Direction clears: Z2 3 flags (word + byte), Z3 4 (dword), X3 3. `m_fCanNotAttackTime`: 0.1 (Z1) and 0.2 (Z2) only.
+- **FrameMove / Future:** damage windows 0.1-0.24 / 0.31-0.4 / 0.125-0.21 / 0.28-0.37 / 0.24-0.35. Future timers: 0.3 and 0.125 walk speed, 0.28 dash speed. Z1, X3 and the other six Futures are bare vslot `0x7c8` thunks.
+- **Arrows:**
+  - Timers 0.3 / 0.24 / 0.28 / 0.38, 0.43 (an `else if`) / 0.431 x3. MP 9 / 4 / 6 / 8 / 9 / 9 / 9 through `32c85330`.
+  - Names: class 13 / 103 / 114 for X1; class 114 for the others.
+  - Z4a adds 180 to `angle.y`. X3: first arrow `[esp+0x28]` z + 2; second `[esp+0x18]` y + 10 and z - 2 (no push between store and reload).
+  - `+0x76c = 1` (NF) only on the Z4a combo-arrow branch and on X4 / X4Up / X4Down.
+  - Night Watcher: `+0xb04` 1 + `32c7bdd0` index (delayed) / 0.
+  - X4Up / X4Down keys from `xorstrings.tsv`: `ARROW_DEGREE1/2/3_Z` into `degree.z`, and `ARROW_DEGREE2_Z` for the not-enough-MP angle (fourth argument). Every other not-enough-MP call is `( pos, 0, 0, 0 )`, except Z4a's `( pos, 0, 180, 0 )`.
+  - The `+0x44c` life-time tail goes through `32c7fe20` behind a `GetMainEffect` NULL test.
+- **Helpers:** buff `0x218`, `GetSkillLevel( 0x5aaa, 1, 0, 1 )`, `GetEquippedActiveSkillTemplet( 0x5aaa, 1 )`, ability `0x8f` / `0x1f`; level > 0 and a templet are both required.
+  - `32c85330` subtracts NF x 0.1 (the double constant is `0.1f` widened) and clamps at 0, but only when `GetUnit()` is set. The port has the same nesting.
+  - June's fourth `GetSkillAbilityValue` push (0.0) is the unused slot that March's three-argument form drops (funcmap S0a).
+- **Enum:** `LESI_RCR_COMBO_XXZ` / `_FROM_X2` have no `Enum.lua` value (`ch0_state_enum_names.tsv`: registration ids 253 @1527 and 257 @1543 on the same table), so they stay sequential `_CORE` members for CH1m to map.
+- **Kickoff fix:** `CH1d2.md`'s Done gate said phase `CH1d`; it now says `CH1d2`, and it notes that the two arrow helpers already exist for its dash-attack X / dash-jump X1 rows.
+
+**Gates.**
+- `flagcheck ..._LIVE --with ..._CORE --range 93c78d22^..93c78d22`: `files: 0 PASS, 1 PASS~, 0 DEFINE, 3 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only for the commented `_LIVE` define.
+- `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s)`.
+- One-file `/Zs` probe (`census.cl_cmd`, no PCH): exit 0, 0 errors with no extra defines, with `_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`.
+- No code changed, so there is no build; CH1d's `DEPLOY OK` (md5 `a255684a...`) stands.
+
+Nothing to play-test. Next: `/x2-phase char-rena CH1d2` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

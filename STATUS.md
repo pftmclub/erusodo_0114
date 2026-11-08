@@ -104,8 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1d | **done, review owed** (start: `/x2-phase char-rena CH1d review`): 35 fn inside + 2 new arrow helpers (`_CORE`); DEPLOY OK; nothing to play-test | Opus 5.5 / high | CH1c review | `X2GULire_ElvenRanger.*`, `X2SkillTree.h`, `X2BuffFactor.h` | `CH1d-review.md` |
-| CH1d2 | blocked (CH1d review): dash / jump combos + 7 base jump / dash attacks (36 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1d review | `X2GULire_ElvenRanger.*` | `CH1d2.md` |
+| CH1d2 | **ready** (start: `/x2-phase char-rena CH1d2`): dash / jump combos + 7 base jump / dash attacks (36 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1d review | `X2GULire_ElvenRanger.*` | `CH1d2.md` |
 | CH1e | blocked (CH1d2 review): Combat Ranger + Wind Sneaker lines (29 fn) | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GULire_ElvenRanger.*` | `CH1e.md` |
 | CH1f | blocked (CH1e review): Sniping Ranger line `SNIPING` / `SIEGE` / `LSR` / `RSR` (43 fn) | Sonnet 5.5 / high, Opus review | CH1e review | `X2GULire_ElvenRanger.*` | `CH1f.md` |
 | CH1f2 | blocked (CH1f review): Grand Archer line `LGA` / `RGA` (37 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1f review | `X2GULire_ElvenRanger.*` | `CH1f2.md` |
@@ -139,7 +138,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 | CH6 | blocked (CH3d, CH4a-b, CH5 reviews): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4a-b, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-ara` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0 (2026-11-07), CH0b (2026-11-07, 4,762 June files + 2 guide Lua staged, 32 koms packed and copied, units 86-91, play-test passed, 0 KEM_ERROR / Motion Error; June-side texture gaps JUNE_BUGS 562), CH1a (2026-11-07, 32 fn inside under `_LIVE`; review passed, no code change, `322cdfa0` / `31aadcb0` confirmed), CH1b (2026-11-07, 33 fn inside under `_LIVE` + `KillMySummonedNPC` under `_CORE`; review passed, no code change), CH1c (2026-11-07, 3 fn inside under `_LIVE`; review passed, no code change).
+Done: CH0 (2026-11-07), CH0b (2026-11-07, 4,762 June files + 2 guide Lua staged, 32 koms packed and copied, units 86-91, play-test passed, 0 KEM_ERROR / Motion Error; June-side texture gaps JUNE_BUGS 562), CH1a (2026-11-07, 32 fn inside under `_LIVE`; review passed, no code change, `322cdfa0` / `31aadcb0` confirmed), CH1b (2026-11-07, 33 fn inside under `_LIVE` + `KillMySummonedNPC` under `_CORE`; review passed, no code change), CH1c (2026-11-07, 3 fn inside under `_LIVE`; review passed, no code change), CH1d (2026-11-09, 35 fn inside under `_LIVE` + 2 arrow helpers under `_CORE`; review passed, no code change).
 
 ## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.
