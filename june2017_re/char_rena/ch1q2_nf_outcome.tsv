@@ -1,0 +1,15 @@
+map_row	march_site	piece	verdict	evidence	where
+2	KncWX2Server/Common/CommonPacket.h:2055-2057	KGamePlayStatus::CAC_NATURAL_FORCE	= March	value 5 ( 32a34fae cmp byte [pkt+0x15], 5 )	second home ServerDefine.h by CH1q
+3	KncWX2Server/Common/CommonPacket.h:2134-2142	KGamePlayStatus::GetNaturalForce	= March	inlined 32a34fae-32a34fb8: type 5 ? +0x16 : 0	-
+45	X2Lib/X2GUNPC.cpp:32462-32500	CX2GUNPC::AttackResultByType NF branch	= March	32773ee0 @3277452b-32774732 line for line	-
+58	X2Lib/X2Game.cpp:5855-5865	dev F7 fill key ( #ifndef _SERVICE_ block )	drop	absent in June; June's F7 is the training step 322ed400 ( Rena 32cb6290( 1 ) ), backlog Stage 2	X2Game.cpp: #ifdef _NF comment #else March #endif
+63	X2Lib/X2GageData.h:985-1044	CX2RenaGageData class	= March	vtable 3349b244, size 0x12c, members +0x110 / +0x111 / +0x112 / +0x114 / +0x120; ctor 32498a30 max 5	-
+64-80	X2Lib/X2GageData.cpp:1271-1430	CX2RenaGageData methods ( 17 rows )	= March	32a317a0 / 32a317b0 / 32a317c0 / 32a317d0 / 32a36df0 / 32a36ef0 / 32a34f20 / 32a34f80 / 32a32500 / 32a34fa0 / 32a36060 / 32a34fe0 / 32a36ca0; inline Get / IsFull / IsEmpty	SetMyPlayStatusFromPacket: _NF_DEBUG line
+81	X2Lib/X2GageUI.h:864-884	CX2RenaMyGageUI class	= March	vtables 3353363c / 33533624, size 0x5c, ctor 32e64760; slots 0 / 1 / 2 differ from base	-
+82	X2Lib/X2GageUI.cpp:5131-5151	CX2RenaMyGageUI::InitUI / InitNaturalForceUI	June body	32e6e190: InitWakeOrb ( vslot 0x54 ) before OpenScriptFile	X2GageUI.cpp InitUI under _NF; InitNaturalForceUI = March + _NF_DEBUG line
+83	X2Lib/X2GageUI.cpp:5156-5169	CX2RenaMyGageUI::OnFrameMove	= March	32e71970: base 32e71620 then 32e5ec10	-
+84	X2Lib/X2GageUI.cpp:5174-5205	CX2RenaMyGageUI::UpdateNaturalForceUI	= March	32e5ec10	_NF_DEBUG line on change
+85	X2Lib/X2GageManager.cpp:223-235	CX2GageManager::CreateMyGageUI Rena case	= March	3248e290 @3248e531, classes 3 / 12 / 13 / 24 / 102 / 103 / 114	-
+4	KncWX2Server/GameServer/GSGameDBThread.cpp:989-993 ( server )	emulator CharAbilTypeOf	June value	live server sets CAC_NATURAL_FORCE for UT_LIRE and loads the count from P_GUnitPlayInfo_SEL ( kept across a relog ); 32a34fa0 reads type 5	X2OfflineStatTable.cpp UT_LIRE case under _NF; existing abil_count column, no schema change
+(7ao)	(no March site)	CX2GameUnit::ApplyHyperModeBuff Rena branch	June body	32298590 @322985df-32298632: count > 0 -> UpNowMp( count x 15.0 ), UpNaturalForce( 5 )	X2GameUnit.cpp under _NF, first in the function
+(7aq)	(no March site)	training F7 key 322ed400 Rena case	routed	June's whole F5 / F6 / F7 training function, every class	JUNE_PORT_BACKLOG_ORDER.md Stage 2 ( char-elsword CH1q2 )

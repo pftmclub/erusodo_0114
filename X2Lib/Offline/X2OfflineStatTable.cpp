@@ -306,6 +306,11 @@ void CX2OfflineStatTable::SetUnitStat_LUA( int iUnitClass, int iLevel )
 	case CX2Unit::UT_ARA:
 		return (char)KGamePlayStatus::CAC_FORCE_POWER;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	case CX2Unit::UT_LIRE:		// char-rena CH1q2: GSGameDBThread.cpp:989-993 ( ADD_RENA_SYSTEM ); June 32a34fa0 reads type 5
+		return (char)KGamePlayStatus::CAC_NATURAL_FORCE;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+
 	default:
 		break;
 	}

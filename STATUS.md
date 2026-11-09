@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1q2 | **ready** (`/x2-phase char-rena CH1q2`, Opus 5.5 high): natural force, engine side: `CX2RenaGageData` / `CX2RenaMyGageUI`, gauge manager, emulator `CAC_NATURAL_FORCE`, engine callers (CH0 split) | Opus 5.5 / high, Opus review | CH1q review | `X2Gage*`, `X2GUNPC.*`, `X2BuffFactor` / hyper buff, `X2Game.cpp`, `X2Offline*`, `CommonPacket.h` | `CH1q2.md` |
+| CH1q2 | done, review **ready** (`/x2-phase char-rena CH1q2 review`, Opus 5.5 high): gauge UI InitUI + awakening refund June's, dev F7 fill dropped, emulator `CAC_NATURAL_FORCE`; rest = March; no play-test | Opus 5.5 / high, Opus review | CH1q review | `X2GageUI.cpp`, `X2GameUnit.cpp`, `X2Game.cpp`, `X2GageData.cpp`, `X2OfflineStatTable.cpp`, Always.h | `CH1q2-review.md` |
 | CH1 | blocked (CH1q2 review, CH0b): define `_LIVE` + `_NF`, adopt the script, copy the 5 held motions, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036, motion kom | `CH1.md` |
 | CH2a | blocked (CH1 review): Rena (3) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GULire_ElvenRanger.*`, `MODS.md` | `CH2a.md` |
 | CH2b | blocked (CH2a review): Combat Ranger (12) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GULire_ElvenRanger.*` | `CH2b.md` |

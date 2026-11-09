@@ -13,6 +13,9 @@
 #ifdef SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_HIT_STOP_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
 
 const double CX2GameUnit::RANDOM_SEED_RESET_TIME = 0.3;
 
@@ -17019,6 +17022,24 @@ void CX2GameUnit::EraseAllBuffAndExtraDamage()
 */
 /*virtual*/ void CX2GameUnit::ApplyHyperModeBuff()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	// char-rena CH1q2: June 32298590 @322985df: Rena's awakening refunds 15 MP per natural force point, then adds the full gauge
+	if ( GUT_USER == GetGameUnitType() )
+	{
+		const CX2Unit* pRenaUnit = static_cast<CX2GUUser*>( this )->GetUnit();
+		if ( NULL != pRenaUnit && NULL != pRenaUnit->GetUnitTemplet() && CX2Unit::UT_LIRE == pRenaUnit->GetType() )
+		{
+			CX2GULire_ElvenRanger* pRena = static_cast<CX2GULire_ElvenRanger*>( this );
+			const int iNaturalForceCount = pRena->GetNaturalForceCount();
+			if ( 0 < iNaturalForceCount )
+				UpNowMp( static_cast<float>( iNaturalForceCount * 15.0 ) );	// June 15.0 ( 33449130 ), no MP text
+			pRena->UpNaturalForce( MAX_NATURAL_FORCE_VALUE );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RENA NF awakening: count %d, MP +%.0f, count after %d", iNaturalForceCount, ( 0 < iNaturalForceCount ) ? iNaturalForceCount * 15.0 : 0.0, pRena->GetNaturalForceCount() );	// char-rena CH1q2
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_ENGINE
 	const CX2Unit* pUnit = ( GUT_USER == GetGameUnitType() ? static_cast<CX2GUUser*>( this )->GetUnit() : NULL );
 	if ( NULL != pUnit && 0 != pUnit->GetUnitData().m_iUnitClassTran )

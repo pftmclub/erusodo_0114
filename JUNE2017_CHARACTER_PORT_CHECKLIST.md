@@ -961,7 +961,8 @@ Every class also brings:
 Base-code branches that june-transcend T5 found and left to the class ports (none of them is transcendence):
 - Raven: `HyperModeStart` `31ffd490`, re-awakening while awake: skill 24419 (`0x5f63`) learned -> vslot `0x23c( 24419, 1, 1 )` (June_SetSkillBuffFactors). (Raven: CH3d, already in `CX2GUUser::HyperModeStart` under `JUNE_USER_BASE_STATE_BODIES`, not class-gated)
 - Rena: `ApplyHyperModeBuff` `32298590 @322985ec`: unit type 3 -> `32cb50c0` count x 15.0 to vslot `0xf0`, then `32cb6290( 5 )` (ADD_RENA_SYSTEM's
-  nature force; March US compiles that system out).
+  nature force; March US compiles that system out). (Rena: CH1q2, `CX2GameUnit::ApplyHyperModeBuff` under `JUNE_CHAR_RENA_NF`: `UpNowMp( count x 15.0 )`
+  when count > 0, then `UpNaturalForce( MAX_NATURAL_FORCE_VALUE )`)
 - Add / Ain: `OnFrameMove` `3206eaf0 @3206fed1` counts down `+0x9330` (their hyper StateStart sets it before `31fc8c20`).
 - Any class with an aura-accelerator skill: `ApplyAuraAcceleratorBuffToGameUnit` `32028790` is June-changed (targets: same team, within 490000,
   `CanApplyBuff`, users only; March also takes PvP allies and party members). It has no transcendence test (T0's row was a stack-slot match).

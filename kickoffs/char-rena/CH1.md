@@ -54,3 +54,13 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   `SKILL_STATE_BUFF`. Build with `--pch force` (Always.h and ServerDefine.h change).
 - What the play-test can show: a natural force point every 3 first hits of a combo (June 3.0; March 6), one BFI 355 stack per point, the combo bomb /
   skill explosion spending points, a hyper mode (or transcendence hyper mode) start re-stacking the buff.
+
+## Amended by CH1q2 (2026-11-09)
+
+- Also uncomment `SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG` (Always.h, after the `_NF` block; `#error`s without `_NF`) for the play-test, and retire it in the
+  review. Its lines: `[JUNE_CHAR] RENA NF gauge UI: DLG_Rena_NaturalForce.lua, g_pStatic_NF_Gage_Back shown` (entering a game),
+  `RENA NF gauge: count n / 5, m pictures` (every count change), `RENA NF from packet: type 5, count a -> b` (field / dungeon load: the saved count),
+  `RENA NF awakening: count n, MP +15n, count after m` (awakening).
+- Play-test checks this adds: the `DLG_Rena_NaturalForce.lua` gauge shows one picture per point; awakening refunds 15 MP per point held and fills the
+  gauge (+5, capped 5); the count survives a relog (the village's play-status saves go to the existing `abil_count` column, read back as
+  `CAC_NATURAL_FORCE`; no schema change). The studio dev F7 fill is gone under `_NF` (June has none); fill the gauge by combo hits or awakening.

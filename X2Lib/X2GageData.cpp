@@ -3,6 +3,9 @@
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
 
 void CX2GageData::Gage::Increase( const float fIncrement, const float fMinimum /*= 0.f */ )
 {
@@ -1406,6 +1409,9 @@ bool CX2RenaGageData::IsEmptyNaturalForce() const
 	SetMaxNaturalForce( MAX_NATURAL_FORCE_VALUE );
 	SetNowNaturalForce( iNaturalForce );
 	SetNaturalForceChanged(true);
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA NF from packet: type %d, count %d -> %d", static_cast<int>( kGamePlayStatus.m_cCharAbilType ), iNaturalForce, GetNowNaturalForce() );	// char-rena CH1q2
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
 }
 
 /** @function 	: GetCloneGageData

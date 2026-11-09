@@ -1616,6 +1616,45 @@ skipped: no play-test.
 
 **Nothing to play-test.** CH1q2 kickoff checked (its "Amended by CH1q" section is current). Next: `/x2-phase char-rena CH1q2` (Opus 5.5 high).
 
+### CH1q2 - Done (2026-11-09)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_CHAR_RENA_NF`, still `//#define`; new temporary `SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG`, `//#define`, `#error`s
+without `_NF`; every block tagged `char-rena CH1q2`; 6 funcmap rows `Char Rena CH1q2`). Files: `X2GageUI.cpp`, `X2GameUnit.cpp`, `X2Game.cpp`,
+`X2GageData.cpp` (debug line only), `Offline/X2OfflineStatTable.cpp`, `KTDXLIB/Always.h`. Per-row verdicts: `june2017_re/char_rena/ch1q2_nf_outcome.tsv`
+(the 27 CH1q2 map rows + the two June-only pieces: 2 June bodies, 1 June value, 1 drop, 1 routed, the rest = March). Read from the exe bytes (`funcdis.py`).
+- **Gauge data `CX2RenaGageData` = March.** Layout +0x110 / +0x111 / +0x112 bytes, +0x114 now / +0x120 max (KProtectedType), size 0x12c, ctor max 5;
+  SetNow `32a36df0` clamps 0..max; Update `32a34f20` = base + SetNow + SetMax( 5 ) + the two bytes; InitWhenGameIsOver `32a34f80` = base
+  (SetHyperModeRemainTime( 0 )) + mode false; packet get `32a32500` (count as char) / set `32a34fa0` (type 5 ? count : 0, SetMax( 5 ), SetNow, changed);
+  Copy / operator= / Clone = March. `CommonPacket.h` (`CAC_NATURAL_FORCE` 5, `GetNaturalForce`) = March; the gauge manager case `3248e531` = March.
+- **Gauge UI.** `CX2RenaMyGageUI::InitUI` `32e6e190` differs: June calls InitWakeOrb (vslot 0x54) before opening `DLG_Rena_NaturalForce.lua` (the order
+  Chung's and Elsword's InitUI took). June's body under `_NF`, March in `#else`; `june_march_divergent.tsv` row added. Ctor, OnFrameMove `32e71970`,
+  UpdateNaturalForceUI `32e5ec10` = March.
+- **NPC `AttackResultByType` `32773ee0` NF branch (`@3277452b-32774732`) = March** line for line (FAC_FIRST_ATTACK, NFT_ACTIVE or NFT_SPECIAL_ACTIVE, owner
+  Check / not empty / Delete, min( count, relate byte ), Consume, BOOM_SKILL at the hit unit's Bip01 or GetPos, rate 1.0, damage x n).
+- **ApplyHyperModeBuff Rena branch (June-only, checklist 7ao).** `32298590 @322985df-32298632`: user whose unit type is UT_LIRE: count > 0 -> `UpNowMp(
+  count x 15.0 )` (vslot 0xf0 = `3208dd00`, double `33449130`, no MP text), then `UpNaturalForce( 5 )` (written `MAX_NATURAL_FORCE_VALUE`). Added first
+  in `CX2GameUnit::ApplyHyperModeBuff` under `_NF`, before the transcendence test (Rena has no override: her vslot 0xc0 = base).
+- **Dev F7 fill key dropped under `_NF`.** June's KeyProcess `322f7170` has no auth-level F7 fill; its F7 is the training step `322ed400` (Rena
+  `32cb6290( 1 )`), which `JUNE_PORT_BACKLOG_ORDER.md` Stage 2 already holds for every class. `#ifdef _NF` comment `#else` March `#endif`.
+- **Emulator.** `CharAbilTypeOf` gets `UT_LIRE -> CAC_NATURAL_FORCE` under `_NF` (as the live server's `GSGameDBThread.cpp:989-993`, which loads the count
+  from `P_GUnitPlayInfo_SEL`, so the live game keeps it across a relog). The save already has a generic `abil_count` column written from every
+  play-status update (`Handlers_Field.cpp:279`): no schema change, no save edit, no `db_backup` needed.
+- **Already done elsewhere:** `FriendshipNatureData` (CH1h, live March code), `32cb50c0` / `32cb6290` out of line (CH1q), the flipped arms (CH1q).
+- **`_NF_DEBUG` lines** (for CH1 final's play-test; CH1 kickoff amended): `RENA NF gauge UI` (InitNaturalForceUI), `RENA NF gauge: count n / max` (on change),
+  `RENA NF from packet` (SetMyPlayStatusFromPacket), `RENA NF awakening` (ApplyHyperModeBuff).
+
+**Hygiene.** `flagcheck _NF --worktree --files <6>`: 1 PASS (`X2Game.cpp`), 1 PASS~ (`X2OfflineStatTable.cpp`, one blank line), 4 OTHER (Always.h comments;
+the `_NF_DEBUG` nests in `X2GageData` / `X2GageUI` / `X2GameUnit`), 0 FAIL, 0 ERROR; `_NF_DEBUG`: 1 PASS, 1 DEFINE, 4 OTHER (the `_NF` blocks), 0 FAIL.
+Both: 0 deleted, 0 non-ASCII inserted, 0 EOL mismatches; RESULT FAIL only for the commented `//#define`s. `junediverge --check <5>` and `--check-all`:
+`RESULT: PASS`. `enumscan --check <5>`: 0 A/B rows. Probes (`/c /Zs /EHsc`) of the 5 code files: off, `_LIVE` + `_NF`, and `_LIVE` + `_NF` + `_NF_DEBUG`:
+0 errors each; `_NF_DEBUG` alone stops at its `#error` (C1189). `cl /P` with `_LIVE` + `_NF`: InitUI = InitStatusUI, InitWakeOrb, OpenScriptFile;
+`iNaturalForceCount * 15.0` x1 in `X2GameUnit.i`; `CAC_NATURAL_FORCE;` x1 in `X2OfflineStatTable.i`; the fill key's `UpNaturalForce(` gone from `X2Game.i`.
+Full build skipped: no play-test.
+
+**Routed.** The training F7 step `322ed400` stays with backlog Stage 2 (Rena case listed there). Checklist row l.963 (7ao) marked `(Rena: CH1q2)`.
+
+**Nothing to play-test.** Next: `/x2-phase char-rena CH1q2 review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

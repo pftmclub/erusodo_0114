@@ -5853,6 +5853,9 @@ void CX2Game::KeyProcess()
 #endif
 
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				// char-rena CH1q2: June has no dev natural-force fill key ( its training F7 step 322ed400 is backlog Stage 2 )
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 				if( CX2Unit::UT_LIRE == pMyGUUser->GetUnit()->GetType() )
 				{
 					CX2GULire_ElvenRanger* pRena = static_cast<CX2GULire_ElvenRanger*>( pMyGUUser );
@@ -5862,6 +5865,7 @@ void CX2Game::KeyProcess()
 						pRena->UpNaturalForce(pRenaGageData->GetMaxNaturalForce());
 					}
 				}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #endif //ADD_RENA_SYSTEM
 
 			}

@@ -9,6 +9,9 @@
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
 #include "Offline/X2OfflineLog.h"
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_RAGE_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
 
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
@@ -5130,12 +5133,22 @@ CX2RenaMyGageUI::CX2RenaMyGageUI( CX2GageData* pGageData_, const CX2Unit::UNIT_C
 */
 /*virtual*/ void CX2RenaMyGageUI::InitUI()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	// char-rena CH1q2: June 32e6e190: the wake orb ( vslot 0x54 ) before the natural-force dialog
+	InitStatusUI();
+	InitWakeOrb();
+
+	m_pDLGMyUnit->OpenScriptFile( L"DLG_Rena_NaturalForce.lua" );
+
+	InitNaturalForceUI();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 	InitStatusUI();
 
 	m_pDLGMyUnit->OpenScriptFile( L"DLG_Rena_NaturalForce.lua" );
 
 	InitWakeOrb();
 	InitNaturalForceUI();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 }
 
 /** @function 	: InitForcePowerUI
@@ -5148,6 +5161,9 @@ void CX2RenaMyGageUI::InitNaturalForceUI()
 	ASSERT( NULL != pStaticNaturalForce );
 	if ( NULL != pStaticNaturalForce )
 		pStaticNaturalForce->SetShow( true );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA NF gauge UI: DLG_Rena_NaturalForce.lua, g_pStatic_NF_Gage_Back %s", ( NULL != pStaticNaturalForce ) ? L"shown" : L"missing" );	// char-rena CH1q2
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
 }
 
 /** @function 	: OnFrameMove
@@ -5200,6 +5216,9 @@ void CX2RenaMyGageUI::UpdateNaturalForceUI()
 			}
 
 			pStaticNaturalForce->SetShow( true );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RENA NF gauge: count %d / %d, %d pictures", pRenaGageData->GetNowNaturalForce(), pRenaGageData->GetMaxNaturalForce(), iNumOfPicture );	// char-rena CH1q2
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
 		}
 	}
 }
