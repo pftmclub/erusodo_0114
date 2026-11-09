@@ -19,7 +19,7 @@ python tools/kom.py status [data036]          # what needs a pack / a copy (no a
 `/elstools pack data036` maps straight onto the first line. Packing does **not** deploy: the game
 reads `<game dir>/data036.kom`, so after a pack run `/x2-kom-packed copy data036` (skill) unless the
 user only asked for the pack. When *you* need a kom packed for a play-test, run the pack yourself
-(no ask needed), then **ask the user before the copy**, every time; once they agree, copy and put
+(no ask needed), then copy it too (no ask needed, user 2026-11-10) and put
 "packed and copied, md5 ..." in the hand-off. Do not ask them to run the script.
 
 ## What pack checks (read its output before reporting)

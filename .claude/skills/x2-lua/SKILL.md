@@ -46,7 +46,7 @@ storage order (what `pairs` walks) is ignored (user, 2026-10-09). Only T0/T1 con
 user's yes); **T3** = unproven, the bytecode ships.
 A converted March file is on the **core list** by definition (`convert` adds the row; `luasrc.py core --check` must stay PASS, as must `ledger --check`).
 **To edit a bytecode-only `.lua`:** `convert` it (`find` first if you want to see the candidates), edit the text `X.lua`
-(CRLF/BOM kept; ASCII comments), `luasrc.py refresh`, `kom.py pack`, then ask before `/x2-kom-packed copy`.
+(CRLF/BOM kept; ASCII comments), `luasrc.py refresh`, `kom.py pack`, then `/x2-kom-packed copy` (no ask).
 
 A new edit may also start from a sidecar: put `X.src.lua` beside `X.lua`, and `kom.py compile` folds it in when it is T0 or
 **newer** than `X.lua` (an intended edit, ledger tier `EDIT`: no equivalence claimed), snapshotting the old bytecode first.

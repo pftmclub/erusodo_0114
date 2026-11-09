@@ -63,7 +63,7 @@ A sidecar (`X.src.lua`) is not a reason: `core --classify` showed 54 of the 65 s
 ## Steps this skill does NOT take
 
 1. **Pack:** `/elstools pack dataNNN` (Claude does it; the pack gate refuses June `0x82` bytecode, BOM-less text and parse errors).
-2. **Ask** the user before every copy, then `/x2-kom-packed copy dataNNN` (it overwrites a live archive; it refuses while the game runs).
+2. **Copy** with `/x2-kom-packed copy dataNNN`, no ask (user, 2026-11-10; it backs the live archive up and refuses while the game runs).
 3. The play-test. A June script stopping at a name March lacks logs `[LUA_SRC] lua error while loading X.lua` in `ErrorLog.txt`.
 
 A calibration or experiment never touches the live tree: set `X2_KOM_CONTENTS`, `X2_LUA_LEDGER` and `X2_LUA_CORE_LIST` to scratch paths

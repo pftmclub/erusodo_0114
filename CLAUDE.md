@@ -124,8 +124,10 @@ unifdef script, or read a plan doc "in full".
 | Convert / edit / prove a March `.lua` as BOM source | `python tools/luasrc.py convert dataNNN X.lua` (and `restore`, `refresh`, `ledger`, `check`, `t2`) | `/x2-lua` |
 | Adopt June `.lua` / the core list | `python tools/luasrc.py adopt-june ...` ; `luasrc.py core --check` | `/x2-adopt-june` |
 
-- **You pack koms** (`/elstools pack`), and **ask the user before every `/x2-kom-packed copy`** (it overwrites a live archive; it refuses
-  while the game runs). Report `PACK OK` / `COPY OK` in the hand-off. Exception: server-only Lua stays the user's to pack (rule below).
+- **You pack koms** (`/elstools pack`) **and copy them** (`/x2-kom-packed copy`) **without asking (user, 2026-11-10;** it was ask-first
+  before). The tool backs the live kom up and refuses while the game runs: then ask the user to close it, never kill it. Plan docs and
+  kickoffs that say "ask first" before a copy mean "copy now". Report `PACK OK` / `COPY OK` in the hand-off. Exception: server-only Lua stays
+  the user's to pack (rule below).
 - **Every phase and review finishes the same way** (x2-phase "Finish"): `flagcheck --worktree` passes; `python tools/junediverge.py --check
   <changed files>` prints `RESULT: PASS`; `build.py --deploy` with `DEPLOY OK` (play-test phases only, see the shared-builds rule)
   in the Done note; a Done note of at most ~60 lines; the `STATUS.md` row updated in the same commit (one line, evidence in the note); the

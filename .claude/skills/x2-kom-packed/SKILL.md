@@ -5,11 +5,10 @@ description: Copy a packed kom (kom_contents/dataNNN_packed.kom) into the March 
 
 # /x2-kom-packed copy - deploy a packed kom
 
-**Ask the user before every copy, every time** (user, 2026-10-06). It overwrites a live game archive,
-so a pack finishing is not permission, and neither is an earlier approval for a different kom or
-phase. Say which kom(s) and what the pack changed (the `vs live` diff from `pack`), then wait for a
-yes. Typing `/x2-kom-packed copy data036` is itself the yes for that archive in that message. Packing
-needs no such ask.
+**No ask needed (user, 2026-11-10;** it was ask-first since 2026-10-06). Copy right after the pack that
+needs deploying. The tool backs the live kom up first, so the copy is reversible. Say which kom(s) and
+what the pack changed (the `vs live` diff from `pack`) in the hand-off. The one stop: the tool refuses
+while `X2_offline.exe` runs, so ask the user to close the game then (never kill it).
 
 ```sh
 python tools/kom.py copy data036               # kom_contents/data036_packed.kom -> <game dir>/data036.kom
@@ -19,7 +18,7 @@ python tools/kom.py status data036             # in sync? and what `copy` would 
 
 Game dir: `F:\elsword stuff\elsword_2014\els_2014\237311\24965799\data`. `/x2-kom-packed copy data036`
 maps straight onto the first line (`036`, `36`, `datai001` work too). Pack first (`/elstools pack`);
-when you need a kom deployed for a play-test, run pack yourself, then ask before the copy, and report both lines.
+when you need a kom deployed for a play-test, run pack yourself, then copy, and report both lines.
 
 What it does, in order: refuses if `X2_offline.exe` is running (exit 3: ask the user to close the
 game, then rerun; never kill it) -> refuses if the kom dir has a file newer than the packed kom

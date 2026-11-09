@@ -703,7 +703,7 @@ def cmd_stage_june(args, dry, long_names, jobs, plan_out, transform=None, only_k
         "DRY RUN" if dry else ("OK" if not refused else "PARTIAL"), len(by_kom), len(plan),
         totals["new"], totals["replace"], totals["same"], len(refused), time.time() - t0))
     if not dry and plan:
-        p("Next: kom.py pack %s   (then ask before `copy`)" % " ".join(sorted(by_kom)))
+        p("Next: kom.py pack %s   (then `copy`)" % " ".join(sorted(by_kom)))
     if refused and exit_on_refuse:
         sys.exit(4)
     return dict(plan=plan, refused=refused, staged=staged_out, by_kom=sorted(by_kom), sidecars=moved_sidecars,
