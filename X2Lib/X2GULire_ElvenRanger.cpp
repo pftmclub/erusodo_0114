@@ -21877,7 +21877,7 @@ void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_IDLE_EventProcess()
 
 	if( false == IsEquippedSkillKeyReleased( m_InputData, GetFutureStateSkillID() ) && true == HaveThisBuff( BTI_BUFF_GUNGNIR_SCOPE ) )
 	{
-		/// stand-in: June leaves the horizontal gap uninitialised on this path ( JUNE_BUGS ); 0 lets both sides move
+		/// June zeroes both gaps first ( @32ca13b6 ); only the dead clamp ( JUNE_BUGS #567 ) would write them
 		float fAimGapX = 0.f;
 		float fAimGapY = 0.f;
 
@@ -22727,7 +22727,7 @@ CommonFrameMove();
 void CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_EventProcess()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
-// June 32c78f40 ( landing turns the unit round; the Z follow-up fires at the animation end too )
+// June 32c78f40 ( landing turns the unit round; the X follow-up fires at the animation end too )
 if( true == IsOnSomethingFuture() )
 {
 	m_FrameDataFuture.syncData.bIsRight = !m_FrameDataFuture.syncData.bIsRight;
