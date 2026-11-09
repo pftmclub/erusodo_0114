@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1g2 | **ready** (`/x2-phase char-rena CH1g2`, Sonnet 5.5 high): Night Watcher combos, dash XZ / XZZ (Gungnir spawn), start / win / lose (29 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1g review | `X2GULire_ElvenRanger.*` | `CH1g2.md` |
+| CH1g2 | **done 2026-11-09, review ready** (`/x2-phase char-rena CH1g2 review`, Opus 5.5 high): Night Watcher combos + dash XZ / XZZ, 12 fn inside + 17 new; the Gungnir spawn is CH1f2's (CH0 mis-addressed it) | Sonnet 5.5 / high, Opus review | CH1g review | `X2GULire_ElvenRanger.*` | `CH1g2.md` |
 | CH1g3 | blocked (CH1g2 review): Night Watcher accel dash + dash-jump states (27 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GULire_ElvenRanger.*` | `CH1g3.md` |
 | CH1h | blocked (CH1g3 review): overrides below vslot 0x600 (33 fn), DamageReact (uncarved), dtor, FriendshipNatureData, 7c alpha sites | Sonnet 5.5 / high, Opus review | CH1g3 review | `X2GULire_ElvenRanger.*` | `CH1h.md` |
 | CH1i | blocked (CH1h review): overrides 0x600-0x7bc | Sonnet 5.5 / high, Opus review | CH1h review | `X2GULire_ElvenRanger.*` | `CH1i.md` |

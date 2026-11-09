@@ -17331,6 +17331,17 @@ void CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_HYPER_EventProcess()
 //LESI_COMBO_RNW_ZZX
 void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZX_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca9490 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+	{
+		m_bPossibleHitCount = true;
+		m_bActivePriorPlannedBlowAttack = false;
+	}
+
+	CreateTrapBlade();
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( true == m_bUsePriorPlannedBlow )
 	{
 		m_bPossibleHitCount				= true;		//계산된 일격 콤보 누적 값 연산 가능 여부
@@ -17339,20 +17350,51 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZX_StateStart()
 
 	CreateTrapBlade();
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca94c0 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+		CheckPriorPlannedBlow();
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( true == m_bUsePriorPlannedBlow )
 	{
 		CheckPriorPlannedBlow();
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c75160 ( March's combo revamp: the X follow-up also fires at the animation end and the cancels need the foot on a line )
+	CANCEL_COMBO_ON_DIRECTION_CHANGE( 3 );
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneX == true, LESI_COMBO_RNW_ZZXX )
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_fCanNotAttackTime = 0.2f;
+		StateChange( USI_WAIT );
+	}
+	RENA_GROUND_DASH_CANCEL
+	RENA_GROUND_WALK_CANCEL
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_BWALK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CANCEL_COMBO_ON_DIRECTION_CHANGE( 3 );
 
 	if( false == IsOnSomethingFuture() )
@@ -17374,17 +17416,35 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZX_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZX_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca62f0 ( = March )
 	DeleteTrapBlade();
 	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	DeleteTrapBlade();
+	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_COMBO_RNW_ZZXX
 void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXX_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca94e0 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+	{
+		m_bPossibleHitCount = true;
+		m_bActivePriorPlannedBlowAttack = false;
+	}
+
+	CreateTrapBlade();
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( true == m_bUsePriorPlannedBlow )
 	{
 		m_bPossibleHitCount				= true;		//계산된 일격 콤보 누적 값 연산 가능 여부
@@ -17393,20 +17453,56 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXX_StateStart()
 
 	CreateTrapBlade();
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca9510 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+		CheckPriorPlannedBlow();
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( true == m_bUsePriorPlannedBlow )
 	{
 		CheckPriorPlannedBlow();
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c754d0 ( as X-X, one step on; the back-walk cancel reads the walk time, as in March )
+	CANCEL_COMBO_ON_DIRECTION_CHANGE( 3 );
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneX == true, LESI_COMBO_RNW_ZZXXX )
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_fCanNotAttackTime = 0.2f;
+		StateChange( USI_WAIT );
+	}
+	RENA_GROUND_DASH_CANCEL
+	else if( 0.f <= m_fWalkCancelAfter && m_fWalkCancelAfter < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() &&
+		( ( true == m_InputData.pureLeft && true == m_FrameDataFuture.syncData.bIsRight ) ||
+		( true == m_InputData.pureRight && false == m_FrameDataFuture.syncData.bIsRight ) ) )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CANCEL_COMBO_ON_DIRECTION_CHANGE( 3 );
 
 	if( false == IsOnSomethingFuture() )
@@ -17428,23 +17524,58 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXX_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXX_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca6350 ( = March )
 	DeleteTrapBlade();
 	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	DeleteTrapBlade();
+	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_COMBO_RNW_ZZXXX
 void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXXX_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca9530 ( = March )
 	CreateTrapBlade();
 	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CreateTrapBlade();
+	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXXX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca9550 ( March's body; the damage rises with the hits counted from 4, March counts from 0 )
+	if( true == m_bUsePriorPlannedBlow )
+	{
+		if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+		{
+			if( true == m_bActivePriorPlannedBlow )
+			{
+				m_DamageData.damage.fPhysic *= ( 1.f + m_fPriorPlannedBlowIncreaseDamage * ( m_iPriorPlannedBlowHitCount - ( _CONST_RENA_::MIN_PRIOR_PLANNED_BLOW_ACTIVE_NUM - 1 ) ) );
+				m_bActivePriorPlannedBlowAttack = true;
+			}
+			else
+			{
+				m_bPossibleHitCount = true;
+			}
+		}
+
+		CheckPriorPlannedBlow();
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( true == m_bUsePriorPlannedBlow )
 	{
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -17470,10 +17601,32 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXXX_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXXX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c75840 ( the cancels need the foot on a line )
+	CANCEL_COMBO_ON_DIRECTION_CHANGE( 3 );
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_fCanNotAttackTime = 0.2f;
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CANCEL_COMBO_ON_DIRECTION_CHANGE( 3 );
 
 	if( false == IsOnSomethingFuture() )
@@ -17494,12 +17647,19 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXXX_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXXX_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca63b0 ( = March )
 	DeleteTrapBlade();
 	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	DeleteTrapBlade();
+	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_RNW_ACCEL_DASH
@@ -22191,6 +22351,188 @@ void CX2GULire_ElvenRanger::LESI_RTR_DOUBLE_JUMP_ZX_EventProcess()
 
 // June 32ca0cd0: the trap blade goes before the common end
 void CX2GULire_ElvenRanger::LESI_RTR_DOUBLE_JUMP_ZX_StateEnd()
+{
+	DeleteTrapBlade();
+	CommonStateEnd();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+// June 32ca7690: the trap blade, then the common start
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZ_StateStart()
+{
+	CreateTrapBlade();
+	CommonStateStart();
+}
+
+// June 32c81b30: no landing speed, the Z follow-up also fires at the animation end; the cancels need the foot on a line
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZ_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_PhysicParam.nowSpeed.x = 0.f;
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneZ == true, LESI_RNW_DASH_XZZ_START )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32ca0d30: the trap blade goes before the common end
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZ_StateEnd()
+{
+	DeleteTrapBlade();
+	CommonStateEnd();
+}
+
+// June 32ca76b0: the trap blade, then the common start
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_START_StateStart()
+{
+	CreateTrapBlade();
+	CommonStateStart();
+}
+
+// June 32c6d5b0: the common end of the future frame
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_START_StateEndFuture()
+{
+	CommonStateEndFuture();
+}
+
+// June 32c81e80: the animation end goes on to the loop; the cancels need the foot on a line
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_START_EventProcess()
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( LESI_RNW_DASH_XZZ_LOOP );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32ca0d90: the trap blade goes before the common end
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_START_StateEnd()
+{
+	DeleteTrapBlade();
+	CommonStateEnd();
+}
+
+// June 32ca76d0: the trap blade, the common start, then no detonation while charging
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_LOOP_StateStart()
+{
+	CreateTrapBlade();
+	CommonStateStart();
+	SetNoDetonation( true );
+}
+
+// June 32c82100: past the first input time the animation end and the Z release leave the loop ( both tests run, the release wins ); before it the cancels need the foot on a line
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_LOOP_EventProcess()
+{
+	if( m_fEventTime[0].keyInputStart < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+		{
+			StateChange( LESI_RNW_DASH_XZZ_FULL_CHARGE_END );
+		}
+
+		if( false == m_InputData.pureZ )
+		{
+			StateChange( LESI_RNW_DASH_XZZ_END );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32ca0df0: the trap blade goes before the common end, detonation is allowed again after it
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_LOOP_StateEnd()
+{
+	DeleteTrapBlade();
+	CommonStateEnd();
+	SetNoDetonation( false );
+}
+
+// June 32ca76f0: the trap blade, then the common start
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_FULL_CHARGE_END_StateStart()
+{
+	CreateTrapBlade();
+	CommonStateStart();
+}
+
+// June 32c82390: the animation end waits; the cancels need the foot on a line
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_FULL_CHARGE_END_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32ca0e60: the trap blade goes before the common end ( the Gungnir targeting NPC is not spawned here: its CreateNPCReq is in the Gungnir ready FrameMove 32ca0f80 )
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_FULL_CHARGE_END_StateEnd()
+{
+	DeleteTrapBlade();
+	CommonStateEnd();
+}
+
+// June 32ca7710: the trap blade, then the common start
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_END_StateStart()
+{
+	CreateTrapBlade();
+	CommonStateStart();
+}
+
+// June 32c6d5c0: the follow-up faces back the way it came
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_END_StateEndFuture()
+{
+	m_FrameDataFuture.syncData.bIsRight = !(m_FrameDataFuture.syncData.bIsRight);
+	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+	CommonStateEndFuture();
+}
+
+// June 32c825f0: the animation end waits; the cancels need the foot on a line ( = the full-charge end's )
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_END_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32ca0ec0: the trap blade goes before the common end
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_END_StateEnd()
 {
 	DeleteTrapBlade();
 	CommonStateEnd();

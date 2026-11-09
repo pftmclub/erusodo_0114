@@ -214,6 +214,10 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 			LESI_RGA_GUNGNIR_CONTROL_UP_RIGHT,	/// June script id 292
 			LESI_RGA_GUNGNIR_CONTROL_DOWN_LEFT,	/// June script id 293
 			LESI_RGA_GUNGNIR_CONTROL_DOWN_RIGHT,	/// June script id 294
+			LESI_RNW_DASH_XZZ_START,	/// June script id 273 ( Night Watcher dash X-Z charge start; CH1m maps, CH1g2 owns the state )
+			LESI_RNW_DASH_XZZ_LOOP,	/// June script id 274 ( the charge loop )
+			LESI_RNW_DASH_XZZ_FULL_CHARGE_END,	/// June script id 275 ( the loop ran to its end )
+			LESI_RNW_DASH_XZZ_END,	/// June script id 276 ( the Z key was released )
 #ifndef ADD_RENA_SYSTEM
 			LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX,	/// June script id 252 ( March declares it only under ADD_RENA_SYSTEM; CH1q owns the state, CH1f names it as the follow-up; CH1m maps )
 #endif ADD_RENA_SYSTEM
@@ -1884,6 +1888,23 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void LESI_RTR_DOUBLE_JUMP_ZX_StateEndFuture();	/// June 32c6d580
 		void LESI_RTR_DOUBLE_JUMP_ZX_EventProcess();	/// June 32c818d0
 		void LESI_RTR_DOUBLE_JUMP_ZX_StateEnd();	/// June 32ca0cd0
+		void LESI_RNW_DASH_XZ_StateStart();	/// June 32ca7690
+		void LESI_RNW_DASH_XZ_EventProcess();	/// June 32c81b30
+		void LESI_RNW_DASH_XZ_StateEnd();	/// June 32ca0d30
+		void LESI_RNW_DASH_XZZ_START_StateStart();	/// June 32ca76b0
+		void LESI_RNW_DASH_XZZ_START_StateEndFuture();	/// June 32c6d5b0
+		void LESI_RNW_DASH_XZZ_START_EventProcess();	/// June 32c81e80
+		void LESI_RNW_DASH_XZZ_START_StateEnd();	/// June 32ca0d90
+		void LESI_RNW_DASH_XZZ_LOOP_StateStart();	/// June 32ca76d0
+		void LESI_RNW_DASH_XZZ_LOOP_EventProcess();	/// June 32c82100
+		void LESI_RNW_DASH_XZZ_LOOP_StateEnd();	/// June 32ca0df0
+		void LESI_RNW_DASH_XZZ_FULL_CHARGE_END_StateStart();	/// June 32ca76f0
+		void LESI_RNW_DASH_XZZ_FULL_CHARGE_END_EventProcess();	/// June 32c82390
+		void LESI_RNW_DASH_XZZ_FULL_CHARGE_END_StateEnd();	/// June 32ca0e60
+		void LESI_RNW_DASH_XZZ_END_StateStart();	/// June 32ca7710
+		void LESI_RNW_DASH_XZZ_END_StateEndFuture();	/// June 32c6d5c0
+		void LESI_RNW_DASH_XZZ_END_EventProcess();	/// June 32c825f0
+		void LESI_RNW_DASH_XZZ_END_StateEnd();	/// June 32ca0ec0
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 		/// 지연의 신호탄
