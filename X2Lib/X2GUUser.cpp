@@ -28220,7 +28220,12 @@ bool CX2GUUser::TryGetEquippedSkillAbilityValue( const CX2SkillTree::SKILL_ABILI
 }
 
 // June 322ece70: stats and power rate of a summon of iSkillID_ after the upgrade swap; flags 0x10 / 0x100 / 0x800 have no ported caller yet
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+// char-rena CH2d0: June 322ece70 ( npc, user, flags, rate )
+void CX2GUUser::SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_, const float fRate_ )
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 void CX2GUUser::SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_ )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 {
 	if( NULL == pNPC_ || NULL == GetUnit() )
 		return;
@@ -28276,7 +28281,11 @@ void CX2GUUser::SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcSt
 	pNPC_->SetNPCStat( fBaseHp * fStatScale * fHpRel, fAtkPhysic * fStatScale * fAtkPhysicRel, fAtkMagic * fStatScale * fAtkMagicRel,
 		fDefPhysic * fStatScale * fDefPhysicRel, fDefMagic * fStatScale * fDefMagicRel );
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+	float fPowerRate = GetSummonPowerRateBySocket( iSummonSkillID ) * fRate_ * GetSummonPowerRateByBuff( iSummonSkillID ) * GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );	// char-rena CH2d0: June @322ed2ae-322ed332, the rate after the socket term
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 	float fPowerRate = GetSummonPowerRateBySocket( iSummonSkillID ) * GetSummonPowerRateByBuff( iSummonSkillID ) * GetAdditionalAttackByType( CX2DamageManager::AT_SPECIAL );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 	if( 0 != ( uFlags_ & SHF_POWER_RATE_LESS_ONE ) )
 		fPowerRate -= 1.f;	/// June @322ed366
 	if( 0 != ( uFlags_ & SHF_NUMBER_STORE ) )

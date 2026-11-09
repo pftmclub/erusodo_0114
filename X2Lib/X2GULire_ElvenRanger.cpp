@@ -24874,6 +24874,17 @@ bool CX2GULire_ElvenRanger::MakeRoomForEntangleTrap( int iMaxEntangleTrapCount, 
 
 void CX2GULire_ElvenRanger::CreateEntangleTrap()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+	// char-rena CH2d0: June 32c95790 ( no live caller ): the owner's client spawns, not the host
+	MakeRoomForEntangleTrap( m_MaxEntangleTrapCount - 1, false );
+
+	const D3DXVECTOR3 vPos = GetLandPosition();
+	if( true == IsMyUnit() )
+	{
+		g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_ENTANGLE_TRAP_RENA, 0, true, vPos,
+			GetIsRight(), 0.f, true, -1, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID() );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 	MakeRoomForEntangleTrap( m_MaxEntangleTrapCount - 1, false );
 
 	if( true == g_pX2Game->IsHost() )
@@ -24883,10 +24894,19 @@ void CX2GULire_ElvenRanger::CreateEntangleTrap()
 		g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_ENTANGLE_TRAP_RENA, iHyperMode, true, vPos, 
 			GetIsRight(), 0.f, true, -1, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID() );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 }
 
 void CX2GULire_ElvenRanger::AddEntangleTrap( CX2GUNPC* pEntangle )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+	// char-rena CH2d0: June 32c86340: the trap's related skill level is Entangle's June id
+	if( pEntangle == NULL )
+		return;
+
+	m_vecEntagleTrapUID.push_back( pEntangle->GetUID() );
+	pEntangle->SetRealatedSkillLevel( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_RGA_ENTANGLE, false, 0, true ) );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 	if( pEntangle == NULL )
 		return;
 
@@ -24908,6 +24928,7 @@ void CX2GULire_ElvenRanger::AddEntangleTrap( CX2GUNPC* pEntangle )
 	//	ptrBuffFactor->id
 	//	pNPC->GetDamageData().PushBuffFactor( ptrBuffFactor );
 	//}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 }
 
 
@@ -30994,6 +31015,39 @@ void CX2GULire_ElvenRanger::SetFatalityData()
 
 void CX2GULire_ElvenRanger::CreateEvoke( const int MAX_COUNT )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+	// char-rena CH2d0: June 32c99690: the owner's client spawns, and the upgraded skill makes the memo trap
+	if( MAX_COUNT <= 0 )
+		return;
+
+	int iSize = m_vecOptrEvoke.size();
+	while( iSize >= MAX_COUNT )
+	{
+		CX2GameUnitoPtr pGameUnitEvoke = *( m_vecOptrEvoke.begin() );
+		if ( null != pGameUnitEvoke )
+			pGameUnitEvoke->SetNowHp( 0.0f );
+
+		m_vecOptrEvoke.erase( m_vecOptrEvoke.begin() );
+		--iSize;
+	}
+
+	D3DXVECTOR3 vPos = GetPos();
+	if( true == GetIsRight() )
+		vPos += GetDirVector() * 100.f;
+	else
+		vPos -= GetDirVector() * 100.f;
+
+	const int iNPCLevel = ( GetRemainHyperModeTime() > 0.f ) ? 1 : 0;
+	const CX2UnitManager::NPC_UNIT_ID eTrapNPCID = ( true == IsEquippedSkillUpgraded( GetNowStateSkillID() ) ) ? CX2UnitManager::NUI_EVOKE_TRAP_LIRE_MEMO : CX2UnitManager::NUI_EVOKE_TRAP_LIRE;
+	if( true == IsMyUnit() )
+	{
+		g_pX2Game->CreateNPCReq( eTrapNPCID, iNPCLevel, true, vPos,
+			GetIsRight(), 0.f, true, -1, CX2Room::TN_NONE, CX2NPCAI::NAT_ALLY, GetUnitUID(), false, (CX2Room::TEAM_NUM) GetTeam() );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RENA TRAP spawn npc %d level %d max %d live %d skill %d", static_cast<int>( eTrapNPCID ), iNPCLevel, MAX_COUNT, iSize, static_cast<int>( GetNowStateSkillID() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 	if( MAX_COUNT <= 0 )
 		return;
 
@@ -31097,6 +31151,7 @@ void CX2GULire_ElvenRanger::CreateEvoke( const int MAX_COUNT )
 
 #endif REGULATE_EVOKE_HYPER_MODE
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 }
 
 void CX2GULire_ElvenRanger::InsertEvokeNpc( CX2GameUnit* pGameUnitEvoke_ )
@@ -31106,6 +31161,9 @@ void CX2GULire_ElvenRanger::InsertEvokeNpc( CX2GameUnit* pGameUnitEvoke_ )
 
 void CX2GULire_ElvenRanger::DeleteEvokeNPCUID( UidType iNPCUID )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA TRAP removed evoke uid %d of %d", static_cast<int>( iNPCUID ), static_cast<int>( m_vecOptrEvoke.size() ) );	// char-rena CH2d0
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
 	for( int i = 0; i < static_cast<int>( m_vecOptrEvoke.size() ); i++ )
 	{
 		if( m_vecOptrEvoke[i] != null && iNPCUID == m_vecOptrEvoke[i]->GetUnitUID() )
@@ -34825,6 +34883,22 @@ bool CX2GULire_ElvenRanger::MakeRoomForAngerOfElfTrap( int iMaxAngerOfElfTrapCou
 }
 void CX2GULire_ElvenRanger::CreateAngerOfElfTrap()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+	// char-rena CH2d0: June 32c9e250: the owner's client spawns; the key code is the skill's effective time, the trap script's life in seconds
+	MakeRoomForAngerOfElfTrap( m_MaxAngerOfElfTrapCount - 1, false );
+
+	const D3DXVECTOR3 vPos = GetLandPosition();
+	const int iTrapLifeTime = static_cast<int>( GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, GetNowStateSkillID() ) );
+	const CX2UnitManager::NPC_UNIT_ID eTrapNPCID = ( true == GetActiveStartOfDelayedFiring() ) ? CX2UnitManager::NUI_RENA_ANGER_OF_ELF_DELAY : CX2UnitManager::NUI_RENA_ANGER_OF_ELF;
+	if( true == IsMyUnit() )
+	{
+		g_pX2Game->CreateNPCReq( eTrapNPCID, IsHyperState(), true, vPos,
+			GetIsRight(), 0.f, true, iTrapLifeTime, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID() );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RENA TRAP spawn npc %d level %d key %d live %d skill %d", static_cast<int>( eTrapNPCID ), static_cast<int>( IsHyperState() ), iTrapLifeTime, static_cast<int>( m_vecAngerOfElfTrapUID.size() ), static_cast<int>( GetNowStateSkillID() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 	MakeRoomForAngerOfElfTrap( m_MaxAngerOfElfTrapCount - 1, false );
 
 	if( true == g_pX2Game->IsHost() )
@@ -34842,6 +34916,7 @@ void CX2GULire_ElvenRanger::CreateAngerOfElfTrap()
 				GetIsRight(), 0.f, true, -1, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID() );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 }
 void CX2GULire_ElvenRanger::AddAngerOfElfTrap( CX2GUNPC* pAngerOfElfTrap )
 {
@@ -34852,6 +34927,9 @@ void CX2GULire_ElvenRanger::AddAngerOfElfTrap( CX2GUNPC* pAngerOfElfTrap )
 }
 void CX2GULire_ElvenRanger::DeleteAngerOfElfTrapUID( UidType iNPCUID )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA TRAP removed anger of elf uid %d of %d", static_cast<int>( iNPCUID ), static_cast<int>( m_vecAngerOfElfTrapUID.size() ) );	// char-rena CH2d0
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
 	std::vector<UidType>::iterator itr = m_vecAngerOfElfTrapUID.begin();
 	for( ; itr != m_vecAngerOfElfTrapUID.end(); )
 	{

@@ -17944,6 +17944,19 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 
 
 				// ·¹³ª ÀÎÅÊ±Û Æ®·¦
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+			// char-rena CH2d0: June 3230c1a0 case 0x1c9 ( no live June spawn ): flags 0, then the owner Rena keeps the trap and gives it her hold time
+			case CX2UnitManager::NUI_ENTANGLE_TRAP_RENA:
+				{
+					pUser->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_A_RGA_ENTANGLE, 0 );
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_LIRE == pUser->GetUnit()->GetType() )
+					{
+						CX2GULire_ElvenRanger* pRena = static_cast<CX2GULire_ElvenRanger*>( pUser );
+						pRena->AddEntangleTrap( pNPC );
+						pNPC->SetEntangleTrapAttackDuration( pRena->GetEntangleTrapAttackDuration() );
+					}
+				} break;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 			case CX2UnitManager::NUI_ENTANGLE_TRAP_RENA:
 				{
 					if( NULL != pUser->GetUnit() && 
@@ -17959,9 +17972,26 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					ApplySummonPowerRate( pNPC, pUser, CX2SkillTree::SI_A_LSR_ENTANGLE );
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 				} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //±èÃ¢ÇÑ
 				// ·¹³ª ±¸¼ÓÀÇ ¾¾¾Ñ ¼ÒÈ¯ NPC
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+			// char-rena CH2d0: June 3230c1a0 case 0x58c / 0x58d: flag 1 fixes the HP, Hunter's Ability scales the power rate, then the owner keeps the trap
+			case CX2UnitManager::NUI_RENA_ANGER_OF_ELF:
+			case CX2UnitManager::NUI_RENA_ANGER_OF_ELF_DELAY:
+				{
+					float fHuntersAbilityRate = 1.f;
+					if( pUser->GetSkillLevelValue( CX2SkillTree::RNSI_P_RTR_HUNTERS_ABILITY ) > 0 )
+						fHuntersAbilityRate = pUser->GetLearnedSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, CX2SkillTree::RNSI_P_RTR_HUNTERS_ABILITY );
+					pUser->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_A_RTR_ANGER_OF_ELF, CX2GUUser::SHF_FIXED_HP, fHuntersAbilityRate );
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_LIRE == pUser->GetUnit()->GetType() )
+						static_cast<CX2GULire_ElvenRanger*>( pUser )->AddAngerOfElfTrap( pNPC );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+					CX2OfflineLog::Server( L"[JUNE_CHAR] RENA TRAP linked npc %d uid %d owner %d key %d hunters ability rate %.3f", static_cast<int>( unitID ), pNPC->GetUID(), static_cast<int>( pUser->GetUnitUID() ), pNPC->GetKeyCode(), fHuntersAbilityRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+				} break;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 			case CX2UnitManager::NUI_RENA_ANGER_OF_ELF:
 			case CX2UnitManager::NUI_RENA_ANGER_OF_ELF_DELAY:
 				{
@@ -18029,6 +18059,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 					}
 
 				} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 #endif //UPGRADE_SKILL_SYSTEM_2013
 
 
@@ -18421,6 +18452,33 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 
 #ifdef	SERV_TRAPPING_RANGER_TEST
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+			// char-rena CH2d0: June 3230c1a0 case 0x3fc / 0x401: flag 1 fixes the HP, Hunter's Ability scales the power rate, then the owner keeps the trap
+			case CX2UnitManager::NUI_EVOKE_TRAP_LIRE:
+			case CX2UnitManager::NUI_EVOKE_TRAP_LIRE_MEMO:
+				{
+					float fHuntersAbilityRate = 1.f;
+					if( pUser->GetSkillLevelValue( CX2SkillTree::RNSI_P_RTR_HUNTERS_ABILITY ) > 0 )
+						fHuntersAbilityRate = pUser->GetLearnedSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, CX2SkillTree::RNSI_P_RTR_HUNTERS_ABILITY );
+					pUser->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_A_RTR_EVOKE, CX2GUUser::SHF_FIXED_HP, fHuntersAbilityRate );
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_LIRE == pUser->GetUnit()->GetType() )
+						static_cast<CX2GULire_ElvenRanger*>( pUser )->InsertEvokeNpc( pNPC );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+					CX2OfflineLog::Server( L"[JUNE_CHAR] RENA TRAP linked npc %d uid %d owner %d hunters ability rate %.3f", static_cast<int>( unitID ), pNPC->GetUID(), static_cast<int>( pUser->GetUnitUID() ), fHuntersAbilityRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+				} break;
+
+			// char-rena CH2d0: June 3230c1a0 case 0x823: flags 0, then the owner Rena aims with this NPC ( +0x97b8 )
+			case CX2UnitManager::NUI_RENA_TARGETING_GUNGNIR:
+				{
+					pUser->SetSummonHelperInfo( pNPC, npcStat, fStatScale * fHyperModeStatScale, fStatAtkRate, CX2SkillTree::RNSI_SA_RGA_GUNGNIR, 0 );
+					if( NULL != pUser->GetUnit() && CX2Unit::UT_LIRE == pUser->GetUnit()->GetType() )
+						static_cast<CX2GULire_ElvenRanger*>( pUser )->SetGungnirTargetNPCUID( pNPC->GetUID() );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+					CX2OfflineLog::Server( L"[JUNE_CHAR] RENA TRAP linked npc %d uid %d owner %d ( gungnir aim )", static_cast<int>( unitID ), pNPC->GetUID(), static_cast<int>( pUser->GetUnitUID() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+				} break;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 			case CX2UnitManager::NUI_EVOKE_TRAP_LIRE:
 #ifdef ADDITIONAL_MEMO
 			case CX2UnitManager::NUI_EVOKE_TRAP_LIRE_MEMO:
@@ -18533,6 +18591,7 @@ void CX2Game::SetUserSummonedNPCInfo( CX2NPCAI::NPC_AI_TYPE eAIType, UidType iAl
 						pNPC->SetNowHp( 0.f );
 					}
 				} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 #endif	SERV_TRAPPING_RANGER_TEST
 #ifdef SERV_ARME_DIMENSION_WITCH
 			case CX2UnitManager::NUI_ADW_DISTORTION:

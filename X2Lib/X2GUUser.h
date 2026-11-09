@@ -3227,7 +3227,14 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 		bool								TryGetEquippedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_, const bool bUpgradeSwap_, float& fOut_ ) const;	/// June 32007ce0
 		enum SUMMON_HELPER_FLAG { SHF_FIXED_HP = 0x1, SHF_OWN_HP = 0x2, SHF_OWN_ATK = 0x4, SHF_OWN_DEF = 0x8, SHF_NO_ATK_RATE = 0x20, SHF_SKILL_ABILITY_REL = 0x40, SHF_NUMBER_STORE = 0x200, SHF_POWER_RATE_LESS_ONE = 0x400 };	/// June 322ece70 flag bits
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+		void								SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_, const float fRate_ = 1.f );	/// char-rena CH2d0: June 322ece70's rate argument ( 1.0 except Rena's traps )
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 		void								SetSummonHelperInfo( CX2GUNPC* pNPC_, const CX2Stat::Stat& npcStat_, const float fStatScale_, const float fStatAtkRate_, const int iSkillID_, const unsigned int uFlags_ );	/// June 322ece70 via 3230c1a0
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+		float								GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// char-rena CH2d0: June 32007b10 made public, June's 3230c1a0 calls it for Rena's traps
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL
 #ifdef SERV_IRUHADEV_JUNE_BUFF_DEBUG
 		/// Phase 6 console hook (DEBUG only): iMode_ 1 puts one new-type entry straight into its store, 0 takes it out, 2 only reads; the type's reader is logged each time.
@@ -5005,7 +5012,9 @@ public:
 	float m_fDashJumpSpeedRate;		/// June +0x8fbc ( 1.6; Aisha's constructor sets 1.2 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+#ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 	float GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	bool FlushMpOnce( const float fFlushMp_ );	/// char-rena CH2b: June 3208dcb0 ( user vslot 0xe8 ): spends the MP once per state, false once it was spent

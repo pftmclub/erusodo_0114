@@ -570,6 +570,9 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void CreateEvoke( const int MAX_COUNT );
 		void InsertEvokeNpc( CX2GameUnit* pGameUnitEvoke_ );
 		void DeleteEvokeNPCUID( UidType iNPCUID );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+		void SetGungnirTargetNPCUID( const int iNPCUID_ ) { m_iGungnirTargetNPCUID = iNPCUID_; }	/// char-rena CH2d0: June 3230c1a0 case 0x823 writes +0x97b8
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 #endif	SERV_TRAPPING_RANGER_TEST
 
 		virtual void UpNowMpPerHitOthers( const float fHitAddMp_, const int iAddValueByTeam_, const float fRel_ );	// 근접공격 성공시 엠회수 처리

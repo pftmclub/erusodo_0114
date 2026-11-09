@@ -12087,3 +12087,34 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_UI needs SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE and SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_UI
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-10
+// Description: June character port ( Rena ) Phase CH2d0 - trap summon rules: Evoke, Anger of Elf and Entangle spawn from the owner's client ( 32c99690,
+//              32c9e250, 32c95790; Evoke's memo trap = the upgraded skill, Anger of Elf's key code = the skill's effective time = the trap script's life ),
+//              June's SetUserSummonedNPCInfo cases for the traps and the Gungnir targeting NPC ( 3230c1a0 0x1c9 / 0x3fc / 0x401 / 0x58c / 0x58d / 0x823 ),
+//              the summon helper's rate argument ( 322ece70 ) and Entangle's June skill id on the trap ( 32c86340 ).
+//              Revert: undefine the flag ( JUNE_CHAR_RENA_TRAP ).
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_RENA_CORE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP needs SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE, SERV_IRUHADEV_JUNE_CHAR_RENA_CORE, SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL and SERV_IRUHADEV_JUNE_ENUM_NAMES
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP ) && ( !defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TEMPLET ) || !defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP needs SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS, SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( IsEquippedSkillUpgraded ) and SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-10
+// Description: June character port ( Rena ) Phase CH2d0 - temporary [JUNE_CHAR] RENA TRAP lines ( spawn request, owner link, removal ) for CH2d's play-test;
+//              they sit inside JUNE_CHAR_RENA_TRAP code and the two trap-list erase functions only.
+//              Revert: undefine the flag ( JUNE_CHAR_RENA_TRAP_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+#ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+//////////////////////////////////////////////////////////////////////////

@@ -62,3 +62,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1p (2026-11-09)
 
 - **Held-key tests (7ag):** the three Ace in the Hole wait EventProcesses `32c85430` / `32c85500` / `32c855d0` each call `IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() )` (`31fce710` `@32c8545b` / `@32c8552b` / `@32c855fb`; `CX2GUUser`, under `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE`) first: pressed -> StateChange to the next attack ( 0x129 / 0x12b / 0x12d ); else left / right pressed, or `m_fAceInTheHoleTime` reaching `32007b10( 1, id )`, -> `UpNowMp` with text ( `32278070`, `32007b10( 0x42, id )` times 3 / 2 / 1 per wait: `fmul [33439b50]` = 3.0 `@32c854be`, `fadd st0,st0` `@32c8558e`, unscaled `@32c8565e`; corrected by the CH1p review ) and `LESI_WAIT`; then `CommonEventProcess`. The class map names all three `LESI_SA_RGA_ACEINTHEHOLE_WAIT.EventProcess`: name each by the state its table registers. No `SAKP_*` / `m_kSkillSlotKey` here.
+
+## Amended by CH2d0 (2026-11-10)
+
+- **Gungnir's aim NPC is linked:** `X2Game.cpp` now has June's case 2083 (`3230c1a0` 0x823): `SetSummonHelperInfo( ..., RNSI_SA_RGA_GUNGNIR, 0 )`, then the owner's `m_iGungnirTargetNPCUID` via `SetGungnirTargetNPCUID` (before this nothing wrote it, so the aim states never found the NPC). The hand-off checks `RENA TRAP linked npc 2083 ... ( gungnir aim )` in `logs.py --grep "RENA TRAP"` (if `_TRAP_DEBUG` is still on; otherwise the `[JUNE_CHAR] SUMMON npc 2083` line) and that the aim moves with the arrow keys.
+- **Entangle (23213):** June's `CreateEntangleTrap` has no live caller (damage effects, as CH0 said); CH2d0 ported its gate and June's `3230c1a0` 0x1c9 case anyway, so leave both.

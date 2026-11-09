@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2d0 | blocked (CH2c): trap summons (4 June `CreateNPCReq` sites, spawn rules, trap NPC Lua binder gate), flag `_TRAP` | Opus 5.5 / high, Opus review | CH2c | `X2GULire_ElvenRanger.*`, `X2GUNPC.*`, NPC Lua | `CH2d0.md` |
+| CH2d0 | **review ready** (start: `/x2-phase char-rena CH2d0 review`): done 2026-11-10, flag `_TRAP`: June trap spawns + 6 summon cases ( Gungnir aim link ), no play-test | Opus 5.5 / high, Opus review | CH2c | `X2GULire_ElvenRanger.*`, `X2GUNPC.*`, NPC Lua | `CH2d0.md` |
 | CH2d | blocked (CH2d0 review): Trapping Ranger (24) skills; its review also covers CH2c | Sonnet 5.5 / high, Opus review, user play-test | CH2d0 review | `X2GULire_ElvenRanger.*` | `CH2d.md` |
 | CH3a | blocked (CH2d review): Wind Sneaker (102) skills | Sonnet 5.5 / high, no review of its own (CH3b review covers it), user play-test | CH2d review | `X2GULire_ElvenRanger.*` | `CH3a.md` |
 | CH3b | blocked (CH3a): Grand Archer (103) skills; its review also covers CH3a | Sonnet 5.5 / high, Opus review, user play-test | CH3a | `X2GULire_ElvenRanger.*` | `CH3b.md` |

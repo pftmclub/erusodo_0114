@@ -1940,6 +1940,39 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (CH2a's; `Always.h:12059` 
 
 **Play-test logs (2026-11-10, "check logs").** Exe md5 `7bbd4b5d`, run after the deploy. 7 `RENA SKILL equip` lines ( 23032 / 23035 / 23048 / 23223 bank A states 49 / 51 / 53 / 55; 23233 / 23234 / 23236 bank B states 59 / 61 / 63 ). Effect sets / damage effects seen per skill: Guided Arrow ( state 49, `EffectSet_SA_RSR_GuidedArrow`, lock-on seeds, hit ), Wind Wall ( 51, `EffectSet_SA_RSR_WindWard`, hits ), Crazy Shot ( 53, hits ), Arc Shot ( 55, 7 `DamageEffect_RGA_Arc_Shot` in one cast, hit ), Shooting Magnum ( 59, 4 arrows, hit ), Hunter's Steadiness ( 61, `EffectSe_A_RSR_Mind_Of_Shapshooter` arrow + hits ), Rapid Shot ( 63, bursts of `DamageEffect_RSR_Rapid_Shot` about every 0.18 s, hits ). ErrorLog: 0 KEM_ERROR / Motion Error / missing mesh or particle; packets 0 EXCEPTION. Not CH2c's: `ARROW.OGG` / `SONIC_ARROW.OGG` 3D-sound update `result : 47` ( 60 lines; any arrow ), `AddGroupChainQuest` unbound ( quest script ), the `APPLIED_SKILL_ID` stand-in lines. Not in any log ( the user's eyes ): Hunter's Steadiness's buff icon and cheaper next skill, cool times and MP bar.
 
+### CH2d0 - Done (2026-11-10)
+
+Opus 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP` (`Always.h:12099`; `#error` unless `_LIVE`, `_CORE`, `JUNE_CHAR_CHUNG_SKILL`, `JUNE_ENUM_NAMES`, `JUNE_USER_SKILL_LEVEL_HELPERS`, `JUNE_SKILL_TEMPLET`, `JUNE_DIVERGE_SKILL_LEVEL_VALUE`, all defined earlier) and a temporary `_TRAP_DEBUG` (`Always.h:12114`). Every block carries `// char-rena CH2d0`.
+
+**Verdict.** June's trap rules sit in three places: the spawn calls (owner's client, not the host), `CX2Game::SetUserSummonedNPCInfo` `3230c1a0` (stats, power rate, the owner's trap list), and the NPC-die hook `3230b7b0` (list erase). **CH0's trap map was wrong on two points:** June keeps `NUI_EVOKE_TRAP_LIRE_MEMO` (1025) and `NUI_RENA_ANGER_OF_ELF_DELAY` (1421) (`32c99690` pushes `0x401`, `32c9e250` pushes `0x58d`; both are in June's `Enum.lua` and have `3230c1a0` cases), and Evoke's "swapped" team arguments are March's own global-server call (`eTeam TN_NONE`, `eAllyTeam` = team). `ch0_traps.tsv` corrected.
+
+| June | Where | June differs from March |
+|---|---|---|
+| `32c99690` | `CreateEvoke` (inside) | `IsMyUnit()` gate (March `IsHost()`); memo trap 1025 when `IsEquippedSkillUpgraded( GetNowStateSkillID() )` (June inlines `31fca8e0( id, 1 )->+0x178`; March: memo 14); one call, level 1 while awakened (= March) |
+| `32c9e250` | `CreateAngerOfElfTrap` (inside) | `IsMyUnit()` gate; **key code = `(int) GetLearnedSkillAbilityValue( SA_EFFECTIVE_TIME, GetNowStateSkillID() )`**: `AngerOfElfTrapRena.lua` / `...DelayRena.lua` end the trap when `GetKeyCode() <= GetTimerElapsedTime( 0 )`, so March's -1 ended it at once; delay id kept |
+| `32c95790` | `CreateEntangleTrap` (inside) | `IsMyUnit()` gate only (no live June caller: Entangle is damage effects in June, CH3b) |
+| `32c86340` | `AddEntangleTrap` (inside) | related skill level = `RNSI_A_RGA_ENTANGLE` (23213) at `GetSkillLevel( id, false, 0, true )` |
+| `32c878f0` `32c87860` `32c863a0` `32c85900` | `InsertEvokeNpc`, `DeleteEvokeNPCUID`, `AddAngerOfElfTrap`, `DeleteAngerOfElfTrapUID` | = March (`32cb5f60` = the vector's `erase`) |
+| `3230c1a0` 0x3fc / 0x401, 0x58c / 0x58d | `X2Game.cpp` cases (March in `#else`) | `SetSummonHelperInfo( ..., RNSI_A_RTR_EVOKE / _ANGER_OF_ELF, SHF_FIXED_HP, rate )`, rate = Hunter's Ability (23408) `SA_DAMAGE_REL` when learned (`31fceab0` / `32007b10`); then the owner's list; no `else SetNowHp( 0 )` |
+| `3230c1a0` 0x1c9 | case 457 | helper flags 0 (`RNSI_A_RGA_ENTANGLE`), `AddEntangleTrap`, hold time from the owner (`+0x95d0` -> NPC `+0x8cd0`) |
+| `3230c1a0` 0x823 | **new** case 2083 | helper flags 0 (`RNSI_SA_RGA_GUNGNIR`), owner `+0x97b8` = `m_iGungnirTargetNPCUID` via new `SetGungnirTargetNPCUID`: **nothing wrote it before**, so CH1f2's Gungnir aim states could never find their NPC |
+| `322ece70` | `CX2GUUser::SetSummonHelperInfo` | gains June's rate argument (`fRate_ = 1.f`), multiplied after the socket term; `GetLearnedSkillAbilityValue` made public under the flag (June's `3230c1a0` calls it) |
+| `3230b7b0` @3230bb7c-3230bc08 | NPC-die hook | = March (owner `UT_LIRE` -> erase by uid); no change |
+
+Jump-table targets read from the exe (`0x823 -> 3230cbdf`, `0x3fc / 0x401 -> 3230c6c4`, `0x58c / 0x58d -> 3230c868`, `0x1c9 -> 3230c3ff`). The trailing `IsMyUnit` / `0` arguments of June's `322e67c0` are not in March's `CreateNPCReq` (as Chung CH3b0 / Rena CH1f2). Master link: the ally UID + `NAT_ALLY` (March's `SetUserSummonedNPCInfo` gate), Gungnir 2083 already unique per owner through `KillOlderSummonsOfSameID` (Eve CH2b2); 1020 / 1420 are not in that map (June caps them through `CreateEvoke`'s count and `MakeRoomForAngerOfElfTrap`).
+
+**Trap NPC scripts.** `luabind.py check Lire_Evoke_trap Lire_Evoke_trap_Memo AngerOfElfTrapRena AngerOfElfTrapDelayRena EntangleTrapRena Rena_Targeting_Gungnir`: 11 / 11 / 11 / 11 / 5 / 17 methods, 0 unbound, `RESULT: PASS`. `adopt-june --dry-run`: all six `same` as June (data037). `USE_OWNERS_ENCHANT` is read (`X2GameUnit.cpp:4638`, slots 111 / 112 ported earlier). Emulator: `Handler_EGS_NPC_UNIT_CREATE_REQ` copies the whole req, key code included.
+
+**Sites that stay with the skill phases.** CH2d: the Evoke states (`32ca6810` / hyper `32ca6860`, which calls `CreateEvoke` instead of March's six inline calls), Anger of Elf's FrameMove `32ca6fb0`, `EntireExplosion` (March `:21072`, reads the delay id; June keeps 1421, so CH2d checks June's body). CH3b: Entangle (damage effects) and the Gungnir equip case (the spawn `32ca11f2` is CH1f2's). CH3c: Night Watcher's Evoke / Anger of Elf hyper rows.
+
+**Play-test: none.** Every trap is cast by a skill with no case yet (class-24 ids are CH2d's, Gungnir's CH3b's; saves use June ids), and the dev console's `CreateNPCReqAlly` passes owner -1, so `SetUserSummonedNPCInfo` never runs. CH2d's hand-off carries the checks; `_TRAP_DEBUG` stays on for it (CH2d's review retires it).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RENA_TRAP --worktree --files` the six files: `4 PASS, 0 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR` (`Always.h` = the two defines; `X2GULire_ElvenRanger.cpp` = `_TRAP_DEBUG` lines); `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`. `_TRAP_DEBUG` (`Always.h`, Rena `.cpp`, `X2Game.cpp`): `RESULT: PASS` (`X2GUUser.cpp` makes that run stop on an unevaluable Chung `#if`, a tool limit; it has no `_TRAP_DEBUG` line).
+- `junediverge.py --check` (5 code files): `allow-listed: 21`, `RESULT: PASS`. `enumscan.py --check` (3 `.cpp`): `0 A/B row(s) remain`.
+- One-file `/Zs` probes (`census.cl_cmd`, no PCH): `X2GULire_ElvenRanger.cpp`, `X2Game.cpp`, `X2GUUser.cpp` 0 errors (the first run's two C2248 on the protected helper fixed); `/EP`: 4 `RENA TRAP` lines in the Rena `.cpp`.
+- Full build skipped: no play-test.
+
 ## Phase CH3 - Skills: second jobs (102, 103, 114), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.
