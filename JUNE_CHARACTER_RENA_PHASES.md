@@ -860,6 +860,42 @@ The fix (`--worktree --files X2Lib/X2GULire_ElvenRanger.cpp`): `1 PASS`, `+2 -2`
 
 CH1g kickoff checked: its gate names `CH1g`, and it depends on this review. Nothing to play-test (`_LIVE` off). Next: `/x2-phase char-rena CH1g` (Sonnet 5.5 high).
 
+### CH1g - Done (2026-11-09)
+
+All 46 class-map rows of phase CH1g are written: 42 `inside` (June's body in March's own function under `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, March's in `#else`) and 4 `new` (`LESI_RTR_DOUBLE_JUMP_ZX_*`, `_CORE`, compiled in every build, referenced by nothing yet). `_LIVE` stays `//#define`; `InitState*` untouched; the state enum member (271) was CH1d2's. 46 funcmap rows `Char Rena CH1g`; no `JUNE_BUGS` row (nothing June does is a bug; the one number that differs from March is below). **Class-map correction** (`ch0_class_map.tsv` fixed, 6 rows): CH0 listed `32ca6410`, `32c96e50`, `32ca69e0`, `32ca6b10`, `32ca6be0`, `32c9a5b0` as `new ?` helpers; they are March's `CreateTrapBlade`, `DeleteTrapBlade`, `SetPriorPlannedBlow`, `EndPriorPlannedBlow`, `CheckPriorPlannedBlow`, `InsertPriorPlannedBlowEffect` (now `inside`; the Night Watcher rows of CH1g2 / CH1g3 call them by name). `ch1_offsets.tsv` gains 12 members (`+0x968c` blade handle ... `+0x96f4`).
+
+| June | `CX2GULire_ElvenRanger::` |
+|---|---|
+| `32ca6640` `32ca9620` `32c79470` `32c96eb0` | `LESI_COMBO_RTR_ZZZ` Start / FrameMove / EventProcess (differs) / StateEnd |
+| `32ca6670` `32c6c560` `32c79950` `32c96f10` | `..._ZZZ_DZ` Start / FrameMove / EventProcess (differs) / StateEnd |
+| `32ca6690` `32ca9640` `32c79be0` `32c96f70` | `..._ZZZZ` Start / FrameMove / EventProcess (differs) / StateEnd |
+| `32ca66c0` `32cad240` `32c79f50` `32c96fd0` | `..._ZZZZZ` Start / FrameMove (differs) / EventProcess (differs) / StateEnd |
+| `32ca6700` `32ca9660` `32c84d90` `32c7a220` `32c97030` | `LESI_JUMP_ATTACK_RTR_Z` Start / FrameMove / FrameMoveFuture / EventProcess / StateEnd |
+| `32ca6730` `32ca9680` `32c7a290` `32c97090` `32c6c570` | `LESI_DASH_COMBO_RTR_ZX` Start / FrameMove / EventProcess (differs) / StateEnd / StateEndFuture |
+| `32ca6780` `32ca9700` `32c7a510` `32c970f0` | `LESI_DASH_JUMP_ATTACK_RTR_Z` Start / FrameMove / EventProcess (differs) / StateEnd |
+| `32ca67b0` `32ca9720` `32c7a610` `32c97150` | `..._RTR_ZZ` Start / FrameMove / EventProcess / StateEnd |
+| `32c7a640` `32c7a680` | `LESI_SA_RTR_FATALITY_SUCCESS` / `_FAIL` EventProcess |
+| `32ca6410` `32c96e50` `32ca69e0` `32ca6b10` `32ca6be0` `32c9a5b0` | `CreateTrapBlade`, `DeleteTrapBlade`, `SetPriorPlannedBlow`, `EndPriorPlannedBlow`, `CheckPriorPlannedBlow`, `InsertPriorPlannedBlowEffect` (all = March) |
+| `32c6d580` `32ca7670` `32c818d0` `32ca0cd0` | **new** `LESI_RTR_DOUBLE_JUMP_ZX` StateEndFuture / StateStart / EventProcess / StateEnd |
+
+**Where June differs from March** (read from `charport_adis.py rena --phase CH1g`; the 9 StateEnds, the Starts and the FrameMove thunks checked by a normalised instruction diff within each group; 14 rows equal March's body, written out whole with `// June <va> ( = March )`):
+- **EventProcess = March's `ADD_RENA_SYSTEM` revamp** (dead until CH1q) with the animation-end follow-up (`ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_`) and the foot test on every cancel (`RENA_GROUND_*`, CH1d's macros; `SKILL_CANCEL_AFTER` already carries June's foot test and awakening branch):
+  - Z-Z-Z (`32c79470`): flags 0 `oneZ` + up `LESI_COMBO_Z4UP`, 1 `oneZ` `LESI_COMBO_RTR_ZZZZ`, 2 `oneX` `LESI_COMBO_Z4a`; cancels dash, walk, skill, back-walk. Z-Z-Z-Z (`32c79be0`): flag 0 `oneZ` `LESI_COMBO_RTR_ZZZZZ`; same order.
+  - Z-Z-Z-down-Z `32c79950`, Z-Z-Z-Z-Z `32c79f50` (1.3 s walk exit on the Night Watcher flag, future animation only) and dash Z-X `32c7a290`: skill, walk, back-walk, dash. Dash-jump Z `32c7a510`: the Z follow-up also at the animation end.
+- **Z-Z-Z-Z-Z FrameMove `32cad240`:** the Night Watcher force-down term is `down * ( hits - 4 )`; March has `hits - 5`. Written as `MIN_PRIOR_PLANNED_BLOW_ACTIVE_NUM - 1` (the helper's HP term uses the same `+ 1`).
+- **`LESI_RTR_DOUBLE_JUMP_ZX`:** StateEndFuture turns the unit round, then `CommonStateEndFuture`; Start = trap blade + `CommonStateStart` (no Prior Planned Blow bookkeeping); EventProcess = animation end -> wait (no `m_fCanNotAttackTime`, no jump-down), then skill / walk / back-walk / dash; StateEnd deletes the blade before `CommonStateEnd` (the other StateEnds delete it after).
+- **Equal to March:** the Prior Planned Blow trio (`SetPriorPlannedBlow` 10 s and the 5 / 14 clamp, `CheckPriorPlannedBlow` HP term, `EndPriorPlannedBlow`), `InsertPriorPlannedBlowEffect` (levels 5 / 9 / 14 and `PlayEffectSet` defaults), `CreateTrapBlade` (the Night Watcher takes `Mesh_RNW_Lire_Sword`; March's `TextureReady` is background-load-only, off), the jump attack Z walk speed (`GetWalkSpeed()` already carries `m_fRunJumpSpeedRate`, `+0x423c`), fatality success / fail.
+- **Natural force:** none of the 6 `ch0_nf.tsv` rows for CH1g is an NF line in June; they are the revamp blocks above, so no `_NF` code was written and March's `ADD_RENA_SYSTEM` arms stay dead in the `#else`.
+- **Structure note:** `CheckPriorPlannedBlow`'s signature and closing lines carry Korean comments or repeat, so its June copy is a whole function above March's under the same `#ifdef` / `#else` / `#endif` (the other 41 wrap the body).
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE --with ..._CORE --worktree --files X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). OTHER = the `.h` (`_CORE`). `git diff --patience --numstat`: `.cpp` 620 / 0, `.h` 4 / 0.
+- One-file `/Zs` probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH) of `X2GULire_ElvenRanger.cpp`: exit 0, 0 errors with no extra defines, with `/D SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`. `cl /P` off / on: 1492 `CX2GULire_ElvenRanger::` lines each; `MIN_PRIOR_PLANNED_BLOW_ACTIVE_NUM - 1` 0 / 1. Flag states by `cl /P` probe: `SERV_RENA_NIGHT_WATCHER`, `SERV_TRAPPING_RANGER_TEST`, `X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD`, `BALANCE_PATCH_20131107`, `SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK` ON; `ADD_RENA_SYSTEM` OFF.
+- `junediverge.py --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check` on both: `0 A/B row(s)`.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,096,640 B, 2026-11-09 09:39:47`; `DEPLOY OK: X2_offline.exe is 26,096,640 B, dated 2026-11-09 09:39:54, md5 deb36f6607dba9c0d946b2ed6877dc41, equal to X2/US_SERVICE/x2.exe (2026-11-09 09:39:47); built at main b126a821 + 2 uncommitted code file(s).` No `exestr` line: `_LIVE` is off and no string was added to a live path.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1g review` (Opus 5.5 high), then CH1g2.
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

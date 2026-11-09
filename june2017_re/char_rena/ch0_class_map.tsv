@@ -654,7 +654,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c96910	state-fn	LESI_SA_LWS_SLIDE_KICK.EventProcess LESI_SA_LWS_SLIDE_KICK_PASS_THROUGH.EventProcess LESI_SA_LWS_SLIDE_KICK_FINISH.EventProcess +1	inside X2GULire_ElvenRanger.cpp:3921 CX2GULire_ElvenRanger::LESI_SA_LWS_SLIDE_KICK_EventProcess ; inside X2GULire_ElvenRanger.cpp:3940 CX2GULire_ElvenRanger::LESI_SA_LWS_SLIDE_KICK_PASS_THROUGH_EventProcess ; inside X2GULire_ElvenRanger.cpp:3948 CX2GUUser::GenericSpecialActiveSkillEventProcess ; inside X2GULire_ElvenRanger.cpp:3967 CX2GULire_ElvenRanger::LESI_SA_LWS_SLIDE_KICK_CANCEL_EventProcess	inside	-	CH3a	4 states	n
 32c96aa0	state-fn	LESI_SA_LWS_AIRELINNA.FrameMove	inside X2GULire_ElvenRanger.cpp:4082 CX2GULire_ElvenRanger::LESI_SA_LWS_AIRELINNA_FrameMove	inside	-	CH3a	1 states	y
 32c96d60	helper	called by 32cadc90	-	new	?	CH1m	name: called by 32cadc90(InitState)	y
-32c96e50	helper	called by 32ca5060 32ca6410 32ca9680 32caca80	-	new	?	CH1g	name: called by 32ca5060(CommonStateEnd) 32ca6410(helper) 32ca9680(LESI_DASH_COMBO_RTR_ZX.Frame) 32caca80(LESI_SA_RNW_FURIOUS_ENGAGE.F)	y
+32c96e50	helper	called by 32ca5060 32ca6410 32ca9680 32caca80	inside X2GULire_ElvenRanger.cpp:655 CX2GULire_ElvenRanger::DeleteTrapBlade	inside	-	CH1g	CH1g: March DeleteTrapBlade ( corrected from new ? )	y
 32c96eb0	state-fn	LESI_COMBO_RTR_ZZZ.End	inside X2GULire_ElvenRanger.cpp:1929 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_StateEnd	inside	-	CH1g	1 states	y
 32c96f10	state-fn	LESI_COMBO_RTR_ZZZ_DZ.End	inside X2GULire_ElvenRanger.cpp:1938 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_StateEnd	inside	-	CH1g	1 states	y
 32c96f70	state-fn	LESI_COMBO_RTR_ZZZZ.End	inside X2GULire_ElvenRanger.cpp:1947 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_StateEnd	inside	-	CH1g	1 states	y
@@ -679,7 +679,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c99a90	state-fn	LESI_SNIPING_RANGER_COMBO_X2.FrameMove	inside X2GULire_ElvenRanger.cpp:1994 CX2GULire_ElvenRanger::SnipingRangerComboX2FrameMove	inside	-	CH1f	1 states	y
 32c99ec0	state-fn	LESI_SNIPING_RANGER_COMBO_X3.FrameMove	inside X2GULire_ElvenRanger.cpp:2002 CX2GULire_ElvenRanger::SnipingRangerComboX3FrameMove	inside	-	CH1f	1 states	y
 32c9a300	state-fn	LESI_SNIPING_RANGER_COMBO_X4.FrameMove	inside X2GULire_ElvenRanger.cpp:2009 CX2GULire_ElvenRanger::SnipingRangerComboX4FrameMove	inside	-	CH1f	1 states	y
-32c9a5b0	helper	called by 32ca69e0	-	new	?	CH1g	name: called by 32ca69e0(helper)	y
+32c9a5b0	helper	called by 32ca69e0	inside X2GULire_ElvenRanger.cpp:1825 CX2GULire_ElvenRanger::InsertPriorPlannedBlowEffect	inside	-	CH1g	CH1g: March InsertPriorPlannedBlowEffect ( corrected from new ? )	y
 32c9a7c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 56578bf968702a72	y
 32c9a810	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
 32c9aa60	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
@@ -761,7 +761,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32ca62f0	state-fn	LESI_COMBO_RNW_ZZX.End	inside X2GULire_ElvenRanger.cpp:2582 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZX_StateEnd	inside	-	CH1g2	1 states	y
 32ca6350	state-fn	LESI_COMBO_RNW_ZZXX.End	inside X2GULire_ElvenRanger.cpp:2592 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXX_StateEnd	inside	-	CH1g2	1 states	y
 32ca63b0	state-fn	LESI_COMBO_RNW_ZZXXX.End	inside X2GULire_ElvenRanger.cpp:2602 CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXXX_StateEnd	inside	-	CH1g2	1 states	y
-32ca6410	helper	called by 32ca6640 32ca6670 32ca6690 32ca66c0	-	new	?	CH1g	name: called by 32ca6640(LESI_COMBO_RTR_ZZZ.Start) 32ca6670(LESI_COMBO_RTR_ZZZ_DZ.Start) 32ca6690(LESI_COMBO_RTR_ZZZZ.Start) 32ca66c0(LESI_COMBO_RTR_ZZZZZ.Start)	y
+32ca6410	helper	called by 32ca6640 32ca6670 32ca6690 32ca66c0	inside X2GULire_ElvenRanger.cpp:654 CX2GULire_ElvenRanger::CreateTrapBlade	inside	-	CH1g	CH1g: March CreateTrapBlade ( corrected from new ? )	y
 32ca6640	state-fn	LESI_COMBO_RTR_ZZZ.Start	inside X2GULire_ElvenRanger.cpp:1926 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_StateStart	inside	-	CH1g	1 states	y
 32ca6670	state-fn	LESI_COMBO_RTR_ZZZ_DZ.Start	inside X2GULire_ElvenRanger.cpp:1935 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_StateStart	inside	-	CH1g	1 states	y
 32ca6690	state-fn	LESI_COMBO_RTR_ZZZZ.Start	inside X2GULire_ElvenRanger.cpp:1944 CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_StateStart	inside	-	CH1g	1 states	y
@@ -775,9 +775,9 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32ca6860	state-fn	LESI_SA_RTR_EVOKE.FrameMove	inside X2GULire_ElvenRanger.cpp:4110 CX2GULire_ElvenRanger::LESI_SA_RTR_EVOKE_FrameMove	inside	-	CH2d	1 states	n
 32ca68b0	state-fn	LESI_SA_RTR_FATALITY.Start	inside X2GULire_ElvenRanger.cpp:4205 CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_StateStart	inside	-	CH2d	1 states	y
 32ca6970	state-fn	LESI_SA_RTR_CALL_OF_RUIN.Start	inside X2GULire_ElvenRanger.cpp:4232 CX2GULire_ElvenRanger::LESI_SA_RTR_CALL_OF_RUIN_StateStart	inside	-	CH3c	1 states	n
-32ca69e0	helper	called by 32ca6be0	-	new	?	CH1g	name: called by 32ca6be0(helper)	y
-32ca6b10	helper	called by 32ca6be0 32ca8bf0	-	new	?	CH1g	name: called by 32ca6be0(helper) 32ca8bf0(CommonFrameMove)	y
-32ca6be0	helper	called by 32ca94c0 32ca9510 32ca9550 32ca9620	-	new	?	CH1g	name: called by 32ca94c0(LESI_COMBO_RNW_ZZX.FrameMove) 32ca9510(LESI_COMBO_RNW_ZZXX.FrameMov) 32ca9550(LESI_COMBO_RNW_ZZXXX.FrameMo) 32ca9620(LESI_COMBO_RTR_ZZZ.FrameMove)	y
+32ca69e0	helper	called by 32ca6be0	inside X2GULire_ElvenRanger.cpp:1821 CX2GULire_ElvenRanger::SetPriorPlannedBlow	inside	-	CH1g	CH1g: March SetPriorPlannedBlow ( corrected from new ? )	y
+32ca6b10	helper	called by 32ca6be0 32ca8bf0	inside X2GULire_ElvenRanger.cpp:1822 CX2GULire_ElvenRanger::EndPriorPlannedBlow	inside	-	CH1g	CH1g: March EndPriorPlannedBlow ( corrected from new ? )	y
+32ca6be0	helper	called by 32ca94c0 32ca9510 32ca9550 32ca9620	inside X2GULire_ElvenRanger.cpp:1823 CX2GULire_ElvenRanger::CheckPriorPlannedBlow	inside	-	CH1g	CH1g: March CheckPriorPlannedBlow ( corrected from new ? )	y
 32ca6cd0	helper	-	-	new	?	CH3c0	helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches; name: -; helper: Night Watcher engine hook: base 31fcd700 calls 32ca6cd0 only for class 114 (from 32037afb, 322739d9, 3279bbd8); this function and the class functions only it reaches	y
 32ca6e90	helper	called by 32ca9230 32ca9360	-	new	?	CH1b	name: called by 32ca9230(LESI_DIE_FRONT.Start LESI_RI) 32ca9360(LESI_DIE_BACK.Start)	y
 32ca6f90	state-fn	LESI_A_RNW_ANGER_OF_ELF.Start	inside X2GULire_ElvenRanger.cpp:3510 CX2GULire_ElvenRanger::LESI_A_RNW_ANGER_OF_ELF_StateStart	inside	-	CH2d	1 states	y

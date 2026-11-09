@@ -8837,3 +8837,49 @@ CX2Game +0xc20 (Rena CH1a)	none in March: CX2Game byte read by the Rena wait / c
 32ca9740	CX2GULire_ElvenRanger::PlayGungnirAttackEffect	PORTED	Char Rena CH1f2: new: June body under JUNE_CHAR_RENA_CORE ( compiled, referenced by nothing yet ): class-map name added ( was ? ): strike effect set 4000 above the target spot ( hyper variant while awake ), then EndGungnirTargeting
 32ca9c20	CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_READY_StateStart	PORTED	Char Rena CH1f2: new: June body under JUNE_CHAR_RENA_CORE ( compiled, referenced by nothing yet ): buff 537 still on -> strike at once, then CommonStateStart
 32ca9c50	CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_FIRE_FrameMove	PORTED	Char Rena CH1f2: new: June body under JUNE_CHAR_RENA_CORE ( compiled, referenced by nothing yet ): strike effect set at 0.04 s while the fire flag is set
+32ca6640	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_StateStart	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca9620	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_FrameMove	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c79470	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_EventProcess	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: differs: the follow-ups also fire at the animation end, the cancels need the foot on a line
+32c96eb0	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_StateEnd	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca6670	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_StateStart	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c6c560	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_FrameMove	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c79950	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_EventProcess	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: differs: the cancels need the foot on a line
+32c96f10	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_StateEnd	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca6690	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_StateStart	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca9640	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_FrameMove	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c79be0	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_EventProcess	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: differs: the follow-up also fires at the animation end, the cancels need the foot on a line
+32c96f70	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_StateEnd	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca66c0	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_StateStart	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32cad240	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_FrameMove	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: differs: the force-down term counts the hits from 4 ( March from 5 )
+32c79f50	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_EventProcess	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: differs: the cancels need the foot on a line
+32c96fd0	CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_StateEnd	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca6700	CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_StateStart	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca9660	CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_FrameMove	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c84d90	CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_FrameMoveFuture	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c7a220	CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_EventProcess	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c97030	CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_StateEnd	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca6730	CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_StateStart	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca9680	CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_FrameMove	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c7a290	CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_EventProcess	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: differs: the cancels need the foot on a line
+32c97090	CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_StateEnd	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c6c570	CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_StateEndFuture	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca6780	CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_StateStart	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca9700	CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_FrameMove	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c7a510	CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_EventProcess	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: differs: the Z follow-up also fires at the animation end
+32c970f0	CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_StateEnd	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca67b0	CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_StateStart	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca9720	CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_FrameMove	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c7a610	CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_EventProcess	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c97150	CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_StateEnd	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c7a640	CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_SUCCESS_EventProcess	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32c7a680	CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_FAIL_EventProcess	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March
+32ca6410	CX2GULire_ElvenRanger::CreateTrapBlade	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March ( CH0 listed it as a new helper )
+32c96e50	CX2GULire_ElvenRanger::DeleteTrapBlade	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March ( CH0 listed it as a new helper )
+32ca69e0	CX2GULire_ElvenRanger::SetPriorPlannedBlow	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March ( CH0 listed it as a new helper )
+32ca6b10	CX2GULire_ElvenRanger::EndPriorPlannedBlow	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March ( CH0 listed it as a new helper )
+32ca6be0	CX2GULire_ElvenRanger::CheckPriorPlannedBlow	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March ( CH0 listed it as a new helper )
+32c9a5b0	CX2GULire_ElvenRanger::InsertPriorPlannedBlowEffect	PORTED	Char Rena CH1g: inside: June body under JUNE_CHAR_RENA_LIVE, March in #else: June = March ( CH0 listed it as a new helper )
+32c6d580	CX2GULire_ElvenRanger::LESI_RTR_DOUBLE_JUMP_ZX_StateEndFuture	PORTED	Char Rena CH1g: new: June body under JUNE_CHAR_RENA_CORE ( compiled, referenced by nothing yet ): the follow-up faces back the way it came
+32ca7670	CX2GULire_ElvenRanger::LESI_RTR_DOUBLE_JUMP_ZX_StateStart	PORTED	Char Rena CH1g: new: June body under JUNE_CHAR_RENA_CORE ( compiled, referenced by nothing yet ): the trap blade, then CommonStateStart
+32c818d0	CX2GULire_ElvenRanger::LESI_RTR_DOUBLE_JUMP_ZX_EventProcess	PORTED	Char Rena CH1g: new: June body under JUNE_CHAR_RENA_CORE ( compiled, referenced by nothing yet ): animation end -> wait; the cancels need the foot on a line
+32ca0cd0	CX2GULire_ElvenRanger::LESI_RTR_DOUBLE_JUMP_ZX_StateEnd	PORTED	Char Rena CH1g: new: June body under JUNE_CHAR_RENA_CORE ( compiled, referenced by nothing yet ): DeleteTrapBlade, then CommonStateEnd

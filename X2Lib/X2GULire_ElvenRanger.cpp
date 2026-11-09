@@ -22158,6 +22158,44 @@ void CX2GULire_ElvenRanger::EndGungnirTargeting()
 
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+// June 32c6d580: the follow-up faces back the way it came
+void CX2GULire_ElvenRanger::LESI_RTR_DOUBLE_JUMP_ZX_StateEndFuture()
+{
+	m_FrameDataFuture.syncData.bIsRight = !(m_FrameDataFuture.syncData.bIsRight);
+	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+	CommonStateEndFuture();
+}
+
+// June 32ca7670: the trap blade, then the common start
+void CX2GULire_ElvenRanger::LESI_RTR_DOUBLE_JUMP_ZX_StateStart()
+{
+	CreateTrapBlade();
+	CommonStateStart();
+}
+
+// June 32c818d0: the animation end waits; the cancels need the foot on a line
+void CX2GULire_ElvenRanger::LESI_RTR_DOUBLE_JUMP_ZX_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32ca0cd0: the trap blade goes before the common end
+void CX2GULire_ElvenRanger::LESI_RTR_DOUBLE_JUMP_ZX_StateEnd()
+{
+	DeleteTrapBlade();
+	CommonStateEnd();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 #ifdef BALANCE_GRAND_ARCHER_20121213
 void CX2GULire_ElvenRanger::LESI_LGA_ZZX_FrameMove()
 {
@@ -23334,6 +23372,39 @@ void	CX2GULire_ElvenRanger::StateInitTrapBlade()
 
 void CX2GULire_ElvenRanger::CreateTrapBlade()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca6410 ( = March )
+	if( m_hTrapBlade != INVALID_MESH_INSTANCE_HANDLE )
+	{
+		DeleteTrapBlade();
+	}
+
+	wstring wstrTrapBladeName;
+
+	if( CX2Unit::UC_LIRE_TRAPPING_RANGER == GetUnit()->GetClass() )
+		wstrTrapBladeName = L"Mesh_RTR_Lire_Sword";
+	else
+		wstrTrapBladeName = L"Mesh_RNW_Lire_Sword";
+
+	CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->CreateInstance( (CKTDGObject*) this, wstrTrapBladeName.c_str(), GetPos(), GetRotateDegree(), GetRotateDegree() );
+
+	if( pMeshInst != NULL )
+	{
+#ifdef  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
+		pMeshInst->SetPerFrameSimulation( true );
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_SIMULATION
+		m_hTrapBlade = pMeshInst->GetHandle();
+		pMeshInst->SetBoundingRadius( 0.0f );
+
+		CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Dummy1_Rhand" );
+		pMeshInst->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		pMeshInst->OnFrameMove( g_pKTDXApp->GetTime(), 0.01f );
+
+		SetSubAttackList( pMeshInst->GetXSkinAnim() );
+
+		m_bUseTrapBlade = true;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifndef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
 	TextureReady( L"Rena_SlashTrace_Texture_WindSneaker.dds" );		//	Slash Trace Texture
 #endif	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -23372,10 +23443,13 @@ void CX2GULire_ElvenRanger::CreateTrapBlade()
 
 		m_bUseTrapBlade = true;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DeleteTrapBlade()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c96e50 ( = March )
 	m_SubAttackListSet.clear();
 
 	if( INVALID_MESH_INSTANCE_HANDLE != m_hTrapBlade )
@@ -23384,11 +23458,32 @@ void CX2GULire_ElvenRanger::DeleteTrapBlade()
 	}
 
 	m_bUseTrapBlade = false;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	m_SubAttackListSet.clear();
+
+	if( INVALID_MESH_INSTANCE_HANDLE != m_hTrapBlade )
+	{
+		g_pX2Game->GetMajorXMeshPlayer()->DestroyInstanceHandle( m_hTrapBlade );
+	}
+
+	m_bUseTrapBlade = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 // LESI_COMBO_RTR_ZZZ
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca6640 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+	{
+		m_bPossibleHitCount = true;
+		m_bActivePriorPlannedBlowAttack = false;
+	}
+
+	CreateTrapBlade();
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( true == m_bUsePriorPlannedBlow )
 	{
@@ -23399,19 +23494,52 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_StateStart()
 
 	CreateTrapBlade();
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca9620 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+		CheckPriorPlannedBlow();
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( true == m_bUsePriorPlannedBlow )
 		CheckPriorPlannedBlow();
 #endif SERV_RENA_NIGHT_WATCHER
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c79470 ( March's combo revamp with the animation-end follow-ups and the foot test on the cancels )
+	CANCEL_COMBO_ON_DIRECTION_CHANGE( 3 );
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_fCanNotAttackTime = 0.2f;
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneZ == true && m_InputData.pureUp == true, LESI_COMBO_Z4UP )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 1, 1, m_InputData.oneZ == true, LESI_COMBO_RTR_ZZZZ )
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 2, 2, m_InputData.oneX == true, LESI_COMBO_Z4a )
+	RENA_GROUND_DASH_CANCEL
+	RENA_GROUND_WALK_CANCEL
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_BWALK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CANCEL_COMBO_ON_DIRECTION_CHANGE( 3 );
 
 	if( false == IsOnSomethingFuture() )
@@ -23436,29 +23564,67 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c96eb0 ( = March )
 	CommonStateEnd();
 
 	DeleteTrapBlade();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+
+	DeleteTrapBlade();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 // LESI_COMBO_RTR_ZZZ_DZ
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca6670 ( = March )
 	CreateTrapBlade();
 	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CreateTrapBlade();
+	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6c560 ( = March )
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c79950 ( March's combo revamp with the foot test on the cancels )
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_fCanNotAttackTime = 0.2f;
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	if( false == IsOnSomethingFuture() )
 	{
@@ -23497,18 +23663,37 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZ_DZ_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c96f10 ( = March )
 	CommonStateEnd();
 
 	DeleteTrapBlade();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+
+	DeleteTrapBlade();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 // LESI_COMBO_RTR_ZZZZ
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca6690 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+	{
+		m_bPossibleHitCount = true;
+		m_bActivePriorPlannedBlowAttack = false;
+	}
+
+	CreateTrapBlade();
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( true == m_bUsePriorPlannedBlow )
 	{
@@ -23519,20 +23704,51 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_StateStart()
 
 	CreateTrapBlade();
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca9640 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+		CheckPriorPlannedBlow();
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( true == m_bUsePriorPlannedBlow )
 		CheckPriorPlannedBlow();
 #endif SERV_RENA_NIGHT_WATCHER
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c79be0 ( March's combo revamp with the animation-end follow-up and the foot test on the cancels )
+	CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 );
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_fCanNotAttackTime = 0.2f;
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneZ == true, LESI_COMBO_RTR_ZZZZZ )
+	RENA_GROUND_DASH_CANCEL
+	RENA_GROUND_WALK_CANCEL
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_BWALK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 );
 
 	if( false == IsOnSomethingFuture() )
@@ -23554,18 +23770,38 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZ_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c96f70 ( = March )
 	CommonStateEnd();
 
 	DeleteTrapBlade();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+
+	DeleteTrapBlade();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 // LESI_COMBO_RTR_ZZZZZ
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca66c0 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+	{
+		m_bPossibleHitCount = true;
+		m_bActivePriorPlannedBlowAttack = false;
+	}
+	m_bActivePriorPlannedBlowWalkCancelChange = false;
+
+	CreateTrapBlade();
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( true == m_bUsePriorPlannedBlow )
 	{
@@ -23577,10 +23813,51 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_StateStart()
 
 	CreateTrapBlade();
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32cad240 ( March's body; the force-down term counts the hits from 4, March from 5 )
+	if( m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
+	{
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_itNowStateData->first );
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+		bool bTableOpen = m_LuaManager.BeginTableByReference( m_NowStateData.stateID );
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+
+		if ( true == bTableOpen )
+		{
+			m_DamageData.SimpleInit();
+			m_DamageData.attackerType = CX2DamageManager::AT_UNIT;
+			m_DamageData.optrAttackerGameUnit = this;
+#ifndef  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+			m_DamageData.pAttackerEffect = NULL;
+#endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
+			SetDamageData( "DAMAGE_DATA_NEXT" );
+
+			if( true == m_bUsePriorPlannedBlow && true == m_bActivePriorPlannedBlow )
+			{
+				m_DamageData.reActType = CX2DamageManager::RT_BIG_DAMAGE;
+				m_DamageData.fForceDownValue -= ( m_fPriorPlannedBlowDownValue * ( m_iPriorPlannedBlowHitCount - ( _CONST_RENA_::MIN_PRIOR_PLANNED_BLOW_ACTIVE_NUM - 1 ) ) );
+				m_bActivePriorPlannedBlowAttack = true;
+				m_bActivePriorPlannedBlowWalkCancelChange = true;
+			}
+
+			m_LuaManager.EndTable();
+		}
+
+		if( true == m_bUsePriorPlannedBlow && false == m_bActivePriorPlannedBlowAttack )
+			m_bPossibleHitCount = true;
+	}
+
+	if( true == m_bUsePriorPlannedBlow )
+		CheckPriorPlannedBlow();
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -23636,10 +23913,38 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_FrameMove()
 #endif SERV_RENA_NIGHT_WATCHER
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c79f50 ( March's combo revamp with the foot test on the cancels )
+	if( true == m_bActivePriorPlannedBlowWalkCancelChange )
+	{
+		if( m_pXSkinAnimFuture->GetNowAnimationTime() > 1.3f && ( true == m_InputData.pureRight || true == m_InputData.pureLeft ) )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		m_fCanNotAttackTime = 0.2f;
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	//CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 );
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( true == m_bActivePriorPlannedBlowWalkCancelChange )
@@ -23669,18 +23974,37 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_COMBO_RTR_ZZZZZ_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c96fd0 ( = March )
 	CommonStateEnd();
 
 	DeleteTrapBlade();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+
+	DeleteTrapBlade();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 // LESI_JUMP_ATTACK_RTR_Z
 void CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca6700 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+	{
+		m_bPossibleHitCount = true;
+		m_bActivePriorPlannedBlowAttack = false;
+	}
+
+	CreateTrapBlade();
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( true == m_bUsePriorPlannedBlow )
 	{
@@ -23691,20 +24015,31 @@ void CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_StateStart()
 
 	CreateTrapBlade();
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca9660 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+		CheckPriorPlannedBlow();
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( true == m_bUsePriorPlannedBlow )
 		CheckPriorPlannedBlow();
 #endif SERV_RENA_NIGHT_WATCHER
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c84d90 ( = March )
 	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
 	{
 		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
@@ -23721,11 +24056,31 @@ void CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_FrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+	}
+	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+	}
+
+	if( m_InputData.pureDown == true && m_InputData.pureUp == false )
+	{
+		m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime;
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
 void CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c7a220 ( = March )
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true
 		&& true == IsOnSomethingFuture() )
 	{
@@ -23745,18 +24100,57 @@ void CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_EventProcess()
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true
+		&& true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+		{
+			m_fCanNotJumpTime = 0.2f;
+		}
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( true == IsOnSomethingFuture() )
+	{
+		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
+		{
+			m_fCanNotJumpTime = 0.2f;
+		}
+		StateChange( USI_JUMP_LANDING );
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_JUMP_ATTACK_RTR_Z_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c97030 ( = March )
 	CommonStateEnd();
 
 	DeleteTrapBlade();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+
+	DeleteTrapBlade();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 // LESI_DASH_COMBO_RTR_ZX
 void CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca6730 ( = March )
+	if( CX2Unit::UC_LIRE_NIGHT_WATCHER == GetUnit()->GetClass() && true == m_bUsePriorPlannedBlow )
+	{
+		m_bPossibleHitCount = true;
+		m_bActivePriorPlannedBlowAttack = false;
+	}
+
+	CreateTrapBlade();
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( CX2Unit::UC_LIRE_NIGHT_WATCHER == GetUnit()->GetClass() && true == m_bUsePriorPlannedBlow )
 	{
@@ -23767,10 +24161,25 @@ void CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_StateStart()
 
 	CreateTrapBlade();
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca9680 ( = March )
+	if( m_pXSkinAnim->EventTimerOneshot( 1.29f ) )
+	{
+		DeleteTrapBlade();
+		if( CX2Unit::UC_LIRE_NIGHT_WATCHER == GetUnit()->GetClass() && true == m_bUsePriorPlannedBlow )
+			m_bPossibleHitCount = false;
+	}
+
+	if( true == m_bUsePriorPlannedBlow )
+		CheckPriorPlannedBlow();
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 1.29f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -23790,10 +24199,30 @@ void CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_FrameMove()
 #endif SERV_RENA_NIGHT_WATCHER
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c7a290 ( March's combo revamp with the foot test on the cancels )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{	
@@ -23836,26 +24265,53 @@ void CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c97090 ( = March )
 	CommonStateEnd();
 
 	DeleteTrapBlade();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+
+	DeleteTrapBlade();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_StateEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6c570 ( = March )
+	CommonStateEndFuture();
+
+	m_FrameDataFuture.syncData.bIsRight = !(m_FrameDataFuture.syncData.bIsRight);
+	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonStateEndFuture();
 
 	m_FrameDataFuture.syncData.bIsRight				= !(m_FrameDataFuture.syncData.bIsRight);
 	m_FrameDataFuture.unitCondition.dirDegree.y		+= 180.0f;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 // LESI_DASH_JUMP_ATTACK_RTR_Z
 void CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca6780 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+	{
+		m_bPossibleHitCount = true;
+		m_bActivePriorPlannedBlowAttack = false;
+	}
+
+	CreateTrapBlade();
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( true == m_bUsePriorPlannedBlow )
 	{
@@ -23866,20 +24322,39 @@ void CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_StateStart()
 
 	CreateTrapBlade();
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca9700 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+		CheckPriorPlannedBlow();
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( true == m_bUsePriorPlannedBlow )
 		CheckPriorPlannedBlow();
 #endif SERV_RENA_NIGHT_WATCHER
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c7a510 ( the Z follow-up also fires at the animation end )
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( LESI_DASH_JUMP_ATTACK_Z_LANDING );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneZ == true, LESI_DASH_JUMP_ATTACK_RTR_ZZ )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( true == IsOnSomethingFuture() )
 	{
 		StateChange( LESI_DASH_JUMP_ATTACK_Z_LANDING );
@@ -23891,18 +24366,37 @@ void CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 		CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c970f0 ( = March )
 	CommonStateEnd();
 
 	DeleteTrapBlade();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+
+	DeleteTrapBlade();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 // LESI_DASH_JUMP_ATTACK_RTR_ZZ
 void CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca67b0 ( = March )
+	if( GetUnitClass() == CX2Unit::UC_LIRE_NIGHT_WATCHER && true == m_bUsePriorPlannedBlow )
+	{
+		m_bPossibleHitCount = true;
+		m_bActivePriorPlannedBlowAttack = false;
+	}
+
+	CreateTrapBlade();
+	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( GetUnitClass() == CX2Unit::UC_LIRE_NIGHT_WATCHER && true == m_bUsePriorPlannedBlow )
 	{
@@ -23913,37 +24407,65 @@ void CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_StateStart()
 
 	CreateTrapBlade();
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca9720 ( = March )
+	if( true == m_bUsePriorPlannedBlow )
+		CheckPriorPlannedBlow();
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_RENA_NIGHT_WATCHER
 	if( true == m_bUsePriorPlannedBlow )
 		CheckPriorPlannedBlow();
 #endif SERV_RENA_NIGHT_WATCHER
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c7a610 ( = March )
 	if( true == IsOnSomethingFuture() )
 	{
 		StateChange( LESI_DASH_JUMP_ATTACK_Z_LANDING );
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( LESI_DASH_JUMP_ATTACK_Z_LANDING );
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_StateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c97150 ( = March )
 	CommonStateEnd();
 
 	DeleteTrapBlade();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEnd();
+
+	DeleteTrapBlade();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_SUCCESS_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c7a640 ( = March )
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -23953,10 +24475,23 @@ void CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_SUCCESS_EventProcess()
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_FAIL_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c7a680 ( = March )
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -23966,6 +24501,17 @@ void CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_FAIL_EventProcess()
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -26343,6 +26889,21 @@ if( NULL != pSkillTemplet && NULL != GetUnit() )
 #ifdef SERV_RENA_NIGHT_WATCHER
 void CX2GULire_ElvenRanger::SetPriorPlannedBlow()		/// °è»êµÈ ÀÏ°Ý Áõ°¡ ¹× ¿¬»ê ÇÔ¼ö
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca69e0 ( = March )
+	m_fPriorPlannedBlowTime = 10.0f;
+	m_iPriorPlannedBlowHitCount += 1;
+
+	if( _CONST_RENA_::MIN_PRIOR_PLANNED_BLOW_ACTIVE_NUM <= m_iPriorPlannedBlowHitCount )
+	{
+		InsertPriorPlannedBlowEffect( m_iPriorPlannedBlowHitCount );
+
+		m_bActivePriorPlannedBlow = true;
+
+		if( _CONST_RENA_::MAX_PRIOR_PLANNED_BLOW_ACTIVE_NUM <= m_iPriorPlannedBlowHitCount )
+			m_iPriorPlannedBlowHitCount = _CONST_RENA_::MAX_PRIOR_PLANNED_BLOW_ACTIVE_NUM;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	m_fPriorPlannedBlowTime		=  10.0f;				/// ÄÞº¸ À¯Áö ½Ã°£ ¼³Á¤
 	m_iPriorPlannedBlowHitCount += 1;					/// ÄÞº¸ ´©Àû
 
@@ -26356,18 +26917,52 @@ void CX2GULire_ElvenRanger::SetPriorPlannedBlow()		/// °è»êµÈ ÀÏ°Ý Áõ°¡ ¹× ¿¬»ê 
 		if( _CONST_RENA_::MAX_PRIOR_PLANNED_BLOW_ACTIVE_NUM <= m_iPriorPlannedBlowHitCount )	/// ÃÖ´ë ÇÑ°èÄ¡º¸´Ù ´õ ´©Àû µÇ¾ú´Ù¸é, ´©ÀûÄ¡ Á¦ÇÑ
 			m_iPriorPlannedBlowHitCount = _CONST_RENA_::MAX_PRIOR_PLANNED_BLOW_ACTIVE_NUM;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::EndPriorPlannedBlow()		/// °è»êµÈ ÀÏ°Ý ÃÊ±âÈ­ ¹× ÇØÁ¦ ÇÔ¼ö
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca6b10 ( = March; DeletePriorPlannedBlowEffect inlined )
+	DeletePriorPlannedBlowEffect();
+
+	m_bActivePriorPlannedBlow = false;
+	m_bActivePriorPlannedBlowAttack = false;
+	m_fPriorPlannedBlowTime = 0.0f;
+	m_iPriorPlannedBlowHitCount = 0;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	DeletePriorPlannedBlowEffect();						/// ÀÌÆåÆ® ÇØÁ¦
 
 	m_bActivePriorPlannedBlow		= false;			/// °è»êµÈ ÀÏ°Ý ÇØÁ¦
 	m_bActivePriorPlannedBlowAttack = false;			/// ÇØ´ç °ø°ÝÀÇ °è»êµÈ ÀÏ°Ý ÇØÁ¦
 	m_fPriorPlannedBlowTime			= 0.0f;				/// ÄÞº¸ À¯Áö ½Ã°£ ÃÊ±âÈ­
 	m_iPriorPlannedBlowHitCount		= 0;				/// ÄÞº¸ ´©Àû ÃÊ±âÈ­
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca6be0 ( = March )
+void CX2GULire_ElvenRanger::CheckPriorPlannedBlow()
+{
+	if( true == GetAttackSuccess( false ) )
+	{
+		if( true == m_bActivePriorPlannedBlowAttack )
+		{
+			UpNowHp( GetMaxHp() * ( m_fPriorPlannedBlowIncreaseHPRate * static_cast<float>( m_iPriorPlannedBlowHitCount - _CONST_RENA_::MIN_PRIOR_PLANNED_BLOW_ACTIVE_NUM + 1 ) ) );
+
+			EndPriorPlannedBlow();
+		}
+		else if( true == m_bPossibleHitCount )
+		{
+			m_bPossibleHitCount = false;
+
+			SetPriorPlannedBlow();
+
+			m_FrameDataNow.unitCondition.bHit = false;
+		}
+	}
+}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 void CX2GULire_ElvenRanger::CheckPriorPlannedBlow()		/// °è»êµÈ ÀÏ°Ý Àû¿ë ÆÇ´Ü ÇÔ¼ö
 {
 	if( true == GetAttackSuccess( false ) )
@@ -26392,8 +26987,32 @@ void CX2GULire_ElvenRanger::CheckPriorPlannedBlow()		/// °è»êµÈ ÀÏ°Ý Àû¿ë ÆÇ´Ü Ç
 	}
 }
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 void CX2GULire_ElvenRanger::InsertPriorPlannedBlowEffect(  int iActiveNum  )	/// °è»êµÈ ÀÏ°Ý ÀÌÆåÆ® »ý¼º ÇÔ¼ö
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c9a5b0 ( = March )
+	int iActiveLevel = 0;
+
+	if( iActiveNum >= _CONST_RENA_::PRIOR_PLANNED_BLOW_ACTIVE_LEVEL_3 )
+		iActiveLevel = 3;
+	else if( iActiveNum >= _CONST_RENA_::PRIOR_PLANNED_BLOW_ACTIVE_LEVEL_2 )
+		iActiveLevel = 2;
+	else
+		iActiveLevel = 1;
+
+	if( iActiveLevel != m_iNowPriorPlannedBlowLevel )
+	{
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hPriorPlannedBlowEffect );
+
+		WCHAR wszControlName[70] = L"";
+		StringCchPrintf( wszControlName, ARRAY_SIZE(wszControlName), L"EffectSet_Rena_Night_Watcher_Prior_Planned_Blow_Level_%d", iActiveLevel );
+
+		m_hPriorPlannedBlowEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( wszControlName, (CX2GameUnit*)this );
+
+		m_iNowPriorPlannedBlowLevel = iActiveLevel;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	int iActiveLevel = 0;
 
 	/// ÇöÀç ´©Àû¼ö¿¡ ´ëÇÑ °è»êµÈ ÀÏ°Ý ÀÌÆåÆ® ·¹º§ ¼³Á¤
@@ -26415,6 +27034,7 @@ void CX2GULire_ElvenRanger::InsertPriorPlannedBlowEffect(  int iActiveNum  )	///
 
 		m_iNowPriorPlannedBlowLevel = iActiveLevel;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DeletePriorPlannedBlowEffect()		/// °è»êµÈ ÀÏ°Ý ÀÌÆåÆ® ¼Ò¸ê ÇÔ¼ö

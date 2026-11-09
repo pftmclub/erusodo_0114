@@ -1880,6 +1880,10 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		int m_iGungnirTargetNPCUID;	/// June +0x97b8: the targeting NPC ( -1 none; the constructor, CH1h, sets it )
 		bool m_bGungnirFirePending;	/// June +0x97bc: set at the shot, the fire state plays the strike at 0.04 s
 		CX2EffectSet::Handle m_hGungnirLoopEffect;	/// June +0x97c0: the aim loop effect set ( INVALID_EFFECTSET_HANDLE none; the constructor, CH1h, sets it )
+		void LESI_RTR_DOUBLE_JUMP_ZX_StateStart();	/// June 32ca7670
+		void LESI_RTR_DOUBLE_JUMP_ZX_StateEndFuture();	/// June 32c6d580
+		void LESI_RTR_DOUBLE_JUMP_ZX_EventProcess();	/// June 32c818d0
+		void LESI_RTR_DOUBLE_JUMP_ZX_StateEnd();	/// June 32ca0cd0
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 		/// 지연의 신호탄
