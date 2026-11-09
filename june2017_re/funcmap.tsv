@@ -9097,3 +9097,23 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32c86b90	CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_HYPER_FrameMove	confirmed	Char Rena CH2a: = March, no code: = 32c86b60
 32c86dc0	CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_FrameMove	confirmed	Char Rena CH2a: = March, no code: cut-in ( Dummy1_Rhand, 0.06, 1 ) and CommonFrameMove: March's live part under BALANCE_PATCH_20131107 ( its timer block is #ifndef )
 32c86df0	CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_HYPER_FrameMove	confirmed	Char Rena CH2a: = March, no code: = 32c86dc0
+32c6b950	CX2GULire_ElvenRanger::LESI_SI1_LCR_SPINNING_KICK_Init	PORTED	Char Rena CH2b: inside, _SKILL: preload list of 6 textures, 6 Y meshes, 3 X meshes ( March: SpinningKick02 ); the hyper state registers no Init
+32c6ba10	CX2GULire_ElvenRanger::LESI_SI1_LCR_SPINNING_KICK_FrameMoveFuture	confirmed	Char Rena CH2b: thunk to CommonFrameMoveFuture ( vslot 0x7c8 ); the hyper state shares it ( March's hyper dash at 0.46 s is unregistered )
+32c6ba20	CX2GULire_ElvenRanger::LESI_SI2_LCR_CRESCENT_KICK_Init	PORTED	Char Rena CH2b: inside, _SKILL: preload list of 2 textures, 3 X meshes ( March: 4 names ); the hyper state registers no Init
+32c6ba70	CX2GULire_ElvenRanger::LESI_SI3_LCR_DIVE_KICK_BOMBING_Init	PORTED	Char Rena CH2b: inside, _SKILL: preload list of 6 textures, 1 Y mesh, 6 X meshes ( March: DiveKickBombing01 / 02 )
+32c6c710	CX2GULire_ElvenRanger::LESI_A_LE_RISING_FALCON_Init	PORTED	Char Rena CH2b: inside, _SKILL: preload list of 5 textures, 2 Y meshes, 2 X meshes ( March: empty ); the hyper state registers no Init
+32c6c790	CX2GULire_ElvenRanger::LESI_A_LE_RISING_FALCON_FrameMoveFuture	confirmed	Char Rena CH2b: thunk to CommonFrameMoveFuture
+32c6c860	CX2GULire_ElvenRanger::LESI_A_LWS_BACK_KICK_Init	PORTED	Char Rena CH2b: inside, _SKILL: preload list of 3 textures, 1 Y mesh, 3 X meshes ( March: 2 names )
+32c6cf80	CX2GULire_ElvenRanger::LESI_A_LWS_ASSAULT_IMPACT_Init	PORTED	Char Rena CH2b: inside, _SKILL: preload list of 3 textures, 1 X mesh ( March: 2 names )
+32c76630	CX2GULire_ElvenRanger::LESI_SI1_LCR_SPINNING_KICK_EventProcess	confirmed	Char Rena CH2b: animation end, then the 14 keys of ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC past 1.4 s
+32c76700	CX2GULire_ElvenRanger::LESI_SI2_LCR_CRESCENT_KICK_EventProcess	PORTED	Char Rena CH2b: inside, _SKILL: animation end; in the air past GetUsefulValueFuture( 0, 0 ) ( script 1.9 ) -> USI_JUMP_DOWN; then the 14 keys past 2.5 s; the hyper state shares it
+32c76800	CX2GULire_ElvenRanger::LESI_SI3_LCR_DIVE_KICK_BOMBING_EventProcess	confirmed	Char Rena CH2b: animation end only ( March's live part ); the hyper state shares it
+32c7a6c0	CX2GULire_ElvenRanger::LESI_SI_A_LE_RISING_FALCON_LANDING_EventProcess	confirmed	Char Rena CH2b: SKIP_TIME / CHANGE_TIME, direction-change flag reset, animation end, ASDC keys past SKIP_TIME
+32c7ae20	CX2GULire_ElvenRanger::LESI_A_LE_RISING_FALCON_EventProcess	confirmed	Char Rena CH2b: animation end on a line -> the landing state
+32c7d3a0	CX2GULire_ElvenRanger::LESI_A_LWS_ASSAULT_IMPACT_EventProcess	PORTED	Char Rena CH2b: inside, _SKILL: dash and walk cancels need the foot on a line ( RENA_GROUND_DASH_CANCEL / _WALK_ ), then SKILL_CANCEL_AFTER
+32c84ea0	CX2GULire_ElvenRanger::LESI_A_LWS_BACK_KICK_EventProcess	PORTED	Char Rena CH2b: inside, _SKILL: Enhanced skill key pressed again after a hit inside m_fEventTime[0]'s window, FlushMpOnce( SA_MP_CONSUMPTION ), sets the flag; flag past stateChange / animation end -> Low Kick; ground dash and walk cancels, SKILL_CANCEL_AFTER; no Z / X skip branch
+32c86e80	CX2GULire_ElvenRanger::LESI_SI1_LCR_SPINNING_KICK_FrameMove	PORTED	Char Rena CH2b: inside, _SKILL: cut-in ( Dummy1_Rhand, 0.1, 0 ) and CommonFrameMove only; meshes, particles and the memo test are the effect set's
+32c86eb0	CX2GULire_ElvenRanger::LESI_SI2_LCR_CRESCENT_KICK_FrameMove	PORTED	Char Rena CH2b: inside, _SKILL: cut-in ( Dummy1_Rhand, 0.14, 1 ) and CommonFrameMove only; the hyper state shares it
+32c86ee0	CX2GULire_ElvenRanger::LESI_SI3_LCR_DIVE_KICK_BOMBING_FrameMove	confirmed	Char Rena CH2b: cut-in ( Bip01_R_Foot, 0.14, 2 ) and CommonFrameMove ( March's live part under BALANCE_PATCH_20131107 ); the hyper state shares it
+32cad390	CX2GULire_ElvenRanger::LESI_A_LE_RISING_FALCON_FrameMove	confirmed	Char Rena CH2b: DAMAGE_DATA_NEXT at m_fDamageDataChangeTime, DAMAGE_DATA_LAST at m_fDamageDataChangeTime2 ( strings 3346f050 / 335197f0 )
+3208dcb0	CX2GUUser::FlushMpOnce( float )	PORTED	Char Rena CH2b: user vslot 0xe8 ( none in March ): +0x7638 set -> false; else FlushMp( mp ) and, on success, set it; CommonStateStartFuture clears it @32050759; members kept in CX2GUUser ( _SKILL )

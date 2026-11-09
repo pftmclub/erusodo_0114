@@ -12052,6 +12052,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) || !defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL ) )
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL needs SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE, SERV_IRUHADEV_JUNE_ENUM_NAMES and SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+// char-rena CH2b: Combat Ranger skills ( 32c6b950 .. 32cad390 ) and Back Kick's once-per-state MP ( FlushMpOnce ) ride the same flag
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_USEFUL_VALUE ) || !defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL needs SERV_IRUHADEV_JUNE_USEFUL_VALUE ( GetUsefulValueFuture ) and SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ( GetLearnedSkillAbilityValue )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -12060,7 +12064,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Rena ) Phase CH2a - temporary [JUNE_CHAR] RENA SKILL lines ( the equipped skill's slot and state ) for CH2a's play-test;
 //              they sit inside JUNE_CHAR_RENA_SKILL code only.
 //              Revert: undefine the flag ( JUNE_CHAR_RENA_SKILL_DEBUG ).
-//#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL

@@ -1864,6 +1864,20 @@ public:
 		RNSI_SA_RENA_PHOENIX_STRIKE_UPGRADE                   = 23030,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-09 // char-rena CH2b
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RCR_SPINNING_KICK                             = 23006,	// June's Enum.lua; the Combat Ranger skill switch cases
+		RNSI_SA_RCR_SPINNING_KICK_UPGRADE                     = 23034,
+		RNSI_SA_RCR_DIVE_KICK_BOMBING                         = 23007,
+		RNSI_SA_RCR_DIVE_KICK_BOMBING_UPGRADE                 = 23043,
+		RNSI_A_RCR_RISING_FALCON_UPGRADE                      = 23222,
+		RNSI_A_RCR_BACK_KICK                                  = 23203,
+		RNSI_A_RCR_BACK_KICK_UPGRADE                          = 23228,
+		RNSI_A_RCR_LOW_KICK_UPGRADE                           = 23229,
+		RNSI_A_RCR_ASSAULT_IMPACT                             = 23206,
+		RNSI_A_RCR_ASSAULT_IMPACT_UPGRADE                     = 23231,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)

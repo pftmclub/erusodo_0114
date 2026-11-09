@@ -679,6 +679,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 , m_bIgnoreNeverMove( false )
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+, m_bMpFlushedThisState( false )	// char-rena CH2b: June +0x7638
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL
 , m_bSkillCoolTimeSpeedDirty( false )
 , m_fSkillDamageRateBySlotType( 1.f )
@@ -16301,6 +16304,9 @@ void CX2GUUser::CommonStateStartFuture()
 		CX2SocketItem::SIEE_DOWN == ProcessSocketEffectEx( CX2SocketItem::SIEE_DOWN, this ) )
 		return;
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	m_bMpFlushedThisState = false;	// char-rena CH2b: June 320506f0 @32050759
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 
 	int index = 0;
 	// fix!! 죽고 스테이지 넘어가는 경우에 wait상태에서 현재 HP가 0이 될 수 있다, 다른 방법으로 해킹을 막자
@@ -44530,6 +44536,25 @@ float CX2GUUser::GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_
 	return pSkillTemplet->GetSkillAbilityValue( eType_, iLevel );
 }
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+// char-rena CH2b: June 3208dcb0 ( user vslot 0xe8 ): the MP of a once-per-state cost; false when this state has already spent it
+bool CX2GUUser::FlushMpOnce( const float fFlushMp_ )
+{
+	if( true == m_bMpFlushedThisState )
+		return false;
+
+	if( true == FlushMp( fFlushMp_ ) )
+	{
+		m_bMpFlushedThisState = true;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RENA SKILL flush mp once %.2f", fFlushMp_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+		return true;
+	}
+
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS
 namespace _CONST_GUUSER_CH1l5_
 {

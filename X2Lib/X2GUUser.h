@@ -5007,6 +5007,10 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
 	float GetLearnedSkillAbilityValue( const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const int iSkillID_ ) const;	/// June 32007b10
 #endif SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	bool FlushMpOnce( const float fFlushMp_ );	/// char-rena CH2b: June 3208dcb0 ( user vslot 0xe8 ): spends the MP once per state, false once it was spent
+	bool m_bMpFlushedThisState;	/// char-rena CH2b: June +0x7638 ( false; CommonStateStartFuture clears it @32050759 )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE
 	DelegateProcess m_DelegateProcessInHitCreateDamageEffect;	/// June +0x8dbc / +0x8dc0: run when a hit spawns its create-damage-effect
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_PASSIVE

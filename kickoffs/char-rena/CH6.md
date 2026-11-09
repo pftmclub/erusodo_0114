@@ -50,3 +50,9 @@ The walk adds the cut-in checks CH5 left to it: on each Rena job cast a skill th
 CH2a's play-test cast only the Enhanced ids on unawakened Rena. The walk adds, on class 3: each of Rail Stinger, Perfect Storm, Aero Tornado, Assault Kick and Phoenix Strike
 cast once while awakened (the hyper state: Rail Stinger and Aero Tornado use their own `_HYPER` tables), and one base id (23000-23004 or 23200 Backflip Shot, not the Enhanced one)
 slotted and cast: it must bind its own state, not fall into the Power Attack default.
+
+## Amended by CH2b (2026-11-09)
+
+CH2b's play-test casts only the Enhanced ids unawakened. The walk adds, on class 12 (`CombatRangerT`, unit 87): each of Spinning Kick, Crescent Kick, Dive Kick Bombing, Rising Falcon, Back Kick, Low Kick and Assault Impact
+cast once while awakened (the hyper state: Crescent Kick and Dive Kick use their own `_HYPER` table names with the normal functions), and one base id (23005-23007, 23202-23206, not the Enhanced one) slotted and cast: it must bind its own state,
+not fall into the Power Attack default. Back Kick's base id (23203) must **not** chain to Low Kick on a second press (June tests the Enhanced templet's `m_iDeleteSkillIDByUpgrade`).

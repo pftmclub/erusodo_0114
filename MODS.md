@@ -6159,3 +6159,22 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (`Always.h`; `#error` without `..._REN
 | Siege Mode (23201 / 23221) | the siege states (CH1f) | no change in this phase |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every Rena skill falls back to the Power Attack default), `python tools/build.py --deploy`.
+
+## Stage 7 Rena, CH2b: Combat Ranger (class 12) skills (2026-11-09)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (same flag as CH2a; `Always.h` gains a second `#error` line: `..._USEFUL_VALUE`, `..._USER_SKILL_LEVEL_HELPERS`) and the temporary `..._SKILL_DEBUG` (re-defined for this play-test). Plan `JUNE_CHARACTER_RENA_PHASES.md` "CH2b - Done". Client only, no data change.
+- **What changes in game.** The seven class-12 skills run June's registrations in the id switch of `SetEquippedSkillFuncBySkillSlotIndex` (before this they fell into the Power Attack default): Spinning Kick (23006 / 23034), Crescent Kick (23005 / 23031), Dive Kick Bombing (23007 / 23043), Rising Falcon (23202 / 23222), Back Kick (23203 / 23228), Low Kick (23204 / 23229; CH1e's functions) and Assault Impact (23206 / 23231). `X2SkillTree.h` gains ten `RNSI_*` names.
+- **Differs from March.** Spinning Kick and Crescent Kick lose their FrameMove meshes, particles and damage effects (the state's effect set carries them) and keep the cut-in and `CommonFrameMove`; the hyper states share the normal state's functions (March's hyper dash of Spinning Kick at 0.46 s is no longer registered). Dive Kick has no FrameMoveFuture (March's dash at 0.29 s is gone; the state's own data moves her). Crescent Kick falls to the air state once `USEFUL_VALUE0` ( script 1.9 s ) has passed with the foot off a line. Assault Impact's dash and walk cancels, and Back Kick's, need the foot on a line. **Back Kick (Enhanced only):** press its key again after the kick has hit, inside the key window ( script 0.2 s to the end ), and it spends its `SA_MP_CONSUMPTION` MP once and goes on to Low Kick at 0.62 s; Back Kick loses its Z / X skip branch. New `CX2GUUser::FlushMpOnce` ( June `3208dcb0`, user vslot `0xe8` ) with its per-state flag ( cleared by `CommonStateStartFuture` ). Each skill preloads June's texture / mesh list.
+- **Damage (level-1 multiplier; June = the damage effects' NUMERICAL_DATA through the engine, x0.01; March = the damage effects C++ spawned, now not spawned).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Spinning Kick (23006 / 23034) | the two state tables | state tables `DAMAGE_DATA` / `_NEXT`, `NUMERICAL_DATA_INDEX` 1 each ( value on the play-test's `NUM use` line ) |
+| Crescent Kick (23005 / 23031) | `CRESCENT_KICK_A` x2 / `_B` damage effects | 2.33, 2.33, 3.52 ( hyper 2.97, 2.97, 4.49 ) |
+| Dive Kick Bombing (23007 / 23043) | the state table | 9.70, 2.25, 2.25, 15.48 ( hyper 12.40, 2.88, 2.88, 19.79, 10.22 ) |
+| Rising Falcon (23202 / 23222) | the state tables | `DAMAGE_DATA` / `_NEXT` index 1, `_LAST` index 2 ( `NUM use` ); landing 1.09 |
+| Back Kick (23203 / 23228) | the state table | impact 9.87 |
+| Low Kick (23204 / 23229) | CH1e | impact 6.54 |
+| Assault Impact (23206 / 23231) | the state table | `DAMAGE_DATA` index 1, `_NEXT` index 2 ( `NUM use` ) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every class-12 skill falls back to the Power Attack default, and CH2a's seven too), `python tools/build.py --deploy`.
