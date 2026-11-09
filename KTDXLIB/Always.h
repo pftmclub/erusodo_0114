@@ -11935,7 +11935,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Rena ) Phase CH1a - Rena runs on June's class core: June's bodies inside March's own CX2GULire_ElvenRanger functions.
 //              Stays commented out until CH1's final sub-phase ships it with June's Lire_ElvenRanger.lua and motions ( one deploy unit ).
 //              Revert: comment out the #define ( JUNE_CHAR_RENA_LIVE ).
-//#define SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifndef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE needs SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK ( TryHyperModeStateChange )
@@ -12010,7 +12010,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Rena ) - the natural-force / combo-revamp lines inside June's bodies ( CH1a: WaitStart ); they need March's ADD_RENA_SYSTEM members,
 //              so CH1q defines this flag together with ADD_RENA_SYSTEM. Revert: comment out the #define ( JUNE_CHAR_RENA_NF ).
 //              CH1q ( 2026-11-09 ): it defines ADD_RENA_SYSTEM; second home KncWX2Server/Common/ServerDefine.h ( CommonPacket.h precedes Always.h ): toggle both together.
-//#define SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_NF needs SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
@@ -12034,7 +12034,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Rena ) Phase CH1q2 - temporary [JUNE_CHAR] RENA NF lines ( gauge UI, gauge from packet, awakening refund )
 //              for CH1 final's play-test; they sit inside JUNE_CHAR_RENA_NF code only.
 //              Revert: undefine the flag ( JUNE_CHAR_RENA_NF_DEBUG ).
-//#define SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_RENA_NF

@@ -1683,6 +1683,50 @@ and + `_NF_DEBUG`: 0 errors each; `_NF_DEBUG` alone: `Always.h(12040) : fatal er
 
 **Nothing to play-test.** CH1 kickoff checked (its "Amended by CH1q2" section is current). Next: `/x2-phase char-rena CH1` (Opus 5.5 high).
 
+### CH1 - Done (2026-11-09)
+
+Opus 5.5. **The deploy unit is live.** `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE` (`Always.h:11938`), `SERV_IRUHADEV_JUNE_CHAR_RENA_NF` (`Always.h:12013` and its second home
+`ServerDefine.h:4792`; defines `ADD_RENA_SYSTEM`) and `_NF_DEBUG` (`Always.h:12037`, for the play-test; the review retires it) are defined, so Rena runs June's
+registration, state bodies, virtuals, skill head, pressed-slot space and natural force (CH1a-CH1q2). Every `#ifndef` guard in the `_LIVE` / `_NF` blocks names a flag
+`#define`d earlier in `Always.h` (none lives only in `ServerDefine.h`, Raven's KTDXLIB trap).
+- **Script:** `luasrc.py adopt-june data036 Lire_ElvenRanger.lua` (dry run first): June's file replaces March's whole as `ljconv` bytecode, 209,576 B sha1 `028e14dc`,
+  no core-list row, no sidecar. Record `june2017_re/june_adopt_20261109_180855.tsv`, backup `24965799\kom_backup_stage_june\20261109_180855`.
+  `luabind.py check Lire_ElvenRanger`: 0 methods, 0 unbound, `RESULT: PASS`.
+- **Motions:** `kom.py stage-june june2017_re/char_rena/ch1_held_motions.tsv`: `Motion_Lire.x` (6,614,767 B), `_GA` (2,757,337), `_RTR` (2,966,118), `_SR` (3,135,823),
+  `_WS` (2,739,968) replace March's in data033 (5 replaced; backup `kom_backup_stage_june\20261109_180909`).
+- **Packed / copied (user approved):** `PACK OK data036` (~1 `Lire_ElvenRanger.lua`), `PACK OK data033` (~5 motions);
+  `COPY OK data036 ... 14051967 bytes, 270 entries, md5 7b59ffcad6e3e1158a354ec069b7c4c7`, `COPY OK data033 ... 178842869 bytes, 165 entries, md5 8a858fe781945edadc938f67827c6a1f`.
+- **`[JUNE_CHAR] RENA DATA`** (`_LIVE`, end of June's `InitState`, `X2GULire_ElvenRanger.cpp:3897`, offline_server.log): class, script, motion, state count,
+  `wait_state_change`, as Raven's. `X2OfflineLog.h` is included under `_LIVE` (`:3-6`). No `RENA CORE` line: nothing in the class core needs one beyond `RENA DATA`.
+- **7h:** June's `LESI_WAIT_STATE_CHANGE` has `ANIM_NAME = ""` (`Lire_ElvenRanger.src.lua:517`); Rena's `CommonStateStart` (`:7548`) hands off to
+  `CX2GUUser::CommonStateStart`, the path the five earlier classes take.
+- **`ReservedSkillStart`** (CH1k) is live: the `.i` with `_LIVE` + `_NF` has the base virtual and `CX2GULire_ElvenRanger::ReservedSkillStart` (`:8354`).
+- **Lua load check:** `luasrc.py core --check` `CORE CHECK PASS: 0 FAIL, 0 WARN`, `ledger --check` `LEDGER CHECK PASS`. Core files Rena reads: `Enum.lua`, `UnitTemplet.lua`,
+  `NPCTemplet.lua` (source), `DamageEffect.lua`, `EffectSet.lua` (June bytecode). Load-time errors show only in `ErrorLog.txt`: reference
+  `data\ErrorLog_pre_CH1_rena.txt` (1,046,346 B, the log of the last pre-CH1 run, 2026-11-08 19:09) and, for Rena loads, `ErrorLog_pre_CH0b_rena.txt`.
+- **Scans:** `charport_keys.py Lire_ElvenRanger`: 256 keys, `june-only=6 neither=3 march-only-site=4 both=243`; CH0 had 241 / 8 / 3 / 4: the two class keys CH1p gave
+  readers (`BOW_SKILL_STATE`, `DAMAGEDATA_CHANGE_TIME*`) moved to both; the 6 left are CH0's (`BBT_` / `BFT_` no reader, camera pair Stage 9, `IMMUNITY_EDT` and
+  `IMMUNE_TO_SUPER_ARMOR_DOWN` Stage 2). `charport_scan.py` (census rerun first: 26 PASS, 0 FAIL; `census.tsv` / key matrix reverted after): `no NUMERICAL_DATA_INDEX` 65 / `no DAMAGE table` 12, the whole body identical to `char_rena/plan_charport_scan_20261107.txt`. Nothing new.
+- **junediverge, now that `_LIVE` is on:** two `GT_PVP` hits in Rena's `_LIVE` bodies (CH1h's `ReInit` / `InitComponent`; `--check-all` never saw them while `_LIVE` was off).
+  June tests type 1 only at both (`32ca4a40` @32ca4ac9 vslot 0x10c `cmp eax, 1 / jz`; `32c895b0` @32c895f4 `dec eax / jnz`): two `june_diverge_allow.tsv` rows, no code change.
+- **Checklist:** `(Rena: CH1 ...)` at l.16, 423, 427, 509, 548, 592, 674, and `(Rena: CH0b / CH1 ...)` at l.760. l.120 (`ADDITIONAL_ATTACK_TRIGGER_TYPE`): Rena's script has none.
+- `MODS.md`: "Stage 7 Rena, CH1" (flags, the two replaced assets and their backups, revert order).
+
+Hygiene: `flagcheck.py JUNE_CHAR_RENA_LIVE --worktree --files X2Lib/X2GULire_ElvenRanger.cpp KTDXLIB/Always.h KncWX2Server/Common/ServerDefine.h`: `1 PASS, 0 PASS~, 0 DEFINE,
+2 OTHER, 0 FAIL, 0 ERROR`; 0 deleted / non-ASCII / EOL / encoding; `RESULT: PASS` (the OTHERs are the define flips). `_NF`: `0 PASS, 1 DEFINE, 2 OTHER, 0 FAIL`, `RESULT: PASS`;
+`_NF_DEBUG`: `3 OTHER, 0 FAIL`, `RESULT: PASS`. `junediverge.py --check X2Lib/X2GULire_ElvenRanger.cpp KTDXLIB/Always.h`: `allow-listed: 5`, `RESULT: PASS`; `--check-all`:
+`allow-listed: 202`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s)`. One-file probes (`/c /Zs /EHsc`, all three flags on): 12 files
+(`X2GULire_ElvenRanger`, `X2GUUser`, `X2GageUI`, `X2GageData`, `X2GageManager`, `X2DamageManager`, `X2DamageEffect`, `X2EffectSet`, `X2GUNPC`, `X2Game`, `X2GameUnit`,
+`Offline/X2OfflineStatTable`) exit 0, 0 errors.
+Build (`--pch force`): `DEPLOY OK: X2_offline.exe is 26,148,864 B, dated 2026-11-09 18:19:39, md5 034256dd8f3a8d5c34d5269001f808ac, equal to X2/US_SERVICE/x2.exe (2026-11-09 18:19:30); built at main 9f62c3a7 + 3 uncommitted code file(s).`
+`EXESTR OK: 4 of 4 found in X2_offline.exe, 26148864 B, dated 2026-11-09 18:19:39, md5 034256dd8f3a8d5c34d5269001f808ac` (`RENA DATA` wide x1, `RENA NF gauge` x2,
+`from packet` x1, `awakening` x1).
+
+**Play-test (user) is the gate:** units 86 (3), 87 (12), 88 (13), 91 (24), 89 (102), 12 (103), 90 (114), none transcended, skills in slots 0-3 only; combos, dash, jump,
+double jump, a bounding hit, damage and stand-up, riding, awakening; natural force from combo first hits, its gauge, spending, the awakening refund and a relog; `RENA DATA`
+per class; ErrorLog against the references. Skills are not tested here (Raven's precedent, user 2026-11-06: an unported skill cannot be cast); the two-casts check
+(cool time, MP, `ReservedSkillStart`) is CH2a's first hand-off.
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

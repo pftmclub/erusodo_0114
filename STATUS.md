@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1 | **ready** (`/x2-phase char-rena CH1`, Opus 5.5 high): define `_LIVE` + `_NF`, adopt the script, copy the 5 held motions, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036, motion kom | `CH1.md` |
+| CH1 | **user play-test** (2026-11-09): `_LIVE` + `_NF` (+ `_NF_DEBUG`) live, June script + 5 motions copied, exe 034256dd; then `/x2-phase char-rena CH1 review` | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036, motion kom | `CH1.md` |
 | CH2a | blocked (CH1 review): Rena (3) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GULire_ElvenRanger.*`, `MODS.md` | `CH2a.md` |
 | CH2b | blocked (CH2a review): Combat Ranger (12) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GULire_ElvenRanger.*` | `CH2b.md` |
 | CH2c | blocked (CH2b review): Sniping Ranger (13) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2b review | `X2GULire_ElvenRanger.*` | `CH2c.md` |

@@ -1,5 +1,9 @@
 #include "StdAfx.h"
 #include ".\x2gulire_elvenranger.h"
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// char-rena CH1: the RENA DATA line
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 #ifdef SERV_RENA_NIGHT_WATCHER
 
@@ -3889,6 +3893,10 @@ void CX2GULire_ElvenRanger::InitState()
 	if( 0 < GetNaturalForceCount() )			/// June 32c85200( 1 ) when the count is above 0
 		SetNaturalForceBuff( true );
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	// char-rena CH1: not June, the done-gate line ( June's script, its LESI wait-state-change table and the motion loaded )
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA DATA class %d script %s motion %s states %d wait_state_change %d", static_cast<int>( eClass ),
+		m_ScriptFileName.c_str(), NULL != m_pMotion ? m_pMotion->GetDeviceID().c_str() : L"(none)", static_cast<int>( m_StateList.size() ),
+		m_StateList.end() != m_StateList.find( static_cast<UserUnitStateDataMap::key_type>( USI_WAIT_STATE_CHANGE ) ) ? 1 : 0 );
 #else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 	ASSERT( NULL != GetUnit() );

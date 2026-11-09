@@ -4789,7 +4789,7 @@
 // Author: Iruha
 // Date: 2026-11-09
 // Description: char-rena CH1q: Rena's natural force switches on March's dormant ADD_RENA_SYSTEM code ( decision 1 = (a) ). Also in KTDXLIB/Always.h; this second home exists because CommonPacket.h ( CAC_NATURAL_FORCE, GetNaturalForce ) is compiled before Always.h is reachable. Defined only with SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE ( CH1 final ): comment both in / out together.
-//#define SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #define ADD_RENA_SYSTEM
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
