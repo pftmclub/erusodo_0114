@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1q | **ready** (`/x2-phase char-rena CH1q`, Opus 5.5 high): natural force, class side: 27 fn whose March twin is `ADD_RENA_SYSTEM`-only (decision 1 = (a)), flipped arms, flag `_NF` | Opus 5.5 / high, Opus review | CH1p review, decision 1 | class, `X2GUUser.*`, `X2Gage*`, `X2DamageManager.*`, `X2DamageEffect.cpp`, `X2EffectSet.*`, `X2GUNPC.*`, `CommonPacket.h`, `ServerDefine.h`, `X2Offline*` | `CH1q.md` |
+| CH1q | done, review **ready** (`/x2-phase char-rena CH1q review`, Opus 5.5 high): `_NF` defines `ADD_RENA_SYSTEM` (+ ServerDefine.h home), 9 June bodies, rest = March; no play-test | Opus 5.5 / high, Opus review | CH1p review, decision 1 | class, `X2GUUser.cpp`, `X2DamageEffect.cpp`, `X2Define.h`, Always.h, `ServerDefine.h`, `flagcheck.py` | `CH1q-review.md` |
 | CH1q2 | blocked (CH1q review): natural force, engine side: `CX2RenaGageData` / `CX2RenaMyGageUI`, gauge manager, emulator `CAC_NATURAL_FORCE`, engine callers (CH0 split) | Opus 5.5 / high, Opus review | CH1q review | `X2Gage*`, `X2GUNPC.*`, `X2BuffFactor` / hyper buff, `X2Game.cpp`, `X2Offline*`, `CommonPacket.h` | `CH1q2.md` |
 | CH1 | blocked (CH1q2 review, CH0b): define `_LIVE` + `_NF`, adopt the script, copy the 5 held motions, play-test | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036, motion kom | `CH1.md` |
 | CH2a | blocked (CH1 review): Rena (3) skills, flag `_SKILL` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GULire_ElvenRanger.*`, `MODS.md` | `CH2a.md` |

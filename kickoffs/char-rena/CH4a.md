@@ -55,3 +55,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Amended by the CH1j review (2026-11-09): the Rage Fungus map key.** `m_mapRageFungusTargetLockTime` is `std::map< std::pair< int, UidType >, float >`. `32c86790` builds the key from the hit target as `std::make_pair( m_GameUnitType ( +0x264 ), GetUnitUID() )`. June stores it uid-first, and its compare lacks the reverse type test ( JUNE_BUGS 569 ). Keep the pair; do not copy June's compare.
 
 - **Amended by CH1k (2026-11-09).** `NoStateChangeActionFrameMove` handles a June user action `0x28` ( Soft Body, skill `23402` `RNSI_P_RWS_SOFTBODY` buff factors 0 and 1 ) whose writer was not found in CH1k's functions: find who sets `nowAction` to `0x28` while porting the passives. `GetStateAnimSpeedRate` reads the same skill ( `SA_ANI_SPEED` ) for Combat Ranger / Wind Sneaker; March's `SI_P_LCR_AGILE_MOVEMENT` ( 3401 ) is no longer read under `_LIVE`.
+
+## Amended by CH1q (2026-11-09)
+
+- `InitPassiveSkillState` `32ca78b0` @32ca803e-32ca80fd: zero `+0x97e0` and `+0x97e4`, then the first learned of `RNSI_P_RWS_OPEN_MIND` (23412) /
+  `RNSI_P_RGA_OPEN_MIND` (23414) / `RNSI_P_RNW_OPEN_MIND` (23416) sets `+0x97e0` = its SA 0x4f value (32007b10) and `+0x97e4` = its SA 5 value.
+  `+0x97e0` is CH1q's `m_fOpenMindMpPerNaturalForce` (ConsumeNaturalForce refunds n x it as MP); `+0x97e4` has no member yet: declare it here.

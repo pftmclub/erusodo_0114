@@ -46,3 +46,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH0 (2026-11-07)
 
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): intro L14 character script Lire_ElvenRanger.lua feeds SetDamageDataFromLUA; §7h L423 EFFECT_SET_LIST_* variants (_FINAL / _FINAL_ULTIMATE); §7h L427 USEFUL_VALUE rows and getters; §7o L507 SET_LIMIT_MAX_G_SPEED in <prefix>DAMAGE_BOUNDING_DOWN (-4000) and Rave; §7p L548 TIME_STOP_IMMUNE_STATE = TRUE in the class script; §7t L592 SHOW_HYPER_CUT_IN_TIME in the class script; §7x L669 combo hits carry June's AT_COMMAND tag; adopt the script with its tags; §7ad L753 stage June Motion_Lire* files with the class script; Lire's ComboX3 / .
+
+## Amended by CH1q (2026-11-09)
+
+- `SERV_IRUHADEV_JUNE_CHAR_RENA_NF` has two homes: `KTDXLIB/Always.h` and `KncWX2Server/Common/ServerDefine.h` (CommonPacket.h needs
+  `ADD_RENA_SYSTEM`; `SECOND_HOMES` row). Uncomment both together with `_LIVE`; `_NF` `#error`s without `_LIVE`, `SPAWN_INHERIT`, `MP_CHANGE_TEXT`,
+  `SKILL_STATE_BUFF`. Build with `--pch force` (Always.h and ServerDefine.h change).
+- What the play-test can show: a natural force point every 3 first hits of a combo (June 3.0; March 6), one BFI 355 stack per point, the combo bomb /
+  skill explosion spending points, a hyper mode (or transcendence hyper mode) start re-stacking the buff.

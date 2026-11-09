@@ -93,7 +93,11 @@
 
 #ifdef ADD_RENA_SYSTEM //김창한
 	const int MAX_NATURAL_FORCE_VALUE = 5;		// 최대 자연의 기운 수치
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	const int NATURAL_FORCE_VALUE_PER_HIT = 3;	// char-rena CH1q: June 3.0 ( AttackResultByType 32ca7130 @32ca73fd )
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 	const int NATURAL_FORCE_VALUE_PER_HIT = 6;	// 하나의 자연의 기운이 되는 타격 횟수
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 	const int NATURAL_FORCE_BUFF = 3;			// NF 버프가 걸리는 자연의 기운 수
 #endif //ADD_RENA_SYSTEM
 

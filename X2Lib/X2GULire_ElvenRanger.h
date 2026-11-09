@@ -590,9 +590,15 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 
 #ifdef ADD_RENA_SYSTEM //김창한
 		void	ConsumeNaturalForce( int iCount_ );				//자연의 기운 소모
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+		void	UpNaturalForce( int iUpCount_ );	// char-rena CH1q: June 32cb6290 / 32cb50e0 / 32cb50c0 are out of line ( engine callers )
+		bool	IsEmptyNaturalForce();
+		int		GetNaturalForceCount();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 		__forceinline void	UpNaturalForce( int iUpCount_ );	//자연의 기운 획득
 		__forceinline bool	IsEmptyNaturalForce();				//자연의 기운이 하나도 없는지 체크
 		__forceinline int	GetNaturalForceCount();				//현재 자연의 기운 갯수 반환
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 
 		virtual void	SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
 		virtual void	UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
@@ -1911,6 +1917,8 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		unsigned short GetRageFungusTargetLockCount();	/// char-rena CH1o review: June 32c85b20: drops the locks at or below 0 ( a NaN stays ), returns how many stay ( read by unit vslot 0x6c 3229a530: Stage 33 )
 		void StoreGageSnapshot();	/// June 32c852f0 ( user vslot 0x740, base 32009780 Crest of Time snapshot not ported ): keeps the natural force count
 		int m_iSnapshotNaturalForceCount;	/// June +0x92b4 ( CX2GUUser snapshot region, constructor 0 ): the count StoreGageSnapshot keeps
+		void RestoreGageSnapshot();	/// char-rena CH1q: June 32c89230 ( user vslot 0x744, base 3204da60 Crest of Time restore not ported ): gives the count back
+		float m_fOpenMindMpPerNaturalForce;	/// char-rena CH1q: June +0x97e0 ( constructor 0 ): Open Mind's MP per natural force point consumed ( InitPassiveSkillState 32ca78b0 writes it: CH4a )
 		void ResetEradicationLoop();	/// June 32ca2aa0: the loop's end ( CommonFrameMove ): the hit count restarts and the loop effect set stops
 		float GetPredatorDamageMultiple( const int iStage_ );	/// June 32c6d800: one Predator stage's SA_SKILLDAMAGE_MULTIPLE_01..04 ( 1.0 past the fourth )
 		int GetPredatorDamageStage( const float fRoll_ );	/// June 32c83280: the stage a 0..1 roll falls in ( widths SA_SKILLDAMAGE_MULTIPLE_01..03_RATE, the rest is stage 3 )

@@ -5214,6 +5214,21 @@ void CX2DamageEffect::CEffect::AttackResult()
 					if( NULL != pMeshInst )
 					{
 						D3DXVECTOR3 angle = pMeshInst->GetXSkinAnim()->GetMatrix().GetRotateDegree();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+						// char-rena CH1q: June 31f85910 @31f860fd: the child takes the parent's first-attack and relate data, then SPAWN_INHERIT's sequence
+						CX2DamageEffect::CEffect* pCreatedEffect = m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), m_fPowerRate,
+							m_DamageData.impactPoint, angle, angle, m_fLandPos );
+						if( NULL != pCreatedEffect )
+						{
+							pCreatedEffect->GetDamageData().m_eFirstAttack = m_DamageData.m_eFirstAttack;
+							pCreatedEffect->GetDamageData().m_RelateSkillData = m_DamageData.m_RelateSkillData;
+#ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
+							pCreatedEffect->SetScale( m_DamageData.m_vCreateDamageEffectNameScale );
+#endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+						}
+						InheritFromParent( pCreatedEffect );
+						ApplyCreateDamageEffectRate( pCreatedEffect );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #ifdef ADD_RENA_SYSTEM //김창한
 						//스킬, 관련 데이터 값, 첫타인지 체크 하는 값을 상속함
 						CX2DamageEffect::CEffect* pDamageEffect = m_pManager->CreateInstance( pOwnerGameUnit,m_DamageData.m_wstrCreateDamageEffectName.c_str(), m_fPowerRate,
@@ -5257,6 +5272,7 @@ void CX2DamageEffect::CEffect::AttackResult()
 							m_DamageData.impactPoint, angle, angle, m_fLandPos );
 #endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 #endif //ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 
 					}
 				}

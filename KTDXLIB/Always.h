@@ -12009,10 +12009,21 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-11-07
 // Description: June character port ( Rena ) - the natural-force / combo-revamp lines inside June's bodies ( CH1a: WaitStart ); they need March's ADD_RENA_SYSTEM members,
 //              so CH1q defines this flag together with ADD_RENA_SYSTEM. Revert: comment out the #define ( JUNE_CHAR_RENA_NF ).
+//              CH1q ( 2026-11-09 ): it defines ADD_RENA_SYSTEM; second home KncWX2Server/Common/ServerDefine.h ( CommonPacket.h precedes Always.h ): toggle both together.
 //#define SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_NF needs SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+#ifndef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_NF needs SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+#endif SERV_IRUHADEV_JUNE_SPAWN_INHERIT
+#ifndef SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_NF needs SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
+#endif SERV_IRUHADEV_JUNE_MP_CHANGE_TEXT
+#ifndef SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_NF needs SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_BUFF
+#define ADD_RENA_SYSTEM
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 //////////////////////////////////////////////////////////////////////////

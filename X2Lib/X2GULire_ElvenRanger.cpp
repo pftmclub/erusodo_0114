@@ -421,6 +421,7 @@ CX2GULire_ElvenRanger::CX2GULire_ElvenRanger( int unitIndex, int teamNum,
 	m_bSkillCameraOverride = false;
 	m_fSkillCameraOverrideValue = 0.f;
 	m_bAfterImageSaved = false;	// June's after-image byte +0x1d1 starts false
+	m_fOpenMindMpPerNaturalForce = 0.f;	// char-rena CH1q: June @32ca4252
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	ResetEradicationLoop();	// June @32ca42ab
@@ -11364,6 +11365,64 @@ void CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_EventProce
 
 void CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// char-rena CH1q: June 32c8b2c0 ( 6 MP through the helper at 0.18 s, three XX arrows )
+if( m_pXSkinAnim->EventTimerOneshot( 0.18f ) )
+{
+	D3DXVECTOR3 degree = GetRotateDegree();
+	if( FlushMp( GetArrowMpConsumption( 6.0f ) ) == true )
+	{
+		CX2DamageEffect::CEffect* pDE = NULL;
+		D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+
+		degree.z = -90.0f;
+		pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RSR_Double_Jump_Combo_XX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+		if( NULL != pDE )
+		{
+			pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+			pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+			pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+			CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+			if( NULL != pMainEffect )
+				pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+		}
+
+		degree.z = -70.0f;
+		pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RSR_Double_Jump_Combo_XX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+		if( NULL != pDE )
+		{
+			pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+			pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+			pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+
+			CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+			if( NULL != pMainEffect )
+				pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+		}
+
+		degree.z = -110.0f;
+		pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RSR_Double_Jump_Combo_XX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+		if( NULL != pDE )
+		{
+			pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+			pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+			pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+
+			CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+			if( NULL != pMainEffect )
+				pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+		}
+	}
+	else
+	{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+		CreateNotEnoughMPEffect( pos, 0.f, 0.f, -90.f );
+	}
+}
+
+CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	if( m_pXSkinAnim->EventTimerOneshot( 0.18f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -11426,6 +11485,7 @@ void CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_FrameMove(
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 #endif //ADD_RENA_SYSTEM
@@ -31681,6 +31741,17 @@ void CX2GULire_ElvenRanger::StoreGageSnapshot()
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 }
 
+/// char-rena CH1q: June 32c89230 ( user vslot 0x744 ): gives the kept natural force count back; stand-in: the base 3204da60 ( Crest of Time HP / MP restore ) is not ported
+void CX2GULire_ElvenRanger::RestoreGageSnapshot()
+{
+	if ( false == IsMyUnit() )
+		return;
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	SetNaturalForceCount( m_iSnapshotNaturalForceCount );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+}
+
 /// June 32c863d0 ( user vslot 0x774, base 31f3f070 is an empty stub ): the siege aim ( limits from SIEGE_ANGLE ); an all-zero aim leaves the unit's own rotation in the member only
 void CX2GULire_ElvenRanger::UpdateSpineAimRotation()
 {
@@ -34341,6 +34412,79 @@ const CX2SkillTree::ACTIVE_SKILL_USE_CONDITION CX2GULire_ElvenRanger::GetSkillUs
 /*virtual*/ void CX2GULire_ElvenRanger::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 {
 	CX2GUUser::AttackResultByType( pDamageData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// char-rena CH1q: June 32ca7130: only NFT_SPECIAL_ACTIVE takes the skill path; NFT_ACTIVE charges on its first hit like a combo
+	if( pDamageData.m_NaturalForceType < CX2DamageManager::NFT_COMBO )
+		return;
+
+	if( CX2DamageManager::NFT_ACTIVE < pDamageData.m_NaturalForceType )
+	{
+		if( CX2DamageManager::NFT_SPECIAL_ACTIVE != pDamageData.m_NaturalForceType )
+			return;
+
+		if( true != CheckDamageRelateSkillData( pDamageData.m_RelateSkillData ) )
+			return;
+
+		if( GetNaturalForceCount() < 1 )
+			return;
+
+		Byte byteConsumeNFBySkill = pDamageData.m_RelateSkillData.m_byteRelateData;
+		DeleteDamageRelateSkillData( pDamageData.m_RelateSkillData );
+		CX2DamageEffect::CEffect* pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"NATURAL_FORCE_EXPLOSION_BOOM_SKILL", 1.f, pDamageData.impactPoint, GetRotateDegree(), GetRotateDegree() );
+
+		if( GetNaturalForceCount() < static_cast<int>( byteConsumeNFBySkill ) )
+			byteConsumeNFBySkill = static_cast<Byte>( GetNaturalForceCount() );
+
+		if( pDE != NULL )
+		{
+			pDE->GetDamageData().damage.fMagic *= byteConsumeNFBySkill;
+			pDE->GetDamageData().damage.fPhysic *= byteConsumeNFBySkill;
+		}
+		ConsumeNaturalForce( byteConsumeNFBySkill );
+		return;
+	}
+
+	if( CX2DamageManager::FAC_FIRST_ATTACK != pDamageData.m_eFirstAttack )
+		return;
+
+	bool bIsUpNaturalForce = false;
+	if( GetNaturalForceCount() < GetRenaGageData()->GetMaxNaturalForce() )
+	{
+		if( pDamageData.m_RelateSkillData.m_byteRelateData < 10 )
+			++m_fNaturalForceValueCharge;
+		else if( pDamageData.m_RelateSkillData.m_byteRelateData == 100 && CheckDamageRelateComboData( pDamageData.m_RelateSkillData ) )
+			++m_fNaturalForceValueCharge;
+
+		if( NATURAL_FORCE_VALUE_PER_HIT <= m_fNaturalForceValueCharge )
+			bIsUpNaturalForce = true;
+	}
+
+	if( CX2DamageManager::NFT_COMBO_BOMB == pDamageData.m_NaturalForceType && 0 < GetNaturalForceCount() )
+	{
+		bool bCreate = true;
+		if( 10 <= pDamageData.m_RelateSkillData.m_byteRelateData )
+		{
+			if( true == CheckDamageRelateSkillData( pDamageData.m_RelateSkillData ) )
+				DeleteDamageRelateSkillData( pDamageData.m_RelateSkillData );
+			else
+				bCreate = false;
+		}
+
+		if( true == bCreate )
+		{
+			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"NATURAL_FORCE_EXPLOSION_BOOM_COMBO", 1.f, pDamageData.impactPoint, GetRotateDegree(), GetRotateDegree() );
+			ConsumeNaturalForce( 1 );
+		}
+	}
+
+	if( true == bIsUpNaturalForce )
+	{
+		m_fNaturalForceValueCharge -= NATURAL_FORCE_VALUE_PER_HIT;
+		UpNaturalForce( 1 );
+	}
+
+	pDamageData.m_eFirstAttack = CX2DamageManager::FAC_NOT_CHECK;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 
 	switch( pDamageData.m_NaturalForceType )
@@ -34444,6 +34588,7 @@ const CX2SkillTree::ACTIVE_SKILL_USE_CONDITION CX2GULire_ElvenRanger::GetSkillUs
 		break;
 
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 /** @function 	: ConsumeNaturalForce
@@ -34451,17 +34596,31 @@ const CX2SkillTree::ACTIVE_SKILL_USE_CONDITION CX2GULire_ElvenRanger::GetSkillUs
 */
 void CX2GULire_ElvenRanger::ConsumeNaturalForce( int iCount_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// char-rena CH1q: June 32c9f7a0: Open Mind's MP per point, nothing taken in full hyper mode, the buff re-stacks to the new count
+	if( 0.f < m_fOpenMindMpPerNaturalForce )
+		UpNowMpWithText( static_cast<float>( iCount_ ) * m_fOpenMindMpPerNaturalForce );
+
+	const int iConsumeCount = ( true == IsFullHyperMode() ) ? 0 : iCount_;
+	SetNaturalForceCount( GetNaturalForceCount() - iConsumeCount );
+	SetNaturalForceBuff( false );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	SetNaturalForceCount( GetNaturalForceCount() - iCount_ );
 
 	//각성 상태일 때는 수치와 상관없이 버프를 해제 시키지 않는다.
 	if( (GetRemainHyperModeTime() <= 0.f) && (GetNaturalForceCount() < NATURAL_FORCE_BUFF && GetNaturalForceBuff() == true) )
 		SetNaturalForceBuff( false );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 /** @function	: GetNaturalForce
 	@brief		: 기력 확인
 */
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+int CX2GULire_ElvenRanger::GetNaturalForceCount()	// char-rena CH1q: June 32cb50c0 is out of line ( engine callers )
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 __forceinline int CX2GULire_ElvenRanger::GetNaturalForceCount() 
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 { 
 	return GetRenaGageData()->GetNowNaturalForce(); 
 }
@@ -34469,18 +34628,35 @@ __forceinline int CX2GULire_ElvenRanger::GetNaturalForceCount()
 /** @function 	: UpNaturalForce
 	@brief 		: 자연의 기운 충전
 */
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+void CX2GULire_ElvenRanger::UpNaturalForce( int iUpCount_ )	// char-rena CH1q: June 32cb6290 is out of line ( engine callers )
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 __forceinline void CX2GULire_ElvenRanger::UpNaturalForce( int iUpCount_ )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// char-rena CH1q: June 32cb6290: one more point when the specialization A rate beats a roll; the buff re-stacks to the new count
+	if( GetCharacterSpecializationA() > GetRandomFloat( 0 ) )
+		++iUpCount_;
+
+	SetNaturalForceCount( GetNaturalForceCount() + iUpCount_ );
+	SetNaturalForceBuff( true );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	SetNaturalForceCount( GetNaturalForceCount() + iUpCount_ );
 
 	if( GetNaturalForceCount() >= NATURAL_FORCE_BUFF && GetNaturalForceBuff() == false )
 		SetNaturalForceBuff( true );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 /** @function 	: IsEmptyNaturalForce
 	@brief 		: 자연의 기운이 비었는지 확인
 */
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+bool CX2GULire_ElvenRanger::IsEmptyNaturalForce()	// char-rena CH1q: June 32cb50e0 is out of line ( engine callers )
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 __forceinline bool CX2GULire_ElvenRanger::IsEmptyNaturalForce()
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 {
 	return GetRenaGageData()->IsEmptyNaturalForce();
 }
@@ -34507,6 +34683,14 @@ void CX2GULire_ElvenRanger::SetNaturalForceCount( const int iNaturalForceCount_ 
 */
 void CX2GULire_ElvenRanger::SetNaturalForceBuff( const bool bBuffOn_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// char-rena CH1q: June 32c85200: the mode is kept, BTI 333 goes, then BFI 355 is stacked once per point
+	GetRenaGageData()->SetNFBuffMode( bBuffOn_ );
+	EraseBuffTempletFromGameUnit( BTI_BUFF_NATURAL_FORCE );
+
+	for( int iPoint = 0; iPoint < GetNaturalForceCount(); ++iPoint )
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_NATURAL_FORCE, 1, NULL, 0, false );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	GetRenaGageData()->SetNFBuffMode( bBuffOn_ );
 
 	if( bBuffOn_ == true )
@@ -34517,6 +34701,7 @@ void CX2GULire_ElvenRanger::SetNaturalForceBuff( const bool bBuffOn_ )
 	{
 		EraseBuffTempletFromGameUnit(BTI_BUFF_NATURAL_FORCE);
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 /** @function 	: GetNaturalForceBuff
@@ -34558,6 +34743,19 @@ const bool CX2GULire_ElvenRanger::GetNaturalForceBuff()
 {
 	CX2GUUser::SetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// char-rena CH1q: June 32c85260: the transcendence hyper mode turns the buff on too
+	switch ( eBuffTempletId_ )
+	{
+	case BTI_HYPER_MODE:
+	case BTI_TRANSCENDENTAL_HYPER_MODE:
+		SetNaturalForceBuff( true );
+		break;
+
+	default:
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	switch ( eBuffTempletId_ )
 	{
 	case BTI_HYPER_MODE:
@@ -34568,6 +34766,7 @@ const bool CX2GULire_ElvenRanger::GetNaturalForceBuff()
 	default:
 		break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 /** @function	: UnSetSpecificValueByBuffTempletID
@@ -34578,6 +34777,23 @@ const bool CX2GULire_ElvenRanger::GetNaturalForceBuff()
 {
 	CX2GUUser::UnSetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// char-rena CH1q: June 32c85290: either hyper mode ending drops the buff only when no point is left
+	switch ( eBuffTempletId_ )
+	{
+	case BTI_HYPER_MODE:
+	case BTI_TRANSCENDENTAL_HYPER_MODE:
+		if( GetNaturalForceCount() < 1 )
+		{
+			GetRenaGageData()->SetNFBuffMode( false );
+			ReserveToFinishBuffTempletFromGameUnit( BTI_BUFF_NATURAL_FORCE );
+		}
+		break;
+
+	default:
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	switch ( eBuffTempletId_ )
 	{
 	case BTI_HYPER_MODE:
@@ -34592,6 +34808,7 @@ const bool CX2GULire_ElvenRanger::GetNaturalForceBuff()
 	default:
 		break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 /** @function 	: AdjustDamageDataBeforeDamageReact
@@ -34599,12 +34816,16 @@ const bool CX2GULire_ElvenRanger::GetNaturalForceBuff()
 */
 /*virtual*/ void CX2GULire_ElvenRanger::AdjustDamageDataBeforeDamageReact( CX2DamageManager::DamageData* pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// char-rena CH1q: June 32c6d4a0 is empty ( ret 4 ): a combo bomb no longer turns the react into RT_BIG_DAMAGE
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	//RT_DOWN등으로 쓰러지지 않도록 BIG_DAMAGE로 REACT를 바꿔준다.
 	if( pDamageData->m_NaturalForceType == CX2DamageManager::NFT_COMBO_BOMB && IsEmptyNaturalForce() == false )
 	{
 		pDamageData->reActType = CX2DamageManager::RT_BIG_DAMAGE;
 		pDamageData->reActResult = CX2DamageManager::RT_BIG_DAMAGE;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 /** @function 	: SetNaturalForceEffect

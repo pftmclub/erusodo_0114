@@ -57,3 +57,16 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §3 L149 "Natural force: ADD_RENA_SYSTEM is off under US_SERVICE; ""a decision ; §7ao L959 ApplyHyperModeBuff 32298590 @322985ec: unit type 3 -> 32cb50c0 count x; §7aq JUNE_PORT_BACKLOG_ORDER.md:236 "JUNE_PORT_BACKLOG_ORDER.md:236 ""Rena 32cb6290( 1 )"" (training-game .
 - Gauge data `CX2RenaGageData` (vtable `3349b244`, size 0x12c; ctor `32498a30`, copy ctor `32a37e00`, dtor `32498e00`; Update `32a34f20`, InitWhenGameIsOver `32a34f80`, GetMyPlayStatus `32a32500`, SetMyPlayStatus `32a34fa0`, Clone `32a36060`, Copy `32a34fe0`); gauge UI `CX2RenaMyGageUI` (vtables `3353363c` / `33533624`; ctor `32e64760`, dtor `32e725a0`, InitUI `32e6e190` (`DLG_Rena_NaturalForce.lua`), OnFrameMove `32e71970`, UpdateNaturalForceUI `32e5ec10`), created by `CX2GageManager::CreateMyGageUI` `3248e290` case `3248e531` for classes 3 / 12 / 13 / 24 / 102 / 103 / 114. Engine callers: `ApplyHyperModeBuff` `32298590 @322985ec` (count x 15.0 to vslot 0xf0, then UpNaturalForce( 5 ); checklist l.959), `CX2GUNPC::AttackResultByType` `32773ee0` NF branch `@3277452b-3277464b`, the F7 training key `322ed400` (Rena: UpNaturalForce( 1 ) `@322ed57b`). Packet: June keeps March's `KGamePlayStatus` (`m_cCharAbilType` = `CAC_NATURAL_FORCE` 5, `m_iCharAbilCount`): the emulator's Lire case (`X2OfflineStatTable.cpp:289-313`, today `CAC_NONE`) and whether the count survives a relog are decided here (no save column today).
+
+## Amended by CH1q (2026-11-09)
+
+- **Already done by CH1q, do not repeat:** `_NF` defines `ADD_RENA_SYSTEM` (Always.h, plus the `ServerDefine.h` second home and the `SECOND_HOMES` row);
+  the class functions (`june2017_re/char_rena/ch1q_nf_outcome.tsv`: 9 June bodies, the rest = March); the flipped arms; the `X2DamageEffect.cpp`
+  RT_CREATE_DAMAGE_EFFECT arm (copy + SPAWN_INHERIT); the "NF:" overlay dropped under `_NF`. A `_LIVE` + `_NF` probe of the 11 NF files gives 0 errors.
+- **Still here:** the dev fill key `X2Game.cpp:5855` (map row 58; June's F7 training key `322ed57f` calls UpNaturalForce instead), NPC
+  `AttackResultByType` `32773ee0` (March's `UnitToUnit` else-branch now calls it for every non-user attacker), the `ApplyHyperModeBuff` branch, the
+  emulator's `CAC_NATURAL_FORCE` and the save-column question.
+- **Gauge contract the class code now relies on:** count = gauge `+0x114` protected int (`GetNowNaturalForce`), max = `+0x120` protected int
+  (`GetMaxNaturalForce`; AttackResultByType tests count < max), empty = count <= 0, buff mode get / set `32a317a0` / `32a317b0`, changed `32a317d0`,
+  set count `32a36df0`. `GetNaturalForceCount` / `IsEmptyNaturalForce` / `UpNaturalForce` are out of line under `_NF` (engine callers link);
+  `IsFullNaturalForce` stays `__forceinline` (June inlines it), so an engine caller compares count and max itself.

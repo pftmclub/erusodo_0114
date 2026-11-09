@@ -29730,6 +29730,9 @@ void CX2GUUser::ReceiveFrameData( DWORD dwFrameMoveCount, const KDYNAMIC_UNIT_US
 #ifdef ADD_RENA_SYSTEM //김창한
 /// 레나 자연의 기운
 //////////////////////////////////////////////////////////////////////////
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			// char-rena CH1q: the studio "NF:" / "NFP:" overlay is absent in June
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 			if ( CX2Unit::UT_LIRE == GetUnit()->GetType() )
 			{
 				StringCchPrintfW( adBuf, ARRAY_SIZE( adBuf ), L"NF: %d", 
@@ -29748,6 +29751,7 @@ void CX2GUUser::ReceiveFrameData( DWORD dwFrameMoveCount, const KDYNAMIC_UNIT_US
 						0xffffaa77, CKTDGFontManager::FS_SHELL, 0xffff0000, NULL, DT_CENTER  );
 				}
 			}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #endif //ADD_RENA_SYSTEM
 
 /// 각성 수치 ( 애드는  DP 수치 ) 출력

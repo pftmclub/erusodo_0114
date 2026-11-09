@@ -1,0 +1,100 @@
+map_row	march_site	piece	verdict	evidence	where
+5	X2Lib/X2Define.h:94-98 (MAX_NATURAL_FORCE_VALUE=5)	(global const)	= March	MAX 5; gauge ctor 32498a30 leaves max to Set/Update (CH1q2)	-
+6	X2Lib/X2Define.h:94-98 (NATURAL_FORCE_VALUE_PER_HIT=6)	(global const)	June value	3.0 @32ca73fd (fld 335152b0) and the charge -= 3.0 @32ca7575	X2Define.h: NATURAL_FORCE_VALUE_PER_HIT 3 under _NF, 6 in #else
+8	X2Lib/X2DamageManager.h:668-685	CX2DamageManager (types)	= March	enum values = June Enum.lua NATURAL_FORCE_TYPE; DD +0x56c / +0x5a4 / +0x5a8 as the map cites; switched on by ADD_RENA_SYSTEM	-
+9	X2Lib/X2DamageManager.h:1072-1086	CX2DamageManager (types)	= March	enum values = June Enum.lua NATURAL_FORCE_TYPE; DD +0x56c / +0x5a4 / +0x5a8 as the map cites; switched on by ADD_RENA_SYSTEM	-
+10	X2Lib/X2DamageManager.h:1276-1278	CX2DamageManager::DamageData	= March	enum values = June Enum.lua NATURAL_FORCE_TYPE; DD +0x56c / +0x5a4 / +0x5a8 as the map cites; switched on by ADD_RENA_SYSTEM	-
+11	X2Lib/X2DamageManager.h:1320-1323	CX2DamageManager::DamageData	= March	enum values = June Enum.lua NATURAL_FORCE_TYPE; DD +0x56c / +0x5a4 / +0x5a8 as the map cites; switched on by ADD_RENA_SYSTEM	-
+12	X2Lib/X2DamageManager.h:1386-1388	CX2DamageManager::DamageData	flag-off arm drops	ON arm (enum m_NaturalForceType, same +0x56c, same key read, default NFT_NONE) is June's; the #ifndef int arm compiles out	-
+13	X2Lib/X2DamageManager.h:1648-1651	CX2DamageManager::DamageData::Init	= March	enum values = June Enum.lua NATURAL_FORCE_TYPE; DD +0x56c / +0x5a4 / +0x5a8 as the map cites; switched on by ADD_RENA_SYSTEM	-
+14	X2Lib/X2DamageManager.h:1663-1665	CX2DamageManager::DamageData::Init	flag-off arm drops	ON arm (enum m_NaturalForceType, same +0x56c, same key read, default NFT_NONE) is June's; the #ifndef int arm compiles out	-
+15	X2Lib/X2DamageManager.cpp:297-299	CX2DamageManager::SetDamageDataFromLUA	= March	enum values = June Enum.lua NATURAL_FORCE_TYPE; DD +0x56c / +0x5a4 / +0x5a8 as the map cites; switched on by ADD_RENA_SYSTEM	-
+16	X2Lib/X2DamageManager.cpp:314-322	CX2DamageManager::SetDamageDataFromLUA	flag-off arm drops	ON arm (enum m_NaturalForceType, same +0x56c, same key read, default NFT_NONE) is June's; the #ifndef int arm compiles out	-
+17	X2Lib/X2DamageManager.cpp:1076-1086	CX2DamageManager::SetDamageDataFromLUA	= March	enum values = June Enum.lua NATURAL_FORCE_TYPE; DD +0x56c / +0x5a4 / +0x5a8 as the map cites; switched on by ADD_RENA_SYSTEM	-
+18	X2Lib/X2DamageManager.cpp:1673-1678	CX2DamageManager::GroundHit	= March	first-attack set at the cited June addresses (funcmap DD+0x5a4 row)	-
+19	X2Lib/X2DamageManager.cpp:1872-1877	CX2DamageManager::AreaHit	= March	first-attack set at the cited June addresses (funcmap DD+0x5a4 row)	-
+20	X2Lib/X2DamageManager.cpp:2254-2259 and 2272-2277	CX2DamageManager::UnitToUnit (user branches)	= March	first-attack set at the cited June addresses (funcmap DD+0x5a4 row)	-
+21	X2Lib/X2DamageManager.cpp:2299-2305	CX2DamageManager::UnitToUnit (NPC branch)	= March (not a first-attack site)	March :2299 is the NPC AttackResultByType else-branch; June calls it for a non-user attacker (Raven CH1q routing); body = CH1q2 (32773ee0)	-
+22	X2Lib/X2DamageManager.cpp:3105-3110 and 3137-3142	CX2DamageManager::EffectToUnit	= March	first-attack set at the cited June addresses (funcmap DD+0x5a4 row)	-
+23	X2Lib/X2DamageManager.cpp:3565-3570 and 3582-3587	CX2DamageManager::MeshToUnit	= March	first-attack set at the cited June addresses (funcmap DD+0x5a4 row)	-
+24	X2Lib/X2DamageManager.cpp:3803-3808 and 3821-3826	CX2DamageManager::CollisionDataToUnit	= March	first-attack set at the cited June addresses (funcmap DD+0x5a4 row)	-
+25	X2Lib/X2DamageManager.cpp:2192-2200	CX2DamageManager::UnitToUnit	= March	vslot 0x300 before DamageReact @3262546d / 3262f1e6 / 32628652; Rena 0x300 is now empty (32c6d4a0)	-
+26	X2Lib/X2DamageManager.cpp:3028-3036	CX2DamageManager::EffectToUnit	= March	vslot 0x300 before DamageReact @3262546d / 3262f1e6 / 32628652; Rena 0x300 is now empty (32c6d4a0)	-
+27	X2Lib/X2DamageManager.cpp:3496-3504	CX2DamageManager::MeshToUnit	= March	vslot 0x300 before DamageReact @3262546d / 3262f1e6 / 32628652; Rena 0x300 is now empty (32c6d4a0)	-
+28	X2Lib/X2DamageManager.cpp:2202-2206	CX2DamageManager::UnitToUnit	flag-off arm drops	#ifndef ADD_RENA_SYSTEM twin of rows 25-27, same call	-
+29	X2Lib/X2DamageManager.cpp:3038-3042	CX2DamageManager::EffectToUnit	flag-off arm drops	#ifndef ADD_RENA_SYSTEM twin of rows 25-27, same call	-
+30	X2Lib/X2DamageManager.cpp:3506-3510	CX2DamageManager::MeshToUnit	flag-off arm drops	#ifndef ADD_RENA_SYSTEM twin of rows 25-27, same call	-
+31	X2Lib/X2DamageEffect.cpp:3176-3180	CX2DamageEffect::CEffect::OnFrameMove	= March	copies at the cited June addresses (funcmap DD+0x5a4 row); members at the cited offsets	-
+32	X2Lib/X2DamageEffect.cpp:5217-5226 ON arm	CX2DamageEffect::CEffect::AttackResult	June body	31f85910 @31f860fd-31f86148: copy first-attack / relate, SetScale (DAMAGEDATA), InheritFromParent (child only), ApplyCreateDamageEffectRate	X2DamageEffect.cpp RT_CREATE_DAMAGE_EFFECT: _NF arm keeps both; #else = the two March arms
+33	X2Lib/X2DamageEffect.cpp:5227-5259 #else arm	CX2DamageEffect::CEffect::AttackResult	June body	31f85910 @31f860fd-31f86148: copy first-attack / relate, SetScale (DAMAGEDATA), InheritFromParent (child only), ApplyCreateDamageEffectRate	X2DamageEffect.cpp RT_CREATE_DAMAGE_EFFECT: _NF arm keeps both; #else = the two March arms
+34	X2Lib/X2DamageEffect.cpp:5349-5353	CX2DamageEffect::CEffect::AttackResult	= March	copies at the cited June addresses (funcmap DD+0x5a4 row); members at the cited offsets	-
+35	X2Lib/X2DamageEffect.cpp:7515-7519	CX2DamageEffect::CEffect::CreateHitDamageEffect	= March	copies at the cited June addresses (funcmap DD+0x5a4 row); members at the cited offsets	-
+36	X2Lib/X2DamageEffect.cpp:7894-7898	CX2DamageEffect::CEffect::CreateDieDamageEffect	= March	copies at the cited June addresses (funcmap DD+0x5a4 row); members at the cited offsets	-
+37	X2Lib/X2DamageEffect.cpp:10302-10306	CX2DamageEffect::CEffect::SetDamageDataNext	= March	copies at the cited June addresses (funcmap DD+0x5a4 row); members at the cited offsets	-
+38	X2Lib/X2DamageEffect.cpp:10357-10360	CX2DamageEffect::CEffect::SetDamageDataNextByChainIndex	= March (not read)	no June address for the chain-index setter; June indexes its NEXT chain (+0x8f8, funcmap 31f799c0) and the DamageData copy carries the field	-
+39	X2Lib/X2DamageEffect.cpp:10797-10801	CX2DamageEffect::CEffect::CreateTouchLandDamageEffect	= March	copies at the cited June addresses (funcmap DD+0x5a4 row); members at the cited offsets	-
+40	X2Lib/X2EffectSet.cpp:1272-1280	CX2EffectSet::OnFrameMove_CreateEffect	= March	copies at the cited June addresses (funcmap DD+0x5a4 row); members at the cited offsets	-
+41	X2Lib/X2EffectSet.cpp:4912-4914	CX2EffectSet instance ctor	= March	EffectSetInstance m_eFirstAttack( FAC_NONE ) init; no June address read (zero-init)	-
+42	X2Lib/X2EffectSet.h:830-833	CX2EffectSet::EffectSetInstance	= March	copies at the cited June addresses (funcmap DD+0x5a4 row); members at the cited offsets	-
+43	X2Lib/X2GUNPC.cpp:11404-11408	CX2GUNPC::DamageReact	= March	ON / OFF arms equivalent (value 4) @327b4b91	-
+44	X2Lib/X2GUNPC.cpp:11412-11418	CX2GUNPC::DamageReact	= March	ON / OFF arms equivalent (value 4) @327b4b91	-
+46	X2Lib/X2GUNPC.h:3407-3410	CX2GUNPC	= March	copies at the cited June addresses (funcmap DD+0x5a4 row); members at the cited offsets	-
+47	X2Lib/X2GUNPC.h:4777-4779	CX2GUNPC	= March	copies at the cited June addresses (funcmap DD+0x5a4 row); members at the cited offsets	-
+48	X2Lib/X2GUUser.cpp:1715-1718	CX2GUUser::~CX2GUUser	= March	user vector clears in 3204ea20 (Init) @3204f0f2 and 32022380 / 3203a620 / 3203e850 (dispsweep 9288 9290)	-
+49	X2Lib/X2GUUser.cpp:1956-1959	CX2GUUser::Init	= March	user vector clears in 3204ea20 (Init) @3204f0f2 and 32022380 / 3203a620 / 3203e850 (dispsweep 9288 9290)	-
+50	X2Lib/X2GUUser.cpp:2530-2533	CX2GUUser::ReInit	= March	user vector clears in 3204ea20 (Init) @3204f0f2 and 32022380 / 3203a620 / 3203e850 (dispsweep 9288 9290)	-
+51	X2Lib/X2GUUser.cpp:10893-10897	CX2GUUser::DamageReact	= March	ON / OFF arms equivalent @320489d7	-
+52	X2Lib/X2GUUser.cpp:10901-10907	CX2GUUser::DamageReact	= March	ON / OFF arms equivalent @320489d7	-
+54	X2Lib/X2GUUser.cpp:50491-50527	CX2GUUser::SetNowDamageRelateSkillData	= March	31fe28f0: ++index, wrap > 30, erase same index, NowData, push_back	-
+55	X2Lib/X2GUUser.h:1371-1408	CX2GUUser (declarations)	= March	user +0x9288 / +0x9289 / +0x928c; base vslot 0x420 is a purecall (331a4950), 0x424 empty (3208ddc0): March bodies return false / nothing	-
+56	X2Lib/X2GUUser.h:1410-1412	CX2GUUser (declaration)	flag-off arm drops	same virtual declared by the ADD_RENA_SYSTEM block	-
+57	X2Lib/X2GUUser.h:5255-5257	CX2GUUser (member)	= March	copies at the cited June addresses (funcmap DD+0x5a4 row); members at the cited offsets	-
+59	X2Lib/X2Game.cpp:9534-9543	CX2Game::Handler_EGS_NPC_UNIT_DIE_ACK	= March	3230b7b0 @3230bc70-3230bca7: owner (32759f00) vslot 0x420 then 0x424 with NPC +0x8f6c; June runs it before the mission gate and kill hook (independent)	-
+60	X2Lib/X2Game.cpp:17321-17324	CX2Game::SetUserSummonedNPCInfo	= March	3230c1a0 @3230c3a0: NPC +0x8f6c = user +0x9289	-
+61	X2Lib/X2BuffFactor.h:450-452	enum BUFF_TEMPLET_ID	= March	enum members always compiled (333 / 355)	-
+62	X2Lib/X2BuffFactor.h:683-685	enum BUFF_FACTOR_ID	= March	enum members always compiled (333 / 355)	-
+86	X2Lib/X2GULire_ElvenRanger.h:174-176	CX2GULire_ElvenRanger (state enum)	= March	declarations; June +0x97e0 added as m_fOpenMindMpPerNaturalForce (ctor @32ca4252, writer InitPassiveSkillState 32ca78b0 = CH4a)	X2GULire_ElvenRanger.h
+87	X2Lib/X2GULire_ElvenRanger.h:530-548	CX2GULire_ElvenRanger (declarations)	= March	declarations; June +0x97e0 added as m_fOpenMindMpPerNaturalForce (ctor @32ca4252, writer InitPassiveSkillState 32ca78b0 = CH4a)	X2GULire_ElvenRanger.h
+88	X2Lib/X2GULire_ElvenRanger.h:561-577	CX2GULire_ElvenRanger (declarations)	= March	declarations; June +0x97e0 added as m_fOpenMindMpPerNaturalForce (ctor @32ca4252, writer InitPassiveSkillState 32ca78b0 = CH4a)	X2GULire_ElvenRanger.h
+89	X2Lib/X2GULire_ElvenRanger.h:799-806	CX2GULire_ElvenRanger (members)	= March	declarations; June +0x97e0 added as m_fOpenMindMpPerNaturalForce (ctor @32ca4252, writer InitPassiveSkillState 32ca78b0 = CH4a)	X2GULire_ElvenRanger.h
+90	X2Lib/X2GULire_ElvenRanger.h:852-854	CX2GULire_ElvenRanger::WalkStart	= March	declarations of the _NF registration slots (CH1m)	-
+91	X2Lib/X2GULire_ElvenRanger.h:874-876	CX2GULire_ElvenRanger::DashStart	= March	declarations of the _NF registration slots (CH1m)	-
+92	X2Lib/X2GULire_ElvenRanger.h:920-924	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_StateStart	= March	declarations of the _NF registration slots (CH1m)	-
+93	X2Lib/X2GULire_ElvenRanger.h:1180-1182	CX2GULire_ElvenRanger::DashJumpComboX3StateStart	= March	declarations of the _NF registration slots (CH1m)	-
+94	X2Lib/X2GULire_ElvenRanger.h:1490-1492	CX2GULire_ElvenRanger::LESI_LGA_ZZXX_StateStart	= March	declarations of the _NF registration slots (CH1m)	-
+97	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::CreateGageData	= March	32ca7060: IsMyUnit -> copy of my gage (32a37e00) else default (32498a30)	-
+98	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::AttackResultByType	June body	32ca7130: NFT_SPECIAL_ACTIVE alone takes the skill path; NFT_COMBO / COMBO_BOMB / ACTIVE need FAC_FIRST_ATTACK and charge; full test = count < gauge max (+0x120)	AttackResultByType _LIVE
+99	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::ConsumeNaturalForce	June body	32c9f7a0: UpNowMpWithText( n x +0x97e0 ) when > 0; 0 consumed when IsFullHyperMode (vslot 0x9c, Rena = base false); SetNaturalForceBuff( false )	ConsumeNaturalForce _LIVE
+100	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::GetNaturalForceCount	= March, out of line	32cb50c0 / 32cb50e0 read gauge +0x114 (count, <= 0); __forceinline dropped under _NF (engine callers, CH1q2)	signature #ifdef _NF (.h / .cpp)
+101	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::UpNaturalForce	June body	32cb6290: +1 when GetCharacterSpecializationA (+0x6c50) > GetRandomFloat( 0 ); SetNaturalForceBuff( true ) always; out of line	UpNaturalForce _NF / _LIVE
+102	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::IsEmptyNaturalForce	= March, out of line	32cb50c0 / 32cb50e0 read gauge +0x114 (count, <= 0); __forceinline dropped under _NF (engine callers, CH1q2)	signature #ifdef _NF (.h / .cpp)
+103	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::IsFullNaturalForce	= March	inlined in June (count < +0x120 max); class callers only	-
+104	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::SetNaturalForceCount	= March	32c89200: SetChanged( 1 ), SetNow( n )	-
+105	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::SetNaturalForceBuff	June body	32c85200: SetNFBuffMode( arg ), erase BTI 333 (3229e160), BFI 355 x count (vslot 0x21c, level 1, skip false)	SetNaturalForceBuff _LIVE
+106	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::GetNaturalForceBuff	= March	32c7fdf0 -> gauge 32a317a0	-
+107	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::Init (NF part: CannonBallCount sync, m_eSaveStateSkillId = NONE, relate data >= 10 -> 0)	= March	32c883d0: base Init, my unit -> CannonBallCount sync, SI_NONE, relate >= 10 -> 0, foot boxes x1.3 (33472a10)	-
+108	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::SetSpecificValueByBuffTempletID	June body	32c85260: BTI_HYPER_MODE (5) and BTI_TRANSCENDENTAL_HYPER_MODE (822)	SetSpecificValueByBuffTempletID _LIVE
+109	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::UnSetSpecificValueByBuffTempletID	June body	32c85290: both hyper modes; drop only at count < 1 (March < 3)	UnSetSpecificValueByBuffTempletID _LIVE
+110	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::AdjustDamageDataBeforeDamageReact	June body	32c6d4a0 = ret 4 (empty)	AdjustDamageDataBeforeDamageReact _LIVE
+111	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::SetNaturalForceEffect	= March	32c9f830: stop the handle, Loop01..04 / _ALL by count, PlayEffectSet	-
+112	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::UpdateNaturalForceEffect	= March	32c9fa50: +0x9754 compare, SetNaturalForceEffect, store	-
+113	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::IsHyperActiveSkill	= March	no June body (inlined or absent); March function kept	-
+114	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::CheckDamageRelateSkillData	= March	32c87780: vector copy (32cb5d10 = std::vector copy ctor, no port) and index search	-
+115	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::CheckDamageRelateComboData	= March	32c858c0: index and data match -> data - 1, true	-
+116	X2Lib/X2GULire_ElvenRanger.cpp:23576-24004 block	CX2GULire_ElvenRanger::DeleteDamageRelateSkillData	= March	32c86740: erase the first entry with that index	-
+117	X2Lib/X2GULire_ElvenRanger.cpp:23795-23805	CX2GULire_ElvenRanger::Init	= March	32c883d0: base Init, my unit -> CannonBallCount sync, SI_NONE, relate >= 10 -> 0, foot boxes x1.3 (33472a10)	-
+122	X2Lib/X2GULire_ElvenRanger.cpp:973-975	CX2GULire_ElvenRanger::InitStateCommon (USI_WALK registration)	= March (CH1m)	registration slots placed by CH1m under _NF	-
+123	X2Lib/X2GULire_ElvenRanger.cpp:1013-1017	CX2GULire_ElvenRanger::InitStateCommon (USI_DASH registration 1)	= March (CH1m)	registration slots placed by CH1m under _NF	-
+124	X2Lib/X2GULire_ElvenRanger.cpp:1028-1032	CX2GULire_ElvenRanger::InitStateCommon (USI_DASH registration 2)	= March (CH1m)	registration slots placed by CH1m under _NF	-
+125	X2Lib/X2GULire_ElvenRanger.cpp:1042-1046	CX2GULire_ElvenRanger::InitStateCommon (USI_DASH registration 3)	= March (CH1m)	registration slots placed by CH1m under _NF	-
+126	X2Lib/X2GULire_ElvenRanger.cpp:1853-1855	CX2GULire_ElvenRanger::InitState (state 158 registration)	= March (CH1m)	registration slots placed by CH1m under _NF	-
+127	X2Lib/X2GULire_ElvenRanger.cpp:1861-1870	CX2GULire_ElvenRanger::InitState (state 252 registration)	= March (CH1m)	registration slots placed by CH1m under _NF	-
+128	X2Lib/X2GULire_ElvenRanger.cpp:2444-2446	CX2GULire_ElvenRanger::InitState (state 197 registration)	= March (CH1m)	registration slots placed by CH1m under _NF	-
+129	X2Lib/X2GULire_ElvenRanger.cpp:2467-2469	CX2GULire_ElvenRanger::InitState (state 198 registration)	= March (CH1m)	registration slots placed by CH1m under _NF	-
+130	X2Lib/X2GULire_ElvenRanger.cpp:2545-2547	CX2GULire_ElvenRanger::InitState (state 212 registration)	= March (CH1m)	registration slots placed by CH1m under _NF	-
+131	X2Lib/X2GULire_ElvenRanger.cpp:2697-2700	CX2GULire_ElvenRanger::InitState tail	June (CH1m)	InitState tail 0 < count -> SetNaturalForceBuff( true ) @32cb04a6, written by CH1m	-
+136	X2Lib/X2GULire_ElvenRanger.cpp:5855-5865	CX2GULire_ElvenRanger::WalkStart	= March	32c6df30 / 32c6e120: SI_NONE, relate >= 10 -> 0, CommonStateStart	-
+139	X2Lib/X2GULire_ElvenRanger.cpp:6167-6177	CX2GULire_ElvenRanger::DashStart	= March	32c6df30 / 32c6e120: SI_NONE, relate >= 10 -> 0, CommonStateStart	-
+148	X2Lib/X2GULire_ElvenRanger.cpp:6937-7025	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_* (StateStart, FrameMove, EventProcess)	Start / EventProcess = March; FrameMove June body	32c6ac20 SetNowDamageRelateSkillData( 100 ); 32c6e590 = March; 32c8b2c0: 6 MP via GetArrowMpConsumption, DamageEffect_RSR_Double_Jump_Combo_XX_Arrow x3, GetArrowMaxLifeTime	XX_FrameMove _LIVE
+185	X2Lib/X2GULire_ElvenRanger.cpp:11878-11886	CX2GULire_ElvenRanger::DashJumpComboX3StateStart	= March	32c6b280 / 32c6c130: SetNowDamageRelateSkillData( 100 ), CommonStateStart	-
+209	X2Lib/X2GULire_ElvenRanger.cpp:16890-16898	CX2GULire_ElvenRanger::LESI_LGA_ZZXX_StateStart	= March	32c6b280 / 32c6c130: SetNowDamageRelateSkillData( 100 ), CommonStateStart	-

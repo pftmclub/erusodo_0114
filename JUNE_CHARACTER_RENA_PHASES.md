@@ -1530,6 +1530,54 @@ X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s) remain`. Probes (`/c /Zs /EHsc`),
 
 **Nothing to play-test.** CH1q kickoff checked. Next: `/x2-phase char-rena CH1q` (Opus 5.5 high).
 
+### CH1q - Done (2026-11-09)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_CHAR_RENA_NF`, still `//#define`, now with two homes; June bodies under `_LIVE`, the new helper under `_CORE`;
+15 funcmap rows `Char Rena CH1q`; every block tagged `char-rena CH1q`). Files: `X2GULire_ElvenRanger.cpp` / `.h`, `X2Define.h`, `X2DamageEffect.cpp`,
+`X2GUUser.cpp`, `KTDXLIB/Always.h`, `KncWX2Server/Common/ServerDefine.h`, `tools/flagcheck.py`. Per-row verdicts: `june2017_re/char_rena/ch1q_nf_outcome.tsv`
+(99 map rows: 80 = March, 9 June bodies, 1 June value, 1 June by CH1m, 7 flag-off arms that drop, 1 partly June).
+- **Flag plumbing (decision 1 = (a)).** `_NF` defines `ADD_RENA_SYSTEM` in Always.h (after its `_LIVE` check, plus `#error`s for `SPAWN_INHERIT`,
+  `MP_CHANGE_TEXT`, `SKILL_STATE_BUFF`) and in a `ServerDefine.h` second home, because `CommonPacket.h` (`CAC_NATURAL_FORCE`, `GetNaturalForce`) is read
+  before Always.h; `SECOND_HOMES` row added. Both stay commented until CH1 final (CH1 kickoff amended: toggle both, `--pch force`).
+- **Baseline.** Before any edit, a `/Zs` probe with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM` of the 10 NF files (class, `X2GUUser`, `X2DamageManager`,
+  `X2DamageEffect`, `X2EffectSet`, `X2GUNPC`, `X2Game`, `X2GageData`, `X2GageManager`, `X2GageUI`) gave 0 errors: March's dormant code compiles as is.
+- **June bodies (inside March's `ADD_RENA_SYSTEM` functions, March in `#else`).**
+  `AttackResultByType` `32ca7130`: only `NFT_SPECIAL_ACTIVE` takes the skill path (March also took `NFT_ACTIVE`, which now charges like a combo on its
+  first hit); full = count < gauge `+0x120`; 3 hits per point. `ConsumeNaturalForce` `32c9f7a0`: Open Mind MP refund `UpNowMpWithText( n x +0x97e0 )`,
+  nothing taken in full hyper mode (vslot 0x9c; Rena = base false), always `SetNaturalForceBuff( false )` (JUNE_BUGS 574). `UpNaturalForce` `32cb6290`:
+  +1 when `GetCharacterSpecializationA()` (+0x6c50) beats `GetRandomFloat( 0 )`. `SetNaturalForceBuff` `32c85200`: erase BTI 333, then BFI 355 once per
+  point (`( BFI, 1, NULL, 0, false )`; the bool is only the gauge mode). `Set` / `UnSetSpecificValueByBuffTempletID` `32c85260` / `32c85290`: also
+  `BTI_TRANSCENDENTAL_HYPER_MODE`; drop at count < 1 (March < 3). `AdjustDamageDataBeforeDamageReact` `32c6d4a0`: empty (no RT_BIG_DAMAGE override).
+  `LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_FrameMove` `32c8b2c0`: CH1f's X shape, 6 MP, `DamageEffect_RSR_Double_Jump_Combo_XX_Arrow` x3.
+- **= March (switched on as they are):** CreateGageData, Init (foot boxes 1.3 = `33472a10`), SetNaturalForceCount, GetNaturalForceBuff, the relate
+  Check / CheckCombo / Delete (`32cb5d10` = the `std::vector` copy constructor, no port), SetNaturalForceEffect, UpdateNaturalForceEffect, the six state
+  callbacks CH1m registered, IsFullNaturalForce (inlined in June), IsHyperActiveSkill. `GetNaturalForceCount` / `IsEmptyNaturalForce` / `UpNaturalForce`
+  lose `__forceinline` under `_NF` (.h and .cpp): June has them out of line for engine callers (CH1q2).
+- **New.** `RestoreGageSnapshot()` (`32c89230`, user vslot 0x744; my unit -> `SetNaturalForceCount( m_iSnapshotNaturalForceCount )`; stand-in: base
+  `3204da60` not ported, as Chung's / Elsword's). Member `m_fOpenMindMpPerNaturalForce` (+0x97e0, ctor 0 @32ca4252; written by InitPassiveSkillState
+  `32ca78b0` from Open Mind's SA 0x4f: CH4a kickoff amended, with `+0x97e4` = SA 5).
+- **Engine rows.** `X2Define.h`: `NATURAL_FORCE_VALUE_PER_HIT` 3 under `_NF` (June 3.0 @32ca73fd; 6 in `#else`). `X2DamageEffect.cpp`
+  RT_CREATE_DAMAGE_EFFECT: the `_NF` arm keeps both June sequences (`31f85910 @31f860fd-31f86148`: first-attack / relate copy, SetScale, InheritFromParent,
+  ApplyCreateDamageEffectRate); flipping alone would have dropped SPAWN_INHERIT's. `X2GUUser.cpp`: the studio "NF:" / "NFP:" overlay goes under `_NF`
+  (absent in June). The first-attack sets, the effect / effect-set copies, `SetNowDamageRelateSkillData` `31fe28f0`, the user resets (`3204ea20`
+  @3204f0f2 and three more), NPC-die cleanup (`3230bc70`-`3230bca7`, before the mission gate: independent) and the summon copy (`3230c3a0`) = March;
+  the flipped `#ifndef ADD_RENA_SYSTEM` arms (`m_iNaturalForceType`, vslot 0x300 calls, `X2GUUser.h` virtual, DamageReact hit counts) are equivalent.
+- **Members routed by CH1k:** `+0x973c` (ctor and dtor store 7, no reader in Rena's range) and `+0x978c` (ctor zero vector, no reader) are not natural
+  force and stay unnamed; `+0x9768` readers `32c7f350` / `32c88330` / `32c9ece0` are Spiral Strike's (CH1k's inference).
+
+**Hygiene.** `flagcheck _NF --worktree --files <7 files>`: 3 PASS, 2 DEFINE, 2 OTHER (`_LIVE` / `_CORE` blocks), 0 FAIL; 0 deleted, 0 non-ASCII inserted,
+0 EOL mismatches; RESULT FAIL only for the commented `//#define`. `_LIVE` on the class files: 2 OTHER, 0 FAIL (same). `junediverge --check` (5 code files):
+`RESULT: PASS` (allow-listed 8). `enumscan --check X2GULire_ElvenRanger.cpp`: 0; the one row in `X2DamageEffect.cpp` (:1705) predates this phase.
+Probes (`/c /Zs /EHsc`): off: class, `X2GUUser`, `X2DamageEffect`, `X2DamageManager`, `X2GageData` 0 errors; `_LIVE` + `_NF`: the 10 NF files +
+`X2GameUnit.cpp` 0 errors; `_NF` alone stops at the Always.h `#error` (C1189). `cl /P` with `_LIVE` + `_NF`: `CAC_NATURAL_FORCE` x2 in `X2GUUser.i`, no
+`NFP: %f`, no `__forceinline` GetNaturalForceCount, `NATURAL_FORCE_VALUE_PER_HIT = 3`. Full build skipped: no play-test.
+
+**Routed.** CH1q2 (kickoff amended): dev fill key `X2Game.cpp:5855` (June's F7 key `322ed57f` differs), NPC `AttackResultByType` `32773ee0` (now called for
+every non-user attacker), `ApplyHyperModeBuff`, emulator `CAC_NATURAL_FORCE` and the save column, and the gauge contract the class code relies on
+(+0x114 count, +0x120 max, empty <= 0). CH4a: Open Mind's two members. Checklist rows L118 / L149 / L258 / L278 marked `(Rena: CH1q)`.
+
+**Nothing to play-test.** Next: `/x2-phase char-rena CH1q review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
