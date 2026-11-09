@@ -945,6 +945,19 @@ All 29 class-map rows of phase CH1g2 are written: 12 `inside` (the three Night W
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1g2 review` (Opus 5.5 high), then CH1g3.
 
+### CH1g2 - Review (2026-11-09, Opus 5.5)
+
+**Verdict: PASS, no code change.** All 29 rows read against `charport_adis.py rena --phase CH1g2` (float tests by their x87 flag test, `test ah, 5` / `0x41` with `jp` / `jne`).
+- **Combo EventProcesses.** `32c75160` ZZX: direction change clears flags 0-2 (word + byte at `+0x7d85`); foot lost -> 0x11 `JUMP_DOWN`, y - 45; flag 0 with `< +0x8c18 || +0x2ac` -> 0xe5 `LESI_COMBO_RNW_ZZXX`, else `+0x8c10 <= t < +0x8c14` + `oneX` sets it; animation end -> `+0xde0` 0.2 then WAIT; dash `+0x8c9c`, walk `+0x8c98` (right || left), skill `+0x8c90` (foot, hyper branch), back-walk `+0x8c94`, each with `+0x7e1c`. `32c754d0` ZZXX: same head, -> 0xe6; dash, then `+0x8c98` with the back-walk input (left && right-facing / right && left-facing), skill, then `+0x8c98` with right || left. `32c75840` ZZXXX: no follow-up; skill, walk, back-walk, dash. = the port.
+- **ZZXXX FrameMove `32ca9550`:** inlined `EventTimerOneshot( 0.001 )`; active -> `fPhysic *= 1 + rate * ( count + -4 )`, `+0x96d5 = 1`; else `+0x96f0 = 1`; `CheckPriorPlannedBlow` inside the `+0x96c9` block, then `CommonFrameMove`. = the port (`MIN_PRIOR_PLANNED_BLOW_ACTIVE_NUM - 1` = 4).
+- **Dash XZ / XZZ EventProcesses.** `32c81b30`: foot lost -> JUMP_DOWN, `nowSpeed.x = 0`, y - 45; animation end -> WAIT (no 0.2); flag 0 time 0 `oneZ` -> 0x111 (its animation-end arm is dead behind the WAIT test, in June too); skill, walk, back-walk, dash. `32c81e80`: animation end -> 0x112 LOOP. `32c82100`: `keyInputStart < t` -> animation end -> 0x113, then `pureZ == 0` -> 0x114 (no `else`), else the cancel chain. `32c82390` / `32c825f0`: no foot test first, animation end -> WAIT, the cancel chain. = the port.
+- **Start / End / EndFuture.** Starts `32ca7690` / `76b0` / `76f0` / `7710`: `CreateTrapBlade` + `CommonStateStart`; `32ca76d0` adds `+0x6890 = 1` after it; `32ca0df0` writes `+0x6890 = 0` after `CommonStateEnd`. All eight StateEnds inline `DeleteTrapBlade` (`+0x220` set clear, destroy `+0x968c`, `+0x96a4 = 0`) before `CommonStateEnd`. `32c6d5b0` = `CommonStateEndFuture`; `32c6d5c0` flips `bIsRight`, `dirDegree.y + 180`. ZZX / ZZXX Start / FrameMove and ZZXXX Start = March.
+- **Class-map correction confirmed:** `32ca0e60` is the plain StateEnd above; the Gungnir `CreateNPCReq` stays CH1f2's (`32ca0f80`). START / WIN / LOSE: shared base states, nothing to write.
+
+**Gates.** `flagcheck ..._LIVE --with ..._CORE --range ba5e3853^..ba5e3853`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR` (OTHER = the `.h`, `_CORE`), `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only for the commented `_LIVE` define. `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: 0 A/B rows. One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`): exit 0, 0 errors off, with `/D SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`. No build: the review changes no code.
+
+CH1g3 kickoff checked: present (Sonnet 5.5 high, depends on this review). Nothing to play-test. Next: `/x2-phase char-rena CH1g3` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
