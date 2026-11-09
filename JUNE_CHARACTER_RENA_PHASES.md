@@ -1248,6 +1248,40 @@ table of June's script except `LESI_RIDING_DAMAGE_BACK` ( row 571 ).
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-rena CH1m review` (Opus 5.5 high).
 
+### CH1m - Review (2026-11-09, Opus 5.5)
+
+**Pass, no code change.** Commit `a295ca5a` read against fresh Ghidra decompiles and listings of `32ca9dc0` / `32cadc90` and the exe bytes.
+- **Simulation.** `ch1m_regsim.py` over the fresh decompiles = `ch1m_reg_by_class.tsv` row for row ( 1097 rows, `diff` empty ); the only `UNKNOWN COND`
+  is the NF count test @1705. Both folded class reads are the unit class: unit `+0x38` is what the cut-in switch tests against 3 / 12 / ... / 114, and
+  templet `+4` is `m_UnitClass` ( `X2Unit.h:331-332`, `+0` = `m_UnitType`, funcmap 31e4d0e0 ). `ch1m_regcheck.py`: `matched 992 registrations, 0 problems; ids mapped 172`.
+- **Head ( exe bytes ).** Jump table `32cb0558` / bytes `32cb056c`: 3 / 12 / 13 / 24 -> `mov [esi+0x8ac8], ebx(0)`, 102 -> edi(1), 103 -> edx(2), 114 -> 3,
+  the other 105 bytes -> `32cadd1d` ( no write ). Sub-index 12 -> 1, 13 -> 2, else 0. `+0x4088` = 0xd, `+0x7d04` = 0xa0 = March `InitStateID`. `31fc93d0` is a bare `RET`.
+- **START / WIN / LOSE.** The second `31fe22d0` OUT string ( `esp+0x78` ) is the one registered as 0xb ( WIN, @32cadf8b ); the compare @32cadfac takes
+  `[esp+0x88]` after four pushes = the same string, against `"LESI_RNW_WIN2"` ( `3351a25c` ), and sets byte `+0x9714`. 0x82 @32cae131 with
+  `"LESI_WAIT_STATE_CHANGE"` ( `3351a244` ). `InitStateCommonRandom` runs the event states first ( `JUNE_EVENT_STATES`, funcmap 3202b110 C9h-4h ).
+- **Class tests ( listing ).** 32cae14b 12/102; 32caead1 24/114 ( templet ); 32caeefd 13/103 ( templet ); table `32cb05dc` 12,102 / 24,114 / rest;
+  32caf2ec 13,103 / 102 / rest; 32caf488 24/114; table `32cb0650` 12,102 / 103 / 24,114 / rest; 32caf84a 13/103; 32caf982 102 / 103 / 114 / rest.
+  The nine C++ `switch( eClass )` blocks group the classes in exactly these sets, in this order.
+- **Ids.** `ch1m_idmap.tsv`: 172 ids, 172 enumerators. 213 = `LESI_LGA_DASH_JUMP_Z` ( table `LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1` ); the eight
+  shared-table pairs each keep their own member. **278**: `PUSH 0x116` @32cb037c takes `335198ec` = `LESI_RNW_DASH_JUMP_XXZ_LOOP`, and the exe has no
+  `LESI_RNW_DASH_JUMP_XZ_LOOP` string, though June's script defines that table ( line 7931 ). The member name is the script's own; registering it with the
+  XXZ table is June's quirk, kept: **JUNE_BUGS 572** ( the phase left it unrecorded ).
+- **InitStateCommon.** Id 23 = `31fdd490( ..., 0 )` @898 = `GetHyperModeTableName( false )`. `32adf320` = `jmp [eax+0x600]`, Rena vtable `335185bc`
+  +0x600 = `32ca5310` ( Rena `HyperModeFrameMove` ); `329cc0e0` = `jmp [eax+0x604]`, Rena +0x604 = `3201b8e0` = user vtable `334781f4` +0x604 ( base
+  `HyperModeEnd` ). `LESI_DASH` arm 114 only ( templet test @531 ). Bounding at June's place ( after dance 127-129, before `LESI_THROW_ITEM` ); 93-96,
+  123-126, 127-129 left out with owner comments.
+- **`_NF`.** The seven callbacks sit under nested `_NF` guards. Only `DashStart` has a March flag-off pair ( `CX2GUUser::DashStart`, = March's `#else //ADD_RENA_SYSTEM` ).
+- **Tail.** `0x690` / `0x684( 0 )` / `31fd8f00` / `32c96d60` / `32c85200( 1 )` when `0 <` the count = lines 3883-3889 ( same as Raven's ).
+  `StateInitTrapBlade` is unconditional, as in June ( March: `SERV_TRAPPING_RANGER_TEST` + `X2OPTIMIZE_...` ).
+- **JUNE_BUGS 571** confirmed: the script has `LESI_RIDING_DAMAGE_FRONT` at 11083 and 11090, and no `LESI_RIDING_DAMAGE_BACK`.
+
+Gates. `flagcheck JUNE_CHAR_RENA_LIVE --range a295ca5a^..a295ca5a --files X2Lib/X2GULire_ElvenRanger.cpp KTDXLIB/Always.h`: `files: 2 PASS` ( `Always.h` +18,
+`.cpp` +1737 ), `0 deleted, 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only
+for the `//#define`. `JUNE_CHAR_RENA_CORE --files .h`: `files: 1 PASS`, `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`.
+`enumscan.py --check` ( `.cpp`, `.h` ): `0 A/B row(s)`. Probe `/c /Zs /EHsc` of the Lire `.cpp`: exit 0 / 0 errors, off and with `-DSERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`.
+No code change, so no build; the deployed exe is CH1m's ( md5 `77fdb81177f2f6ab809c427f0ffb0f85` ). `CH1n.md` checked: the CH1m amendment is there.
+Nothing to play-test. Next: `/x2-phase char-rena CH1n` ( Opus 5.5 high ).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
