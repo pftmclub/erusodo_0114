@@ -12056,6 +12056,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_USEFUL_VALUE ) || !defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ) )
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL needs SERV_IRUHADEV_JUNE_USEFUL_VALUE ( GetUsefulValueFuture ) and SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ( GetLearnedSkillAbilityValue )
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+// char-rena CH2c: Sniping Ranger skills ( 32c6b720 .. 32c9d420 ) steer Rapid Shot with the class-skill float, turn a bone, copy state callbacks and read the fifth slot's keys
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT ) || !defined( SERV_IRUHADEV_JUNE_USER_BONE_ROTATION ) || !defined( SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS ) || !defined( SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL needs SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT, SERV_IRUHADEV_JUNE_USER_BONE_ROTATION, SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS and SERV_IRUHADEV_JUNE_SKILL_SLOT_10
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -12064,7 +12068,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Rena ) Phase CH2a - temporary [JUNE_CHAR] RENA SKILL lines ( the equipped skill's slot and state ) for CH2a's play-test;
 //              they sit inside JUNE_CHAR_RENA_SKILL code only.
 //              Revert: undefine the flag ( JUNE_CHAR_RENA_SKILL_DEBUG ).
-//#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL

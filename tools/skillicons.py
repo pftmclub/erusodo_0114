@@ -11,6 +11,9 @@ That is how Aisha's transcendence passives (DLG_SKILL_Passive_12) and Eve's (DLG
 
 Each miss row: id, name, icon / image, texture, piece, NO_TEXTURE / NO_TET / NO_PIECE. The last line lists the files to
 stage from June (`python tools/kom.py stage-june <names>`; NO_PIECE means June's same-name sheet replaces March's).
+
+A piece June's own sheet lacks ( the staged file is byte-identical to June's ) is listed in tools/data/skillicons_june_gaps.tsv
+( skill id, icon / image, piece, reason ); the check prints it as KNOWN_JUNE_GAP and does not count it as a miss.
 """
 import argparse, os, re, sys
 
@@ -52,6 +55,17 @@ def templets():
         yield int(m.group(1)), (name.group(1) if name else ""), refs
 
 
+def june_gaps():
+    gaps = set()
+    path = os.path.join(ROOT, "tools", "data", "skillicons_june_gaps.tsv")
+    if os.path.exists(path):
+        for ln in open(path, encoding="ascii"):
+            f = ln.rstrip("\n").split("\t")
+            if len(f) >= 3 and f[0].isdigit():
+                gaps.add((int(f[0]), f[1], f[2].upper()))
+    return gaps
+
+
 def in_ranges(sid, ranges):
     return ranges is None or any(a <= sid <= b for a, b in ranges)
 
@@ -70,6 +84,7 @@ def main():
             lo, _, hi = r.partition("-")
             ranges.append((int(lo), int(hi or lo)))
     idx, tets, misses, n = kom_index(), {}, [], 0
+    gaps, known = june_gaps(), []
     for sid, name, refs in templets():
         if not in_ranges(sid, ranges):
             continue
@@ -84,11 +99,16 @@ def main():
             if tets[tet] is None:
                 misses.append((sid, name, kind, tex, piece, "NO_TET"))
             elif piece.upper() not in tets[tet]:
-                misses.append((sid, name, kind, tex, piece, "NO_PIECE"))
+                if (sid, kind, piece.upper()) in gaps:
+                    known.append((sid, name, kind, tex, piece, "KNOWN_JUNE_GAP"))
+                else:
+                    misses.append((sid, name, kind, tex, piece, "NO_PIECE"))
     for m in misses:
         print("\t".join(str(x) for x in m))
     files = sorted(set(f for m in misses for f in (m[3], os.path.splitext(m[3])[0] + ".tet")))
-    print("skills %d, misses %d, sheets %d" % (n, len(misses), len(files) // 2))
+    for m in known:
+        print("\t".join(str(x) for x in m))
+    print("skills %d, misses %d, known June gaps %d, sheets %d" % (n, len(misses), len(known), len(files) // 2))
     if misses:
         print("stage: python tools/kom.py stage-june " + " ".join(files))
         print("RESULT: FAIL")

@@ -1878,6 +1878,22 @@ public:
 		RNSI_A_RCR_ASSAULT_IMPACT_UPGRADE                     = 23231,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-10 // char-rena CH2c
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RSR_GUIDED_ARROW                              = 23012,	// June's Enum.lua; the Sniping Ranger skill switch cases
+		RNSI_SA_RSR_WINDWARD                                  = 23013,
+		RNSI_SA_RSR_CRAZY_SHOT                                = 23014,
+		RNSI_SA_RSR_GUIDED_ARROW_UPGRADE                      = 23032,
+		RNSI_SA_RSR_WINDWARD_UPGRADE                          = 23035,
+		RNSI_SA_RSR_CRAZY_SHOT_UPGRADE                        = 23048,
+		RNSI_A_RSR_ARC_SHOT                                   = 23208,
+		RNSI_A_RSR_SHOOTING_MAGNUM                            = 23209,
+		RNSI_A_RSR_ARC_SHOT_UPGRADE                           = 23223,
+		RNSI_A_RSR_SHOOTING_MAGNUM_UPGRADE                    = 23233,
+		RNSI_A_RSR_MIND_OF_SHARPSHOOTER_UPGRADE               = 23234,
+		RNSI_A_RSR_RAPID_SHOT_UPGRADE                         = 23236,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)

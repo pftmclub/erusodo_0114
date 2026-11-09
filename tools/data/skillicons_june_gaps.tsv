@@ -1,0 +1,3 @@
+skill_id	kind	piece	reason
+23210	image	SI_A_RSR_MIND_OF_SHARPSHOOTER	June's DLG_Lena_SKILL_ScreenShot_04.TET has no such piece (the staged sheet is byte-identical to June's); JUNE_BUGS 576
+23234	image	SI_A_RSR_MIND_OF_SHARPSHOOTER	same piece as 23210 (the Enhanced skill); JUNE_BUGS 576

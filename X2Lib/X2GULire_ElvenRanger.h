@@ -1911,6 +1911,9 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		CX2EffectSet::Handle m_hGungnirLoopEffect;	/// June +0x97c0: the aim loop effect set ( INVALID_EFFECTSET_HANDLE none; the constructor, CH1h, sets it )
 		float m_afSiegeAngle[4];	/// June +0x97c4: INIT_COMPONENT's SIEGE_ANGLE ( CH1i's UpdateSpineAimRotation reads it; the constructor, CH1k, zeroes it )
 		float m_fPersistentMindCoolTime;	/// June +0x97e8 ( constructor 0 ): the lock Persistent Mind sets, CommonFrameMove ( CH1j ) counts it down
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+		float m_fRapidShotAimAngle;	/// char-rena CH2c: June +0x97ec ( constructor 0 ): the Rapid Shot aim angle in degrees, within +-40
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 		unsigned short m_usEradicationHitCount;	/// June +0x9810 ( constructor 0 ): Eradication's hit count
 		float m_fEradicationLoopEffectTime;	/// June +0x9814 ( constructor 0 ): Eradication's SA_EFFECTIVE_TIME
 		CX2EffectSet::Handle m_hEradicationLoopEffect;	/// June +0x9818 ( constructor -1 ): Eradication's loop effect set
@@ -2020,6 +2023,17 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void LESI_A_LGA_RAPID_SHOT_ATTACK_FrameMove();
 		void LESI_A_LGA_RAPID_SHOT_FINISH_EventProcess();
 		void LESI_A_LGA_RAPID_SHOT_FINISH_FrameMove();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+		void LESI_A_LGA_RAPID_SHOT_READY_StateStart();	/// char-rena CH2c: June 32c6cae0
+		void LESI_A_LGA_RAPID_SHOT_READY_FrameMoveFuture();	/// June 32c88050: shared by the ready, attack and finish states
+		void LESI_A_LGA_RAPID_SHOT_READY_FrameMove();	/// June 32c86720
+		void UpdateRapidShotAimRotation();	/// June 32c86620
+
+		//LESI_A_LSR_MIND_OF_SHARPSHOOTER
+		void LESI_A_LSR_MIND_OF_SHARPSHOOTER_Init();	/// June 32c6d690
+		void LESI_A_LSR_MIND_OF_SHARPSHOOTER_EventProcess();	/// June 32c831f0
+		void LESI_A_LSR_MIND_OF_SHARPSHOOTER_FrameMove();	/// June 32c83220
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 
 		//LESI_A_LGA_FREEZING_BOLT
 		void LESI_A_LGA_FREEZING_BOLT_Init();

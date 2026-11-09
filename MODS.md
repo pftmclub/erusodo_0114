@@ -6178,3 +6178,22 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (same flag as CH2a; `Always.h` gains a
 | Assault Impact (23206 / 23231) | the state table | `DAMAGE_DATA` index 1, `_NEXT` index 2 ( `NUM use` ) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every class-12 skill falls back to the Power Attack default, and CH2a's seven too), `python tools/build.py --deploy`.
+
+## Stage 7 Rena, CH2c: Sniping Ranger (class 13) skills (2026-11-10)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (same flag; `Always.h` gains a third `#error` line: `..._SYNC_CLASS_FLOAT`, `..._USER_BONE_ROTATION`, `..._USER_COPY_STATE_CALLBACKS`, `..._SKILL_SLOT_10`) and the temporary `..._SKILL_DEBUG` (re-defined for this play-test). Plan `JUNE_CHARACTER_RENA_PHASES.md` "CH2c - Done". Client only, no data change.
+- **What changes in game.** The seven class-13 skills run June's registrations in the id switch of `SetEquippedSkillFuncBySkillSlotIndex` (before this they fell into the Power Attack default): Guided Arrow (23012 / 23032), Wind Wall (23013 / 23035), Crazy Shot (23014 / 23048), Arc Shot (23208 / 23223), Shooting Magnum (23209 / 23233), Hunter's Steadiness (23210 / 23234, a new state) and Rapid Shot (23212 / 23236). `X2SkillTree.h` gains twelve `RNSI_*` names.
+- **Differs from March.** Guided Arrow and Crazy Shot lose their FrameMove arrows, particles and damage effects (the state's effect set carries them) and keep the cut-in and `CommonFrameMove`. Wind Wall plays June's `EffectSet_SA_RSR_WindWard` (unhyper in both states, size and time from the skill). Shooting Magnum fires four `DamageEffect_RSR_Shooting_Magnum` arrows at 0.5 / 0.637 / 0.772 / 0.9 s (no memo variants). Arc Shot fires five `DamageEffect_RGA_Arc_Shot` arrows (+30 to -30 degrees); the Enhanced skill adds a sixth at -45 and a seventh at +45. Rapid Shot's ready / attack / finish states gain a user-sync aim angle ( with Random Shot Pleasure ( 23415 ) learned the up / down keys steer it, clamped to +-40 degrees, and it turns Bip01_Spine1 and the arrows ); the finish state runs it back to 0 at 50 degrees a second; the fifth slot of each bar has its key. Hunter's Steadiness: at 0.71 s the skill's buff factor goes on the unit; the state ends in the wait state. Shooting Magnum / Arc Shot / Rapid Shot finish: dash and walk cancels need the foot on a line.
+- **Damage (level-1 multiplier; June = the damage effects' NUMERICAL_DATA through the engine, x0.01; March = the C++-spawned damage effects, now not spawned or replaced by June's).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Guided Arrow (23012 / 23032) | `GUIDED_ARROW` x3 / x4 ( memo ) spawned by the state | 10.08, 6.75, 3.43 ( hyper 6.48, 4.34, 2.20 ) |
+| Wind Wall (23013 / 23035) | `EffectSet_Rena_WindWard` | 2.69 ( `DamageEffect_SA_RSR_Wind_Ward` ) |
+| Crazy Shot (23014 / 23048) | `CRAZY_SHOT` | 3.29, 3.29 ( hyper 2.59, 2.59 ) |
+| Arc Shot (23208 / 23223) | `DamageEffect_LGA_Arc_Shot` x5 | 2.39 per arrow, 5 arrows ( Enhanced 7 ) |
+| Shooting Magnum (23209 / 23233) | `DamageEffect_LSR_Shooting_Magnum` x4 | 2.93 per arrow, 4 arrows |
+| Hunter's Steadiness (23210 / 23234) | none ( new state ) | 1.33 and 6.34 ( the state's damage effects ) |
+| Rapid Shot (23212 / 23236) | `DamageEffect_LGA_Rapid_Shot` | 1.94 per arrow |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every class-13 skill falls back to the Power Attack default, and CH2a's / CH2b's too), `python tools/build.py --deploy`.
