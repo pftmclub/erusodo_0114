@@ -53,3 +53,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §4 L178 June-only members of tables March has (SKILL_ID names, LIRE_ELVENRANGE; §7i L431-L445 class code multiplies m_fNowStatePowerRate, never the entry's; §7ae L719 an id of a listed type with no case plays the class's first state (Ren; §7ae L726 types 14-16 / 17 / 18 named in the class switch; §7ai L848 pass June's skip / adjust / level / creator at every ported BFI call.
 - **Natural-force / combo-revamp rows** (`ch0_nf.tsv` col 8 = `CH2a`): 2; March blocks under `ADD_RENA_SYSTEM` inside your functions stay dead, June's NF lines go under `_NF`.
 - `LESI_SI_LE_POWER_ATTACK1` (the skill switch default) is here.
+
+## Amended by CH1n (2026-11-09)
+
+- **The default is `SetPowerAttackSkillFunc`** (`_CORE`, June `32cb06d0 @32cb2eef`): both June switches' default registers `LESI_SI_LE_POWER_ATTACK1` with March's callbacks (thunk targets `32c84740` / `32c86b60` / `32c74a40`, hyper `32c847b0` / `32c86b90` / `32c74d50`); under `_LIVE` March's `default:` calls it. Port the bodies there.
+- **June's id switch takes `GetUpgradeBaseSkillID( eSkillID_ )`** (`32207210`), as the head's hyper switch does. The first CH2 phase that writes June cases into the id switch switches it on the base id under `_LIVE` (March's `switch( eSkillID_ )` in `#else`).
+- **Slot state:** Siege (23201) registers `LESI_SIEGE_READY` ( 167 ) by its table name.

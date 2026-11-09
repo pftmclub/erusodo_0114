@@ -5311,6 +5311,170 @@ void CX2GULire_ElvenRanger::InitEquippedActiveSkillState(bool bOnlySkillLevel /*
 
 /*virtual*/ void CX2GULire_ElvenRanger::SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// char-rena CH1n: June 32cb06d0 up to its skill switch; its batch 3207c1a0 / 31fdf970 only re-protects the edited entries ( anti-tamper ), nothing to port
+	if ( iSlotIndex_ < 0 || iSlotIndex_ > 4 )
+		return;
+
+	const int iNormalStateID = ( false == bSlotB_ ? _CONST_GUUSER_::aNormalSkillStateID[iSlotIndex_] : _CONST_GUUSER_::aNormalSkillStateIDSlotB[iSlotIndex_] );	// June 335153c0 / 335153e8
+	UserUnitStateData& normalStateData = m_StateList[ iNormalStateID ];
+	normalStateData.Init();		// June's 31fd2af0 snapshot before it is the engine's ( checklist 7i )
+	normalStateData.stateID = iNormalStateID;	// June's +0x11 = 1 is IsSkillSlotState ( X2GUUser.cpp )
+
+	const int iHyperStateID = ( false == bSlotB_ ? _CONST_GUUSER_::aHyperSkillStateID[iSlotIndex_] : _CONST_GUUSER_::aHyperSkillStateIDSlotB[iSlotIndex_] );	// June 335153d4 / 335153fc
+	UserUnitStateData& hyperStateData = m_StateList[ iHyperStateID ];
+	hyperStateData.Init();
+	hyperStateData.m_bHyperState = true;
+	hyperStateData.stateID = iHyperStateID;
+
+	const CX2SkillTree::SkillTemplet* pSkillTempletEquipped = GetEquippedActiveSkillTemplet( eSkillID_, true );
+	if ( NULL == pSkillTempletEquipped )
+		return;
+
+	const int iTranscendenceSkillID = GetTranscendenceMemoSkillID( eSkillID_ );
+	if ( 0 != iTranscendenceSkillID && NULL != g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iTranscendenceSkillID ) ) )
+		return;		// June @32cb07cd: a transcended skill registers nothing here
+
+	switch ( pSkillTempletEquipped->m_eType )
+	{
+	case CX2SkillTree::ST_BUFF:
+		{
+			m_LuaManager.MakeTableReference( "LESI_SI_LE_COMMON_BUFF", normalStateData.stateID );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, COMMON_BUFF_FrameMove );	// June 32a77a20 = vslot 0x5f0 ( 32c849f0 )
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, COMMON_BUFF_EventProcess );	// June 31fcbd60
+
+			m_LuaManager.MakeTableReference( "LESI_SI_LE_COMMON_BUFF_HYPER", hyperStateData.stateID );
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+		} return;
+
+	case CX2SkillTree::ST_ACTIVE:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE:
+	case CX2SkillTree::ST_HYPER_ACTIVE_SKILL:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+		{
+			const int iBaseSkillID = static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( eSkillID_ ) );	// June 32207210
+
+			switch ( iBaseSkillID )
+			{
+			case CX2SkillTree::RNSI_HA_RWS_SPIRAL_STRIKE:
+			case CX2SkillTree::RNSI_HA_RWS_SPIRAL_STRIKE_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "LESI_HA_LWS_SPIRAL_STIKE_READY", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LWS_SPIRAL_STIKE_READY_Init );			// June 32c6d0b0, CH3d
+					normalStateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LWS_SPIRAL_STIKE_READY_StateStart );		// June 32c88330, CH3d
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LWS_SPIRAL_STIKE_READY_EventProcess );	// June 32c7f320, CH3d
+
+					m_LuaManager.MakeTableReference( "LESI_HA_LWS_SPIRAL_STIKE_READY", hyperStateData.stateID );
+					hyperStateData.m_bHyperState	= true;
+					hyperStateData.StateInit		= normalStateData.StateInit;
+					hyperStateData.StateStart		= normalStateData.StateStart;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= LESI_HA_LWS_SPIRAL_STIKE_SPINING;
+					m_LuaManager.MakeTableReference( "LESI_HA_LWS_SPIRAL_STIKE_SPINING", stateData.stateID );
+					stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LWS_SPIRAL_STIKE_SPINING_StateStart );		// June 32c9eb20
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LWS_SPIRAL_STIKE_SPINING_FrameMove );		// June 32c9ece0
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LWS_SPIRAL_STIKE_SPINING_EventProcess );	// June 32c7f350
+					stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LWS_SPIRAL_STIKE_SPINING_StateEnd );		// June 32c6d1a0
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK;
+					m_LuaManager.MakeTableReference( "LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK", stateData.stateID );
+					stateData.StateInit			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK_Init );			// June 32c6d1c0
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK_FrameMove );		// June 32c9ef20
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK_EventProcess );	// June 32c7f3a0
+					m_StateList[stateData.stateID] = stateData;
+				} return;
+
+			case CX2SkillTree::RNSI_HA_RGA_SHOOTER_DESTINY:
+			case CX2SkillTree::RNSI_HA_RGA_SHOOTER_DESTINY_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT_Init );			// June 32c6d290, CH3d
+					normalStateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT_StateStart );		// June 32c86b20, CH3d
+					normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT_FrameMove );		// June 32c9efd0, CH3d
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT_EventProcess );	// June 32c7f6c0, CH3d
+
+					m_LuaManager.MakeTableReference( "LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT", hyperStateData.stateID );
+					hyperStateData.m_bHyperState	= true;
+					hyperStateData.StateInit		= normalStateData.StateInit;
+					hyperStateData.StateStart		= normalStateData.StateStart;
+					hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT;
+					m_LuaManager.MakeTableReference( "LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT_EventProcess );	// June 32c7f6f0
+					m_StateList[stateData.stateID] = stateData;
+
+					stateData.Init();
+					stateData.stateID			= LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING;
+					m_LuaManager.MakeTableReference( "LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING_EventProcess );	// June 32c7f720
+					m_StateList[stateData.stateID] = stateData;
+				} return;
+
+			case CX2SkillTree::RNSI_HA_RLW_INNOCENT:
+			case CX2SkillTree::RNSI_HA_RLW_INNOCENT_UPGRADE:
+				{
+					m_LuaManager.MakeTableReference( "LESI_HA_LNW_INNOCENT_START", normalStateData.stateID );
+					normalStateData.StateInit		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LNW_INNOCENT_START_Init );			// June 32c6d350, CH3d
+					normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LNW_INNOCENT_START_EventProcess );	// June 32c7faa0, CH3d
+
+					m_LuaManager.MakeTableReference( "LESI_HA_LNW_INNOCENT_START", hyperStateData.stateID );
+					hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;	// June gives the hyper state no StateInit
+
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= LESI_HA_LNW_INNOCENT_END;
+					m_LuaManager.MakeTableReference( "LESI_HA_LNW_INNOCENT_END", stateData.stateID );
+					stateData.StateInit			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LNW_INNOCENT_END_Init );			// June 32c6d3f0
+					stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LNW_INNOCENT_END_StateStart );		// June 32ca7020
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LNW_INNOCENT_END_EventProcess );	// June 32c7fad0
+					stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_HA_LNW_INNOCENT_END_StateEnd );		// June 32c9f490
+					m_StateList[stateData.stateID] = stateData;
+				} return;
+
+			default:
+				break;
+			}
+
+			if ( CX2SkillTree::RNSI_HA_RWS_SPIRAL_STRIKE < iBaseSkillID )
+			{
+				SetPowerAttackSkillFunc( normalStateData, hyperStateData );	// June @32cb2eef
+				return;
+			}
+		} break;	// June's id switch takes the base id too; March's cases until CH2-CH3
+
+	case CX2SkillTree::ST_RELATIONSHIP_SKILL:
+		{
+			if ( CX2SkillTree::SI_ETC_WS_COMMON_LOVE == eSkillID_ )
+			{
+				m_LuaManager.MakeTableReference( "LESI_THROW_ITEM", normalStateData.stateID );
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, COMMON_RELATIONSHIP_SKILL_FrameMove );		// June 329cc0d0 = vslot 0x5f4
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, COMMON_RELATIONSHIP_SKILL_EventProcess );	// June 329cc170 = vslot 0x5f8
+
+				m_LuaManager.MakeTableReference( "LESI_THROW_ITEM", hyperStateData.stateID );
+				hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+				hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+			}
+		} return;
+
+	default:
+		return;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if ( iSlotIndex_ < 0 || iSlotIndex_ >= ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ) )
 		return;
 
@@ -5376,12 +5540,19 @@ void CX2GULire_ElvenRanger::InitEquippedActiveSkillState(bool bOnlySkillLevel /*
 		} break;
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	//////////////////////////////////// 여기서 부터 ACTIVE, SPECIAL ACTIVE 스킬//////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 	switch( eSkillID_ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	default:
+		{
+			SetPowerAttackSkillFunc( normalStateData, hyperStateData );	// char-rena CH1n: June 32cb06d0 @32cb2eef
+		} break;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	default:
 		{
 			m_LuaManager.MakeTableReference( "LESI_SI_LE_POWER_ATTACK1", normalStateData.stateID );
@@ -5395,6 +5566,7 @@ void CX2GULire_ElvenRanger::InitEquippedActiveSkillState(bool bOnlySkillLevel /*
 			hyperStateData.OnEventProcess		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_LE_POWER_ATTACK_HYPER_EventProcess );
 
 		} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		case CX2SkillTree::SI_A_LE_RAIL_STINGER:		//** Code 내의 이름과 사용되는 이름이 다름 : 함수명 수정 필요
@@ -6700,6 +6872,21 @@ void CX2GULire_ElvenRanger::InitEquippedActiveSkillState(bool bOnlySkillLevel /*
 	}
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+// char-rena CH1n: June 32cb06d0 @32cb2eef: the default of the hyper and the id switch, = March's default case
+void CX2GULire_ElvenRanger::SetPowerAttackSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ )
+{
+	m_LuaManager.MakeTableReference( "LESI_SI_LE_POWER_ATTACK1", rNormalStateData_.stateID );
+	rNormalStateData_.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_LE_POWER_ATTACK_FrameMoveFuture );	// June 32c84740, CH2a
+	rNormalStateData_.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_LE_POWER_ATTACK_FrameMove );			// June 32c86b60, CH2a
+	rNormalStateData_.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_LE_POWER_ATTACK_EventProcess );		// June 32c74a40, CH2a
+
+	m_LuaManager.MakeTableReference( "LESI_SI_LE_POWER_ATTACK1", rHyperStateData_.stateID );
+	rHyperStateData_.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_LE_POWER_ATTACK_HYPER_FrameMoveFuture );	// June 32c847b0, CH2a
+	rHyperStateData_.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_LE_POWER_ATTACK_HYPER_FrameMove );			// June 32c86b90, CH2a
+	rHyperStateData_.OnEventProcess		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_LE_POWER_ATTACK_HYPER_EventProcess );		// June 32c74d50, CH2a
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 /*virtual*/ void CX2GULire_ElvenRanger::SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE

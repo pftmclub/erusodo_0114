@@ -54,3 +54,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Natural-force / combo-revamp rows** (`ch0_nf.tsv` col 8 = `CH3d`): 3; March blocks under `ADD_RENA_SYSTEM` inside your functions stay dead, June's NF lines go under `_NF`.
 - **Callees this Opus phase maps itself** (`ch0_unmapped_identified.tsv`): `322dea10` ? game-wide unit scan: for every unit in the vector at this+0x304 (not the exclu.
 - 7ao: HyperModeBuffEffectStart `32c9b3d0` (transcended return) and the three `HQ_Cutin_R{WS,GA,NW}_Transcendence` rows.
+
+## Amended by CH1n (2026-11-09)
+
+- **The hyper switch is registered.** CH1n wrote June's hyper switch (base id; 23600 / 23603 Spiral, 23601 / 23604 Shooter Destiny, 23602 / 23605 Innocent) in the `_LIVE` head with March's callbacks, which are June's thunk targets slot for slot, and the sub-states `LESI_HA_LWS_SPIRAL_STIKE_SPINING` / `_FLYING_ATTACK`, `LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT` / `_DOWNLANDING`, `LESI_HA_LNW_INNOCENT_END` by table name. CH3d ports the 22 bodies and changes no registration.

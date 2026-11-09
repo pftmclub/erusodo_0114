@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1n | **ready** (`/x2-phase char-rena CH1n`, Opus 5.5 high): base callbacks + skill-slot head `32cb06d0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1n.md` |
+| CH1n | **review ready** (`/x2-phase char-rena CH1n review`, Opus 5.5 high): slot head `32cb06d0` + hyper switch under `_LIVE`, `SetPowerAttackSkillFunc` `_CORE`; callbacks all covered; DEPLOY OK | Opus 5.5 / high, Opus review | CH1m review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1n-review.md` |
 | CH1o | blocked (CH1n review): virtuals under `_LIVE`, `SetSkillLevelStateData` term, routed gaps | Opus 5.5 / high, Opus review | CH1n review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index, hooks 7h / 7l / 7o / 7p / 7x (CH0: no June-only key left for it) | Opus 5.5 / high, Opus review | CH1o review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1p.md` |
 | CH1q | blocked (CH1p review): natural force, class side: 27 fn whose March twin is `ADD_RENA_SYSTEM`-only (decision 1 = (a)), flipped arms, flag `_NF` | Opus 5.5 / high, Opus review | CH1p review, decision 1 | class, `X2GUUser.*`, `X2Gage*`, `X2DamageManager.*`, `X2DamageEffect.cpp`, `X2EffectSet.*`, `X2GUNPC.*`, `CommonPacket.h`, `ServerDefine.h`, `X2Offline*` | `CH1q.md` |

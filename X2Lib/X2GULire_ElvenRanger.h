@@ -1927,6 +1927,7 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 32ca50b0 ( user vslot 0x7fc, step 511 )
 		void SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32c89a20 ( user vslot 0x800, step 512 )
 		bool TryStateChangeEradicationAttack( const int iSkillID_ );	/// June 32ca2af0: Eradication with its hit count reached changes to the attack state
+		void SetPowerAttackSkillFunc( UserUnitStateData& rNormalStateData_, UserUnitStateData& rHyperStateData_ );	/// char-rena CH1n: June 32cb06d0 @32cb2eef ( both skill switches' default )
 		bool m_bAfterImageSaved;	/// June after-image +0x1d1 ( 32c85c00; constructor false ): the enable flag kept while the wait states hide the after-image
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 		virtual float ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ );	/// June 32c7bed0 ( user vslot 0x6a8 ): Eradication shows no cool time once its hit count is reached

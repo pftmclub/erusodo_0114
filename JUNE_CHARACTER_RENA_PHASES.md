@@ -1282,6 +1282,56 @@ for the `//#define`. `JUNE_CHAR_RENA_CORE --files .h`: `files: 1 PASS`, `RESULT:
 No code change, so no build; the deployed exe is CH1m's ( md5 `77fdb81177f2f6ab809c427f0ffb0f85` ). `CH1n.md` checked: the CH1m amendment is there.
 Nothing to play-test. Next: `/x2-phase char-rena CH1n` ( Opus 5.5 high ).
 
+### CH1n - Done (2026-11-09)
+
+**Head (`32cb06d0`), inside, `_LIVE`.** June's head sits in March's own `SetEquippedSkillFuncBySkillSlotIndex` up to the id switch; March's head and
+type switch are the `#else` (`_LIVE` still `//#define`d). Raven's CH1n is the template; read from the decompile and the exe bytes:
+- Bounds `0 > slot || 4 < slot`; tables `335153c0` / `335153e8` (normal A / B, 50.. / 60..) and `335153d4` / `335153fc` (hyper 51.. / 61..) = March's
+  `_CONST_GUUSER_` arrays (PE bytes). `31fd2af0` dropped (7i), `+0x11` = `IsSkillSlotState`, hyper `0x101`; `GetEquippedActiveSkillTemplet( id, true )`.
+- **Transcendence memo @32cb07cd:** `31fdbcc0`, then `32206450( memo, 1 )` non-null -> the epilogue. No case, as Raven's.
+- **Types** (bytes `32cb3004` = {0,1,1,3,3,3,3,2,1,1,1,1}, jump `32cb2ff4`): 5 buff = `LESI_SI_LE_COMMON_BUFF` / `_HYPER` (FM vslot 0x5f0 = Rena's
+  `32c849f0` `COMMON_BUFF_FrameMove`, EP `31fcbd60`); 6 / 7 / 0xd-0x10 = the hyper switch, then the id switch; 0xc + 900 = `LESI_THROW_ITEM`, vslots 0x5f4 /
+  0x5f8 (not overridden); anything else returns.
+- **Base id (Rena differs from Raven).** Both June switches take `32207210( id )` = `GetUpgradeBaseSkillID` (`SERV_IRUHADEV_JUNE_SKILL_TEMPLET`), not the raw id.
+- **Hyper switch** (`0x5c30 < base`: 0x5c31 / 0x5c34 Cryotron, 0x5c32 / 0x5c35 Innocent, 0x5c33 -> Spiral, default `@32cb2eef`; `== 0x5c30` Spiral; else the id
+  switch): `RNSI_HA_RWS_SPIRAL_STRIKE` / `_UPGRADE`, `RNSI_HA_RGA_SHOOTER_DESTINY` / `_UPGRADE`, `RNSI_HA_RLW_INNOCENT` / `_UPGRADE` (CH1i's names). All 28
+  thunks resolve to March's callbacks in March's slots (Spiral READY Init / Start / EP, SPINING Start / FM / EP / End, FLYING Init / FM / EP; Cryotron GUIDE
+  Init / Start / FM / EP, CHARGE EP, DOWNLANDING EP; Innocent START Init / EP, hyper EP only, END Init / Start / EP / End). Sub-states 0xf6 / 0xf7 / 0xf8 /
+  0xf9 / 0xfb by table name. Bodies stay CH3d's (kickoff amended).
+- **`SetPowerAttackSkillFunc`** (new, `_CORE`; June `@32cb2eef`, the default of both switches: hyper base ids above 23600 with no case, and the id switch
+  default @911): `LESI_SI_LE_POWER_ATTACK1` on both slots with thunk targets `32c84740` / `32c86b60` / `32c74a40` (hyper `32c847b0` / `32c86b90` / `32c74d50`)
+  = March's `default:` case; under `_LIVE` March's `default:` calls it. Bodies CH2a's.
+- **`32cb5760`** (CH0's "new ?") = March's `RapidShotData::CreateRapidShotData()` (0x14 bytes, `+4` = 0x99 `LESI_BASE`); only caller the Rapid Shot case
+  @32cb0e51. Nothing to port; class-map row corrected.
+- **Slot states** the CH1m amendment named (167, 202, 283, 295-302) are made by id-switch cases, not by the head: routed by name to the owning skill
+  phases (CH2a Siege, CH2b Low Kick, CH3a Sharpfall, CH3b Gungnir / Ace in the Hole, CH3c Eradication; kickoffs amended). CH2a's amendment also carries
+  the base-id switch for the id switch.
+- `Always.h`: three new `_LIVE` guards: `JUNE_SKILL_TYPE`, `JUNE_SKILL_NOTE`, `JUNE_DAMAGE_EXCEPTION` (`JUNE_ENUM_NAMES`, `JUNE_SKILL_TEMPLET` were there).
+
+**Dev free-skill gate.** `32cb06d0` has no cool-time / MP check; the gate is CH1k's `IsDevUnlimitedSkillUse()` in `SpecialAttackLookup` (`32cac200`,
+`X2GULire_ElvenRanger.cpp`). Checklist marked `(Rena: CH1n)`: dev-gate row (as CH1k), §7b memo row, the 7i head row, the `+0x11` row, types 14-16.
+
+**Base callbacks.** `june2017_re/char_rena/ch1n_triage.py` joins every callback target outside Rena's range in `ch1m_reg_by_class.tsv` (157 VAs) with
+Raven's, Chung's and Elsword's CH1n triages by June VA -> `ch1n_user_callback_triage.tsv`: 130 found (62 SAME; DIFF: 16 ported for every class, 5 kept,
+47 Stage 17), 27 `n/a` (14 riding 93-96 / empty slots and the die StateEnd, 3 phoenix, 3 dance: left out by CH1m; 5 bounding + 1 wait-state-change: the
+shared helpers; 1 vslot 0x600 thunk = Rena's `HyperModeFrameMove`). `RandomLoseEventProcess` `31fcd0b0` = Chung's row. Nothing new, nothing to widen:
+the four `X2GUUser` sites gated on Rena's `_LIVE` are the pressed-index stand-in, ResetAnimSpeed and ReservedSkillStart, none a registered callback.
+
+**Checks.** One-file probes of `X2GULire_ElvenRanger.cpp` (`census.cl_cmd`, `/c /Zs /EHsc`): `_LIVE` off `exit 0 errors 0`, `/DSERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`
+`exit 0 errors 0` (the three guards pass). `cl /P` off / on: `SetPowerAttackSkillFunc( normalStateData` 0 / 2, `GetUpgradeBaseSkillID( eSkillID_ )` 0 / 1,
+`RNSI_HA_RWS_SPIRAL_STRIKE:` 0 / 1, `GetTranscendenceMemoSkillID( eSkillID_ )` 0 / 1; the helper's definition 1 / 1.
+`git diff --patience --numstat`: `X2GULire_ElvenRanger.cpp` 187 / 0, `.h` 1 / 0, `Always.h` 10 / 0. bytepatch: high bytes unchanged (21398 / 4576 / 38738).
+`flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE --with SERV_IRUHADEV_JUNE_CHAR_RENA_CORE --worktree --files X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h KTDXLIB/Always.h`:
+`files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; RESULT FAIL only for the `//#define`.
+`flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_CORE --worktree --files X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS` (the OTHER is the `.cpp`'s `_LIVE` lines).
+`junediverge.py --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h KTDXLIB/Always.h`: `RESULT: PASS`. `enumscan.py --check` (`.cpp`, `.h`): `0 A/B row(s)`.
+Funcmap rows `Char Rena CH1n` (3). No JUNE_BUGS row.
+`DEPLOY OK: X2_offline.exe is 26,105,856 B, dated 2026-11-09 15:11:52, md5 f266e292f4921dc126f0386b92bd2fb3, equal to X2/US_SERVICE/x2.exe (2026-11-09 15:11:45); built at main 8ab92198 + 3 uncommitted code file(s).`
+The build ran before `8ab92198` (full build only for play-test phases); the phase-tag comments (`// char-rena CH1n`, same rule commit) were added after it,
+comment-only, and re-proven by both probes (`exit 0 errors 0`) and flagcheck (same tallies). No `exestr` line: `_LIVE` is off, the helper adds no string.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-rena CH1n review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
