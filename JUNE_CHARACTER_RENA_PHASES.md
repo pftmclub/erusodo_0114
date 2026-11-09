@@ -1578,6 +1578,44 @@ every non-user attacker), `ApplyHyperModeBuff`, emulator `CAC_NATURAL_FORCE` and
 
 **Nothing to play-test.** Next: `/x2-phase char-rena CH1q review` (Opus 5.5 high).
 
+### CH1q - Review (2026-11-09)
+
+**Verdict: PASS, no code change** (flags `_NF` and `_LIVE` still `//#define`, `_CORE` untouched). Read from the exe bytes (`charport_adis.py rena`,
+`funcdis.py`, Rena vtable `335185bc`) and fresh `cl /P` / `/Zs` probes (`census.cl_cmd`, US_SERVICE):
+- **AttackResultByType `32ca7130`.** `+0x56c` (`m_NaturalForceType`): `js` out, `jle 2` -> combo path, `jne 3` out, so only `NFT_SPECIAL_ACTIVE` (3) takes
+  the skill path and `NFT_ACTIVE` (2) charges as a combo (enum `X2DamageManager.h:677-682` = June). Skill path: vslot `0x420` (`32c87780` Check) `== 1`,
+  count `jle` 0 out, `+0x5a9` byte, vslot `0x424` (`32c86740` Delete), `BOOM_SKILL` with the default args (`CreateInstance` defaults = June's pushes), min( count,
+  byte ), `+0x23c` / `+0x238` x n, ConsumeNaturalForce, return (no `+0x5a4` store). Combo path: `+0x5a4 == 1` (`FAC_FIRST_ATTACK`); count < gauge `+0x120`;
+  `< 10` or `== 100` and `32c858c0` (CheckDamageRelateComboData) -> charge + 1; 3.0 `@32ca73fd` `test ah, 0x41; jp` = charge >= 3; combo bomb = type 1 and
+  count > 0, relate `< 10` direct, else Check true -> Delete, false -> skip both; charge - 3.0; inlined UpNaturalForce `@32ca75e2` (+1 when `+0x6c50` >
+  vslot `0x1cc` roll); `+0x5a4 = -1` `@32ca765b` on every combo-path exit past the gate. = the `_LIVE` body line for line.
+- **Helpers.** ConsumeNaturalForce `32c9f7a0`: `fldz; fcomp +0x97e0; test ah, 5; jp` = 0 < m -> `32278070`( n x m ); vslot `0x9c` (slot 39 IsFullHyperMode)
+  = `31e4c550` (false) in Rena's vtable and March has no override (`X2GameUnit.h:2323` only); `32a317d0`(1) + `32a36df0`( count - n ) = March's
+  SetNaturalForceCount (changed `+0x112`, clamp 0..max = `X2GageData.cpp` SetNowNaturalForce); buff( false ). UpNaturalForce `32cb6290` = the inlined copy.
+  SetNaturalForceBuff `32c85200`: `32a317b0` (`+0x110` buff mode), `3229e160`( 333 ), loop i < count re-read: vslot `0x21c` (`322a6960`) args ( 0x163, 0, 1,
+  0, 0 ) = June ( BFI, creator, level, adjust, skip ) = March's ( `BFI_BUFF_NATURAL_FORCE` 355, 1, NULL, 0, false ). Set `32c85260` / UnSet `32c85290`: 5 /
+  0x336 (`BTI_HYPER_MODE` / `BTI_TRANSCENDENTAL_HYPER_MODE` 822), UnSet count `< 1` -> mode false + `32281440`( 333 ). `32c6d4a0` = `ret 4`. `32c89230` (vslot
+  `0x744`): vslot `0x198` = `31ff1f30` IsMyUnit, `+0x92b4` through the same gauge pair, `jmp 3204da60` (stand-in as noted). `32cb50c0` / `32cb50e0` = count /
+  count <= 0.
+- **XX FrameMove `32c8b2c0`** vs X `32c8aa40`: 6.0 (X 4.0), no class test (X picks by class `0xd` / `0x67`), `DamageEffect_RSR_Double_Jump_Combo_XX_Arrow`
+  x3 at -90 / -70 / -110, stores arrow 1 backSpeed then rates, arrows 2 / 3 rates then backSpeed, `Dummy2_Lhand` not-enough-MP at -90, CommonFrameMove. = port.
+- **Equal rows confirmed:** XX StateStart `32c6ac20` (SetNowDamageRelateSkillData( 100 ), CommonStateStart), CreateGageData `32ca7060` (my unit -> copy
+  `32a37e00` else default `32498a30`), Init `32c883d0` (base, my unit -> CannonBallCount sync, SI_NONE, relate >= 10 -> 0, Lfoot / Rfoot 1.3), SetNaturalForceEffect
+  `32c9f830` (stop, 5-case Loop table, PlayEffectSet), NPC-die `3230bc70-3230bca7` (owner `32759f00`, vslot `0x420` then `0x424` with NPC `+0x8f6c`).
+- **RT_CREATE_DAMAGE_EFFECT `31f860fd-31f86148`:** child null -> straight to `31f6ea20`; else `+0x7a4` / `+0x7a8` copies (DamageData +0x5a4 / +0x5a8),
+  SetScale( `+0x698` ), `31f8fdb0`, `31f6ea20`. The port calls InheritFromParent on a null child too, which returns at once (`X2DamageEffect.cpp:10433`): equal.
+
+**Flag plumbing.** `_NF` alone: `Always.h(12016) : fatal error C1189` ("needs `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`"). `_LIVE` + `_NF` `.i`: `CAC_NATURAL_FORCE` x2
+in `X2GUUser.i` (enum + the `m_cCharAbilType` use), `NFP: %f` 0, `__forceinline` on GetNaturalForceCount 0, `NATURAL_FORCE_VALUE_PER_HIT = 3` x1 per `.i`, `= 6` 0;
+the RT_CREATE_DAMAGE_EFFECT arm keeps one CreateInstance (copy, SetScale, InheritFromParent, ApplyCreateDamageEffectRate in June's order).
+
+**Hygiene.** `flagcheck _NF --range 60bdb407^..60bdb407 --files <7>`: 3 PASS, 2 DEFINE, 2 OTHER (`_CORE` / `_LIVE`), 0 FAIL; 0 deleted, 0 non-ASCII, 0 EOL;
+RESULT FAIL only for the commented `//#define`. `junediverge.py --check-all`: allow-listed 197, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`:
+0 A/B rows. Probes (`/c /Zs /EHsc`), off and `_LIVE` + `_NF`: `X2GULire_ElvenRanger.cpp`, `X2GUUser.cpp`, `X2DamageEffect.cpp` 0 errors each. Full build
+skipped: no play-test.
+
+**Nothing to play-test.** CH1q2 kickoff checked (its "Amended by CH1q" section is current). Next: `/x2-phase char-rena CH1q2` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
