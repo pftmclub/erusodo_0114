@@ -11885,6 +11885,9 @@ void CX2GUUser::DamageReact( CX2DamageManager::DamageData* pDamageData )
 						if( pAttackerUnit->GetAllyTeam() != CX2Room::TN_NONE && pAttackerUnit->IsPvpBot() == false )
 						{
                             SetGameUnitWhoAttackedMe( pNPC->GetOwnerGameUnit() );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+							m_DamageDataWhoAttackedMe = *pDamageData;	// char-rena CH1o: June 320462a0 @3204a1e5 ( June's gate here is !IsPve )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifndef  X2OPTIMIZE_UNITTYPE_BUG_FIX
 							m_bAttackedByUserUnit = true;
 #endif  X2OPTIMIZE_UNITTYPE_BUG_FIX
@@ -15241,6 +15244,9 @@ void CX2GUUser::AttackResult()
 		}
 
 		DoDelegateProcessInAttackResult( m_DamageData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+		ProcessAttackResultPassive( &m_DamageData );	// char-rena CH1o: June 32012b50 @320139a4 ( unit vslot 0x1e8 )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 #ifdef SERV_PET_SYSTEM
 		CX2PET *pPet = g_pData->GetPetManager()->GetPet( GetUnitUID() );

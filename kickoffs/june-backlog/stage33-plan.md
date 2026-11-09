@@ -42,7 +42,10 @@ Do the RE read-only in Ghidra and `june2017_re/disasm_range.py`; delegate greps 
   - damage: `GetFinalDamage` `32284aa0` and its helpers, `SetDamageExceptionProcess` `322990e0` + the per-class overrides, user /
     NPC `DamageReact`, defence / resist / enchant, PvE / PvP / boss rates;
     (char-elsword CH1o, 2026-11-04: the user hooks 0x508 / 0x50c @32284d2e-32284d76 are ported under `_LIVE`; the next call, `this` vslot 0x6c
-    `3229a530` ( pDamageData, &rP, &rM ) @32284d98 that multiplies both attacks, is not: it belongs here);
+    `3229a530` ( pDamageData, &rP, &rM ) @32284d98 that multiplies both attacks, is not: it belongs here;
+    char-rena CH1o, 2026-11-09: its Rena block @3229a79c, attacker unit type 3 and DD skill 23042 Rage Fungus, compares
+    `CX2GULire_ElvenRanger::GetRageFungusTargetLockCount()` ( June `32c85b20`, written under `_CORE` ) with `SA_EFFECTIVE_COUNT` and scales both
+    attacks by `SA_DAMAGE_REL`);
   - resource gain: MP on hit / hit taken, awakening gauge, regen, MP cost (incl. the six `GetSkillMpDecreaseRate` `3234d840` call sites, moved from june-march-divergence D1-3f 2026-10-29; see backlog Stage 33).
 - **Inherited, not redone** (verify each row's June claim by a spot-check, do not re-port): the june-buff members, socket parity, effect
   C3 damage data, ExtraNPCStat, Stage 3 skill values, transcendence.

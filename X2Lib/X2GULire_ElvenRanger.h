@@ -1908,8 +1908,7 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		unsigned short m_usEradicationHitCount;	/// June +0x9810 ( constructor 0 ): Eradication's hit count
 		float m_fEradicationLoopEffectTime;	/// June +0x9814 ( constructor 0 ): Eradication's SA_EFFECTIVE_TIME
 		CX2EffectSet::Handle m_hEradicationLoopEffect;	/// June +0x9818 ( constructor -1 ): Eradication's loop effect set
-		void ProcessAttackResultPassive( CX2DamageManager::DamageData* pDamageData_ );	/// June 32ca9ca0 ( user vslot 0x1e8 ): CH1o wires it
-		void ProcessEradicationHit( CX2DamageManager::DamageData* pDamageData_ );	/// June 32cb3200 ( user vslot 0x318 ): CH1o wires it
+		unsigned short GetRageFungusTargetLockCount();	/// char-rena CH1o: June 32c85b20: drops the locks no longer above 0, returns how many stay ( read by unit vslot 0x6c 3229a530: Stage 33 )
 		void StoreGageSnapshot();	/// June 32c852f0 ( user vslot 0x740, base 32009780 Crest of Time snapshot not ported ): keeps the natural force count
 		int m_iSnapshotNaturalForceCount;	/// June +0x92b4 ( CX2GUUser snapshot region, constructor 0 ): the count StoreGageSnapshot keeps
 		void ResetEradicationLoop();	/// June 32ca2aa0: the loop's end ( CommonFrameMove ): the hit count restarts and the loop effect set stops
@@ -1934,6 +1933,8 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		virtual bool IsNotCommonMoveState();	/// June 32c85a60 ( user vslot 0x828 ): overrides a base virtual, so it exists only under _LIVE
 		virtual void ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c: step 512 and the memo refund
 		virtual void AfterImageFrameMove();	/// June 32c85c00 ( user vslot 0x850 )
+		virtual void ProcessAttackResultPassive( CX2DamageManager::DamageData* pDamageData_ );	/// char-rena CH1o: June 32ca9ca0 ( unit vslot 0x1e8, after the attack-result delegates )
+		virtual void DoProcessWhenKillEnemy( const CX2GameUnit* pDefender_ );	/// char-rena CH1o: June 32cb3200 ( unit vslot 0x318 ): a kill by an Eradication hit counts
 		virtual float GetStateAnimSpeedRate( const bool bFuture_ );	/// June 32c83320 ( user vslot 0x824 ): the Combat Ranger / Wind Sneaker animation rate
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 		void LESI_RTR_DOUBLE_JUMP_ZX_StateStart();	/// June 32ca7670

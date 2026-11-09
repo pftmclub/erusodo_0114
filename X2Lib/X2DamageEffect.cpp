@@ -5442,6 +5442,9 @@ void CX2DamageEffect::CEffect::AttackResult()
 #endif
 
 						pOwnerGameUnit->DoDelegateProcessInAttackResult( m_DamageData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+						pOwnerGameUnit->ProcessAttackResultPassive( &m_DamageData );	// char-rena CH1o: June 31f85910 @31f86a92 ( unit vslot 0x1e8 )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 #ifdef SERV_IRUHADEV_JUNE_DAMAGEDATA
 						// June2017 FUN_31f85910 @31f86a9d-31f86acb, default case: MAKE_TARGET stores the

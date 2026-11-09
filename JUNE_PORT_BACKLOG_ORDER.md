@@ -249,6 +249,8 @@ the rule (`JUNE_ENGINE_REMAINDER_PHASES.md` "Scope audit (2026-10-20)"):
   `+0x94f0`) and `0x1ec` (`32296570`, after the `+0x66dc` run in both DamageReacts: skill 0x7dcd). Also the NPC script key `ATTACK_RESULT%d`
   (`CX2GUNPC::InitComponent` `327a0fa0 @327ac7ef`): value 1 registers `3275a520` (holder of BTI 0x1d0 / 0x208 gives the hit target BFI 0x20e).
   Every unit; find the June data that reaches them first (funcmap rows "Char CH4b").
+  (char-rena CH1o, 2026-11-09: slot 0x1e8 now exists, under Rena's `_LIVE`, as the empty `CX2GameUnit::ProcessAttackResultPassive` with its three
+  call sites; `32011b80` becomes `CX2GUUser`'s override of it, and Rena's override already calls `CX2GUUser::ProcessAttackResultPassive` first.)
 
 ### Stage 3: skill system core (skill tree engine + skill slots)
 

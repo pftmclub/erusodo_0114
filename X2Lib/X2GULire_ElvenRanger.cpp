@@ -31611,9 +31611,11 @@ int CX2GULire_ElvenRanger::CreateDamageEffectIndex()	/// Æø¹ßÀÇ È­»ì DamageEffec
 
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
-// June 32ca9ca0 ( user vslot 0x1e8 ); stand-in: the base hook 32011b80 is CH4b's, nothing calls this until CH1o
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// char-rena CH1o: June 32ca9ca0 ( unit vslot 0x1e8 ); stand-in: the user base 32011b80 is Stage 2's, so the base call reaches CX2GameUnit's empty one
 void CX2GULire_ElvenRanger::ProcessAttackResultPassive( CX2DamageManager::DamageData* pDamageData_ )
 {
+	CX2GUUser::ProcessAttackResultPassive( pDamageData_ );
 	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_RWS_PERSISTENT_MIND ) <= 0 )
 		return;
 
@@ -31633,13 +31635,14 @@ void CX2GULire_ElvenRanger::ProcessAttackResultPassive( CX2DamageManager::Damage
 		SetBuffFactorToGameUnit( *ptrBuffFactor );
 }
 
-// June 32cb3200 ( user vslot 0x318 ); nothing calls this until CH1o
-void CX2GULire_ElvenRanger::ProcessEradicationHit( CX2DamageManager::DamageData* pDamageData_ )
+// char-rena CH1o: June 32cb3200 ( unit vslot 0x318 ): the killed unit's last DamageData ( June 32cb6dd0 ) must carry an Eradication trigger
+void CX2GULire_ElvenRanger::DoProcessWhenKillEnemy( const CX2GameUnit* pDefender_ )
 {
-	if( NULL == pDamageData_ )
+	if( NULL == pDefender_ )
 		return;
 
-	if( false == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_ERADICATION ) && false == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_ERADICATION_EXPLOSION ) )
+	const CX2DamageManager::DamageData& damageDataWhoAttackedMe = pDefender_->GetDamageDataWhoAttackedMe();
+	if( false == damageDataWhoAttackedMe.IsAttackTrigger( CX2DamageManager::DTT_ERADICATION ) && false == damageDataWhoAttackedMe.IsAttackTrigger( CX2DamageManager::DTT_ERADICATION_EXPLOSION ) )
 		return;
 
 	float fHitCountLimit = 0.f;
@@ -31663,6 +31666,7 @@ void CX2GULire_ElvenRanger::ProcessEradicationHit( CX2DamageManager::DamageData*
 
 	m_hEradicationLoopEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_RNW_Eradication_LoopFX", (CX2GameUnit*) this );
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 //{{ Iruha : 2026-11-09 // char-rena CH1i
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
@@ -31721,6 +31725,24 @@ void CX2GULire_ElvenRanger::UpdateSpineAimRotation()
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 //}} Iruha : 2026-11-09 // char-rena CH1i
+//{{ Iruha : 2026-11-09 // char-rena CH1o
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+/// char-rena CH1o: June 32c85b20 ( reader: unit vslot 0x6c 3229a530, Stage 33 ): a lock not above 0 is erased, the count left is June's word
+unsigned short CX2GULire_ElvenRanger::GetRageFungusTargetLockCount()
+{
+	std::map< std::pair< int, UidType >, float >::iterator it = m_mapRageFungusTargetLockTime.begin();
+	while ( it != m_mapRageFungusTargetLockTime.end() )
+	{
+		if ( 0.f < it->second )
+			++it;
+		else
+			m_mapRageFungusTargetLockTime.erase( it++ );
+	}
+
+	return static_cast<unsigned short>( m_mapRageFungusTargetLockTime.size() );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+//}} Iruha : 2026-11-09 // char-rena CH1o
 //{{ Iruha : 2026-11-09 // char-rena CH1j
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 /// June 32ca2aa0: Eradication's loop ends ( CommonFrameMove ): the hit count restarts and the loop effect set stops
@@ -33591,6 +33613,19 @@ void CX2GULire_ElvenRanger::SetEquippedSkillLevelStateData( const CX2SkillTree::
 
 void CX2GULire_ElvenRanger::SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// char-rena CH1o: June 3201f850 ( CX2GUUser's hoisted form, through vslot 0x7a8 32028190 ): the upgrade-swap level and the additional power rate
+	if ( NULL == pSkillTemplet_ || NULL == GetUnit() )
+		return;
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet_->m_eID, false, 0, true ) );
+
+	stateData_.m_SPLevel	= iSkillTempletLevel;
+	stateData_.m_fPowerRate	= pSkillTemplet_->GetSkillPowerRateValue( iSkillTempletLevel );
+	stateData_.m_eSkillID	= pSkillTemplet_->m_eID;
+	stateData_.m_fPowerRate	= ( GetSkillAdditionalPowerRate( static_cast<int>( pSkillTemplet_->m_eID ) ) + 1.f ) * stateData_.m_fPowerRate;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if ( NULL == GetUnit()  )
 		return;
 	
@@ -33602,6 +33637,7 @@ void CX2GULire_ElvenRanger::SetSkillLevelStateData( const CX2SkillTree::SkillTem
 	stateData_.m_fPowerRate	= pSkillTemplet_->GetSkillPowerRateValue( iSkillTempletLevel );
 
 	stateData_.m_eSkillID	= pSkillTemplet_->m_eID;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 /** @function	: SetSiegeModeEffectiveValue

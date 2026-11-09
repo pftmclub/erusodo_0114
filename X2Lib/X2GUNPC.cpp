@@ -11455,6 +11455,9 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 					m_bAttackedByUserUnit = true;
 #endif  X2OPTIMIZE_UNITTYPE_BUG_FIX
 					SetGameUnitWhoAttackedMe( pAttackerUnit );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+					m_DamageDataWhoAttackedMe = *pDamageData;	// char-rena CH1o: June 327b1f30 @327b4cb6
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 					//{{ JHKang / 강정훈 / 2011/02/21 / 유저가 NPC(몬스터)에게 준 데미지 
 #ifdef DUNGEON_RANK_NEW
@@ -11484,6 +11487,9 @@ void CX2GUNPC::DamageReact( CX2DamageManager::DamageData* pDamageData )
 						m_bAttackedByUserUnit = false;
 #endif  X2OPTIMIZE_UNITTYPE_BUG_FIX
 						SetGameUnitWhoAttackedMe( pAttackerUnit );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+						m_DamageDataWhoAttackedMe = *pDamageData;	// char-rena CH1o: June 327b1f30 @327b4e95
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 						
 					CX2GUNPC*		pAttackerNpc = static_cast<CX2GUNPC*>( pDamageData->optrAttackerGameUnit.GetObservable() );
 					CX2GameUnit*	pOwnerGameUnitOfAttackerNpc = pAttackerNpc->GetOwnerGameUnit();
@@ -14819,6 +14825,9 @@ void CX2GUNPC::AttackResult()
 			if( pGameUnit->GetComboManager() != NULL )
 				pGameUnit->GetComboManager()->AddCombo();
 			DoDelegateProcessInAttackResult( m_DamageData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+			ProcessAttackResultPassive( &m_DamageData );	// char-rena CH1o: June 3276a320 @3276a7a8 ( unit vslot 0x1e8 )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 		}
 
 		UpDownCrashCamera( m_DamageData.fCameraCrashGap, m_DamageData.fCameraCrashTime );

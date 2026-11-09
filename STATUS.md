@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1o | **ready** (`/x2-phase char-rena CH1o`, Opus 5.5 high): virtuals under `_LIVE`, `SetSkillLevelStateData` term, routed gaps | Opus 5.5 / high, Opus review | CH1n review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1o.md` |
+| CH1o | done 2026-11-09, **review ready** (`/x2-phase char-rena CH1o review`, Opus 5.5 high): 0x318 = DoProcessWhenKillEnemy + killing-blow DamageData, 0x1e8 base, `+1.f` term; no play-test | Opus 5.5 / high, Opus review | CH1n review | class, `X2GameUnit.h`, `X2Game.cpp`, `X2GUNPC.cpp`, `X2GUUser.cpp`, `X2DamageEffect.cpp`, Always.h | `CH1o-review.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index, hooks 7h / 7l / 7o / 7p / 7x (CH0: no June-only key left for it) | Opus 5.5 / high, Opus review | CH1o review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1p.md` |
 | CH1q | blocked (CH1p review): natural force, class side: 27 fn whose March twin is `ADD_RENA_SYSTEM`-only (decision 1 = (a)), flipped arms, flag `_NF` | Opus 5.5 / high, Opus review | CH1p review, decision 1 | class, `X2GUUser.*`, `X2Gage*`, `X2DamageManager.*`, `X2DamageEffect.cpp`, `X2EffectSet.*`, `X2GUNPC.*`, `CommonPacket.h`, `ServerDefine.h`, `X2Offline*` | `CH1q.md` |
 | CH1q2 | blocked (CH1q review): natural force, engine side: `CX2RenaGageData` / `CX2RenaMyGageUI`, gauge manager, emulator `CAC_NATURAL_FORCE`, engine callers (CH0 split) | Opus 5.5 / high, Opus review | CH1q review | `X2Gage*`, `X2GUNPC.*`, `X2BuffFactor` / hyper buff, `X2Game.cpp`, `X2Offline*`, `CommonPacket.h` | `CH1q2.md` |

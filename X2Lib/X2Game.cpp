@@ -22282,6 +22282,14 @@ void CX2Game::IncreaseUserPacketCountToReceive( const UidType uidGameUnit_ )
 #ifdef ARA_CHARACTER_BASE
 void CX2Game::ProcessIKillThisNpc( const KEGS_NPC_UNIT_DIE_NOT& kEvent )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// char-rena CH1o: June 322cf060 makes March's tests and hands the killed NPC to DoProcessWhenKillEnemy ( unit vslot 0x318 )
+	if ( NULL != GetMyUnit() && NULL != GetMyUnit()->GetUnit() &&
+		-1 != kEvent.m_uiAttUnit && GetMyUnit()->GetUnitUID() == kEvent.m_uiAttUnit )
+	{
+		GetMyUnit()->DoProcessWhenKillEnemy( GetNPCUnitByUID( kEvent.m_nDieNPCUID ) );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if ( NULL != GetMyUnit() )
 	{
 		if( NULL != GetMyUnit() && 
@@ -22294,12 +22302,21 @@ void CX2Game::ProcessIKillThisNpc( const KEGS_NPC_UNIT_DIE_NOT& kEvent )
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 #endif
 
 #ifdef FIX_ARA_AWAKE_ABILITY_BUG
 void CX2Game::ProcessIKillThisUser( const KEGS_USER_UNIT_DIE_NOT& kEvent )
 {	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// char-rena CH1o: June 322cf100 makes March's tests and hands the killed user to DoProcessWhenKillEnemy ( unit vslot 0x318 )
+	if ( NULL != GetMyUnit() && NULL != GetMyUnit()->GetUnit() &&
+		( GetMyUnit()->GetUnitUID() == kEvent.m_KillerUserUnitUID || GetMyUnit()->GetUnitUID() == kEvent.m_MaxDamageKillerUserUnitUID ) )
+	{
+		GetMyUnit()->DoProcessWhenKillEnemy( GetUserUnitByUID( kEvent.m_KilledUserUnitUID ) );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if ( NULL != GetMyUnit() && 
 		 NULL != GetMyUnit()->GetUnit() )
 	{
@@ -22309,6 +22326,7 @@ void CX2Game::ProcessIKillThisUser( const KEGS_USER_UNIT_DIE_NOT& kEvent )
 			GetMyUnit()->DoProcessWhenKillEnemy( NULL );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 #endif // FIX_ARA_AWAKE_ABILITY_BUG
 

@@ -1376,6 +1376,59 @@ Full build skipped: no play-test (the review changed no code; CH1n's `DEPLOY OK`
 
 **Nothing to play-test** (`_LIVE` is off). CH1o's kickoff stands as written (Amended by CH0 / CH1j / CH1k checked). Next: `/x2-phase char-rena CH1o` (Opus 5.5 high).
 
+### CH1o - Done (2026-11-09)
+
+**Landed** (flag `_LIVE`, still `//#define`; `_CORE` for the new helper; 14 funcmap rows tagged `Char Rena CH1o`). Files: `X2GULire_ElvenRanger.cpp` / `.h`,
+`X2GameUnit.h`, `X2Game.cpp`, `X2GUNPC.cpp`, `X2GUUser.cpp`, `X2DamageEffect.cpp`, `KTDXLIB/Always.h`. Every block carries `char-rena CH1o`.
+- **Vslot 0x318 is March's `DoProcessWhenKillEnemy` (corrects CH1h).** Vtables read from the PE: `CX2GameUnit` 334883b4 / `CX2GUUser` 334781f4 / `CX2GUNPC`
+  334ba584 + 0x318 = `3208ddc0` (empty, = March's base); Rena + 0x318 = `32cb3200`. A `[r+0x318]` call sweep finds three callers: `CX2Game::ProcessIKillThisNpc`
+  `322cf060 @322cf0ee`, its PvP twin `ProcessIKillThisUser` `322cf100 @322cf195`, and `CX2GUUser::DyingStart` `32014810 @320149eb` (= March's attacker call).
+  The argument is the **killed unit**: `32cb3200` copies its `+0x763c` DamageData (`32cb6dd0`) and tests the Eradication triggers on that copy. CH1h's
+  `_CORE` `ProcessEradicationHit( DamageData* )` is now the `_LIVE` override `DoProcessWhenKillEnemy( const CX2GameUnit* )`, body unchanged after the copy.
+- **The killing-blow DamageData, engine side (all `_LIVE`).** `+0x763c` is a June-only `CX2GameUnit` member (ctor `322a0c72`, dtor `322a2700`):
+  `m_DamageDataWhoAttackedMe` + `GetDamageDataWhoAttackedMe()`. June stores it right after `SetGameUnitWhoAttackedMe` (`32076140`) in the NPC
+  DamageReact (`@327b4cb6` user attacker, `@327b4e95` NPC attacker) and on the user DamageReact's owner-credit path (`@3204a1e5`), and its inline
+  `ResetGameUnitWhoAttackedMe` also runs `DamageData::Init` (`31f8f550`; six inlined sites). Ported at March's X2GUNPC.cpp:11457 / :11486,
+  X2GUUser.cpp:11887 and the inline reset. June's gate on the user store is `!IsPve` where March tests the ally team (PvP only; JUNE_BUGS 573: a direct
+  user-on-user kill keeps no DamageData). June's `ProcessIKillThisNpc` / `User` hand over `GetNPCUnitByUID( m_nDieNPCUID )` / `GetUserUnitByUID(
+  m_KilledUserUnitUID )` where March passes NULL: June's whole bodies under `_LIVE` (Ara's override ignores the argument). Three `june_march_divergent.tsv`
+  rows (the two handlers, the reset), source "ported under SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE".
+- **Vslot 0x1e8 is a `CX2GameUnit` slot** (base `3208ddc0` empty; `CX2GUUser` overrides it with `32011b80`, routed to backlog "attack-result hooks").
+  New `CX2GameUnit::ProcessAttackResultPassive( DamageData* ) {}` and its three June call sites, each right after the attack-result delegate run:
+  CEffect `31f86a92` (owner), user `320139a4`, NPC `3276a7a8` (the NAT_ALLY branch only, as June) = X2DamageEffect.cpp:5444, X2GUUser.cpp:15243,
+  X2GUNPC.cpp:14821. Rena's override moved to `_LIVE`, `virtual`, and calls `CX2GUUser::ProcessAttackResultPassive` first (`@32ca9cc9`; reaches the
+  empty base until the user body lands; backlog note added).
+- **`SetSkillLevelStateData` = June's `3201f850` under `_LIVE`** (Raven's CH1o form): null templet / unit return, `max( 1, GetSkillLevel( id, false, 0,
+  true ) )`, power rate, id, x `( GetSkillAdditionalPowerRate( id ) + 1.f )`. Rena keeps vslot 0x7a8 `32028190`; all 39 `SetEquippedSkillLevel` writes get the term.
+- **The five base-called helpers.** `32c83580` / `32c6dbd0` / `32c6dd10` / `32c6ddc0` = March's static `AppendEffectToDeviceList` / `AppendMajorParticleToDeviceList`
+  / `AppendComponentToDeviceList` / `AppendDeviceToDeviceList` (same names, order, tests; bases `31fef4d0` / `31fede50` / `31fca170`, Raven's `32c3d1c0` case):
+  no code. `32c85b20` = new `_CORE` `GetRageFungusTargetLockCount()`: erase every lock not above 0 (NaN too), return the size as a word. Its only caller
+  is unit vslot 0x6c `3229a530 @3229a79c` (attacker type 3, skill 23042: count <= `SA_EFFECTIVE_COUNT` -> both attacks x `SA_DAMAGE_REL`), which
+  char-elsword CH1o routed whole to Stage 33: `stage33-plan.md` now names the Rena block and the helper.
+- **`31c8a5c0`** = `CKTDGXMeshPlayer::AppendToDeviceList( list, wstring, priority )`, = March including its inverted empty test (a named templet never
+  appends; StateInitTrapBlade stays a no-op in both). No code.
+- **Routed items closed.** `ShownSkillCoolTime` (0x6a8): base virtual and X2Game caller live under `JUNE_USER_SHOWN_SKILL_COOL_TIME`; `Always.h` guard
+  added under Rena's `_LIVE`. `StoreGageSnapshot` (0x740): its base `32009780` is the Crest of Time engine, routed whole to `char-add`; stage7-plan row 8
+  now lists Rena's override. `UpdateSpineAimRotation`: by name, nothing to wire. `AfterImageFrameMove` (0x850): base caller exists (X2GUUser.cpp:21316).
+  `ResetAnimSpeed`: not repeated (CH1k).
+
+**Routed (scope rule).** Stage 33: `3229a530` with Rena's block. Backlog "attack-result hooks": `32011b80` as `CX2GUUser`'s 0x1e8 override. char-add:
+Rena's `StoreGageSnapshot`. Other `+0x763c` readers: none beyond `32cb3200` (the other sweep hits are the six resets).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RENA_LIVE --with JUNE_CHAR_RENA_CORE --worktree --files` the 8: `files: 7 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER, 0 FAIL,
+  0 ERROR`; `7 deleted line(s)` (inside `_CORE`: CH1h's 0x1e8 / 0x318 declarations and the 0x318 head), 0 non-ASCII, 0 EOL-mismatched, 0 `#else/#endif`
+  without the token, 0 encoding changes; RESULT FAIL only for `define: NOT FOUND` (`//#define`). numstat: .cpp 41 / 5, .h 3 / 2, X2Game 18 / 0,
+  X2GameUnit.h 11 / 0, X2GUNPC 9 / 0, X2GUUser 6 / 0, X2DamageEffect 3 / 0, Always.h 3 / 0.
+- `junediverge.py --check` the 7 code files: `allow-listed: 18`, `RESULT: PASS`. `enumscan.py --check` Rena .cpp, X2Game, X2GUNPC, X2GUUser,
+  X2DamageEffect: 1 A row, `X2DamageEffect.cpp:1705` (an older log throttle's `>= 1000` ms read as `SI_SA_ES_FATAL_FURY`, not this phase); none in the new lines.
+- One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`) of Rena .cpp, X2Game, X2GUNPC, X2GUUser, X2DamageEffect, `_LIVE` off / on: exit 0, 0 errors each.
+  `cl /P` off -> on: Rena `ProcessAttackResultPassive(` 0 -> 4, `DoProcessWhenKillEnemy(` 1 -> 3, `+ 1.f ) * stateData_` 0 -> 1; X2Game the two June
+  calls 0 -> 1 each, March's `( 0 )` 2 -> 0; X2GUNPC store 0 -> 2, call 0 -> 1; X2GUUser store 0 -> 1, call 0 -> 1; X2DamageEffect call 0 -> 1.
+- Full build skipped: no play-test.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-rena CH1o review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

@@ -2702,7 +2702,12 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 				m_optrGameUnitWhoAttackedMe = pGameUnitWhoAttackedMe_ ; 
             }//if
 		}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+		void						ResetGameUnitWhoAttackedMe() { m_optrGameUnitWhoAttackedMe.Reset(); m_DamageDataWhoAttackedMe.Init(); }	/// char-rena CH1o: June inlines DamageData::Init ( 31f8f550 ) after the reset
+		const CX2DamageManager::DamageData& GetDamageDataWhoAttackedMe() const { return m_DamageDataWhoAttackedMe; }	/// char-rena CH1o: June 32cb6dd0 returns a copy
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 		void						ResetGameUnitWhoAttackedMe() { m_optrGameUnitWhoAttackedMe.Reset(); }
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 		void						SetDamageData_LUA( const char* szTableNameUTF8 );
 
@@ -4015,6 +4020,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #endif SERV_IRUHADEV_JUNE_WORLD_COLOR_WINDOW
 		virtual void		ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );
 		virtual void DoProcessWhenKillEnemy( const CX2GameUnit* pDefender_ ) {}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+		virtual void ProcessAttackResultPassive( CX2DamageManager::DamageData* pDamageData_ ) {}	/// char-rena CH1o: June unit vslot 0x1e8 ( base 3208ddc0, empty; the user's 32011b80 is Stage 2's )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 		virtual void		ApplyWorldLightColor( OUT CKTDGXRenderer::RenderParam* pRenderParam_ ){}
 
 //-------------------------------------------------------------------------------------------------------
@@ -4625,6 +4633,9 @@ protected:
 
 		CX2GameUnitoPtr									m_optrGameUnitAttackedByMe;		/// 자신에게 타격 당한 유닛
 		CX2GameUnitoPtr									m_optrGameUnitWhoAttackedMe;	/// 자신을 타격 한 유닛
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+		CX2DamageManager::DamageData					m_DamageDataWhoAttackedMe;	/// char-rena CH1o: June +0x763c, the DamageData of the hit that set m_optrGameUnitWhoAttackedMe
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 		wstring											m_ShadowFileName;		/// 그림자로 사용할 파일 명, 그러나 이것을 계속 가지고 있어야 할 이유는 없음
 		float											m_fShadowSize;			/// 그림자의 사이즈 인듯 한데... 이것도 계속 가지고 있어야 할 이유는 없음
