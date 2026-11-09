@@ -1501,6 +1501,35 @@ Raven CH1p) are script data that CH1 final brings with `Lire_ElvenRanger.lua`.
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-rena CH1p review` (Opus 5.5 high).
 
+### CH1p - Review (2026-11-09)
+
+**Verdict: PASS, no code change** (flags `_LIVE`, still `//#define`, and `_CORE` untouched). Two kickoff amendments corrected. Read from the exe bytes
+(`june2017_re/disasm_range.py` over `unpacked_x2.exe`, `dispsweep.py`, an `E8` scan) and fresh `cl /P` / `/Zs` probes (`census.cl_cmd`):
+- **Pressed index.** `32c6a970`: saves `+0x8ea0` / `+0x8ea4` / `+0x8ea8`; vslot `0x7f8` (lookup) true and `+0x8ea0` != 0 -> vslot `0x7fc`( id, 1 ) and
+  `32006b30`( id ); `31fca8e0`( id, 1 ) templet `+0x98` == 3 / 5 (`ASUT_ANYTIME` / `ASUT_ANYTIME_EXCEPT_AIR`) restores all three; used -> `+0x88bc` =
+  `+0x8ea4` + 1 `@32c6aa13`, else `+0x8ea0` restored `@32c6aa22`. = the `_LIVE` body (`.cpp:8407-8436`) line for line. `32c89a20`: `31fc86e0`( `+0x8ea4`, 0 )
+  `@32c89a6f` (`MarkSkillSlotUsed`), `+0x8ac0` = `+0x8ea4` + 1 `@32c89bac`, then `31fcd3d0` (random-mission hook).
+- **`_LIVE` `.i`, class segments only** (on / off): `CountUsedSkill` 0 / 1, `SAKP_` 0 / 0, `CurrentSkillKeyManager` / `GetPressedSkillState` / `m_kSkillSlotKey`
+  0 / 0, `m_eSpecialAttackKeyPressed` 1 / 1 (the writer), `iPressedSkillSlotIndex` 3 / 13 (on: the lookup's declare, out-arg, `m_iChosenSkillSlotIndex =`;
+  no 4 + 4 decode), `InitWaitStateChange` / `InitBoundingStates` 1 / 0 each. `X2GUUser.cpp` `CommonSpecialAttackEventProcess`: `bMarchSlotIndex` adds
+  `UT_LIRE != ...` only with `_LIVE`; flag-off has no `UT_LIRE` in the function.
+- **Sweep.** `dispsweep.py 8ac0 8b58 88bc` (raw-byte scan, so the uncarved functions are covered): in `32c6a8d0-32cb6c6d` only `32c89bac` and `32c6aa13`;
+  no `+0x8b58`. `E8` scan of the range: `31fce710` at `@32c84fd9` / `@32c8545b` / `@32c8552b` / `@32c855fb` only, `31fd7500` at `@32c84ad9` only; no
+  `E9` thunk to either anywhere in `.text`. March's `LESI_A_LWS_BACK_KICK_EventProcess` (`.cpp:32273-32294`, flag-independent) tests no skill key
+  (cancel macros, any-key -> `USI_WAIT` after 0.66), so nothing misreads before CH2b.
+- **Routes, corrected.** CH3b: the three Ace in the Hole waits match (key -> 0x129 / 0x12b / 0x12d; left `+0x86da` / right `+0x86de` or `+0x980c` reaching
+  `32007b10( 1, id )` -> `32278070` and `LESI_WAIT`; tail-jump vslot `0x7d4`), but the MP refund is `32007b10( 0x42, id )` x 3 / x 2 / x 1 (`fmul [33439b50]`
+  = 3.0 `@32c854be`, `fadd st0,st0` `@32c8558e`, unscaled `@32c8565e`), not x 3.0 in all three: amendment fixed. CH2b: the key test sits **inside** the
+  `+0x8c10` / `+0x8c14` window, and the amendment lacked user vslot `0xe8`( `32007b10( 0x8f, id, 0 )` ) -> `+0x7d85` = 1 and the later StateChange `0x127`
+  (time past `+0x8c18` or animation `+0x2ac`): added.
+- **Hooks / keys.** As above, 7h / 7l once each in the `_LIVE` `.i`. `IMMUNE_TO_SUPER_ARMOR_DOWN` stays engine `31fdaaa0` (backlog Stage 2), not CH1j's `32ca81b0`.
+
+**Hygiene.** No code file changed, so no flagcheck. `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`. `enumscan.py --check
+X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s) remain`. Probes (`/c /Zs /EHsc`), `_LIVE` off / on: `X2GULire_ElvenRanger.cpp` 0 errors, 38 / 38 warnings;
+`X2GUUser.cpp` 0 errors, 39 / 39. Full build skipped: no play-test.
+
+**Nothing to play-test.** CH1q kickoff checked. Next: `/x2-phase char-rena CH1q` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
