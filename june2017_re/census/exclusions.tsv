@@ -9,7 +9,7 @@ class:KTRUser	15	exclude	network layer, packet serializers, Lua binding glue: th
 gap:IOCP..Performer@0x3304ced0	15	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	3472	0x3304ced0	0x3304db90	net: both neighbours	
 gap:ActorProxy..IOThread@0x3304f160	14	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	1904	0x3304f160	0x3304f7d0	net: both neighbours	
 gap:TRUser..SocketObject@0x330487a0	10	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	2480	0x330487a0	0x330490b0	net: both neighbours	
-class:CX2BossRaidManager	9	park	server-driven multiplayer system (wedding, world mission, boss raid, mentor informer): user decides	-	2224	0x3269ee50	0x3269f920	multi: name	
+class:CX2BossRaidManager	9	park	server-driven multiplayer system (wedding, world mission, boss raid, mentor / tutor list): user decides	-	2224	0x3269ee50	0x3269f920	multi: name	
 class:KLuaManager	9	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	1600	0x32fe9f50	0x32fea780	net: name	
 gap:Performer..ActorProxy@0x3304e030	9	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	1184	0x3304e030	0x3304e5f0	net: both neighbours	
 class:KSocketObject	6	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	7120	0x33049150	0x3304a100	net: name	
@@ -347,7 +347,7 @@ gap:X2GageData..X2Game@0x3231d880	31	port	not attributable by address: identify 
 gap:X2Pet..X2TitleManager@0x326eb610	31	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	20560	0x326eb610	0x326f8260	triage: neighbours differ (pet | achieve)	
 gap:X2GUNPC..X2BuffFactor@0x31e8d730	29	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	14496	0x31e8d730	0x31e92060	triage: neighbours differ (world | buff)	
 gap:X2ItemManager_Preprocessing..X2SlideShot@0x325c0610	29	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	12448	0x325c0670	0x325c43d0	triage: neighbours differ (item | scene)	
-gap:X2MemoryHolder..X2InformerManager@0x32851d70	29	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	9696	0x32851d70	0x328544e0	triage: neighbours differ (engine | multi)	
+gap:X2MemoryHolder..X2InformerManager@0x32851d70	29	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	9696	0x32851d70	0x328544e0	triage: neighbours differ (engine | ui)	
 gap:X2PlayGuide..X2WorldMissionManager@0x3289dd90	29	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6864	0x3289dd90	0x3289fb30	triage: neighbours differ (ui | multi)	
 gap:X2ComboGuide..X2BattleFieldGame@0x32d4eb50	29	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	11792	0x32d4eb50	0x32d51810	triage: neighbours differ (skill | world)	
 gap:X2Data..X2UIManager@0x3214d1f0	28	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	7568	0x3214d1f0	0x3214eec0	triage: neighbours differ (engine | ui)	
