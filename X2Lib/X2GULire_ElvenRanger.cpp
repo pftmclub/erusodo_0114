@@ -396,6 +396,37 @@ CX2GULire_ElvenRanger::CX2GULire_ElvenRanger( int unitIndex, int teamNum,
 		GetAccessNowDamageRelateSkillData().m_byteRelateData = 0;
 	m_iBeforeNaturalForceCount = 0;
 #endif //ADD_RENA_SYSTEM
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+	/// June 32ca2b60: the stores of the members the earlier phases declared
+	m_fGungnirPowerRate = 0.f;
+	m_vGungnirTargetPos = D3DXVECTOR3( 0.f, 0.f, 0.f );
+	m_vGungnirTargetDir = D3DXVECTOR3( 0.f, 0.f, 0.f );
+	m_iGungnirTargetNPCUID = -1;
+	m_bGungnirFirePending = false;
+	m_hGungnirLoopEffect = INVALID_EFFECTSET_HANDLE;
+	m_afSiegeAngle[0] = 0.f;
+	m_afSiegeAngle[1] = 0.f;
+	m_afSiegeAngle[2] = 0.f;
+	m_afSiegeAngle[3] = 0.f;
+	m_vSpineAimDegree = D3DXVECTOR3( 0.f, 0.f, 0.f );
+	m_fPersistentMindCoolTime = 0.f;
+	m_usEradicationHitCount = 0;
+	m_fEradicationLoopEffectTime = 0.f;
+	m_hEradicationLoopEffect = INVALID_EFFECTSET_HANDLE;
+	m_iSnapshotNaturalForceCount = 0;
+	m_bPredatorCritical = false;
+	m_fAceInTheHoleTime = 0.f;
+	m_bCreateTrapBlade = false;
+	m_usRandomRollCount = 0;
+	m_bSkillCameraOverride = false;
+	m_fSkillCameraOverrideValue = 0.f;
+	m_bAfterImageSaved = false;	// June's after-image byte +0x1d1 starts false
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	ResetEradicationLoop();	// June @32ca42ab
+	m_fDashJumpDownAccelRate = 1.1f;	// June @32ca42b0
+	m_fDashJumpSpeedRate = 1.3f;	// June @32ca42be
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -6142,8 +6173,344 @@ RENDER_HINT CX2GULire_ElvenRanger::CommonRender_Prepare()
 //}} robobeg : 2008-10-28
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+namespace _CONST_RENA_CH1K_
+{
+	/// June's pop-up line: font 3, white text with a black outline, centred
+	void PushInfoText( const int iStringID_ )
+	{
+		g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( iStringID_ ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+	}
+
+	/// June 31fd0570: training game ( 0x12 ) or the photo zone ( 0x1a, June-only ); the photo zone has no March state
+	bool IsTrainingOrPhotozone()
+	{
+		return CX2Main::XS_TRAINING_GAME == g_pMain->GetNowStateID();
+	}
+
+	/// June 32c6d700: Persistent Mind lets Crescent Kick ( and its upgrade ) and Violent Attack be used in the air
+	bool IsPersistentMindAirSkill( const int iSkillID_ )
+	{
+		const CX2SkillTree::SKILL_ID eBaseSkillID = g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+		return CX2SkillTree::RNSI_SA_RCR_CRESCENT_KICK == eBaseSkillID || CX2SkillTree::RNSI_SA_RCR_CRESCENT_KICK_UPGRADE == eBaseSkillID || CX2SkillTree::RNSI_SA_RWS_VIOLENT_ATTACK == eBaseSkillID;
+	}
+
+	/// June 32c6d760: Random Shot Pleasure lets Backjump Shot ( and its upgrade ) be used in the air
+	bool IsRandomShotPleasureAirSkill( const int iSkillID_ )
+	{
+		const CX2SkillTree::SKILL_ID eBaseSkillID = g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+		return CX2SkillTree::RNSI_A_RENA_BACKJUMP_SHOT == eBaseSkillID || CX2SkillTree::RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE == eBaseSkillID;
+	}
+
+	/// June 32c6d790: Predator lets Rosebush Trap, Seed of Ruin, Delayed Fire and Call of Ruin be used in the air
+	bool IsPredatorAirSkill( const int iSkillID_ )
+	{
+		const CX2SkillTree::SKILL_ID eBaseSkillID = g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+		return CX2SkillTree::RNSI_A_RTR_ROSEBUSH_TRAP == eBaseSkillID || CX2SkillTree::RNSI_A_RNW_SEED_OF_RUIN == eBaseSkillID ||
+			CX2SkillTree::RNSI_A_RNW_DELAYED_FIRE == eBaseSkillID || CX2SkillTree::RNSI_SA_RNW_CALL_OF_RUIN == eBaseSkillID;
+	}
+
+	/// June user action id with no March enumerator ( CX2GUUser::USER_ACTION_ID ): Soft Body's buff factors are set
+	const int UAI_SOFT_BODY_BUFF_FACTORS = 0x28;
+}
+using namespace _CONST_RENA_CH1K_;
+
+/// June 32cac200 ( user vslot 0x7f8, step 510 ): chooses the skill of the pressed slot and checks that it can be used now
+bool CX2GULire_ElvenRanger::SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition )
+{
+	if ( true == IsQuickSlotSpecialItemWaiting() )
+		return false;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+	const CX2UserSkillTree::SkillSlotData* pSkillSlotData = NULL;
+	int iPressedSkillSlotIndex = -1;
+
+	if ( false == CommonSpecialAttackEventProcess( accessUserSkillTree, pSkillSlotData, iPressedSkillSlotIndex ) )
+		return false;
+
+	if ( NULL == pSkillSlotData )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( pSkillSlotData->m_eID, true );
+	if ( NULL == pSkillTemplet )
+		return false;
+
+	if ( pSkillTemplet->m_eID != pSkillSlotData->m_eID )
+	{
+		PushInfoText( 0x8bae );
+		return false;
+	}
+
+	m_iChosenSkillID = pSkillTemplet->m_eID;
+
+	/// June @32cac435: the Delayed Fire explosion mode is used in the air
+	if ( CX2SkillTree::SI_A_LNW_DELAYED_FIRING == pSkillTemplet->m_eID && true == GetActiveStartOfDelayedFiring() && CX2SkillTree::ASUT_ANYTIME != eActiveSkillUseCondition )
+		eActiveSkillUseCondition = CX2SkillTree::ASUT_GROUND;
+
+	CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eSkillTempletUseCondition = GetSkillUseCondition( pSkillTemplet );
+
+	/// June @32cac460: the three passives widen a skill's use condition to the air
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_RWS_PERSISTENT_MIND ) > 0 && true == IsPersistentMindAirSkill( pSkillTemplet->m_eID ) )
+		eSkillTempletUseCondition = CX2SkillTree::ASUT_AIR;
+
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_RGA_RANDOM_SHOT_PLEASURE ) > 0 && true == IsRandomShotPleasureAirSkill( pSkillTemplet->m_eID ) )
+		eSkillTempletUseCondition = CX2SkillTree::ASUT_AIR;
+
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_RNW_PREDATOR ) > 0 && true == IsPredatorAirSkill( pSkillTemplet->m_eID ) )
+		eSkillTempletUseCondition = CX2SkillTree::ASUT_AIR;
+
+	if ( false == CheckSkillUseCondition( eActiveSkillUseCondition, eSkillTempletUseCondition ) )
+		return false;
+
+	if ( false == CheckSummonSpecialAttack( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUsePVPOfficial( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUseNotPve( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUseNotDungeon( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( true == IsRidingKeySkillWaiting() )
+		return false;
+
+	int iSkillTempletLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if ( iSkillTempletLevel < 1 )
+		iSkillTempletLevel = 1;
+
+	m_fChosenSkillMp = GetActualMPConsume( pSkillTemplet->m_eID, iSkillTempletLevel );
+
+	const bool bSkillFree = false;	// June 31fdaa70 ( vslot 0x82c ) reads event code 10 and answers false
+#ifdef SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	if ( false == bSkillFree && false == IsDevUnlimitedSkillUse() )
+#else SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	if ( false == bSkillFree )
+#endif SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	{
+		if ( 0.f < ShownSkillCoolTime( pSkillSlotData->m_fCoolTimeLeft, pSkillTemplet->m_eID ) )
+		{
+			PushInfoText( 226 );
+			return false;
+		}
+
+		if ( m_fReservedSkillMp + m_fChosenSkillMp > GetNowMp() )
+		{
+			PushInfoText( 2549 );
+			return false;
+		}
+
+		if ( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && false == IsTrainingOrPhotozone() )
+		{
+			if ( g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetNumItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE ) <= 0 )
+			{
+				PushInfoText( 26119 );
+				return false;
+			}
+		}
+	}
+
+	m_iChosenSkillID = pSkillTemplet->m_eID;
+	m_iChosenSkillSlotIndex = iPressedSkillSlotIndex;
+	return true;
+}
+
+/// June 32ca50b0 ( user vslot 0x7fc, step 511 ): the use of the skill the lookup chose
+void CX2GULire_ElvenRanger::SpecialAttackUse( const int iSkillID_, const bool bUnused_ )
+{
+	UNREFERENCED_PARAMETER( bUnused_ );
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+
+	if ( true == SpecialAttackNoStageChange( pSkillTemplet ) )
+	{
+		SpecialAttackCooldown( pSkillTemplet->m_eID, m_fChosenSkillMp );
+		SkillMemoMpRefund( iSkillID_, true, m_fChosenSkillMp );
+		m_fChosenSkillMp = 0.0f;
+		m_bSpecialAttackEventProcessedAtThisFrame = true;
+	}
+	else if ( false == ( true == GetActiveStartOfDelayedFiring() && CX2SkillTree::SI_A_LNW_DELAYED_FIRING == iSkillID_ ) )
+	{
+		ReserveSkillUse( pSkillTemplet->m_eID );
+
+		if ( false == TryStateChangeEradicationAttack( pSkillTemplet->m_eID ) )
+			StateChangeBySkillSlot( m_iChosenSkillSlotIndex );
+
+		m_bSpecialAttackEventProcessedAtThisFrame = true;
+	}
+}
+
+/// June 32ca2af0: Eradication used with its hit count reached goes straight to the attack state; false for any other skill
+bool CX2GULire_ElvenRanger::TryStateChangeEradicationAttack( const int iSkillID_ )
+{
+	if ( CX2SkillTree::RNSI_SA_RNW_ERADICATION != g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) )
+		return false;
+
+	float fHitCountLimit = 0.f;
+	if ( false == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_COUNT, CX2SkillTree::RNSI_SA_RNW_ERADICATION, true, fHitCountLimit ) )
+		return false;
+
+	if ( fHitCountLimit > static_cast<float>( m_usEradicationHitCount ) )
+		return false;
+
+	ResetEradicationLoop();
+	StateChange( LESI_SA_RNW_ERADICATION_ATTACK );
+	return true;
+}
+
+/// June 32c89a20 ( user vslot 0x800, step 512 ): the MP, the finality stone and the cool time of a skill use
+void CX2GULire_ElvenRanger::SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ )
+{
+	if ( false == IsMyUnit() )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+	if ( NULL == GetUnit() || NULL == pSkillTemplet )
+		return;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+
+	MarkSkillSlotUsed( m_iChosenSkillSlotIndex, false );
+	UpNowMp( -fMpConsume_ );
+
+	if ( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && false == IsTrainingOrPhotozone() )
+	{
+		CX2Item* pItem = g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE );
+		if ( NULL != pItem )
+			g_pX2Game->Handler_EGS_USE_FINALITY_SKILL_REQ( pItem->GetItemData().m_ItemUID );
+	}
+
+	int iSkillLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if ( iSkillLevel < 1 )
+		iSkillLevel = 1;
+
+	/// June @32c89b18: Siege Mode and Delayed Fire ( any upgrade ) never set their cool time here
+	const CX2SkillTree::SKILL_ID eBaseSkillID = g_pData->GetSkillTree()->GetUpgradeBaseSkillID( pSkillTemplet->m_eID );
+	if ( CX2SkillTree::RNSI_A_RENA_SIEGEMODE != eBaseSkillID && CX2SkillTree::RNSI_A_RNW_DELAYED_FIRE != eBaseSkillID )
+	{
+		const float fCoolTime = GetActualCoolTime( pSkillTemplet, iSkillLevel );
+		if ( false == IsSamef( fCoolTime, -1.f ) )
+			accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, fCoolTime );
+	}
+
+	if ( ( CX2SkillTree::RNSI_A_RENA_SIEGEMODE == pSkillTemplet->m_eID || CX2SkillTree::RNSI_A_RENA_SIEGEMODE_UPGRADE == pSkillTemplet->m_eID ) && true == m_bIsSiegeSkill )
+		SetSiegeModeCoolTime();
+
+	GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
+
+	m_eSpecialAttackKeyPressed = (SPECIAL_ATTACK_KEY_PRESSED) ( m_iChosenSkillSlotIndex + 1 );
+
+	CX2RandomMissionManager::GetInstance()->OnSkillUse( pSkillTemplet->m_eID );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+/// June 32c85a60 ( user vslot 0x828 ): the base test less the double jumps, the MP charge and the three accel dash states ( now )
+bool CX2GULire_ElvenRanger::IsNotCommonMoveState()
+{
+	if ( false == CX2GUUser::IsNotCommonMoveState() )	// June 31fd7640
+		return false;
+
+	const int iNowStateID = GetNowStateID();
+	return LESI_DOUBLE_JUMP != iNowStateID && LESI_DASH_DOUBLE_JUMP != iNowStateID && LESI_CHARGE_MP != iNowStateID &&
+		LESI_RNW_ACCEL_DASH != iNowStateID && LESI_RNW_ACCEL_DASH_JUMP != iNowStateID && LESI_RNW_ACCEL_DASH_JUMP_LANDING != iNowStateID;
+}
+
+/// June 32057b80 @32057c4c-cb2: the reserved skill's state starts, so step 512 spends its MP and sets the cool time, and 0x764 refunds the memo share
+/*virtual*/ void CX2GULire_ElvenRanger::ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
+{
+	const int iNowStateID = GetNowStateID();
+	bool bSkillSlotState = false;	// June's state-data byte +0x11
+	for ( int i = 0; i < ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ); ++i )
+	{
+		if ( _CONST_GUUSER_::aNormalSkillStateID[i] == iNowStateID || _CONST_GUUSER_::aHyperSkillStateID[i] == iNowStateID ||
+			_CONST_GUUSER_::aNormalSkillStateIDSlotB[i] == iNowStateID || _CONST_GUUSER_::aHyperSkillStateIDSlotB[i] == iNowStateID )
+			bSkillSlotState = true;
+	}
+
+	const int iSkillID = static_cast<int>( pSkillTemplet_->m_eID );
+	SpecialAttackCooldown( iSkillID, m_fReservedSkillMp );
+	SkillMemoMpRefund( iSkillID, bSkillSlotState, m_fReservedSkillMp );
+}
+
+/// June 32c85c00 ( user vslot 0x850 ): the after-image is suspended in the wait and MP charge states and restored after; it runs every frame. Stand-in: the second after-image ( +0x6758 ) is not ported
+void CX2GULire_ElvenRanger::AfterImageFrameMove()
+{
+	CKTDGXSkinAfterImage* pAfterImage = GetAfterImage();
+	const int iStateID = GetNowStateID();
+
+	if ( USI_WAIT == iStateID || LESI_CHARGE_MP == iStateID )
+	{
+		if ( NULL != pAfterImage && true == pAfterImage->GetEnable() )
+		{
+			m_bAfterImageSaved = true;
+			pAfterImage->Disable();
+		}
+	}
+	else
+	{
+		if ( NULL != pAfterImage && false == pAfterImage->GetEnable() && true == m_bAfterImageSaved )
+			pAfterImage->Enable();
+	}
+
+	if ( NULL != pAfterImage )
+		pAfterImage->OnFrameMove( m_fTime, m_fElapsedTime );
+}
+
+/// June 32c83320 ( user vslot 0x824 ): the animation rate of the Combat Ranger / Wind Sneaker passive ( June's ResetAnimSpeed takes it from here )
+float CX2GULire_ElvenRanger::GetStateAnimSpeedRate( const bool bFuture_ )
+{
+	UNREFERENCED_PARAMETER( bFuture_ );
+
+	float fRate = 1.f;
+	if ( NULL != GetUnit() )
+	{
+		const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RWS_SOFTBODY, true, 0, true );
+		if ( iSkillLevel > 0 && ( CX2Unit::UC_LIRE_COMBAT_RANGER == GetUnit()->GetClass() || CX2Unit::UC_LIRE_WIND_SNEAKER == GetUnit()->GetClass() ) )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RWS_SOFTBODY );
+			if ( NULL != pSkillTemplet )
+				fRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, iSkillLevel, false );
+		}
+	}
+
+	return fRate;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 /*virtual*/ bool CX2GULire_ElvenRanger::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	/// June 32c6a970 ( user vslot 0x7f4 ): the lookup, then the use; a skill of use condition 3 / 5 gives the chosen values back
+	const float fSavedReservedMp = m_fReservedSkillMp;
+	const int iSavedSlotIndex = m_iChosenSkillSlotIndex;
+	const int iSavedSkillID = m_iChosenSkillID;
+
+	bool bUsed = false;
+	if ( true == SpecialAttackLookup( eActiveSkillUseCondition ) && 0 != m_iChosenSkillID )
+	{
+		bUsed = true;
+		SpecialAttackUse( m_iChosenSkillID, true );
+		Send_SKILL_USE_REQ( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );
+	}
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ), true );
+	if ( NULL != pSkillTemplet && ( CX2SkillTree::ASUT_ANYTIME == pSkillTemplet->m_eActiveSkillUseCondtion || CX2SkillTree::ASUT_ANYTIME_EXCEPT_AIR == pSkillTemplet->m_eActiveSkillUseCondtion ) )
+	{
+		m_iChosenSkillID = iSavedSkillID;
+		m_fReservedSkillMp = fSavedReservedMp;
+		m_iChosenSkillSlotIndex = iSavedSlotIndex;
+	}
+
+	if ( true == bUsed )
+	{
+		m_iNowSpecialAttack = m_iChosenSkillSlotIndex + 1;
+		return true;
+	}
+
+	m_iChosenSkillID = iSavedSkillID;
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	/// June buff port Phase 7d: June Lire 32cac200 (the skill lookup its SpecialAttackEventProcess calls first) starts with
 	/// "if +0x8d78 > 0 return false": no skill while a quick-slot special item waits
@@ -6423,6 +6790,7 @@ RENDER_HINT CX2GULire_ElvenRanger::CommonRender_Prepare()
 #endif SERV_SKILL_USE_SUBQUEST
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 }
 
@@ -6430,6 +6798,19 @@ RENDER_HINT CX2GULire_ElvenRanger::CommonRender_Prepare()
 // 상태변화가 없는 필살기는 하드코딩해서 예외 처리 한다
 /*virtual*/ bool CX2GULire_ElvenRanger::SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	/// June 32c87ac0: Delayed Fire ( any upgrade ) in its explosion mode sets the explosion action ( March: its base id only )
+	if ( NULL == pSkillTemplet )
+		return false;
+
+	if ( CX2SkillTree::RNSI_A_RNW_DELAYED_FIRE == g_pData->GetSkillTree()->GetUpgradeBaseSkillID( pSkillTemplet->m_eID ) && true == GetActiveStartOfDelayedFiring() )
+	{
+		m_FrameDataFuture.syncData.nowAction = UAI_START_OF_DELAYED_FIRING;
+		return true;
+	}
+
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if ( pSkillTemplet == NULL )
 		return false;
 
@@ -6452,6 +6833,7 @@ RENDER_HINT CX2GULire_ElvenRanger::CommonRender_Prepare()
 #endif SERV_RENA_NIGHT_WATCHER
 
 	return false;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -6459,6 +6841,43 @@ RENDER_HINT CX2GULire_ElvenRanger::CommonRender_Prepare()
 
 /*virtual*/ void CX2GULire_ElvenRanger::NoStateChangeActionFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	UserNoStateChangeActionFrameMove();	/// June 32ca5160 -> 32008e40: the base action first
+
+	switch ( m_FrameDataNow.syncData.nowAction )
+	{
+	case UAI_START_OF_DELAYED_FIRING:
+		{
+			if ( true == GetRidingOn() )
+				break;
+
+			if ( false == GetActiveStartOfDelayedFiring() )
+				break;
+
+			EntireExplosion();
+
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hActiveStartOfDelayedFiring );
+
+			GetUnit()->AccessUnitData().m_UserSkillTree.SetSkillCoolTimeLeft( CX2SkillTree::RNSI_A_RNW_DELAYED_FIRE, m_fStartOfDelayedFiringCoolTime );
+			m_fStartOfDelayedFiringCoolTime = 0.f;
+
+			SetActiveStartOfDelayedFiring( false );
+
+			if ( true == IsMyUnit() )
+				g_pX2Game->UpdateSkillSlotUI();
+		} break;
+
+	case UAI_SOFT_BODY_BUFF_FACTORS:
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_P_RWS_SOFTBODY, true );
+			if ( NULL != pSkillTemplet )
+			{
+				SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+				SetBuffFactorToGameUnit( pSkillTemplet, 1 );
+			}
+		} break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 #ifdef RENA_SIEGE_MODE_ANGLE_TEST
 	const float MAGIC_SIEGE_FIRE_ANGLE_DELTA = 2.f;
@@ -6510,6 +6929,7 @@ RENDER_HINT CX2GULire_ElvenRanger::CommonRender_Prepare()
 		} break;
 	}
 #endif SERV_RENA_NIGHT_WATCHER
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31910,6 +32330,13 @@ void CX2GULire_ElvenRanger::CommonHyperModeFrameMove( float fTime1_, float fTime
 #ifdef ADD_MEMO_1ST_CLASS //김창한
 const CX2SkillTree::ACTIVE_SKILL_USE_CONDITION CX2GULire_ElvenRanger::GetSkillUseCondition(const CX2SkillTree::SkillTemplet* pSkillTemplet_)
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	/// June 32c6d480: Fatality is always used in the air ( March: only with its memo )
+	if ( CX2SkillTree::SI_SA_LTR_FATALITY == pSkillTemplet_->m_eID )
+		return CX2SkillTree::ASUT_AIR;
+
+	return pSkillTemplet_->m_eActiveSkillUseCondtion;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition = pSkillTemplet_->m_eActiveSkillUseCondtion;
 
 	switch (pSkillTemplet_->m_eID)
@@ -31923,6 +32350,7 @@ const CX2SkillTree::ACTIVE_SKILL_USE_CONDITION CX2GULire_ElvenRanger::GetSkillUs
 
 
 	return eActiveSkillUseCondition;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 #endif //ADD_MEMO_1ST_CLASS
 

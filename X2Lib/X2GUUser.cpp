@@ -26712,6 +26712,10 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 	if( true == IsThereEffectiveBlackHoleDamageEffect() || true == m_bSpecialAttackEventProcessedAtThisFrame || true == IsCanNotIntput() )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// stand-in: Ara, Elesis, Add not ported: they read March's pressed index ( B 4-7 ) and have no F / T slot
+	const bool bMarchSlotIndex = ( NULL != GetUnit() && CX2Unit::UT_EVE != GetUnit()->GetType() && CX2Unit::UT_ARME != GetUnit()->GetType() && CX2Unit::UT_CHUNG != GetUnit()->GetType() && CX2Unit::UT_ELSWORD != GetUnit()->GetType() && CX2Unit::UT_RAVEN != GetUnit()->GetType() && CX2Unit::UT_LIRE != GetUnit()->GetType() );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
 	// stand-in: Lire, Ara, Elesis, Add not ported: they read March's pressed index ( B 4-7 ) and have no F / T slot
 	const bool bMarchSlotIndex = ( NULL != GetUnit() && CX2Unit::UT_EVE != GetUnit()->GetType() && CX2Unit::UT_ARME != GetUnit()->GetType() && CX2Unit::UT_CHUNG != GetUnit()->GetType() && CX2Unit::UT_ELSWORD != GetUnit()->GetType() && CX2Unit::UT_RAVEN != GetUnit()->GetType() );
@@ -26729,6 +26733,7 @@ bool CX2GUUser::CommonSpecialAttackEventProcess( IN const CX2UserSkillTree& cUse
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 	const bool abKeyA[5] = { m_InputData.oneA, m_InputData.oneS, m_InputData.oneD, m_InputData.oneC, m_InputData.oneSkill5 };
 	for( int i = 0; i < 5; ++i )
@@ -35360,6 +35365,9 @@ void CX2GUUser::ResetAnimSpeed( float fAnimSpeed, bool bSpeedUpByItem, bool bFut
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //김창한
 	//컴뱃레인져 - 재빠른 몸놀림
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 31ffe190: Agile Movement's rate moved into the class's user vslot 0x824 ( GetStateAnimSpeedRate, called above )
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::SI_P_LCR_AGILE_MOVEMENT, true );
 	if( iSkillLevel > 0 && ( CX2Unit::UC_LIRE_COMBAT_RANGER == GetUnitClass() || CX2Unit::UC_LIRE_WIND_SNEAKER == GetUnitClass() ) )
 	{
@@ -35370,6 +35378,7 @@ void CX2GUUser::ResetAnimSpeed( float fAnimSpeed, bool bSpeedUpByItem, bool bFut
 			fAnimSpeed *= fAniSpeedUp;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #endif //UPGRADE_SKILL_SYSTEM_2013
 
 	// 속성 공격등에 의해 애니메이션 속도가 변했는지
@@ -44437,6 +44446,19 @@ void CX2GUUser::CountReservedSkillUse()
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+	ReservedSkillStart( pSkillTemplet );	// June @32057c4c-cb2
+#endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_ELSWORD_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_EVE_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	ClearSkillUseReserve();		/// @32057cbe
 
 	if ( !IsSkillUseCountExcludedState() && 0 < static_cast<int>( eSkillID )

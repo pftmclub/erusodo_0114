@@ -1137,6 +1137,37 @@ All 10 class-map rows of phase `CH1j` are accounted for: **4 `inside` written** 
 
 CH1k kickoff checked: present ( Sonnet 5.5 high, depends on this review ). Nothing to play-test. Next: `/x2-phase char-rena CH1k` ( Sonnet 5.5 high ).
 
+### CH1k - Done (2026-11-09)
+
+All 21 class-map rows of phase `CH1k` plus `ReservedSkillStart` are accounted for: **15 written** (`inside`: `SpecialAttackEventProcess`, `SpecialAttackNoStageChange`, `NoStateChangeActionFrameMove`, `GetSkillUseCondition` ( listed `new` ), the constructor; `new`: the lookup / use / cooldown ( `_CORE` ), `TryStateChangeEradicationAttack` ( `_CORE` ), three file-local passive helpers ( `_CORE` ), `IsNotCommonMoveState` / `AfterImageFrameMove` / `GetStateAnimSpeedRate` / `ReservedSkillStart` ( `_LIVE`, they override base virtuals )) and **6 equal to March** ( `32c86af0`, `32c9ac00`, `32c9af70`, `32cb5b70`, `32cb5cb0`, `32cb5ee0` ). `_LIVE` stays `//#define`. 22 funcmap rows `Char Rena CH1k`, 9 `ch1_offsets.tsv` rows. **JUNE_BUGS 570** ( Delayed Fire: lookup and use test the legacy id 3227, the skill is 23217 ).
+
+| June | `CX2GULire_ElvenRanger::` | kind | vs March |
+|---|---|---|---|
+| `32c6a970` | SpecialAttackEventProcess | inside | June's: lookup, use + `Send_SKILL_USE_REQ`; the **templet's** use condition 3 / 5 ( as Elsword's ) gives the chosen values back |
+| `32cac200` / `32ca50b0` / `32c89a20` | SpecialAttackLookup / Use / Cooldown | new | the checks, the use and the spending March had in one body |
+| `32ca2af0` | TryStateChangeEradicationAttack | new | Eradication ( base 23060 ) with `SA_EFFECTIVE_COUNT` <= hit count: `ResetEradicationLoop`, state `LESI_SA_RNW_ERADICATION_ATTACK` |
+| `32c6d480` | GetSkillUseCondition | inside | Fatality ( 3015 ) is always `ASUT_AIR` ( March: only with memo 22 ) |
+| `32c6d700` / `760` / `790` | IsPersistentMindAirSkill / IsRandomShotPleasureAirSkill / IsPredatorAirSkill | new | upgrade base ids: Crescent Kick ( + upgrade ) and Violent Attack / Backjump Shot ( + upgrade ) / Rosebush Trap, Seed of Ruin, Delayed Fire, Call of Ruin |
+| `32c87ac0` | SpecialAttackNoStageChange | inside | the **upgrade base id** 23217 ( March: the id itself ) with Delayed Fire active sets action `UAI_START_OF_DELAYED_FIRING` |
+| `32ca5160` | NoStateChangeActionFrameMove | inside | base `32008e40`, action 0x10 as March but the cool time goes to 23217, **new action 0x28**: buff factors 0 and 1 of skill 23402 ( `_CONST_RENA_CH1K_::UAI_SOFT_BODY_BUFF_FACTORS` ) |
+| `32c83320` | GetStateAnimSpeedRate ( 0x824 ) | new `_LIVE` | `SA_ANI_SPEED` of skill **23402** for classes 12 / 102 ( March read 3401 inline in `ResetAnimSpeed`; that block is skipped under `_LIVE` ) |
+| `32c85a60` / `32c85c00` | IsNotCommonMoveState / AfterImageFrameMove | new `_LIVE` | base test less 6 states ( June 154 / 155 / 160 / 231-233 ); after-image suspended in `USI_WAIT` / `LESI_CHARGE_MP` ( second after-image not ported ) |
+| `32ca2b60` | constructor | inside | `_CORE` stores for CH1f2 / CH1h / CH1i / CH1j members + `m_bAfterImageSaved`; `_LIVE` `ResetEradicationLoop()`, `m_fDashJumpDownAccelRate` 1.1, `m_fDashJumpSpeedRate` 1.3 |
+
+**Where June differs from March:** the lookup uses `ShownSkillCoolTime` for the cool-time test ( Eradication ), `CheckSummonSpecialAttack`, no skill-tree-learning message ( 25110 ), no `CountUsedSkill`, no infinity-essence term; MP by the 2-argument virtual ( = June's call with `true` ). Cooldown: Siege Mode and Delayed Fire ( by base id ) never set their cool time here; a cool time of -1.0 ( `IsSamef` ) is not set; the memo cool-time cuts are gone ( CH4b ). Use: with Delayed Fire active and id 3227 nothing happens ( JUNE_BUGS 570 ).
+**Equal to March, checked:** `EntireExplosion` ( the `FIX_DELAYED_FIRING_DELAY_ADD_DAMAGE` branch ), `CreateEntireExplosionDataVector` ( offset table, READY types 1 -> 7 / 3 -> 8, 0.01 + 0.1 s ) and its ground walk ( switch cases 2 / 4 / 6 / 10 / 12 / 14 = the six `DET_*_GROUND` values by `enumprobe` ), the cut-in call ( `Dummy1_Rhand`, `+0x8acc` ), `32cb5ee0` ( the map's default constructor ).
+**Constructor, unmapped:** `+0x973c` = 7 and the protected `+0x9768` = 5.5 have no member; routed to CH1q ( kickoff amended ). Named stores equal March ( `m_hTrapBlade`, change times, `m_bIsSiegeSkill`, prior planned blow and delayed firing groups, throw values 0.6666 / ( 40, 130, 0 ) / ( 1600, 200, 0 ) ); `+0x9610` 1.0 and `+0x9768` 5.5 are matched to March's members by value ( inferred ).
+**Other files:** `X2GUUser.h` / `.cpp`: `ReservedSkillStart` declaration and call chains widened with Rena's `_LIVE`; the `CommonSpecialAttackEventProcess` stand-in no longer treats `UT_LIRE` as March's slot index space; `ResetAnimSpeed` skips March's Agile Movement block under `_LIVE`. `Always.h`: Rena `_LIVE` now needs `ARME_CORE`, `ARME_LIVE`, `CHUNG_LIVE`, `ELSWORD_LIVE`, `SKILL_TEMPLET`, `USER_SKILL_USE_HELPERS` ( all defined above it; the `_LIVE` probe passes ). `X2SkillTree.h` ( `JUNE_ENUM_NAMES`, values from `Enum.src.lua` ): `RNSI_SA_RCR_CRESCENT_KICK` 23005, `_UPGRADE` 23031, `RNSI_A_RENA_BACKJUMP_SHOT` 23200, `_UPGRADE` 23220, `RNSI_A_RTR_ROSEBUSH_TRAP` 23215, `RNSI_A_RNW_DELAYED_FIRE` 23217, `RNSI_A_RNW_SEED_OF_RUIN` 23219, `RNSI_P_RWS_SOFTBODY` 23402 ( 3227 uses March's `SI_A_LNW_DELAYED_FIRING` ).
+**Routed ( kickoffs amended ):** CH1m ( registers nothing; ids by name ), CH1o ( do not repeat the `ResetAnimSpeed` change ), CH1q ( two stores ), CH4a ( find the writer of action 0x28; 23402 vs 3401 ). Open for the review: June's 0x28 writer is unknown, so the soft body action never fires until found.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RENA_LIVE --with JUNE_CHAR_RENA_CORE JUNE_CHAR_RENA_NF --worktree --files` ( Lire `.cpp` / `.h`, `X2GUUser.cpp` / `.h`, `Always.h` ): `PASS +428` / `+9` / `+22` / `+13` / `+18`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is a `//#define`. `flagcheck JUNE_ENUM_NAMES --files X2Lib/X2SkillTree.h`: `PASS~ +12`, `RESULT: PASS`.
+- One-file probe ( `census.cl_cmd`, `/c /Zs /EHsc`, no PCH, `-D` ): `X2GULire_ElvenRanger.cpp` exit 0 with `_LIVE` off, with `-DSERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`; `X2GUUser.cpp` exit 0 off and with `_LIVE`. `cl /EP` off / on: `SpecialAttackLookup` 4 / 5, `m_fDashJumpSpeedRate = 1.3f` 0 / 1, `UAI_SOFT_BODY_BUFF_FACTORS` 1 / 2, `GetStateAnimSpeedRate` 2 / 4 ( Lire ), `SI_P_LCR_AGILE_MOVEMENT` 3 / 1, `UT_LIRE != GetUnit()->GetType()` 0 / 1 ( `X2GUUser.cpp` ).
+- `junediverge.py --check` ( the five code files ): `allow-listed: 7`, `RESULT: PASS`. `enumscan.py --check` ( Lire `.cpp` / `.h` ): `0 A/B row(s)`.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,105,856 B, 2026-11-09 13:57:06`; `DEPLOY OK: X2_offline.exe is 26,105,856 B, dated 2026-11-09 13:57:13, md5 2d68e720f440229516a62b9bbb6d3805, equal to X2/US_SERVICE/x2.exe (2026-11-09 13:57:06); built at main 742470a1 + 6 uncommitted code file(s).` No `exestr` line: `_LIVE` is off.
+
+**Nothing to play-test** ( `_LIVE` is off; nothing registers a June body ). Next: `/x2-phase char-rena CH1k review` ( Opus 5.5 high ), then CH1m.
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

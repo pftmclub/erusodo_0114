@@ -1922,8 +1922,17 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		std::map< std::pair< int, UidType >, float > m_mapRageFungusTargetLockTime;	/// June +0x97f4: remaining lock per hit target ( game unit type, unit uid ); CommonFrameMove counts it down, CH1o / CH4a fill and sweep it
 		bool m_bSkillCameraOverride;	/// June +0x8d90 ( CX2GUUser camera group, constructor 0 ): stand-in, the reader is Stage 9's camera pair; CommonStateStart clears it
 		float m_fSkillCameraOverrideValue;	/// June +0x8da4 ( CX2GUUser camera group, constructor 0 ): stand-in; Ace in the Hole ( CH3b ) sets it to 550.0
+		bool SpecialAttackLookup( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition );	/// June 32cac200 ( user vslot 0x7f8, step 510 )
+		void SpecialAttackUse( const int iSkillID_, const bool bUnused_ );	/// June 32ca50b0 ( user vslot 0x7fc, step 511 )
+		void SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	/// June 32c89a20 ( user vslot 0x800, step 512 )
+		bool TryStateChangeEradicationAttack( const int iSkillID_ );	/// June 32ca2af0: Eradication with its hit count reached changes to the attack state
+		bool m_bAfterImageSaved;	/// June after-image +0x1d1 ( 32c85c00; constructor false ): the enable flag kept while the wait states hide the after-image
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 		virtual float ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ );	/// June 32c7bed0 ( user vslot 0x6a8 ): Eradication shows no cool time once its hit count is reached
+		virtual bool IsNotCommonMoveState();	/// June 32c85a60 ( user vslot 0x828 ): overrides a base virtual, so it exists only under _LIVE
+		virtual void ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	/// June 32057b80 @32057c4c: step 512 and the memo refund
+		virtual void AfterImageFrameMove();	/// June 32c85c00 ( user vslot 0x850 )
+		virtual float GetStateAnimSpeedRate( const bool bFuture_ );	/// June 32c83320 ( user vslot 0x824 ): the Combat Ranger / Wind Sneaker animation rate
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 		void LESI_RTR_DOUBLE_JUMP_ZX_StateStart();	/// June 32ca7670
 		void LESI_RTR_DOUBLE_JUMP_ZX_StateEndFuture();	/// June 32c6d580

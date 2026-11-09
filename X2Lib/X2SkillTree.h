@@ -1838,6 +1838,18 @@ public:
 		RNSI_P_RNW_PREDATOR                                   = 23417,	// June's Enum.lua; the critical damage roll of the three Night Watcher skills
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-09 // char-rena CH1k
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RCR_CRESCENT_KICK                             = 23005,	// June's Enum.lua; Persistent Mind widens its use condition to the air
+		RNSI_SA_RCR_CRESCENT_KICK_UPGRADE                     = 23031,	// June's Enum.lua; Persistent Mind widens its use condition to the air
+		RNSI_A_RENA_BACKJUMP_SHOT                             = 23200,	// June's Enum.lua; Random Shot Pleasure widens its use condition to the air
+		RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE                     = 23220,	// June's Enum.lua; Random Shot Pleasure widens its use condition to the air
+		RNSI_A_RTR_ROSEBUSH_TRAP                              = 23215,	// June's Enum.lua; Predator widens its use condition to the air
+		RNSI_A_RNW_DELAYED_FIRE                               = 23217,	// June's Enum.lua; Delayed Fire ( March: SI_A_LNW_DELAYED_FIRING 3227 ); its explosion mode and cool time
+		RNSI_A_RNW_SEED_OF_RUIN                               = 23219,	// June's Enum.lua; Predator widens its use condition to the air
+		RNSI_P_RWS_SOFTBODY                                   = 23402,	// June's Enum.lua; the passive the state animation rate and the soft body action read
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)

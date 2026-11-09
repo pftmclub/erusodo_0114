@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1k | **ready** (`/x2-phase char-rena CH1k`, Sonnet 5.5 high): skill-use overrides + SpecialAttackEventProcess `32c6a970` (uncarved) + `ReservedSkillStart` | Sonnet 5.5 / high, Opus review | CH1j review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1k.md` |
+| CH1k | done 2026-11-09, **review ready** (`/x2-phase char-rena CH1k review`, Opus 5.5 high): skill-use overrides, `ReservedSkillStart`, Delayed Fire / Eradication, JUNE_BUGS 570 | Sonnet 5.5 / high, Opus review | CH1j review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1k.md` |
 | CH1m | blocked (CH1k review): registration (InitState `32cadc90`), `_LIVE` gate | Opus 5.5 / high, Opus review | CH1k review | `X2GULire_ElvenRanger.*`, Always.h | `CH1m.md` |
 | CH1n | blocked (CH1m review): base callbacks + skill-slot head `32cb06d0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1n.md` |
 | CH1o | blocked (CH1n review): virtuals under `_LIVE`, `SetSkillLevelStateData` term, routed gaps | Opus 5.5 / high, Opus review | CH1n review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1o.md` |
