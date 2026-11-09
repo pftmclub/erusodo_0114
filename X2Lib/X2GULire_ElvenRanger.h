@@ -218,6 +218,9 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 			LESI_RNW_DASH_XZZ_LOOP,	/// June script id 274 ( the charge loop )
 			LESI_RNW_DASH_XZZ_FULL_CHARGE_END,	/// June script id 275 ( the loop ran to its end )
 			LESI_RNW_DASH_XZZ_END,	/// June script id 276 ( the Z key was released )
+			LESI_RNW_DASH_JUMP_XZ_END,	/// June script id 279 ( Night Watcher dash jump X end; CH1m maps, CH1g3 owns the state )
+			LESI_RNW_DASH_JUMP_XXZ_LOOP,	/// June script id 281 ( the dash jump X-X charge loop; id 278 registers the same script table; CH1m maps )
+			LESI_RNW_DASH_JUMP_XXZ_END,	/// June script id 282 ( the dash jump X-X end )
 #ifndef ADD_RENA_SYSTEM
 			LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX,	/// June script id 252 ( March declares it only under ADD_RENA_SYSTEM; CH1q owns the state, CH1f names it as the follow-up; CH1m maps )
 #endif ADD_RENA_SYSTEM
@@ -1905,6 +1908,11 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void LESI_RNW_DASH_XZZ_END_StateEndFuture();	/// June 32c6d5c0
 		void LESI_RNW_DASH_XZZ_END_EventProcess();	/// June 32c825f0
 		void LESI_RNW_DASH_XZZ_END_StateEnd();	/// June 32ca0ec0
+		void LESI_RNW_DASH_JUMP_XZ_START_EventProcess();	/// June 32c82850 ( the XZ start and the XXZ start )
+		void LESI_RNW_DASH_JUMP_XXZ_LOOP_StateStart();	/// June 32ca7730
+		void LESI_RNW_DASH_JUMP_XXZ_LOOP_EventProcess();	/// June 32c828a0
+		void LESI_RNW_DASH_JUMP_XXZ_LOOP_StateEnd();	/// June 32ca0f20
+		void LESI_RNW_DASH_JUMP_XZ_END_EventProcess();	/// June 32c82ab0 ( the XZ end and the XXZ end )
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 		/// 지연의 신호탄

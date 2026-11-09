@@ -17665,19 +17665,53 @@ void CX2GULire_ElvenRanger::LESI_COMBO_RNW_ZZXXX_StateEnd()
 //LESI_RNW_ACCEL_DASH
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b4b0 ( = March )
+	CommonStateStartFuture();
+	m_PhysicParam.nowSpeed.x = m_PhysicParam.nowSpeed.x + m_fWalkCancelAfter;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonStateStartFuture();
 	m_PhysicParam.nowSpeed.x = m_PhysicParam.nowSpeed.x + m_fWalkCancelAfter;
 	//m_PhysicParam.passiveSpeed.x = m_PhysicParam.nowSpeed.x;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b4e0 ( = March )
 	CommonStateStart();
 	CreateStepDust();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateStart();
+	CreateStepDust();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c84820 ( = March; the dash speed is the inlined GetDashSpeed )
+	if( m_PhysicParam.nowSpeed.x >= GetDashSpeed() )
+	{
+		m_PhysicParam.nowSpeed.x += -1600.f * m_fElapsedTime;
+	}
+	else
+	{
+		m_PhysicParam.nowSpeed.x = GetDashSpeed();
+	}
+
+	if( GetUnitClass() == CX2Unit::UC_LIRE_NIGHT_WATCHER )
+	{
+		const float fAccelDashTime = 0.13f;
+		if( m_FrameDataNow.unitCondition.fStateTime >= fAccelDashTime )
+		{
+			m_bAccelDashEventFlag = true;
+		}
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 	if( m_PhysicParam.nowSpeed.x >= GetDashSpeed() )
 	{
@@ -17700,9 +17734,74 @@ void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_FrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c948e0 ( = March; the hyper-mode cancels are June's macros )
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( LESI_DASH_COMBO_Z1 );
+	}
+	else if( m_InputData.oneX == true )
+	{
+		StateChange( LESI_DASH_ATTACK_X );
+	}
+	SKILL_CANCEL_AFTER( 0.01f )
+	else if( m_InputData.oneUp == true )
+	{
+		StateChange( LESI_RNW_ACCEL_DASH_JUMP );
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.GetDashJumpSpeed();
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+		{
+			StateChangeDashIfPossible();
+		}
+	}
+	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+		{
+			StateChangeDashIfPossible();
+		}
+	}
+	else if( m_InputData.pureRight == false && m_InputData.pureLeft == false )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureRight == true && m_InputData.pureLeft == true )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		StateChange( USI_DASH_END );
+	}
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+		LINE_RADIUS,
+		&m_FrameDataFuture.unitCondition.landPosition,
+		&m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_DASH_JUMP );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DASH_JUMP );
@@ -17782,41 +17881,73 @@ void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_EventProcess()
 	}	
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_RNW_ACCEL_DASH_JUMP
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c848c0 ( = March; the dash speed is the inlined GetDashSpeed )
+	CommonStateStartFuture();
+	m_PhysicParam.fReloadAccel		= m_fSkillCancelAfter;
+	m_PhysicParam.nowSpeed.x		= GetDashSpeed() * 2.25f;
+	m_bDownForce					= false;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CommonStateStartFuture();
 	m_PhysicParam.fReloadAccel		= m_fSkillCancelAfter;
 	m_PhysicParam.nowSpeed.x		= GetDashSpeed() * 2.25f;
 	m_bDownForce					= false;
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c75b00 ( = March )
 	if( GetMatrix().GetYPos() == m_FrameDataNow.unitCondition.landPosition.y )
 	{
 		CreateStepDust();
 	}
 
 	CommonStateStart();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( GetMatrix().GetYPos() == m_FrameDataNow.unitCondition.landPosition.y )
+	{
+		CreateStepDust();
+	}
+
+	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b500 ( = March )
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_StateEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b510 ( = March; June ends the common state here, not the future frame's )
 	m_PhysicParam.fReloadAccel	= m_OrgPhysicParam.fReloadAccel;
 	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	m_PhysicParam.fReloadAccel	= m_OrgPhysicParam.fReloadAccel;
+	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c75b50 ( = March )
 	if( m_InputData.oneUp == true && m_iDoubleJumpCount == 0 )
 	{
 		StateChange( LESI_DASH_DOUBLE_JUMP );
@@ -17835,23 +17966,100 @@ void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_EventProcess()
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( m_InputData.oneUp == true && m_iDoubleJumpCount == 0 )
+	{
+		StateChange( LESI_DASH_DOUBLE_JUMP );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( LESI_RNW_ACCEL_DASH_JUMP_LANDING );
+	}
+	else if( m_InputData.oneZ == true )
+	{
+		StateChange( LESI_RNW_ACCEL_DASH_JUMP_Z );
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_RNW_ACCEL_DASH_JUMP_LANDING
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_LANDING_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b530 ( = March )
 	CommonStateStartFuture();
 	m_PhysicParam.nowSpeed.x /= 1.5f;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateStartFuture();
+	m_PhysicParam.nowSpeed.x /= 1.5f;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_LANDING_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b560 ( = March )
 	CommonStateStart();
 	CreateStepDust();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateStart();
+	CreateStepDust();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_LANDING_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c94ba0 ( = March; the hyper-mode cancels are June's macros )
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	SKILL_CANCEL_AFTER( 0.01f )
+	else if( m_InputData.pureDoubleRight == true || m_InputData.pureDoubleLeft == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( m_InputData.pureRight == true || m_InputData.pureLeft == true )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( m_InputData.pureUp == true )
+	{
+		StateChange( USI_JUMP_READY );
+	}
+	ELSE_IF_CAN_HYPER_MODE_THEN_STATE_CHANGE( USI_HYPER_MODE )
+	else if( m_InputData.oneDown == true
+		&& g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position,
+		LINE_RADIUS,
+		&m_FrameDataFuture.unitCondition.landPosition,
+		&m_FrameDataFuture.syncData.lastTouchLineIndex ) == true )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -17900,29 +18108,58 @@ void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_LANDING_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_RNW_ACCEL_DASH_JUMP_Z
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c84920 ( = March; the dash speed is the inlined GetDashSpeed )
 	CommonStateStartFuture();
 	m_PhysicParam.nowSpeed.x		= GetDashSpeed() * 2.45f;
 	m_PhysicParam.nowSpeed.y		= 0.f;
 	m_PhysicParam.fReloadAccel		= m_fSkillCancelAfter;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateStartFuture();
+	m_PhysicParam.nowSpeed.x		= GetDashSpeed() * 2.45f;
+	m_PhysicParam.nowSpeed.y		= 0.f;
+	m_PhysicParam.fReloadAccel		= m_fSkillCancelAfter;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b580 ( = March )
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b590 ( = March )
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c75bc0 ( March's combo revamp: the Z follow-up also fires at the animation end, so no 0.25 s window )
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( LESI_RNW_ACCEL_DASH_JUMP_LANDING );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneZ == true, LESI_RNW_ACCEL_DASH_JUMP_ZZ )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( true == IsOnSomethingFuture() )
 	{
 		StateChange( LESI_RNW_ACCEL_DASH_JUMP_LANDING );
@@ -17935,47 +18172,88 @@ void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_StateEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b5a0 ( = March )
 	CommonStateEndFuture();
 	m_PhysicParam.fReloadAccel	= m_OrgPhysicParam.fReloadAccel;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonStateEndFuture();
+	m_PhysicParam.fReloadAccel	= m_OrgPhysicParam.fReloadAccel;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_RNW_ACCEL_DASH_JUMP_ZZ
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c84980 ( = March; the dash speed is the inlined GetDashSpeed )
+	CommonStateStartFuture();
+	m_PhysicParam.nowSpeed.x		= GetDashSpeed() * 2.35f;
+	m_PhysicParam.nowSpeed.y		= m_PhysicParam.GetJumpSpeed() * 0.5f;
+	m_PhysicParam.fReloadAccel		= m_fSkillCancelAfter;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	
 	CommonStateStartFuture();
 	m_PhysicParam.nowSpeed.x		= GetDashSpeed() * 2.35f;
 	m_PhysicParam.nowSpeed.y		= m_PhysicParam.GetJumpSpeed() * 0.5f;
 	m_PhysicParam.fReloadAccel		= m_fSkillCancelAfter;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b5c0 ( = March )
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_FrameMoveFuture()
 {	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b5d0 ( = March )
 	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c75cc0 ( = March )
 	if( true == IsOnSomethingFuture() )
 	{
 		StateChange( LESI_RNW_ACCEL_DASH_JUMP_LANDING );
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( LESI_RNW_ACCEL_DASH_JUMP_LANDING );
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 void CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_StateEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6b5e0 ( = March )
+	CommonStateEndFuture();
+	m_PhysicParam.fReloadAccel	= m_OrgPhysicParam.fReloadAccel;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	
 	CommonStateEndFuture();
 	m_PhysicParam.fReloadAccel	= m_OrgPhysicParam.fReloadAccel;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //LESI_SA_RNW_FURIOUS_ENGAGE
@@ -22536,6 +22814,65 @@ void CX2GULire_ElvenRanger::LESI_RNW_DASH_XZZ_END_StateEnd()
 {
 	DeleteTrapBlade();
 	CommonStateEnd();
+}
+
+// June 32c82850: the animation end goes on to the loop, a landing to the end ( shared by the dash jump XZ start and XXZ start )
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_JUMP_XZ_START_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( LESI_RNW_DASH_JUMP_XXZ_LOOP );
+	}
+	else if( true == IsOnSomethingFuture() )
+	{
+		StateChange( LESI_RNW_DASH_JUMP_XXZ_END );
+	}
+
+	CommonEventProcess();
+}
+
+// June 32ca7730: the trap blade, then the common start
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_JUMP_XXZ_LOOP_StateStart()
+{
+	CreateTrapBlade();
+	CommonStateStart();
+}
+
+// June 32c828a0: a landing ends the loop; the skill branch of the cancel macro needs the foot on a line, so only the hyper-mode cancel can fire in the air
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_JUMP_XXZ_LOOP_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		StateChange( LESI_RNW_DASH_JUMP_XXZ_END );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32ca0f20: the trap blade goes before the common end
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_JUMP_XXZ_LOOP_StateEnd()
+{
+	DeleteTrapBlade();
+	CommonStateEnd();
+}
+
+// June 32c82ab0: the animation end waits; the cancels as the dash XZZ end's ( shared by the dash jump XZ end and XXZ end )
+void CX2GULire_ElvenRanger::LESI_RNW_DASH_JUMP_XZ_END_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 #ifdef BALANCE_GRAND_ARCHER_20121213

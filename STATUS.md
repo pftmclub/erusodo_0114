@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1g3 | **ready** (`/x2-phase char-rena CH1g3`, Sonnet 5.5 high): Night Watcher accel dash + dash-jump states (27 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GULire_ElvenRanger.*` | `CH1g3.md` |
+| CH1g3 | **review ready** (`/x2-phase char-rena CH1g3 review`, Opus 5.5 high): 27 rows written (22 inside, 5 new), Night Watcher accel dash + dash-jump states; no play-test | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GULire_ElvenRanger.*` | `CH1g3.md`, `CH1g3-review.md` |
 | CH1h | blocked (CH1g3 review): overrides below vslot 0x600 (33 fn), DamageReact (uncarved), dtor, FriendshipNatureData, 7c alpha sites | Sonnet 5.5 / high, Opus review | CH1g3 review | `X2GULire_ElvenRanger.*` | `CH1h.md` |
 | CH1i | blocked (CH1h review): overrides 0x600-0x7bc | Sonnet 5.5 / high, Opus review | CH1h review | `X2GULire_ElvenRanger.*` | `CH1i.md` |
 | CH1j | blocked (CH1i review): Common* overrides (2 uncarved) + CommonFrameMove | Sonnet 5.5 / high, Opus review | CH1i review | `X2GULire_ElvenRanger.*` | `CH1j.md` |
