@@ -86,7 +86,7 @@ using namespace _CONST_RENA_CH1H_;
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 namespace _CONST_RENA_CH1H_
 {
-	// June 32007c40: the acquired skill's ability value ( IsPvpOrPve is false offline )
+	// June 32007c40: the acquired skill's ability value
 	bool TryGetAcquiredSkillAbilityValue( CX2Unit* pUnit_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const CX2SkillTree::SKILL_ID eSkillID_, const bool bMemoSwap_, float& fOut_ )
 	{
 		if( NULL == pUnit_ )
@@ -100,7 +100,8 @@ namespace _CONST_RENA_CH1H_
 		if( NULL == pSkillTemplet )
 			return false;
 
-		return pSkillTemplet->TryGetSkillAbilityValue( eType_, iSkillLevel, false, fOut_ );
+		const bool bPvpOrPve = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );	// June 322cc1a0: PVP or PVE
+		return pSkillTemplet->TryGetSkillAbilityValue( eType_, iSkillLevel, bPvpOrPve, fOut_ );
 	}
 }
 using namespace _CONST_RENA_CH1H_;
@@ -402,7 +403,7 @@ CX2GULire_ElvenRanger::CX2GULire_ElvenRanger( int unitIndex, int teamNum,
 CX2GULire_ElvenRanger::~CX2GULire_ElvenRanger(void)
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
-	// June 32ca42f0 ( the std::set at +0x220 June clears here is a base member )
+	// June 32ca42f0 ( its +0x220 set clear is DeleteTrapBlade's m_SubAttackListSet, inlined )
 	g_pX2Game->GetEffectSet()->StopEffectSet( m_hEradicationLoopEffect );
 	g_pX2Game->GetEffectSet()->StopEffectSet( m_hWindSneakerFoot );
 
