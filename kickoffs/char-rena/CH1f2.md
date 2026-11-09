@@ -34,7 +34,7 @@ Transcribe every function the class map gives phase `CH1f2` (Grand Archer line: 
 - A state that writes the state power rate keeps June's operator (checklist §7 l.256); `m_fNowStatePowerRate` (7i); June's BFI arguments (7ai).
 - June's numbers, order and quirks verbatim (a `JUNE_BUGS.md` row each). `X2GULire_ElvenRanger.*` are CP949 (`.cpp` mixed endings, mostly LF; `.h` mostly LF):
   `bytepatch.py` only; check each `#ifdef` branch with `cl /P` (`ADD_RENA_SYSTEM`, `SERV_RENA_NIGHT_WATCHER`, `SERV_TRAPPING_RANGER_TEST`, ...).
-- Done gate: every class-map row with phase `CH1f` is written (the Done note lists them with June addresses and `inside` / `new`); the build
+- Done gate: every class-map row with phase `CH1f2` is written (the Done note lists them with June addresses and `inside` / `new`); the build
   passes with `_LIVE` undefined and the one-file probe passes with it defined; `junediverge.py --check` and `enumscan.py --check` on the class
   files PASS. Nothing to play-test: the hand-off says so and names the next phase.
 

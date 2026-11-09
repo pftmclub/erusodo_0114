@@ -25506,7 +25506,7 @@ CommonFrameMove();
 void CX2GULire_ElvenRanger::SnipingRangerComboX4EventProcess()
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
-// June 32c7ba40 ( the back-walk cancel needs the foot on a line; the Z / X cancel ends in the wait state ( March: the siege wait ) )
+// June 32c7ba40 ( the back-walk cancel needs the foot on a line; the Z / X cancel ends in the siege wait state, push 0xa8 = March )
 if( false == IsOnSomethingFuture() )
 {
 	StateChange( USI_JUMP_DOWN );
@@ -25522,7 +25522,7 @@ SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 RENA_GROUND_BWALK_CANCEL
 ELSE_IF_ZX_PRESSED_AFTER( m_fAttackCancelAfter )
 {
-	StateChange( USI_WAIT );
+	StateChange( LESI_SIEGE_WAIT );
 }
 
 CommonEventProcess();
