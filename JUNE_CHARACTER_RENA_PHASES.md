@@ -1837,6 +1837,26 @@ InitState index switch `:1672-1715` replaced by June's names and layout (7t cut-
 **Done gate:** a select-screen pass of all nine March characters with no new error; Rena's skill and hyper cut-ins play June's art; the three
 second-job names show June's strings.
 
+### CH5 - Done (2026-11-09)
+
+- **`UnitTemplet.lua` (data036, core-list BOM source):** Rena's 7 blocks are June's text, block-wise swap (55 blocks before and after, the other 48 untouched, BOM and CRLF kept). Semantic delta vs the old file = exactly `ch0_unittemplet_rena.tsv`
+  (13 keys): `m_fLobbyRotationY` 30 / 30 / 25 / 1 / 30 / 20 / 10 on 3 / 12 / 13 / 24 / 102 / 103 / 114, `m_HyperCutIn` `HQ_Cutin_RWS / RGA / RNW_Transcendence` on 102 / 103 / 114, `name` `STR_ID_616` -> `STR_ID_4783` / `_4784` / `_17429`
+  ("Wind Sneaker", "Grand Archer ", "Night Watcher"). `luasrc.py refresh` REFRESHED, `ledger --check` PASS, `core --check` PASS, `luabind.py check UnitTemplet` PASS (0 unbound).
+  `kom.py pack data036`: PACK OK, `vs live data036.kom: ~1 changed` = `UnitTemplet.lua` only. **`COPY OK data036`** (user yes) md5 `6807d7a65129e53dd89dddede49a95c8`, backup `kom_backup_tools/data036.kom.20261109_201125`.
+- **Table (`SERV_IRUHADEV_JUNE_CHAR_RENA_UI`, end of `Always.h`; `#error` without `_RENA_LIVE` / `_JUNE_HYPER_CUT_IN_TIME`):** `s_SkillCutInSet` = June `333aad30` (table `337ae6e8`, 12 entries, stride 0x30, strings by xref): set 0 `HQ_CutIn_Rena_01` / `_02` / `_03`
+  (3 / 12 / 13 / 24), set 1 `_WS_01` x3, set 2 `_GA_01` x3, set 3 `_NW_01` x3. No extension, March's one-argument `SkillCutIn( name )`; March's `.dds` table sits in the `#else`. The 0x8b3 pair `333aaba0`: `337ae688` = `HQ_CutIn_Rena_CASH_21`, `337ae6b8` = `_CASH_22`.
+- **Reader `ShowActiveSkillCutInAndLight` (June `32c86890`):** CH1f2's `_LIVE` body now has a nested `_UI` arm: copy of the set entry, the 0x8b3 swap (`31e5a860( 0x8b3 )`, even `rand()` -> CASH_21, read from the listing), the RENA UI log. The item override `31fd8a50` stays unported (Stage 12, as the other classes).
+- **Already June's, unchanged:** the InitState set-index switch (CH1m: sets 0 / 1 / 2 / 3, sub index 1 / 2 / 0) and `ShowActiveSkillCutInAndLightByScript`.
+- **Assets:** `HQ_CutIn_Rena_*.gfx` (8 incl. CASH) in data152 and `HQ_Cutin_R{WS,GA,NW}_Transcendence.gfx` in data195, June's bytes from CH0b. Nothing staged.
+- **Logs:** `[JUNE_CHAR] RENA UI cut-in set <set> index <i> name <gfx>` (after the 0x8b3 swap) and `[JUNE_CHAR] RENA UI hyper cut-in class <c> name <gfx>` (`CX2GUUser::ShowHyperSkillCutInByScript`, Rena only).
+- **Checklist:** 7t L594, L620-625 and the 7ao hyper cut-in bullet marked `(Rena: CH5)`; funcmap rows `333aad30`, `333aaba0`, `32c86890` updated. **7ah** is Elsword-only (n/a, CH0); the gauge pieces were CH1q2's. The guide dialog, `LevelUpEvent.lua` TYPE row and the `POPUP_TR_*` pictures (already in data215) are CH3d's. No dialog or gauge piece is left for CH5.
+- **Not ported, routed:** the cut-in item override `31fd8a50` -> Stage 12. `CH6.md` amended with the cut-in set walk. Review kickoff `kickoffs/char-rena/CH5-review.md` written.
+- **Hygiene:** `flagcheck JUNE_CHAR_RENA_UI --worktree --files KTDXLIB/Always.h X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GUUser.cpp`: 2 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR; 0 deleted, 0 non-ASCII, 0 EOL mismatch, 0 token-less #else/#endif, RESULT: PASS.
+  `junediverge --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GUUser.cpp`: allow-listed 12, RESULT: PASS. `enumscan --check X2Lib/X2GULire_ElvenRanger.cpp`: 0 A/B rows (the `0x8b3` event id has no Enum entry, as in Raven).
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 26,148,864 B, dated 2026-11-09 20:18:29, md5 79a341b4023401beef268cc17d536584`. `EXESTR OK: 10 of 10` (the two log tags and the eight June names `HQ_CutIn_Rena_01/02/03/WS_01/GA_01/NW_01/CASH_21/CASH_22`, wide), `EXESTR OK: 6 of 6 absent` (March's `HQ_CutIn_Lena_1/2/3`, `_Rena_Wind_Sneaker_1`, `_Grand_Archer_1`, `_Night_Watcher_1` `.dds`).
+- **See it in game:** select screen with all nine March characters, then Rena's classes: the lobby pose turns by class (30 / 30 / 25 / 1 / 30 / 20 / 10), and 102 / 103 / 114 are named "Wind Sneaker" / "Grand Archer" / "Night Watcher". A skill cut-in plays June's art: `HQ_CutIn_Rena_01..03` on 3 / 12 / 13 / 24, `_WS_01` on 102, `_GA_01` on 103, `_NW_01` on 114.
+  The awakening hyper on 102 / 103 / 114 shows `HQ_Cutin_R{WS,GA,NW}_Transcendence` only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME` (CH6's walk). Rena's skills are June's only from CH2a: a March-kit cast that reaches `ShowActiveSkillCutInAndLight` is the test.
+
 ## Phase CH-N - not run for Rena
 
 All seven June Rena classes up to transcendence exist in March. The template block is `JUNE_CHARACTER_AISHA_PHASES.md` "Phase CH-N"; Ara

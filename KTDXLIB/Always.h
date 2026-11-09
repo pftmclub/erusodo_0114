@@ -12041,3 +12041,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-09
+// Description: June character port ( Rena ) Phase CH5 - Rena's skill cut-in table is June's ( 333aad30: GFx names HQ_CutIn_Rena_01..03 / WS_01 / GA_01 / NW_01,
+//              the 0x8b3 CASH_21 / CASH_22 pair ) in the class cut-in reader ( 32c86890 ), plus the RENA UI cut-in log lines.
+//              Revert: undefine the flag ( JUNE_CHAR_RENA_UI ).
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_UI
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_UI ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE ) || !defined( SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_UI needs SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE and SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_UI
+//////////////////////////////////////////////////////////////////////////

@@ -38,3 +38,9 @@ March's in `#else`. A function March lacks gets a name in the class's own patter
 Every name (locals and constants too) says what it is in context: no Ghidra address, phase tag or `June` in an identifier.
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
+
+## Amended by CH5 (2026-11-09)
+
+The walk adds the cut-in checks CH5 left to it: on each Rena job cast a skill that reaches `ShowActiveSkillCutInAndLight` and read `[JUNE_CHAR] RENA UI cut-in set <set> index <i> name <gfx>`
+(set 0 = jobs 3 / 12 / 13 / 24 with indices 0 / 1 / 2 on the skill's cut-in index; set 1 = 102 `HQ_CutIn_Rena_WS_01`; set 2 = 103 `_GA_01`; set 3 = 114 `_NW_01`), and the awakening hyper on 102 / 103 / 114
+(`[JUNE_CHAR] RENA UI hyper cut-in class <c> name HQ_Cutin_R{WS,GA,NW}_Transcendence`, only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME`).

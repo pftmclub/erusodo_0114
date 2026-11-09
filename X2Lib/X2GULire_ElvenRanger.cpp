@@ -160,6 +160,42 @@ using namespace _CONST_RENA_CH1H_;
 #ifdef SERV_APRIL_FOOLS_DAY
 static const CX2GUUser::SkillCutIn s_SkillCutInSetFoolsDay = CX2GUUser::SkillCutIn( L"HQ_CutIn_Lena_Gura.dds");
 #endif //APRIL_FOOLS_DAY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_UI
+// char-rena CH5: June 333aad30 / table 337ae6e8: GFx names without extension ( ActiveSkillShow appends .gfx ); 4 sets of 3, in the class-index order of InitState
+static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
+{
+	// Rena, Combat Ranger, Sniping Ranger, Trapping Ranger
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_02"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_03"),
+	},
+	// Wind Sneaker
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_WS_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_WS_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_WS_01"),
+	},
+	// Grand Archer
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_GA_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_GA_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_GA_01"),
+	},
+	// Night Watcher
+	{
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_NW_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_NW_01"),
+		CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_NW_01"),
+	},
+};
+// char-rena CH5: June 333aaba0 / 337ae688 / 337ae6b8: the cut-ins of code event 0x8b3
+static const CX2GUUser::SkillCutIn s_SkillCutInSetEvent8b3[] =
+{
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_CASH_21"),
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Rena_CASH_22"),
+};
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_UI
 
 // 필살기 쓸 때 cut in image 
 static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] = 
@@ -195,6 +231,7 @@ static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
 	},
 #endif SERV_RENA_NIGHT_WATCHER
 };
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_UI
 
 
 
@@ -30265,7 +30302,15 @@ void CX2GULire_ElvenRanger::ShowActiveSkillCutInAndLight( const WCHAR* szBoneNam
 // June 32c86890 ( the class map listed it as a new helper: it is March's cut-in helper ); not ported: the cut-in item override ( 31fd8a50 ) and the event 0x8b3 pair, with CH5's cut-in table
 if( true == m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) && true == GetShowCutInAndChangeWorldColor() && true == GetShowActiveSkillShow() )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_UI
+	// char-rena CH5: June 32c86890 ( the 0x8b3 swap ); the cut-in item override 31fd8a50 is not ported ( CX2CustomizeManager: backlog Stage 12 )
+	SkillCutIn cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_];
+	IF_EVENT_ENABLED( 0x8b3 )
+		cutIn = s_SkillCutInSetEvent8b3[ ( 0 == ( rand() & 1 ) ) ? 0 : 1 ];	// June 31e5a860: even rand() -> CASH_21
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA UI cut-in set %d index %d name %s", m_iSkillCutInSetIndex, static_cast<int>( uiCutInIndex_ ), cutIn.fileName.c_str() );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_UI
 	const SkillCutIn& cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_];
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_UI
 	ActiveSkillShow( szBoneName_, cutIn.fileName.c_str(), cutIn.vSize, cutIn.vPosition, IsHyperState(), bOnlyLight_ );
 }
 #else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE

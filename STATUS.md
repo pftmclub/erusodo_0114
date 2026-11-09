@@ -116,7 +116,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 | CH3d | blocked (CH3c review): hyper actives + transcendence rows, skill icons PASS | Opus 5.5 / high, Opus review, user play-test | CH3c review | `X2GULire_ElvenRanger.*`, `X2GUUser.*`, `X2Offline*` | `CH3d.md` |
 | CH4a | blocked (CH2d review): passives `32ca78b0`, D8 re-keys 3405 / 3400 -> 23405 / 23400, delegates, flag `_PASSIVE` | Opus 5.5 / high, Opus review, user play-test | CH2d review | `X2GULire_ElvenRanger.*` | `CH4a.md` |
 | CH4b | blocked (CH4a, CH3c reviews): `SetDamageExceptionProcess` `32cad510`, GetActualCoolTime / MPConsume, `MemoConditionRena` | Opus 5.5 / high, Opus review, user play-test | CH4a review, CH3c review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH4b.md` |
-| CH5 | **ready** (`/x2-phase char-rena CH5`, Sonnet 5.5 high; beside CH2a): 7 `UnitTemplet` rows, cut-in table, flag `_UI`; beside CH2-CH4 | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, cut-in lines of the class `.cpp`, data036 | `CH5.md` |
+| CH5 | **built, play-test owed** (2026-11-09): 7 `UnitTemplet` rows + cut-in table + 0x8b3 pair, flag `_UI`; user checks select screen + cut-ins, then `/x2-phase char-rena CH5 review` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, cut-in lines of the class `.cpp`, data036 | `CH5.md` |
 | CH6 | blocked (CH3d, CH4a-b, CH5 reviews): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH3d, CH4a-b, CH5 reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-ara` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
