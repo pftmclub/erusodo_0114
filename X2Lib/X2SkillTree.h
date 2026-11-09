@@ -1810,6 +1810,23 @@ public:
 		RNSI_P_RWS_PERSISTENT_MIND                            = 23413,	// June's Enum.lua; the passive that shortens the cool times
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-09 // char-rena CH1i
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RWS_VIOLENT_ATTACK                            = 23008,	// June's Enum.lua; SetEquippedSkillLevel sets its landing states
+		RNSI_SA_RWS_SHARPFALL                                 = 23009,	// June's Enum.lua; SetEquippedSkillLevel sets its landing states
+		RNSI_SA_RWS_SLIDE_KICK                                = 23011,	// June's Enum.lua; SetEquippedSkillLevel sets its finish state
+		RNSI_SA_RGA_ACEINTHEHOLE                              = 23059,	// June's Enum.lua; SetEquippedSkillLevel sets its six states
+		RNSI_A_RCR_RISING_FALCON                              = 23202,	// June's Enum.lua; SetEquippedSkillLevel sets its landing state
+		RNSI_A_RCR_LOW_KICK                                   = 23204,	// June's Enum.lua; SetEquippedSkillLevel sets its state
+		RNSI_A_RSR_RAPID_SHOT                                 = 23212,	// June's Enum.lua; SetEquippedSkillLevel sets its attack and finish states
+		RNSI_HA_RWS_SPIRAL_STRIKE                             = 23600,	// June's Enum.lua; SetEquippedSkillLevel sets its spinning and flying states
+		RNSI_HA_RGA_SHOOTER_DESTINY                           = 23601,	// June's Enum.lua; SetEquippedSkillLevel sets its charge shot and landing states
+		RNSI_HA_RLW_INNOCENT                                  = 23602,	// June's Enum.lua; SetEquippedSkillLevel sets its end state
+		RNSI_HA_RWS_SPIRAL_STRIKE_UPGRADE                     = 23603,	// June's Enum.lua; the enhanced Spiral Strike
+		RNSI_HA_RGA_SHOOTER_DESTINY_UPGRADE                   = 23604,	// June's Enum.lua; the enhanced Shooter's Destiny
+		RNSI_HA_RLW_INNOCENT_UPGRADE                          = 23605,	// June's Enum.lua; the enhanced Innocent
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)

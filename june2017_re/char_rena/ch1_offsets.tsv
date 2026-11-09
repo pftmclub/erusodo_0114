@@ -135,3 +135,7 @@ offset	kind	name	note
 0x9818	field	m_hEradicationLoopEffect	Rena; ctor -1; stopped first in the destructor ( CH1h )
 0x1e8	vslot	ProcessAttackResultPassive	user vslot, base 32011b80 ( CH4b ); Rena override 32ca9ca0, wired in CH1o
 0x318	vslot	ProcessEradicationHit	user vslot, base 3208ddc0 ( empty ); Rena override 32cb3200, wired in CH1o
+0x92b4	field	m_iSnapshotNaturalForceCount	Rena; int, ctor 0 ( CH1k ); StoreGageSnapshot ( CH1i ) keeps the natural force count in CX2GUUser's snapshot region
+0x740	vslot	StoreGageSnapshot	user vslot, base 32009780 ( Crest of Time snapshot, not ported ); Rena override 32c852f0, wired in CH1o
+0x774	vslot	UpdateSpineAimRotation	user vslot, base 31f3f070 ( empty stub ); Rena override 32c863d0, called by name from the siege states
+0x6a8	vslot	ShownSkillCoolTime	user vslot, base 3208e190 ( returns the argument ); Rena override 32c7bed0 ( virtual under _LIVE )

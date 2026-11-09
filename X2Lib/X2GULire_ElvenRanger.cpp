@@ -4934,6 +4934,149 @@ void CX2GULire_ElvenRanger::InitEquippedActiveSkillState(bool bOnlySkillLevel /*
 
 /*virtual*/ void CX2GULire_ElvenRanger::SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	/// June 32c886b0 ( user vslot 0x7b8 ); stand-in: the dirty-state batch ( 3207c1a0 / 31fdf970 ) is left out and the callee lacks the power-rate term ( CH1o )
+	if ( NULL == GetUnit() )
+		return;
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_RWS_REFLEX_MAGIC == eSkillID_ )
+		SetEquippedSkillLevelStateData( GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RWS_REFLEX_MAGIC, true ), LESI_SI_A_LE_REFLEX_MAGIC );
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RWS_SHARPFALL == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RWS_SHARPFALL, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SA_LCR_SHARPFALL_LANDING );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SA_LCR_SHARPFALL_HYPER_LANDING );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_RGA_ENTANGLE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RGA_ENTANGLE, true );
+		if ( NULL != pSkillTemplet )
+		{
+			const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+			m_MaxEntangleTrapCount = static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_FIRE_COUNT, iSkillTempletLevel ) );
+			m_fEntangleTrapAttackDuration = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_TIME, iSkillTempletLevel );
+
+			if ( true == GetEqippedSkillMemo( CX2SkillTree::SMI_RENA_MEMO12 ) )
+				m_MaxEntangleTrapCount += 1;
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RWS_VIOLENT_ATTACK == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RWS_VIOLENT_ATTACK, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SA_LCR_VIOLENT_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SA_LCR_VIOLENT_ATTACK_LANDING );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_RCR_RISING_FALCON == eSkillID_ )
+		SetEquippedSkillLevelStateData( GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RCR_RISING_FALCON, true ), LESI_SI_A_LE_RISING_FALCON_LANDING );
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_RSR_RAPID_SHOT == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RSR_RAPID_SHOT, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_A_LGA_RAPID_SHOT_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_A_LGA_RAPID_SHOT_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_RTR_ANGER_OF_ELF == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RTR_ANGER_OF_ELF, true );
+		if ( NULL != pSkillTemplet )
+		{
+			const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+			m_MaxAngerOfElfTrapCount = static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_FIRE_COUNT, iSkillTempletLevel ) );
+		}
+	}
+
+	const CX2SkillTree::SKILL_ID aeSiegeSkillID[] = { CX2SkillTree::RNSI_A_RENA_SIEGEMODE, CX2SkillTree::RNSI_A_RENA_SIEGEMODE_UPGRADE };
+	for ( int iIndex = 0; iIndex < _countof( aeSiegeSkillID ); ++iIndex )
+	{
+		if ( true == bChangeAll_ || aeSiegeSkillID[iIndex] == eSkillID_ )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( aeSiegeSkillID[iIndex], true );
+			if ( NULL != pSkillTemplet )
+			{
+				const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+				SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SIEGE_READY );
+				SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SIEGE_WAIT );
+				SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SIEGE_ATTACK );
+				SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SIEGE_ATTACK_X );
+				SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SIEGE_END );
+				SetSiegeModeEffectiveValue( iSkillTempletLevel );
+			}
+		}
+	}
+
+	const CX2SkillTree::SKILL_ID aeSpiralStrikeSkillID[] = { CX2SkillTree::RNSI_HA_RWS_SPIRAL_STRIKE, CX2SkillTree::RNSI_HA_RWS_SPIRAL_STRIKE_UPGRADE };
+	for ( int iIndex = 0; iIndex < _countof( aeSpiralStrikeSkillID ); ++iIndex )
+	{
+		if ( true == bChangeAll_ || aeSpiralStrikeSkillID[iIndex] == eSkillID_ )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( aeSpiralStrikeSkillID[iIndex], true );
+			SetEquippedSkillLevelStateData( pSkillTemplet, LESI_HA_LWS_SPIRAL_STIKE_SPINING );
+			SetEquippedSkillLevelStateData( pSkillTemplet, LESI_HA_LWS_SPIRAL_STIKE_FLYING_ATTACK );
+		}
+	}
+
+	const CX2SkillTree::SKILL_ID aeShooterDestinySkillID[] = { CX2SkillTree::RNSI_HA_RGA_SHOOTER_DESTINY, CX2SkillTree::RNSI_HA_RGA_SHOOTER_DESTINY_UPGRADE };
+	for ( int iIndex = 0; iIndex < _countof( aeShooterDestinySkillID ); ++iIndex )
+	{
+		if ( true == bChangeAll_ || aeShooterDestinySkillID[iIndex] == eSkillID_ )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( aeShooterDestinySkillID[iIndex], true );
+			SetEquippedSkillLevelStateData( pSkillTemplet, LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT );
+			SetEquippedSkillLevelStateData( pSkillTemplet, LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING );
+		}
+	}
+
+	const CX2SkillTree::SKILL_ID aeInnocentSkillID[] = { CX2SkillTree::RNSI_HA_RLW_INNOCENT, CX2SkillTree::RNSI_HA_RLW_INNOCENT_UPGRADE };
+	for ( int iIndex = 0; iIndex < _countof( aeInnocentSkillID ); ++iIndex )
+	{
+		if ( true == bChangeAll_ || aeInnocentSkillID[iIndex] == eSkillID_ )
+			SetEquippedSkillLevelStateData( GetEquippedActiveSkillTemplet( aeInnocentSkillID[iIndex], true ), LESI_HA_LNW_INNOCENT_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RWS_SLIDE_KICK == eSkillID_ )
+		SetEquippedSkillLevelStateData( GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RWS_SLIDE_KICK, true ), LESI_SA_LWS_SLIDE_KICK_FINISH );
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_RCR_LOW_KICK == eSkillID_ )
+		SetEquippedSkillLevelStateData( GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RCR_LOW_KICK, true ), LESI_SA_LCR_LOW_KICK );
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RGA_GUNGNIR == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RGA_GUNGNIR, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_RGA_GUNGNIR_READY );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_RGA_GUNGNIR_CANCEL );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_RGA_GUNGNIR_CONTROL_IDLE );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_RGA_GUNGNIR_CONTROL_FIRE );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_RGA_GUNGNIR_CONTROL_LEFT );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_RGA_GUNGNIR_CONTROL_RIGHT );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_RGA_GUNGNIR_CONTROL_UP );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_RGA_GUNGNIR_CONTROL_DOWN );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_RGA_GUNGNIR_CONTROL_UP_LEFT );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_RGA_GUNGNIR_CONTROL_UP_RIGHT );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_RGA_GUNGNIR_CONTROL_DOWN_LEFT );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_RGA_GUNGNIR_CONTROL_DOWN_RIGHT );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RGA_ACEINTHEHOLE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RGA_ACEINTHEHOLE, true );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SA_RGA_ACEINTHEHOLE_WAIT );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SA_RGA_ACEINTHEHOLE_1ST_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SA_RGA_ACEINTHEHOLE_WAIT_AFTER_1ST_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SA_RGA_ACEINTHEHOLE_2ND_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SA_RGA_ACEINTHEHOLE_WAIT_AFTER_2ND_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, LESI_SA_RGA_ACEINTHEHOLE_3RD_ATTACK );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_RNW_ERADICATION == eSkillID_ )
+		SetEquippedSkillLevelStateData( GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_RNW_ERADICATION, true ), LESI_SA_RNW_ERADICATION_ATTACK );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // ±èÅÂÈ¯ - ½ºÅ³ ½Ã½ºÅÛ º¯°æ
 	if ( NULL == GetUnit() )
 		return;
@@ -5302,6 +5445,7 @@ void CX2GULire_ElvenRanger::InitEquippedActiveSkillState(bool bOnlySkillLevel /*
 
 #endif // FINALITY_SKILL_SYSTEM // ±èÁ¾ÈÆ, ±Ã±Ø±â ½Ã½ºÅÛ
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -28923,6 +29067,63 @@ void CX2GULire_ElvenRanger::ProcessEradicationHit( CX2DamageManager::DamageData*
 	m_hEradicationLoopEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_RNW_Eradication_LoopFX", (CX2GameUnit*) this );
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+//{{ Iruha : 2026-11-09 // char-rena CH1i
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+/// June 32c852f0 ( user vslot 0x740 ): keeps the natural force count; stand-in: the base 32009780 ( Crest of Time HP / MP snapshot ) is not ported
+void CX2GULire_ElvenRanger::StoreGageSnapshot()
+{
+	if ( false == IsMyUnit() )
+		return;
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	m_iSnapshotNaturalForceCount = GetNaturalForceCount();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+}
+
+/// June 32c863d0 ( user vslot 0x774, base 31f3f070 is an empty stub ): the siege aim ( limits from SIEGE_ANGLE ); an all-zero aim leaves the unit's own rotation in the member only
+void CX2GULire_ElvenRanger::UpdateSpineAimRotation()
+{
+	const D3DXVECTOR3 vAimDegree = GetNearestTargetAimDegree( m_afSiegeAngle[0], m_afSiegeAngle[1], m_afSiegeAngle[2], m_afSiegeAngle[3] );
+	m_vSpineAimDegree = vAimDegree;
+
+	if ( 0.f == m_vSpineAimDegree.x && 0.f == m_vSpineAimDegree.y && 0.f == m_vSpineAimDegree.z )
+		m_vSpineAimDegree = GetRotateDegree();
+
+	if ( FLT_EPSILON < fabsf( vAimDegree.y ) || FLT_EPSILON < fabsf( vAimDegree.z ) )
+	{
+		float fYawGap = GetRotateDegree().y - vAimDegree.y;
+		if ( 360.0 <= fYawGap )
+			fYawGap = (float)( 360.0 - fYawGap );
+		if ( fYawGap <= -360.0 )
+			fYawGap = (float)( fYawGap + 360.0 );
+
+		SetRotateBone( true, L"Bip01_Spine1", D3DXVECTOR3( -1.f, 0.f, -1.f ), D3DXVECTOR3( fYawGap, 0.f, vAimDegree.z ) );
+	}
+	else
+	{
+		EraseRotateBone( L"Bip01_Spine1" );
+	}
+
+	m_fRotateBoneDegree = vAimDegree.z;
+}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+/// June 32c7bed0 ( user vslot 0x6a8 ): Eradication shows no cool time once its hit count has reached SA_EFFECTIVE_COUNT
+/*virtual*/ float CX2GULire_ElvenRanger::ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ )
+{
+	if ( CX2SkillTree::RNSI_SA_RNW_ERADICATION == g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) )
+	{
+		float fHitCountLimit = 0.f;
+		if ( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_COUNT, CX2SkillTree::RNSI_SA_RNW_ERADICATION, true, fHitCountLimit ) &&
+			!( fHitCountLimit > static_cast<float>( m_usEradicationHitCount ) ) )
+			return 0.f;
+	}
+
+	return fCoolTime_;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+//}} Iruha : 2026-11-09 // char-rena CH1i
 void CX2GULire_ElvenRanger::UpNowMpPerHitOthers( const float fHitAddMp_, const int iAddValueByTeam_, const float fRel_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
@@ -30769,6 +30970,20 @@ void CX2GULire_ElvenRanger::SetSkillLevelStateData( const CX2SkillTree::SkillTem
 */
 void CX2GULire_ElvenRanger::SetSiegeModeEffectiveValue( IN const int iSkillLevel )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	/// June 32c881f0: the enhanced siege skill's templet once it is learned, else the base one ( June's discarded GetSkillLevel call on the base skill is dropped )
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = NULL;
+	if( 0 < GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_RENA_SIEGEMODE_UPGRADE, true, 0, true ) )
+		pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_A_RENA_SIEGEMODE_UPGRADE );
+	else
+		pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_A_RENA_SIEGEMODE );
+
+	if( NULL != pSkillTemplet )
+	{
+		m_fDamageRelSiegeArrow		= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel ) * m_fSiegeDamageByPassive;
+		m_fMPConsumeRateSiegeArrow	= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, iSkillLevel );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::SI_A_LE_SIEGEMODE );
 
 	if( NULL != pSkillTemplet )
@@ -30776,6 +30991,7 @@ void CX2GULire_ElvenRanger::SetSiegeModeEffectiveValue( IN const int iSkillLevel
 		m_fDamageRelSiegeArrow		= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel ) * m_fSiegeDamageByPassive;
 		m_fMPConsumeRateSiegeArrow	= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, iSkillLevel );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 #endif //UPGRADE_SKILL_SYSTEM_2013
 

@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1i | **ready** (`/x2-phase char-rena CH1i`, Sonnet 5.5 high): overrides 0x600-0x7bc | Sonnet 5.5 / high, Opus review | CH1h review | `X2GULire_ElvenRanger.*` | `CH1i.md` |
+| CH1i | **review ready** (`/x2-phase char-rena CH1i review`, Opus 5.5 high): 8 rows (2 inside written, 3 new, 3 = March): SetEquippedSkillLevel, siege value, spine aim, snapshot, cool time; no play-test | Sonnet 5.5 / high, Opus review | CH1h review | `X2GULire_ElvenRanger.*`, `X2SkillTree.h` | `CH1i.md`, `CH1i-review.md` |
 | CH1j | blocked (CH1i review): Common* overrides (2 uncarved) + CommonFrameMove | Sonnet 5.5 / high, Opus review | CH1i review | `X2GULire_ElvenRanger.*` | `CH1j.md` |
 | CH1k | blocked (CH1j review): skill-use overrides + SpecialAttackEventProcess `32c6a970` (uncarved) + `ReservedSkillStart` | Sonnet 5.5 / high, Opus review | CH1j review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1k.md` |
 | CH1m | blocked (CH1k review): registration (InitState `32cadc90`), `_LIVE` gate | Opus 5.5 / high, Opus review | CH1k review | `X2GULire_ElvenRanger.*`, Always.h | `CH1m.md` |

@@ -224,6 +224,16 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 #ifndef ADD_RENA_SYSTEM
 			LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX,	/// June script id 252 ( March declares it only under ADD_RENA_SYSTEM; CH1q owns the state, CH1f names it as the follow-up; CH1m maps )
 #endif ADD_RENA_SYSTEM
+			LESI_SA_LCR_SHARPFALL_HYPER_LANDING,	/// June script id 202 ( Sharpfall landing of the hyper form; CH1m maps, CH3a owns the state )
+			LESI_RGA_GUNGNIR_READY,	/// June script id 283 ( the Gungnir aim start, taken from its neighbour 284; CH1m maps, CH1f2 owns the state )
+			LESI_SA_LCR_LOW_KICK,	/// June script id 295 ( Low Kick's own state; its callbacks are CH1e's, CH1m maps )
+			LESI_SA_RGA_ACEINTHEHOLE_WAIT,	/// June script id 296 ( Ace in the Hole wait; CH1m maps, CH3b owns the state )
+			LESI_SA_RGA_ACEINTHEHOLE_1ST_ATTACK,	/// June script id 297
+			LESI_SA_RGA_ACEINTHEHOLE_WAIT_AFTER_1ST_ATTACK,	/// June script id 298 ( the table of 296 registered a second time; CH1m maps )
+			LESI_SA_RGA_ACEINTHEHOLE_2ND_ATTACK,	/// June script id 299
+			LESI_SA_RGA_ACEINTHEHOLE_WAIT_AFTER_2ND_ATTACK,	/// June script id 300 ( the table of 296 registered a third time; CH1m maps )
+			LESI_SA_RGA_ACEINTHEHOLE_3RD_ATTACK,	/// June script id 301
+			LESI_SA_RNW_ERADICATION_ATTACK,	/// June script id 302 ( Eradication's attack; CH1m maps, CH3c owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 
@@ -1899,6 +1909,11 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		CX2EffectSet::Handle m_hEradicationLoopEffect;	/// June +0x9818 ( constructor -1 ): Eradication's loop effect set
 		void ProcessAttackResultPassive( CX2DamageManager::DamageData* pDamageData_ );	/// June 32ca9ca0 ( user vslot 0x1e8 ): CH1o wires it
 		void ProcessEradicationHit( CX2DamageManager::DamageData* pDamageData_ );	/// June 32cb3200 ( user vslot 0x318 ): CH1o wires it
+		void StoreGageSnapshot();	/// June 32c852f0 ( user vslot 0x740, base 32009780 Crest of Time snapshot not ported ): keeps the natural force count
+		int m_iSnapshotNaturalForceCount;	/// June +0x92b4 ( CX2GUUser snapshot region, constructor 0 ): the count StoreGageSnapshot keeps
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+		virtual float ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ );	/// June 32c7bed0 ( user vslot 0x6a8 ): Eradication shows no cool time once its hit count is reached
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 		void LESI_RTR_DOUBLE_JUMP_ZX_StateStart();	/// June 32ca7670
 		void LESI_RTR_DOUBLE_JUMP_ZX_StateEndFuture();	/// June 32c6d580
 		void LESI_RTR_DOUBLE_JUMP_ZX_EventProcess();	/// June 32c818d0
