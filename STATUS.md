@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2a | **done 2026-11-09, play-test owed**: Rena (3) skills, 18 fn inside + 7 cases on the base id, flag `_SKILL`; user plays set 1 (`ElvenRangerT`), "swap" for set 2, then `/x2-phase char-rena CH2a review` | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GULire_ElvenRanger.*`, `MODS.md` | `CH2a.md`, `CH2a-review.md` |
+| CH2a | **play-test passed 2026-11-09**: Rena (3) skills, 18 fn inside + 7 cases on the base id, flag `_SKILL`; next `/x2-phase char-rena CH2a review` (Opus 5.5 high) | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `X2GULire_ElvenRanger.*`, `MODS.md` | `CH2a.md`, `CH2a-review.md` |
 | CH2b | blocked (CH2a review): Combat Ranger (12) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GULire_ElvenRanger.*` | `CH2b.md` |
 | CH2c | blocked (CH2b review): Sniping Ranger (13) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2b review | `X2GULire_ElvenRanger.*` | `CH2c.md` |
 | CH2d0 | blocked (CH2c review): trap summons (4 June `CreateNPCReq` sites, spawn rules, trap NPC Lua binder gate), flag `_TRAP` | Opus 5.5 / high, Opus review | CH2c review | `X2GULire_ElvenRanger.*`, `X2GUNPC.*`, NPC Lua | `CH2d0.md` |
