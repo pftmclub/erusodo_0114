@@ -1632,6 +1632,7 @@ ORDER  BY UnitClass;
 - **Running the game.** Never launch `X2_offline.exe` without asking first ([[ask-before-running-deployed-exe]]).
 - **Play-test checks** cover only the phase's own log lines ([[scope-playtest-log-checks-to-the-phase]]).
 - **Commits.** Commit only your own hunks; parallel sessions edit the same docs and the same tree.
+- **Remaining count** (june-census, 2026-11-09). At the end of each stage run `python tools/junebinary.py --check` and `python -I june2017_re/census/v2_exclusions.py` (both `RESULT: PASS`) and note the unowned studio-function count in the stage's Done note; Stages 38 / 39 / 40 own the census's new groups.
 
 ---
 

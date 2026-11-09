@@ -174,3 +174,5 @@ Apply the user's answers to `exclusions.tsv` and the new stage briefs, check tha
 STATUS block to `STATUS_ARCHIVE.md` with one *Closed plans* row, and commit.
 
 **Done gate:** the closed-plans row exists; `junebinary.py --check` still passes; the backlog file lists the new stages.
+
+**Done 2026-11-09.** Answer applied in V2 (wedding / mentor excluded; boss raid / world mission to Stage 40). Backlog Standing rules gained the *Remaining count* line; `stage38/39/40-plan` rows and briefs exist, Stage 40 set ready. `junebinary.py --check` RESULT: PASS (55556 functions); `v2_exclusions.py` RESULT: PASS. No code, flag or build. STATUS block moved to `STATUS_ARCHIVE.md`, Closed plans row added.

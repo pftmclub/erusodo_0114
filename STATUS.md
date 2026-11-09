@@ -155,7 +155,7 @@ Done: stage2-plan, stage3-plan, stage4-plan, stage29-plan, stage5-plan, stage6-p
 | stage8-plan | **Lu/Ciel planned 2026-11-02; parked by the user 2026-11-03 until Stage 7 closes** (`JUNE_CHARACTER_LUCIEL_PHASES.md` + `kickoffs/char-luciel/` + the `char-luciel` block). queued: `/x2-phase new-plan char-rose` (then `char-ain`), set ready by char-luciel Z | Opus 5.5 / high | dep: char-luciel Z (NU / DU foundation) | docs, kickoffs | `stage8-plan.md` |
 | stage38-plan | ready (start: `/x2-phase new-plan june-field`): June village / field game core (`CX2TFieldGame`, `CX2SquareUnit`; 168 unowned) -> `JUNE_FIELD_PHASES.md` + `kickoffs/june-field/` | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Field S38`) | `stage38-plan.md` |
 | stage39-plan | ready (start: `/x2-phase new-plan june-events`): June game events (`CX2CustomEventManager`, item-slot manager, `CX2LVUpEventMgr`, `CX2RandomMission`; 148 unowned) -> `JUNE_EVENTS_PHASES.md` | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Event S39`) | `stage39-plan.md` |
-| stage40-plan | blocked (june-census Z; start: `/x2-phase new-plan june-triage`): read-only triage of 191 address gaps + boss raid (9,650 functions) -> `JUNE_TRIAGE_PHASES.md` | Opus 5.5 / high | dep: june-census Z; runs with anything (read-only) | docs, `june2017_re/census/`, funcmap rows (`Triage S40`) | `stage40-plan.md` |
+| stage40-plan | ready (start: `/x2-phase new-plan june-triage`): read-only triage of 191 address gaps + boss raid (9,650 functions) -> `JUNE_TRIAGE_PHASES.md` | Opus 5.5 / high | dep: june-census Z; runs with anything (read-only) | docs, `june2017_re/census/`, funcmap rows (`Triage S40`) | `stage40-plan.md` |
 
 ## june-engine - June engine remainder: renderer contract, render types, UI framework, world timeline
 Plan `JUNE_ENGINE_REMAINDER_PHASES.md` · branch `main` · log tag `[JUNE_ENGINE]` (sub-tags `CTT`, `FX`, `ENVBOX`, `SHIMMER`, `CRS`, `SMRT`, `UI`, `WORLD`) · flags `SERV_IRUHADEV_JUNE_RENDER_*` / `_JUNE_UI_*` / `_JUNE_WORLD_*` · kickoffs `kickoffs/june-engine/` · backlog Stage 2 · created 2026-10-16.
@@ -273,16 +273,6 @@ Plan `JUNE_CHARACTER_LUCIEL_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]`
 
 Done: CH0b (2026-11-03, 14,609 + 12 June files and 14 Lua staged, 44 koms packed and copied, skill icons PASS; user select-screen ErrorLog pass owed), CH0 (2026-11-02, read-only class map: 867 functions / 553 tables / 198 ids phased, splits + 5 Opus helper phases, kickoffs amended; stat-row question with the user), NU0 (2026-11-02, read-only engine map: 8 `nu0_*.tsv`, kickoffs amended, DU4 shape written).
 
-## june-census - how much of the June 2017 binary is left to port
-Plan `JUNE_COVERAGE_CENSUS_PHASES.md` · branch `main` · read-only (no code, no flag, no build, no log tag) · outputs `june2017_re/census/`, tool `tools/junebinary.py` · kickoffs `kickoffs/june-census/` · created 2026-11-09 (user: the backlog does not cover all of 2017; size it).
-
-| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
-|---|---|---|---|---|---|
-| V0 | **done 2026-11-09**: 55,556 functions exported, 1.75% attributed by strings alone (note in plan doc); owes nothing | Sonnet 5.5 / medium | -; runs with anything | `june2017_re/census/` | `V0.md` |
-| V1 | **done 2026-11-09**: `tools/junebinary.py` + `coverage.tsv`; studio 29,511 / library 9,126 / crt-stl 143 / unknown 16,776; 19,577 studio functions unowned; owes nothing | Sonnet 5.5 / medium | V0 | `tools/`, `june2017_re/census/` | `V1.md` |
-| V2 | **done 2026-11-09**: `exclusions.tsv` (9,014 attach to stages, S38 / S39 / S40 new, 596 excluded, 0 parked), `SUMMARY.md`, estimate ~4 / ~8 / ~20 weeks; user answer applied | Opus 5.5 / high | V1 | docs, `JUNE_PORT_BACKLOG_ORDER.md`, `kickoffs/june-backlog/` | `V2.md` |
-| Z | **ready** (answer applied in V2): standing rule, set `stage40-plan` ready, archive the plan | Sonnet 5.5 / medium | V2 | docs, `STATUS.md` | `Z.md` |
-
 ## Other plans (no STATUS rows)
 
 | Plan | Doc | Note |
@@ -317,3 +307,4 @@ Full rows in `STATUS_ARCHIVE.md`.
 | june-enum-names | `JUNE_ENUM_NAMES_PHASES.md` | - |
 | june-march-divergence | `JUNE_MARCH_DIVERGENCE_PHASES.md` | june-engine R6c / R12c / R14c / R15, june-charinfo C4 add-on, Stage 36, Stage 9 (Korean-sound option) |
 | june-charinfo | `JUNE_CHARINFO_PHASES.md` | Customize -> Stage 12, Resonance -> Stage 30, Achievement -> Stage 31, Lu/Ciel and Rose switching -> Stage 8 (STUB clicks); light option, cursor modes -> Stage 9 |
+| june-census | `JUNE_COVERAGE_CENSUS_PHASES.md` | Stages 38 / 39 / 40 (new, rows above); boss raid / world mission -> Stage 40 triage (route to S22 or S39) |
