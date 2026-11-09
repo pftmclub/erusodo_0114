@@ -17,4 +17,4 @@ python tools/docsection.py JUNE_COVERAGE_CENSUS_PHASES.md "Context" "Rules" "Sta
 
 ## Task
 
-Do "Phase Z" in the plan doc: apply the user's answers, check every new stage has a STATUS row and a kickoff, add the "re-run `junecensus.py` at each stage end" line to the backlog's Standing rules, archive this plan's STATUS block, and commit.
+Do "Phase Z" in the plan doc: apply the user's answers, check every new stage has a STATUS row and a kickoff, add the "re-run `junebinary.py` at each stage end" line to the backlog's Standing rules, archive this plan's STATUS block, and commit.

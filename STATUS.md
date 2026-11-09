@@ -272,13 +272,13 @@ Plan `JUNE_CHARACTER_LUCIEL_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]`
 Done: CH0b (2026-11-03, 14,609 + 12 June files and 14 Lua staged, 44 koms packed and copied, skill icons PASS; user select-screen ErrorLog pass owed), CH0 (2026-11-02, read-only class map: 867 functions / 553 tables / 198 ids phased, splits + 5 Opus helper phases, kickoffs amended; stat-row question with the user), NU0 (2026-11-02, read-only engine map: 8 `nu0_*.tsv`, kickoffs amended, DU4 shape written).
 
 ## june-census - how much of the June 2017 binary is left to port
-Plan `JUNE_COVERAGE_CENSUS_PHASES.md` · branch `main` · read-only (no code, no flag, no build, no log tag) · outputs `june2017_re/census/`, tool `tools/junecensus.py` · kickoffs `kickoffs/june-census/` · created 2026-11-09 (user: the backlog does not cover all of 2017; size it).
+Plan `JUNE_COVERAGE_CENSUS_PHASES.md` · branch `main` · read-only (no code, no flag, no build, no log tag) · outputs `june2017_re/census/`, tool `tools/junebinary.py` · kickoffs `kickoffs/june-census/` · created 2026-11-09 (user: the backlog does not cover all of 2017; size it).
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | V0 | **done 2026-11-09**: 55,556 functions exported, 1.75% attributed by strings alone (note in plan doc); owes nothing | Sonnet 5.5 / medium | -; runs with anything | `june2017_re/census/` | `V0.md` |
-| V1 | **ready** (V0 done): `tools/junecensus.py`, bucket every function, join funcmap / March tree / backlog owners | Sonnet 5.5 / medium | V0 | `tools/`, `june2017_re/census/` | `V1.md` |
-| V2 | blocked (V1): exclusion list, new backlog stage briefs, low / mid / high estimate | Opus 5.5 / high | V1 | docs, `JUNE_PORT_BACKLOG_ORDER.md`, `kickoffs/june-backlog/` | `V2.md` |
+| V1 | **done 2026-11-09**: `tools/junebinary.py` + `coverage.tsv`; studio 29,511 / library 9,126 / crt-stl 143 / unknown 16,776; 19,577 studio functions unowned; owes nothing | Sonnet 5.5 / medium | V0 | `tools/`, `june2017_re/census/` | `V1.md` |
+| V2 | **ready** (V1 done): exclusion list, new backlog stage briefs, low / mid / high estimate | Opus 5.5 / high | V1 | docs, `JUNE_PORT_BACKLOG_ORDER.md`, `kickoffs/june-backlog/` | `V2.md` |
 | Z | blocked (V2): apply the user's answers, archive the plan | Sonnet 5.5 / medium | V2 | docs, `STATUS.md` | `Z.md` |
 
 ## Other plans (no STATUS rows)

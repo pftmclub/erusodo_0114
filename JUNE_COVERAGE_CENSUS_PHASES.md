@@ -21,7 +21,7 @@ The June 2020 exe (`unpacked_x2020.exe`, same Ghidra project, analysed) is a ref
 
 - Read-only on the game, the source tree and the Ghidra programs: no renames, no comments, no retypes in either program. Only the June
   program is open in the CodeBrowser; V0 checks the imagebase (`0x31aa0000`) and the exe's size (43,801,600 B) before reading anything.
-- Outputs go under `june2017_re/census/` (tsv) plus the tool `tools/junecensus.py` (V1). Nothing here ships in a build.
+- Outputs go under `june2017_re/census/` (tsv) plus the tool `tools/junebinary.py` (V1). Nothing here ships in a build.
 - A count is only reported with the file it came from; a classification with no evidence is `unknown`, never guessed.
 - Scope rule (CLAUDE.md, "a plan keeps to its subject"): this plan finds and sizes work, it never ports any. A found system becomes a
   backlog stage brief (`kickoffs/june-backlog/stageN-plan.md`) in V2, not a phase here.
@@ -72,7 +72,7 @@ Program verified first (imagebase `0x31aa0000`, exe 43,801,600 B). Read-only; no
 
 **Run with:** Sonnet 5.5 / medium. **Depends:** V0.
 
-1. Write `tools/junecensus.py` (documented in `tools/README.md`): joins `functions.tsv` with `funcmap.tsv` (by `june_va`), with the March
+1. Write `tools/junebinary.py` (documented in `tools/README.md`): joins `functions.tsv` with `funcmap.tsv` (by `june_va`), with the March
    source tree (does a file or class of that name exist under `X2Lib/`, `KTDXLIB/`, `X2/`), and with the June flag index in `MODS.md`.
 2. Per function: `bucket` = `studio` (source file or class under the studio's tree), `library` (known third-party paths / names),
    `crt-stl` (compiler or runtime), `unknown`. Per studio function: `mapped` (funcmap row), `march_has` (a March function of that name
@@ -81,10 +81,33 @@ Program verified first (imagebase `0x31aa0000`, exe 43,801,600 B). Read-only; no
    and the kickoffs).
 3. Output `june2017_re/census/coverage.tsv` (per function) and `coverage_by_file.tsv` (per source file / class: functions, mapped, march_has,
    june_guarded, owner stage, top 5 unowned functions by size).
-4. A `RESULT:` line from `junecensus.py --check` that fails if the buckets do not add up to the total.
+4. A `RESULT:` line from `junebinary.py --check` that fails if the buckets do not add up to the total.
 
 **Done gate:** `--check` prints `RESULT: PASS`; the by-file table is sorted by unowned studio functions; the Done note (about 40 lines)
 gives the totals per bucket and per status, the sample precision for `june_guarded`, and the ten biggest unowned groups.
+
+**Done note (V1, 2026-11-09, Sonnet 5.5):** tool is `tools/junebinary.py` (not `junecensus.py`: that file is the D0a identifier census of
+`june-march-divergence`; the plan, kickoffs and README now say `junebinary.py`). Outputs `june2017_re/census/coverage.tsv` (55,556 rows) and
+`coverage_by_file.tsv` (341 groups, sorted by unowned). `python tools/junebinary.py --check` -> `RESULT: PASS (55556 functions)`. 10 s, no code changed.
+- **Buckets:** studio 29,511 (53.1%) / library 9,126 (16.4%) / crt-stl 143 (0.3%) / unknown 16,776 (30.2%).
+- **Basis:** studio = funcmap 6,254 + string 285 + **block 22,972**; library = string 657 + name 1,363 + block 7,106; crt-stl = funcmap 70 + name 73.
+  `block` = no evidence of its own, but the nearest evidenced function on each side has the same bucket within 300 functions. Hold-out test
+  (`--holdout`, hide each evidenced function, predict it from its neighbours): studio 99.8% (6,370 / 6,383), library 98.7%; class-by-block 92.3%.
+  crt-stl by block scored 42% so it is never inferred (those rows are `unknown`).
+- **Studio status (29,511):** mapped (funcmap row) 6,254; the other 23,257 have no name, so `march_has` cannot be asked. March has the function
+  for 3,903 of the mapped rows; **june_guarded 1,675**. Only 9,471 studio functions have a class (4,300 of them by block): **20,040 studio
+  functions are `(unattributed studio)`**, the binary gives no class or file for them.
+- **Owner:** address named in a stage / plan doc / kickoff 7,580, class named in a stage 2,354, **unowned 19,577 functions (12.2 MB)**, of which
+  17,503 sit in the unattributed group.
+- **june_guarded sample (50 random rows, seed 7, `--sample 50`):** each checked in the March source: 38 have a `SERV_IRUHADEV_JUNE_*` block inside the
+  body, 9 sit entirely inside one, 3 hold one in a body my first check missed (`SetKUnitInfo` 4390, `EveElectraEffectData` 34715,
+  `FollowLine` 8222); `CanUseQuickSlotItemBeforeStart` has 2 flag lines. Precision 50 / 50 = 100% as defined ("definition holds or sits in a
+  JUNE block"). It is a lower bound for coverage: header-inline bodies count as not guarded.
+- **Ten biggest unowned groups (functions, bytes):** unattributed studio 17,503 (8.9 MB); CX2GUEL 218 (194 kB); CX2UIInventory 166 (135 kB); CKTDGParticleSystem 104; CX2TFieldGame 72; CX2GUAra 62; CKTDGUIDialog 62; CX2SocketItem 60;
+  CX2PartyUI 55; CKTDGUIIMEEditBox 54; CX2CustomEventManager 52 (61 kB).
+- **For V2:** the real gap is the 17.5k unattributed studio functions and the 16.8k `unknown`. The class owner column is by name in a stage
+  and is weak for shared classes (CX2GUUser); the address owner is strong. V2 should split the unattributed block by address range
+  (`coverage.tsv` sorted by `june_va`), not by class.
 
 ## Phase V2 - Exclusions, new stages, estimate (Opus)
 
@@ -110,7 +133,7 @@ decisions (if any) are asked in the hand-off, not buried in the table.
 **Run with:** Sonnet 5.5 / medium. **Depends:** V2 (and the user's answers, if V2 asked any).
 
 Apply the user's answers to `exclusions.tsv` and the new stage briefs, check that every new stage has a STATUS row and a kickoff, record the plan in
-`JUNE_PORT_BACKLOG_ORDER.md` ("Standing rules": re-run `junecensus.py` at the end of each stage to track the remaining count), move this plan's
+`JUNE_PORT_BACKLOG_ORDER.md` ("Standing rules": re-run `junebinary.py` at the end of each stage to track the remaining count), move this plan's
 STATUS block to `STATUS_ARCHIVE.md` with one *Closed plans* row, and commit.
 
-**Done gate:** the closed-plans row exists; `junecensus.py --check` still passes; the backlog file lists the new stages.
+**Done gate:** the closed-plans row exists; `junebinary.py --check` still passes; the backlog file lists the new stages.
