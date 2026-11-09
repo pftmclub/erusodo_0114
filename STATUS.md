@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1j | **ready** (`/x2-phase char-rena CH1j`, Sonnet 5.5 high): Common* overrides (2 uncarved) + CommonFrameMove | Sonnet 5.5 / high, Opus review | CH1i review | `X2GULire_ElvenRanger.*` | `CH1j.md` |
+| CH1j | **review ready** (`/x2-phase char-rena CH1j review`, Opus 5.5 high): 10 rows (4 inside written, 3 new, 3 = March): CommonStateStart / FrameMove / FrameMoveFuture / StateEnd, Predator helpers; no play-test | Sonnet 5.5 / high, Opus review | CH1i review | `X2GULire_ElvenRanger.*`, `X2SkillTree.h`, `Always.h` | `CH1j.md`, `CH1j-review.md` |
 | CH1k | blocked (CH1j review): skill-use overrides + SpecialAttackEventProcess `32c6a970` (uncarved) + `ReservedSkillStart` | Sonnet 5.5 / high, Opus review | CH1j review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1k.md` |
 | CH1m | blocked (CH1k review): registration (InitState `32cadc90`), `_LIVE` gate | Opus 5.5 / high, Opus review | CH1k review | `X2GULire_ElvenRanger.*`, Always.h | `CH1m.md` |
 | CH1n | blocked (CH1m review): base callbacks + skill-slot head `32cb06d0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1n.md` |

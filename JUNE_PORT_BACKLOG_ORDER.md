@@ -669,6 +669,11 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   skips the camera reset at state start (`@3205ba89-3205bb11`: `+0x8020 = 0`, then, unless retained, `g_pX2Game` camera vslot `0x94` with `32420bc0` /
   `31fb3c50`); `FORCE_DYNAMIC_CAMERA_INDEX` (`@3205c0e8`) stores an int at user `+0x801c` (miss 0). March reads neither. Name `+0x801c`'s readers and
   port both keys with the camera they drive. June class scripts use them (Aisha: 15 + 1 states); inert until then, play is unaffected.
+- **The user's skill-camera group** (handed here by char-rena CH1j, 2026-11-09). User byte `+0x8d90` and floats `+0x8d94` .. `+0x8da8` (zeroed by the
+  `CX2GUUser` ctor `3203e850 @32040d52-32040d76`): Rena's Ace in the Hole start `32c6d8a0` (my unit only) sets `+0x8d90` = 1, `+0x8da4` = 550.0,
+  `+0x8d94` = 220.0, and her CommonStateStart `32ca81b0 @32ca8ba3` clears `+0x8d90` / `+0x8da4` once the state's skill is not Ace in the Hole. The
+  reader is not in the class range or the carved base dumps: name it (the game camera, with the camera keys above) and port it whole. Until then Rena
+  carries two stand-in members, `m_bSkillCameraOverride` / `m_fSkillCameraOverrideValue`; play is unaffected.
 - **June's idle timer** (handed here by pilot-char-revamp CH1l, 2026-10-21). User floats `+0x91a8 / +0x91ac` (set @32041ae3 in `3203e850`,
   reset by `CX2GUUser::OnFrameMove` @3206f99d when user vslot 0x828 answers true), read by CX2Game `323022b0`, which shows text `0x4b1f` with the
   remaining time. All classes; the 0x828 base is `CX2GUUser::JuneIsNotCommonMoveState` (CH1l). Identify the screen it drives, then port whole.

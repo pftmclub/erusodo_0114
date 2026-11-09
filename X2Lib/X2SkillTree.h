@@ -1827,6 +1827,17 @@ public:
 		RNSI_HA_RLW_INNOCENT_UPGRADE                          = 23605,	// June's Enum.lua; the enhanced Innocent
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-09 // char-rena CH1j
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RNW_CALL_OF_RUIN                              = 23022,	// June's Enum.lua; Predator rolls a damage multiple on it
+		RNSI_SA_RNW_SEED_OF_RUIN_POLE                         = 23041,	// June's Enum.lua; Predator rolls a damage multiple on it
+		RNSI_SA_RNW_RAGE_FUNGUS                               = 23042,	// June's Enum.lua; Predator rolls a damage multiple on it
+		RNSI_P_RCR_SHARP_KICK                                 = 23400,	// June's Enum.lua; CommonStateStart scales a melee hit's force down
+		RNSI_P_RTR_HUNTERS_ABILITY                            = 23408,	// June's Enum.lua; CommonStateStart scales a trap blade hit's force down
+		RNSI_P_RGA_RANDOM_SHOT_PLEASURE                       = 23415,	// June's Enum.lua; CommonStateEnd applies its buff after a bow skill state
+		RNSI_P_RNW_PREDATOR                                   = 23417,	// June's Enum.lua; the critical damage roll of the three Night Watcher skills
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)

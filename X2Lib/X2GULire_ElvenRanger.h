@@ -1911,6 +1911,17 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void ProcessEradicationHit( CX2DamageManager::DamageData* pDamageData_ );	/// June 32cb3200 ( user vslot 0x318 ): CH1o wires it
 		void StoreGageSnapshot();	/// June 32c852f0 ( user vslot 0x740, base 32009780 Crest of Time snapshot not ported ): keeps the natural force count
 		int m_iSnapshotNaturalForceCount;	/// June +0x92b4 ( CX2GUUser snapshot region, constructor 0 ): the count StoreGageSnapshot keeps
+		void ResetEradicationLoop();	/// June 32ca2aa0: the loop's end ( CommonFrameMove ): the hit count restarts and the loop effect set stops
+		float GetPredatorDamageMultiple( const int iStage_ );	/// June 32c6d800: one Predator stage's SA_SKILLDAMAGE_MULTIPLE_01..04 ( 1.0 past the fourth )
+		int GetPredatorDamageStage( const float fRoll_ );	/// June 32c83280: the stage a 0..1 roll falls in ( widths SA_SKILLDAMAGE_MULTIPLE_01..03_RATE, the rest is stage 3 )
+		bool m_bBowSkillState;	/// June +0x981d: the state script's BOW_SKILL_STATE ( CommonStateStart sets it; CommonStateEnd and GetActualCoolTime read it; no constructor store )
+		bool m_bCreateTrapBlade;	/// June +0x981c ( constructor 0 ): the state script's CREATE_TRAP_BLADE, CommonStateEnd deletes the trap blade when it was set
+		float m_fAceInTheHoleTime;	/// June +0x980c ( constructor 0 ): counted up every future frame; Ace in the Hole's start ( CH3b ) zeroes it
+		bool m_bPredatorCritical;	/// June +0x97f0 ( constructor 0 ): Predator rolled its first stage ( the critical hit )
+		unsigned short m_usRandomRollCount;	/// June +0x981e ( constructor 0 ): the random rolls taken this frame; CommonFrameMove clears it ( CH4a's trap helper counts )
+		std::map< std::pair< int, UidType >, float > m_mapRageFungusTargetLockTime;	/// June +0x97f4: remaining lock per hit target ( game unit type, unit uid ); CommonFrameMove counts it down, CH1o / CH4a fill and sweep it
+		bool m_bSkillCameraOverride;	/// June +0x8d90 ( CX2GUUser camera group, constructor 0 ): stand-in, the reader is Stage 9's camera pair; CommonStateStart clears it
+		float m_fSkillCameraOverrideValue;	/// June +0x8da4 ( CX2GUUser camera group, constructor 0 ): stand-in; Ace in the Hole ( CH3b ) sets it to 550.0
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 		virtual float ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ );	/// June 32c7bed0 ( user vslot 0x6a8 ): Eradication shows no cool time once its hit count is reached
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE

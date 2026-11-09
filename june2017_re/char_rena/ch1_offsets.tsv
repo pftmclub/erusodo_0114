@@ -139,3 +139,12 @@ offset	kind	name	note
 0x740	vslot	StoreGageSnapshot	user vslot, base 32009780 ( Crest of Time snapshot, not ported ); Rena override 32c852f0, wired in CH1o
 0x774	vslot	UpdateSpineAimRotation	user vslot, base 31f3f070 ( empty stub ); Rena override 32c863d0, called by name from the siege states
 0x6a8	vslot	ShownSkillCoolTime	user vslot, base 3208e190 ( returns the argument ); Rena override 32c7bed0 ( virtual under _LIVE )
+0x980c	field	m_fAceInTheHoleTime	Rena; float, ctor 0 ( CH1k ); CommonFrameMoveFuture adds the frame time every frame ( CH1j ), Ace in the Hole's start zeroes it and its wait reads it ( CH3b )
+0x97f0	field	m_bPredatorCritical	Rena; byte, ctor 0 ( CH1k ); CommonStateStart sets it when Predator rolls stage 0 ( CH1j ); readers 32ca2390 ( CH4a )
+0x981c	field	m_bCreateTrapBlade	Rena; byte, ctor 0 ( CH1k ); CommonStateStart reads CREATE_TRAP_BLADE into it ( CH1j ), CommonStateEnd deletes the trap blade ( CH1j )
+0x981d	field	m_bBowSkillState	Rena; byte, no ctor store; CommonStateStart reads BOW_SKILL_STATE into it ( CH1j ), CommonStateEnd reads it ( CH1j ), GetActualCoolTime 32c7be7b ( CH4b )
+0x981e	field	m_usRandomRollCount	Rena; word, ctor 0 ( CH1k ); CommonFrameMove clears it ( CH1j ), 32c7af80 ( CH4a ) takes GetRandomFloat( 0x10 + count ) and counts it up
+0x97f4	field	m_mapRageFungusTargetLockTime	Rena; std::map< ( unit type, uid ), float >, header node +0x97f8, size +0x97fc ( ctor 32cb5ee0 ); CommonFrameMove subtracts the frame time from every value ( CH1j ); 32c86790 ( CH4a ) sets 1.0 for a Rage Fungus ( 23042 ) hit target, 32c85b20 ( CH1o ) erases the expired ones and returns the count
+0x8d90	field	m_bSkillCameraOverride	CX2GUUser camera group ( stand-in in Rena's class; reader unported, Stage 9 ); byte, ctor 0; Ace in the Hole start 32c6d8a0 sets 1, CommonStateStart clears it ( CH1j )
+0x8da4	field	m_fSkillCameraOverrideValue	CX2GUUser camera group ( stand-in in Rena's class; reader unported, Stage 9 ); float, ctor 0; Ace in the Hole start 32c6d8a0 sets 550.0 ( +0x8d94 = 220.0 ), CommonStateStart clears it ( CH1j )
+0x7e8	vslot	CommonRender_Prepare	Rena override 32c6a950 = the base 31fd07b0 ( takes and returns the render hint )

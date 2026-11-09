@@ -5583,6 +5583,92 @@ void CX2GULire_ElvenRanger::CommonStateStartFuture()
 
 void CX2GULire_ElvenRanger::CommonStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca81b0
+	LUA_GET_VALUE(	m_LuaManager, "BOW_SKILL_STATE",					m_bBowSkillState,					false );
+	LUA_GET_VALUE(	m_LuaManager, "DAMAGEDATA_CHANGE_TIME",				m_fDamageDataChangeTime,			0.f );
+	LUA_GET_VALUE(	m_LuaManager, "DAMAGEDATA_CHANGE_TIME1",			m_fDamageDataChangeTime1,			0.f );
+	LUA_GET_VALUE(	m_LuaManager, "DAMAGEDATA_CHANGE_TIME2",			m_fDamageDataChangeTime2,			0.f );
+
+	m_bCreateTrapBlade = false;
+	LUA_GET_VALUE(	m_LuaManager, "CREATE_TRAP_BLADE",					m_bCreateTrapBlade,					false );
+	if( true == m_bCreateTrapBlade )
+		CreateTrapBlade();
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	// June 32ca893c: a new skill state saves its skill id; a skill that is not an ST_ACTIVE hands its natural force cost to the damage data
+#ifdef SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	if( m_itNowStateData->second.m_SPLevel > 0 )
+#else SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	if( m_NowStateData.m_SPLevel > 0 )
+#endif SERV_IRUHADEV_JUNE_SKILL_STATE_PTR
+	{
+		const CX2SkillTree::SKILL_ID eNowStateSkillId = GetNowStateSkillID();
+
+		if( eNowStateSkillId != m_eSaveStateSkillId )
+		{
+			const CX2SkillTree::SkillTemplet* pNowSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eNowStateSkillId );
+
+			if( NULL != pNowSkillTemplet && CX2SkillTree::ST_ACTIVE != pNowSkillTemplet->m_eType )
+				SetNowDamageRelateSkillData( static_cast<Byte>( pNowSkillTemplet->m_usFPConsumtion ) );
+
+			m_eSaveStateSkillId = eNowStateSkillId;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+
+	CX2GUUser::CommonStateStart();
+
+	// June 32ca899e: Sharp Kick scales a melee hit's force down
+	const int iSharpKickLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RCR_SHARP_KICK, true, 0, true );
+	if( iSharpKickLevel > 0 )
+	{
+		const CX2SkillTree::SkillTemplet* pSharpKickTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RCR_SHARP_KICK );
+
+		if( NULL != pSharpKickTemplet &&
+			true == m_DamageData.m_bMeleeAttack &&
+			CX2DamageManager::AT_SPECIAL != m_DamageData.attackType )
+		{
+			m_DamageData.fForceDownValue *= pSharpKickTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_MELEE_REL, iSharpKickLevel, false );
+		}
+	}
+
+	// June 32ca8a05: Hunter's Ability scales a trap blade hit's force down
+	if( true == m_bUseTrapBlade )
+	{
+		const int iHuntersAbilityLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RTR_HUNTERS_ABILITY, true, 0, true );
+		if( iHuntersAbilityLevel > 0 )
+		{
+			const CX2SkillTree::SkillTemplet* pHuntersAbilityTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RTR_HUNTERS_ABILITY );
+
+			if( NULL != pHuntersAbilityTemplet )
+				m_DamageData.fForceDownValue *= pHuntersAbilityTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_REL, iHuntersAbilityLevel, false );
+		}
+	}
+
+	// June 32ca8a65: Predator rolls a damage multiple for Seed of Ruin ( Pole ), Rage Fungus and Call of Ruin; June's empty local wstring there is not written
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_RNW_PREDATOR ) > 0 )
+	{
+		const int iBaseSkillID = g_pData->GetSkillTree()->GetUpgradeBaseSkillID( GetNowStateSkillID() );
+
+		if( CX2SkillTree::RNSI_SA_RNW_SEED_OF_RUIN_POLE == iBaseSkillID ||
+			CX2SkillTree::RNSI_SA_RNW_RAGE_FUNGUS == iBaseSkillID ||
+			CX2SkillTree::RNSI_SA_RNW_CALL_OF_RUIN == iBaseSkillID )
+		{
+			const int iPredatorStage = GetPredatorDamageStage( GetRandomFloat( 0 ) );
+
+			m_fNowStatePowerRate *= GetPredatorDamageMultiple( iPredatorStage );
+			m_bPredatorCritical = ( 0 == iPredatorStage );
+		}
+	}
+
+	// June 32ca8ba3: my unit leaves the Ace in the Hole camera when the state is not Ace in the Hole's
+	if( true == IsMyUnit() && CX2SkillTree::RNSI_SA_RGA_ACEINTHEHOLE != GetNowStateSkillID() )
+	{
+		m_bSkillCameraOverride = false;
+		m_fSkillCameraOverrideValue = 0.f;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef SERV_TRAPPING_RANGER_TEST
 	LUA_GET_VALUE(	m_LuaManager, "DAMAGEDATA_CHANGE_TIME",				m_fDamageDataChangeTime,			0.f );
 
@@ -5710,10 +5796,38 @@ void CX2GULire_ElvenRanger::CommonStateStart()
 	
 #endif RENA_SECOND_CLASS_CHANGE
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::CommonFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c87990
+	m_fAceInTheHoleTime += m_fElapsedTime;
+
+	m_fReAttackZ1Time -= m_fElapsedTime;
+	if( m_fReAttackZ1Time < 0.0f )
+		m_fReAttackZ1Time = 0.0f;
+
+	m_fJumpXTime -= m_fElapsedTime;
+	if( m_fJumpXTime < 0.0f )
+	{
+		m_JumpXCount = 0;
+		m_fJumpXTime = 0.0f;
+	}
+
+	if( true == IsOnSomethingFuture() &&
+		m_iDoubleJumpCount != 0 )
+	{
+		m_iDoubleJumpCount = 0;
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	m_FrameDataFuture.syncData.m_CannonBallCount = GetNaturalForceCount();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+
+	CX2GUUser::CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	m_fReAttackZ1Time -= m_fElapsedTime;
 	if( m_fReAttackZ1Time < 0.0f )
 		m_fReAttackZ1Time = 0.0f;
@@ -5738,10 +5852,137 @@ void CX2GULire_ElvenRanger::CommonFrameMoveFuture()
 #endif //ADD_RENA_SYSTEM
 
 	CX2GUUser::CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::CommonFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca8bf0
+	CX2GUUser::CommonFrameMove();
+
+	m_usRandomRollCount = 0;
+
+	if( 0.f < m_fEradicationLoopEffectTime )
+	{
+		m_fEradicationLoopEffectTime -= m_fElapsedTime;
+
+		if( m_fEradicationLoopEffectTime <= 0.f )
+		{
+			m_fEradicationLoopEffectTime = 0.f;
+			ResetEradicationLoop();
+		}
+	}
+
+	// June 32ca8c49: an upgrade skill whose base is Reflex Magic or Mind of Sharpshooter keeps its super armor without the red flash
+	const CX2SkillTree::SkillTemplet* pNowSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
+	if( NULL != pNowSkillTemplet && 0 != pNowSkillTemplet->m_iDeleteSkillIDByUpgrade )
+	{
+		const int iBaseSkillID = g_pData->GetSkillTree()->GetUpgradeBaseSkillID( GetNowStateSkillID() );
+
+		if( CX2SkillTree::RNSI_A_RWS_REFLEX_MAGIC == iBaseSkillID || CX2SkillTree::RNSI_A_RSR_MIND_OF_SHARPSHOOTER == iBaseSkillID )
+		{
+			m_FrameDataNow.stateParam.bSuperArmor = true;
+			m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+		}
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	if ( false == IsMyUnit() )
+		SetNaturalForceCount( m_FrameDataNow.syncData.m_CannonBallCount );
+
+	UpdateNaturalForceEffect();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+
+	if( m_pMPChargeA != NULL && m_pMPChargeB != NULL && m_pMPChargeC != NULL )
+	{
+		if( m_pMPChargeA->GetRenderParam()->color.a > 0.0f )
+		{
+			if( m_FrameDataNow.syncData.nowState == LESI_CHARGE_MP )
+			{
+				m_pMPChargeA->GetMatrix().Move( GetMatrix().GetPos() );
+				m_pMPChargeA->GetMatrix().Rotate( GetMatrix().GetRotate() );
+			}
+			else
+			{
+				m_pMPChargeA->GetRenderParam()->color.a = m_pMPChargeA->GetRenderParam()->color.a - (m_fElapsedTime * 2.0f);
+			}
+			m_pMPChargeA->OnFrameMove( m_fTime, m_fElapsedTime );
+		}
+		else
+		{
+			m_pMPChargeA->Stop();
+		}
+		if( m_pMPChargeB->GetRenderParam()->color.a > 0.0f )
+		{
+			if( m_FrameDataNow.syncData.nowState == LESI_CHARGE_MP )
+			{
+				m_pMPChargeB->GetMatrix().Move( GetMatrix().GetPos() );
+				m_pMPChargeB->GetMatrix().Rotate( GetMatrix().GetRotate() );
+			}
+			else
+			{
+				m_pMPChargeB->GetRenderParam()->color.a = m_pMPChargeB->GetRenderParam()->color.a - (m_fElapsedTime * 2.0f);
+			}
+			m_pMPChargeB->OnFrameMove( m_fTime, m_fElapsedTime );
+		}
+		else
+		{
+			m_pMPChargeB->Stop();
+		}
+		if( m_pMPChargeC->GetRenderParam()->color.a )
+		{
+			if( m_FrameDataNow.syncData.nowState == LESI_CHARGE_MP )
+			{
+				m_pMPChargeC->GetMatrix().Move( GetMatrix().GetPos() );
+			}
+			else
+			{
+				m_pMPChargeC->GetRenderParam()->color.a = m_pMPChargeC->GetRenderParam()->color.a - (m_fElapsedTime * 2.0f);
+			}
+			m_pMPChargeC->OnFrameMove( m_fTime, m_fElapsedTime );
+		}
+		else
+		{
+			m_pMPChargeC->Stop();
+		}
+	}
+
+	if( NULL != m_pFriendshipNatureData )
+	{
+		m_pFriendshipNatureData->OnFrameMove( m_fTime, m_fElapsedTime );
+	}
+
+	if( m_hTrapBlade != INVALID_MESH_INSTANCE_HANDLE )
+	{
+		CKTDGXMeshPlayer::CXMeshInstance* pMeshInst = g_pX2Game->GetMajorXMeshPlayer()->GetMeshInstance( m_hTrapBlade );
+		if( NULL != pMeshInst )
+		{
+			CKTDXDeviceXSkinMesh::MultiAnimFrame* pMultiAnimFrame = m_pXSkinAnim->GetCloneFrame( L"Dummy1_Rhand" );
+			pMeshInst->SetUseDXMatrix( pMultiAnimFrame->combineMatrix );
+		}
+		else
+		{
+			m_hTrapBlade = INVALID_MESH_INSTANCE_HANDLE;
+		}
+	}
+
+	if( 0.f < m_fPriorPlannedBlowTime )
+	{
+		m_fPriorPlannedBlowTime -= m_fElapsedTime;
+
+		if( 0.f >= m_fPriorPlannedBlowTime )
+			EndPriorPlannedBlow();
+	}
+
+	if( CX2SkillTree::RNSI_SA_RGA_GUNGNIR != g_pData->GetSkillTree()->GetUpgradeBaseSkillID( GetNowStateSkillID() ) )
+		EndGungnirTargeting();
+
+	m_fPersistentMindCoolTime -= m_fElapsedTime;
+
+	for( std::map< std::pair< int, UidType >, float >::iterator it = m_mapRageFungusTargetLockTime.begin(); it != m_mapRageFungusTargetLockTime.end(); ++it )
+		it->second -= m_fElapsedTime;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CX2GUUser::CommonFrameMove();
 
 #ifdef RENA_SECOND_CLASS_CHANGE
@@ -5853,6 +6094,7 @@ void CX2GULire_ElvenRanger::CommonFrameMove()
 #endif SERV_RENA_NIGHT_WATCHER
 //}}
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::CommonStateEndFuture()
@@ -5862,7 +6104,18 @@ void CX2GULire_ElvenRanger::CommonStateEndFuture()
 
 void CX2GULire_ElvenRanger::CommonStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca5060
 	CX2GUUser::CommonStateEnd();
+
+	if( true == m_bCreateTrapBlade )
+		DeleteTrapBlade();
+
+	if( true == m_bBowSkillState && GetSkillLevelValue( CX2SkillTree::RNSI_P_RGA_RANDOM_SHOT_PLEASURE ) > 0 )
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_RGA_RANDOM_SHOT_PLEASURE, 1, true );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CX2GUUser::CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 //{{ robobeg : 2008-10-28
@@ -29124,6 +29377,49 @@ void CX2GULire_ElvenRanger::UpdateSpineAimRotation()
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 //}} Iruha : 2026-11-09 // char-rena CH1i
+//{{ Iruha : 2026-11-09 // char-rena CH1j
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+/// June 32ca2aa0: Eradication's loop ends ( CommonFrameMove ): the hit count restarts and the loop effect set stops
+void CX2GULire_ElvenRanger::ResetEradicationLoop()
+{
+	m_usEradicationHitCount = 0;
+	g_pX2Game->GetEffectSet()->StopEffectSet( m_hEradicationLoopEffect );
+}
+
+/// June 32c6d800: one Predator stage's damage multiple ( SA_SKILLDAMAGE_MULTIPLE_01..04 ), 1.0 for any other stage
+float CX2GULire_ElvenRanger::GetPredatorDamageMultiple( const int iStage_ )
+{
+	switch ( iStage_ )
+	{
+	case 0:
+		return GetLearnedSkillAbilityValue( CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_01, CX2SkillTree::RNSI_P_RNW_PREDATOR );
+	case 1:
+		return GetLearnedSkillAbilityValue( CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_02, CX2SkillTree::RNSI_P_RNW_PREDATOR );
+	case 2:
+		return GetLearnedSkillAbilityValue( CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_03, CX2SkillTree::RNSI_P_RNW_PREDATOR );
+	case 3:
+		return GetLearnedSkillAbilityValue( CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_04, CX2SkillTree::RNSI_P_RNW_PREDATOR );
+	default:
+		return 1.f;
+	}
+}
+
+/// June 32c83280: the Predator stage a roll of 0..1 falls in; the first three stages are as wide as their SA_SKILLDAMAGE_MULTIPLE_0n_RATE, the rest is stage 3
+int CX2GULire_ElvenRanger::GetPredatorDamageStage( const float fRoll_ )
+{
+	float fRateSum = GetLearnedSkillAbilityValue( CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_01_RATE, CX2SkillTree::RNSI_P_RNW_PREDATOR );
+	if ( fRoll_ < fRateSum )
+		return 0;
+
+	fRateSum += GetLearnedSkillAbilityValue( CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_02_RATE, CX2SkillTree::RNSI_P_RNW_PREDATOR );
+	if ( fRoll_ < fRateSum )
+		return 1;
+
+	fRateSum += GetLearnedSkillAbilityValue( CX2SkillTree::SA_SKILLDAMAGE_MULTIPLE_03_RATE, CX2SkillTree::RNSI_P_RNW_PREDATOR );
+	return ( fRoll_ < fRateSum ) ? 2 : 3;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+//}} Iruha : 2026-11-09 // char-rena CH1j
 void CX2GULire_ElvenRanger::UpNowMpPerHitOthers( const float fHitAddMp_, const int iAddValueByTeam_, const float fRel_ )
 {
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
