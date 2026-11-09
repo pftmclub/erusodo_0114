@@ -25,7 +25,10 @@ All work happens on `main` in this Trunk, for every plan, phase and review. Do n
 
 Every session builds the same tree through one lock; a full build takes about 11 minutes.
 
-1. **Build once, after your last edit.** `python tools/build.py --deploy` in the background. No second run while one of yours waits, no
+1. **Full build only when the phase hands off a play-test (user, 2026-11-09).** A phase or review with no play-test (inert transcription,
+   no-code review) skips `build.py`: it proves compilation with a one-file probe build (0 errors), and the Done note says "full build
+   skipped: no play-test". The next phase that hands off a play-test builds the whole tree.
+   **Build once, after your last edit.** `python tools/build.py --deploy` in the background. No second run while one of yours waits, no
    retry loop, no `--no-coalesce` without a reason. `COALESCED` then `DEPLOY OK` is a pass. A run covers only what was on disk when it
    started. **Exception (user, 2026-11-03):** when a phase's or review's only code change is commenting out a `_DEBUG` `#define`, start the
    build but don't wait for it: commit and hand off at once. The Done note says "not awaited" in place of the `DEPLOY OK` line.
@@ -95,6 +98,10 @@ Exception: a data table whose rows are ids (a `.tsv`).
 A source comment says one thing in one line, and only what the code cannot show: the June address, a stand-in, a quirk kept on purpose, or
 why June differs from March. No comment blocks or tables, no retelling of the code. Detail goes in the Done note, `funcmap.tsv` or
 `JUNE_BUGS.md`. Old comments are not rewritten.
+**Phase tag (user, 2026-11-09):** in a char port, every edited or new code block (one `#ifdef` block, one new function, one hunk) carries
+its phase in a one-line comment so a later error traces to its phase: `// char-rena CH1n`. If the block already has a one-line comment,
+put the tag at its start (`// char-rena CH1n: June 32ca9dc0`); never add a second line. The tag is a comment only, never part of a name.
+Blocks written before this date are not retagged.
 
 ## Workflow automation: use `tools/` and the `x2-*` skills, not hand-typed commands
 
@@ -120,7 +127,7 @@ unifdef script, or read a plan doc "in full".
 - **You pack koms** (`/elstools pack`), and **ask the user before every `/x2-kom-packed copy`** (it overwrites a live archive; it refuses
   while the game runs). Report `PACK OK` / `COPY OK` in the hand-off. Exception: server-only Lua stays the user's to pack (rule below).
 - **Every phase and review finishes the same way** (x2-phase "Finish"): `flagcheck --worktree` passes; `python tools/junediverge.py --check
-  <changed files>` prints `RESULT: PASS`; `build.py --deploy` with `DEPLOY OK`
+  <changed files>` prints `RESULT: PASS`; `build.py --deploy` with `DEPLOY OK` (play-test phases only, see the shared-builds rule)
   in the Done note; a Done note of at most ~60 lines; the `STATUS.md` row updated in the same commit (one line, evidence in the note); the
   next kickoff written if missing; a commit with explicit pathspecs; a copy-ready play-test hand-off. Never launch the game yourself.
 - **New plans** follow x2-phase's `new-plan` shape: kickoffs that name sections, plus `STATUS.md` rows.

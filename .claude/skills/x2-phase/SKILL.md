@@ -141,6 +141,9 @@ step needs the answer, otherwise let it run). The user has authorised this for O
    justifies it (never to silence it). A review runs `--check-all`.
 2. `build.py --deploy`: paste its `DEPLOY OK` line into the Done note. Check the phase's
    strings are in the deployed exe if the phase's gate asks for it.
+   Exception (user, 2026-11-09): only a phase or review that hands off a play-test runs the full build. Any other
+   phase proves compilation with a one-file probe build (0 errors) and writes "full build skipped: no play-test"
+   in place of the `DEPLOY OK` line.
    Exception (user, 2026-11-03): if the only code change is commenting out a `_DEBUG` `#define`
    (a review retiring its debug lines), start the build in the background and do not wait for it;
    write "not awaited" in place of the `DEPLOY OK` line, then commit and hand off.
