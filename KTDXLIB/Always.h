@@ -12064,7 +12064,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Rena ) Phase CH2a - temporary [JUNE_CHAR] RENA SKILL lines ( the equipped skill's slot and state ) for CH2a's play-test;
 //              they sit inside JUNE_CHAR_RENA_SKILL code only.
 //              Revert: undefine the flag ( JUNE_CHAR_RENA_SKILL_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL

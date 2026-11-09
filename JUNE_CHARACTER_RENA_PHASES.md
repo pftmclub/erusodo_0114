@@ -1882,6 +1882,30 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (CH2a's; `Always.h:12055` 
 
 **Play-test (user 2026-11-10): passed.** Logs: 7 `RENA SKILL equip` lines (states 49 / 51 / 53 / 55 bank A, 59 / 61 / 63 bank B); effect sets seen for Spinning Kick (51, 3), Crescent Kick (53, 4), Dive Kick Bombing (55, 4 sets), Rising Falcon Landing (182, 2), Back Kick (61, 16), Low Kick (63, 4; 251, 5 chained); **5 `flush mp once 20.00` lines** for the Back Kick chain, 5 Low Kick chain sets; ErrorLog 0 KEM_ERROR / Motion Error; packets 0 EXCEPTION. Assault Impact has no effect set in the log (user: cast passed). Not CH2b's: `AddGroupChainQuest` unbound (quest script), `APPLIED_SKILL_ID` stand-in lines.
 
+### CH2b - Review (2026-11-10, Opus 5.5): PASS, `_SKILL_DEBUG` retired, no other code change
+
+Read from `charport_adis.py rena --phase CH2b` listings (19 functions), June's exe bytes (`disasm_range.py`) and Ghidra xrefs.
+- **Registration.** The seven cases equal `ch0_skill_listing_rows.tsv` row for row: Spinning Kick one table, hyper without Init; Crescent and Dive Kick `_HYPER` table names, normal functions, no hyper Init (Dive Kick no FMF);
+  Rising Falcon hyper without Init; Back Kick, Low Kick and Assault Impact hyper rows copy Init too. Spot-check `@32cb0b67` / `@32cb0b89`: both Back Kick rows push the same name `3351ad4c`. The 14 ids equal June's `Enum.src.lua`.
+- **Eight "= March" claims, all confirmed.** Spinning Kick FMF `32c6ba10` and Rising Falcon FMF `32c6c790` (thunks to vslot `0x7c8`), Spinning Kick EP `32c76630` (14 keys, 1.4), Dive Kick EP `32c76800` (animation end only),
+  Dive Kick FM `32c86ee0` (`Bip01_R_Foot` 0.14 / 2, then CommonFrameMove = March's live part under `BALANCE_PATCH_20131107`), Rising Falcon EP `32c7ae20` (end on a line -> `0xe3`), FM `32cad390` (`DAMAGE_DATA_NEXT` `3346f050` / `_LAST` `335197f0`),
+  Landing EP `32c7a6c0` (two `GetValue`, direction-change test, end, 8-key ASDC after SKIP_TIME).
+- **FrameMoves.** `32c86e80` / `32c86eb0`: `ChangeWorldColorByHyperMode`, cut-in `Dummy1_Rhand` 0.1 / 0 and 0.14 / 1, CommonFrameMove: equal.
+- **Crescent Kick EP `32c76700`.** End; `[+0x8ef4] < t` (`test ah, 5; jp`) and foot off -> JUMP_DOWN; the 14 keys and `2.5 < t` -> WAIT: equal.
+- **Assault Impact EP `32c7d3a0`.** End; dash `+0x8c9c`, walk `+0x8c98` (-> WAIT), skill `+0x8c90`, each with the foot test, then the hyper tail of `SKILL_CANCEL_AFTER`; no Z / X: equal.
+- **Back Kick EP `32c84ea0`.** End; flag 0 set and (`stateChange < t` or end) -> `0x127`, flag cleared; else `keyInputStart <= t < keyInputEnd` and templet (`31fca8e0( id, true )`) `+0x178 != 0` and `31fce710` and `GetFrameData( true ) +0x118` (= `bHit`, future base `+0x7d14`)
+  and vslot `0xe8`( `32007b10( 0x8f, id )` ) -> flag set, skip the cancels; with the flag set before `stateChange` June re-runs the window test, as the macro's `else if` does. Then ground dash, walk, skill: equal.
+- **`FlushMpOnce` `3208dcb0`.** Body = June's `FlushMp` `3208dc70` inline (`GetGageData()` slot `0x2c`( mp, `IsMyUnit()`, 0 ), arg 2 unused) behind `+0x7638`; the port's `FlushMp` under `JUNE_DIVERGE_GAGE_TALLY` is that call. Writers confirmed: `32050759` (after the socket
+  return, where the port clears it) and `@322a5eb2`, which is inside **`CX2GameUnit::CX2GameUnit` `322a2700`**, not the user ctor; Ghidra lists `3208dcb0` in 18 unit vtables (slot after FlushMp's). So June's is a `CX2GameUnit` virtual. Keeping it in `CX2GUUser` is accepted:
+  the only reset is user-side, no NPC caller exists, and behaviour is identical. `funcmap.tsv` row corrected; the `X2GUUser.h` comment ("user vslot") is left as written.
+- **Preload lists.** The six `Init` lists equal June name for name, in order and by loader (15 / 5 / 13 / 9 / 7 / 4); all 37 names are `june-bytes` in `ch0_assets.tsv`.
+- **Logs.** 7 `RENA SKILL equip` lines (23222 / 23034 / 23031 / 23043 bank A, 23231 / 23228 / 23229 bank B), 5 `flush mp once 20.00` lines, one per chained cast; 0 KEM_ERROR / Motion Error; 0 EXCEPTION. No damage lines in this build (the `JUNE_FX` APPLIED_SKILL_ID lines are the known stand-in); damage is the data's (`MODS.md`).
+- **Hygiene.** `flagcheck ..._RENA_SKILL --with ..._SKILL_DEBUG --range b2eca553^..b2eca553`: 3 PASS, 1 DEFINE, 1 OTHER (`X2SkillTree.h` = `JUNE_ENUM_NAMES`), 0 FAIL, 1 deleted (the re-defined `#define`), RESULT: PASS (with `--with ..._RENA_LIVE` the three code files PASS; Always.h's known tool ERROR on CH5's `#if defined` line).
+  `junediverge.py --check-all`: allow-listed 202, RESULT: PASS. `enumscan --check` the Rena cpp and `X2GUUser.*`: 2 B rows, both `X2GUUser.h:2555-2556` (`NUI_NEIL_THE_SNIPER_EVENT` / `NUI_PROTON_BOMB_EVENT`), not CH2b's lines.
+- **Change.** `KTDXLIB/Always.h:12067` `//#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG` (bytepatch, CP949 / CRLF kept); `flagcheck ..._SKILL_DEBUG --worktree --files KTDXLIB/Always.h`: 1 DEFINE, 1 deleted, 0 encoding change, "not #defined" FAIL as a retire expects;
+  `junediverge --check KTDXLIB/Always.h`: RESULT: PASS. Full build started, not awaited (debug-retire rule); it stands in for the one-file probe.
+- **Next.** `kickoffs/char-rena/CH2c.md` "Amended by CH2b review": re-define `_SKILL_DEBUG`, stage icon 23210's `NO_PIECE` sheet, `FlushMpOnce` is available.
+
 ## Phase CH3 - Skills: second jobs (102, 103, 114), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.
