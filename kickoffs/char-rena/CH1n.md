@@ -47,3 +47,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   June addresses: `32cb06d0` `32cb5760`(new ?).
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7b L328 skill-memo entry 31fdbbb0 and the class callers of 31fdbcc0; §7i L444 SetEquippedSkillFuncBySkillSlotIndex Lire 32cb06d0: drop the snapshot ; §7ae L726 types 14-16 / 17 / 18 named in the class switch.
 - `32cb06d0` has three switches (skill type: byte tbl `32cb3004` / jump tbl `32cb2ff4`; base-id chain with the 6-case hyper switch, jump tbl `32cb31e0`; skill-id switch: byte tbl `32cb30fc` / jump tbl `32cb3010`): `ch0_skill_listing_rows.tsv` 157 rows, 111 ids with events; 19 ids (106, 23400-23417; types 1 / 8) leave at the type switch. The default branch plays `LESI_SI_LE_POWER_ATTACK1` (CH2a).
+
+## Amended by CH1m (2026-11-09)
+
+- **User callbacks:** `june2017_re/char_rena/ch1m_user_callbacks.tsv` lists the 131 `CX2GUUser` members Rena's registration names; all are on Raven's CH1m list except `RandomLoseEventProcess` ( already used by every ported class ), so the base-callback triage finds no row earlier characters did not cover.
+- **Slot states are yours:** ids 167 ( `LESI_SIEGE_READY` ), 202, 283, 295-302 are made in `32cb06d0`, not in the two registrars ( 295 `LESI_SA_LCR_LOW_KICK` is also registered by InitStateCommon `@97`, kept ). Register them by script table name as the CH1i amendment in `CH1m.md` lists.

@@ -63,3 +63,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Amended by CH1k (2026-11-09).** Two June constructor stores have no member yet: `+0x973c` = 7 ( int, @32ca38f0 ) and the protected float `+0x9768` = 5.5 ( triple, @32ca3a5f ), both inside the natural-force group `+0x9738`-`+0x9768`. Declare them when the group's readers are ported.
 - **Amended by CH1k review (2026-11-09).** One more June constructor store has no member: the zero vector `+0x978c`-`+0x9794` ( @32ca41a3 / @32ca41b5 / @32ca41d5, just before `m_fGungnirPowerRate` +0x9798 ). No reader found yet. Declare it if a natural-force reader touches it, otherwise name it in the CH1q Done note as still unread.
+
+## Amended by CH1m (2026-11-09)
+
+- The registration ( `_LIVE` ) already points seven slots at March functions that exist only under `ADD_RENA_SYSTEM`, each under a nested `#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF`: `WalkStart` ( LESI_WALK ), `DashStart` ( LESI_DASH, `#else` `CX2GUUser::DashStart` ), `LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_StateStart` ( also LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X ) / `_FrameMove` / `_EventProcess`, `DashJumpComboX3StateStart` ( LESI_DASH_JUMP_COMBO_X3 and the Sniping twin ), `LESI_LGA_ZZXX_StateStart`. Write June's bodies into them; the probe with `_LIVE` + `_NF` must compile them.
+- InitState's tail calls `SetNaturalForceBuff( true )` when `0 < GetNaturalForceCount()` ( June `32c85200( 1 )` @32cb04a6 ) under `_NF`; check `GetNaturalForceCount` reads June's `+0xc04` -> `+0x114` xor value.

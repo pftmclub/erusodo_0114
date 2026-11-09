@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1m | **ready** (`/x2-phase char-rena CH1m`, Opus 5.5 high): registration (InitState `32cadc90`), `_LIVE` gate | Opus 5.5 / high, Opus review | CH1k review | `X2GULire_ElvenRanger.*`, Always.h | `CH1m.md` |
+| CH1m | **review ready** (`/x2-phase char-rena CH1m review`, Opus 5.5 high): registration inside `InitStateCommon` / `InitState` under `_LIVE`, 992 rows / 0 problems; nothing to play-test | Opus 5.5 / high, Opus review | CH1k review | `X2GULire_ElvenRanger.*`, Always.h | `CH1m-review.md` |
 | CH1n | blocked (CH1m review): base callbacks + skill-slot head `32cb06d0` + dev free-skill gate | Opus 5.5 / high, Opus review | CH1m review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1n.md` |
 | CH1o | blocked (CH1n review): virtuals under `_LIVE`, `SetSkillLevelStateData` term, routed gaps | Opus 5.5 / high, Opus review | CH1n review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag pressed-index, hooks 7h / 7l / 7o / 7p / 7x (CH0: no June-only key left for it) | Opus 5.5 / high, Opus review | CH1o review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1p.md` |

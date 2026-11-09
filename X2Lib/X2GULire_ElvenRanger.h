@@ -234,6 +234,7 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 			LESI_SA_RGA_ACEINTHEHOLE_WAIT_AFTER_2ND_ATTACK,	/// June script id 300 ( the table of 296 registered a third time; CH1m maps )
 			LESI_SA_RGA_ACEINTHEHOLE_3RD_ATTACK,	/// June script id 301
 			LESI_SA_RNW_ERADICATION_ATTACK,	/// June script id 302 ( Eradication's attack; CH1m maps, CH3c owns the state )
+			LESI_RNW_DASH_JUMP_XZ_LOOP,	/// June script id 278 ( the XZ chain's loop slot; June registers it with the XXZ_LOOP table and enters it nowhere )
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 

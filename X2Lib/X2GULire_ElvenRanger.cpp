@@ -1412,6 +1412,679 @@ void CX2GULire_ElvenRanger::InitStateID()
 
 void CX2GULire_ElvenRanger::InitStateCommon()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// June 32ca9dc0
+	const CX2Unit::UNIT_CLASS eClass = ( NULL != GetUnit() ) ? GetUnit()->GetUnitData().m_UnitClass : CX2Unit::UC_NONE;
+	const std::string strHyperModeTable = GetHyperModeTableName( false );	/// June 31fdd490, called at the USI_HYPER_MODE registration
+	UserUnitStateData stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_SA_LCR_LOW_KICK;
+	m_LuaManager.MakeTableReference( "LESI_SA_LCR_LOW_KICK", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SA_LCR_LOW_KICK_FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SA_LCR_LOW_KICK_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DIE_FRONT;
+	m_LuaManager.MakeTableReference( "LESI_DIE_FRONT", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DieFrontStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, DieFrontStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DieFrontFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DieFrontEventProcess );
+	/// June 3202a7d0 ( StateEnd ): runs in CX2GUUser::StateChange for the die states
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DIE_BACK;
+	m_LuaManager.MakeTableReference( "LESI_DIE_BACK", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DieBackStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, DieBackStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DieBackFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DieBackEventProcess );
+	/// June 3202a7d0 ( StateEnd ): runs in CX2GUUser::StateChange for the die states
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_START_INTRUDE;
+	m_LuaManager.MakeTableReference( "LESI_START_INTRUDE", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, StartIntrudeStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, StartIntrudeFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, StartIntrudeEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_WAIT;
+	m_LuaManager.MakeTableReference( "LESI_WAIT", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, WaitStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, WaitStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, WaitFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, WaitEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_WALK;
+	m_LuaManager.MakeTableReference( "LESI_WALK", stateData.stateID );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, WalkStart );	/// June 32c6df30: March has it only under ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, WalkFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, WalkEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_JUMP_READY;
+	m_LuaManager.MakeTableReference( "LESI_JUMP_READY", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, JumpReadyEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_JUMP_UP;
+	m_LuaManager.MakeTableReference( "LESI_JUMP_UP", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, JumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, JumpUpEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_JUMP_DOWN;
+	m_LuaManager.MakeTableReference( "LESI_JUMP_DOWN", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, JumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, JumpDownEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_JUMP_LANDING;
+	m_LuaManager.MakeTableReference( "LESI_JUMP_LANDING", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JumpLandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, JumpLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June 32ca9dc0 @626-626: by class
+	switch( eClass )
+	{
+	case CX2Unit::UC_LIRE_ELVEN_RANGER:
+	case CX2Unit::UC_LIRE_COMBAT_RANGER:
+	case CX2Unit::UC_LIRE_SNIPING_RANGER:
+	case CX2Unit::UC_LIRE_TRAPPING_RANGER:
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= USI_DASH;
+			m_LuaManager.MakeTableReference( "LESI_DASH", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DashStartFuture );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashStart );	/// June 32c6e120: March has it only under ADD_RENA_SYSTEM
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DashStart );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, DashFrameMoveFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashEventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= USI_DASH;
+			m_LuaManager.MakeTableReference( "LESI_DASH", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_StateStartFuture );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashStart );	/// June 32c6e120: March has it only under ADD_RENA_SYSTEM
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DashStart );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_FrameMoveFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashEventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	stateData.Init();
+	stateData.stateID			= USI_DASH_END;
+	m_LuaManager.MakeTableReference( "LESI_DASH_END", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashEndStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashEndStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashEndFrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashEndFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashEndEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DASH_JUMP;
+	m_LuaManager.MakeTableReference( "LESI_DASH_JUMP", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DashJumpStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DashJumpStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, DashJumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GUUser, DashJumpEndFuture );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_DOUBLE_JUMP;
+	m_LuaManager.MakeTableReference( "LESI_DOUBLE_JUMP", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DoubleJumpStartFuture );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DoubleJumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DoubleJumpEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_DASH_DOUBLE_JUMP;
+	m_LuaManager.MakeTableReference( "LESI_DASH_DOUBLE_JUMP", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashDoubleJumpStartFuture );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashDoubleJumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashDoubleJumpEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_CHARGE_MP;
+	m_LuaManager.MakeTableReference( "LESI_CHARGE_MP", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ChargeMPStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, ChargeMPStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ChargeMPFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ChargeMPEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ChargeMPEndFuture );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, ChargeMPEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_HYPER_MODE;
+	m_LuaManager.MakeTableReference( strHyperModeTable.c_str(), stateData.stateID );
+	stateData.StateInit			= SET_CB_FUNC( CX2GULire_ElvenRanger, HyperModeInit );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, HyperModeStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, HyperModeStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, HyperModeFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, HyperModeEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, HyperModeEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_GROGGY;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_GROGGY", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DAMAGE_GROGGY_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DASH_JUMP_LANDING;
+	m_LuaManager.MakeTableReference( "LESI_DASH_JUMP_LANDING", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DashJumpLandingStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, JumpLandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_SMALL_FRONT;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_SMALL_FRONT", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageSmallEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_SMALL_BACK;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_SMALL_BACK", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageSmallEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_BIG_FRONT;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_BIG_FRONT", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DamageBigStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageBigEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_BIG_BACK;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_BIG_BACK", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DamageBigStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageBigEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_DOWN_FRONT;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_DOWN_FRONT", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DamageDownFrontFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DamageDownFrontEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_DOWN_BACK;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_DOWN_BACK", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DamageDownBackFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DamageDownBackEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_STANDUP_FRONT;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_STANDUP_FRONT", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageStandUpEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, DamageStandUpEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_STANDUP_BACK;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_STANDUP_BACK", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageStandUpEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, DamageStandUpEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_SMALL;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_AIR_SMALL", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DamageAirSmallStartFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirSmallEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_DOWN;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_AIR_DOWN", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirDownEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_DOWN_INVINCIBLE;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_AIR_DOWN_INVINCIBLE", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirDownInvincibleEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_DOWN_LANDING;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_AIR_DOWN_LANDING", stateData.stateID );
+	stateData.StateInit			= SET_CB_FUNC( CX2GULire_ElvenRanger, DamageAirDownLandingInit );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DamageAirDownLandingStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, DamageAirDownLandingFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DamageAirDownLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_FALL;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_AIR_FALL", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirFallEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_UP;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_AIR_UP", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirUpEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_FLY_FRONT;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_AIR_FLY_FRONT", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirFlyEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_AIR_FLY_BACK;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_AIR_FLY_BACK", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageAirFlyEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_DAMAGE_REVENGE;
+	m_LuaManager.MakeTableReference( "LESI_DAMAGE_REVENGE", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, DamageRevengeStart );
+	stateData.OnCameraMove		= SET_CB_FUNC( CX2GUUser, DamageRevengeCameraMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, DamageRevengeEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_STANDUP_ROLLING_FRONT_FRONT;
+	m_LuaManager.MakeTableReference( "LESI_STANDUP_ROLLING_FRONT_FRONT", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingFrontFrontEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingFrontFrontEndFuture );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingFrontFrontEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_STANDUP_ROLLING_FRONT_BACK;
+	m_LuaManager.MakeTableReference( "LESI_STANDUP_ROLLING_FRONT_BACK", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingFrontBackEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingFrontBackEndFuture );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingFrontBackEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_STANDUP_ROLLING_BACK_FRONT;
+	m_LuaManager.MakeTableReference( "LESI_STANDUP_ROLLING_BACK_FRONT", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingBackFrontEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingBackFrontEndFuture );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingBackFrontEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_STANDUP_ROLLING_BACK_BACK;
+	m_LuaManager.MakeTableReference( "LESI_STANDUP_ROLLING_BACK_BACK", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingBackBackEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingBackBackEndFuture );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingBackBackEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_STANDUP_ATTACK_FRONT;
+	m_LuaManager.MakeTableReference( "LESI_STANDUP_ATTACK_FRONT", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpAttackFrontFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpAttackFrontEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpAttackFrontEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_STANDUP_ATTACK_BACK;
+	m_LuaManager.MakeTableReference( "LESI_STANDUP_ATTACK_BACK", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpAttackBackFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpAttackBackEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpAttackBackEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_SIEGE_WAIT;
+	m_LuaManager.MakeTableReference( "LESI_SIEGE_WAIT", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeWaitStateStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeWaitFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeWaitEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_SIEGE_ATTACK;
+	m_LuaManager.MakeTableReference( "LESI_SIEGE_ATTACK", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeAttackFrontStateStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeAttackFrontStateStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeAttackFrontFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeAttackEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_SIEGE_ATTACK_X;
+	m_LuaManager.MakeTableReference( "LESI_SIEGE_ATTACK_X", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeAttackXFrontStateStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeAttackXFrontStateStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeAttackXFrontFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeAttackXEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_SIEGE_END;
+	m_LuaManager.MakeTableReference( "LESI_SIEGE_END", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeEndEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_PEPPER_RUN_READY;
+	m_LuaManager.MakeTableReference( "LESI_PEPPER_RUN_READY", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_READY_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_PEPPER_RUN;
+	m_LuaManager.MakeTableReference( "LESI_PEPPER_RUN", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_FrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_PEPPER_RUN_END;
+	m_LuaManager.MakeTableReference( "LESI_PEPPER_RUN_END", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_END_FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_END_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_PEPPER_RUN_JUMP_UP;
+	m_LuaManager.MakeTableReference( "LESI_PEPPER_RUN_JUMP_UP", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_JUMP_UP_StateStartFuture );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_JUMP_UP_FrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_JUMP_UP_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_PEPPER_RUN_JUMP_DOWN;
+	m_LuaManager.MakeTableReference( "LESI_PEPPER_RUN_JUMP_DOWN", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_JUMP_DOWN_StateStartFuture );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_JUMP_DOWN_FrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, PEPPER_RUN_JUMP_DOWN_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June 32ca9dc0 @1264: LESI_AMUSEMENT_ITEM_PHOENIX_RUN ( id 123 ), left out: PvP amusement mode, no PvP offline
+
+	/// June 32ca9dc0 @1270: LESI_AMUSEMENT_ITEM_PHOENIX_RUN_END ( id 126 ), left out: PvP amusement mode, no PvP offline
+
+	/// June 32ca9dc0 @1278: LESI_AMUSEMENT_ITEM_PHOENIX_RUN ( id 124 ), left out: PvP amusement mode, no PvP offline
+
+	/// June 32ca9dc0 @1286: LESI_AMUSEMENT_ITEM_PHOENIX_RUN ( id 125 ), left out: PvP amusement mode, no PvP offline
+
+	/// June 32ca9dc0 @1290: LESI_DANCE_Z ( id 127 ), left out: dance state, Stage 10
+
+	/// June 32ca9dc0 @1294: LESI_DANCE_X ( id 128 ), left out: dance state, Stage 10
+
+	/// June 32ca9dc0 @1298: LESI_DANCE_WAIT ( id 129 ), left out: dance state, Stage 10
+
+	/// June 32ca9dc0 @1302: the three DAMAGE_BOUNDING states ( checklist 7l )
+	InitBoundingStates( "LESI_" );
+
+
+
+	stateData.Init();
+	stateData.stateID			= USI_THROW_ITEM;
+	m_LuaManager.MakeTableReference( "LESI_THROW_ITEM", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, THROW_ITEM_StateStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, THROW_ITEM_FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, THROW_ITEM_FrameMove );
+	stateData.OnCameraMove		= SET_CB_FUNC( CX2GUUser, THROW_ITEM_CameraMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, THROW_ITEM_EventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, THROW_ITEM_StateEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= GetRidingStartStateID();
+	m_LuaManager.MakeTableReference( "LESI_RIDING_START", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingStartStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingStartStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingStartEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, StartEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_ON;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_ON", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingOnStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingOnStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingOnEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, RidingOnEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_OFF;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_OFF", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingOffEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, RidingOffEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_WAIT_HABIT;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_WAIT_HABIT", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingWaitHabitStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingWaitHabitStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingWaitHabitEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_WAIT;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_WAIT", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingWaitStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingWaitStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingWaitEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_WALK;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_WALK", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingWalkStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingWalkStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, WalkFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingWalkEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_JUMP_UP;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_JUMP_UP", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingJumpUpStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingJumpUpStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, JumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingJumpUpEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_JUMP_DOWN;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_JUMP_DOWN", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingJumpDownStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingJumpDownStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, JumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingJumpDownEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_JUMP_LANDING;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_JUMP_LANDING", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingJumpLandingStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingJumpLandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingJumpLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DASH;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_DASH", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DashStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingDashStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, DashFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingDashEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DASH_END;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_DASH_END", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingDashEndStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingDashEndStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, RidingDashEndFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingDashEndEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DASH_JUMP;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_DASH_JUMP", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingDashJumpStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingDashJumpStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, RidingDashJumpFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingDashJumpEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GUUser, RidingDashJumpEndFuture );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DASH_JUMP_LANDING;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_DASH_JUMP_LANDING", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, DashJumpLandingStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingDashJumpLandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingDashJumpLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DAMAGE_FRONT;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_DAMAGE_FRONT", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingDamageFrontStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingDamageFrontStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingDamageFrontEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DAMAGE_BACK;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_DAMAGE_BACK", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingDamageBackStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingDamageBackEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_DIE;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_DIE", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DieFrontStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, DieFrontStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DieFrontFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DieFrontEventProcess );
+	/// June 3202a7d0 ( StateEnd ): runs in CX2GUUser::StateChange for the die states
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_ATTACK_Z;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_ATTACK_Z", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingAttackZStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingAttackZStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingAttackZEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_JUMP_ATTACK_Z;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_JUMP_ATTACK_Z", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingJumpAttackZStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingJumpAttackZStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, RidingJumpAttackZFrameMoveFuture );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingJumpAttackZEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_ATTACK_X;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_ATTACK_X", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingAttackXStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingAttackXStart );
+	/// June 32002f70 ( OnFrameMove ): none in March, riding Stage 17
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingAttackXEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_SPECIAL_ATTACK;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_ATTACK_SPECIAL", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingSpecialAttackStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingSpecialAttackStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, RidingSpecialAttackFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingSpecialAttackEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_SPECIAL_MOVE;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_SPECIAL_MOVE", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveStart );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveFrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveEndFutrue );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, RidingSpecialMoveEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_RIDING_HYPER_MODE;
+	m_LuaManager.MakeTableReference( "LESI_RIDING_HYPER_MODE", stateData.stateID );
+	stateData.StateInit			= SET_CB_FUNC( CX2GULire_ElvenRanger, RidingHyperModeInit );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GUUser, RidingHyperModeStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, RidingHyperModeStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, RidingHyperModeFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RidingHyperModeEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, RidingHyperModeEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June 32ca9dc0 @1550: LESI_RIDING_SPECIFIC ( id 93 ), left out: riding, Stage 17
+
+	/// June 32ca9dc0 @1558: LESI_RIDING_ATTACK_X_READY ( id 94 ), left out: riding, Stage 17
+
+	/// June 32ca9dc0 @1566: LESI_RIDING_ATTACK_X_READY_2 ( id 95 ), left out: riding, Stage 17
+
+	/// June 32ca9dc0 @1574: LESI_RIDING_ATTACK_X_END ( id 96 ), left out: riding, Stage 17
+
+	stateData.Init();
+	stateData.stateID			= LESI_WALL_LANDING;
+	m_LuaManager.MakeTableReference( "LESI_WALL_LANDING", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, WallLandingEventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GUUser, WallLandingEndFuture );
+	m_StateList[stateData.stateID] = stateData;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	UserUnitStateData stateData;
 
 
@@ -2148,11 +2821,1074 @@ void CX2GULire_ElvenRanger::InitStateCommon()
 
 
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
 void CX2GULire_ElvenRanger::InitState()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// June 32cadc90 ( vslot 0x7a4 )
+	const CX2Unit::UNIT_CLASS eClass = ( NULL != GetUnit() ) ? GetUnit()->GetUnitData().m_UnitClass : CX2Unit::UC_NONE;
+
+	switch( eClass )
+	{
+	case CX2Unit::UC_LIRE_ELVEN_RANGER:
+	case CX2Unit::UC_LIRE_COMBAT_RANGER:
+	case CX2Unit::UC_LIRE_SNIPING_RANGER:
+	case CX2Unit::UC_LIRE_TRAPPING_RANGER:
+		m_iSkillCutInSetIndex = 0;
+		break;
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:
+		m_iSkillCutInSetIndex = 1;
+		break;
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:
+		m_iSkillCutInSetIndex = 2;
+		break;
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:
+		m_iSkillCutInSetIndex = 3;
+		break;
+	default:
+		break;
+	}
+
+	switch( eClass )
+	{
+	case CX2Unit::UC_LIRE_COMBAT_RANGER:
+		m_iSkillCutInSetSubIndex = 1;
+		break;
+	case CX2Unit::UC_LIRE_SNIPING_RANGER:
+		m_iSkillCutInSetSubIndex = 2;
+		break;
+	default:
+		m_iSkillCutInSetSubIndex = 0;
+		break;
+	}
+
+	InitStateID();				/// June inlines it ( +0x4088 = 0xd, +0x7d04 = 0xa0 )
+	InitStateCommon();			/// June 32ca9dc0
+
+	std::string strStartTableNameUTF8;
+	std::string strWinTableNameUTF8;
+	std::string strLoseTableNameUTF8;
+	InitStateCommonRandom( strStartTableNameUTF8, strWinTableNameUTF8, strLoseTableNameUTF8 );	/// June 3202b110 then 31fe22d0
+
+	UserUnitStateData stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_START;
+	m_LuaManager.MakeTableReference( strStartTableNameUTF8.c_str(), stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, StartStateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, StartEventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GUUser, StartEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= USI_WIN;
+	m_LuaManager.MakeTableReference( strWinTableNameUTF8.c_str(), stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, WinStateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, RandomLoseEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	if( 0 == strWinTableNameUTF8.compare( "LESI_RNW_WIN2" ) )		/// June @32cadfac, byte +0x9714
+		m_bShowTrapBladeToWinMotion = true;
+
+	stateData.Init();
+	stateData.stateID			= USI_LOSE;
+	m_LuaManager.MakeTableReference( strLoseTableNameUTF8.c_str(), stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GUUser, LoseStateStart );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June @32cae131 ( id 0x82, checklist 7h )
+	InitWaitStateChange( "LESI_WAIT_STATE_CHANGE" );
+
+	/// June 32cadc90 @399-630: by class
+	switch( eClass )
+	{
+	case CX2Unit::UC_LIRE_ELVEN_RANGER:
+	case CX2Unit::UC_LIRE_SNIPING_RANGER:
+	case CX2Unit::UC_LIRE_TRAPPING_RANGER:
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DOUBLE_JUMP_ATTACK_Z;
+			m_LuaManager.MakeTableReference( "LESI_DOUBLE_JUMP_ATTACK_Z", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DoubleJumpAttackZStartFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DoubleJumpAttackZFrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DoubleJumpAttackZEventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_COMBAT_RANGER:
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DOUBLE_JUMP_ATTACK_Z;
+			m_LuaManager.MakeTableReference( "LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z_UP;
+			m_LuaManager.MakeTableReference( "LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z_UP", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z_UP_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_P_LE_AGILE_MOVEMENT_FRONT_FRONT;
+			m_LuaManager.MakeTableReference( "LESI_P_LE_AGILE_MOVEMENT_FRONT_FRONT", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingFrontFrontEventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingFrontFrontEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_P_LE_AGILE_MOVEMENT_FRONT_BACK;
+			m_LuaManager.MakeTableReference( "LESI_P_LE_AGILE_MOVEMENT_FRONT_BACK", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingFrontBackEventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingFrontBackEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_P_LE_AGILE_MOVEMENT_BACK_FRONT;
+			m_LuaManager.MakeTableReference( "LESI_P_LE_AGILE_MOVEMENT_BACK_FRONT", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingBackFrontEventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingBackFrontEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_P_LE_AGILE_MOVEMENT_BACK_BACK;
+			m_LuaManager.MakeTableReference( "LESI_P_LE_AGILE_MOVEMENT_BACK_BACK", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingBackBackEventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, StandUpRollingBackBackEnd );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	stateData.Init();
+	stateData.stateID			= LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X;
+	m_LuaManager.MakeTableReference( "LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X", stateData.stateID );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_StateStart );	/// June 32c6ac20: March has it only under ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X_FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X_FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX;
+	m_LuaManager.MakeTableReference( "LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX", stateData.stateID );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_StateStart );	/// June 32c6ac20: March has it only under ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X_FrameMoveFuture );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_FrameMove );	/// June 32c8b2c0: March has it only under ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX_EventProcess );	/// June 32c6e590: March has it only under ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_DOUBLE_JUMP_ATTACK_Z_LANDING;
+	m_LuaManager.MakeTableReference( "LESI_DOUBLE_JUMP_ATTACK_Z_LANDING", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DoubleJumpAttackZLandingStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, DoubleJumpAttackZLandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DoubleJumpAttackZLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_COMBO_Z1;
+	m_LuaManager.MakeTableReference( "LESI_COMBO_Z1", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ1FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ1FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ1EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_COMBO_Z2;
+	m_LuaManager.MakeTableReference( "LESI_COMBO_Z2", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ2FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ2FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ2EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June 32cadc90 @867-941: by class
+	switch( eClass )
+	{
+	case CX2Unit::UC_LIRE_ELVEN_RANGER:
+	case CX2Unit::UC_LIRE_COMBAT_RANGER:
+	case CX2Unit::UC_LIRE_SNIPING_RANGER:
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_Z3;
+			m_LuaManager.MakeTableReference( "LESI_COMBO_Z3", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ3FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ3FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ3EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_Z4;
+			m_LuaManager.MakeTableReference( "LESI_COMBO_Z4", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ4FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ4FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ4EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_TRAPPING_RANGER:
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_RTR_ZZZ;
+			m_LuaManager.MakeTableReference( "LESI_COMBO_RTR_ZZZ", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZ_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZ_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZ_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_RTR_ZZZ_DZ;
+			m_LuaManager.MakeTableReference( "LESI_COMBO_RTR_ZZZ_DZ", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZ_DZ_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZ_DZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZ_DZ_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZ_DZ_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_RTR_ZZZZ;
+			m_LuaManager.MakeTableReference( "LESI_COMBO_RTR_ZZZZ", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZZ_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZZ_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZZ_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_RTR_ZZZZZ;
+			m_LuaManager.MakeTableReference( "LESI_COMBO_RTR_ZZZZZ", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZZZ_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZZZ_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RTR_ZZZZZ_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	stateData.Init();
+	stateData.stateID			= LESI_COMBO_Z4a;
+	m_LuaManager.MakeTableReference( "LESI_COMBO_Z4a", stateData.stateID );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ4aFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ4aEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_COMBO_Z4UP;
+	m_LuaManager.MakeTableReference( "LESI_COMBO_Z4UP", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ4UpFrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ4UpFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboZ4UpEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_COMBO_X1;
+	m_LuaManager.MakeTableReference( "LESI_COMBO_X1", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX1FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX1FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX1EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June 32cadc90 @1040-1078: by class
+	switch( eClass )
+	{
+	case CX2Unit::UC_LIRE_ELVEN_RANGER:
+	case CX2Unit::UC_LIRE_COMBAT_RANGER:
+	case CX2Unit::UC_LIRE_TRAPPING_RANGER:
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_X2;
+			m_LuaManager.MakeTableReference( "LESI_COMBO_X2", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX2FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX2FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX2EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_X3;
+			m_LuaManager.MakeTableReference( "LESI_COMBO_X3", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX3FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX3FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX3EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_X4;
+			m_LuaManager.MakeTableReference( "LESI_COMBO_X4", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX4FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX4FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX4EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_SNIPING_RANGER:
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_X2;
+			m_LuaManager.MakeTableReference( "LESI_SNIPING_RANGER_COMBO_X2", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, SnipingRangerComboX2FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, SnipingRangerComboX2EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_X3;
+			m_LuaManager.MakeTableReference( "LESI_SNIPING_RANGER_COMBO_X3", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, SnipingRangerComboX3FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, SnipingRangerComboX3FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, SnipingRangerComboX3EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_X4;
+			m_LuaManager.MakeTableReference( "LESI_SNIPING_RANGER_COMBO_X4", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, SnipingRangerComboX4FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, SnipingRangerComboX4EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	stateData.Init();
+	stateData.stateID			= LESI_COMBO_X4UP;
+	m_LuaManager.MakeTableReference( "LESI_COMBO_X4UP", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX4UpFrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX4UpFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX4UpEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_COMBO_X4DOWN;
+	m_LuaManager.MakeTableReference( "LESI_COMBO_X4DOWN", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX4DownFrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX4DownFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, ComboX4DownEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June 32cadc90 @1109-1151: by class
+	switch( eClass )
+	{
+	case CX2Unit::UC_LIRE_ELVEN_RANGER:
+	case CX2Unit::UC_LIRE_SNIPING_RANGER:
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_COMBO_Z1;
+			m_LuaManager.MakeTableReference( "LESI_DASH_COMBO_Z1", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashComboZ1StartFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashComboZ1FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashComboZ1EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_COMBAT_RANGER:
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_COMBO_Z1;
+			m_LuaManager.MakeTableReference( "LESI_COMBAT_RANGER_DASH_COMBO_Z1", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBAT_RANGER_DASH_COMBO_Z1_StartFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBAT_RANGER_DASH_COMBO_Z1_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBAT_RANGER_DASH_COMBO_Z2;
+			m_LuaManager.MakeTableReference( "LESI_COMBAT_RANGER_DASH_COMBO_Z2", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBAT_RANGER_DASH_COMBO_Z2_StartFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBAT_RANGER_DASH_COMBO_Z2_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_TRAPPING_RANGER:
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_COMBO_Z1;
+			m_LuaManager.MakeTableReference( "LESI_DASH_COMBO_Z1", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashComboZ1StartFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashComboZ1FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashComboZ1EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_COMBO_RTR_ZX;
+			m_LuaManager.MakeTableReference( "LESI_DASH_COMBO_RTR_ZX", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_COMBO_RTR_ZX_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_COMBO_RTR_ZX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_COMBO_RTR_ZX_EventProcess );
+			stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_COMBO_RTR_ZX_StateEndFuture );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_COMBO_RTR_ZX_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	stateData.Init();
+	stateData.stateID			= LESI_DASH_COMBO_Z2;
+	m_LuaManager.MakeTableReference( "LESI_DASH_COMBO_Z2", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashComboZ2StartFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashComboZ2FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashComboZ2EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June 32cadc90 @1177-1219: by class
+	switch( eClass )
+	{
+	case CX2Unit::UC_LIRE_ELVEN_RANGER:
+	case CX2Unit::UC_LIRE_COMBAT_RANGER:
+	case CX2Unit::UC_LIRE_TRAPPING_RANGER:
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_ATTACK_X;
+			m_LuaManager.MakeTableReference( "LESI_DASH_ATTACK_X", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashAttackXStartFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashAttackXFrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashAttackXEventProcess );
+			stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashAttackXEndFuture );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_SNIPING_RANGER:
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_ATTACK_X;
+			m_LuaManager.MakeTableReference( "LESI_SNIPING_RANGER_DASH_COMBO_X1", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_COMBO_X1_StartFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_COMBO_X1_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_COMBO_X1_EventProcess );
+			stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_COMBO_X1_EndFuture );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_SNIPING_RANGER_DASH_COMBO_X2;
+			m_LuaManager.MakeTableReference( "LESI_SNIPING_RANGER_DASH_COMBO_X2", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_COMBO_X2_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_COMBO_X2_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_ATTACK_X;
+			m_LuaManager.MakeTableReference( "LESI_SNIPING_RANGER_DASH_COMBO_X1", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_COMBO_X1_StartFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_COMBO_X1_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LWS_DASH_X_EventProcess );
+			stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_COMBO_X1_EndFuture );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_LWS_DASH_XZ;
+			m_LuaManager.MakeTableReference( "LESI_LWS_DASH_XZ", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LWS_DASH_XZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_LWS_DASH_XZZ;
+			m_LuaManager.MakeTableReference( "LESI_LWS_DASH_XZZ", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LWS_DASH_XZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	/// June 32cadc90 @1243-1243: by class
+	switch( eClass )
+	{
+	case CX2Unit::UC_LIRE_ELVEN_RANGER:
+	case CX2Unit::UC_LIRE_COMBAT_RANGER:
+	case CX2Unit::UC_LIRE_SNIPING_RANGER:
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_JUMP_ATTACK_Z;
+			m_LuaManager.MakeTableReference( "LESI_JUMP_ATTACK_Z", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, JumpAttackZFrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, JumpAttackZFrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, JumpAttackZEventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_TRAPPING_RANGER:
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_JUMP_ATTACK_Z;
+			m_LuaManager.MakeTableReference( "LESI_JUMP_ATTACK_RTR_Z", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_JUMP_ATTACK_RTR_Z_StateStart );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_JUMP_ATTACK_RTR_Z_FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_JUMP_ATTACK_RTR_Z_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_JUMP_ATTACK_RTR_Z_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_JUMP_ATTACK_RTR_Z_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	stateData.Init();
+	stateData.stateID			= LESI_JUMP_ATTACK_X;
+	m_LuaManager.MakeTableReference( "LESI_JUMP_ATTACK_X", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, JumpAttackXStartFuture );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, JumpAttackXFrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, JumpAttackXFrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, JumpAttackXEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June 32cadc90 @1266-1328: by class
+	switch( eClass )
+	{
+	case CX2Unit::UC_LIRE_ELVEN_RANGER:
+	case CX2Unit::UC_LIRE_SNIPING_RANGER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_JUMP_ATTACK_Z;
+			m_LuaManager.MakeTableReference( "LESI_DASH_JUMP_ATTACK_Z", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpAttackZEventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_COMBAT_RANGER:
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_JUMP_ATTACK_Z;
+			m_LuaManager.MakeTableReference( "LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z2;
+			m_LuaManager.MakeTableReference( "LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z2", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z2_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z3;
+			m_LuaManager.MakeTableReference( "LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z3", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z3_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_TRAPPING_RANGER:
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_JUMP_ATTACK_RTR_Z;
+			m_LuaManager.MakeTableReference( "LESI_DASH_JUMP_ATTACK_RTR_Z", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_JUMP_ATTACK_RTR_Z_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_JUMP_ATTACK_RTR_Z_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_JUMP_ATTACK_RTR_Z_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_JUMP_ATTACK_RTR_Z_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_JUMP_ATTACK_RTR_ZZ;
+			m_LuaManager.MakeTableReference( "LESI_DASH_JUMP_ATTACK_RTR_ZZ", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_JUMP_ATTACK_RTR_ZZ_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_JUMP_ATTACK_RTR_ZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_JUMP_ATTACK_RTR_ZZ_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_DASH_JUMP_ATTACK_RTR_ZZ_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_SA_RTR_FATALITY_SUCCESS;
+			m_LuaManager.MakeTableReference( "LESI_SA_RTR_FATALITY_SUCCESS", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SA_RTR_FATALITY_SUCCESS_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_SA_RTR_FATALITY_FAIL;
+			m_LuaManager.MakeTableReference( "LESI_SA_RTR_FATALITY_FAIL", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SA_RTR_FATALITY_FAIL_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_LGA_DASH_JUMP_Z;
+			m_LuaManager.MakeTableReference( "LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LGA_DASH_JUMP_Z_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_LGA_DASH_JUMP_ZX;
+			m_LuaManager.MakeTableReference( "LESI_LGA_DASH_JUMP_ZX", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LGA_DASH_JUMP_ZX_FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LGA_DASH_JUMP_ZX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LGA_DASH_JUMP_ZX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	stateData.Init();
+	stateData.stateID			= LESI_DASH_JUMP_ATTACK_Z_LANDING;
+	m_LuaManager.MakeTableReference( "LESI_DASH_JUMP_ATTACK_Z_LANDING", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpAttackZLandingStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpAttackZLandingStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpAttackZLandingEventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_DASH_JUMP_COMBO_X1;
+	m_LuaManager.MakeTableReference( "LESI_DASH_JUMP_COMBO_X1", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpComboX1FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpComboX1FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpComboX1EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	/// June 32cadc90 @1354-1383: by class
+	switch( eClass )
+	{
+	case CX2Unit::UC_LIRE_ELVEN_RANGER:
+	case CX2Unit::UC_LIRE_COMBAT_RANGER:
+	case CX2Unit::UC_LIRE_TRAPPING_RANGER:
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_JUMP_COMBO_X2;
+			m_LuaManager.MakeTableReference( "LESI_DASH_JUMP_COMBO_X2", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpComboX2FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpComboX2FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpComboX2EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_JUMP_COMBO_X3;
+			m_LuaManager.MakeTableReference( "LESI_DASH_JUMP_COMBO_X3", stateData.stateID );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpComboX3StateStart );	/// June 32c6b280: March has it only under ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpComboX3FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpComboX3FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpComboX3EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_SNIPING_RANGER:
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_DASH_JUMP_COMBO_X2;
+			m_LuaManager.MakeTableReference( "LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2_FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3;
+			m_LuaManager.MakeTableReference( "LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3", stateData.stateID );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, DashJumpComboX3StateStart );	/// June 32c6b280: March has it only under ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3_FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	/// June 32cadc90 @1396-1518: by class
+	switch( eClass )
+	{
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_LWS_ZZfrontZ;
+			m_LuaManager.MakeTableReference( "LESI_LWS_ZZfrontZ", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LWS_ZZfrontZ_FrameMoveFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LWS_ZZfrontZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_LWS_ZZfrontZZ;
+			m_LuaManager.MakeTableReference( "LESI_LWS_ZZfrontZZ", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LWS_ZZfrontZZ_FrameMoveFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LWS_ZZfrontZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_LWS_ZZfrontZZZ;
+			m_LuaManager.MakeTableReference( "LESI_LWS_ZZfrontZZZ", stateData.stateID );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LWS_ZZfrontZZZ_FrameMoveFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LWS_ZZfrontZZZ_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_LWS_ZZfrontZZZ_Landing;
+			m_LuaManager.MakeTableReference( "LESI_LWS_ZZfrontZZZ_Landing", stateData.stateID );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LWS_ZZfrontZZZ_Landing_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_LGA_ZZX;
+			m_LuaManager.MakeTableReference( "LESI_LGA_ZZX", stateData.stateID );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LGA_ZZX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LGA_ZZX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_LGA_ZZXX;
+			m_LuaManager.MakeTableReference( "LESI_LGA_ZZXX", stateData.stateID );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LGA_ZZXX_StateStart );	/// June 32c6c130: March has it only under ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LGA_ZZXX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_LGA_ZZXX_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:
+		{
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_RNW_ZZX;
+			m_LuaManager.MakeTableReference( "LESI_COMBO_RNW_ZZX", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RNW_ZZX_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RNW_ZZX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RNW_ZZX_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RNW_ZZX_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_RNW_ZZXX;
+			m_LuaManager.MakeTableReference( "LESI_COMBO_RNW_ZZXX", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RNW_ZZXX_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RNW_ZZXX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RNW_ZZXX_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RNW_ZZXX_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_COMBO_RNW_ZZXXX;
+			m_LuaManager.MakeTableReference( "LESI_COMBO_RNW_ZZXXX", stateData.stateID );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RNW_ZZXXX_StateStart );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RNW_ZZXXX_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RNW_ZZXXX_EventProcess );
+			stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_COMBO_RNW_ZZXXX_StateEnd );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_RNW_ACCEL_DASH;
+			m_LuaManager.MakeTableReference( "LESI_RNW_ACCEL_DASH", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_StateStartFuture );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_StateStart );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_FrameMoveFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_RNW_ACCEL_DASH_JUMP;
+			m_LuaManager.MakeTableReference( "LESI_RNW_ACCEL_DASH_JUMP", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_StateStartFuture );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_StateStart );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_FrameMoveFuture );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_EventProcess );
+			stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_StateEndFuture );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_RNW_ACCEL_DASH_JUMP_LANDING;
+			m_LuaManager.MakeTableReference( "LESI_RNW_ACCEL_DASH_JUMP_LANDING", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_LANDING_StateStartFuture );
+			stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_LANDING_StateStart );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_LANDING_EventProcess );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_RNW_ACCEL_DASH_JUMP_Z;
+			m_LuaManager.MakeTableReference( "LESI_RNW_ACCEL_DASH_JUMP_Z", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_StateStartFuture );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_EventProcess );
+			stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_StateEndFuture );
+			m_StateList[stateData.stateID] = stateData;
+
+			stateData.Init();
+			stateData.stateID			= LESI_RNW_ACCEL_DASH_JUMP_ZZ;
+			m_LuaManager.MakeTableReference( "LESI_RNW_ACCEL_DASH_JUMP_ZZ", stateData.stateID );
+			stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_StateStartFuture );
+			stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_FrameMoveFuture );
+			stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_FrameMove );
+			stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_EventProcess );
+			stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_ACCEL_DASH_JUMP_ATTACK_ZZ_StateEndFuture );
+			m_StateList[stateData.stateID] = stateData;
+		} break;
+
+	default:
+		break;
+	}
+
+	stateData.Init();
+	stateData.stateID			= LESI_SI_A_LE_RISING_FALCON_LANDING;
+	m_LuaManager.MakeTableReference( "LESI_A_LE_RISING_FALCON_LANDING", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_A_LE_RISING_FALCON_LANDING_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RCR_COMBO_XXZ;
+	m_LuaManager.MakeTableReference( "LESI_RCR_COMBO_XXZ", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RCR_COMBO_XXZ_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RCR_COMBO_XXZZ;
+	m_LuaManager.MakeTableReference( "LESI_RCR_COMBO_XXZZ", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RCR_COMBO_XXZZ_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RCR_COMBO_XXZZ_LANDING;
+	m_LuaManager.MakeTableReference( "LESI_RCR_COMBO_XXZZ_LANDING", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RCR_COMBO_XXZZ_LANDING_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RCR_COMBO_XXZZZ;
+	m_LuaManager.MakeTableReference( "LESI_RCR_COMBO_XXZZZ", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RCR_COMBO_XXZZZ_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RCR_COMBO_XXZ_FROM_X2;
+	m_LuaManager.MakeTableReference( "LESI_RCR_COMBO_XXZ", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RCR_COMBO_XXZ_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RCR_COMBO_XXZZ_FROM_X2;
+	m_LuaManager.MakeTableReference( "LESI_RCR_COMBO_XXZZ", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RCR_COMBO_XXZZ_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RCR_COMBO_XXZZ_LANDING_FROM_X2;
+	m_LuaManager.MakeTableReference( "LESI_RCR_COMBO_XXZZ_LANDING", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RCR_COMBO_XXZZ_LANDING_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RCR_COMBO_XXZZZ_FROM_X2;
+	m_LuaManager.MakeTableReference( "LESI_RCR_COMBO_XXZZZ", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RCR_COMBO_XXZZZ_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RWS_DASH_JUMP_XXZ_START;
+	m_LuaManager.MakeTableReference( "LESI_RWS_DASH_JUMP_XXZ_START", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RWS_DASH_JUMP_XXZ_START_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RWS_DASH_JUMP_XXZ_LOOP;
+	m_LuaManager.MakeTableReference( "LESI_RWS_DASH_JUMP_XXZ_LOOP", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RWS_DASH_JUMP_XXZ_LOOP_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RWS_DASH_JUMP_XXZ_END;
+	m_LuaManager.MakeTableReference( "LESI_RWS_DASH_JUMP_XXZ_END", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RWS_DASH_JUMP_XXZ_END_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RWS_DASH_JUMP_XXZ_START_FROM_X2;
+	m_LuaManager.MakeTableReference( "LESI_RWS_DASH_JUMP_XXZ_START", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RWS_DASH_JUMP_XXZ_START_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RWS_DASH_JUMP_XXZ_LOOP_FROM_X2;
+	m_LuaManager.MakeTableReference( "LESI_RWS_DASH_JUMP_XXZ_LOOP", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RWS_DASH_JUMP_XXZ_LOOP_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RWS_DASH_JUMP_XXZ_END_FROM_X2;
+	m_LuaManager.MakeTableReference( "LESI_RWS_DASH_JUMP_XXZ_END", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RWS_DASH_JUMP_XXZ_END_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RSR_DASH_ZX;
+	m_LuaManager.MakeTableReference( "LESI_RSR_DASH_ZX", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RSR_DASH_ZX_StateStartFuture );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RSR_DASH_ZX_StateStart );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RSR_DASH_ZX_FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RSR_DASH_ZX_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RGA_DASH_JUMP_ZXX;
+	m_LuaManager.MakeTableReference( "LESI_RGA_DASH_JUMP_ZXX", stateData.stateID );
+	stateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RGA_DASH_JUMP_ZXX_StateStartFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RGA_DASH_JUMP_ZXX_FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RGA_DASH_JUMP_ZXX_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RGA_DASH_JUMP_XXZ;
+	m_LuaManager.MakeTableReference( "LESI_RGA_DASH_JUMP_XXZ", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RGA_DASH_JUMP_XXZ_FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RGA_DASH_JUMP_XXZ_FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RGA_DASH_JUMP_XXZ_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RGA_DASH_JUMP_XXZ_FROM_X2;
+	m_LuaManager.MakeTableReference( "LESI_RGA_DASH_JUMP_XXZ", stateData.stateID );
+	stateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RGA_DASH_JUMP_XXZ_FrameMoveFuture );
+	stateData.OnFrameMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RGA_DASH_JUMP_XXZ_FrameMove );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RGA_DASH_JUMP_XXZ_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RTR_DOUBLE_JUMP_ZX;
+	m_LuaManager.MakeTableReference( "LESI_RTR_DOUBLE_JUMP_ZX", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RTR_DOUBLE_JUMP_ZX_StateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RTR_DOUBLE_JUMP_ZX_EventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RTR_DOUBLE_JUMP_ZX_StateEndFuture );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RTR_DOUBLE_JUMP_ZX_StateEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RNW_DASH_XZ;
+	m_LuaManager.MakeTableReference( "LESI_RNW_DASH_XZ", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZ_StateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZ_EventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZ_StateEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RNW_DASH_XZZ_START;
+	m_LuaManager.MakeTableReference( "LESI_RNW_DASH_XZZ_START", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_START_StateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_START_EventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_START_StateEndFuture );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_START_StateEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RNW_DASH_XZZ_LOOP;
+	m_LuaManager.MakeTableReference( "LESI_RNW_DASH_XZZ_LOOP", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_LOOP_StateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_LOOP_EventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_LOOP_StateEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RNW_DASH_XZZ_FULL_CHARGE_END;
+	m_LuaManager.MakeTableReference( "LESI_RNW_DASH_XZZ_FULL_CHARGE_END", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_FULL_CHARGE_END_StateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_FULL_CHARGE_END_EventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_FULL_CHARGE_END_StateEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RNW_DASH_XZZ_END;
+	m_LuaManager.MakeTableReference( "LESI_RNW_DASH_XZZ_END", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_END_StateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_END_EventProcess );
+	stateData.StateEndFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_END_StateEndFuture );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_XZZ_END_StateEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RNW_DASH_JUMP_XZ_START;
+	m_LuaManager.MakeTableReference( "LESI_RNW_DASH_JUMP_XZ_START", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_JUMP_XZ_START_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RNW_DASH_JUMP_XZ_LOOP;
+	m_LuaManager.MakeTableReference( "LESI_RNW_DASH_JUMP_XXZ_LOOP", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_JUMP_XXZ_LOOP_StateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_JUMP_XXZ_LOOP_EventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_JUMP_XXZ_LOOP_StateEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RNW_DASH_JUMP_XZ_END;
+	m_LuaManager.MakeTableReference( "LESI_RNW_DASH_JUMP_XZ_END", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_JUMP_XZ_END_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RNW_DASH_JUMP_XXZ_START;
+	m_LuaManager.MakeTableReference( "LESI_RNW_DASH_JUMP_XXZ_START", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_JUMP_XZ_START_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RNW_DASH_JUMP_XXZ_LOOP;
+	m_LuaManager.MakeTableReference( "LESI_RNW_DASH_JUMP_XXZ_LOOP", stateData.stateID );
+	stateData.StateStart		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_JUMP_XXZ_LOOP_StateStart );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_JUMP_XXZ_LOOP_EventProcess );
+	stateData.StateEnd			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_JUMP_XXZ_LOOP_StateEnd );
+	m_StateList[stateData.stateID] = stateData;
+
+	stateData.Init();
+	stateData.stateID			= LESI_RNW_DASH_JUMP_XXZ_END;
+	m_LuaManager.MakeTableReference( "LESI_RNW_DASH_JUMP_XXZ_END", stateData.stateID );
+	stateData.OnEventProcess	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_RNW_DASH_JUMP_XZ_END_EventProcess );
+	m_StateList[stateData.stateID] = stateData;
+
+	InitPassiveSkillState();					/// June vslot 0x690
+	InitEquippedActiveSkillState( false );		/// June vslot 0x684
+	CX2GUUser::InitState();						/// June 31fd8f00
+	StateInitTrapBlade();						/// June 32c96d60 @32cb0480, every class
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	if( 0 < GetNaturalForceCount() )			/// June 32c85200( 1 ) when the count is above 0
+		SetNaturalForceBuff( true );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 	ASSERT( NULL != GetUnit() );
 
@@ -3187,6 +4923,7 @@ void CX2GULire_ElvenRanger::InitState()
 	if( GetNaturalForceCount() >= NATURAL_FORCE_BUFF )
 		SetNaturalForceBuff( true );
 #endif //ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
