@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2b | **play-test pending**: Combat Ranger (12) skills, 11 fn + 7 cases + `FlushMpOnce`; user plays unit 87 `CombatRangerT`, then "check logs" | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GULire_ElvenRanger.*`, `X2GUUser.*`, `X2SkillTree.h`, `Always.h` | `CH2b.md`, `CH2b-review.md` |
+| CH2b | **play-test passed (user 2026-11-10), review ready**: Combat Ranger (12) skills, 11 fn + 7 cases + `FlushMpOnce`; 5 `flush mp once` lines, 0 KEM_ERROR / Motion Error | Sonnet 5.5 / high, Opus review, user play-test | CH2a review | `X2GULire_ElvenRanger.*`, `X2GUUser.*`, `X2SkillTree.h`, `Always.h` | `CH2b.md`, `CH2b-review.md` |
 | CH2c | blocked (CH2b review): Sniping Ranger (13) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2b review | `X2GULire_ElvenRanger.*` | `CH2c.md` |
 | CH2d0 | blocked (CH2c review): trap summons (4 June `CreateNPCReq` sites, spawn rules, trap NPC Lua binder gate), flag `_TRAP` | Opus 5.5 / high, Opus review | CH2c review | `X2GULire_ElvenRanger.*`, `X2GUNPC.*`, NPC Lua | `CH2d0.md` |
 | CH2d | blocked (CH2d0 review): Trapping Ranger (24) skills | Sonnet 5.5 / high, Opus review, user play-test | CH2d0 review | `X2GULire_ElvenRanger.*` | `CH2d.md` |
