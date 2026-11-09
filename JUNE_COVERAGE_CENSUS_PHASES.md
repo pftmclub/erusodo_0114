@@ -57,6 +57,17 @@ The June 2020 exe (`unpacked_x2020.exe`, same Ghidra project, analysed) is a ref
 **Done gate:** the function count equals Ghidra's own count for the June program; `functions.tsv` has no duplicate `june_va`; the share of
 functions with a source file or class is stated. No row is invented for a function the binary does not name.
 
+**Done note (V0, 2026-11-09, Sonnet 5.5):** `june2017_re/census/functions.tsv` (55,556 rows, no duplicate `june_va`; `list_functions` = `methods`
+= 55,556, so the 55,555 above was one short), `V0_README.md`, `v0_export.py` (reproducible, 10 s over HTTP, no Ghidra script needed).
+Program verified first (imagebase `0x31aa0000`, exe 43,801,600 B). Read-only; no code, flag, build or log tag.
+- Attribution: 358 functions with a source file (54 files), 890 with a class (87 names), 972 with either = **1.75%**; 98.25% have neither.
+- The low share is the method, not the binary: Ghidra holds 2 `vftable` labels and 1,113 `.?A` names (nearly all `lua_tinker`), and
+  only ~100 `__FILEW__` paths exist, so classes are known only where a log string names them. Top "classes" (`ClassTraits`, `Instances`,
+  `KSession`) and `Session.h` / `libxml` files are library code. Studio files hit: 56 functions under `X2Lib` / `KTDXLIB` / `X2`.
+- **For V1:** do not read the 98% as library code. Attribute by `funcmap.tsv` joins, call-graph neighbours of attributed functions,
+  link-order address blocks and the March function list; a function with none stays `unknown`.
+- Open questions for the user: none.
+
 ## Phase V1 - Bucket and coverage
 
 **Run with:** Sonnet 5.5 / medium. **Depends:** V0.

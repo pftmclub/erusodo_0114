@@ -276,8 +276,8 @@ Plan `JUNE_COVERAGE_CENSUS_PHASES.md` · branch `main` · read-only (no code, no
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| V0 | **ready**: export all 55,555 June functions with source file / class (Ghidra read-only, June program only open) | Sonnet 5.5 / medium | -; runs with anything | `june2017_re/census/` | `V0.md` |
-| V1 | blocked (V0): `tools/junecensus.py`, bucket every function, join funcmap / March tree / backlog owners | Sonnet 5.5 / medium | V0 | `tools/`, `june2017_re/census/` | `V1.md` |
+| V0 | **done 2026-11-09**: 55,556 functions exported, 1.75% attributed by strings alone (note in plan doc); owes nothing | Sonnet 5.5 / medium | -; runs with anything | `june2017_re/census/` | `V0.md` |
+| V1 | **ready** (V0 done): `tools/junecensus.py`, bucket every function, join funcmap / March tree / backlog owners | Sonnet 5.5 / medium | V0 | `tools/`, `june2017_re/census/` | `V1.md` |
 | V2 | blocked (V1): exclusion list, new backlog stage briefs, low / mid / high estimate | Opus 5.5 / high | V1 | docs, `JUNE_PORT_BACKLOG_ORDER.md`, `kickoffs/june-backlog/` | `V2.md` |
 | Z | blocked (V2): apply the user's answers, archive the plan | Sonnet 5.5 / medium | V2 | docs, `STATUS.md` | `Z.md` |
 
