@@ -21,8 +21,8 @@ Then `june2017_re/char_rena/plan_june_side.md` and the `CH5` rows of `ch0_checkl
 
 Do "Phase CH5": Rena's 7 `UnitTemplet.lua` rows become June's (core-list BOM source; `luasrc.py refresh` after; every other row stays as it is):
 `m_fLobbyRotationY` (30 / 30 / 25 / 1 / 30 / 20 / 10 for 3 / 12 / 13 / 24 / 102 / 103 / 114), `m_HyperCutIn` for 102 / 103 / 114, the names `STR_ID_4783` /
-`_4784` / `_17429` for 102 / 103 / 114 (CH0 confirms the strings exist; March has `STR_ID_616` on all 7). The cut-in table `X2GULire_ElvenRanger.cpp:50-82`
-and the InitState index switch `:1672-1715` become June's names and layout under `SERV_IRUHADEV_JUNE_CHAR_RENA_UI` (CP949: `bytepatch.py`; 7t cut-in
+`_4784` / `_17429` for 102 / 103 / 114 (CH0 confirms the strings exist; March has `STR_ID_616` on all 7). The cut-in table `X2GULire_ElvenRanger.cpp:160-197` (`s_SkillCutInSet`)
+and the InitState index switch (the live one is June's `_LIVE` InitState, `m_iSkillCutInSetIndex =` at `:2845-2854`; March's copy is the `#else` at `:3915-3928`; line numbers as of the CH1 review) become June's names and layout under `SERV_IRUHADEV_JUNE_CHAR_RENA_UI` (CP949: `bytepatch.py`; 7t cut-in
 `.gfx` names: June's 33 `HQ_CutIn_Rena_*.gfx` and 3 `HQ_Cutin_R{WS,GA,NW}_Transcendence.gfx` are already in kom_contents). 7ah and the gauge pieces CH1q
 did not take. Pack data036, ask before the copy. Hand-off: the select screen with all nine March characters and no new error, then each Rena job's skill
 and hyper cut-in, and the three second-job names showing June's strings.

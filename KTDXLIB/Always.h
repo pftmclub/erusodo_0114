@@ -12034,7 +12034,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Rena ) Phase CH1q2 - temporary [JUNE_CHAR] RENA NF lines ( gauge UI, gauge from packet, awakening refund )
 //              for CH1 final's play-test; they sit inside JUNE_CHAR_RENA_NF code only.
 //              Revert: undefine the flag ( JUNE_CHAR_RENA_NF_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_NF_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_RENA_NF

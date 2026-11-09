@@ -1741,6 +1741,42 @@ no missing animation. The new line groups come from places, gear and effects tho
 meshes), `result : N` on three Rena sounds (as Raven's), `HQ_CUTIN_LENA_N.DDS.GFX` (March's cut-in table plus `.gfx`, CH5's), `LIRE_BASIC_FACE_NW` textures (CH0b's
 `JUNE_BUGS` 562), Elysion `[ELYDBG]` / local-map control lines, `JUNE_FX MP_CRASH` traces. Nothing broke in play; no new routing. `AddGroupChainQuest` unbound x1 is pre-CH1.
 
+### CH1 - Review (2026-11-09)
+
+Opus 5.5. **Verdict: passes.** One source change: `_NF_DEBUG` retired (`Always.h:12037`, `//#define`); the `RENA NF` lines go dark, `RENA DATA` stays
+(`X2OfflineLog.h` is included under `_LIVE`).
+- **Deploy unit:** data036 `Lire_ElvenRanger.lua` 209,576 B sha1 `028e14dc...` header `1B 4B 4C 81` = `june_adopt_20261109_180855.tsv` row; no `.src.lua` sidecar.
+  `stage-june --dry-run ch1_held_motions.tsv`: `5 staged (0 new, 0 replaced, 5 identical)`. `kom.py status data036 data033`: both in sync, `+0 / -0 / ~0` vs live
+  (data036's `[stale .src.lua: compile]` is older non-Rena sidecars, as Raven's). `exestr.py "RENA DATA" --form wide`: `EXESTR OK: 1 of 1` (wide x1), md5 `034256dd`.
+- **State counts, exact for all 7 units:** C++ registrations on the class path + 4 hook states (3 `DAMAGE_BOUNDING` from `InitBoundingStates( "LESI_" )`, 1
+  `LESI_WAIT_STATE_CHANGE`) + 9 `USI_EVENT_*` + 20 slot states + 1 key 0 + learned-skill sub-states (`SetEquippedSkillLevel` `_LIVE` -> `SetEquippedSkillLevelStateData`
+  `m_StateList[ id ]`, only ids the class path did not register): 3: 135+4+9+20+1+0 = 169; 12: 143+4+9+20+1+0 = 177; 13: 136+4+9+20+1+2 = 172 (Rapid Shot 23212);
+  24: 141+4+9+20+1+0 = 175; 102: 149+4+9+20+1+4 = 187 (Reflex Magic, Violent Attack x2, Slide Kick finish); 103: 139+4+9+20+1+20 = 193 (Rapid Shot 2, Gungnir 12,
+  Ace in the Hole 6); 114: 149+4+9+20+1+1 = 184 (Eradication). `ch1m_regcheck.py` (scratch copy, no write): `matched 992 registrations, 0 problems`; tsv rows per class
+  = C++ + 4 hooks + 11 `LEFT` (June Common riding / phoenix / dance). Raven's "C++" term held the 4 hooks; here they are counted apart, same totals.
+- **START / WIN / LOSE:** `list size 0` 0, `re-bind skipped` 0; `C3e-2 roll` lines pick `LESI_START` / `LESI_WIN` / `LESI_LOSE2` ...
+- **Natural force (decision 1 = (a)):** gauge UI line on every entry; the count climbs one point per three first hits and drops on spending; relog `from packet: type 5,
+  count 4 -> 4`. **Awakening (second run 19:53-19:55, asked once, unit 12 class 103):** `RENA NF awakening: count 1, MP +15, count after 5` = June's `32298590` (`count x 15.0`,
+  then `UpNaturalForce( 5 )`, capped at 5). The gauge then reads 5 -> 4 -> 2 -> 3 as played.
+- **ErrorLog** (first run, against `ErrorLog_pre_CH1_rena` / `_pre_CH0b_rena`): `KEM_ERROR` 0 / 0 / 0, `Motion Error` 0 / 0 / 0, `[LUA_SRC]` 7 / 11 / 7 (TutorSystem,
+  ChainQuestInfo `AddGroupChainQuest`), `lua error` 3 / 4 / 3; no missing animation. New Rena lines are unopened content only: two lobby-ready `JUNE_FX UNIT_VIEWER_FX_CREATE`
+  (`RNW` / `RTR` sword-ready meshes), `LIRE_BASIC_FACE_NW` textures (JUNE_BUGS 562), four `HYPER_MESH_LIRE_*` `.XET` probes. Second run: `KEM_ERROR` 0, `Motion Error` 0,
+  `[LUA_SRC]` 7. `offline_packets.log`: `EXCEPTION` 0; `UNHANDLED` only `E_DISABLE_HB_CHECK_REQ` (pre-existing). Nothing to route.
+- **Ghidra spot-checks:** `ReInit` `32ca4a40`: `GetNowMp() < 50.0` (`test ah, 5` + `jp`), then vslot 0x10c `cmp eax, 1 / jz` -> `SetNowMp( 50 )` only outside PvP; then
+  `MakeRoomForEntangleTrap( 0, 1 )` `32c95670`, friendship reset (`+0x962c`: byte +8 = 1, float +0x10 = 0), `MakeRoomForAngerOfElfTrap( 0, 1 )` `32c9e130`, charge `+0x9744`
+  = 0, own unit -> count sync, `32c85200( 0 < count )` = the port in order. `InitComponent` `32c895b0` @32c895f4: own unit (vslot 0x198), `dec eax / jnz` (type 1 only) ->
+  gauge `+0x112 = 1` (`32a317d0`) + `32a36df0( 0 )` = `SetNaturalForceCount( 0 )` (`:34683`, changed flag + count). Both `june_diverge_allow.tsv` rows (l.20-21) confirmed.
+- **Checklist / scans:** `(Rena: CH1 ...)` at l.16, 423, 427, 509, 548, 592, 674 and `(Rena: CH0b / CH1 ...)` at l.760. `charport_keys.py Lire_ElvenRanger`:
+  `june-only=6 neither=3 march-only-site=4 both=243` = CH1's. `luabind.py check Lire_ElvenRanger`: 0 unbound, `RESULT: PASS`; `core --check` / `ledger --check` PASS.
+- **Kickoffs:** CH2a matches (it carries the two-casts / `ReservedSkillStart` check). CH5's line refs were stale (CH1m-CH1q moved them): it now names the cut-in table
+  `:160-197` and the live `_LIVE` InitState switch `:2845-2854` (March's `#else` copy `:3915-3928`).
+
+Hygiene: `flagcheck.py JUNE_CHAR_RENA_LIVE --range 21a4c2e0^..21a4c2e0`: `1 PASS, 2 OTHER, 0 FAIL`, `RESULT: PASS`; `_NF`: `1 DEFINE, 2 OTHER, 0 FAIL`, `RESULT: PASS`;
+`_NF_DEBUG`: `3 OTHER, 0 FAIL`, `RESULT: PASS`. `_NF_DEBUG --worktree --files KTDXLIB/Always.h`: `1 DEFINE`, 1 deleted line (the define, now `//#define`), `RESULT: FAIL`
+only for that. `junediverge.py --check-all`: `allow-listed: 202`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s)`.
+Build: started after the define change, not awaited (debug-retire rule, user 2026-11-03).
+CH2a and CH5 are ready.
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
