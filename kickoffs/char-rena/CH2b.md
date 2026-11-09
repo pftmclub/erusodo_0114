@@ -56,3 +56,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1n (2026-11-09)
 
 - **Slot state:** Low Kick (23204) registers `LESI_SA_LCR_LOW_KICK` ( 295 ) by table name in its id-switch case (InitStateCommon also registers it `@97`, kept). The id switch takes `GetUpgradeBaseSkillID( eSkillID_ )` (`CH2a.md`, Amended by CH1n).
+
+## Amended by CH1p (2026-11-09)
+
+- **Held-key test (7ag):** June's Back Kick EventProcess `32c84ea0` (inside March's `LESI_A_LWS_BACK_KICK_EventProcess`) adds a skill-key re-press March never had: after the `m_fEventTime[0]` window, `GetEquippedActiveSkillTemplet( GetFutureStateSkillID(), true )` with templet `+0x178` != 0, then `IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() )` (`31fce710` `@32c84fd9`; `CX2GUUser`, under `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE`), then the frame-data test `+0x118` and `32007b10( 0x8f, id, 0 )`. Port it with the state; no `SAKP_*` / `m_kSkillSlotKey` here.

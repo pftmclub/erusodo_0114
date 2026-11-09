@@ -1464,6 +1464,43 @@ the fix, off / on: 0 errors. Full build skipped: no play-test.
 
 **Nothing to play-test.** CH1p kickoff checked. Next: `/x2-phase char-rena CH1p` (Opus 5.5 high).
 
+### CH1p - Done (2026-11-09)
+
+**No code change.** Flags `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE` (still `//#define`) / `_CORE` untouched: every CH1p item was already June's from an earlier sub-phase.
+Checks: `cl /P` of `X2GULire_ElvenRanger.cpp` / `X2GUUser.cpp` off and with `/DSERV_IRUHADEV_JUNE_CHAR_RENA_LIVE` (`census.cl_cmd`); June side
+`dispsweep.py 8ac0 8b58 88bc` and an `E8` call scan of Rena's range `32c6a8d0-32cb6c6d` for the key helpers.
+
+**7ag, the pressed-index space: June's since CH1k / CH1n.**
+- **Class side.** `SpecialAttackEventProcess` under `_LIVE` = June `32c6a970`: lookup `32cac200` keeps the pressed index (`m_iChosenSkillSlotIndex`),
+  use `32ca50b0` -> `StateChangeBySkillSlot( slot )`, cooldown `32c89a20` -> `MarkSkillSlotUsed( slot, false )` and `m_eSpecialAttackKeyPressed = slot + 1`
+  (`+0x8ac0` `@32c89bac`), `m_iNowSpecialAttack = slot + 1` (`+0x88bc` `@32c6aa13`). March's 4 + 4 decode (`iPressedSkillSlotIndex > 3`, `[idx - 4]`) and
+  `CountUsedSkill` are only in the `#else` (`.cpp:8590`, `:8682-8699`). In the `_LIVE` `.i` (class bodies): `CountUsedSkill` 0, `SAKP_` 0,
+  `CurrentSkillKeyManager` / `GetPressedSkillState` / `m_kSkillSlotKey` 0, `m_eSpecialAttackKeyPressed` 1 (the writer). The four slot-B table reads left are
+  June's: the slot head's `bSlotB_` select (CH1n) and an index-free slot-state membership loop.
+- **Shared reader.** `CommonSpecialAttackEventProcess` (June `31fcadd0`, called `@32cac27e`): `UT_LIRE` already joined the June set under `_LIVE`
+  (CH1k, `X2GUUser.cpp:26723`; `.i`: `bMarchSlotIndex` excludes `UT_LIRE` only with `_LIVE`).
+- **June side.** In Rena's range the only `+0x8ac0` / `+0x88bc` touches are the two writers above; `+0x8b58` (`SkillSlotKey`) none. `GetSkillSlotIndexUsed`
+  (`31fd7500`, = March) is called once (`@32c84ad9`, `COMMON_BUFF_FrameMove` `32c849f0`, CH1h, reads the state id). June's four held-key tests
+  `IsEquippedSkillKeyPressed` (`31fce710`) sit in states March tests no key in: Back Kick `32c84ea0` `@32c84fd9` (March's
+  `LESI_A_LWS_BACK_KICK_EventProcess` has none) and Ace in the Hole's three wait functions `32c85430` / `32c85500` / `32c855d0` (new). Nothing misreads
+  before their skill phases: routed with the states, **CH2b** and **CH3b** kickoffs amended ("Amended by CH1p").
+- Checklist 7ag marked `(Rena: CH1p, no code change ...)`.
+
+**Hooks 7h / 7l / 7o / 7p / 7x.** 7h `InitWaitStateChange( "LESI_WAIT_STATE_CHANGE" )` and 7l `InitBoundingStates( "LESI_" )` are CH1m's (in the `_LIVE`
+`.i` once each, absent flag-off; checklist rows already marked). 7o `SET_LIMIT_MAX_G_SPEED` (script x1, `LESI_DAMAGE_BOUNDING_DOWN` -4000; reader
+`X2GUUser.cpp:16560`), 7p `TIME_STOP_IMMUNE_STATE` (script x18; reader `:18197`) and 7x `AT_COMMAND` / `AT_SPECIAL` (script x63; user gate ported by
+Raven CH1p) are script data that CH1 final brings with `Lire_ElvenRanger.lua`.
+
+**June-only keys.** None owned here (CH0 amendment): `BOW_SKILL_STATE` and `CREATE_TRAP_BLADE` were ported by CH1j inside `CommonStateStart` `32ca81b0`
+(funcmap `Char Rena CH1j`); `IMMUNE_TO_SUPER_ARMOR_DOWN` (script x10) is read only by the engine `31fdaaa0` (from `CX2GUUser::CommonStateStart`
+`@32057e68`), not by `32ca81b0`: backlog Stage 2 bullet (`JUNE_PORT_BACKLOG_ORDER.md:246`). §5 census row stays as CH0 left it.
+
+**Hygiene.** No code file changed, so no flagcheck. `junediverge.py --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GUUser.cpp`: `allow-listed: 7`,
+`RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s) remain`. Probes (`census.cl_cmd`, `/c /Zs /EHsc`), `_LIVE` off / on:
+`X2GULire_ElvenRanger.cpp` 0 errors, 38 / 38 warnings; `X2GUUser.cpp` 0 errors, 39 / 39. Full build skipped: no play-test. No funcmap or `JUNE_BUGS` row.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-rena CH1p review` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

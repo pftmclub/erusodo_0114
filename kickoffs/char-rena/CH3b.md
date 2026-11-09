@@ -58,3 +58,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1n (2026-11-09)
 
 - **Slot states:** Gungnir (23015) registers `LESI_RGA_GUNGNIR_READY` ( 283 ); Ace in the Hole (23059) registers `LESI_SA_RGA_ACEINTHEHOLE_WAIT` 296 / `_1ST_ATTACK` 297 / `_WAIT_AFTER_1ST_ATTACK` 298 / `_2ND_ATTACK` 299 / `_WAIT_AFTER_2ND_ATTACK` 300 / `_3RD_ATTACK` 301 (298 / 300 use the 296 table, June `@940` / `@956`), all CH1i's `_CORE` members, by table name. Rapid Shot's `32cb5760` is March's `RapidShotData::CreateRapidShotData()` (`@32cb0e51`). The id switch takes `GetUpgradeBaseSkillID( eSkillID_ )` (`CH2a.md`, Amended by CH1n).
+
+## Amended by CH1p (2026-11-09)
+
+- **Held-key tests (7ag):** the three Ace in the Hole wait EventProcesses `32c85430` / `32c85500` / `32c855d0` each call `IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() )` (`31fce710` `@32c8545b` / `@32c8552b` / `@32c855fb`; `CX2GUUser`, under `SERV_IRUHADEV_JUNE_CHAR_EVE_CORE`) first: pressed -> StateChange to the next attack ( 0x129 / 0x12b / 0x12d ); else left / right pressed, or `m_fAceInTheHoleTime` reaching `32007b10( 1, id )`, -> `UpNowMp` with text ( `32278070`, `32007b10( 0x42, id ) * 3.0` ) and `LESI_WAIT`; then `CommonEventProcess`. The class map names all three `LESI_SA_RGA_ACEINTHEHOLE_WAIT.EventProcess`: name each by the state its table registers. No `SAKP_*` / `m_kSkillSlotKey` here.

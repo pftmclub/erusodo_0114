@@ -828,6 +828,10 @@ class sites (`> 3`, `-4`, `aNormalSkillStateIDSlotB[idx - 4]`) read it that way.
   (Raven: CH1p. Class side June's already (CH1k); `UT_RAVEN` joins the June set. June never reads `+0x8ac0` for him: his 12 `SAKP_*` held-key tests are
   `IsEquippedSkillKeyPressed( m_InputData, GetFutureStateSkillID() )` in June and were converted; Limit Crusher's `CurrentSkillKeyManager` moved to `m_kSkillSlotKey`;
   Shadow Step's June-only `+0x8b58` use goes to CH2a. **A `SAKP_*` held-key test is not a slot + 1 decode in every class: check June's site first.**)
+  (Rena: CH1p, no code change. CH1k already made the class side June's (the lookup keeps the pressed index, `StateChangeBySkillSlot` / `MarkSkillSlotUsed` 0-9,
+  `m_iNowSpecialAttack = slot + 1`, the cooldown's `+0x8ac0` = slot + 1) and joined `UT_LIRE` to `CommonSpecialAttackEventProcess`'s June set; March's 4 + 4 decode and
+  `CountUsedSkill` sit only in `#else`. No `SAKP_*`, `CurrentSkillKeyManager` or `+0x8b58` use either side; June's four `IsEquippedSkillKeyPressed` tests (Back Kick
+  `32c84fd9`, Ace in the Hole `32c8545b` / `32c8552b` / `32c855fb`) are new in June and go with their states to CH2b / CH3b.)
 
 ### 7ah. The 10-slot dialog's class statics and the key-config rows (from June skill system S6)
 
