@@ -9,9 +9,9 @@ Inputs: `coverage.tsv` (V1), `exclusions.tsv` + `v2_exclusions.py`, `v2_sample.t
 |---|---|---|
 | studio code with no funcmap row and no stage naming its address or class | **19,577** | `coverage.tsv` (V1) |
 | ... attached by address / name to a stage that already exists | 9,014 | `exclusions.tsv`, `stage` = S0-S33 |
-| ... in the three new stages (S38 field core 169, S39 game events 148, S40 triage 9,641) | 9,958 | `exclusions.tsv` |
+| ... in the three new stages (S38 field core 169, S39 game events 148, S40 triage 9,650) | 9,967 | `exclusions.tsv` |
 | ... excluded (network glue, serializers, PvP, anti-tamper, telemetry) | 596 | `exclusions.tsv`, `decision` = exclude |
-| ... parked for a user decision (`CX2BossRaidManager`) | 9 | `exclusions.tsv`, `decision` = park |
+| ... parked | 0 | the boss raid class (9) went to S40 on the user's answer |
 | `unknown` bucket (no evidence either way); 3,401 lie between close studio anchors | 16,776 | `coverage.tsv` |
 
 Largest attachments: S7 characters 2,457 (Ara 461, Add 333, Elesis ~270, shared `CX2GUUser` 546, ...), S9 UI 2,009, S2 engine 1,988, S22 world 725.
@@ -52,8 +52,7 @@ unowned function count is code a phase transcribes; the rest arrives with the ty
    (~1,000 functions, ~60 sessions, inside the range).
 7. Not modelled: play-test time on the user's side, regressions, asset / Lua work outside functions beyond the rows already planned.
 
-## Decision for the user
+## Decision (user, 2026-11-09)
 
-`CX2BossRaidManager` (9 functions here; world mission, wedding and mentor code sits in S40 gaps) is server-driven multiplayer.
-Recommendation: exclude wedding and mentor (they need a second player); let Stage 40 identify boss raid and world mission, and route them to
-Stage 22 if they are solo-playable dungeon content.
+Wedding and mentor (tutor list) are excluded: they need a second real player. Boss raid (battlefield danger level -> raid field
+boss) and world mission (Gate of Darkness defence event, world buffs) stay: Stage 40 identifies June's code and routes it to Stage 22 or 39.

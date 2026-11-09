@@ -162,6 +162,8 @@ and measured the pace; the grouping, decisions and estimate are mine.
   `stage`, and Z adds the standing rule to re-run `junebinary.py` / `v2_exclusions.py` at each stage end.
 - **Question for the user (Z applies the answer):** boss raid, world mission, wedding and mentor are server-driven multiplayer systems.
   Recommendation: exclude wedding and mentor; Stage 40 identifies boss raid and world mission and routes them to Stage 22 if solo-playable.
+- **Answer (user, 2026-11-09), applied in V2:** wedding and mentor excluded; boss raid / world mission kept for Stage 40 (`SYS['raid']`,
+  `SYS['social']`). `CX2InformerManager` is the notice pop-ups, not a mentor system (fix `cec84b06`). Now: park 0, S40 9,650 (192 groups).
 
 ## Phase Z - Close-out
 

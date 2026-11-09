@@ -76,7 +76,7 @@ The user's remaining backlog, in the order they listed it:
 | 37 | June HUD: buff icon row and quick slot *(added 2026-10-31, user: split out of Stage 9)* | - (user request) | June's buff / debuff icon row anchored at the top right (`DLG_BuffManager.lua`'s dummy positions, which March ignores) with a stack counter on each icon, replacing the user's `SERV_IRUHADEV_BUFF_DURATION_TEXT` mod (deleted); and June's consumable quick slot at the bottom left (`DLG_UI_Quick_Slot.lua`, no wide-bar lift). Planned in full as `JUNE_HUD_PHASES.md` (H0-H4, review, Z); runs now, outside the Stage 9 order. |
 | 38 | June village / field game core *(added 2026-11-09, june-census V2)* | - (found by the census) | Not a backlog item but unowned June code: `CX2TFieldGame` (121 functions) and `CX2SquareUnit` (47) beyond the entrance lists Atlas and Stage 24 touched. Brief `kickoffs/june-backlog/stage38-plan.md`. |
 | 39 | June game-event systems *(added 2026-11-09, june-census V2)* | - (found by the census) | Not a backlog item but unowned June systems: `CX2CustomEventManager` + `CX2CustomEventItemSlotManager`, `CX2LVUpEventMgr`, `CX2RandomMission` (148 functions); date windows switch on from the save DB. Brief `kickoffs/june-backlog/stage39-plan.md`. |
-| 40 | Triage of the June code no address can place *(added 2026-11-09, june-census V2)* | - (found by the census) | 191 address gaps (9,641 functions) lie between source files of different systems; a read-only Opus triage names their classes and routes each run to a stage, a new stage or an exclusion. Runs first among 38-40, with anything. Brief `kickoffs/june-backlog/stage40-plan.md`. |
+| 40 | Triage of the June code no address can place *(added 2026-11-09, june-census V2)* | - (found by the census) | 191 address gaps (9,641 functions) lie between source files of different systems, plus the boss raid class (9); a read-only Opus triage names their classes and routes each run to a stage, a new stage or an exclusion. Runs first among 38-40, with anything. Brief `kickoffs/june-backlog/stage40-plan.md`. |
 
 **Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
@@ -1547,6 +1547,8 @@ be placed by address.
   a new stage (scope rule) or exclude (glue, server-only). Output `june2017_re/census/triage.tsv`, funcmap rows `Triage S40`,
   `v2_exclusions.py` reading the routes.
 - About half of any unowned count is real work (`june2017_re/census/v2_sample.tsv`); the biggest gap (`X2GUUser..X2Data`) is mostly serializers.
+- Boss raid and world mission stay (user, 2026-11-09): identify them and route to Stage 22 or 39; wedding and mentor code found in a gap
+  is excluded (needs a second real player).
 - **Depends on:** june-census Z. Start: `/x2-phase new-plan june-triage` (Opus 5.5 high), brief `kickoffs/june-backlog/stage40-plan.md`.
 
 ## Open decisions that gate stages

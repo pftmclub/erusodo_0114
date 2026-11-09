@@ -5,7 +5,7 @@
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase new-plan june-triage` |
 | Output | plan key `june-triage` (`kickoffs/june-triage/`, a `june-triage` STATUS block), plan doc `JUNE_TRIAGE_PHASES.md` (new) |
 | Plan doc | `JUNE_PORT_BACKLOG_ORDER.md` (Stage 40) |
-| Depends on | june-census Z (the user's answer on the parked row); runs with anything (read-only, no code) |
+| Depends on | june-census Z; runs with anything (read-only, no code) |
 | Flag | none (read-only: Ghidra, census tables, docs) |
 | Log tag | none |
 | Review | none (a planning session); the plan's triage phases are read-only and need no review |
@@ -17,7 +17,7 @@ python tools/docsection.py JUNE_PORT_BACKLOG_ORDER.md "Stage 40: triage of the J
 python tools/docsection.py JUNE_COVERAGE_CENSUS_PHASES.md "Phase V2 - Exclusions, new stages, estimate (Opus)"
 ```
 
-and `june2017_re/census/SUMMARY.md`; the rows of `june2017_re/census/exclusions.tsv` whose `stage` is `S40` (191 groups, 9,641 functions).
+and `june2017_re/census/SUMMARY.md`; the rows of `june2017_re/census/exclusions.tsv` whose `stage` is `S40` (192 groups, 9,650 functions).
 
 ## Task
 
@@ -33,7 +33,8 @@ different systems (or between strings naming several systems), so their owner is
    `evidence`), funcmap rows for each class anchor found (tag `Triage S40`), and a change to `v2_exclusions.py` so a routed run takes its
    stage from `triage.tsv`; re-run it and `tools/junebinary.py --check`.
 4. **Routing.** A run whose system has a stage goes there (attach); a June-only system with no stage becomes a new backlog stage (scope rule);
-   glue and server-only code is excluded with the reason. Boss raid / world mission / wedding / mentor follow the user's answer to june-census V2.
+   glue and server-only code is excluded with the reason. Boss raid and world mission stay (user, 2026-11-09): route them to Stage 22 (raid field) or 39 (timed event); wedding and mentor
+   (tutor list) code is excluded wherever it turns up.
 
 Write the plan in the x2-phase `new-plan` shape (one `##` section per phase, kickoffs, STATUS block), mark this brief's STATUS row done,
 and commit with explicit pathspecs.

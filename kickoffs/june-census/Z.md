@@ -19,7 +19,6 @@ python tools/docsection.py JUNE_COVERAGE_CENSUS_PHASES.md "Context" "Rules" "Sta
 
 Do "Phase Z" in the plan doc: apply the user's answers, check every new stage has a STATUS row and a kickoff, add the "re-run `junebinary.py` at each stage end" line to the backlog's Standing rules, archive this plan's STATUS block, and commit.
 
-Added by V2 (2026-11-09): the one question is in the V2 Done note's last bullet (boss raid / world mission / wedding / mentor). Apply the
-answer in `june2017_re/census/v2_exclusions.py` (`SYS['multi']` and the `M` row for those names), re-run it (`RESULT: PASS`), and update
-`kickoffs/june-backlog/stage40-plan.md` item 4 to match. The Standing-rules line names both `tools/junebinary.py --check` and
+Added by V2 (2026-11-09): the user's answer is already applied (wedding / mentor excluded, boss raid / world mission to Stage 40;
+`v2_exclusions.py` `SYS['raid']` / `SYS['social']`, stage40 brief item 4); just re-run it (`RESULT: PASS`). The Standing-rules line names both `tools/junebinary.py --check` and
 `python -I june2017_re/census/v2_exclusions.py`. Then set the `stage40-plan` STATUS row to ready.

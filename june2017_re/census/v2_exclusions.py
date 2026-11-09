@@ -42,7 +42,8 @@ SYS = {  # system -> (decision, stage, reason)
     'field': ('port', 'S38', 'village / field game core (CX2TFieldGame, CX2SquareUnit, field state); no stage owns it'),
     'event': ('port', 'S39', 'date-window game events (custom events, level-up event, random mission); no stage owns them'),
     'triage': ('port', 'S40', 'not attributable by address: identify the classes, then route to the owning stage or exclude'),
-    'multi': ('park', '-', 'server-driven multiplayer system (wedding, world mission, boss raid, mentor / tutor list): user decides'),
+    'raid': ('port', 'S40', 'boss raid / world mission (user, 2026-11-09: keep; Stage 40 identifies them, then S22 or S39)'),
+    'social': ('exclude', '-', 'wedding / mentor (tutor list) need a second real player (user, 2026-11-09)'),
     'pvp': ('exclude', '-', 'PvP only; the offline client has no PvP'),
     'net': ('exclude', '-', 'network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature'),
     'telemetry': ('exclude', '-', 'packet log / mail-out telemetry'),
@@ -73,7 +74,8 @@ M = [  # (regex on class or .obj name, system); first match wins
     (r'TFieldNpc', 'friendship'),
     (r'TFieldGame|SquareUnit|StateField$|^x2tfieldgame$|^x2squareunit$', 'field'),
     (r'CustomEvent|LVUpEvent|RandomMission', 'event'),
-    (r'Wedding|WorldMission|BossRaid', 'multi'),
+    (r'Wedding', 'social'),
+    (r'WorldMission|BossRaid', 'raid'),
     (r'Informer', 'ui'),
     (r'PVP|PvP', 'pvp'),
     (r'Session|TRUser|IOThread|IOCP|Iocp|^iocp$|SocketObject|Performer|ActorProxy|ServerProtocol|^(C)?X2Packet$|KLuaManager|KTDNUDP|netcommon|threadmanager|KSk', 'net'),
@@ -92,7 +94,7 @@ STR = [  # decrypted-string hints (func_strings.tsv) for gaps; one distinct hint
     (r'TournamentSystem|LocaleInfo|SERVER_GROUP', 'publisher'), (r'g_pEventScene|Event_Scene|SlideShot', 'scene'),
     (r'CharCustom', 'customize'), (r'PVPResultTable', 'pvp'), (r'g_pTitleSystem', 'achieve'), (r'MEMORY BOMB', 'anticheat'),
     (r'g_pPetManager|PET_ID', 'pet'), (r'HYPER_GAGE|DP_RATE_BY', 'gauge'), (r'Book_Table|Dungeon_Loading', 'ui'),
-    (r'g_pkExpTable|UIMajorParticle', 'engine'), (r'SECRET_SKILL', 'char-shared'), (r'HenirData', 'world'), (r'WorldTourInfoData', 'scene'), (r'TUTOR_REQUEST', 'multi'),
+    (r'g_pkExpTable|UIMajorParticle', 'engine'), (r'SECRET_SKILL', 'char-shared'), (r'HenirData', 'world'), (r'WorldTourInfoData', 'scene'), (r'TUTOR_REQUEST', 'social'),
 ]
 OVR = {'gap:X2UIInventory..X2CashShop@0x321c6800': ('net', 'v2_sample: 10 / 10 packet serializers')}
 
