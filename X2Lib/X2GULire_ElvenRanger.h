@@ -201,6 +201,10 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 			LESI_RNW_DASH_XZ,	/// June script id 272 ( Night Watcher follow-up after dash X; CH1m maps, CH1g owns the state )
 			LESI_RNW_DASH_JUMP_XZ_START,	/// June script id 277 ( Night Watcher follow-up after dash jump X; CH1m maps, CH1g owns the state )
 			LESI_RNW_DASH_JUMP_XXZ_START,	/// June script id 280 ( Night Watcher follow-up after dash jump X-X; CH1m maps, CH1g owns the state )
+			LESI_RGA_DASH_JUMP_XXZ_FROM_X2,	/// June script id 270 ( the same script table as 269 registered a second time, entered from dash jump X-X; CH1m maps )
+#ifndef ADD_RENA_SYSTEM
+			LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX,	/// June script id 252 ( March declares it only under ADD_RENA_SYSTEM; CH1q owns the state, CH1f names it as the follow-up; CH1m maps )
+#endif ADD_RENA_SYSTEM
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 
@@ -1823,6 +1827,12 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void LESI_RWS_DASH_JUMP_XXZ_START_EventProcess();	/// June 32c80a40
 		void LESI_RWS_DASH_JUMP_XXZ_LOOP_EventProcess();	/// June 32c80c70
 		void LESI_RWS_DASH_JUMP_XXZ_END_EventProcess();	/// June 32c80e80
+		void LESI_RSR_DASH_ZX_StateStart();	/// June 32c6d500
+		void LESI_RSR_DASH_ZX_StateStartFuture();	/// June 32c6d520
+		void LESI_RSR_DASH_ZX_FrameMove();	/// June 32c9faa0
+		void LESI_RSR_DASH_ZX_EventProcess();	/// June 32c810e0
+		void UpdateSpineAimRotation();	/// June 32c863d0 ( user vslot 0x774 ): body in CH1i
+		D3DXVECTOR3 m_vSpineAimDegree;	/// June +0x97d4: the aim angles UpdateSpineAimRotation writes; the siege shot reads them
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 		/// 지연의 신호탄

@@ -748,6 +748,39 @@ All 29 class-map rows of phase CH1e are written. 22 are `inside`: June's body in
 
 Nothing to play-test. Next: `/x2-phase char-rena CH1f` (Sonnet 5.5 high).
 
+### CH1f - Done (2026-11-09)
+
+All 43 class-map rows of phase CH1f are written. 39 are `inside`: June's body in March's own `CX2GULire_ElvenRanger` function under `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, March's in `#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`. 4 are `new` (`_CORE`, compiled in every build, referenced by nothing yet): the `LESI_RSR_DASH_ZX` StateStart / StateStartFuture / FrameMove / EventProcess, one block before `LESI_LGA_ZZX_FrameMove`. `_LIVE` stays `//#define`. 43 funcmap rows `Char Rena CH1f`; 2 `JUNE_BUGS` rows (#565, #566). **Two class-map corrections** (`ch0_class_map.tsv` rows fixed): `32c77f90` is the Wind Sneaker's dash X (March `LESI_LWS_DASH_X_EventProcess`, flag 1 -> `LESI_LWS_DASH_XZ`), not a second Sniping Ranger X1; `32c7bd20` is March's `SetSiegeModeCoolTime` (June looks the siege skill up by its own id), not a new helper.
+
+| June | `CX2GULire_ElvenRanger::` |
+|---|---|
+| `32c6af50` `32c6af60` `32c87d30` | Siege wait StateStart / FrameMove / EventProcess |
+| `32c87c20` `32c6f560` `32c83d00` `32c83f70` `32c84020` `32c840d0` | Siege ready StartFuture / Start / EventProcess, attack (Z) and attack X EventProcess, end EventProcess |
+| `32c6afb0` `32c6aff0` `32ca5330` `32c6b030` `32c6b070` `32ca5aa0` | Siege attack Z and X StartFuture / Start / FrameMove |
+| `32c7bd20` | `SetSiegeModeCoolTime` |
+| `32c99a90` `32c7b1b0` `32c7b530` `32c99ec0` `32c7b570` `32c9a300` `32c7ba40` | Sniping Ranger combo X2 FrameMove / EventProcess, X3 FrameMoveFuture / FrameMove / EventProcess, X4 FrameMove / EventProcess |
+| `32c6b1b0` `32c90620` `32c73500` `32c6b1c0` `32c77f90` `32c909e0` `32c73960` | dash X1 StartFuture / FrameMove / EventProcess / EndFuture, Wind Sneaker dash X EventProcess, dash X2 FrameMove / EventProcess |
+| `32c74800` `32c928f0` `32c74840` `32c6b2b0` `32c92df0` `32c74a10` | dash-jump X2 FrameMoveFuture / FrameMove / EventProcess, X3 FrameMoveFuture / FrameMove / EventProcess |
+| `32c83c90` `32c8aa40` `32c6e450` | double-jump attack X FrameMoveFuture / FrameMove / EventProcess |
+| `32c6d500` `32c6d520` `32c9faa0` `32c810e0` | `LESI_RSR_DASH_ZX_StateStart` / `_StateStartFuture` / `_FrameMove` / `_EventProcess` (new) |
+
+**Where June differs from March** (read from `charport_adis.py rena --phase CH1f`; the rest is March's logic written out whole with `// June <va> ( = March )`):
+- **Every arrow costs MP through `GetArrowMpConsumption` and has its own name** (Sniping Ranger `DamageEffect_RSR_*`, Wind Sneaker `_RWS_` in dash X). March live -> June MP: combo X2 1.5 -> 6, X3 3 -> 8, X4 3 -> 9, dash X1 6 -> 4, dash X2 3 -> 6, dash-jump X2 3 -> 6, dash-jump X3 12 -> 8, double-jump X 20 -> 4. Combo X4, dash-jump X3 and `RSR_DASH_ZX` arrows set the natural force combo bomb type (`_NF`). `RSR_DASH_ZX` shoots three arrows from `Dummy2_Lhand` (z, z + 15, z - 15 of `ARROW_DEGREE_Z`).
+- **Siege Mode.** The skill is `RNSI_A_RENA_SIEGEMODE` (23201), the enhanced one `_UPGRADE` (23221), looked up with the upgrade swap in Ready's Start / StartFuture and `SetSiegeModeCoolTime` ( `JUNE_BUGS` #565 ). A shot ends the mode below 15 MP (Z, March 20) / 25 MP (X, March 27). The Z shot aims along `m_vSpineAimDegree` (`UpdateSpineAimRotation`, vslot 0x774; wait and Z call it), both arrows ( now + 0.12 s reserved ) go through one vector; X keeps the parabolic volley. A natural force point (`_NF`) is consumed first and swaps the arrow for `ARROW_SIEGE_Z_NATURE_FORCE` / `ARROW_SIEGE_X_NATURE_FORCE`; the weak shot ( 3 MP ) is `ARROW_SIEGE_No_MP` / `ARROW_SIEGE_ARROW_NATURE_FORCE` ( March `ARROW_LONG` ). Siege wait runs `SpecialAttackEventProcess( ASUT_GROUND )`.
+- **EventProcess = March's `ADD_RENA_SYSTEM` revamp** (dead until CH1q) with the animation-end follow-up (`ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_`) and foot-tested cancels (`RENA_GROUND_*`), as CH1d-CH1e. Order per listing: combo X2 skill / walk / back-walk / dash, X3 walk / dash / skill / back-walk (3 flags), X4 plain walk / dash, skill, foot-tested back-walk, **Z / X cancel -> wait** (March: siege wait), dash X1 skill / walk / back-walk / dash with `SpecialAttackEventProcess( ASUT_GROUND )` after the animation end, dash X2 skill / walk / dash / back-walk, Z / X -> siege wait. Dash-jump X2: flag 1 ( `oneZ`, Grand Archer ) -> id 270 ( new `_FROM_X2` member ).
+- **Double-jump X EventProcess** opens the chain with the flagged X-X follow-up ( `IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_`, new `_CORE` macro ); `FrameMoveFuture` of dash-jump X3 is a bare thunk ( the speed freeze is gone ).
+- **Added to the headers.** `X2SkillTree.h`: `RNSI_A_RENA_SIEGEMODE` 23201, `RNSI_A_RENA_SIEGEMODE_UPGRADE` 23221 (`JUNE_ENUM_NAMES`). `X2GULire_ElvenRanger.h` (`_CORE`): `LESI_RGA_DASH_JUMP_XXZ_FROM_X2` 270, `LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX` 252 (only while `ADD_RENA_SYSTEM` is off), the four `RSR_DASH_ZX` declarations, `UpdateSpineAimRotation()` ( June `32c863d0`, **body in CH1i** ) and `m_vSpineAimDegree` ( +0x97d4 ). `.cpp`: `COMBO_HIT_GROUP_VALUE` ( `_CONST_RENA_CH1F_`, the 100 `SetNowDamageRelateSkillData` takes ), the `IF_` macro.
+- **Not here:** `LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX` Start / FrameMove / EventProcess are CH1q's; `InitState*` untouched; nothing the plan routes elsewhere was found.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE --with ..._CORE --worktree --files X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). OTHER = the `.h` (`_CORE`). `flagcheck SERV_IRUHADEV_JUNE_ENUM_NAMES --files X2Lib/X2SkillTree.h`: `PASS~ +6`, `RESULT: PASS`.
+- One-file `/Zs` probe (`census.cl_cmd`, no PCH) of `X2GULire_ElvenRanger.cpp`: exit 0, 0 errors with no extra defines, with `/D SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`. `cl /P` off / on: `DamageEffect_RSR_Combo_XX_Arrow` 0 / 1 ( the `_CORE` `LESI_RSR_DASH_ZX_EventProcess` is in both ).
+- `junediverge.py --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h X2Lib/X2SkillTree.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `0 A/B row(s)`.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,085,376 B, 2026-11-09 07:58:08`; `DEPLOY OK: X2_offline.exe is 26,085,376 B, dated 2026-11-09 07:58:14, md5 34b2c319209e55490c6bfb086d15f32d, equal to X2/US_SERVICE/x2.exe (2026-11-09 07:58:08); built at main 908ef52c + 3 uncommitted code file(s).`
+- `exestr` ( the `_CORE` string is compiled in, the `_LIVE`-only one is not ): `EXESTR OK: 1 of 1 found in X2_offline.exe ... md5 34b2c319...` for `DamageEffect_RSR_Dash_Combo_ZX_Arrow` ( wide ); `EXESTR OK: 1 of 1 absent` for `DamageEffect_RSR_Combo_XX_Arrow`.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1f review` (Opus 5.5 high), then CH1f2.
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

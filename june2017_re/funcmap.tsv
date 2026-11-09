@@ -8757,3 +8757,46 @@ CX2Game +0xc20 (Rena CH1a)	none in March: CX2Game byte read by the Rena wait / c
 32c80a40	CX2GULire_ElvenRanger::LESI_RWS_DASH_JUMP_XXZ_START_EventProcess	PORTED	Char Rena CH1e: new (_CORE): June body, compiled in every build, referenced by nothing yet
 32c80c70	CX2GULire_ElvenRanger::LESI_RWS_DASH_JUMP_XXZ_LOOP_EventProcess	PORTED	Char Rena CH1e: new (_CORE): June body, compiled in every build, referenced by nothing yet
 32c80e80	CX2GULire_ElvenRanger::LESI_RWS_DASH_JUMP_XXZ_END_EventProcess	PORTED	Char Rena CH1e: new (_CORE): June body, compiled in every build, referenced by nothing yet
+32c6af50	CX2GULire_ElvenRanger::SiegeWaitStateStart	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March
+32c6af60	CX2GULire_ElvenRanger::SiegeWaitFrameMove	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: UpdateSpineAimRotation ( vslot 0x774 ) before CommonFrameMove
+32c6afb0	CX2GULire_ElvenRanger::SiegeAttackFrontStateStartFuture	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March
+32c6aff0	CX2GULire_ElvenRanger::SiegeAttackFrontStateStart	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March
+32c6b030	CX2GULire_ElvenRanger::SiegeAttackXFrontStateStartFuture	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March
+32c6b070	CX2GULire_ElvenRanger::SiegeAttackXFrontStateStart	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March
+32c6b1b0	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X1_StartFuture	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March
+32c6b1c0	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X1_EndFuture	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March
+32c6b2b0	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3_FrameMoveFuture	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: a bare thunk, the speed freeze below 0.3 s is gone
+32c6d500	CX2GULire_ElvenRanger::LESI_RSR_DASH_ZX_StateStart	PORTED	Char Rena CH1f: new (_CORE): June body, compiled in every build, referenced by nothing yet: SetNowDamageRelateSkillData under _NF
+32c6d520	CX2GULire_ElvenRanger::LESI_RSR_DASH_ZX_StateStartFuture	PORTED	Char Rena CH1f: new (_CORE): June body, compiled in every build, referenced by nothing yet: faces back ( bIsRight, dirDegree.y + 180 ) before CommonStateStartFuture
+32c6e450	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X_EventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: the X-X follow-up also fires at the animation end; id 252 enum member added under _CORE while ADD_RENA_SYSTEM is off
+32c6f560	CX2GULire_ElvenRanger::SiegeReadyStateStart	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: June ids RNSI_A_RENA_SIEGEMODE / _UPGRADE with the upgrade swap
+32c73500	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X1_EventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: March combo revamp + animation-end follow-ups + foot-test cancels, the animation end tests the foot first
+32c73960	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X2_EventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: back-walk cancel, foot-test ground cancels, ZX ends in the siege wait
+32c74800	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2_FrameMoveFuture	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March
+32c74840	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2_EventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: Grand Archer Z follow-up ( id 270 ), follow-ups also at the animation end
+32c74a10	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3_EventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March
+32c77f90	CX2GULire_ElvenRanger::LESI_LWS_DASH_X_EventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: March combo revamp + animation-end follow-up + foot-test cancels; class-map row corrected ( was the Sniping Ranger X1 )
+32c7b1b0	CX2GULire_ElvenRanger::SnipingRangerComboX2EventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: March combo revamp + animation-end follow-up + foot-test cancels
+32c7b530	CX2GULire_ElvenRanger::SnipingRangerComboX3FrameMoveFuture	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March
+32c7b570	CX2GULire_ElvenRanger::SnipingRangerComboX3EventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: March combo revamp + animation-end follow-ups, walk / dash / skill / back-walk order, foot-test cancels
+32c7ba40	CX2GULire_ElvenRanger::SnipingRangerComboX4EventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: foot-test back-walk cancel, the ZX cancel ends in the wait state ( March: siege wait )
+32c7bd20	CX2GULire_ElvenRanger::SetSiegeModeCoolTime	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: June ids RNSI_A_RENA_SIEGEMODE / _UPGRADE, GetActualCoolTime, stored on the plain skill; class-map row corrected ( was a new helper )
+32c810e0	CX2GULire_ElvenRanger::LESI_RSR_DASH_ZX_EventProcess	PORTED	Char Rena CH1f: new (_CORE): June body, compiled in every build, referenced by nothing yet: ends on the landing line, foot-test cancels
+32c83c90	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X_FrameMoveFuture	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March ( shared with the X-X state )
+32c83d00	CX2GULire_ElvenRanger::SiegeReadyEventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March
+32c83f70	CX2GULire_ElvenRanger::SiegeAttackEventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: the shot ends the mode below 15 MP ( March 20 )
+32c84020	CX2GULire_ElvenRanger::SiegeAttackXEventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: the shot ends the mode below 25 MP ( March 27 )
+32c840d0	CX2GULire_ElvenRanger::SiegeEndEventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: = March
+32c87c20	CX2GULire_ElvenRanger::SiegeReadyStateStartFuture	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: June ids RNSI_A_RENA_SIEGEMODE / _UPGRADE with the upgrade swap
+32c87d30	CX2GULire_ElvenRanger::SiegeWaitEventProcess	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: SpecialAttackEventProcess( ASUT_GROUND )
+32c8aa40	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_X_FrameMove	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: 4 MP through the helper, class-named arrows
+32c90620	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X1_FrameMove	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: 4 MP through the helper, RSR / RWS arrows
+32c909e0	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_COMBO_X2_FrameMove	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: 6 MP through the helper, RSR arrow
+32c928f0	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2_FrameMove	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: 6 MP through the helper, RSR arrow
+32c92df0	CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3_FrameMove	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: 8 MP through the helper, three RSR arrows with the natural force type
+32c99a90	CX2GULire_ElvenRanger::SnipingRangerComboX2FrameMove	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: 6 MP through the helper, RSR arrow
+32c99ec0	CX2GULire_ElvenRanger::SnipingRangerComboX3FrameMove	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: 8 MP through the helper, RSR arrow
+32c9a300	CX2GULire_ElvenRanger::SnipingRangerComboX4FrameMove	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: 9 MP through the helper, RSR arrow with the natural force type
+32c9faa0	CX2GULire_ElvenRanger::LESI_RSR_DASH_ZX_FrameMove	PORTED	Char Rena CH1f: new (_CORE): June body, compiled in every build, referenced by nothing yet: three arrows from Dummy2_Lhand, natural force type
+32ca5330	CX2GULire_ElvenRanger::SiegeAttackFrontFrameMove	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: spine aim, MP 15, natural force arrow, ARROW_SIEGE_No_MP
+32ca5aa0	CX2GULire_ElvenRanger::SiegeAttackXFrontFrameMove	PORTED	Char Rena CH1f: inside: June body under JUNE_CHAR_RENA_LIVE: differs: MP 25, natural force arrow, ARROW_SIEGE_No_MP
