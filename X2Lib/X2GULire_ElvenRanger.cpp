@@ -60,6 +60,52 @@ namespace _CONST_RENA_CH1F_
 }
 using namespace _CONST_RENA_CH1F_;
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+namespace _CONST_RENA_CH1C_
+{
+	bool RenaAwakeningEffectSetPresent();	/// June 31fd66b0 ( stand-in, defined with CH1c's helpers below )
+}
+using namespace _CONST_RENA_CH1C_;
+namespace _CONST_RENA_CH1H_
+{
+	// June CX2Unit +0x3c: the transcended test
+	bool IsTranscendedUnit( const CX2Unit* pUnit_ )
+	{
+#ifdef SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		return NULL != pUnit_ && 0 != pUnit_->GetUnitData().m_iUnitClassTran;
+#else SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+		UNREFERENCED_PARAMETER( pUnit_ );
+		return false;
+#endif SERV_IRUHADEV_JUNE_TRANSCEND_UNIT
+	}
+
+}
+using namespace _CONST_RENA_CH1H_;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+namespace _CONST_RENA_CH1H_
+{
+	// June 32007c40: the acquired skill's ability value ( IsPvpOrPve is false offline )
+	bool TryGetAcquiredSkillAbilityValue( CX2Unit* pUnit_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const CX2SkillTree::SKILL_ID eSkillID_, const bool bMemoSwap_, float& fOut_ )
+	{
+		if( NULL == pUnit_ )
+			return false;
+
+		const int iSkillLevel = pUnit_->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID_, false, 0, true );
+		if( iSkillLevel <= 0 )
+			return false;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = pUnit_->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( eSkillID_, bMemoSwap_ );
+		if( NULL == pSkillTemplet )
+			return false;
+
+		return pSkillTemplet->TryGetSkillAbilityValue( eType_, iSkillLevel, false, fOut_ );
+	}
+}
+using namespace _CONST_RENA_CH1H_;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 /// June's expansion of ELSE_IF_STATE_CHANGE_ON_EX_ in the stand-up states: the flag also fires when the future animation ends, the time tests run before the key test
 #define ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( iEventFlagIndex, fInputTimingStart, fInputTiming, fChangeTiming, bCondition, iStateID ) \
 	else if( m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] == true && \
@@ -355,6 +401,49 @@ CX2GULire_ElvenRanger::CX2GULire_ElvenRanger( int unitIndex, int teamNum,
 
 CX2GULire_ElvenRanger::~CX2GULire_ElvenRanger(void)
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca42f0 ( the std::set at +0x220 June clears here is a base member )
+	g_pX2Game->GetEffectSet()->StopEffectSet( m_hEradicationLoopEffect );
+	g_pX2Game->GetEffectSet()->StopEffectSet( m_hWindSneakerFoot );
+
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPEnergy );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPEnergyCenter );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPChargeWave );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPChargeFeather );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPCharge2Up );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPCharge2UpHigh );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqMPChargePlus );
+
+	SAFE_DELETE_KTDGOBJECT( m_pMPChargeA );
+	SAFE_DELETE_KTDGOBJECT( m_pMPChargeB );
+	SAFE_DELETE_KTDGOBJECT( m_pMPChargeC );
+
+	DeleteLireMajorParticle();
+	DeleteLireMinorParticle();
+
+	g_pX2Game->GetMinorXMeshPlayer()->DestroyInstanceHandle( m_hMeshSpinningKick1 );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqSpinningKick1 );
+	g_pX2Game->GetMinorParticle()->DestroyInstanceHandle( m_hSeqSpinningKick2 );
+
+	SAFE_DELETE( m_pFriendshipNatureData );
+
+	DeleteTrapBlade();
+	m_vecOptrEvoke.clear();
+
+	DeletePriorPlannedBlowEffect();
+	g_pX2Game->GetEffectSet()->StopEffectSet( m_hActiveStartOfDelayedFiring );
+
+	m_vecAngerOfElfTrapUID.clear();
+	m_vecCryotronBoltDamageEffect.clear();
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	m_fNaturalForceValueCharge = 0.f;
+	SetNaturalForceBuff( false );
+	g_pX2Game->GetEffectSet()->StopEffectSet( m_hNaturalForceEffect );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+
+	KillMySummonedNPC( CX2UnitManager::NUI_RENA_TARGETING_GUNGNIR, 3.0f );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	g_pX2Game->GetEffectSet()->StopEffectSet( m_hWindSneakerFoot );
 
 #ifdef OLD_HAND_SLASH_TRACE
@@ -423,10 +512,60 @@ CX2GULire_ElvenRanger::~CX2GULire_ElvenRanger(void)
 	SetNaturalForceBuff(false);
 	g_pX2Game->GetEffectSet()->StopEffectSet( m_hNaturalForceEffect );
 #endif //ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ReInit( bool bRandom, int startPosIndex )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca4a40 ( the PvP game keeps its MP; the softbody debuff and the targeting NPC kill are June's )
+	CX2GUUser::ReInit( bRandom, startPosIndex );
+
+	if( GetNowMp() < 50.f && CX2Game::GT_PVP != g_pX2Game->GetGameType() )
+		SetNowMp( 50.f );
+
+	MakeRoomForEntangleTrap( 0, true );
+
+	ReInitFriendshipNature();
+
+	MakeRoomForAngerOfElfTrap( 0, true );
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	m_fNaturalForceValueCharge = 0.f;
+
+	if ( true == IsMyUnit() )
+		m_FrameDataFuture.syncData.m_CannonBallCount = GetNaturalForceCount();
+
+	SetNaturalForceBuff( 1 <= GetNaturalForceCount() );	// June 32c85200: one point is enough
+
+	SetNaturalForceEffect();
+
+	SetSphereAttackBoxScale( L"Lfoot", 1.3f );
+	SetSphereAttackBoxScale( L"Rfoot", 1.3f );
+
+	m_eSaveStateSkillId = CX2SkillTree::SI_NONE;
+
+	if( GetAccessNowDamageRelateSkillData().m_byteRelateData >= 10 )
+		GetAccessNowDamageRelateSkillData().m_byteRelateData = 0;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+
+	if( 0.f < m_SkillRelatedData.m_fSkillCoolTimeLeft_SI_P_COMMON_SOFTBODY )
+	{
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_DEBUFF_SELF_SOFTBODY, 1, NULL, 0, false );
+
+		vector<CX2BuffFinalizerTempletPtr> vecFinalizerPtr;
+		GetBuffFinalizerTempletPtrList( BTI_DEBUFF_SELF_SOFTBODY, vecFinalizerPtr );
+		if( false == vecFinalizerPtr.empty() )
+		{
+			CX2BuffTimeFinalizerTemplet* pTimeFinalizer = dynamic_cast<CX2BuffTimeFinalizerTemplet*>( vecFinalizerPtr[0].get() );
+			if( NULL != pTimeFinalizer )
+				pTimeFinalizer->SetDurationTime( m_SkillRelatedData.m_fSkillCoolTimeLeft_SI_P_COMMON_SOFTBODY );
+		}
+		ChangeBuffFinalizerTempletPtrList( BTI_DEBUFF_SELF_SOFTBODY, vecFinalizerPtr );
+	}
+
+	KillMySummonedNPC( CX2UnitManager::NUI_RENA_TARGETING_GUNGNIR, 3.0f );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CX2GUUser::ReInit( bRandom, startPosIndex );
 
 	if( GetNowMp() < 50.f )
@@ -468,10 +607,20 @@ void CX2GULire_ElvenRanger::ReInit( bool bRandom, int startPosIndex )
 	if( GetAccessNowDamageRelateSkillData().m_byteRelateData >= 10 )
 		GetAccessNowDamageRelateSkillData().m_byteRelateData = 0;
 #endif //ADD_RENA_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DamageReact( CX2DamageManager::DamageData* pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6da50 ( no profiling; a DT_BUFF hit never wakes the friendship of nature )
+	CX2GUUser::DamageReact( pDamageData );
+	CX2GUUser::DamageReactStateChange( pDamageData );
+
+	if( true == IsDamagedReaction( pDamageData ) && pDamageData->m_fHpPercentUp <= 0.f && pDamageData->m_fMpPercentUp <= 0.f
+		&& CX2DamageManager::DT_BUFF != pDamageData->damageType && m_delegateFriendshipOfNature )
+		m_delegateFriendshipOfNature();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	KTDXPROFILE();
 	CX2GUUser::DamageReact( pDamageData );
 	CX2GUUser::DamageReactStateChange( pDamageData );
@@ -484,6 +633,7 @@ void CX2GULire_ElvenRanger::DamageReact( CX2DamageManager::DamageData* pDamageDa
 			m_delegateFriendshipOfNature();
 	}
 #endif NEW_SKILL_2010_11
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 }
 
@@ -542,6 +692,18 @@ void CX2GULire_ElvenRanger::ReInitFriendshipNature()
 
 void CX2GULire_ElvenRanger::Win()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca7860 ( = March )
+	CX2GUUser::Win();
+
+	if( true == m_bShowTrapBladeToWinMotion )
+		CreateTrapBlade();
+
+	if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		StateChange( USI_RIDING_WAIT_HABIT );
+	else
+		StateChange( USI_WIN );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CX2GUUser::Win();
 
 #ifdef SERV_RENA_NIGHT_WATCHER
@@ -557,10 +719,23 @@ void CX2GULire_ElvenRanger::Win()
 #else
 	StateChange( USI_WIN );
 #endif //RIDING_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::Lose()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c834f0 ( = March )
+	CX2GUUser::Lose();
+
+	if( IsMyUnit() == true && GetNowHp() > 0.0f )
+	{
+		if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+			StateChange( USI_RIDING_WAIT );
+		else
+			StateChange( USI_LOSE );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CX2GUUser::Lose();
 
 	if( IsMyUnit() == true && GetNowHp() > 0.0f )
@@ -574,10 +749,20 @@ void CX2GULire_ElvenRanger::Lose()
 		StateChange( USI_LOSE );
 #endif //RIDING_SYSTEM
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::Draw()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6db70 ( = March )
+	CX2GUUser::Draw();
+
+	if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		StateChange( USI_RIDING_WAIT_HABIT );
+	else
+		StateChange( USI_WIN );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CX2GUUser::Draw();
 
 #ifdef RIDING_SYSTEM
@@ -588,6 +773,7 @@ void CX2GULire_ElvenRanger::Draw()
 #else
 	StateChange( USI_WIN );
 #endif //RIDING_SYSTEM
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -603,10 +789,18 @@ void	CX2GULire_ElvenRanger::AppendEffectToDeviceList( CKTDXDeviceDataList& listI
 
 void CX2GULire_ElvenRanger::InitEffect()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c6a8d0 ( = March )
+	CX2GUUser::InitEffect();
+
+	CreateMajorParticleArray();
+	CreateMinorParticleArray();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CX2GUUser::InitEffect();
 	
 	CreateMajorParticleArray();
 	CreateMinorParticleArray();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -615,6 +809,54 @@ void CX2GULire_ElvenRanger::InitEffect()
 
 /*virtual*/ void CX2GULire_ElvenRanger::InitEnchantWeaponEffectUnitSpecific() 
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c835c0: the arrow mesh index follows the weapon's enchant, every double / triple / quadra master of one element
+	for( UINT i = 0; i < m_vecpWeapon.size(); ++i )
+	{
+		Weapon* pWeapon = m_vecpWeapon[i];
+		pWeapon->InitEnchantParticleForBow();
+	}
+
+	CX2EnchantItem::ItemEnchantedAttribute enchantedAttribute;
+	CX2Item* pItemNotFashion = GetUnit()->GetInventory().GetEquippingItemByEquipPos( CX2Unit::EP_WEAPON_HAND, false );
+	if( NULL != pItemNotFashion )
+		enchantedAttribute = pItemNotFashion->GetItemData().m_EnchantedAttribute;
+
+	switch( g_pData->GetEnchantItem()->GetExtraDamageType( enchantedAttribute ) )
+	{
+	case CX2DamageManager::EDT_ENCHANT_BLAZE_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_BLAZE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SNATCH:
+		{
+			m_iArrowMeshPlayerIndex = 1;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_FROZEN_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SNATCH:
+		{
+			m_iArrowMeshPlayerIndex = 2;
+		} break;
+
+	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SNATCH:
+		{
+			m_iArrowMeshPlayerIndex = 3;
+		} break;
+
+	default:
+		{
+			m_iArrowMeshPlayerIndex = 0;
+		} break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	for( UINT i=0; i<m_vecpWeapon.size(); ++i )
 	{
 		Weapon* pWeapon = m_vecpWeapon[i];
@@ -661,11 +903,14 @@ void CX2GULire_ElvenRanger::InitEffect()
 #endif RENA_SECOND_CLASS_CHANGE
 
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
 void CX2GULire_ElvenRanger::DeleteLireMajorParticle()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c89270 ( = March )
 	CX2GUUser::DeleteGUUserMajorParticle();
 
 	CKTDGParticleSystem* pMajorParticleSystem = g_pX2Game->GetMajorParticle();
@@ -674,6 +919,16 @@ void CX2GULire_ElvenRanger::DeleteLireMajorParticle()
 	{
 		pMajorParticleSystem->DestroyInstanceHandle( m_ahRenaMajorParticleInstance[index] );
 	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CX2GUUser::DeleteGUUserMajorParticle();
+
+	CKTDGParticleSystem* pMajorParticleSystem = g_pX2Game->GetMajorParticle();
+
+	for ( int index = 0; index < RENA_MAJOR_PII_END; index++ )
+	{
+		pMajorParticleSystem->DestroyInstanceHandle( m_ahRenaMajorParticleInstance[index] );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::DeleteLireMinorParticle()
@@ -719,6 +974,48 @@ void	CX2GULire_ElvenRanger::AppendMajorParticleToDeviceList( CKTDXDeviceDataList
 
 /*virtual*/ void CX2GULire_ElvenRanger::CreateMajorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca4e10 ( = March )
+	CX2GUUser::CreateMajorParticleArray();
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT, L"FireDamageImpact", 2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_CORE, L"FireDamageImpactCore", 2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH, L"FireDamageImpactSlash", 2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_RED, L"FireDamageImpactRed", 2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_RING_RED, L"FireDamageImpactRingRed", 1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_CORE_RED, L"FireDamageImpactCoreRed", 1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetCommonMajorParticleByEnum( COMMON_MAJOR_PII_DAMAGE_IMPACT_SLASH_RED, L"FireDamageImpactSlashRed", 1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetRenaMajorParticleByEnum( RENA_MAJOR_PII_WIND_SNEAKER_IMPACT_LEAF, L"Leaf_Lire_Nature_Force_Impact01", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+
+	pSeq = SetRenaMajorParticleByEnum( RENA_MAJOR_PII_PHOENIX_START_WAVE, L"PhoenixStartWave", -1 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CX2GUUser::CreateMajorParticleArray();
 
 	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
@@ -761,10 +1058,27 @@ void	CX2GULire_ElvenRanger::AppendMajorParticleToDeviceList( CKTDXDeviceDataList
 	pSeq = SetRenaMajorParticleByEnum( RENA_MAJOR_PII_PHOENIX_START_WAVE,				L"PhoenixStartWave",				-1 );
 	if( pSeq != NULL )
 		pSeq->SetTriggerWait( true );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 CKTDGParticleSystem::CParticleEventSequence* CX2GULire_ElvenRanger::SetRenaMajorParticleByEnum( RENA_MAJOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ /*= -1 */ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c89310: a new handle is tagged with the effect-alpha category ( 32296da0 )
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == GetHandleRenaMajorParticleByEnum( eVal_ ) )
+	{
+		ParticleEventSequenceHandle hHandle =
+			g_pX2Game->GetMajorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  wstrParticleName_.c_str(), 0,0,0, 0, 0, iDrawCount_, 0 );
+
+		SetHandleRenaMajorParticleByEnum( eVal_, hHandle );
+		g_pX2Game->TagEffectAlphaParticleHandle( this, hHandle, false );
+	}
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq =
+		g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleRenaMajorParticleByEnum( eVal_) );
+
+	return pSeq;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == GetHandleRenaMajorParticleByEnum( eVal_ ) )
 	{
 		ParticleEventSequenceHandle hHandle = 
@@ -777,6 +1091,7 @@ CKTDGParticleSystem::CParticleEventSequence* CX2GULire_ElvenRanger::SetRenaMajor
 		g_pX2Game->GetMajorParticle()->GetInstanceSequence( GetHandleRenaMajorParticleByEnum( eVal_) );
 
 	return pSeq;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::InitializeLireMinorParticleArray()
@@ -804,6 +1119,8 @@ void	CX2GULire_ElvenRanger::AppendMinorParticleToDeviceList( CKTDXDeviceDataList
 
 /*virtual*/ void CX2GULire_ElvenRanger::CreateMinorParticleArray()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32ca5010 ( = March )
 	CX2GUUser::CreateMinorParticleArray();
 
 	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
@@ -811,10 +1128,35 @@ void	CX2GULire_ElvenRanger::AppendMinorParticleToDeviceList( CKTDXDeviceDataList
 	pSeq = SetRenaMinorParticleByEnum( RENA_MINOR_PII_IMPACT_TICK_BLUE, L"ImpactTickBlue", 2 );
 	if( pSeq != NULL )
 		pSeq->SetTriggerWait( true );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CX2GUUser::CreateMinorParticleArray();
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq = NULL;
+
+	pSeq = SetRenaMinorParticleByEnum( RENA_MINOR_PII_IMPACT_TICK_BLUE, L"ImpactTickBlue", 2 );
+	if( pSeq != NULL )
+		pSeq->SetTriggerWait( true );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 CKTDGParticleSystem::CParticleEventSequence* CX2GULire_ElvenRanger::SetRenaMinorParticleByEnum( RENA_MINOR_PARTICLE_INSTANCE_ID eVal_, wstring wstrParticleName_, int iDrawCount_ /*= -1 */ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c89460: a new handle is tagged with the effect-alpha category ( 32296da0 )
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == GetHandleRenaMinorParticleByEnum( eVal_ ) )
+	{
+		ParticleEventSequenceHandle hHandle =
+			g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  wstrParticleName_.c_str(), 0,0,0, 0, 0, iDrawCount_, 0 );
+
+		SetHandleRenaMinorParticleByEnum( eVal_, hHandle );
+		g_pX2Game->TagEffectAlphaParticleHandle( this, hHandle, true );
+	}
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeq =
+		g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleRenaMinorParticleByEnum( eVal_) );
+
+	return pSeq;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == GetHandleRenaMinorParticleByEnum( eVal_ ) )
 	{
 		ParticleEventSequenceHandle hHandle = 
@@ -827,6 +1169,7 @@ CKTDGParticleSystem::CParticleEventSequence* CX2GULire_ElvenRanger::SetRenaMinor
 		g_pX2Game->GetMinorParticle()->GetInstanceSequence( GetHandleRenaMinorParticleByEnum( eVal_) );
 
 	return pSeq;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 #ifdef	X2OPTIMIZE_GAME_CHARACTER_BACKGROUND_LOAD
@@ -848,6 +1191,55 @@ void	CX2GULire_ElvenRanger::AppendComponentToDeviceList( CKTDXDeviceDataList& li
 
 void CX2GULire_ElvenRanger::InitComponent()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c895b0: no MP reset in the PvP case ( only the natural force ), the particle handles are tagged, SIEGE_ANGLE is read
+	CX2GUUser::InitComponent();
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+	if ( IsMyUnit() && CX2Game::GT_PVP == g_pX2Game->GetGameType() )
+		SetNaturalForceCount( 0 );	// June 32c895f4
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+
+	m_hSeqMPEnergy			= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPEnergy", 0,0,0, 0,0 );
+	m_hSeqMPEnergyCenter	= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPEnergyCenter", 0,0,0, 0,0 );
+
+	CKTDGParticleSystem::CParticleEventSequence* pSeqEnergy = g_pX2Game->GetMinorParticle()->GetInstanceSequence( m_hSeqMPEnergy );
+	if( pSeqEnergy != NULL )
+	{
+		pSeqEnergy->UseLookPoint( true );
+	}
+
+	m_hSeqMPChargeWave			= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPChargeWave", 0,0,0, 0,0 );
+	m_hSeqMPChargeFeather		= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"ImpactTickFeather", 0,0,0, 0,0 );
+
+	m_hSeqMPCharge2Up			= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPCharge2Up", 0,0,0, 0,0 );
+	m_hSeqMPCharge2UpHigh		= g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"MPCharge2UpHigh", 0,0,0, 0,0 );
+
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqMPEnergy, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqMPEnergyCenter, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqMPChargeWave, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqMPChargeFeather, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqMPCharge2Up, true );
+	g_pX2Game->TagEffectAlphaParticleHandle( this, m_hSeqMPCharge2UpHigh, true );
+
+	if( m_LuaManager.BeginTable( "INIT_COMPONENT" ) == true )
+	{
+		AddUnitSlashData( CX2UnitSlashTraceManager::STC_NONE );
+		AddUnitSlashData( CX2UnitSlashTraceManager::STC_RENA_NATURE_FORCE );
+
+		if( m_LuaManager.BeginTable( "SIEGE_ANGLE" ) == true )
+		{
+			m_LuaManager.GetValue( 1, m_afSiegeAngle[0] );
+			m_LuaManager.GetValue( 2, m_afSiegeAngle[1] );
+			m_LuaManager.GetValue( 3, m_afSiegeAngle[2] );
+			m_LuaManager.GetValue( 4, m_afSiegeAngle[3] );
+
+			m_LuaManager.EndTable();
+		}
+
+		m_LuaManager.EndTable();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CX2GUUser::InitComponent();
 
 	if ( IsMyUnit() )
@@ -894,6 +1286,7 @@ void CX2GULire_ElvenRanger::InitComponent()
 		m_LuaManager.EndTable();
 	}
 
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ParseCommonRandomState()
@@ -4924,6 +5317,59 @@ void	CX2GULire_ElvenRanger::AppendDeviceToDeviceList( CKTDXDeviceDataList& listI
 
 void CX2GULire_ElvenRanger::InitDevice()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c85d50 ( = March )
+	CX2GUUser::InitDevice();
+
+	CKTDXDeviceXSkinMesh* pChargeMPA = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( L"Lire_ChargeSoulA.X" );
+	CKTDXDeviceXSkinMesh* pChargeMPB = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( L"Lire_ChargeSoulB.X" );
+	CKTDXDeviceXSkinMesh* pChargeMPA1 = g_pKTDXApp->GetDeviceManager()->OpenXSkinMesh( L"Lire_ChargeSoulA_1.X" );
+
+	DeviceReady( pChargeMPA  );
+	DeviceReady( pChargeMPB  );
+	DeviceReady( pChargeMPA1 );
+
+	m_pMPChargeA			= CKTDGXSkinAnim::CreateSkinAnim();
+	m_pMPChargeB			= CKTDGXSkinAnim::CreateSkinAnim();
+	m_pMPChargeC			= CKTDGXSkinAnim::CreateSkinAnim();
+	g_pKTDXApp->GetDGManager()->AddObjectChain( m_pMPChargeA );
+	g_pKTDXApp->GetDGManager()->AddObjectChain( m_pMPChargeB );
+	g_pKTDXApp->GetDGManager()->AddObjectChain( m_pMPChargeC );
+
+	m_pMPChargeA->SetAnimXSkinMesh( pChargeMPA );
+	m_pMPChargeA->AddModelXSkinMesh( pChargeMPA );
+	m_pMPChargeB->SetAnimXSkinMesh( pChargeMPB );
+	m_pMPChargeB->AddModelXSkinMesh( pChargeMPB );
+	m_pMPChargeC->SetAnimXSkinMesh( pChargeMPA1 );
+	m_pMPChargeC->AddModelXSkinMesh( pChargeMPA1 );
+
+	m_pMPChargeA->SetAlphaObject( true );
+	m_pMPChargeA->SetLayer( XL_EFFECT_0 );
+
+	m_pMPChargeB->SetAlphaObject( true );
+	m_pMPChargeB->SetLayer( XL_EFFECT_0 );
+
+	m_pMPChargeC->SetAlphaObject( true );
+	m_pMPChargeC->SetLayer( XL_EFFECT_0 );
+
+	m_pMPChargeA->GetRenderParam()->bAlphaBlend		= true;
+	m_pMPChargeA->GetRenderParam()->bZWriteEnable	= false;
+	m_pMPChargeA->GetRenderParam()->cullMode		= D3DCULL_NONE;
+	m_pMPChargeA->GetRenderParam()->srcBlend		= D3DBLEND_SRCALPHA;
+	m_pMPChargeA->GetRenderParam()->destBlend		= D3DBLEND_INVSRCALPHA;
+
+	m_pMPChargeB->GetRenderParam()->bAlphaBlend		= true;
+	m_pMPChargeB->GetRenderParam()->bZWriteEnable	= false;
+	m_pMPChargeB->GetRenderParam()->cullMode		= D3DCULL_NONE;
+	m_pMPChargeB->GetRenderParam()->srcBlend		= D3DBLEND_SRCALPHA;
+	m_pMPChargeB->GetRenderParam()->destBlend		= D3DBLEND_INVSRCALPHA;
+
+	m_pMPChargeC->GetRenderParam()->bAlphaBlend		= true;
+	m_pMPChargeC->GetRenderParam()->bZWriteEnable	= false;
+	m_pMPChargeC->GetRenderParam()->cullMode		= D3DCULL_NONE;
+	m_pMPChargeC->GetRenderParam()->srcBlend		= D3DBLEND_SRCALPHA;
+	m_pMPChargeC->GetRenderParam()->destBlend		= D3DBLEND_INVSRCALPHA;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CX2GUUser::InitDevice();
 
 
@@ -4980,6 +5426,7 @@ void CX2GULire_ElvenRanger::InitDevice()
 	m_pMPChargeC->GetRenderParam()->cullMode		= D3DCULL_NONE;
 	m_pMPChargeC->GetRenderParam()->srcBlend		= D3DBLEND_SRCALPHA;
 	m_pMPChargeC->GetRenderParam()->destBlend		= D3DBLEND_INVSRCALPHA;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -20037,6 +20484,35 @@ void CX2GULire_ElvenRanger::LESI_SI3_LSR_CRAZY_SHOT_HYPER_EventProcess()
 */
 /*virtual*/ void CX2GULire_ElvenRanger::COMMON_BUFF_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c849f0 ( = March )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.75f ) )
+	{
+		PlayCommonBuffMinorParticle();
+		UpDownCrashCamera( 20.0f, 0.3f );
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+	}
+	else if( m_pXSkinAnim->EventTimerOneshot( 0.77f ) )
+	{
+		int	iSkillSlotIndex = 0;
+		bool bSlotB = false;
+
+		if ( true == GetSkillSlotIndexUsed( iSkillSlotIndex, bSlotB ) )
+		{
+			const CX2Unit::UnitData* pUnitData = &GetUnit()->GetUnitData();
+
+			const CX2UserSkillTree::SkillSlotData* pSkillSlotData = pUnitData->m_UserSkillTree.GetSkillSlot( iSkillSlotIndex, bSlotB );
+			CX2SkillTree::SKILL_ID eSkillID = CX2SkillTree::SI_NONE;
+
+			if( NULL != pSkillSlotData )
+				eSkillID = pSkillSlotData->m_eID;
+
+			ProcessAcceleraterBuff( eSkillID, IsHyperState() );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifndef UPGRADE_SKILL_SYSTEM_2013 // 공통 스킬 개편, 김종훈
 	// 각성 인지 아닌지에 따라 World색 변경
 	ChangeWorldColorByHyperMode();
@@ -20079,6 +20555,7 @@ void CX2GULire_ElvenRanger::LESI_SI3_LSR_CRAZY_SHOT_HYPER_EventProcess()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 #ifndef SERV_9TH_NEW_CHARACTER // 김태환
@@ -20653,6 +21130,40 @@ void CX2GULire_ElvenRanger::LESI_SA_LSR_WINDWARD_HYPER_StateEnd()
 // iMaxEntangleTrapCount만큼만 남기고 나머지 entangle trap을 삭제한다. 단, 공격중이지 않은 entangle trap만 삭제할 수 있다.
 bool CX2GULire_ElvenRanger::MakeRoomForEntangleTrap( int iMaxEntangleTrapCount, bool bForce )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c95670 ( = March )
+	if( true == m_vecEntagleTrapUID.empty() )
+		return true;
+
+	int iRemoveCount = (int) m_vecEntagleTrapUID.size() - iMaxEntangleTrapCount;
+	if( iRemoveCount <= 0 )
+		return true;
+
+	for( int i=0; i<(int)m_vecEntagleTrapUID.size(); i++ )
+	{
+		if( iRemoveCount <= 0 )
+		{
+			return true;
+		}
+
+		UidType& npcUID = m_vecEntagleTrapUID[i];
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( (int) npcUID );
+		if( NULL != pNPC )
+		{
+			if( false == bForce &&
+				1.f == pNPC->GetNowHp() )
+				continue;
+
+			pNPC->SetNowHp( 0.f );
+		}
+
+		m_vecEntagleTrapUID.erase( m_vecEntagleTrapUID.begin() + i );
+		--i;
+		--iRemoveCount;
+	}
+
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( true == m_vecEntagleTrapUID.empty() )
 		return true;
 
@@ -20687,6 +21198,7 @@ bool CX2GULire_ElvenRanger::MakeRoomForEntangleTrap( int iMaxEntangleTrapCount, 
 	}
 
 	return false;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::CreateEntangleTrap()
@@ -26925,9 +27437,16 @@ void CX2GULire_ElvenRanger::DeleteEvokeNPCUID( UidType iNPCUID )
 
 /*virtual*/ void CX2GULire_ElvenRanger::DeleteMinorParticle()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c99a40 ( = March )
 	CX2GUUser::DeleteMinorParticle();
 
 	DeleteLireMinorParticle();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	CX2GUUser::DeleteMinorParticle();
+
+	DeleteLireMinorParticle();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 void CX2GULire_ElvenRanger::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ /*= false */ )
@@ -28349,8 +28868,83 @@ int CX2GULire_ElvenRanger::CreateDamageEffectIndex()	/// 폭발의 화살 DamageEffec
 #endif SERV_RENA_NIGHT_WATCHER
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+// June 32ca9ca0 ( user vslot 0x1e8 ); stand-in: the base hook 32011b80 is CH4b's, nothing calls this until CH1o
+void CX2GULire_ElvenRanger::ProcessAttackResultPassive( CX2DamageManager::DamageData* pDamageData_ )
+{
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_RWS_PERSISTENT_MIND ) <= 0 )
+		return;
+
+	const int iBaseSkillID = g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( pDamageData_->m_iAppliedSkillID ) );
+	if( CX2SkillTree::RNSI_A_RWS_REFLEX_MAGIC != iBaseSkillID && CX2SkillTree::RNSI_A_RWS_NATURE_FORCE != iBaseSkillID )
+		return;
+
+	if( 0.f < m_fPersistentMindCoolTime )
+		return;
+
+	m_fPersistentMindCoolTime = 1.f;
+
+	ResetLeftSkillCoolTimeByBuff( CX2SkillTree::ST_NONE, -1.f, false, BCT_FIX_VALUE, 1.f, true, 0 );
+
+	CX2BuffFactorPtr ptrBuffFactor = GetSkillBuffFactorPtr( CX2SkillTree::RNSI_P_RWS_PERSISTENT_MIND, 0, true );
+	if( NULL != ptrBuffFactor )
+		SetBuffFactorToGameUnit( *ptrBuffFactor );
+}
+
+// June 32cb3200 ( user vslot 0x318 ); nothing calls this until CH1o
+void CX2GULire_ElvenRanger::ProcessEradicationHit( CX2DamageManager::DamageData* pDamageData_ )
+{
+	if( NULL == pDamageData_ )
+		return;
+
+	if( false == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_ERADICATION ) && false == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_ERADICATION_EXPLOSION ) )
+		return;
+
+	float fHitCountLimit = 0.f;
+	bool bReachedBefore = false;
+	if( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_COUNT, CX2SkillTree::RNSI_SA_RNW_ERADICATION, true, fHitCountLimit ) )
+		bReachedBefore = !( fHitCountLimit > static_cast<float>( m_usEradicationHitCount ) );
+
+	++m_usEradicationHitCount;
+
+	bool bReachedAfter = false;
+	if( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_COUNT, CX2SkillTree::RNSI_SA_RNW_ERADICATION, true, fHitCountLimit ) )
+		bReachedAfter = !( fHitCountLimit > static_cast<float>( m_usEradicationHitCount ) );
+
+	if( bReachedBefore == bReachedAfter )
+		return;
+
+	if( NULL != g_pX2Game->GetEffectSet()->GetEffectSetInstance( m_hEradicationLoopEffect ) )
+		return;
+
+	TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_TIME, CX2SkillTree::RNSI_SA_RNW_ERADICATION, true, m_fEradicationLoopEffectTime );
+
+	m_hEradicationLoopEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_RNW_Eradication_LoopFX", (CX2GameUnit*) this );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 void CX2GULire_ElvenRanger::UpNowMpPerHitOthers( const float fHitAddMp_, const int iAddValueByTeam_, const float fRel_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c9b320 ( no natural force halving and no wrong-path assert; a PvE game counts as PvP )
+	switch ( g_pX2Game->GetGameType() )
+	{
+	case CX2Game::GT_PVP:
+	case CX2Game::GT_PVE:
+		{
+			UpNowMp( ( fHitAddMp_ + (3.0f * iAddValueByTeam_) ) * fRel_ );
+
+		} break;
+
+	case CX2Game::GT_DUNGEON:
+	case CX2Game::GT_BATTLE_FIELD:
+		{
+			UpNowMp( ( fHitAddMp_ + (3.0f * iAddValueByTeam_) ) * 0.8f * fRel_ );
+		} break;
+
+	default:
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef	BALANCE_PATCH_20120329
 	const float fRel = ( false == IsNatureForce() ? fRel_ : fRel_ * 0.5f );
 
@@ -28395,6 +28989,7 @@ void CX2GULire_ElvenRanger::UpNowMpPerHitOthers( const float fHitAddMp_, const i
 		}
 	}
 #endif	BALANCE_PATCH_20120329
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 /** @function : HyperModeBuffEffectStart
@@ -28402,6 +28997,25 @@ void CX2GULire_ElvenRanger::UpNowMpPerHitOthers( const float fHitAddMp_, const i
 */
 /*virtual*/ void CX2GULire_ElvenRanger::HyperModeBuffEffectStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c9b3d0: a transcended unit, or one with an awakening effect set, gets no boost handles
+	CX2GUUser::HyperModeBuffEffectStart();
+
+	if( true == IsTranscendedUnit( GetUnit() ) || true == RenaAwakeningEffectSetPresent() )
+		return;
+
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
+		m_hHyperBoostRFoot = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightGreen",	0,0,0, 0, 0 );
+
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLFoot )
+		m_hHyperBoostLFoot = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftGreen",	0,0,0, 0, 0 );
+
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRArm )
+		m_hHyperBoostRArm = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightGreen",	0,0,0, 0, 0 );
+
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLArm )
+		m_hHyperBoostLArm = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftGreen",	0,0,0, 0, 0 );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	CX2GUUser::HyperModeBuffEffectStart();
 
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
@@ -28415,6 +29029,7 @@ void CX2GULire_ElvenRanger::UpNowMpPerHitOthers( const float fHitAddMp_, const i
 
 	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLArm )
 		m_hHyperBoostLArm = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftGreen",	0,0,0, 0, 0 );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 /** @function : CX2GetActualMPConsume
@@ -28500,6 +29115,45 @@ void CX2GULire_ElvenRanger::UpNowMpPerHitOthers( const float fHitAddMp_, const i
 */
 /*virtual*/ void CX2GULire_ElvenRanger::AddUnitSlashData( const CX2UnitSlashTraceManager::SLASH_TRACE_CONDITION eSlashTraceCondition_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c870c0 ( = March, without the UNIT_SLASH_TRACE_MANAGER_TEST gate )
+	if( NULL == m_pUnitSlashTraceManager )
+		m_pUnitSlashTraceManager = CX2UnitSlashTraceManager::CreateUnitSlashTraceManager( this, GetXSkinAnimPtr() );
+
+	if( NULL != m_pUnitSlashTraceManager )
+	{
+		const int vertexNum = (IsMyUnit() ? 400 : 150);
+
+		switch ( eSlashTraceCondition_ )
+		{
+		case CX2UnitSlashTraceManager::STC_NONE:
+			{
+				m_pUnitSlashTraceManager->AddSlashTraceData( L"Bip01_R_Toe0", L"Bip01_R_Foot",
+					D3DXCOLOR(0xcc5555ff), D3DXCOLOR(0xccff3333), D3DXCOLOR(0xff5555ff), D3DXCOLOR(0xffff3333),
+					vertexNum, 0.4f, 1, vertexNum, 0.5f, 3,
+					false, 0.f, L"" );
+			} break;
+
+		case CX2UnitSlashTraceManager::STC_RENA_NATURE_FORCE:
+			{
+				m_pUnitSlashTraceManager->AddSlashTraceData( L"Bip01_L_Toe0", L"Bip01_L_Foot",
+					D3DXCOLOR(0xcc5555ff), D3DXCOLOR(0xccff3333), D3DXCOLOR(0xff5555ff), D3DXCOLOR(0xffff3333),
+					vertexNum, 0.4f, 1, vertexNum, 0.5f, 3,
+					true, 1.f, L"Rena_SlashTrace_Texture_WindSneaker.dds",
+					CKTDGSlashTrace::CT_TOUGH_CURVE );
+
+				m_pUnitSlashTraceManager->AddSlashTraceData( L"Bip01_R_Toe0", L"Bip01_R_Foot",
+					D3DXCOLOR(0xcc5555ff), D3DXCOLOR(0xccff3333), D3DXCOLOR(0xff5555ff), D3DXCOLOR(0xffff3333),
+					vertexNum, 0.4f, 1, vertexNum, 0.5f, 3,
+					true, 1.f, L"Rena_SlashTrace_Texture_WindSneaker.dds",
+					CKTDGSlashTrace::CT_TOUGH_CURVE );
+			} break;
+
+		default:
+			break;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef UNIT_SLASH_TRACE_MANAGER_TEST
 	if( NULL == m_pUnitSlashTraceManager )
 		m_pUnitSlashTraceManager = CX2UnitSlashTraceManager::CreateUnitSlashTraceManager( this, GetXSkinAnimPtr() );
@@ -28539,6 +29193,7 @@ void CX2GULire_ElvenRanger::UpNowMpPerHitOthers( const float fHitAddMp_, const i
 		}
 	}
 #endif UNIT_SLASH_TRACE_MANAGER_TEST	
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 #ifdef MODIFY_SET_DAMAGE_DATA
@@ -29782,6 +30437,40 @@ void CX2GULire_ElvenRanger::LESI_A_RNW_ANGER_OF_ELF_StateEnd()
 }
 bool CX2GULire_ElvenRanger::MakeRoomForAngerOfElfTrap( int iMaxAngerOfElfTrapCount, bool bForce )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c9e130 ( = March )
+	if( true == m_vecAngerOfElfTrapUID.empty() )
+		return true;
+
+	int iRemoveCount = (int) m_vecAngerOfElfTrapUID.size() - iMaxAngerOfElfTrapCount;
+	if( iRemoveCount <= 0 )
+		return true;
+
+	for( int i=0; i<(int)m_vecAngerOfElfTrapUID.size(); i++ )
+	{
+		if( iRemoveCount <= 0 )
+		{
+			return true;
+		}
+
+		UidType& npcUID = m_vecAngerOfElfTrapUID[i];
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( (int) npcUID );
+		if( NULL != pNPC )
+		{
+			if( false == bForce &&
+				1.f == pNPC->GetNowHp() )
+				continue;
+
+			pNPC->SetNowHp( 1.f );
+		}
+
+		m_vecAngerOfElfTrapUID.erase( m_vecAngerOfElfTrapUID.begin() + i );
+		--i;
+		--iRemoveCount;
+	}
+
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( true == m_vecAngerOfElfTrapUID.empty() )
 		return true;
 
@@ -29816,6 +30505,7 @@ bool CX2GULire_ElvenRanger::MakeRoomForAngerOfElfTrap( int iMaxAngerOfElfTrapCou
 	}
 
 	return false;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 void CX2GULire_ElvenRanger::CreateAngerOfElfTrap()
 {
@@ -30494,6 +31184,26 @@ void CX2GULire_ElvenRanger::SetInvisibility(bool bVal_)
 
 /*virtual*/ void CX2GULire_ElvenRanger::ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	// June 32c7fa40; the else branch ends in CX2GUUser's 31fd4460, stand-in: CX2GameUnit's ( the engine renderer phase is not ported )
+	if ( m_bPassDash )
+		return;
+
+	if( true == m_bInvisibility )
+	{
+		pRenderParam_->renderType		= CKTDGXRenderer::RT_CARTOON;
+		pRenderParam_->outLineColor.a	= m_fRenderParamColorA;
+		m_RenderParam.bAlphaBlend = true;
+		m_RenderParam.color.a			= m_fRenderParamColorA;
+	}
+	else
+	{
+		if( false == IsAlphaObject() )
+			m_RenderParam.color.a = 1.f;
+
+		CX2GameUnit::ApplyRenderParam( pRenderParam_ );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef RIDING_SYSTEM
 	if ( m_bPassDash )
 		return;
@@ -30508,6 +31218,7 @@ void CX2GULire_ElvenRanger::SetInvisibility(bool bVal_)
 	}
 	else 
 		CX2GameUnit::ApplyRenderParam( pRenderParam_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 

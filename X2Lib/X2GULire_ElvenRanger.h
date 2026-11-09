@@ -569,8 +569,13 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		virtual bool CanRidingState();
 #endif //RIDING_SYSTEM
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+		virtual int GetComboZStateID() const { return LESI_COMBO_Z1; }	/// June 32cb6a20 ( = March by name; the exe id 172 is CH1m's )
+		virtual int GetComboXStateID() const { return LESI_COMBO_X1; }	/// June 32cb6a30 ( = March by name; the exe id 178 is CH1m's )
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 		virtual int GetComboZStateID() const { return LESI_COMBO_Z1; }
 		virtual int GetComboXStateID() const { return LESI_COMBO_X1; }
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 
 #ifdef ADD_RENA_SYSTEM //김창한
 		void	ConsumeNaturalForce( int iCount_ );				//자연의 기운 소모
@@ -1887,6 +1892,13 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		int m_iGungnirTargetNPCUID;	/// June +0x97b8: the targeting NPC ( -1 none; the constructor, CH1h, sets it )
 		bool m_bGungnirFirePending;	/// June +0x97bc: set at the shot, the fire state plays the strike at 0.04 s
 		CX2EffectSet::Handle m_hGungnirLoopEffect;	/// June +0x97c0: the aim loop effect set ( INVALID_EFFECTSET_HANDLE none; the constructor, CH1h, sets it )
+		float m_afSiegeAngle[4];	/// June +0x97c4: INIT_COMPONENT's SIEGE_ANGLE ( CH1i's UpdateSpineAimRotation reads it; the constructor, CH1k, zeroes it )
+		float m_fPersistentMindCoolTime;	/// June +0x97e8 ( constructor 0 ): the lock Persistent Mind sets, CommonFrameMove ( CH1j ) counts it down
+		unsigned short m_usEradicationHitCount;	/// June +0x9810 ( constructor 0 ): Eradication's hit count
+		float m_fEradicationLoopEffectTime;	/// June +0x9814 ( constructor 0 ): Eradication's SA_EFFECTIVE_TIME
+		CX2EffectSet::Handle m_hEradicationLoopEffect;	/// June +0x9818 ( constructor -1 ): Eradication's loop effect set
+		void ProcessAttackResultPassive( CX2DamageManager::DamageData* pDamageData_ );	/// June 32ca9ca0 ( user vslot 0x1e8 ): CH1o wires it
+		void ProcessEradicationHit( CX2DamageManager::DamageData* pDamageData_ );	/// June 32cb3200 ( user vslot 0x318 ): CH1o wires it
 		void LESI_RTR_DOUBLE_JUMP_ZX_StateStart();	/// June 32ca7670
 		void LESI_RTR_DOUBLE_JUMP_ZX_StateEndFuture();	/// June 32c6d580
 		void LESI_RTR_DOUBLE_JUMP_ZX_EventProcess();	/// June 32c818d0

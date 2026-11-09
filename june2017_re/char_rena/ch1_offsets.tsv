@@ -128,3 +128,10 @@ offset	kind	name	note
 0x96e4	field	m_fPriorPlannedBlowIncreaseHPRate	Rena; June KProtectedType<float> ( +0x96e8 / +0x96ec ) ( CH1g )
 0x96f0	field	m_bPossibleHitCount	Rena ( CH1g )
 0x96f4	field	m_fPriorPlannedBlowTime	Rena; SetPriorPlannedBlow stores 10.0 ( CH1g )
+0x97c4	field	m_afSiegeAngle	Rena; four floats ( +0x97c8 / +0x97cc / +0x97d0 ) from INIT_COMPONENT's SIEGE_ANGLE; UpdateSpineAimRotation reads them ( CH1h; CH1i )
+0x97e8	field	m_fPersistentMindCoolTime	Rena; ctor 0; ProcessAttackResultPassive sets 1.0, CommonFrameMove counts it down ( CH1h; CH1j )
+0x9810	field	m_usEradicationHitCount	Rena; word, ctor 0; ProcessEradicationHit ( CH1h )
+0x9814	field	m_fEradicationLoopEffectTime	Rena; ctor 0; Eradication's SA_EFFECTIVE_TIME ( CH1h )
+0x9818	field	m_hEradicationLoopEffect	Rena; ctor -1; stopped first in the destructor ( CH1h )
+0x1e8	vslot	ProcessAttackResultPassive	user vslot, base 32011b80 ( CH4b ); Rena override 32ca9ca0, wired in CH1o
+0x318	vslot	ProcessEradicationHit	user vslot, base 3208ddc0 ( empty ); Rena override 32cb3200, wired in CH1o

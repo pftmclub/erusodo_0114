@@ -59,3 +59,5 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - CommonStateStart `32ca81b0` reads `BOW_SKILL_STATE` (flag `+0x981d`, @32ca82c2), `CREATE_TRAP_BLADE` and `DAMAGEDATA_CHANGE_TIME*`; CommonStateEnd `32ca5060` reads `+0x981d` @32ca5078; GetActualCoolTime (CH4b) reads it @32c7be7b. CommonFrameMove `32ca8bf0` and CommonFrameMoveFuture `32c87990` hold NF lines (cannon-ball count sync, `UpdateNaturalForceEffect` inline): write them under `_NF`. June passes a skill-templet byte to `31fe28f0` in CommonStateStart (@32ca898c) where March derives an NF count from MP.
 
 - **Routed from CH1f2 (2026-11-09).** `CommonFrameMove` ( `32ca8bf0` ) calls `EndGungnirTargeting()` ( June `32ca7750`, declared and written by CH1f2 ): call it by that name.
+
+- **Amended by CH1h (2026-11-09):** `CommonFrameMove` counts `m_fPersistentMindCoolTime` ( June +0x97e8, declared by CH1h ) down; `ProcessAttackResultPassive` sets it to 1.0 when Persistent Mind answers Reflex Magic / Nature Force. Read where June decrements it and write that line by that name.

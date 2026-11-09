@@ -99,6 +99,12 @@ class CX2DamageManager
 			DTT_RVC_IGNITION_CROW_SELF_DAMAGE     = 19,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-09 // char-rena CH1h
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			DTT_ERADICATION                       = 37,
+			DTT_ERADICATION_EXPLOSION             = 38,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 		};
 #endif
 

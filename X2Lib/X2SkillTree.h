@@ -1802,6 +1802,14 @@ public:
 		RNSI_A_RENA_SIEGEMODE_UPGRADE                         = 23221,	// June's Enum.lua; the enhanced siege skill
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-09 // char-rena CH1h
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RNW_ERADICATION                               = 23060,	// June's Enum.lua; the Eradication hit counter reads it
+		RNSI_A_RWS_NATURE_FORCE                               = 23205,	// June's Enum.lua; Persistent Mind answers it
+		RNSI_A_RWS_REFLEX_MAGIC                               = 23207,	// June's Enum.lua; Persistent Mind answers it
+		RNSI_P_RWS_PERSISTENT_MIND                            = 23413,	// June's Enum.lua; the passive that shortens the cool times
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)

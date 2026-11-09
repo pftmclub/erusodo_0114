@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1h | **ready** (`/x2-phase char-rena CH1h`, Sonnet 5.5 high): overrides below vslot 0x600 (33 fn), DamageReact (uncarved), dtor, FriendshipNatureData, 7c alpha sites | Sonnet 5.5 / high, Opus review | CH1g3 review | `X2GULire_ElvenRanger.*` | `CH1h.md` |
+| CH1h | **review ready** (`/x2-phase char-rena CH1h review`, Opus 5.5 high): 33 rows (25 inside, 2 new, 6 nothing to write): dtor, ReInit, InitComponent, 7c alpha sites; ctor stays CH1k's; no play-test | Sonnet 5.5 / high, Opus review | CH1g3 review | `X2GULire_ElvenRanger.*` | `CH1h.md`, `CH1h-review.md` |
 | CH1i | blocked (CH1h review): overrides 0x600-0x7bc | Sonnet 5.5 / high, Opus review | CH1h review | `X2GULire_ElvenRanger.*` | `CH1i.md` |
 | CH1j | blocked (CH1i review): Common* overrides (2 uncarved) + CommonFrameMove | Sonnet 5.5 / high, Opus review | CH1i review | `X2GULire_ElvenRanger.*` | `CH1j.md` |
 | CH1k | blocked (CH1j review): skill-use overrides + SpecialAttackEventProcess `32c6a970` (uncarved) + `ReservedSkillStart` | Sonnet 5.5 / high, Opus review | CH1j review | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH1k.md` |
