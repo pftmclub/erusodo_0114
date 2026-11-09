@@ -1856,6 +1856,9 @@ second-job names show June's strings.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 26,148,864 B, dated 2026-11-09 20:18:29, md5 79a341b4023401beef268cc17d536584`. `EXESTR OK: 10 of 10` (the two log tags and the eight June names `HQ_CutIn_Rena_01/02/03/WS_01/GA_01/NW_01/CASH_21/CASH_22`, wide), `EXESTR OK: 6 of 6 absent` (March's `HQ_CutIn_Lena_1/2/3`, `_Rena_Wind_Sneaker_1`, `_Grand_Archer_1`, `_Night_Watcher_1` `.dds`).
 - **See it in game:** select screen with all nine March characters, then Rena's classes: the lobby pose turns by class (30 / 30 / 25 / 1 / 30 / 20 / 10), and 102 / 103 / 114 are named "Wind Sneaker" / "Grand Archer" / "Night Watcher". A skill cut-in plays June's art: `HQ_CutIn_Rena_01..03` on 3 / 12 / 13 / 24, `_WS_01` on 102, `_GA_01` on 103, `_NW_01` on 114.
   The awakening hyper on 102 / 103 / 114 shows `HQ_Cutin_R{WS,GA,NW}_Transcendence` only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME` (CH6's walk). Rena's skills are June's only from CH2a: a March-kit cast that reaches `ShowActiveSkillCutInAndLight` is the test.
+- **Play-test (user, 2026-11-09 20:22-20:24, exe `79a341b4`): passed.** Select screen with all nine March characters and Rena's classes OK (lobby poses, second-job names). `offline_server.log` has 11 `[JUNE_CHAR] RENA UI cut-in` lines, each with a
+  `[JUNE_GFX] CUTIN play ui=0xc <gfx>` in the same second: set 0 index 0 `HQ_CutIn_Rena_01` x2, set 2 `_GA_01` x3, set 3 `_NW_01` x3, set 1 `_WS_01` x3. ErrorLog 0 `Motion Error`, 0 `KEM_ERROR`. Outside CH5, no routing from here: 5 `E_DISABLE_HB_CHECK_REQ` UNHANDLED
+  and `AddGroupChainQuest` unbound (quest file). Sets 0 indices 1 / 2 and the hyper cut-ins (102 / 103 / 114) are CH6's walk.
 
 ## Phase CH-N - not run for Rena
 
