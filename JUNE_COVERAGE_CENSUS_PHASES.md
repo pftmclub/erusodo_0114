@@ -128,6 +128,41 @@ gives the totals per bucket and per status, the sample precision for `june_guard
 **Done gate:** every unowned studio group appears in `exclusions.tsv` or a new stage brief; the estimate lists its assumptions; the user
 decisions (if any) are asked in the hand-off, not buried in the table.
 
+**Done note (V2, 2026-11-09, Opus 5.5):** read-only, no code, no flag, no build. Outputs in `june2017_re/census/`: `exclusions.tsv` (567 groups)
+from `v2_exclusions.py` (`RESULT: PASS`, 19,577 of 19,577 unowned studio functions placed), `v2_sample.tsv` from `v2_sample.py`, `SUMMARY.md`
+(the one page for the user). `tools/junebinary.py --check` still `RESULT: PASS (55556 functions)`. Subagents (Sonnet) read the backlog shape
+and measured the pace; the grouping, decisions and estimate are mine.
+- **Grouping.** V1's class column covers only 9,471 studio functions, so V2 places by address: March's `X2/US_SERVICE/X2.map` maps
+  each funcmap symbol / class to its `.obj` (non-inline entries only), giving 4,783 June anchors; 4,337 of 4,782 neighbouring anchor pairs
+  share an `.obj`. An unowned function between two anchors of one `.obj` is that file's (`file:` rows); between two files it is a `gap:` row.
+  `Session.obj` / luajit anchors are skipped: shared serializer and binding instantiations sit all over the binary and split real files.
+- **Decisions** (`SYS` / `M` / `STR` tables in the script): a class or file maps to a system by name; a gap takes a system when both
+  neighbours agree (or share a stage), or when its decrypted strings (`func_strings.tsv`) name exactly one system; otherwise it is triage.
+  - attach to existing stages, 9,014: S7 2,457, S9 2,009, S2 1,988, S22 725, S27 353, S31 327, S0 311, S16 271, S17 213, S25 138, S3 96,
+    S33 77, S4 37, S8 8, S18 4;
+  - new stages, 9,958: **S38** village / field core 169, **S39** game events 148, **S40** triage 9,641 (191 gaps);
+  - exclude 596: network layer and Lua binding glue between `KLuaManagerProxy` and `X2ServerProtocol`, the serializer gap
+    `X2UIInventory..X2CashShop@0x321c6800` (sample 10 / 10 serializers), the anti-tamper gap (`MEMORY BOMB TRIGGERED!!!`), `X2StatePVPRoom`
+    (no PvP offline), `CX2PacketLog`;
+  - park 9: `CX2BossRaidManager` (question below).
+- **Work share** (`v2_sample.tsv`, 300 unowned studio functions, seed 11): logic 189, trivial 59, STL 37, serializer 15; a hand check of 12
+  "logic" bodies found 7 gameplay, 5 container / ctor / dtor. Work share 35 / 51 / 67 %. Per-group samples (10 each, groups >= 60) show
+  most groups mixed; only the gap above is pure glue. The biggest gap, `X2GUUser..X2Data@0x32092b20` (1,133 + 2,074 unknown), is mostly
+  packet serializers (5 / 10, and 3 / 3 hand-read).
+- **Pace** (git, distinct phase / review ids per ISO week): W42 167, W43 171, W44 214, W45 200. Character ports: 36-54 sessions and 3-4
+  days per character; 20-45 June functions per implementation phase (char-raven / char-rena subjects).
+- **Estimate:** low 818 / mid 1,462 / high 2,946 sessions = **~4 / ~8 / ~20 weeks** at 215 / 190 / 150 sessions a week. Terms: census
+  work functions 6,438 / 11,115 / 18,363 at 40 / 30 / 20 per phase with review and planning overhead; S40 triage 10 / 15 / 25; open STATUS
+  rows 120 / 150 / 180; unplanned characters (Ara, Elesis, Add, Rose, Ain) 230 / 275 / 342; 19 unplanned system stages plus Stage 9
+  192 / 288 / 480. Assumptions are listed in `SUMMARY.md` (parallel sessions, review ratio, functions per phase, work-share error, unknown
+  share, a ~60-session overlap between character ports and S7, play-test time not modelled).
+- **Backlog:** Stages 38-40 added to `JUNE_PORT_BACKLOG_ORDER.md` (order table and details); briefs `kickoffs/june-backlog/stage38-plan.md`,
+  `stage39-plan.md`, `stage40-plan.md`; three `june-backlog` STATUS rows (S40 waits for Z).
+- **Not done here (by design):** no per-stage bullets for the 9,014 attached functions; a stage's planner filters `exclusions.tsv` by its
+  `stage`, and Z adds the standing rule to re-run `junebinary.py` / `v2_exclusions.py` at each stage end.
+- **Question for the user (Z applies the answer):** boss raid, world mission, wedding and mentor are server-driven multiplayer systems.
+  Recommendation: exclude wedding and mentor; Stage 40 identifies boss raid and world mission and routes them to Stage 22 if solo-playable.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 / medium. **Depends:** V2 (and the user's answers, if V2 asked any).

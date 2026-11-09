@@ -1,0 +1,569 @@
+# june-census V2 (v2_exclusions.py): every unowned studio function of coverage.tsv in one group with a decision
+group	functions	decision	reason	stage	bytes	first_va	last_va	basis	strings
+gap:KLuaManagerProxy..X2ServerProtocol@0x32fe9e40	263	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	71056	0x32fea890	0x330446d0	net: both neighbours	
+gap:X2UIInventory..X2CashShop@0x321c6800	111	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	27536	0x321c6800	0x321cd360	net: v2_sample: 10 / 10 packet serializers	
+gap:KTDIManager..KTDXDeviceManager@0x31c48920	57	exclude	anti-cheat / anti-tamper	-	16288	0x31c48960	0x31c4ceb0	anticheat: strings	MEMORY BOMB TRIGGERED!!!; MARK_INVALID
+file:X2StatePVPRoom	29	exclude	PvP only; the offline client has no PvP	-	21344	0x32534b90	0x3253a140	pvp: name	g_pState; g_pMapSelectWindow
+gap:SocketObject..IOCP@0x3304ad20	18	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	2640	0x3304ad20	0x3304b6b0	net: both neighbours	
+class:KTRUser	15	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	13168	0x323c0750	0x330482a0	net: name	
+gap:IOCP..Performer@0x3304ced0	15	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	3472	0x3304ced0	0x3304db90	net: both neighbours	
+gap:ActorProxy..IOThread@0x3304f160	14	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	1904	0x3304f160	0x3304f7d0	net: both neighbours	
+gap:TRUser..SocketObject@0x330487a0	10	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	2480	0x330487a0	0x330490b0	net: both neighbours	
+class:CX2BossRaidManager	9	park	server-driven multiplayer system (wedding, world mission, boss raid, mentor informer): user decides	-	2224	0x3269ee50	0x3269f920	multi: name	
+class:KLuaManager	9	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	1600	0x32fe9f50	0x32fea780	net: name	
+gap:Performer..ActorProxy@0x3304e030	9	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	1184	0x3304e030	0x3304e5f0	net: both neighbours	
+class:KSocketObject	6	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	7120	0x33049150	0x3304a100	net: name	
+file:TRUser	5	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	1120	0x330463e0	0x33048010	net: name	
+class:KIocp	5	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	4992	0x3304b770	0x3304cb70	net: name	
+gap:X2ServerProtocol..TRUser@0x330456b0	4	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	1264	0x330456b0	0x33045ab0	net: both neighbours	
+class:CKTDNUDP	4	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	2208	0x33223fb0	0x33224570	net: name	
+file:KLuaManagerProxy	3	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	560	0x32fe9b90	0x32fe9d50	net: name	
+class:KSkSession	3	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	1808	0x3303ecd0	0x33041dd0	net: name	
+class:CX2ServerProtocol	3	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	3776	0x330447f0	0x330451b0	net: name	
+class:KActorProxy	3	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	2624	0x3304e720	0x3304eb00	net: name	
+class:KSkTRUser	2	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	1024	0x33046720	0x33047e50	net: name	
+class:KIOThread	2	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	2160	0x3304f8d0	0x3304fe70	net: name	
+class:CX2PacketLog	1	exclude	packet log / mail-out telemetry	-	656	0x31f63320	0x31f63320	telemetry: name	
+class:iocp	1	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	864	0x3304c250	0x3304c250	net: name	
+file:IOCP	1	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	128	0x3304c5b0	0x3304c5b0	net: name	
+class:KPerformer	1	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	976	0x3304dc60	0x3304dc60	net: name	
+class:netcommon	1	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	592	0x3304e260	0x3304e260	net: name	
+class:threadmanager	1	exclude	network layer, packet serializers, Lua binding glue: the emulator replaces the server; glue arrives with its feature	-	1600	0x330511a0	0x330511a0	net: name	
+gap:X2BuffDisplayerTemplet..X2BuffFinalizerTemplet@0x32ebbed0	64	port	buff templet / behaviour / finalizer / displayer code	S0	10480	0x32ebbed0	0x32ebe790	buff: both neighbours	
+class:CX2DamageEffect	37	port	effect set / damage effect code	S0	13712	0x31f64120	0x31f8ce60	effect: name	
+gap:X2BuffTemplet..X2PremiumBuffManager@0x326c4a00	31	port	buff templet / behaviour / finalizer / displayer code	S0	5152	0x326c4a00	0x326c5f70	buff: both neighbours	
+file:X2BuffBehaviorTemplet	27	port	buff templet / behaviour / finalizer / displayer code	S0	5808	0x32e75fb0	0x32e85360	buff: name	
+file:X2DamageEffect	26	port	effect set / damage effect code	S0	3904	0x31f63d30	0x31f8bdf0	effect: name	
+file:X2EffectSet	22	port	effect set / damage effect code	S0	4256	0x321d9fc0	0x321f4960	effect: name	
+class:CX2EffectSet	16	port	effect set / damage effect code	S0	5792	0x321da020	0x321f3f70	effect: name	g_pEffectSet
+file:X2BuffFinalizerTemplet	13	port	buff templet / behaviour / finalizer / displayer code	S0	1216	0x32ec1f60	0x32ec5dc0	buff: name	
+file:X2BuffTemplet	12	port	buff templet / behaviour / finalizer / displayer code	S0	3648	0x3236a150	0x323709e0	buff: name	
+file:X2BuffDisplayerTemplet	9	port	buff templet / behaviour / finalizer / displayer code	S0	2064	0x32eb7a90	0x32ebb490	buff: name	
+gap:X2BuffBehaviorTemplet..X2BuffFinalizerTemplet@0x32ec60d0	7	port	buff templet / behaviour / finalizer / displayer code	S0	912	0x32ec6160	0x32ec6530	buff: both neighbours	
+class:CX2BuffTempletManager	6	port	buff templet / behaviour / finalizer / displayer code	S0	2064	0x31ef64f0	0x326c3ac0	buff: name	
+file:X2PremiumBuffManager	5	port	buff templet / behaviour / finalizer / displayer code	S0	2416	0x326c6630	0x326c77d0	buff: name	
+class:CX2PremiumBuffManager	5	port	buff templet / behaviour / finalizer / displayer code	S0	1248	0x326c66b0	0x326c7ff0	buff: name	
+class:CX2BuffTemplet	4	port	buff templet / behaviour / finalizer / displayer code	S0	368	0x32369e00	0x3236c830	buff: name	
+gap:X2BuffTempletManager..X2BuffTemplet@0x326c43d0	4	port	buff templet / behaviour / finalizer / displayer code	S0	1232	0x326c43d0	0x326c47e0	buff: both neighbours	
+class:CX2BuffPassMpFinalizerTemplet	3	port	buff templet / behaviour / finalizer / displayer code	S0	1200	0x32ec0e30	0x32ec5a90	buff: name	
+class:CX2CustomFunctionByBuffPhantomSword	2	port	buff templet / behaviour / finalizer / displayer code	S0	1408	0x3236d670	0x3236d920	buff: name	
+class:CX2BuffFactor	2	port	buff templet / behaviour / finalizer / displayer code	S0	496	0x32d45670	0x32d45760	buff: name	
+gap:X2BuffFinalizerTemplet..X2BuffBehaviorTemplet@0x32ec5f80	2	port	buff templet / behaviour / finalizer / displayer code	S0	192	0x32ec5f80	0x32ec5fe0	buff: both neighbours	
+class:KBuffFactor	1	port	buff templet / behaviour / finalizer / displayer code	S0	192	0x31e8a1b0	0x31e8a1b0	buff: name	
+file:X2BuffFactor	1	port	buff templet / behaviour / finalizer / displayer code	S0	656	0x32d41c70	0x32d41c70	buff: name	
+class:CX2BuffIgnoreStateGuardBehaviorTemplet	1	port	buff templet / behaviour / finalizer / displayer code	S0	464	0x32e72830	0x32e72830	buff: name	
+class:CX2BuffBehaviorTemplet	1	port	buff templet / behaviour / finalizer / displayer code	S0	224	0x32e75ed0	0x32e75ed0	buff: name	
+class:CX2BuffChangeStateByConditionBehaviorTemplet	1	port	buff templet / behaviour / finalizer / displayer code	S0	1984	0x32e78390	0x32e78390	buff: name	
+class:CX2BuffChangeSkillDamageBehaviorTemplet	1	port	buff templet / behaviour / finalizer / displayer code	S0	160	0x32e7aec0	0x32e7aec0	buff: name	
+class:CX2BuffChangeConsumeMpRateBySkillType	1	port	buff templet / behaviour / finalizer / displayer code	S0	160	0x32e7b490	0x32e7b490	buff: name	
+class:CX2BuffChangeCooltimeRateBySkillType	1	port	buff templet / behaviour / finalizer / displayer code	S0	160	0x32e7b9d0	0x32e7b9d0	buff: name	
+class:CX2BuffIgnoreDefenceBehaviorTemplet	1	port	buff templet / behaviour / finalizer / displayer code	S0	336	0x32e7d370	0x32e7d370	buff: name	
+class:CX2BuffChangeSkillCoolTimeSpeedBehaviorTemplet	1	port	buff templet / behaviour / finalizer / displayer code	S0	880	0x32e80020	0x32e80020	buff: name	
+class:CX2BuffChangeNowForceDownPerSecondBehaviorTemplet	1	port	buff templet / behaviour / finalizer / displayer code	S0	976	0x32e85400	0x32e85400	buff: name	
+class:CX2BuffEffectSetImpactPointDisplayerTemplet	1	port	buff templet / behaviour / finalizer / displayer code	S0	768	0x32eb7790	0x32eb7790	buff: name	
+class:CX2BuffTimeFinalizerTemplet	1	port	buff templet / behaviour / finalizer / displayer code	S0	128	0x32ec3500	0x32ec3500	buff: name	
+class:CX2BuffChangeStatBehaviorTemplet_HaveBuffOwner	1	port	buff templet / behaviour / finalizer / displayer code	S0	144	0x32ec6040	0x32ec6040	buff: name	
+class:CX2SocketItem	60	port	item templet, inventory data, socket / enchant, drop code	S16	15456	0x3207d560	0x3271a3c0	item: name	GROUP_ID; m_HouseID|m_Cost
+gap:X2SocketItem..X2DropItemManager@0x3271a950	56	port	item templet, inventory data, socket / enchant, drop code	S16	33568	0x32721e00	0x3273b7f0	item: both neighbours	
+file:X2ItemManager	53	port	item templet, inventory data, socket / enchant, drop code	S16	20080	0x32807e40	0x32818200	item: name	m_iServerGroupID; m_iServerGroupID|m_iSourceQuantity|m_sPeriod; m_ConvertNPC
+class:CX2Inventory	37	port	item templet, inventory data, socket / enchant, drop code	S16	12944	0x32869d40	0x3286d490	item: name	
+class:KItemFormatTemplet	24	port	item templet, inventory data, socket / enchant, drop code	S16	2544	0x32867140	0x32868060	item: name	
+file:X2Eqip	14	port	item templet, inventory data, socket / enchant, drop code	S16	6768	0x3295b260	0x32960840	item: name	
+class:CX2EnchantItem	8	port	item templet, inventory data, socket / enchant, drop code	S16	3424	0x32707c80	0x3270c8f0	item: name	g_pCX2EnchantItem
+class:CX2CubeOpenImageManager	5	port	item templet, inventory data, socket / enchant, drop code	S16	2000	0x326bdb00	0x326be150	item: name	
+class:KItemFormatSetItemData	4	port	item templet, inventory data, socket / enchant, drop code	S16	368	0x32867610	0x32868020	item: name	
+file:X2Inventory	3	port	item templet, inventory data, socket / enchant, drop code	S16	208	0x3286a280	0x3286a310	item: name	
+class:CX2Item	2	port	item templet, inventory data, socket / enchant, drop code	S16	208	0x325bb4f0	0x328670f0	item: name	
+gap:X2Item_Preprocessing..X2ItemManager@0x325bb570	2	port	item templet, inventory data, socket / enchant, drop code	S16	208	0x325bb570	0x325bb5f0	item: both neighbours	
+class:CX2SlotItem	1	port	item templet, inventory data, socket / enchant, drop code	S16	16	0x31eca410	0x31eca410	item: name	
+class:lottery	1	port	item templet, inventory data, socket / enchant, drop code	S16	656	0x326a7240	0x326a7240	item: name	
+class:x2subequip	1	port	item templet, inventory data, socket / enchant, drop code	S16	624	0x32f09170	0x32f09170	item: name	
+gap:X2PetManager..X2Pet@0x326cc0d0	185	port	pet and riding-pet code	S17	116272	0x326cc0d0	0x326eae20	pet: strings	g_pPetManager; PET_ID|COMMON_NAME|CAPRICE|APPETITE|EVOLUTION_ALL_STEP; PET_ID|BONE_NAME|CLICK_ARRANGE|INTERACTION_TYPE|CHANGE_STATE
+class:CX2PetManager	14	port	pet and riding-pet code	S17	2336	0x326cb690	0x326cc050	pet: name	
+class:CX2UIPetInfo	13	port	pet and riding-pet code	S17	18976	0x328fd690	0x32903190	pet: name	
+class:x2pet	1	port	pet and riding-pet code	S17	9040	0x326f3a30	0x326f3a30	pet: name	
+file:X2TFieldNpc	4	port	NPC friendship / field NPC	S18	864	0x325c9c80	0x325ccae0	friendship: name	
+gap:KTDXDeviceXSkinMesh..X2Main@0x31d59830	215	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	93578	0x31d59830	0x31d70ab0	engine: both neighbours	
+gap:KTDGEnvBoxMap..KTDXDeviceTexture@0x31d0d280	126	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	35216	0x31d0d280	0x31d15c00	engine: both neighbours	
+class:CKTDGParticleSystem	104	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	11120	0x31c19f80	0x31f318d0	engine: name	
+gap:X2EXPTable..X2GameEdit@0x32741090	85	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	43536	0x32741090	0x3274b950	engine: strings	LEVEL|NEED_EXP|TOTAL_EXP; ER_LEVEL|NEED_ER_EXP|TOTAL_ER_EXP; g_pkExpTable
+gap:KTDGXSkinAnim..KTDGXMeshPlayer@0x31c8f290	73	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	5392	0x31c8f290	0x31c90780	engine: both neighbours	
+gap:KTDGLineMap..KTDGObject@0x31c7f390	65	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	13904	0x31c7f390	0x31c82950	engine: both neighbours	
+class:CKTDGUIDialog	62	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	16480	0x31c1bf10	0x31cd6920	engine: name	IS_DIRECT|CHANGE_TIME|AUTO_DELETE|POS|COLOR
+file:X2Data	57	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	28160	0x31edcd00	0x31eea750	engine: name	Unit_Common_Device.lua; LimitResolvedItem.lua; EnchantItemInfoNew.lua|ID|ENCHANT_LEVEL|USE_TYPE|LIMIT_EQUIP
+class:CKTDGUIIMEEditBox	54	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	24880	0x31c1af00	0x31cbb910	engine: name	EditBox_KeyDown
+gap:KTDXDeviceManager..KTDGStateManager@0x31c4e920	51	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	14432	0x31c4e920	0x31c59f70	engine: both neighbours	is duplicated
+class:CKTDGUIControl	50	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	21120	0x31c1a4d0	0x31c9ddf0	engine: name	IS_DIRECT|CHANGE_TIME|AUTO_DELETE|IS_PINGPONG|REPEAT_NUM|POS; FileName|KeyName|RotateAxis|RotateDegree|SequenceID|fShowTim
+gap:KTDXDeviceManager..KTDGHeatShimmer@0x31ce2890	50	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	10368	0x31ce2890	0x31ce5660	engine: both neighbours	
+gap:KTDGManager..KTDSManager@0x31ceb9d0	43	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	12480	0x31ceb9d0	0x31ceeb80	engine: both neighbours	
+class:CKTDGXMeshPlayer	41	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	17088	0x31c1a400	0x31f8ade0	engine: name	
+gap:KTDGUIControl..KTDGUIListBox@0x31c9ef20	40	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	18640	0x31c9ef20	0x31ca3760	engine: both neighbours	ListBox_Mouse_Down
+class:CKTDGLineMap	38	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	48768	0x31c5bc70	0x31c7f230	engine: name	RELATIVE_EYE_POS_X|RELATIVE_EYE_POS_Y|RELATIVE_EYE_POS_Z|CAM; g_pLineMap
+gap:KTDGUIDialogManager..KTDGEnvBoxMap@0x31d06540	38	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	9232	0x31d06570	0x31d08f70	engine: both neighbours	
+file:KTDGLineMap	37	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	12656	0x31c5c240	0x31c7d940	engine: name	
+gap:KTDGGFXManager..KTDIManager@0x31c457e0	36	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	7520	0x31c457e0	0x31c48820	engine: both neighbours	
+gap:KTDGUIControlList..KTDGUISlot@0x31cca3c0	34	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	14032	0x31cca3c0	0x31ccd9b0	engine: both neighbours	
+file:X2Main	33	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	39456	0x31d759e0	0x31d8ddc0	engine: name	checkkom.xml|data037.kom|data036.kom
+file:KTDGUIControl	32	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	5904	0x31c9b090	0x31c9ee10	engine: name	
+file:KTDGParticleSystem	32	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	13920	0x31cef060	0x31cf7110	engine: name	
+file:KTDGUIButton	25	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	12096	0x31caeb50	0x31cb0fb0	engine: name	Button_Mouse_Over|Button_Mouse_Up
+gap:KTDGParticleSystem..KTDGObject@0x31cfc300	24	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	8304	0x31cfc300	0x31cfe3f0	engine: both neighbours	
+gap:KTDIDevice..KTDXStage@0x31d24340	24	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	13680	0x31d24340	0x31d28390	engine: both neighbours	
+gap:KTDGUIListBox..KTDGUIRadioButton@0x31ca6be0	23	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	4320	0x31ca6be0	0x31ca7af0	engine: both neighbours	
+class:CKTDXDeviceXSkinMesh	23	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	9696	0x31d4d4f0	0x31d59810	engine: name	
+gap:KTDGUIRadioButton..KTDGUIButton@0x31cab9d0	21	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	5024	0x31cab9d0	0x31cacb00	engine: both neighbours	
+class:CKTDGUISlot	21	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	13552	0x31ccdb00	0x31cd1350	engine: name	
+gap:KTDGUIRadioButton..KTDXApp@0x31c1b490	20	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	2688	0x31c1b490	0x31c1bee0	engine: both neighbours	
+gap:KTDGXMeshPlayer..KTDGUIControl@0x31c90ed0	19	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	5632	0x31c90ed0	0x31c93060	engine: both neighbours	
+gap:KTDGUIButton..KTDGUIIMEEditBox@0x31cb2510	18	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	5520	0x31cb2550	0x31cb3ab0	engine: both neighbours	
+gap:KTDGUINavigation..KTDGUIControlList@0x31cc8ee0	17	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	5232	0x31cc8ee0	0x31cca310	engine: both neighbours	Button_Mouse_Up
+gap:KTDXDeviceTexture..KTDXDeviceHolder@0x31d15cd0	17	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	4640	0x31d15cd0	0x31d16ec0	engine: both neighbours	
+gap:KTDXDeviceRenderTargetTexture..KTDXDeviceManager@0x31cdb870	16	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	2864	0x31cdb870	0x31cdcab0	engine: both neighbours	
+gap:KTDGObject..KTDXDeviceTexture@0x31cda210	14	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	2704	0x31cda250	0x31cdad90	engine: both neighbours	
+class:CKTDXDeviceManager	14	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	7232	0x31cdd1b0	0x31ce21a0	engine: name	
+gap:KTDGUIScrollBar..KTDXDeviceTexture@0x31d47ef0	13	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	4256	0x31d47ef0	0x31d48d90	engine: both neighbours	ScrollBar_Mouse_Down
+gap:KTDGMatrix..KTDGLineMap@0x31c5b060	12	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	2928	0x31c5b060	0x31c5baf0	engine: both neighbours	
+class:CKTDGUIStatic	12	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	7680	0x31cbccc0	0x31cbe9f0	engine: name	
+file:KTDXDeviceManager	12	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	7168	0x31cdce10	0x31ce19d0	engine: name	
+file:KTDGUIDialogManager	12	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	2736	0x31d03960	0x31d04e80	engine: name	g_pDialogManager
+class:CKTDGUIRadioButton	11	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	13184	0x31c1b330	0x31caa5b0	engine: name	RadioButton_Check|RadioButton_MouseOver
+gap:KTDGXMeshPlayer..KTDGXRenderer@0x31c8e150	11	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	3760	0x31c8e150	0x31c8eff0	engine: both neighbours	
+class:CKTDGUIButton	11	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	7536	0x31cacd70	0x31cad320	engine: name	
+gap:KTDXApp..KTDGParticleSystem@0x31c198f0	10	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	816	0x31c198f0	0x31c19ec0	engine: both neighbours	
+file:KTDGXMeshPlayer	9	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	2160	0x31c83390	0x31c8a8d0	engine: name	
+class:CKTDGManager	9	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	7296	0x31ce67c0	0x31ceb310	engine: name	
+gap:KTDXDeviceHolder..KTDGEffectStateManager@0x31d17310	9	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	1360	0x31d17310	0x31d177c0	engine: both neighbours	
+gap:KTDGXSkinAnim..KTDXDeviceXSkinMesh@0x31d35b30	9	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	1408	0x31d35b30	0x31d36090	engine: both neighbours	
+gap:KTDGSlashTrace..KTDGXRenderer@0x31d39c60	9	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	9168	0x31d39c60	0x31d3bfd0	engine: both neighbours	
+gap:KTDGUIControl..KTDGUIIMEEditBox@0x31c1a820	8	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	1760	0x31c1a820	0x31c1ae30	engine: both neighbours	
+gap:KTDXStage..KTDGObject@0x31d28560	8	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	1184	0x31d28560	0x31d289e0	engine: both neighbours	
+gap:KTDGUISlot..KTDGUIDialog@0x31cd1ef0	7	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	368	0x31cd1ef0	0x31cd2050	engine: both neighbours	
+gap:KTDGXSkinAnim..KTDGParticleSystem@0x31cfe5a0	7	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	528	0x31cfe5a0	0x31cfe770	engine: both neighbours	
+gap:KTDGParticleSystem..KTDGDeviceSurfaceManager@0x31d00720	7	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	1040	0x31d00720	0x31d00ae0	engine: both neighbours	
+class:CKTDGEffectStateManager	7	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	2272	0x31d17860	0x31d17d20	engine: name	
+class:CKTDXDeviceXET	7	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	672	0x31d3fec0	0x31d40020	engine: name	
+class:CKTDGStateManager	6	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	976	0x31c59fd0	0x31c5a290	engine: name	
+gap:KTDGUIDialog..KTDGObject@0x31cd97e0	6	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	2400	0x31cd97e0	0x31cda0e0	engine: both neighbours	
+file:KTDGCamera	6	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	320	0x31d014f0	0x31d01c70	engine: name	
+gap:KTDGCamera..KTDGUIDialogManager@0x31d031a0	6	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	976	0x31d031a0	0x31d03910	engine: both neighbours	
+class:CKTDGEnvBoxMap	6	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	1472	0x31d09040	0x31d0d030	engine: name	
+gap:KTDGUIIMEEditBox..KTDGUIStatic@0x31cbc860	5	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	1056	0x31cbc860	0x31cbc960	engine: both neighbours	
+gap:KTDGDeviceSurfaceManager..KTDGCamera@0x31d01070	5	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	672	0x31d01070	0x31d01270	engine: both neighbours	
+class:CKTDGXRenderer	5	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	6960	0x31d3c060	0x31d3cbd0	engine: name	
+class:CKTDXDeviceSound	5	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	912	0x31d41090	0x31d41470	engine: name	
+gap:KTDGObject..KTDGXMeshPlayer@0x31c82c20	4	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	320	0x31c82c20	0x31c82d50	engine: both neighbours	
+class:CKTDGUINavigation	4	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	2080	0x31cc86c0	0x31cc8e80	engine: name	
+gap:X2Main..X2Data@0x31ee1b90	4	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	944	0x31ee1b90	0x31ee1dd0	engine: both neighbours	
+class:CKTDXDeviceHolder	3	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	480	0x31d17130	0x31d17270	engine: name	
+file:KTDGXSkinAnim	3	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	400	0x31d2b160	0x31d2f930	engine: name	
+class:CKTDGUIDialogHandle	3	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	112	0x31d41c20	0x31d41c70	engine: name	
+gap:KTDXDevice..KTDXDeviceXSkinMesh@0x31d4d330	3	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	432	0x31d4d330	0x31d4d3f0	engine: both neighbours	
+class:CKTDGXSkinAfterImage	3	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	1488	0x3322a3f0	0x3322abc0	engine: name	
+gap:KTDGObject..KTDGXSkinAnim@0x31d28bb0	2	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	112	0x31d28bb0	0x31d28be0	engine: both neighbours	
+file:KTDGXSkinAfterImage	2	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	1120	0x3322a620	0x3322a9c0	engine: name	
+gap:KTDGParticleSystem..KTDGXMeshPlayer@0x31c1a110	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	608	0x31c1a110	0x31c1a110	engine: both neighbours	
+file:KTDXApp	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	144	0x31c1bfb0	0x31c1bfb0	engine: name	
+gap:KTDGStateManager..KTDGMatrix@0x31c5afe0	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	16	0x31c5afe0	0x31c5afe0	engine: both neighbours	
+class:CKTDGMatrix	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	112	0x31c5aff0	0x31c5aff0	engine: name	
+gap:KTDGXRenderer..KTDGXSkinAnim@0x31c8f1b0	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	112	0x31c8f1d0	0x31c8f1d0	engine: both neighbours	
+gap:KTDXDeviceTexture..KTDXDeviceRenderTargetTexture@0x31cdb030	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	736	0x31cdb030	0x31cdb030	engine: both neighbours	
+class:CParticleEventSequence	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	2048	0x31cf0eb0	0x31cf0eb0	engine: name	
+class:CParticleEmitterTokenizer	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	272	0x31cf3580	0x31cf3580	engine: name	
+class:CKTDIDeviceWinKey	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	80	0x31d24700	0x31d24700	engine: name	
+class:CKTDGObject	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	16	0x31d28a10	0x31d28a10	engine: name	
+gap:KTDGXSkinAnim..KTDGSlashTrace@0x31d392c0	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	96	0x31d392c0	0x31d392c0	engine: both neighbours	
+gap:X2Data..X2Main@0x31ee17d0	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	896	0x31ee17d0	0x31ee17d0	engine: both neighbours	
+gap:KTDGParticleSystem..KTDGXMeshPlayer@0x321f2960	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	48	0x321f2960	0x321f2960	engine: both neighbours	
+class:CX2SoundCloseManager	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	336	0x32953e50	0x32953e50	engine: name	
+class:CKTDXRandomNumbers	1	port	KTDX / KTDG engine, device, particle, UI framework, app core	S2	96	0x33223170	0x33223170	engine: name	
+gap:X2AllyNPCAI..X2FieldMapBase@0x32f10fd0	116	port	dungeon / world / NPC / battle-field game code	S22	55680	0x32f10fd0	0x32f1fba0	world: both neighbours	
+gap:X2DungeonManager..X2DungeonSubStage@0x327df230	89	port	dungeon / world / NPC / battle-field game code	S22	27952	0x327df230	0x327eb860	world: both neighbours	LU|CIEL; DIFFICULTY_LEVEL|DUNGEON_ID
+file:X2Game	76	port	dungeon / world / NPC / battle-field game code	S22	48752	0x322cc2b0	0x3230c050	world: name	DamageEffect.lua|DamageEffect_Character.lua|DamageEffect_Dun
+gap:X2StateDungeonGame..X2LocationManager@0x324dbb30	46	port	dungeon / world / NPC / battle-field game code	S22	7584	0x324dcda0	0x324f1d50	world: both neighbours	
+file:X2StateDungeonGame	41	port	dungeon / world / NPC / battle-field game code	S22	23808	0x324ccdf0	0x324dafa0	world: name	
+file:X2GUNPC	40	port	dungeon / world / NPC / battle-field game code	S22	31744	0x32757540	0x3277a7d0	world: name	ET_BLAZE|ET_WATER|ET_NATURE|ET_WIND|ET_LIGHT|ET_DARK; HEAD_BONE_NAME|MOTION_FILE_NAME|MOTION_FILE_NAME_ENEMY|MOTIO
+gap:X2StateBattleField..X2StateTrainingGame@0x324bd250	38	port	dungeon / world / NPC / battle-field game code	S22	15456	0x324be070	0x324c35f0	world: both neighbours	
+gap:X2Game..X2World@0x3230ee70	32	port	dungeon / world / NPC / battle-field game code	S22	3280	0x3230ee70	0x3230fcf0	world: both neighbours	
+gap:X2World..X2WorldManager@0x328029f0	27	port	dungeon / world / NPC / battle-field game code	S22	4832	0x328029f0	0x32803ce0	world: both neighbours	
+gap:X2GUNPC..X2DungeonSubStage@0x327d6640	22	port	dungeon / world / NPC / battle-field game code	S22	5904	0x327d6640	0x327d7fb0	world: both neighbours	
+class:CX2DungeonGame	21	port	dungeon / world / NPC / battle-field game code	S22	7216	0x322f0a90	0x327d2060	world: name	
+gap:X2DungeonGame..X2GUNPC@0x327d3d60	16	port	dungeon / world / NPC / battle-field game code	S22	10064	0x327d3d60	0x327d6550	world: both neighbours	
+class:CX2LocationManager	14	port	dungeon / world / NPC / battle-field game code	S22	4080	0x324f1e50	0x324fef80	world: name	
+file:X2DungeonGame	14	port	dungeon / world / NPC / battle-field game code	S22	7776	0x327c9f00	0x327d3630	world: name	
+class:CX2DungeonStage	14	port	dungeon / world / NPC / battle-field game code	S22	3920	0x327f3b80	0x327f4c00	world: name	
+class:CX2BattleFieldGame	12	port	dungeon / world / NPC / battle-field game code	S22	8912	0x327cdf70	0x32d536d0	world: name	
+gap:X2DungeonStage..X2WorldObjectSkinMesh@0x327f5ad0	11	port	dungeon / world / NPC / battle-field game code	S22	3520	0x327f5ad0	0x327f66e0	world: both neighbours	
+class:CX2WorldObjectMesh	11	port	dungeon / world / NPC / battle-field game code	S22	4688	0x327f8e40	0x327fa1f0	world: name	
+file:X2DungeonSubStage	9	port	dungeon / world / NPC / battle-field game code	S22	2608	0x327ee250	0x327eebb0	world: name	
+gap:X2WorldObjectMesh..X2World@0x327fa600	9	port	dungeon / world / NPC / battle-field game code	S22	3056	0x327fa600	0x327fb0c0	world: both neighbours	
+file:X2WorldObjectSkinMesh	8	port	dungeon / world / NPC / battle-field game code	S22	3552	0x327f72d0	0x327f8190	world: name	
+file:X2DungeonManager	7	port	dungeon / world / NPC / battle-field game code	S22	2256	0x327d97d0	0x327da390	world: name	TIMER|MIN_DISTANCE|MAX_DISTANCE
+class:CX2Room	6	port	dungeon / world / NPC / battle-field game code	S22	624	0x31ed1900	0x31ed1ae0	world: name	
+gap:X2DungeonSubStage..X2DungeonManager@0x327d9370	6	port	dungeon / world / NPC / battle-field game code	S22	1088	0x327d9370	0x327d9780	world: both neighbours	
+class:CX2DungeonSubStage	5	port	dungeon / world / NPC / battle-field game code	S22	4224	0x327d9100	0x327f0070	world: name	LINE_INDEX|AT_START|LOOK_LEFT|SUB_NPC_RATE
+gap:X2Game..X2DungeonGame@0x322f0600	4	port	dungeon / world / NPC / battle-field game code	S22	1168	0x322f0600	0x322f0970	world: both neighbours	
+gap:X2WorldObjectSkinMesh..X2WorldObjectMesh@0x327f8d10	4	port	dungeon / world / NPC / battle-field game code	S22	304	0x327f8d10	0x327f8da0	world: both neighbours	
+class:CX2WorldObjectSkinMesh	3	port	dungeon / world / NPC / battle-field game code	S22	3248	0x31e4c600	0x327f82e0	world: name	
+gap:X2WorldObjectSkinMesh..X2World@0x31e4c720	3	port	dungeon / world / NPC / battle-field game code	S22	464	0x31e4c720	0x31e4c8a0	world: both neighbours	
+class:CX2DefaultBoneInfo	3	port	dungeon / world / NPC / battle-field game code	S22	512	0x3214c470	0x3214d100	world: name	
+file:X2World	3	port	dungeon / world / NPC / battle-field game code	S22	816	0x327fb3d0	0x327fb950	world: name	
+file:X2BattleFieldManager	2	port	dungeon / world / NPC / battle-field game code	S22	128	0x32482610	0x324826b0	world: name	
+class:CX2StateTrainingGame	2	port	dungeon / world / NPC / battle-field game code	S22	1120	0x324c3bb0	0x324c3d90	world: name	
+class:CX2WorldManager	2	port	dungeon / world / NPC / battle-field game code	S22	2272	0x32804e90	0x32805680	world: name	g_pWorldManager
+class:CX2WorldObjectParticle	1	port	dungeon / world / NPC / battle-field game code	S22	208	0x31e4f370	0x31e4f370	world: name	
+class:CX2BattleFieldManager	1	port	dungeon / world / NPC / battle-field game code	S22	64	0x324825d0	0x324825d0	world: name	
+file:X2LocationManager	1	port	dungeon / world / NPC / battle-field game code	S22	560	0x324f2dc0	0x324f2dc0	world: name	
+class:CX2AllyNPCAI	1	port	dungeon / world / NPC / battle-field game code	S22	160	0x327c0f10	0x327c0f10	world: name	
+gap:X2AllyNPCAI..X2DungeonGame@0x327c0fb0	1	port	dungeon / world / NPC / battle-field game code	S22	48	0x327c92a0	0x327c92a0	world: both neighbours	
+gap:X2DungeonGame..X2BattleFieldGame@0x327cde20	1	port	dungeon / world / NPC / battle-field game code	S22	336	0x327cde20	0x327cde20	world: both neighbours	
+file:X2WorldManager	1	port	dungeon / world / NPC / battle-field game code	S22	1104	0x328043c0	0x328043c0	world: name	meshName|boundingSphereRadius|centerPos
+class:CX2Dungeon	1	port	dungeon / world / NPC / battle-field game code	S22	32	0x32931930	0x32931930	world: name	
+gap:X2SimplePathFinder..X2NPCAI@0x32f287e0	1	port	dungeon / world / NPC / battle-field game code	S22	4144	0x32f2a490	0x32f2a490	world: both neighbours	
+gap:KTDXStringTable..KTDGFontManager@0x31c30dd0	90	port	fonts, word wrap, string table	S25	36704	0x31c30dd0	0x31c3aa10	font: both neighbours	
+class:CKTDGFontManager	23	port	fonts, word wrap, string table	S25	12320	0x31c3aa90	0x31c3db10	font: name	
+class:CKTDGDeviceFont	7	port	fonts, word wrap, string table	S25	10960	0x31d1bc10	0x31d1d180	font: name	
+class:FontConfigSet	6	port	fonts, word wrap, string table	S25	2048	0x31d21b60	0x31d22fe0	font: name	
+class:CKTDXWordWrap	6	port	fonts, word wrap, string table	S25	6912	0x31d42a60	0x31d45690	font: name	
+class:FontConfig	2	port	fonts, word wrap, string table	S25	432	0x31d225d0	0x31d23c10	font: name	
+class:CWordLineHandler	2	port	fonts, word wrap, string table	S25	4784	0x31d42ed0	0x31d46130	font: name	
+gap:WordWrap..KTDXWordWrap@0x31d43b10	1	port	fonts, word wrap, string table	S25	992	0x31d43b10	0x31d43b10	font: both neighbours	
+gap:KTDXWordWrap..WordWrap@0x31d46020	1	port	fonts, word wrap, string table	S25	272	0x31d46020	0x31d46020	font: both neighbours	
+gap:X2BossRaidManager..X2WeddingManager@0x3269fd50	226	port	event scenes, slide shots, GFX event scenes	S27	85888	0x3269fd50	0x326ba030	scene: strings	KWorldTourInfoData|WorldTourInfoData.lua; WEDDING_HALL_TYPE|WORLD_ID|BRIDE_START_POS|GROOM_START_POS|B; OFFICANT_TYPE|OFFICANT_MOTION_NAME|TALKBOX_POSITION_OFFSET_X
+gap:X2NoticeManager..X2Item_Preprocessing@0x325adde0	104	port	event scenes, slide shots, GFX event scenes	S27	38176	0x325adde0	0x325bb420	scene: strings	g_pEventScene
+file:X2SlideShot	14	port	event scenes, slide shots, GFX event scenes	S27	6752	0x325c4b30	0x325c63d0	scene: name	
+file:X2GFXEventScene	4	port	event scenes, slide shots, GFX event scenes	S27	2527	0x3226a1c1	0x3226ab10	scene: name	g_pEventScene
+class:CX2GFXEventScene	3	port	event scenes, slide shots, GFX event scenes	S27	464	0x32269d50	0x32269ee0	scene: name	
+class:CX2SlideShot	2	port	event scenes, slide shots, GFX event scenes	S27	912	0x325c49f0	0x325c6590	scene: name	
+file:X2SkillTree	25	port	skill tree, skill note, combo-chain code	S3	3792	0x322055a0	0x3221c750	skill: name	
+file:X2UserSkillTree	21	port	skill tree, skill note, combo-chain code	S3	7397	0x32890a50	0x32897110	skill: name	
+class:CX2UserSkillTree	19	port	skill tree, skill note, combo-chain code	S3	8624	0x3288fee0	0x328983b0	skill: name	
+class:CX2UISkillTreeNew	10	port	skill tree, skill note, combo-chain code	S3	5488	0x328d9c30	0x328ea6d0	skill: name	
+class:CKTDGUIComboBox	7	port	skill tree, skill note, combo-chain code	S3	1568	0x31c1b1a0	0x31cc14f0	skill: name	
+class:CX2SkillNoteManager	4	port	skill tree, skill note, combo-chain code	S3	864	0x32454da0	0x32455240	skill: name	
+file:X2SkillNoteManager	3	port	skill tree, skill note, combo-chain code	S3	848	0x324512e0	0x32452ea0	skill: name	
+gap:X2UISkillTreeNew..X2SkillTree@0x328edb50	2	port	skill tree, skill note, combo-chain code	S3	208	0x328edb50	0x328edbc0	skill: both neighbours	
+file:X2UISkillTreeNew	1	port	skill tree, skill note, combo-chain code	S3	1248	0x328dd570	0x328dd570	skill: name	
+class:CX2UISkillNote	1	port	skill tree, skill note, combo-chain code	S3	336	0x3292ed10	0x3292ed10	skill: name	
+class:CX2ComboManager	1	port	skill tree, skill note, combo-chain code	S3	4816	0x32955280	0x32955280	skill: name	
+class:CX2ComboAndSkillChainInfo	1	port	skill tree, skill note, combo-chain code	S3	160	0x32bd6de0	0x32bd6de0	skill: name	
+class:CX2ComboAndSkillChainSystem	1	port	skill tree, skill note, combo-chain code	S3	368	0x32bd7b10	0x32bd7b10	skill: name	
+gap:X2DamageManager..X2RandomMission@0x32649c80	197	port	achievements, titles and emblems	S31	62768	0x32649cd0	0x32676200	achieve: strings	UNIT_TYPE|ICON|NAME|ICON_MINOR|NAME_MINOR; UNIT_CLASS|ICON|NAME|ICON_MINOR|NAME_MINOR; g_pProfessionManager|ProfessionTemplet.lua
+gap:X2PetAI..X2AllyNPCAI@0x32ef71a0	76	port	achievements, titles and emblems	S31	40336	0x32ef71a0	0x32f10af0	achieve: strings	g_pTitleSystem; FAR_LOST_RANGE|LOST_RANGE|MANUAL_TARGETING_FUNC|TARGET_PRIOR
+class:CX2TitleManager	43	port	achievements, titles and emblems	S31	43664	0x326f8a40	0x327051e0	achieve: name	m_eTalkNPCID|m_eDungeonID|m_cDifficulty|m_iKillNum|m_eDungeo; TitleManager; m_iTitleID|m_iSortNum|m_eTitleType|m_TitleName|m_Description
+class:CX2EmblemManager	9	port	achievements, titles and emblems	S31	2976	0x324478d0	0x3244cf30	achieve: name	g_pEmblemManager
+file:X2EmblemManager	2	port	achievements, titles and emblems	S31	208	0x3244bee0	0x3244bf10	achieve: name	
+file:X2Unit	45	port	stat and damage calculation	S33	42400	0x3234da20	0x32365780	stat: name	
+file:X2DamageManager	10	port	stat and damage calculation	S33	8176	0x31e9bef0	0x32621f40	stat: name	g_pDamageManager
+gap:X2Stat..X2Unit@0x32357460	8	port	stat and damage calculation	S33	1968	0x32357460	0x32358ad0	stat: both neighbours	
+class:CX2DamageManager	5	port	stat and damage calculation	S33	5296	0x31f8f490	0x32630c00	stat: name	
+file:X2ItemStatCalculator	4	port	stat and damage calculation	S33	1008	0x328d7270	0x328d8830	stat: name	
+file:X2UnitManager	2	port	stat and damage calculation	S33	2032	0x32375290	0x32376780	stat: name	g_pUnitManager
+class:CX2ItemStatCalculator	2	port	stat and damage calculation	S33	576	0x328d6a50	0x328d6a80	stat: name	
+gap:X2Unit..X2Stat@0x32356b50	1	port	stat and damage calculation	S33	1648	0x32356b50	0x32356b50	stat: both neighbours	
+class:CX2TFieldGame	72	port	village / field game core (CX2TFieldGame, CX2SquareUnit, field state); no stage owns it	S38	38640	0x323a4ea0	0x323bd4e0	field: name	
+file:X2TFieldGame	49	port	village / field game core (CX2TFieldGame, CX2SquareUnit, field state); no stage owns it	S38	24672	0x323a99b0	0x323ba940	field: name	
+file:X2SquareUnit	46	port	village / field game core (CX2TFieldGame, CX2SquareUnit, field state); no stage owns it	S38	28512	0x323ed330	0x323fa4b0	field: name	PASSIVE_SPEED_X|PASSIVE_SPEED_Y|RIGHT_SYNC; RELOAD_ACCEL|G_ACCEL|MAX_G_SPEED|WALK_SPEED|RUN_SPEED|JUMP_S; WAIT|WALK|JUMP_UP|JUMP_DOWN|DASH|DASH_JUMP_UP|DASH_JUMP_DOWN
+class:x2tfieldgame	1	port	village / field game core (CX2TFieldGame, CX2SquareUnit, field state); no stage owns it	S38	288	0x323aaaa0	0x323aaaa0	field: name	
+class:x2squareunit	1	port	village / field game core (CX2TFieldGame, CX2SquareUnit, field state); no stage owns it	S38	672	0x323f1490	0x323f1490	field: name	
+gap:X2TalkBoxManagerUI..X2PetAI@0x32eec4d0	82	port	date-window game events (custom events, level-up event, random mission); no stage owns them	S39	41664	0x32eec4d0	0x32ef65e0	event: strings	CX2CustomEventItemSlotManager; MANUAL_TARGETING_FUNC|TARGET_NPC|TARGET_PRIORITY|TARGET_INTE
+class:CX2CustomEventManager	52	port	date-window game events (custom events, level-up event, random mission); no stage owns them	S39	60880	0x32682c20	0x32691980	event: name	StartDate|MaxRewardCount|IntervalSec|DummyRewardID; TITLE_STR_ID; NOTICE_LEVEL
+file:X2LVUpEventMgr	6	port	date-window game events (custom events, level-up event, random mission); no stage owns them	S39	6288	0x32710c00	0x32713c10	event: name	g_pLVUpEventMgr
+class:CX2LVUpEventMgr	5	port	date-window game events (custom events, level-up event, random mission); no stage owns them	S39	3360	0x32710980	0x32714af0	event: name	EVENT_ID|LEVEL
+file:X2RandomMission	2	port	date-window game events (custom events, level-up event, random mission); no stage owns them	S39	96	0x32676590	0x326765d0	event: name	
+class:CX2RandomMission	1	port	date-window game events (custom events, level-up event, random mission); no stage owns them	S39	64	0x32676870	0x32676870	event: name	
+class:CX2QuestManager	30	port	quest manager and quest UI	S4	12160	0x32321ee0	0x32344f00	quest: name	AccountQuestID|DayOfWeek
+file:X2UIQuestNew	7	port	quest manager and quest UI	S4	5520	0x323ca970	0x323e1990	quest: name	
+gap:X2GUUser..X2Data@0x32092b20	1133	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	269824	0x32092b20	0x3214c3e0	triage: neighbours differ (char-shared | engine)	
+gap:X2UnitSlashTraceManager..X2NPCUnitViewerUI@0x32d5dd70	938	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	542848	0x32d5dd70	0x32e4f580	triage: neighbours differ (char-shared | ui)	g_pUIPersonalShopBoard
+gap:KTDGParticleSystem..X2SkillTree@0x31f31950	299	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	55024	0x31f31950	0x31f3efa0	triage: neighbours differ (engine | skill)	
+gap:X2DamageManager..X2GUAdd@0x329cf850	244	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	66544	0x329d1bb0	0x329e2320	triage: neighbours differ (stat | char-march)	POSSIBLE_NASOD_BARRIER
+gap:X2WorldMissionManager..X2PVPGame@0x328a05f0	231	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	89888	0x328a05f0	0x328b9cf0	triage: strings name several systems: pvp / world	CX2PVPResultTable|SetTeamMatchWin_LUA|SetTeamMatchLose_LUA|S; KPVPResultTable; HenirData
+gap:KTDGXSkinAfterImage..X2GUUser@0x3322afb0	228	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	804628	0x3322afb0	0x33445368	triage: neighbours differ (engine | char-shared)	
+gap:X2StateDungeonResult..X2StatePVPRoom@0x32513d30	218	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	108400	0x32515cb0	0x325345c0	triage: neighbours differ (result | pvp)	
+gap:X2InstanceData..X2GUNPC@0x31e5a8a0	210	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	69424	0x31e5a8a0	0x31e8a890	triage: neighbours differ (engine | world)	NF_EU|NF_GLOBAL
+gap:X2RandomMission..X2BossRaidManager@0x326797a0	195	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	66672	0x32679c50	0x3269ec70	triage: strings name several systems: event / friendship	REWARD_COUNT; MAX_COUNT; NPC_STAT_ADJUST_PARTY_MAMBER_1|NPC_STAT_ADJUST_PARTY_MAMBER_
+gap:X2GUNPC..X2TFieldGame@0x32394340	191	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	64032	0x32394340	0x323a4da0	triage: neighbours differ (world | field)	
+gap:X2SkillTree..X2KeyPad@0x31f3f080	168	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	67056	0x31f3f080	0x31f5e4f0	triage: neighbours differ (skill | ui)	
+gap:X2TFieldNpc..X2DamageManager@0x325d1cb0	163	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	73392	0x325d1cb0	0x32602750	triage: neighbours differ (friendship | stat)	m_iDungeonID|m_fTime|m_iCount|m_iItemID|m_bHellMode|m_iNpcId
+gap:X2Inventory..X2GameUnit@0x3286d840	160	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	84688	0x3286d840	0x32883f40	triage: neighbours differ (item | char-shared)	
+gap:X2Unit..X2UIQuickSlot@0x3293da20	159	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	62368	0x3293da20	0x3294e110	triage: neighbours differ (stat | ui)	
+gap:X2PartyManager..X2EmblemManager@0x32434490	155	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	71600	0x32434490	0x324475f0	triage: neighbours differ (party | achieve)	
+gap:X2BuffBehaviorTemplet..X2UIQuestNew@0x32e86550	153	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	36736	0x32e86550	0x32e90430	triage: neighbours differ (buff | quest)	
+gap:X2InformerManager..X2Item_Preprocessing@0x32854a20	152	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	57728	0x32854b00	0x328670e0	triage: strings name several systems: multi / publisher	UNIT_NAME|VIEW_AFTER_A_WEEK|LAST_VIEW_YDAY_CANDIDATE_LIST|RE; LANGID|NAME; LocaleInfo.lua
+gap:X2SlotItem..X2Room@0x31eca420	139	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	29552	0x31eca420	0x31ed1860	triage: neighbours differ (item | world)	
+gap:X2PVPGame..X2ItemStatCalculator@0x328ba170	111	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	82640	0x328ba1a0	0x328d6830	triage: neighbours differ (pvp | stat)	
+gap:X2StatePVPRoom..X2StateCreateUnit@0x3253b590	106	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	77392	0x3253bf90	0x32550a40	triage: neighbours differ (pvp | ui)	
+gap:X2KeyPad..X2PacketLog@0x31f5f040	103	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	12544	0x31f60110	0x31f63300	triage: neighbours differ (ui | telemetry)	
+gap:X2UIQuestNew..X2SquareUnit@0x323e60b0	103	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	28000	0x323e60b0	0x323ed300	triage: neighbours differ (quest | field)	
+gap:X2BuffFactor..X2DamageManager@0x31e921e0	102	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	36352	0x31e921e0	0x31e9bb00	triage: neighbours differ (buff | stat)	
+gap:X2Camera..X2GameUnit@0x31fb6c70	97	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	34848	0x31fb6c70	0x31fc6650	triage: neighbours differ (world | char-shared)	g_pCamera; WORLD_CAMERA_ID|HOLD_VIEW_WHEN_CAMERA_END|WORLD_CAMERA_DURAT
+gap:X2CashShop..X2EffectSet@0x321cd3b0	91	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	24864	0x321cd3b0	0x321d9760	triage: neighbours differ (ui | effect)	
+gap:X2Data..X2BuffTempletManager@0x31eeb040	89	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	23792	0x31eee020	0x31ef6400	triage: neighbours differ (engine | buff)	
+gap:X2QuestManager..X2Unit@0x32344f70	86	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	23600	0x32344f70	0x3234b5f0	triage: neighbours differ (quest | stat)	
+gap:X2GameEdit..X2GUNPC@0x3274ca40	86	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	21424	0x3274ca40	0x327556a0	triage: neighbours differ (devtool | world)	
+gap:X2DamageManager..X2ChatBox@0x31e9d2f0	84	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	46224	0x31e9d2f0	0x31ea8740	triage: neighbours differ (stat | ui)	
+gap:X2World..X2TalkBoxManagerImp@0x3230fe70	83	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	19680	0x3230fef0	0x323150c0	triage: neighbours differ (world | ui)	
+gap:X2LVUpEventMgr..X2GageData@0x322aa9c0	79	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	23696	0x322abb20	0x322b2ff0	triage: neighbours differ (event | gauge)	
+gap:KTDGDeviceFont..KTDIDevice@0x31d1e6e0	77	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	15600	0x31d1e6e0	0x31d241e0	triage: neighbours differ (font | engine)	
+gap:KTDXApp..KTDXStringTable@0x31c1c150	76	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	15072	0x31c20090	0x31c30ca0	triage: neighbours differ (engine | font)	
+gap:X2StateMenu..X2BattleFieldManager@0x3247b350	76	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	24096	0x3247b350	0x32482590	triage: neighbours differ (ui | world)	PORTAL_MOVE_TYPE|LINE_NUMBER|PLACE_ID_TO_MOVE|POSITION_INDEX; RISK_VALUE|SPAWN_MONSTER_ID|SHOW_BOSS_NAME|DEVIDE_BOSS_HP_GA
+gap:X2Item..X2Data@0x31ed7ff0	75	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	10320	0x31ed7ff0	0x31edbee0	triage: neighbours differ (item | engine)	
+gap:X2UIPetInfo..X2CashShop@0x32905230	73	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	20880	0x32905230	0x32909ef0	triage: neighbours differ (pet | ui)	
+gap:X2BattleFieldGame..X2Packet@0x32d539c0	73	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	27984	0x32d54060	0x32d5be10	triage: neighbours differ (world | net)	
+gap:X2SkillTree..X2UIPetInfo@0x328ee3f0	72	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	55376	0x328ee3f0	0x328fc0c0	triage: neighbours differ (skill | pet)	
+gap:X2SkillTree..X2CashShop@0x322207e0	70	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	24384	0x322207e0	0x32226be0	triage: neighbours differ (skill | ui)	
+gap:IOThread..KTDXRandomNumbers@0x33050140	68	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	4662	0x33050140	0x330f9c30	triage: neighbours differ (net | engine)	
+gap:X2TalkBoxManagerImp..X2GageData@0x32315460	65	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	15504	0x32315460	0x3231d710	triage: neighbours differ (ui | gauge)	
+gap:KTDNUDP..KTDXTimer@0x33224980	64	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	22848	0x33224980	0x3322a310	triage: neighbours differ (net | engine)	
+gap:X2Main..X2GUNPC@0x31e55300	59	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	9296	0x31e55300	0x31e57810	triage: neighbours differ (engine | world)	
+gap:X2GageManager..X2GageData@0x324946a0	59	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	14048	0x324946a0	0x32497c70	triage: neighbours differ (ui | gauge)	
+gap:X2SkillNoteManager..X2StateMenu@0x32455270	58	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	16208	0x32455270	0x3245a1a0	triage: neighbours differ (skill | ui)	
+gap:X2ItemManager..X2TrainingGameUI@0x3281e3e0	58	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	14096	0x3281e3e0	0x32822a80	triage: neighbours differ (item | world)	
+gap:X2Game..X2GageData@0x32a2df30	55	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	15392	0x32a2df30	0x32a31b30	triage: neighbours differ (world | gauge)	
+gap:TRUser..X2UIQuestNew@0x323c1b40	51	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	24560	0x323c1b40	0x323c86f0	triage: neighbours differ (net | quest)	g_pNoteManager|NoteManager.lua; INDEX|DIFFICULTY|TOTAL_SPEED|NOTE_KEY|LENGTH
+gap:X2StateTrainingGame..X2State@0x324c4320	51	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	19360	0x324c4320	0x324c9410	triage: neighbours differ (world | ui)	
+gap:X2Unit..X2GageUI@0x3257beb0	51	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	10080	0x3257beb0	0x32580070	triage: neighbours differ (stat | ui)	
+gap:X2DamageEffect..X2UnitManager@0x32371c30	49	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6736	0x32371c30	0x32373250	triage: neighbours differ (effect | stat)	
+gap:X2GUAdd..X2Game@0x32a2bba0	49	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	8816	0x32a2bba0	0x32a2de70	triage: neighbours differ (char-march | world)	
+gap:X2TalkBoxManagerImp..X2SimplePathFinder@0x32f21ab0	49	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	20912	0x32f21ab0	0x32f27490	triage: neighbours differ (ui | world)	
+gap:X2PlayGuide..X2Game@0x322ca790	46	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6224	0x322ca790	0x322cc020	triage: neighbours differ (ui | world)	
+gap:X2PremiumBuffManager..X2PetManager@0x326c9bb0	43	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6752	0x326c9c30	0x326cb650	triage: neighbours differ (buff | pet)	
+gap:X2DropItemManager..X2EXPTable@0x3273cb30	42	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	17664	0x3273cb30	0x32740f20	triage: neighbours differ (item | engine)	KTrainingCenterTable; UNIT_CLASS; m_iID|m_iDungeonID|m_iMinLevel|m_iBeforeID|m_fPlayTime|m_iDi
+gap:KTDGEffectStateManager..KTDGDeviceFont@0x31d18140	41	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	14752	0x31d18140	0x31d1b7c0	triage: neighbours differ (engine | font)	
+gap:X2TitleManager..X2EnchantItem@0x32705250	41	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	10800	0x32705250	0x32707c10	triage: neighbours differ (achieve | item)	
+gap:X2Eqip..X2BaseUnitViewerUI@0x31fac390	40	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	7072	0x31fac390	0x31fadff0	triage: neighbours differ (item | ui)	
+gap:X2SquareUnit..X2GameOption@0x32402300	40	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	12800	0x32419af0	0x3241cce0	triage: neighbours differ (field | ui)	
+gap:X2EmblemManager..X2SkillNoteManager@0x3244cfc0	40	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	10400	0x3244e560	0x32450e80	triage: neighbours differ (achieve | skill)	
+gap:X2StateField..X2StateDungeonResult@0x3250aa10	39	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	16256	0x3250ad70	0x3250f200	triage: neighbours differ (field | result)	
+gap:KTDGFontManager..KTDGGFXManager@0x31c3dbf0	38	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	10608	0x31c3dbf0	0x31c451a0	triage: neighbours differ (font | engine)	
+gap:X2Room..X2Item@0x31ed4ec0	38	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	9680	0x31ed4ec0	0x31ed7da0	triage: neighbours differ (world | item)	
+gap:X2BuffTemplet..X2DamageManager@0x32083bf0	36	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	29200	0x320845b0	0x3208ac10	triage: neighbours differ (buff | stat)	
+gap:X2BattleFieldManager..X2StateClassChange@0x324827a0	36	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	16368	0x324827a0	0x32486710	triage: neighbours differ (world | ui)	g_pBattleFieldManager; SPAWN_ID|SET_BOSS_GROUP_NAME|SPAWN_RATE|RISK_VALUE|SHOW_BOSS; BATTLE_FIELD_ID|WORLD_ID|RETURN_VILLAGE_ID|STANDARD_MONSTER_
+gap:X2GameUnit..X2WorldObjectParticle@0x31e4e0b0	32	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	4800	0x31e4e0b0	0x31e4f2d0	triage: neighbours differ (char-shared | world)	
+gap:X2WorldManager..X2ItemManager@0x32806050	32	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	5104	0x32806160	0x32807940	triage: neighbours differ (world | item)	
+gap:KTDGUIComboBox..KTDGUINavigation@0x31cc1d60	31	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	24336	0x31cc1d60	0x31cc8600	triage: neighbours differ (skill | engine)	ComboBox_Mouse_Down|ComboBox_Mouse_Over
+gap:X2Room..X2Unit@0x31ed1b70	31	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	9072	0x31ed1b70	0x31ed3e70	triage: neighbours differ (world | stat)	
+gap:X2GageData..X2Game@0x3231d880	31	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6608	0x3231d960	0x3231f310	triage: neighbours differ (gauge | world)	
+gap:X2Pet..X2TitleManager@0x326eb610	31	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	20560	0x326eb610	0x326f8260	triage: neighbours differ (pet | achieve)	
+gap:X2GUNPC..X2BuffFactor@0x31e8d730	29	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	14496	0x31e8d730	0x31e92060	triage: neighbours differ (world | buff)	
+gap:X2ItemManager_Preprocessing..X2SlideShot@0x325c0610	29	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	12448	0x325c0670	0x325c43d0	triage: neighbours differ (item | scene)	
+gap:X2MemoryHolder..X2InformerManager@0x32851d70	29	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	9696	0x32851d70	0x328544e0	triage: neighbours differ (engine | multi)	
+gap:X2PlayGuide..X2WorldMissionManager@0x3289dd90	29	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6864	0x3289dd90	0x3289fb30	triage: neighbours differ (ui | multi)	
+gap:X2ComboGuide..X2BattleFieldGame@0x32d4eb50	29	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	11792	0x32d4eb50	0x32d51810	triage: neighbours differ (skill | world)	
+gap:X2Data..X2UIManager@0x3214d1f0	28	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	7568	0x3214d1f0	0x3214eec0	triage: neighbours differ (engine | ui)	
+gap:X2Unit..X2BuffTemplet@0x32366e20	28	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	9072	0x32366e20	0x32369730	triage: neighbours differ (stat | buff)	
+gap:X2Dungeon..X2LocalMapUI@0x32931bc0	27	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	14256	0x32931c20	0x329354e0	triage: neighbours differ (world | ui)	
+gap:X2NPCAI..KLuaManagerProxy@0x32f2b6f0	27	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	897	0x32f2b6f0	0x32fe9900	triage: neighbours differ (world | net)	
+gap:X2QuestManager..X2Data@0x31edf8f0	26	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	4608	0x31edf910	0x31ee0d60	triage: neighbours differ (quest | engine)	
+gap:KTDGXRenderer..X2PartyManager@0x3242ee70	26	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6656	0x3242ee70	0x32430af0	triage: neighbours differ (engine | party)	
+gap:X2GUElsword_SwordMan..X2RidingPet@0x32d27190	26	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	7088	0x32d27770	0x32d2bda0	triage: neighbours differ (char-march | pet)	RELOAD_ACCEL|G_ACCEL|MAX_G_SPEED|WALK_SPEED|RUN_SPEED|JUMP_S; MOTION_FILE_NAME|MOTION_CHANGE_TEX_XET|MOTION_ANI_TEX_XET|RI; MOTION_FILE_NAME|MOTION_CHANGE_TEX_XET|MOTION_ANI_TEX_XET
+gap:X2ChatBox..X2SlotItem@0x31ea9660	25	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	102560	0x31ea9660	0x31ec2480	triage: neighbours differ (ui | item)	
+gap:X2GUUser..X2SkillTree@0x32070e00	25	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1968	0x32070e20	0x32071640	triage: neighbours differ (char-shared | skill)	
+gap:KTDXDeviceTexture..KTDGUIUniBuffer@0x31d49a20	24	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	8736	0x31d49a20	0x31d4b910	triage: neighbours differ (engine | buff)	
+gap:X2GUNPC..X2GageData@0x31e8ae30	22	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6176	0x31e8ae30	0x31e8c790	triage: neighbours differ (world | gauge)	
+gap:X2BaseUnitViewerUI..X2Eqip@0x32959250	22	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	4032	0x32959910	0x3295aa60	triage: neighbours differ (ui | item)	
+gap:X2GFXEventScene..X2GameUnit@0x3226bff0	21	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6432	0x3226c2d0	0x3226dd80	triage: neighbours differ (scene | char-shared)	RELOAD_ACCEL|G_ACCEL|MAX_G_SPEED|WALK_SPEED|RUN_SPEED|JUMP_S
+gap:X2DamageManager..X2GameUnit@0x3208ccc0	20	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	3840	0x3208ccc0	0x3208db90	triage: neighbours differ (stat | char-shared)	
+gap:KTDXDeviceSound..KTDXWordWrap@0x31d41710	19	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	4080	0x31d41800	0x31d429c0	triage: neighbours differ (engine | font)	
+gap:KTDGObject..X2Camera@0x31fae3b0	19	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	18080	0x31fae3b0	0x31fb32f0	triage: neighbours differ (engine | world)	LOOK_TYPE|LOOK_PARTS|LOOK_OFFSET_X|LOOK_OFFSET_Y|LOOK_OFFSET; EYE_TYPE|EYE_PARTS|EYE_OFFSET_X|EYE_OFFSET_Y|EYE_OFFSET_Z
+gap:X2GUUser..X2SocketItem@0x3208ef80	19	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6160	0x3208ef80	0x32090930	triage: neighbours differ (char-shared | item)	
+gap:X2GageData..X2DamageManager@0x322b4130	19	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	4224	0x322b41b0	0x322b5230	triage: neighbours differ (gauge | stat)	
+gap:X2UICharInfo..X2UISkillNote@0x3291ebd0	19	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	3280	0x3291ebd0	0x3291f750	triage: neighbours differ (ui | skill)	
+gap:X2GageData..X2DamageManager@0x31f8df30	18	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	3360	0x31f8dfd0	0x31f8edc0	triage: neighbours differ (gauge | stat)	
+gap:KTDXCollision..X2DamageManager@0x326407b0	18	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2944	0x326407d0	0x32641340	triage: neighbours differ (engine | stat)	
+edge:outside the first / last anchor	18	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	3189741	0x31aa1ab0	0x33740848	triage: no anchor on one side	
+gap:X2DamageEffect..X2UnitViewerUI@0x31f8ffc0	17	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	3440	0x31f8ffc0	0x31f90ca0	triage: neighbours differ (effect | ui)	
+gap:X2GameUnit..X2SocketItem@0x3207c0e0	17	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2928	0x3207c0e0	0x3207cc20	triage: neighbours differ (char-shared | item)	
+gap:X2UICharInfo..X2LVUpEventMgr@0x322a8b80	17	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1600	0x322a8b80	0x322a99b0	triage: neighbours differ (ui | event)	
+gap:X2LocationManager..X2GFXEventScene@0x32268e00	16	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	3920	0x32268e00	0x32269c80	triage: neighbours differ (world | scene)	
+gap:X2PartyUI..X2PartyManager@0x322b93d0	15	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	20976	0x322b93d0	0x322bdab0	triage: neighbours differ (ui | party)	PVP_Map_List.lua|m_WorldID|m_MapName|m_MapSize|m_MapDesc|m_M
+gap:KTDGUIUniBuffer..KTDXDevice@0x31d4be70	14	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	5248	0x31d4be70	0x31d4d2a0	triage: neighbours differ (buff | engine)	
+gap:X2GUUser..X2SkillTree@0x32077720	14	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2272	0x32077720	0x32078010	triage: neighbours differ (char-shared | skill)	
+gap:X2UISkillNote..X2Dungeon@0x3292ee60	14	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	10096	0x3292ee60	0x329318e0	triage: neighbours differ (skill | world)	
+gap:WordWrap..KTDGUIScrollBar@0x31d46bf0	13	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	3824	0x31d46bf0	0x31d47810	triage: neighbours differ (font | engine)	
+gap:X2ItemManager..X2DamageEffect@0x31e46300	13	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1552	0x31e4bdb0	0x31e4c3a0	triage: neighbours differ (item | effect)	
+gap:X2DamageManager..X2RidingPetManager@0x321f5260	13	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2144	0x321f5260	0x321f5990	triage: neighbours differ (stat | pet)	
+gap:X2Item..X2LocalMapUI@0x328873e0	13	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	10368	0x328873e0	0x32889460	triage: neighbours differ (item | ui)	
+gap:X2UIQuickSlot..X2SoundCloseManager@0x32952ef0	13	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2240	0x32952ef0	0x32953d70	triage: neighbours differ (ui | engine)	
+gap:KTDXRandomNumbers..KTDNUDP@0x33223230	13	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	3456	0x33223230	0x33223e60	triage: neighbours differ (engine | net)	
+gap:X2SkillTree..X2GUUser@0x320780d0	12	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2592	0x320780d0	0x32078b00	triage: neighbours differ (skill | char-shared)	
+gap:X2State..X2Main@0x31ef7b00	11	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1632	0x31ef7b00	0x31ef8170	triage: neighbours differ (ui | engine)	
+gap:X2GUUser..X2BuffTemplet@0x32083190	11	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2000	0x32083210	0x320839b0	triage: neighbours differ (char-shared | buff)	
+gap:X2CubeOpenImageManager..X2BuffTempletManager@0x326be2d0	11	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6784	0x326be2d0	0x326bfce0	triage: neighbours differ (item | buff)	m_wstrSoundName|m_fChangeTime|m_bStringendo|m_bLoop|m_iStrIn
+gap:X2TrainingGameUI..X2MemoryHolder@0x328336c0	11	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2608	0x32851330	0x32851cc0	triage: neighbours differ (world | engine)	
+gap:X2GUAra..X2ComboAndSkillChainSystem@0x32bd3470	11	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	14704	0x32bd3470	0x32bd6cd0	triage: neighbours differ (char-march | skill)	
+gap:X2BuffFactor..X2ComboGuide@0x32d4de90	11	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2400	0x32d4de90	0x32d4e7b0	triage: neighbours differ (buff | skill)	
+gap:X2Packet..X2UnitSlashTraceManager@0x32d5c7b0	11	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	4592	0x32d5c7b0	0x32d5d7e0	triage: neighbours differ (net | char-shared)	
+gap:X2WorldObjectParticle..X2GameUnit@0x31e4f440	10	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	912	0x31e4f440	0x31e4f830	triage: neighbours differ (world | char-shared)	
+gap:X2Game..X2GameUnit@0x32079c50	10	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2000	0x3207adf0	0x3207bf40	triage: neighbours differ (world | char-shared)	
+gap:X2LocationManager..X2StateField@0x325051d0	10	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	7440	0x32507a20	0x3250a740	triage: neighbours differ (world | field)	
+gap:X2GameUnit..X2SocketItem@0x32715350	10	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	5264	0x32715350	0x327167a0	triage: neighbours differ (char-shared | item)	
+gap:X2Game..X2DamageEffect@0x31f8b090	9	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	688	0x31f8b090	0x31f8b320	triage: neighbours differ (world | effect)	
+gap:X2LVUpEventMgr..X2GameUnit@0x32714b90	9	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1200	0x32714cd0	0x327152e0	triage: neighbours differ (event | char-shared)	
+gap:X2Cursor..X2Inventory@0x32868f00	9	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2608	0x32868f00	0x32869b50	triage: neighbours differ (ui | item)	
+gap:KTDGXSkinAnim..X2GuEve@0x32965940	9	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1168	0x32965940	0x32965dc0	triage: neighbours differ (engine | char-march)	
+gap:KTDGUIStatic..KTDGUIComboBox@0x31cc0aa0	8	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1120	0x31cc0aa0	0x31cc0f10	triage: neighbours differ (engine | skill)	
+gap:X2BuffTempletManager..X2State@0x31ef6a10	8	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2400	0x31ef6a10	0x31ef72b0	triage: neighbours differ (buff | ui)	
+gap:X2DamageEffect..X2GageData@0x31f8cf60	7	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1392	0x31f8cf60	0x31f8d400	triage: neighbours differ (effect | gauge)	
+gap:X2GameUnit..X2DungeonGame@0x327cabb0	7	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	5664	0x327cabb0	0x327cc1e0	triage: neighbours differ (char-shared | world)	
+gap:X2SoundCloseManager..X2ComboManager@0x32953fa0	7	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	4704	0x32954020	0x32955210	triage: neighbours differ (engine | skill)	
+gap:X2GameUnit..X2Eqip@0x3295cd40	7	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	3904	0x3295cd40	0x3295dbc0	triage: neighbours differ (char-shared | item)	
+gap:X2UnitViewerUI..X2Unit@0x31fab920	6	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	288	0x31fac0f0	0x31fac240	triage: neighbours differ (ui | stat)	
+gap:X2SkillTree..X2GUUser@0x32071850	6	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	336	0x32071850	0x320719d0	triage: neighbours differ (skill | char-shared)	
+gap:X2Game..X2GameUnit@0x32296fc0	6	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	3104	0x32296fc0	0x322979e0	triage: neighbours differ (world | char-shared)	
+gap:X2DungeonGame..X2GameUnit@0x327ca7f0	6	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	912	0x327ca7f0	0x327caab0	triage: neighbours differ (world | char-shared)	
+gap:X2Eqip..X2GameUnit@0x3295bf90	6	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2096	0x3295c130	0x3295c8c0	triage: neighbours differ (item | char-shared)	
+gap:X2ComboAndSkillChainSystem..X2GUChung@0x32bd7c80	6	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2672	0x32bd7c80	0x32bd86e0	triage: neighbours differ (skill | char-march)	
+gap:X2Data..X2QuestManager@0x31edf560	5	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	656	0x31edf5a0	0x31edf850	triage: neighbours differ (engine | quest)	
+gap:KTDGXMeshPlayer..X2DamageEffect@0x31f8ae40	5	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	176	0x31f8ae40	0x31f8aed0	triage: neighbours differ (engine | effect)	
+gap:X2GUUser..X2Game@0x322ed400	5	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6320	0x322ed680	0x322eeed0	triage: neighbours differ (char-shared | world)	
+gap:X2World..X2GameUnit@0x31e4c9b0	4	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	944	0x31e4c9b0	0x31e4cd40	triage: neighbours differ (world | char-shared)	
+gap:X2SocketItem..X2GageData@0x320807e0	4	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2688	0x320807e0	0x320811d0	triage: neighbours differ (item | gauge)	
+gap:X2Item_Preprocessing..X2Cursor@0x32867140	4	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	384	0x328680b0	0x328681e0	triage: neighbours differ (item | ui)	
+gap:X2Eqip..KTDGXSkinAnim@0x32964560	4	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1520	0x32964560	0x32965760	triage: neighbours differ (item | engine)	
+gap:X2UnitViewerUI..KTDGParticleSystem@0x31cf8010	3	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2784	0x31cf8010	0x31cf88c0	triage: neighbours differ (ui | engine)	
+gap:X2Main..X2ItemManager@0x31d93660	3	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	5056	0x31d93660	0x31d93900	triage: neighbours differ (engine | item)	
+gap:X2GameUnit..X2GUNPC@0x31e8cee0	3	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1840	0x31e8cee0	0x31e8d090	triage: neighbours differ (char-shared | world)	
+gap:X2DamageEffect..KTDGXMeshPlayer@0x31f8ab30	3	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	576	0x31f8ab30	0x31f8ad60	triage: neighbours differ (effect | engine)	
+gap:X2SocketItem..X2GUUser@0x320920e0	3	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	480	0x320920e0	0x320925d0	triage: neighbours differ (item | char-shared)	
+gap:X2EffectSet..X2SquareUnit@0x321f2e00	3	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	128	0x321f2e00	0x321f2f00	triage: neighbours differ (effect | field)	
+gap:X2EffectSet..X2DamageManager@0x321f4c80	3	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1200	0x321f4c80	0x321f50c0	triage: neighbours differ (effect | stat)	
+gap:X2MiniMapUI..X2LocationManager@0x32268500	3	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	2256	0x32268500	0x32268d40	triage: neighbours differ (ui | world)	
+gap:X2GameUnit..KTDXCollision@0x322780b0	3	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	768	0x32278280	0x32278520	triage: neighbours differ (char-shared | engine)	
+gap:X2TFieldGame..X2TFieldNpc@0x323bdd80	3	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	112	0x323bdd80	0x323bddd0	triage: neighbours differ (field | friendship)	
+gap:X2ComboManager..X2BaseUnitViewerUI@0x32956550	3	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	3104	0x32956550	0x329570e0	triage: neighbours differ (skill | ui)	
+gap:X2UIDungeonResultAdapter..X2TalkBoxManagerUI@0x32eeaff0	3	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	480	0x32eec210	0x32eec360	triage: neighbours differ (result | ui)	
+gap:KTDGUIIMEEditBox..KTDGUIComboBox@0x31c1b130	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	112	0x31c1b130	0x31c1b180	triage: neighbours differ (engine | skill)	
+gap:KTDGUIComboBox..KTDGUIRadioButton@0x31c1b2e0	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	80	0x31c1b2e0	0x31c1b300	triage: neighbours differ (skill | engine)	
+gap:KTDXWordWrap..KTDGUIStatic@0x31cc0430	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	896	0x31cc0430	0x31cc04c0	triage: neighbours differ (font | engine)	
+gap:KTDGUIDialogManager..X2SquareUnit@0x31d05db0	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	272	0x31d05db0	0x31d05e10	triage: neighbours differ (engine | field)	
+gap:X2GFXEventScene..X2Main@0x31d70d10	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	112	0x31d70d90	0x31d70db0	triage: neighbours differ (scene | engine)	
+gap:X2Pet..X2GameUnit@0x31e4dbf0	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	224	0x31e4dc30	0x31e4dc90	triage: neighbours differ (pet | char-shared)	
+gap:X2GameUnit..X2Main@0x31e551e0	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	224	0x31e551e0	0x31e55230	triage: neighbours differ (char-shared | engine)	
+gap:X2GameUnit..X2Game@0x320799f0	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	160	0x32079b40	0x32079b70	triage: neighbours differ (char-shared | world)	
+gap:X2TFieldNpc..X2EffectSet@0x321f2d00	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	176	0x321f2d00	0x321f2d60	triage: neighbours differ (friendship | effect)	
+gap:X2DamageManager..KTDXCollision@0x32640640	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	304	0x32640640	0x326406b0	triage: neighbours differ (stat | engine)	
+gap:X2GameUnit..X2Item@0x328858e0	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	6176	0x328858e0	0x32886d30	triage: neighbours differ (char-shared | item)	
+gap:X2DamageEffect..X2GuEve@0x329cd410	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	512	0x329cd4a0	0x329cd6f0	triage: neighbours differ (effect | char-march)	
+gap:X2FieldMapBase..X2TalkBoxManagerImp@0x32f20de0	2	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1440	0x32f20de0	0x32f21350	triage: neighbours differ (world | ui)	
+gap:KTDGUIStatic..KTDXWordWrap@0x31cbfe40	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	336	0x31cbfe40	0x31cbfe40	triage: neighbours differ (engine | font)	
+gap:X2DamageEffect..X2GUUser@0x31e4c4c0	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	144	0x31e4c4c0	0x31e4c4c0	triage: neighbours differ (effect | char-shared)	
+gap:X2GUNPC..X2Pet@0x31e4d960	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	128	0x31e4d960	0x31e4d960	triage: neighbours differ (world | pet)	
+gap:X2Unit..X2Room@0x31ed46e0	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	1440	0x31ed46e0	0x31ed46e0	triage: neighbours differ (stat | world)	
+gap:X2PacketLog..X2DamageEffect@0x31f635b0	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	560	0x31f635b0	0x31f635b0	triage: neighbours differ (telemetry | effect)	
+gap:X2BaseUnitViewerUI..KTDGObject@0x31fae350	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	32	0x31fae350	0x31fae350	triage: neighbours differ (ui | engine)	
+gap:KTDGXMeshPlayer..X2Pet@0x321f2a30	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	96	0x321f2b20	0x321f2b20	triage: neighbours differ (engine | pet)	
+gap:X2RidingPetManager..X2SkillTree@0x321fa870	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	96	0x32205530	0x32205530	triage: neighbours differ (pet | skill)	
+gap:X2Game..X2GUUser@0x322eccc0	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	432	0x322eccc0	0x322eccc0	triage: neighbours differ (world | char-shared)	
+gap:X2Game..X2UIQuickSlot@0x322f95d0	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	5008	0x322f95d0	0x322f95d0	triage: neighbours differ (world | ui)	
+gap:X2GameOption..KTDGXRenderer@0x3242ed20	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	32	0x3242ed20	0x3242ed20	triage: neighbours differ (ui | engine)	
+gap:X2State..X2StateDungeonGame@0x324c9530	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	416	0x324c96b0	0x324c96b0	triage: neighbours differ (ui | world)	
+gap:X2StateServerSelect..X2Unit@0x32578bc0	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	10832	0x32578bc0	0x32578bc0	triage: neighbours differ (ui | stat)	
+gap:X2DamageManager..X2DamageEffect@0x326226c0	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	192	0x326226c0	0x326226c0	triage: neighbours differ (stat | effect)	
+class:x2worldobjectskinmesh	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	560	0x327f7f60	0x327f7f60	triage: name	
+gap:X2LocalMapUI..X2UserSkillTree@0x3288fce0	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	288	0x3288fce0	0x3288fce0	triage: neighbours differ (ui | skill)	
+gap:X2GuEve..X2BuffFactor@0x32d41820	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	64	0x32d41860	0x32d41860	triage: neighbours differ (char-march | buff)	
+gap:X2GageUI..X2BuffBehaviorTemplet@0x32e72810	1	port	not attributable by address: identify the classes, then route to the owning stage or exclude	S40	32	0x32e72810	0x32e72810	triage: neighbours differ (ui | buff)	
+file:X2GUUser	546	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	244720	0x31fc80a0	0x32b0f910	char-shared: name	ECP_RECOVERY_AMOUNT_PER_SEC|ECP_RECOVERY_AMOUNT_PER_SEC_ON_O; IS_REVOLVER_COMMAND|APPLY_ANIM_SPEED_BY_ITEM_ABILITY|IS_MUSK
+file:X2GUAra	399	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	193696	0x32b90d20	0x32bcf4a0	char-march: name	FULL_HYPER_MODE_ADVANTAGE_COUNT|FULL_HYPER_MODE_ADVANTAGE_IN
+gap:X2GageData..X2GUUser@0x32a37970	384	port	per-class gauge data (CX2*GageData), ported with its class	S7	216496	0x32a37970	0x32a71820	gauge: strings	HYPER_GAGE_SOKET_VALUE_REL|DISPARATE_FORCE_POWER_CIRCLE_MODE; EID_USE_TIME
+file:X2GUAdd	313	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	232624	0x329e26c0	0x32a28350	char-march: name	
+class:CX2GUEL	218	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	193648	0x31fd2d60	0x32b80ee0	char-march: name	PLAY_TYPE|TRANSITION|TRANSITION
+gap:X2RidingPet..X2BuffFactor@0x32d3d0e0	75	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	15440	0x32d3d0e0	0x32d411a0	char-shared: strings	SECRET_SKILL_STATE_ID; TRIGGER_STATE_ID_TO_SECRET_SKILL; TRIGGER_TIME_TO_SECRET_SKILL
+class:CX2GUAra	62	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	28288	0x32ba44e0	0x32bd2ec0	char-march: name	PLAY_TYPE|TRANSITION
+file:X2GUArme_VioletMage	43	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	10624	0x32cbdd70	0x32ce28f0	char-march: name	
+file:X2GameUnit	37	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	19168	0x322727a0	0x322a7830	char-shared: name	QUESTION_MARK_SEQ|EXCLAMATION_MARK_SEQ|SHADOW_FILE_NAME; SMALL_HP_BAR_RED|SMALL_HP_BAR_BLUE|SMALL_HP_BAR_BLUE|SMALL_H
+gap:X2GUUser..X2GUEL@0x32b0fc50	32	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	4016	0x32b13940	0x32b4e5c0	char-shared: both neighbours, same stage (char-shared | char-march)	
+class:CX2GURaven	32	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	15024	0x32c25a50	0x32c5c5a0	char-march: name	DAMAGEDATA_CHANGE_TIME|DAMAGEDATA_CHANGE_TIME1|DAMAGEDATA_CH
+class:CX2GUArme_VioletMage	27	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	7568	0x31fceb70	0x32ce1c70	char-march: name	
+file:X2GageData	27	port	per-class gauge data (CX2*GageData), ported with its class	S7	9088	0x32a31f80	0x32a370b0	gauge: name	
+class:CX2GUChung	26	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	6400	0x32bd9370	0x32c1b8e0	char-march: name	
+class:CX2GULire_ElvenRanger	24	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	18064	0x32c6cdf0	0x32c9bf50	char-march: name	
+file:X2GUEL	22	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	30720	0x32b81220	0x32b8c0f0	char-march: name	
+class:CX2EveMyGageUI	22	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	3792	0x32e71620	0x32e72560	char-march: name	
+class:CX2GUAdd	20	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	6048	0x329e2500	0x329f7280	char-march: name	PLAY_TYPE|TRANSITION|TRANSITION
+class:CX2GageData	19	port	per-class gauge data (CX2*GageData), ported with its class	S7	5568	0x31f8df00	0x32a35cb0	gauge: name	
+class:CX2GUElsword_SwordMan	19	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	10608	0x32cf5580	0x32d18950	char-march: name	
+gap:X2GUUser..X2GameUnit@0x32078c90	14	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	1888	0x32078c90	0x320794f0	char-shared: both neighbours	
+gap:X2GUUser..X2GameUnit@0x320701e0	11	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	1440	0x320701e0	0x320708d0	char-shared: both neighbours	
+gap:X2GameUnit..X2GUUser@0x3226e210	8	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	192	0x3226e210	0x3226e290	char-shared: both neighbours	
+gap:X2GUUser..X2GUAra@0x32b902c0	8	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	2400	0x32b902c0	0x32b90c00	char-shared: both neighbours, same stage (char-shared | char-march)	
+class:CX2ElswordGageData	7	port	per-class gauge data (CX2*GageData), ported with its class	S7	944	0x32a35ef0	0x32a36240	gauge: name	
+gap:X2GameUnit..X2GUUser@0x31fc67a0	6	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	576	0x31fc7650	0x31fc7a80	char-shared: both neighbours	
+gap:X2GageData..X2GameUnit@0x31e8ca60	5	port	per-class gauge data (CX2*GageData), ported with its class	S7	1024	0x31e8ca60	0x31e8cdc0	gauge: both neighbours, same stage (gauge | char-shared)	
+gap:X2GUArme_VioletMage..X2GUUser@0x31fdc0e0	5	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	1216	0x31fdc310	0x31fdd3f0	char-march: both neighbours, same stage (char-march | char-shared)	
+gap:X2GameUnit..X2GUUser@0x32070cf0	4	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	128	0x32070d40	0x32070dc0	char-shared: both neighbours	
+file:X2GuEve	4	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	784	0x3296f060	0x329cd8e0	char-march: name	
+gap:X2GUArme_VioletMage..X2GUUser@0x32021670	3	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	3344	0x32021670	0x32021f20	char-march: both neighbours, same stage (char-march | char-shared)	
+gap:X2GameUnit..X2GUUser@0x32071ad0	3	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	192	0x32071c80	0x32071d40	char-shared: both neighbours	
+gap:X2GUUser..X2GuEve@0x329ce8c0	3	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	2224	0x329ce8c0	0x329ce980	char-shared: both neighbours, same stage (char-shared | char-march)	
+gap:X2GUArme_VioletMage..X2GUUser@0x31fc9430	2	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	160	0x31fc9430	0x31fc9480	char-march: both neighbours, same stage (char-march | char-shared)	
+gap:X2GUArme_VioletMage..X2GUUser@0x31fcec70	2	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	416	0x31fcec70	0x31fceca0	char-march: both neighbours, same stage (char-march | char-shared)	
+gap:X2GUUser..X2GameUnit@0x31fd78a0	2	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	560	0x31fd7930	0x31fd7af0	char-shared: both neighbours	
+gap:X2GageData..X2GameUnit@0x320816d0	2	port	per-class gauge data (CX2*GageData), ported with its class	S7	752	0x32081760	0x320826c0	gauge: both neighbours, same stage (gauge | char-shared)	
+gap:X2GUUser..X2GameUnit@0x3226e310	2	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	144	0x3226e310	0x3226e3d0	char-shared: both neighbours	
+gap:X2GuEve..X2GUUser@0x329ce640	2	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	368	0x329ce640	0x329ce680	char-march: both neighbours, same stage (char-march | char-shared)	
+class:CX2ChungGageData	2	port	per-class gauge data (CX2*GageData), ported with its class	S7	1312	0x32a32200	0x32a344a0	gauge: name	
+gap:X2GUEL..X2GUUser@0x32b900e0	2	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	224	0x32b900e0	0x32b90160	char-march: both neighbours, same stage (char-march | char-shared)	
+gap:X2GUUser..X2GUArme_VioletMage@0x31fc8650	1	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	144	0x31fc8650	0x31fc8650	char-shared: both neighbours, same stage (char-shared | char-march)	
+gap:X2GUArme_VioletMage..X2GUUser@0x31fc8730	1	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	144	0x31fc8730	0x31fc8730	char-march: both neighbours, same stage (char-march | char-shared)	
+gap:X2GUArme_VioletMage..X2GUUser@0x31fd3360	1	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	160	0x31fd3360	0x31fd3360	char-march: both neighbours, same stage (char-march | char-shared)	
+gap:X2GameUnit..X2GUUser@0x31fd7df0	1	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	464	0x31fd7f70	0x31fd7f70	char-shared: both neighbours	
+gap:X2GuEve..X2GUArme_VioletMage@0x32007a10	1	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	256	0x32007a10	0x32007a10	char-march: both neighbours	
+gap:X2GUArme_VioletMage..X2GuEve@0x32007ba0	1	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	160	0x32007ba0	0x32007ba0	char-march: both neighbours	
+gap:X2GUElsword_SwordMan..X2GUUser@0x32028250	1	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	176	0x32028410	0x32028410	char-march: both neighbours, same stage (char-march | char-shared)	
+gap:X2GUArme_VioletMage..X2GUUser@0x3202d670	1	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	1152	0x3202d670	0x3202d670	char-march: both neighbours, same stage (char-march | char-shared)	
+gap:X2GameUnit..X2GUUser@0x32082710	1	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	160	0x32082910	0x32082910	char-shared: both neighbours	
+gap:X2GUUser..X2GameUnit@0x322731b0	1	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	128	0x322731b0	0x322731b0	char-shared: both neighbours	
+gap:X2GuEve..X2GameUnit@0x3229a530	1	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	1488	0x3229a970	0x3229a970	char-march: both neighbours, same stage (char-march | char-shared)	
+file:X2GUChung	1	port	March character class code with no funcmap row yet (open ports cover it in CH0; closed ones re-sweep)	S7	32	0x32beb030	0x32beb030	char-march: name	
+class:KDYNAMIC_UNIT_USER_SYNC	1	port	shared CX2GUUser / CX2GameUnit code the class ports touch	S7	144	0x32d5c250	0x32d5c250	char-shared: name	
+class:CX2GULuciel	6	port	new-character class code (Lu/Ciel, Rose, Ain)	S8	3328	0x32ae5120	0x32aea800	char-new: name	
+class:CX2GUAin	2	port	new-character class code (Lu/Ciel, Rose, Ain)	S8	368	0x32a38e50	0x32a71e00	char-new: name	
+gap:X2GageData..X2StateBattleField@0x32498490	240	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	103648	0x32498490	0x324bc2e0	ui: strings	Dungeon_Loading_Advertisement.lua
+file:X2CashShop	179	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	125280	0x322273e0	0x3224ca70	ui: name	REAL_ID
+file:X2State	177	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	102576	0x31ef73b0	0x31f23850	ui: name	g_pKTDXApp|g_pMain|g_pData
+class:CX2UIInventory	166	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	134928	0x32166d80	0x3218b1b0	ui: name	ICE_HEATER_ID|WAIT_UI_EFFECT_SET_NAME|PLAY_UI_EFFECT_SET_NAM; g_pUIInventory
+gap:X2CashShop..X2WorldMapUI@0x3224ce60	131	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	30624	0x3224ce60	0x3225ca80	ui: both neighbours	
+gap:X2UIManager..X2UIInventory@0x3215a1c0	121	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	41968	0x3215a1c0	0x32166ac0	ui: both neighbours	
+gap:X2BuffFinalizerTemplet..X2UIDungeonResultAdapter@0x32ec6850	117	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	57504	0x32ec6850	0x32eea000	ui: strings	Book_Table.lua|DEFAULT_COVER; TYPE|STRING|REMAIN_TIME; PLAY_COUNT|STATE_TIME|LUA_STATE_START|LUA_FRAME_MOVE|LUA_EVE
+file:X2GageUI	110	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	50000	0x32e5d910	0x32e72770	ui: name	ECP_RECOVERY_AMOUNT_PER_SEC
+gap:X2GageUI..X2NoticeManager@0x32580160	96	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	78304	0x32593030	0x325ad8a0	ui: both neighbours	
+gap:X2NPCUnitViewerUI..X2GageUI@0x32e52f90	94	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	29904	0x32e52f90	0x32e5d530	ui: both neighbours	
+file:X2UIInventory	58	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	117264	0x3218ba50	0x321a9390	ui: name	IceHeaterEvent.lua
+file:X2StateServerSelect	57	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	60496	0x325624e0	0x32576e00	ui: name	
+class:CX2PartyUI	55	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	32080	0x322b56e0	0x322c42f0	ui: name	
+file:X2UIManager	54	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	18560	0x3214f060	0x3215a0a0	ui: name	
+gap:X2CashShop..X2UICharInfo@0x3290a610	50	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	29408	0x3290a610	0x32912520	ui: both neighbours	
+file:X2StateMenu	49	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	47504	0x3245a8f0	0x32474c80	ui: name	
+gap:X2StateCreateUnit..X2StateServerSelect@0x3255abc0	32	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	8640	0x3255abc0	0x3255f0c0	ui: both neighbours	
+file:X2GageManager	23	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	16384	0x3248e900	0x32494080	ui: name	
+class:CX2MiniMapUI	22	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	17792	0x32263f80	0x322674e0	ui: name	
+class:CX2TalkBoxManagerImp	22	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	13456	0x32e90790	0x32e94890	ui: name	
+file:X2GameOption	21	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	4368	0x3241cd60	0x32421420	ui: name	
+file:X2UnitViewerUI	20	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	5152	0x31f91020	0x31fa4c00	ui: name	
+class:CX2StateServerSelect	18	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	18784	0x3255f4c0	0x325782e0	ui: name	
+class:CX2PlayGuide	16	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	2496	0x322ca770	0x3289da60	ui: name	
+class:CX2StateCreateUnit	10	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	12240	0x32550bd0	0x32554de0	ui: name	
+class:CX2LocalMapUI	10	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	5872	0x3288fc70	0x32939e30	ui: name	
+class:CX2NPCUnitViewerUI	7	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	1056	0x32e4f770	0x32e4fcc0	ui: name	
+gap:X2GageManager..X2GageUI@0x32e5f500	7	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	3968	0x32e5f500	0x32e5fd30	ui: both neighbours	
+class:CX2WorldMapUI	6	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	10416	0x3225dda0	0x32263030	ui: name	
+file:X2StateCreateUnit	6	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	8864	0x32556150	0x32557a00	ui: name	
+gap:X2GageUI..X2GageManager@0x32e5ed50	6	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	1616	0x32e5ed50	0x32e5f2e0	ui: both neighbours	
+gap:X2PartyUI..X2PlayGuide@0x322c4a80	5	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	21984	0x322c4a80	0x322ca750	ui: both neighbours	
+file:X2UIQuickSlot	5	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	5216	0x3294ea60	0x3294f9f0	ui: name	
+gap:X2StateClassChange..X2GageManager@0x32488e60	4	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	928	0x32488e60	0x324891d0	ui: both neighbours	
+file:X2LocalMapUI	3	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	2608	0x32938380	0x329387a0	ui: name	
+class:CLIKDataBindingAdapter	1	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	176	0x31d1f550	0x31d1f550	ui: name	
+gap:X2WorldMapUI..X2MiniMapUI@0x32263750	1	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	32	0x32263ef0	0x32263ef0	ui: both neighbours	
+file:X2Cursor	1	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	1040	0x32868260	0x32868260	ui: name	
+file:X2UICharInfo	1	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	80	0x32914c50	0x32914c50	ui: name	
+file:X2BaseUnitViewerUI	1	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	128	0x32957900	0x32957900	ui: name	
+class:x2npcunitviewerui	1	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	3808	0x32e4ff00	0x32e4ff00	ui: name	MOTION_FILE_NAME
+class:CX2StatusGageUI	1	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	352	0x32e64450	0x32e64450	ui: name	
+class:CX2TalkBoxManager	1	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	352	0x32e904e0	0x32e904e0	ui: name	
+gap:X2TalkBoxManager..X2TalkBoxManagerImp@0x32e90640	1	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	144	0x32e90700	0x32e90700	ui: both neighbours	
+class:x2uiunit	1	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	8944	0x32ee57c0	0x32ee57c0	ui: name	MODEL_NAME|MODEL_MOVE_BONE_NAME|ANIM_XET_NAME|CHANGE_TEX_XET
+class:CX2TalkBoxManagerUI	1	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	224	0x32eec3f0	0x32eec3f0	ui: name	
+file:X2TalkBoxManagerImp	1	port	UI windows, HUD gauges, menus, chat and talk boxes, cash-shop browsing	S9	128	0x32f21840	0x32f21840	ui: name	

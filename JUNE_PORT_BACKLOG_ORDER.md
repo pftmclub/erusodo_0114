@@ -74,6 +74,9 @@ The user's remaining backlog, in the order they listed it:
 | 34 | June character info window *(added 2026-10-28, user: split out of Stage 9)* | - (user request) | The U-key window as June draws it: June's `DLG_UI_CHARACTER_NEW_4.lua` (March loads `_NEW_2`) and its textures, CIM 10007-10024, and June's `CX2UICharInfo` bodies (header, equipment, the stat panels with the socket total, the viewer, light, switching, unequip-all). Buttons for missing systems are drawn and log a `STUB` click. Planned in full as `JUNE_CHARINFO_PHASES.md` (C0-C5, review, Z); runs now, outside the Stage 9 order. |
 | 36 | June extra-damage cases *(added 2026-10-29, user: moved out of june-march-divergence D1-2c)* | - (found by june-march-divergence D1-2b) | `Process_ExtraDamage` cases March lacks: the black-out screens (`EDT_BLIND`, `EDT_AMUSEMENT_ITEM_DARK_CLOUD`) and the timed per-unit mark list `CX2GameUnit +0x3b84`. Cosmetic / minor; `EDT_BLIND` is reachable offline. Unplanned. |
 | 37 | June HUD: buff icon row and quick slot *(added 2026-10-31, user: split out of Stage 9)* | - (user request) | June's buff / debuff icon row anchored at the top right (`DLG_BuffManager.lua`'s dummy positions, which March ignores) with a stack counter on each icon, replacing the user's `SERV_IRUHADEV_BUFF_DURATION_TEXT` mod (deleted); and June's consumable quick slot at the bottom left (`DLG_UI_Quick_Slot.lua`, no wide-bar lift). Planned in full as `JUNE_HUD_PHASES.md` (H0-H4, review, Z); runs now, outside the Stage 9 order. |
+| 38 | June village / field game core *(added 2026-11-09, june-census V2)* | - (found by the census) | Not a backlog item but unowned June code: `CX2TFieldGame` (121 functions) and `CX2SquareUnit` (47) beyond the entrance lists Atlas and Stage 24 touched. Brief `kickoffs/june-backlog/stage38-plan.md`. |
+| 39 | June game-event systems *(added 2026-11-09, june-census V2)* | - (found by the census) | Not a backlog item but unowned June systems: `CX2CustomEventManager` + `CX2CustomEventItemSlotManager`, `CX2LVUpEventMgr`, `CX2RandomMission` (148 functions); date windows switch on from the save DB. Brief `kickoffs/june-backlog/stage39-plan.md`. |
+| 40 | Triage of the June code no address can place *(added 2026-11-09, june-census V2)* | - (found by the census) | 191 address gaps (9,641 functions) lie between source files of different systems; a read-only Opus triage names their classes and routes each run to a stage, a new stage or an exclusion. Runs first among 38-40, with anything. Brief `kickoffs/june-backlog/stage40-plan.md`. |
 
 **Concurrency.** There is one working tree and one branch, `main` (user, 2026-10-16). Every stage's code sessions commit onto it with explicit pathspecs; no stage creates a branch or a worktree, and nothing is merged.
 
@@ -1514,6 +1517,37 @@ to go. Plan `JUNE_HUD_PHASES.md` (`june-hud`, H0-H4, review, Z; evidence `june20
   - the PvP item bar `329515f0`: parked (no PvP offline);
   - the party-gauge no-timer check was not seen in play (no party on screen): fold into the next party play-test.
   Lua `SetBuffFactorToGameUnitByBuffFactorID_LUA` was re-bound to June's slot 134 (H2b).
+
+### Stage 38: June village / field game core (june-census V2, 2026-11-09)
+
+Found by the census (`JUNE_COVERAGE_CENSUS_PHASES.md` V2, `june2017_re/census/exclusions.tsv` rows `S38`). No stage owns the village /
+field game itself; Atlas (Stage 1) and Stage 24 edited `X2TFieldGame.cpp` for entrance lists, Stage 18 owns `CX2TFieldNpc`.
+- `CX2TFieldGame`: 72 class + 49 file functions unowned (`0x323a4ea0`-`0x323bd4e0`);
+- `CX2SquareUnit` (other units in the village): 47 (`0x323ed330`-`0x323fa4b0`);
+- next to them, Stage 40 gaps `X2GUNPC..X2TFieldGame@0x32394340` (191) and `X2UIQuestNew..X2SquareUnit@0x323e60b0` (103): only what Stage 40 routes here.
+- **Depends on:** nothing for planning. Start: `/x2-phase new-plan june-field` (Opus 5.5 high), brief `kickoffs/june-backlog/stage38-plan.md`.
+
+### Stage 39: June game-event systems (june-census V2, 2026-11-09)
+
+Found by the census (rows `S39`). June's date-window event systems, none owned by a stage:
+- `CX2CustomEventManager` (52; `CustomEventScript.lua`, `CustomEventScript_AddChangeNpcInfo.lua`) and `CX2CustomEventItemSlotManager`
+  (gap `X2TalkBoxManagerUI..X2PetAI@0x32eec4d0`, 82);
+- `CX2LVUpEventMgr` (11) and `CX2RandomMission` (3);
+- Stage 40 gap `X2RandomMission..X2BossRaidManager@0x326797a0` (195, strings of custom events and NPC friendship): only what Stage 40 routes here.
+- Event windows switch on from `els_db.sql` (standing rule, 2026-10-21); event scripts may be server Lua the user packs.
+- **Depends on:** nothing for planning. Start: `/x2-phase new-plan june-events` (Opus 5.5 high), brief `kickoffs/june-backlog/stage39-plan.md`.
+
+### Stage 40: triage of the June code no address can place (june-census V2, 2026-11-09)
+
+The census grouped the 19,577 unowned June studio functions by the March `.obj` of their anchored neighbours. 9,014 attach to existing
+stages (`exclusions.tsv` column `stage`: S7 2,457, S9 2,009, S2 1,988, S22 725, S27 353, S31 327, S0 311, S16 271, S17 213, S25 138, S3 96,
+S33 77, S4 37, S8 8, S18 4; a stage's planner greps its rows). 191 gaps (9,641 functions) lie between files of different systems and cannot
+be placed by address.
+- A read-only triage (Opus, Ghidra, ~10-20 gaps a session, largest first) names the classes of each run and routes it: a stage (attach),
+  a new stage (scope rule) or exclude (glue, server-only). Output `june2017_re/census/triage.tsv`, funcmap rows `Triage S40`,
+  `v2_exclusions.py` reading the routes.
+- About half of any unowned count is real work (`june2017_re/census/v2_sample.tsv`); the biggest gap (`X2GUUser..X2Data`) is mostly serializers.
+- **Depends on:** june-census Z. Start: `/x2-phase new-plan june-triage` (Opus 5.5 high), brief `kickoffs/june-backlog/stage40-plan.md`.
 
 ## Open decisions that gate stages
 
