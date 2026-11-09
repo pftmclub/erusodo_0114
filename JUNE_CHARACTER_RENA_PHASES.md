@@ -1655,6 +1655,34 @@ Full build skipped: no play-test.
 
 **Nothing to play-test.** Next: `/x2-phase char-rena CH1q2 review` (Opus 5.5 high).
 
+### CH1q2 - Review (2026-11-09)
+
+**Verdict: PASS, no code change** (`_NF`, `_NF_DEBUG`, `_LIVE` still `//#define`). Read from the exe bytes (`funcdis.py`, `charport_consts.read_va`) and fresh
+`cl /P` / `/Zs` probes (`census.cl_cmd`, US_SERVICE):
+- **InitUI `32e6e190`.** `32e66e60` (InitStatusUI), vslot `0x54` (Rena vtable `3353363c` + 0x54 = `32e5b310` = `CX2MyGageUI::InitWakeOrb`: removes pictures
+  6 / 5 / 4 / 3 of `StaticPVPGameStateWakeOrb`, March has no Rena override), `31cd5910`( `335347e8` = `DLG_Rena_NaturalForce.lua` ), `31cd3f20`( `335322c8` =
+  `g_pStatic_NF_Gage_Back` ), NULL test, vslot `0x68`( 1 ) = SetShow( true ) = the `_NF` arm in that order (InitNaturalForceUI = the inlined tail). `.i`: InitStatusUI,
+  InitWakeOrb, OpenScriptFile, InitNaturalForceUI.
+- **ApplyHyperModeBuff `32298590 @322985cd-32298632`.** `+0x264 != 0` -> `32298cd0` (NPC path, Transcend T5); `+0x867c` unit, `+0xaf0` templet, type `== 3`;
+  `32cb50c0` (gauge `+0xc04` -> `+0x114`) count, `jle` skip; `fild` x `33449130` (15.0) -> float -> vslot `0xf0` (`335185bc` + 0xf0 = `3208dd00` UpNowMp, one
+  arg); `push 5; call 32cb6290` whatever the count; then the transcendence part. Rena's vslot `0xc0` = `32298590` (no override). = the `_NF` block.
+- **Equal rows confirmed:** SetNowNaturalForce `32a36df0` (max < n -> max, n < 0 -> 0, else n; KProtectedType), SetMyPlayStatusFromPacket `32a34fa0` (base
+  `32a33fa0`, `+0x15 == 5` ? `+0x16` : 0, SetMax( 5 ) `32a36ef0`, SetNow, `+0x112` = 1), InitWhenGameIsOver `32a34f80` (`31e8c9d0`( 0.0 ) = SetHyperModeRemainTime,
+  `+0x110` m_bNFBuffMode = 0), UpdateNaturalForceUI `32e5ec10` (changed test / clear, `g_pStatic_NF_Gage`, picture i shown if count > i, SetShow( true )), NPC
+  `32773ee0 @3277452b-32774732` (`+0x5a4 == 1`, type 2..3, owner, vslot `0x420` / IsEmpty `32cb50e0` / byte `+0x8f6d` read before vslot `0x424`, min, Consume
+  `32c9f7a0`, GetPos or hit unit `Bip01`, `NATURAL_FORCE_EXPLOSION_BOOM_SKILL` 1.0, `+0x23c` / `+0x238` x n) = `X2GUNPC.cpp:32462-32500`.
+- **Dev key.** KeyProcess `322f7170` F7 (0x41) sites: `@322f7802` (chat key, string id 0x7d92), `@322f7b6e` (training step `322ed400`), `@322f7ba8` (item 0x8bc
+  gate -> `32894490`( 1 )); none fills natural force. `.i`: March's fill call gone; only Rena's fill is inside the `_NF` arm.
+- **Emulator.** `UT_LIRE -> CAC_NATURAL_FORCE` = `GSGameDBThread.cpp:989-993`; `Handlers_Field.cpp:280` saves `m_iCharAbilCount` to `abil_count`,
+  `X2OfflineServer.cpp:1224-1225` reads it back with the type: no schema change.
+
+**Hygiene.** `flagcheck _NF --range 9f1b971a^..9f1b971a --files <6>`: 1 PASS, 1 PASS~ (one blank line), 4 OTHER (Always.h comments, the `_NF_DEBUG` nests), 0 FAIL;
+`_NF_DEBUG`: 1 PASS, 1 DEFINE, 4 OTHER, 0 FAIL; both 0 deleted, 0 non-ASCII, 0 EOL; RESULT FAIL only for the commented `//#define`s. `junediverge.py --check-all`:
+allow-listed 197, `RESULT: PASS`. `enumscan.py --check <5>`: 0 A/B rows. Probes (`/c /Zs /EHsc`) of the 5 code files: off, `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`,
+and + `_NF_DEBUG`: 0 errors each; `_NF_DEBUG` alone: `Always.h(12040) : fatal error C1189`. Full build skipped: no play-test.
+
+**Nothing to play-test.** CH1 kickoff checked (its "Amended by CH1q2" section is current). Next: `/x2-phase char-rena CH1` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
