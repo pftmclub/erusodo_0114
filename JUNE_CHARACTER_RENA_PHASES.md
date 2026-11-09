@@ -1332,6 +1332,50 @@ comment-only, and re-proven by both probes (`exit 0 errors 0`) and flagcheck (sa
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-rena CH1n review` (Opus 5.5 high).
 
+### CH1n - Review (2026-11-09, Opus 5.5)
+
+**Verdict: PASS, no code change.** Read from a fresh decompile of `32cb06d0` (1482 lines) and the exe bytes (`june2017_re/disasm_range.py`; tables and
+strings from the PE sections).
+- **Head.** `js` / `cmp esi, 5; jae` = `slot < 0 || 4 < slot`. Tables by `bSlotB_`: `335153c0` {50..58} / `335153e8` {60..68} normal, `335153d4` {51..59} /
+  `335153fc` {61..69} hyper = `_CONST_GUUSER_`. `31fd2af0( normal )` (7i snapshot) dropped; vtbl[0] = `Init()`; `byte +0x11 = 1` normal (= the static
+  `IsSkillSlotState`, `X2GUUser.cpp:16814`), `word +0x10 = 0x101` hyper. `31fca8e0( id, 1 )` = `GetEquippedActiveSkillTemplet( id, true )`, null -> epilogue.
+  `3207c1a0` / `31fd88f0` / `31fdf970` = the anti-tamper batch around `m_StateList[]`, as ported.
+- **Memo exit @32cb07cd.** `31fdbcc0( id )`, `test; je` past, then `32206450( memo, 1 )` on `g_pData +0x50`, `jne 32cb2fc1` = the epilogue. The C++ is the
+  house form of Raven / Chung / Elsword.
+- **Types.** `[templet +4] - 5`, `cmp 0xb; ja` exit; bytes `32cb3004` = {0,1,1,3,3,3,3,2,1,1,1,1}, jump `32cb2ff4` = buff `32cb0810` / active `32cb0868` /
+  throw `32cb2f5a` / exit `32cb2fc1`: 5 buff; 6, 7, 0xd-0x10 active; 0xc throw; 8-11 exit (`ST_RELATIONSHIP_SKILL` = 12, `ST_HYPER_ACTIVE_SKILL` = 13,
+  grades 14-16, `X2SkillTree.h:26-56`). Buff: strings `3351ae50` / `3351ae30` = `LESI_SI_LE_COMMON_BUFF` / `_HYPER`, FM `329ccd90` -> `32a77a20`
+  (`jmp [vtbl+0x5f0]`, Rena's `32c849f0` = `COMMON_BUFF_FrameMove`), EP `329cba40` -> `31fcbd60`, hyper copies. Throw: `cmp [id], 0x384` on the raw id,
+  `335192b8` = `LESI_THROW_ITEM`, FM `329ccda0` -> `329cc0d0` (`+0x5f4`), EP `329ccdb0` -> `329cc170` (`+0x5f8`), copied to hyper.
+- **Base id.** `32cb0870 call 32207210( id )` feeds both the `cmp 0x5c30` chain and the id switch (`sub 0x59d8; cmp 0xe3; ja 32cb2eef`):
+  `GetUpgradeBaseSkillID`. The C++ switches the hyper part on it; the id switch stays March's raw-id switch until CH2 (CH2a's amendment says so).
+- **Hyper switch.** `jg` -> `base - 0x5c31; cmp 4; ja 32cb2eef`, table `32cb31e0` = {Cryotron, Innocent, Spiral, Cryotron, Innocent}; `je` -> Spiral
+  `32cb2bf1`. `RNSI_HA_*` 23600-23605 = June `Enum.src.lua` and `X2SkillTree.h:1822-1827`. Strings `3351a384` / `3351a360` / `3351a338` / `3351a310` /
+  `3351a2e8` / `3351a2c0` / `3351a2a4` / `3351a288` = the eight tables the C++ names; sub-states 0xf6 / 0xf7 / 0xf8 / 0xf9 / 0xfb pushed with them. Every
+  slot offset (normal / hyper +0x18 / +0x28 / +0x38 / +0x48, stack struct `[esp+0x1c]` +0x18 / +0x28 / +0x38 / +0x48 / +0x58 after `320775a0`) and all 28
+  thunk targets equal the C++ (each target -> the March callback of that name in `ch0_class_map.tsv`). Spiral / Cryotron set hyper `byte +0x10 = 1` again
+  (the C++ repeats it); Innocent's hyper slot copies only +0x44 / +0x48.
+- **`SetPowerAttackSkillFunc`.** Both defaults (`ja` @32cb0893, `ja` @32cb2be4) land on `@32cb2eef`; `3351a26c` = `LESI_SI_LE_POWER_ATTACK1`, normal +0x30 /
+  +0x38 / +0x48 -> `32c84740` / `32c86b60` / `32c74a40`, hyper -> `32c847b0` / `32c86b90` / `32c74d50`. The hyper three are separate June functions,
+  byte-identical to the normal ones as March's `_HYPER` twins are; the helper = March's `default:` line for line.
+- **`32cb5760`.** Only xref @32cb0e51 (Rapid Shot case); `new 0x14`: +0 0, +4 `0x99` (`LESI_BASE`), +8 0, +0xc NULL, +0x10 0.0f = March's
+  `RapidShotData()` init list (`X2GULire_ElvenRanger.h:402`). Nothing to port.
+- **Callbacks.** `ch1n_triage.py` re-run reproduces `ch1n_user_callback_triage.tsv` byte for byte: 157 rows, 62 SAME / 68 DIFF (16 ported, 5 kept, 47 Stage 17)
+  / 27 `n/a`.
+- **Always.h.** The guards name what the head uses: `GetEquippedActiveSkillTemplet( id, bool )` (`X2GUUser.h:2701`, `JUNE_SKILL_TEMPLET`),
+  `GetTranscendenceMemoSkillID` (`X2GUUser.h:3109`, inside `JUNE_DAMAGE_EXCEPTION` then `JUNE_SKILL_NOTE`), the grades (`JUNE_SKILL_TYPE`).
+
+**Bookkeeping fix.** `ch0_class_map.tsv` rows `32c847b0` / `32c86b90` / `32c74d50` named the normal March functions; now the `_HYPER` ones (March
+snapshot lines 3167-3169), as the C++ already had.
+
+**Hygiene.** flagcheck `--range 6e8b5f0c^..6e8b5f0c --files`: `_LIVE --with _CORE` `files: 3 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`,
+FAIL only for the `//#define` (by design); `_CORE` `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR` `RESULT: PASS`. Each: 0 deleted,
+0 non-ASCII, 0 EOL-mismatched, 0 `#else`/`#endif` without the token, 0 encoding changes. `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`.
+`enumscan.py --check` (`.cpp`, `.h`): `0 A/B row(s)`. One-file probes (`/c /Zs /EHsc`): `_LIVE` off `exit 0 errors 0`, on `exit 0 errors 0`.
+Full build skipped: no play-test (the review changed no code; CH1n's `DEPLOY OK` stands).
+
+**Nothing to play-test** (`_LIVE` is off). CH1o's kickoff stands as written (Amended by CH0 / CH1j / CH1k checked). Next: `/x2-phase char-rena CH1o` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

@@ -324,7 +324,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c74840	state-fn	LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2.EventProcess	inside X2GULire_ElvenRanger.cpp:2461 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X2_EventProcess	inside	-	CH1f	1 states	y
 32c74a10	state-fn	LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3.EventProcess	inside X2GULire_ElvenRanger.cpp:2472 CX2GULire_ElvenRanger::LESI_SNIPING_RANGER_DASH_JUMP_COMBO_X3_EventProcess	inside	-	CH1f	1 states	y
 32c74a40	state-fn	LESI_SI_LE_POWER_ATTACK1.EventProcess	inside X2GULire_ElvenRanger.cpp:3164 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_EventProcess	inside	-	CH2a	1 states	n
-32c74d50	state-fn	LESI_SI_LE_POWER_ATTACK1.EventProcess	inside X2GULire_ElvenRanger.cpp:3164 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_EventProcess	inside	-	CH2a	1 states	n
+32c74d50	state-fn	LESI_SI_LE_POWER_ATTACK1.EventProcess	inside X2GULire_ElvenRanger.cpp:3169 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_HYPER_EventProcess	inside	-	CH2a	1 states	n
 32c75060	state-fn	LESI_SI1_LE_PIERCE_ARROW.EventProcess LESI_SI1_LE_PIERCE_ARROW_HYPER.EventProcess	inside X2GULire_ElvenRanger.cpp:3184 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_EventProcess ; inside X2GULire_ElvenRanger.cpp:3191 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_EventProcess	inside	-	CH2a	2 states	y
 32c750a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
 32c750e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
@@ -515,7 +515,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c84610	state-fn	LESI_JUMP_ATTACK_Z.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2255 CX2GULire_ElvenRanger::JumpAttackZFrameMoveFuture	inside	-	CH1d2	1 states	n
 32c846a0	state-fn	LESI_JUMP_ATTACK_X.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2283 CX2GULire_ElvenRanger::JumpAttackXFrameMoveFuture	inside	-	CH1d2	1 states	n
 32c84740	state-fn	LESI_SI_LE_POWER_ATTACK1.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3162 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_FrameMoveFuture	inside	-	CH2a	1 states	n
-32c847b0	state-fn	LESI_SI_LE_POWER_ATTACK1.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3162 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_FrameMoveFuture	inside	-	CH2a	1 states	n
+32c847b0	state-fn	LESI_SI_LE_POWER_ATTACK1.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:3167 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_HYPER_FrameMoveFuture	inside	-	CH2a	1 states	n
 32c84820	state-fn	LESI_RNW_ACCEL_DASH.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2611 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_FrameMoveFuture	inside	-	CH1g3	1 states	n
 32c848c0	state-fn	LESI_RNW_ACCEL_DASH_JUMP.StartFuture	inside X2GULire_ElvenRanger.cpp:2619 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_StateStartFuture	inside	-	CH1g3	1 states	n
 32c84920	state-fn	LESI_RNW_ACCEL_DASH_JUMP_Z.StartFuture	inside X2GULire_ElvenRanger.cpp:2639 CX2GULire_ElvenRanger::LESI_RNW_ACCEL_DASH_JUMP_ATTACK_Z_StateStartFuture	inside	-	CH1g3	1 states	n
@@ -555,7 +555,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c86af0	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GULire_ElvenRanger.h:1677 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	inside	-	CH1k	base 33093ad0	n
 32c86b20	state-fn	LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT.Start LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT.Start LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING.Start	inside X2GULire_ElvenRanger.cpp:4420 CX2GULire_ElvenRanger::LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT_StateStart	inside	-	CH3d	3 states	n
 32c86b60	state-fn	LESI_SI_LE_POWER_ATTACK1.FrameMove	inside X2GULire_ElvenRanger.cpp:3163 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_FrameMove	inside	-	CH2a	1 states	y
-32c86b90	state-fn	LESI_SI_LE_POWER_ATTACK1.FrameMove	inside X2GULire_ElvenRanger.cpp:3163 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_FrameMove	inside	-	CH2a	1 states	y
+32c86b90	state-fn	LESI_SI_LE_POWER_ATTACK1.FrameMove	inside X2GULire_ElvenRanger.cpp:3168 CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_HYPER_FrameMove	inside	-	CH2a	1 states	y
 32c86bc0	state-fn	LESI_SI1_LE_PIERCE_ARROW.FrameMove LESI_SI1_LE_PIERCE_ARROW_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3182 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_FrameMove ; inside X2GULire_ElvenRanger.cpp:3189 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_FrameMove	inside	-	CH2a	2 states	y
 32c86bf0	state-fn	LESI_SI1_LE_PIERCE_ARROW.FrameMove LESI_SI1_LE_PIERCE_ARROW_HYPER.FrameMove	inside X2GULire_ElvenRanger.cpp:3182 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_FrameMove ; inside X2GULire_ElvenRanger.cpp:3189 CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_FrameMove	inside	-	CH2a	2 states	y
 32c86c20	state-fn	LESI_SI3_LE_PHOENIX_STRIKE.FrameMove	inside X2GULire_ElvenRanger.cpp:3276 CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_FrameMove	inside	-	CH2a	1 states	y
