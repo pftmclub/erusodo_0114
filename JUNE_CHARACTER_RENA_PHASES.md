@@ -1860,6 +1860,29 @@ second-job names show June's strings.
   `[JUNE_GFX] CUTIN play ui=0xc <gfx>` in the same second: set 0 index 0 `HQ_CutIn_Rena_01` x2, set 2 `_GA_01` x3, set 3 `_NW_01` x3, set 1 `_WS_01` x3. ErrorLog 0 `Motion Error`, 0 `KEM_ERROR`. Outside CH5, no routing from here: 5 `E_DISABLE_HB_CHECK_REQ` UNHANDLED
   and `AddGroupChainQuest` unbound (quest file). Sets 0 indices 1 / 2 and the hyper cut-ins (102 / 103 / 114) are CH6's walk.
 
+### CH5 - Review (2026-11-09, Opus 5.5): PASS, no code change
+
+I read each item against June in Ghidra (`333aad30`, `333aaba0`, `32c86890`, `32cadc90`) and decoded the targets Ghidra leaves out from the exe bytes (`charport_consts.read_va` + capstone).
+- **Table `333aad30`.** 12 `SkillCutIn` at `337ae6e8` .. `337ae8f8`, stride 0x30. Strings in push order: `3351afc8` `HQ_CutIn_Rena_01`, `afa4` `_02`, `af80` `_03`, `af58` `_WS_01` x3, `af30` `_GA_01` x3, `af08` `_NW_01` x3 (lengths 0x10 / 0x13, read back from the exe).
+  Each entry stores size `( [334367ac] x2 )`, position `( [33435598], [334367ac] )`: March's one-argument `SkillCutIn( name )`. The port's `s_SkillCutInSet` is this table, row for row.
+- **Pair `333aaba0`.** `3351aedc` `HQ_CutIn_Rena_CASH_21` -> `337ae688`, `3351aeb0` `_CASH_22` -> `337ae6b8` = `s_SkillCutInSetEvent8b3[0]` / `[1]`.
+- **Reader `32c86890`.** Gate `[anim+0x24c] < t`, `31d28e10` (EventTimerOneshot), `32001380`, `31fd3180`. Copy of `337ae6e8 + ( index + [this+0x8ac8] * 3 ) * 0x30`. Item override `31fd8a50` (not ported, Stage 12).
+  Then `[33775864] && 31e5a860( 0x8b3 )`: `rand() AND 0x80000001`, zero (even) -> `337ae688` CASH_21. Then `31fde0f0( bone, name, size, pos, IsHyperState, only light )`. The port matches in that order (`IF_EVENT_ENABLED` = the same NULL test + `IsEnableCode`, as Raven's).
+  `ShowActiveSkillCutInAndLightByScript` (uncarved `32c86af0`) pushes `3345bb58` `Dummy1_Rhand` and `[this+0x8acc]`, then calls the reader: March's body.
+- **Set index (InitState `32cadc90` @32cadcdb).** `class - 3; cmp 0x6f; ja; movzx byte [32cb056c + class-3]; jmp [32cb0558 + idx*4]`. The byte map sends 3 / 12 / 13 / 24 -> 0, 102 -> 1, 103 -> 2, 114 -> 3, the other 105 values -> 4 (default, value kept).
+  Targets 0-3 store +0x8ac8 = EBX (0), EDI (1), EDX (2), 3. Sub index +0x8acc: 12 -> 1, 13 -> 2, else 0. This equals CH1m's switch (`_LIVE`, InitState). No index can reach past set 3.
+- **UnitTemplet.** Blocks split on `AddUnitTemplet`, keyed on `unitClass`, BOM / CRLF normalised. Current, pre-phase (`elstools extract` of `kom_backup_tools/data036.kom.20261109_201125`) and June: 55 / 55 / 87 blocks; current and pre-phase have the same keys in the same order.
+  The 7 `UC_LIRE_*` blocks equal June's text 7 of 7; the other 48 equal pre-phase 48 of 48. Key delta = the 13 of `ch0_unittemplet_rena.tsv`. BOM, 1485 CRLF, 0 lone LF.
+  `ledger --check`: LEDGER CHECK PASS (0 FAIL, 0 WARN). `core --check`: CORE CHECK PASS. `luabind.py check UnitTemplet`: RESULT: PASS (0 unbound).
+  `HQ_Cutin_R{WS,GA,NW}_Transcendence.gfx` are in data195 (same case as the rows). `STR_ID_4783` / `_4784` (`StringID_def2.h:2290-2291`) and `STR_ID_17429` (`StringID_def7.h:2436`) are defined.
+- **Routing.** `kickoffs/char-rena/CH3d.md:25-28` names the guide dialog, the `LevelUpEvent.lua` TYPE row and the `POPUP_TR_*` pictures. 7ah n/a (Elsword-only); gauge = CH1q2.
+- **Logs (play-test 20:22-20:24, exe `79a341b4`).** 11 `[JUNE_CHAR] RENA UI cut-in` lines (sets 0 x2, 2 x3, 3 x3, 1 x3, all index 0), 11 `JUNE_GFX` CUTIN plays, 0 `Motion Error`, 0 `KEM_ERROR`, 0 EXCEPTION.
+  Note: `logs.py --grep "JUNE_CHAR RENA UI"` matches nothing (the tag is bracketed); grep `"RENA UI"`.
+- **Left as is.** The CH1f2 one-line comment above the reader body (`not ported: ... the event 0x8b3 pair, with CH5's cut-in table`) is now stale: CH5 ported the pair. Comment only; not rewritten here (the file carries a peer's uncommitted CH2a edits).
+- **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_UI --range 5a08ae95^..5a08ae95`: 2 PASS, 1 DEFINE, 0 OTHER, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL mismatch, RESULT: PASS; no later commit touches the flag (`git log -S`).
+  `junediverge.py --check-all`: allow-listed 202, RESULT: PASS. `enumscan --check X2Lib/X2GULire_ElvenRanger.cpp`: 0 A/B rows (working tree incl. a peer's CH2a edits). Full build skipped: no play-test (no code change; deployed exe stays `79a341b4`).
+- **Next.** `kickoffs/char-rena/CH6.md` "Amended by CH5" walks sets 0-3, indices 0-2 and the hyper cut-ins on 102 / 103 / 114. CH6 still waits on CH3d and CH4a-b reviews.
+
 ## Phase CH-N - not run for Rena
 
 All seven June Rena classes up to transcendence exist in March. The template block is `JUNE_CHARACTER_AISHA_PHASES.md` "Phase CH-N"; Ara
