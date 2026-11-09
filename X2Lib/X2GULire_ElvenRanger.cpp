@@ -153,6 +153,13 @@ using namespace _CONST_RENA_CH1H_;
 		( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) ) \
 	{ StateChangeDashIfPossible(); }
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+/// char-rena CH2a: June 32c74a40 @32c74c81: the Z / X combo cancel of a skill state also needs the foot on a line
+#define RENA_GROUND_ZX_CANCEL_EX \
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_fAttackCancelAfterEx < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() ) \
+	{ if ( true == m_InputData.oneZ ) StateChange( GetComboZStateID() ); \
+	  else if ( true == m_InputData.oneX ) StateChange( GetComboXStateID() ); }
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 
 
 
@@ -5376,6 +5383,9 @@ void CX2GULire_ElvenRanger::InitEquippedActiveSkillState(bool bOnlySkillLevel /*
 	const CX2SkillTree::SkillTemplet* pSkillTempletEquipped = GetEquippedActiveSkillTemplet( eSkillID_, true );
 	if ( NULL == pSkillTempletEquipped )
 		return;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA SKILL equip skill %d slot %d bank %c state %d", static_cast<int>( eSkillID_ ), iSlotIndex_, ( false == bSlotB_ ? L'A' : L'B' ), iNormalStateID );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
 
 	const int iTranscendenceSkillID = GetTranscendenceMemoSkillID( eSkillID_ );
 	if ( 0 != iTranscendenceSkillID && NULL != g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iTranscendenceSkillID ) ) )
@@ -5591,8 +5601,133 @@ void CX2GULire_ElvenRanger::InitEquippedActiveSkillState(bool bOnlySkillLevel /*
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+	switch( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( eSkillID_ ) )	// char-rena CH2a: June 32cb06d0 id switch on the base id ( 32207210 )
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	switch( eSkillID_ )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	case CX2SkillTree::RNSI_SA_RENA_RAIL_STINGER:	// char-rena CH2a: June 32cb06d0 @32cb08b9 / @32cb0903
+	case CX2SkillTree::RNSI_SA_RENA_RAIL_STINGER_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "LESI_SI1_LE_PIERCE_ARROW", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI1_LE_PIERCE_ARROW_Init );
+			normalStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI1_LE_PIERCE_ARROW_FrameMoveFuture );
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI1_LE_PIERCE_ARROW_FrameMove );
+			normalStateData.OnCameraMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI1_LE_PIERCE_ARROW_CameraMove );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI1_LE_PIERCE_ARROW_EventProcess );
+
+			m_LuaManager.MakeTableReference( "LESI_SI1_LE_PIERCE_ARROW_HYPER", hyperStateData.stateID );
+			hyperStateData.OnFrameMoveFuture	= normalStateData.OnFrameMoveFuture;
+			hyperStateData.OnFrameMove			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI1_LE_PIERCE_ARROW_HYPER_FrameMove );
+			hyperStateData.OnCameraMove			= normalStateData.OnCameraMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_RENA_PERFECT_STORM:	// char-rena CH2a: June 32cb06d0 @32cb09ce / @32cb0a18
+	case CX2SkillTree::RNSI_SA_RENA_PERFECT_STORM_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "LESI_SI2_LE_PERFECT_STORM", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI2_LE_PERFECT_STORM_Init );
+			normalStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI2_LE_PERFECT_STORM_FrameMoveFuture );
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI2_LE_PERFECT_STORM_FrameMove );
+			normalStateData.OnCameraMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI2_LE_PERFECT_STORM_CameraMove );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI2_LE_PERFECT_STORM_EventProcess );
+
+			m_LuaManager.MakeTableReference( "LESI_SI2_LE_PERFECT_STORM", hyperStateData.stateID );
+			hyperStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI2_LE_PERFECT_STORM_HYPER_FrameMoveFuture );
+			hyperStateData.OnFrameMove			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI2_LE_PERFECT_STORM_HYPER_FrameMove );
+			hyperStateData.OnCameraMove			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI2_LE_PERFECT_STORM_HYPER_CameraMove );
+			hyperStateData.OnEventProcess		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI2_LE_PERFECT_STORM_HYPER_EventProcess );
+		} break;
+
+	case CX2SkillTree::RNSI_SA_RENA_AERO_TORNADO:	// char-rena CH2a: June 32cb06d0 @32cb0a5d / @32cb0aa7
+	case CX2SkillTree::RNSI_SA_RENA_AERO_TORNADO_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "LESI_SI3_LE_AERO_TORNADO", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_AERO_TORNADO_Init );
+			normalStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_AERO_TORNADO_FrameMoveFuture );
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_AERO_TORNADO_FrameMove );
+			normalStateData.OnCameraMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_AERO_TORNADO_CameraMove );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_AERO_TORNADO_EventProcess );
+
+			m_LuaManager.MakeTableReference( "LESI_SI3_LE_AERO_TORNADO_HYPER", hyperStateData.stateID );
+			hyperStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_AERO_TORNADO_HYPER_FrameMoveFuture );
+			hyperStateData.OnFrameMove			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_AERO_TORNADO_HYPER_FrameMove );
+			hyperStateData.OnCameraMove			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_AERO_TORNADO_HYPER_CameraMove );
+			hyperStateData.OnEventProcess		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_AERO_TORNADO_HYPER_EventProcess );
+		} break;
+
+	case CX2SkillTree::RNSI_SA_RENA_ASSAULT_KICK:	// char-rena CH2a: June 32cb06d0 @32cb0952 / @32cb099a ( one set of functions for both slots )
+	case CX2SkillTree::RNSI_SA_RENA_ASSAULT_KICK_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "LESI_SI1_LE_ASSAULT_KICK", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI1_LE_ASSAULT_KICK_Init );
+			normalStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI1_LE_ASSAULT_KICK_FrameMoveFuture );
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI1_LE_ASSAULT_KICK_FrameMove );
+			normalStateData.OnCameraMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI1_LE_ASSAULT_KICK_CameraMove );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI1_LE_ASSAULT_KICK_EventProcess );
+
+			m_LuaManager.MakeTableReference( "LESI_SI1_LE_ASSAULT_KICK", hyperStateData.stateID );
+			hyperStateData.OnFrameMoveFuture	= normalStateData.OnFrameMoveFuture;
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnCameraMove			= normalStateData.OnCameraMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_RENA_PHOENIX_STRIKE:	// char-rena CH2a: June 32cb06d0 @32cb0af0 / @32cb0b38 ( one set of functions for both slots )
+	case CX2SkillTree::RNSI_SA_RENA_PHOENIX_STRIKE_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "LESI_SI3_LE_PHOENIX_STRIKE", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_PHOENIX_STRIKE_Init );
+			normalStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_PHOENIX_STRIKE_FrameMoveFuture );
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_PHOENIX_STRIKE_FrameMove );
+			normalStateData.OnCameraMove		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_PHOENIX_STRIKE_CameraMove );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI3_LE_PHOENIX_STRIKE_EventProcess );
+
+			m_LuaManager.MakeTableReference( "LESI_SI3_LE_PHOENIX_STRIKE", hyperStateData.stateID );
+			hyperStateData.OnFrameMoveFuture	= normalStateData.OnFrameMoveFuture;
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnCameraMove			= normalStateData.OnCameraMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+	case CX2SkillTree::RNSI_A_RENA_BACKJUMP_SHOT:	// char-rena CH2a: June 32cb06d0 @32cb1517 / @32cb156c
+	case CX2SkillTree::RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "LESI_SI_A_LE_BACKJUMP_SHOT", normalStateData.stateID );
+			normalStateData.StateInit			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_A_LE_BACKJUMP_SHOT_Init );
+			normalStateData.StateStart			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_A_LE_BACKJUMP_SHOT_Start );
+			normalStateData.OnFrameMoveFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_A_LE_BACKJUMP_SHOT_FrameMoveFuture );
+			normalStateData.OnFrameMove			= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_A_LE_BACKJUMP_SHOT_FrameMove );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_A_LE_BACKJUMP_SHOT_EventProcess );
+			normalStateData.StateEndFuture		= SET_CB_FUNC( CX2GULire_ElvenRanger, LESI_SI_A_LE_BACKJUMP_SHOT_EndFuture );
+
+			m_LuaManager.MakeTableReference( "LESI_SI_A_LE_BACKJUMP_SHOT", hyperStateData.stateID );
+			hyperStateData.StateInit			= normalStateData.StateInit;
+			hyperStateData.StateStart			= normalStateData.StateStart;
+			hyperStateData.OnFrameMoveFuture	= normalStateData.OnFrameMoveFuture;
+			hyperStateData.OnFrameMove			= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+			hyperStateData.StateEndFuture		= normalStateData.StateEndFuture;
+		} break;
+
+	case CX2SkillTree::RNSI_A_RENA_SIEGEMODE:	// char-rena CH2a: June 32cb06d0 @32cb14a9 / @32cb14dd ( LESI_SIEGE_READY, CH1f's functions )
+	case CX2SkillTree::RNSI_A_RENA_SIEGEMODE_UPGRADE:
+		{
+			m_LuaManager.MakeTableReference( "LESI_SIEGE_READY", normalStateData.stateID );
+			normalStateData.StateStartFuture	= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeReadyStateStartFuture );
+			normalStateData.StateStart			= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeReadyStateStart );
+			normalStateData.OnEventProcess		= SET_CB_FUNC( CX2GULire_ElvenRanger, SiegeReadyEventProcess );
+
+			m_LuaManager.MakeTableReference( "LESI_SIEGE_READY", hyperStateData.stateID );
+			hyperStateData.StateStartFuture		= normalStateData.StateStartFuture;
+			hyperStateData.StateStart			= normalStateData.StateStart;
+			hyperStateData.OnEventProcess		= normalStateData.OnEventProcess;
+		} break;
+
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	default:
 		{
@@ -19881,6 +20016,23 @@ void CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_FrameMove()
 
 void CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c74a40 ( the walk, dash and Z / X cancels need the foot on a line )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+	RENA_GROUND_ZX_CANCEL_EX
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -19897,6 +20049,7 @@ void CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 
@@ -19926,6 +20079,23 @@ void CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_HYPER_FrameMove()
 
 void CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_HYPER_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c74d50 ( = 32c74a40 )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+	RENA_GROUND_ZX_CANCEL_EX
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -19942,11 +20112,31 @@ void CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_HYPER_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 //LESI_SI1_LE_PIERCE_ARROW
 void CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c6b2e0
+	TextureReadyInBackground( L"ALS_SLICER_01.dds" );
+	TextureReadyInBackground( L"ColorBallFire.dds" );
+	TextureReadyInBackground( L"HA_RRF_Reckless_Fiste_FX_Map01.tga" );
+	TextureReadyInBackground( L"LCG_Ring01.dds" );
+	TextureReadyInBackground( L"LD_Blade_Liner01.dds" );
+	XMeshReadyInBackground( L"ALS_SHAKE_CHAOS_02.Y" );
+	XMeshReadyInBackground( L"Lire_FeatherA.Y" );
+	XMeshReadyInBackground( L"Rena_ArrowMagicP01.Y" );
+	XMeshReadyInBackground( L"Rena_ArrowMagicP02.Y" );
+	XMeshReadyInBackground( L"Rena_ArrowMagicP03.Y" );
+	XMeshReadyInBackground( L"Rena_RailStingerP02.Y" );
+	XSkinMeshReadyInBackground( L"Lire_SpecialAttackPierceArrow1a.X" );
+	XSkinMeshReadyInBackground( L"Rena_ArrowMagicM01.X" );
+	XSkinMeshReadyInBackground( L"Rena_RailStingerP01.X" );
+	XSkinMeshReadyInBackground( L"aisha_SA_SCREWDRIVER_circle.X" );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 void CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_FrameMoveFuture()
@@ -19956,6 +20146,14 @@ void CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_FrameMoveFuture()
 
 void CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c86bc0 ( no SONIC_ARROW: the state's effect set carries the arrow )
+	ChangeWorldColorByHyperMode();
+
+	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.06f, 0 );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	ChangeWorldColorByHyperMode();
 
 	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.06f, 0 );
@@ -19984,6 +20182,7 @@ void CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 void CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_CameraMove()
@@ -20042,6 +20241,14 @@ void CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_FrameMoveFuture()
 
 void CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c86bf0 ( = 32c86bc0 )
+	ChangeWorldColorByHyperMode();
+
+	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.06f, 0 );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	ChangeWorldColorByHyperMode();
 
 	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.06f, 0 );
@@ -20070,6 +20277,7 @@ void CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 void CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_CameraMove()
@@ -20401,6 +20609,21 @@ void CX2GULire_ElvenRanger::LESI_SI2_LE_DIVISION_BLAST_HYPER_EventProcess()
 //LESI_SI3_LE_PHOENIX_STRIKE
 void CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c6b410
+	TextureReadyInBackground( L"ALS_SLICER_01.dds" );
+	TextureReadyInBackground( L"ColorBallFire.dds" );
+	TextureReadyInBackground( L"LCG_Ring01.dds" );
+	TextureReadyInBackground( L"LD_Blade_Liner01.dds" );
+	TextureReadyInBackground( L"MagicSquareLight01_Poision.tga" );
+	XMeshReadyInBackground( L"PhoenixStrike_MagicP01.Y" );
+	XMeshReadyInBackground( L"Rena_RailStingerP01.Y" );
+	XMeshReadyInBackground( L"Rena_RailStingerP02.Y" );
+	XSkinMeshReadyInBackground( L"Pheonix.X" );
+	XSkinMeshReadyInBackground( L"PhoenixStrike_MagicM01.X" );
+	XSkinMeshReadyInBackground( L"aisha_SA_SCREWDRIVER_circle.X" );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 void CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_FrameMoveFuture()
@@ -20410,6 +20633,14 @@ void CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_FrameMoveFuture()
 
 void CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c86c20 ( no particles / PHOENIX_ARROW: the state's effect set carries them )
+	ChangeWorldColorByHyperMode();
+
+	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.001f, 2 );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	ChangeWorldColorByHyperMode();
 
 	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.001f, 2 );
@@ -20455,6 +20686,7 @@ void CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 void CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_CameraMove()
@@ -21693,8 +21925,18 @@ void CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_EventProcess()
 //LESI_SI1_LE_ASSAULT_KICK
 void CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c6b620
+	TextureReadyInBackground( L"ALS_SLICER_01.dds" );
+	TextureReadyInBackground( L"ColorBallFire.dds" );
+	TextureReadyInBackground( L"MagicSquareLight01_Poision.tga" );
+	XMeshReadyInBackground( L"Lire_FeatherA.Y" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XSkinMeshReadyInBackground( L"aisha_SA_SCREWDRIVER_circle.X" );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	XSkinMeshReadyInBackground( L"AssaultKick01.X" );
 	XSkinMeshReadyInBackground( L"AssaultKick02.X" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 void CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_FrameMoveFuture()
@@ -21704,6 +21946,14 @@ void CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_FrameMoveFuture()
 
 void CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_FrameMove()
 {	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c86c50 ( no AssaultKick01 / 02 meshes; its memo branch tests 31fca9e0, June's always-false stub )
+	ChangeWorldColorByHyperMode();
+
+	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.06f, 0 );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	ChangeWorldColorByHyperMode();
 
 	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.06f, 0 );
@@ -21761,6 +22011,7 @@ void CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 void CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_CameraMove()
@@ -22253,8 +22504,17 @@ void CX2GULire_ElvenRanger::LESI_SI2_LE_GUIDED_ARROW_HYPER_EventProcess()
 //LESI_SI2_LE_PERFECT_STORM
 void CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c6b820
+	TextureReadyInBackground( L"Arme_SpecialAttack1.dds" );
+	TextureReadyInBackground( L"LD_Slicer_trace_01.dds" );
+	TextureReadyInBackground( L"MagicSquareLight01_Poision.tga" );
+	XSkinMeshReadyInBackground( L"AeroTornado01.X" );
+	XSkinMeshReadyInBackground( L"DoubleSlash_M3.X" );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	XSkinMeshReadyInBackground( L"PerfectStorm01.X" );
 	XSkinMeshReadyInBackground( L"PerfectStorm02.X" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 void CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_FrameMoveFuture()
@@ -22328,6 +22588,21 @@ void CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_CameraMove()
 
 void CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c76070 ( the dash and walk cancels need the foot on a line )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_DASH_CANCEL
+	RENA_GROUND_WALK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -22350,6 +22625,7 @@ void CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_EventProcess()
 	}
 #endif // BALANCE_PATCH_20131107					// ±èÁ¾ÈÆ / 13-10-16, 2013³â ÈÄ¹Ý±â ¹ë·±½º °³Æí
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 
@@ -22424,6 +22700,21 @@ void CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_HYPER_CameraMove()
 
 void CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_HYPER_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c76280 ( = 32c76070 )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_DASH_CANCEL
+	RENA_GROUND_WALK_CANCEL
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -22448,15 +22739,27 @@ void CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_HYPER_EventProcess()
 
 	
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 
 //LESI_SI3_LE_AERO_TORNADO
 void CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c6b8b0 ( AeroTornado01.X is listed twice )
 	XSkinMeshReadyInBackground( L"AeroTornado01.X" );
 	TextureReadyInBackground( L"AeroTornado04.dds" );
 	TextureReadyInBackground( L"AeroTornado07.dds" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XSkinMeshReadyInBackground( L"AeroTornado01.X" );
+	XSkinMeshReadyInBackground( L"Lire_SpecialAttackPierceArrow1a.X" );
+	XMeshReadyInBackground( L"Ring_Plane.y" );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	XSkinMeshReadyInBackground( L"AeroTornado01.X" );
+	TextureReadyInBackground( L"AeroTornado04.dds" );
+	TextureReadyInBackground( L"AeroTornado07.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 void CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_FrameMoveFuture()
@@ -22466,6 +22769,14 @@ void CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_FrameMoveFuture()
 
 void CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c86e20 ( no AERO_TORNADO effect: the state's effect set carries it )
+	ChangeWorldColorByHyperMode();
+
+	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.19f, 2 );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	ChangeWorldColorByHyperMode();
 
 	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.19f, 2 );
@@ -22486,6 +22797,7 @@ void CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_FrameMove()
 		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"AERO_TORNADO", GetPowerRate(), pos, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 void CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_CameraMove()
 {
@@ -22521,6 +22833,14 @@ void CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_FrameMoveFuture()
 
 void CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c86e50 ( = 32c86e20 )
+	ChangeWorldColorByHyperMode();
+
+	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.19f, 2 );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	ChangeWorldColorByHyperMode();
 
 	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.19f, 2 );
@@ -22541,6 +22861,7 @@ void CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_FrameMove()
 		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"AERO_TORNADO_HYPER", GetPowerRate(), pos, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 void CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_CameraMove()
@@ -23424,13 +23745,37 @@ void CX2GULire_ElvenRanger::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDe
 
 void CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_Init()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c6bc30
+	TextureReadyInBackground( L"ColorBallFire.dds" );
+	TextureReadyInBackground( L"ALS_SLICER_01.dds" );
+	TextureReadyInBackground( L"Smoke.dds" );
+	XMeshReadyInBackground( L"Lire_FeatherA.Y" );
+	XSkinMeshReadyInBackground( L"aisha_SA_SCREWDRIVER_circle.X" );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	XSkinMeshReadyInBackground( L"Lena_SI_A_LE_BACKJUMP_SHOT01.X" );
 	XMeshReadyInBackground( L"Lire_FeatherA.Y" );
 	TextureReadyInBackground( L"Smoke.dds" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 void CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_Start()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c768c0 ( the upgrade id's templet when the base id is not equipped )
+	CommonStateStart();
+
+	m_nBackShotCount = 0;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RENA_BACKJUMP_SHOT, true );
+	if( NULL == pSkillTemplet )
+		pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_RENA_BACKJUMP_SHOT_UPGRADE, true );
+
+	if( NULL == pSkillTemplet || NULL == GetUnit() )
+		return;
+
+	const int iSkillLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ) );
+	m_nBackShotCount = static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_FIRE_COUNT, iSkillLevel, false ) );
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	CommonStateStart();
 
 	m_nBackShotCount = 0;
@@ -23450,11 +23795,39 @@ void CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_Start()
 		m_nBackShotCount = (int) pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_FIRE_COUNT );
 	#endif // UPGRADE_SKILL_SYSTEM_2013
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 
 void CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH2a: June 32c94e20 ( fires at 0.361 from Dummy2_Lhand; March 0.4 from Dummy1_Rhand )
+#ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimerOneshot( 0.361f ) )
+#else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	if( m_pXSkinAnim->EventTimer( 0.361f ) == true && EventCheck( 0.361f, false ) == true )
+#endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+	{
+		const D3DXVECTOR3 vDegree = GetRotateDegree();
+		const D3DXVECTOR3 posL = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+
+		static const float s_afArrowAngleZ[3][3] = { { -45.0f, 0.0f, 0.0f }, { -45.0f, -30.0f, 0.0f }, { -15.0f, -30.0f, -45.0f } };
+		if( 1 <= m_nBackShotCount && m_nBackShotCount <= 3 )
+		{
+			for( int i = 0; i < m_nBackShotCount; ++i )
+			{
+				D3DXVECTOR3 degree = vDegree;
+				degree.z = s_afArrowAngleZ[m_nBackShotCount - 1][i];
+				CX2DamageEffect::CEffect* pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"ARROW_BACKJUMP", GetPowerRate(), posL, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+				if( NULL != pDE )
+					pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+			}
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.4f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -23622,6 +23995,7 @@ void CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 
 void CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_FrameMoveFuture()

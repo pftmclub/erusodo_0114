@@ -12045,6 +12045,32 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-11-09
+// Description: June character port ( Rena ) Phase CH2a - Rena's own skills ( Rail Stinger, Perfect Storm, Aero Tornado, Assault Kick, Phoenix Strike, Backflip Shot, Siege Mode
+//              and their upgrade ids ) run June's registrations and state functions ( 32cb06d0, 32c6b2e0 .. 32c94e20 ).
+//              Revert: undefine the flag ( JUNE_CHAR_RENA_SKILL ).
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) || !defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL needs SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE, SERV_IRUHADEV_JUNE_ENUM_NAMES and SERV_IRUHADEV_JUNE_SKILL_NUMERICAL
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-09
+// Description: June character port ( Rena ) Phase CH2a - temporary [JUNE_CHAR] RENA SKILL lines ( the equipped skill's slot and state ) for CH2a's play-test;
+//              they sit inside JUNE_CHAR_RENA_SKILL code only.
+//              Revert: undefine the flag ( JUNE_CHAR_RENA_SKILL_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+#ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-09
 // Description: June character port ( Rena ) Phase CH5 - Rena's skill cut-in table is June's ( 333aad30: GFx names HQ_CutIn_Rena_01..03 / WS_01 / GA_01 / NW_01,
 //              the 0x8b3 CASH_21 / CASH_22 pair ) in the class cut-in reader ( 32c86890 ), plus the RENA UI cut-in log lines.
 //              Revert: undefine the flag ( JUNE_CHAR_RENA_UI ).

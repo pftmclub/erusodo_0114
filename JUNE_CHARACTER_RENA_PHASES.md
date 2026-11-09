@@ -1800,6 +1800,34 @@ skills; March vs June damage in `MODS.md`.
 casts June's state, motion and effect, deals damage, shows its cool time and spends MP; traps spawn, hit and expire as June; no missing particle /
 mesh / texture line.
 
+### CH2a - Done (2026-11-09)
+
+Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (+ `_SKILL_DEBUG`, `Always.h:12051` / `:12063`; `#error` without `_LIVE`, `JUNE_ENUM_NAMES`, `JUNE_SKILL_NUMERICAL`, all three defined earlier in the file) is defined: Rena's seven class-3 skills run June's registrations (before this every one fell into the Power Attack default). All 46 class-map rows are read from `charport_adis.py rena --phase CH2a` listings: **18 functions written** (inside March's function under the flag, March in `#else`), **28 are June = March** (no code). `funcmap.tsv` rows `Char Rena CH2a` (46); `MODS.md` "Stage 7 Rena, CH2a" has the damage table; `JUNE_BUGS` 575.
+
+| June | `CX2GULire_ElvenRanger::` | June differs from March |
+|---|---|---|
+| `32c6b2e0` `32c6b410` `32c6b620` `32c6b820` `32c6b8b0` `32c6bc30` | `LESI_SI1_LE_PIERCE_ARROW_Init`, `_SI3_LE_PHOENIX_STRIKE_`, `_SI1_LE_ASSAULT_KICK_`, `_SI2_LE_PERFECT_STORM_`, `_SI3_LE_AERO_TORNADO_`, `_SI_A_LE_BACKJUMP_SHOT_Init` | June's own preload lists (15 / 11 / 6 / 5 / 7 / 5 names; all in `ch0_assets.tsv`, `june-bytes`) |
+| `32c86bc0` `32c86bf0` `32c86c20` `32c86c50` `32c86e20` `32c86e50` | `..PIERCE_ARROW_FrameMove` (+ `_HYPER`), `PHOENIX_STRIKE_`, `ASSAULT_KICK_`, `AERO_TORNADO_FrameMove` (+ `_HYPER`) | cut-in and `CommonFrameMove` only: the arrow, particles, meshes and damage effects moved to the state's effect sets (`EffectSet_SA_Rena_*`, all in the shipped `EffectSet.lua`); Assault Kick's memo test calls June's always-false stub `31fca9e0` and is not written |
+| `32c94e20` | `LESI_SI_A_LE_BACKJUMP_SHOT_FrameMove` | fires at 0.361 s ( March 0.4 ) from `Dummy2_Lhand` ( March `Dummy1_Rhand` ); `ARROW_BACKJUMP` x `m_nBackShotCount` ( z -45 / -45 -30 / -15 -30 -45 ), `GetPowerRate()` with no arrow-rate factor |
+| `32c768c0` | `LESI_SI_A_LE_BACKJUMP_SHOT_Start` | base templet 23200, else the upgrade 23220 ( both with the upgrade swap ); count = ability 30 at `max( 1, GetSkillLevel( id, 0, 0, 1 ) )` |
+| `32c74a40` `32c74d50` | `LESI_SI_LE_POWER_ATTACK_EventProcess` (+ `_HYPER`) | walk, back-walk, dash and Z / X cancels need the foot on a line ( `RENA_GROUND_*`, new `RENA_GROUND_ZX_CANCEL_EX` ) |
+| `32c76070` `32c76280` | `LESI_SI2_LE_PERFECT_STORM_EventProcess` (+ `_HYPER`) | skill, then dash and walk cancels with the foot test ( March's `DASH_` / `WALK_CANCEL_AFTER` ) |
+| = March | FMF x10, CameraMove x7, EndFuture, EventProcess x6 ( Pierce Arrow, Phoenix, Assault Kick, Aero x2, Backflip ), Power Attack FM x2, Perfect Storm FM x2 | `funcmap.tsv` says which; Perfect Storm's FM is March's live part under `BALANCE_PATCH_20131107` |
+
+**Registration.** `SetEquippedSkillFuncBySkillSlotIndex`: the second skill switch is `switch( GetUpgradeBaseSkillID( eSkillID_ ) )` under `_LIVE` ( June `32207210`; March's `switch( eSkillID_ )` in `#else` ), with seven cases ahead of the CH1n default ( both the base and the upgrade id of each skill are labels ): Rail Stinger ( table `LESI_SI1_LE_PIERCE_ARROW`, hyper `_HYPER` ), Perfect Storm ( one table, own hyper functions ), Aero Tornado ( `..._HYPER` table and functions ), Assault Kick and Phoenix Strike ( one table and one function set for both slots ), Backflip Shot ( Init / Start / FMF / FM / EP / EndFuture on both ) and Siege Mode ( `LESI_SIEGE_READY`, CH1f's functions ). No hyper row has an Init. `X2SkillTree.h`: ten `RNSI_SA_RENA_*` names ( 23000-23004, 23026-23030 ). New macro `RENA_GROUND_ZX_CANCEL_EX` ( June `32c74a40 @32c74c81` ).
+
+**Checklist** `(Rena: CH2a ...)`: §1 `Lire_ElvenRanger` row ( 0 numerical-only state tables here ), §4 l.178, the l.717 / 729 type rows, §7i l.440 ( no cached-rate use ). §7ai ( BFI arguments ): none of the 18 functions calls it; 7h / `NF` rows: the two `ch0_nf` rows are the Power Attack cancel lines, written unconditionally ( March's `ADD_RENA_SYSTEM` block stays dead ).
+
+**Findings, none blocking.** (1) March's `*_HYPER_*` duplicates of Assault Kick, Phoenix Strike, Pierce Arrow ( except FrameMove ), Aero EP stay unregistered and dead. (2) Backflip Shot's state table also lists `EffectSet_A_Rena_BackjumpShot` while C++ still fires `ARROW_BACKJUMP`: both are June's, kept. (3) Rail Stinger's script sets DASH_CANCEL_AFTER 0.783 but its EventProcess `32c75060` has no cancel lines, so the dash cancel never opens ( JUNE_BUGS 575, kept ); Perfect Storm's keys ( 1.15 / 1.08 / 1.15 ) are read by its EventProcess; Assault Kick, Phoenix Strike, Aero Tornado and the Power Attack default set none.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RENA_SKILL --with JUNE_CHAR_RENA_SKILL_DEBUG --worktree --files X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `1 DEFINE, 2 OTHER, 0 FAIL` ( `.cpp` OTHER = my id-switch header sits in `_LIVE`, `X2SkillTree.h` = `JUNE_ENUM_NAMES` ); with `--with JUNE_CHAR_RENA_LIVE` on the `.cpp`: `1 PASS` ( +374 / 0 deleted ), `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` the three code files: `allow-listed: 5`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s) remain`. One-file probe ( `/c /Zs /EHsc` ): `X2GULire_ElvenRanger.cpp` exit 0, 0 errors.
+- `DEPLOY OK: X2_offline.exe is 26,148,864 B, dated 2026-11-09 20:37:44, md5 7ced4bc276190c4e8b4cb3bf4b8bbf56, equal to X2/US_SERVICE/x2.exe (2026-11-09 20:37:37); built at main 941c7994 + 3 uncommitted code file(s).`
+- `EXESTR OK: 1 of 1 found in X2_offline.exe, 26148864 B, md5 7ced4bc2` ( wide `RENA SKILL equip skill` ).
+
+**Play-test hand-off.** Unit 86 `ElvenRangerT` ( Rena, class 3, lv 99 ), set 1 is already slotted: A Backflip Shot ( Enhanced, 23220 ), S Rail Stinger ( Enhanced, 23026 ), D Perfect Storm ( Enhanced, 23027 ), C Aero Tornado ( Enhanced, 23028 ). For Assault Kick ( Enhanced 23029 ), Phoenix Strike ( Enhanced 23030 ) and Siege Mode ( 23201 ) say "swap" and I move them in. Dev console ( END key ): `/invin 0`, then `/stage 1`. Each skill twice, enemies in front: motion and effects, the slot shows a cool time after the first cast, the MP bar drops, a second cast during the cool time is refused ( unless the dev gate lets it through ). Then `python tools/logs.py --grep "RENA SKILL"` ( four `equip` lines ) and say "check logs".
+
 ## Phase CH3 - Skills: second jobs (102, 103, 114), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.

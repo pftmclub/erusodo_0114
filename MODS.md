@@ -6140,3 +6140,22 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_UI` (`KTDXLIB/Always.h`; `#error` without `_R
 **Data:** data036 `UnitTemplet.lua` (core-list source): Rena's 7 blocks are June's text, the other 48 untouched. 13 keys change: `m_fLobbyRotationY` 30 / 30 / 25 / 1 / 30 / 20 / 10 on 3 / 12 / 13 / 24 / 102 / 103 / 114, `m_HyperCutIn` `HQ_Cutin_RWS / RGA / RNW_Transcendence` on 102 / 103 / 114, `name` `STR_ID_616` -> `STR_ID_4783` / `_4784` / `_17429` on 102 / 103 / 114. Backup of the live kom: `kom_backup_tools/data036.kom.20261109_201125`.
 
 **Revert:** undefine `SERV_IRUHADEV_JUNE_CHAR_RENA_UI` (March's table and reader return), restore data036 from the backup above and `kom.py copy data036`, `python tools/build.py --deploy`. The item override `31fd8a50` (customize cut-in) is routed to Stage 12, as for the other classes.
+
+## Stage 7 Rena, CH2a: Rena (class 3) skills (2026-11-09)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (`Always.h`; `#error` without `..._RENA_LIVE`, `..._ENUM_NAMES`, `..._SKILL_NUMERICAL`) and the temporary `..._SKILL_DEBUG` (`[JUNE_CHAR] RENA SKILL equip` lines). Plan `JUNE_CHARACTER_RENA_PHASES.md` "CH2a - Done". Client only, no data change.
+- **What changes in game.** Rena's seven class-3 skills run June's registrations in `SetEquippedSkillFuncBySkillSlotIndex` (before this every one of them fell into the Power Attack default): Rail Stinger (23000 / 23026), Perfect Storm (23001 / 23027), Aero Tornado (23002 / 23028), Assault Kick (23003 / 23029), Phoenix Strike (23004 / 23030), Backflip Shot (23200 / 23220) and Siege Mode (23201 / 23221, CH1f's states). The second skill switch of `SetEquippedSkillFuncBySkillSlotIndex` takes the base id of the pressed skill under `_LIVE` (`GetUpgradeBaseSkillID`, June `32207210`), so an upgrade id reaches its base's case. `X2SkillTree.h` gains the ten `RNSI_SA_RENA_*` names.
+- **Differs from March.** The four attacks (Rail Stinger, Phoenix Strike, Assault Kick, Aero Tornado) lose their FrameMove effects (the arrow, the particles, the meshes and the damage effects are the state script's effect sets), keeping the cut-in and `CommonFrameMove`; Assault Kick's memo branch is dead (June's `GetEqippedSkillMemo` is an always-false stub). Perfect Storm and the Power Attack default walk, dash and (Power Attack only) Z / X cancel only with the foot on a line (`RENA_GROUND_*`, new `RENA_GROUND_ZX_CANCEL_EX`). Backflip Shot fires its arrows at 0.361 s (March 0.4) from the left hand (`Dummy2_Lhand`, March `Dummy1_Rhand`) and reads the upgrade id's templet when the base id is not equipped. Each skill preloads June's texture / mesh list (the names are all staged from June by CH0b). The hyper state of Rail Stinger, Aero Tornado and Perfect Storm keeps its own (identical) functions, the other three share the normal state's.
+- **Damage (level-1 multiplier; June = the damage effects' NUMERICAL_DATA through the engine, x0.01; March = the shipped effect / state tables).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Rail Stinger (23000 / 23026) | `SONIC_ARROW` / `SONIC_ARROW_REAL` damage effects | 17.40 (arrow, hyper arrow the same) |
+| Perfect Storm (23001 / 23027) | the shipped state / effect-set tables (the C++ `PERFECT_STORM` timers are dead under `BALANCE_PATCH_20131107`) | state and effect-set tables carry their own damage; the memo table 4.67 |
+| Aero Tornado (23002 / 23028) | `AERO_TORNADO` / `AERO_TORNADO_HYPER` damage effects | 4.99 (hyper 5.26) |
+| Assault Kick (23003 / 23029) | the state table's hits | 6.54, 8.72, 1.96 (1st / 2nd / last) |
+| Phoenix Strike (23004 / 23030) | `PHOENIX_ARROW` damage effect | 48.29, 36.22, 24.14 (three hits) |
+| Backflip Shot (23200 / 23220) | `ARROW_BACKJUMP` damage effect | 2.08 per arrow |
+| Siege Mode (23201 / 23221) | the siege states (CH1f) | no change in this phase |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every Rena skill falls back to the Power Attack default), `python tools/build.py --deploy`.

@@ -9051,3 +9051,49 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32298590 @322985df-32298632	CX2GameUnit::ApplyHyperModeBuff ( Rena branch )	PORTED	Char Rena CH1q2 ( _NF ): user, unit templet type 3 ( UT_LIRE ): count 32cb50c0 > 0 -> UpNowMp ( vslot 0xf0 = 3208dd00 )( count x 15.0 double 33449130 ), then UpNaturalForce( 5 ) 32cb6290; first in the function, before the transcendence test
 333aad30	CX2GULire_ElvenRanger s_SkillCutInSet static init	PORTED	Char Rena CH5: 12 SkillCutIn at 337ae6e8 stride 0x30: HQ_CutIn_Rena_01 / 02 / 03, WS_01 x3, GA_01 x3, NW_01 x3 ( strings 3351afc8 / afa4 / af80 / af58 / af30 / af08 ); size ( [334367ac] x2 ), pos ( [33435598], [334367ac] ) = March SkillCutIn( name ); no extension ( ActiveSkillShow appends .gfx )
 333aaba0	CX2GULire_ElvenRanger event 0x8b3 SkillCutIn pair static init	PORTED	Char Rena CH5: 337ae688 = HQ_CutIn_Rena_CASH_21, 337ae6b8 = HQ_CutIn_Rena_CASH_22; 32c86890 picks 337ae688 on even rand() ( AND 0x80000001 / JZ ) when 31e5a860( 0x8b3 )
+32c6b2e0	CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_Init	PORTED	Char Rena CH2a: inside, _SKILL: preload list of 5 textures, 6 Y meshes, 4 X meshes ( March: empty ); the hyper state registers no Init
+32c6b410	CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_Init	PORTED	Char Rena CH2a: inside, _SKILL: preload list of 5 textures, 3 Y meshes, 3 X meshes ( March: empty )
+32c6b620	CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_Init	PORTED	Char Rena CH2a: inside, _SKILL: preload list of 3 textures, Lire_FeatherA.Y, 2 X meshes ( March: AssaultKick01 / 02.X )
+32c6b820	CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_Init	PORTED	Char Rena CH2a: inside, _SKILL: preload list of 3 textures and AeroTornado01.X / DoubleSlash_M3.X ( March: PerfectStorm01 / 02.X )
+32c6b8b0	CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_Init	PORTED	Char Rena CH2a: inside, _SKILL: preload list of 7 names, AeroTornado01.X twice ( June lists it twice )
+32c6bc30	CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_Init	PORTED	Char Rena CH2a: inside, _SKILL: preload list of 3 textures, Lire_FeatherA.Y, aisha_SA_SCREWDRIVER_circle.X ( March: Lena_SI_A_LE_BACKJUMP_SHOT01.X, Lire_FeatherA.Y, Smoke.dds )
+32c86bc0	CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_FrameMove	PORTED	Char Rena CH2a: inside, _SKILL: ChangeWorldColorByHyperMode, cut-in ( Dummy1_Rhand, 0.06, 0 ), CommonFrameMove; no SONIC_ARROW ( the state's EffectSet_SA_Rena_RailStinger carries the arrow )
+32c86bf0	CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_HYPER_FrameMove	PORTED	Char Rena CH2a: inside, _SKILL: = 32c86bc0 ( no SONIC_ARROW_REAL )
+32c86c20	CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_FrameMove	PORTED	Char Rena CH2a: inside, _SKILL: cut-in ( Dummy1_Rhand, 0.001, 2 ) then CommonFrameMove; no 0.4 s particles, no 0.6 s PHOENIX_ARROW ( effect set ); one function for both slots
+32c86c50	CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_FrameMove	PORTED	Char Rena CH2a: inside, _SKILL: cut-in ( Dummy1_Rhand, 0.06, 0 ) then CommonFrameMove; no AssaultKick01 / 02 meshes; its 0.01 / 0.877 s memo test ( 603030 ) calls 31fca9e0, June's always-false stub: not written; one function for both slots
+32c86e20	CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_FrameMove	PORTED	Char Rena CH2a: inside, _SKILL: cut-in ( Dummy1_Rhand, 0.19, 2 ) then CommonFrameMove; no 0.833 s AERO_TORNADO damage effect ( effect set )
+32c86e50	CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_FrameMove	PORTED	Char Rena CH2a: inside, _SKILL: = 32c86e20 ( no AERO_TORNADO_HYPER )
+32c94e20	CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_FrameMove	PORTED	Char Rena CH2a: inside, _SKILL: EventTimerOneshot 0.361 ( March 0.4 ), position = Dummy2_Lhand clone frame ( March Dummy1_Rhand ), ARROW_BACKJUMP x m_nBackShotCount ( z -45 / -45 -30 / -15 -30 -45 ), GetPowerRate() with no arrow-rate factor, backSpeed.x += m_ArrowData.m_fAddBackSpeedX; March's BALANCE_GRAND_ARCHER_20121213 call otherwise
+32c74a40	CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_EventProcess	PORTED	Char Rena CH2a: inside, _SKILL: anim end -> WAIT / JUMP_DOWN, SKILL_CANCEL_AFTER, then walk, back-walk, dash and Z / X cancels that need the foot on a line ( RENA_GROUND_*, new RENA_GROUND_ZX_CANCEL_EX ); March's ADD_RENA_SYSTEM block stays dead
+32c74d50	CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_HYPER_EventProcess	PORTED	Char Rena CH2a: inside, _SKILL: = 32c74a40
+32c76070	CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_EventProcess	PORTED	Char Rena CH2a: inside, _SKILL: anim end, SKILL_CANCEL_AFTER, then dash and walk cancels that need the foot on a line ( March: DASH / WALK_CANCEL_AFTER ); no back-walk, no Z / X
+32c76280	CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_HYPER_EventProcess	PORTED	Char Rena CH2a: inside, _SKILL: = 32c76070
+32c768c0	CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_Start	PORTED	Char Rena CH2a: inside, _SKILL: CommonStateStart, m_nBackShotCount = 0, GetEquippedActiveSkillTemplet( 23200, swap ) else ( 23220, swap ), unit null -> return, count = SA_PROJECTILE_FIRE_COUNT ( 30 ) at max( 1, GetSkillLevel( id, 0, 0, 1 ) )
+32c6b3a0	CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_FrameMoveFuture	confirmed	Char Rena CH2a: = March, no code: CommonFrameMoveFuture ( thunk, vslot 0x7c8 )
+32c6b4a0	CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_FrameMoveFuture	confirmed	Char Rena CH2a: = March, no code: CommonFrameMoveFuture ( thunk )
+32c6b680	CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_FrameMoveFuture	confirmed	Char Rena CH2a: = March, no code: CommonFrameMoveFuture ( thunk )
+32c6b870	CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_FrameMoveFuture	confirmed	Char Rena CH2a: = March, no code: CommonFrameMoveFuture ( thunk )
+32c6b890	CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_HYPER_FrameMoveFuture	confirmed	Char Rena CH2a: = March, no code: CommonFrameMoveFuture ( thunk )
+32c6b910	CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_FrameMoveFuture	confirmed	Char Rena CH2a: = March, no code: CommonFrameMoveFuture ( thunk )
+32c6b930	CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_FrameMoveFuture	confirmed	Char Rena CH2a: = March, no code: CommonFrameMoveFuture ( thunk )
+32c84740	CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_FrameMoveFuture	confirmed	Char Rena CH2a: = March, no code: 0.28 s oneshot: nowSpeed.x = GetDashSpeed() ( dash speed x m_fRunJumpSpeedRate ), CommonFrameMoveFuture
+32c847b0	CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_HYPER_FrameMoveFuture	confirmed	Char Rena CH2a: = March, no code: = 32c84740
+32c76960	CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_FrameMoveFuture	confirmed	Char Rena CH2a: = March, no code: 0.4 .. 0.71 s: nowSpeed.y = 0 and gravity off, else gravity on; CommonFrameMoveFuture
+32c6b690	CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_CameraMove	confirmed	Char Rena CH2a: = March, no code: CommonCameraMove ( thunk, vslot 0x7d0 )
+32c6b880	CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_CameraMove	confirmed	Char Rena CH2a: = March, no code: CommonCameraMove ( thunk )
+32c6b8a0	CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_HYPER_CameraMove	confirmed	Char Rena CH2a: = March, no code: CommonCameraMove ( thunk )
+32c6b920	CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_CameraMove	confirmed	Char Rena CH2a: = March, no code: CommonCameraMove ( thunk )
+32c6b940	CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_CameraMove	confirmed	Char Rena CH2a: = March, no code: CommonCameraMove ( thunk )
+32c934b0	CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_CameraMove	confirmed	Char Rena CH2a: = March, no code: CommonCameraMove, camera 2 before 0.5 s SUB_CAMERA0 else SUB_CAMERA1 ( shared by the hyper state )
+32c947c0	CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_CameraMove	confirmed	Char Rena CH2a: = March, no code: CommonCameraMove, camera 1: before 0.1 s SUB_CAMERA0, before 0.8 s SUB_CAMERA1, else SUB_CAMERA2
+32c6bc80	CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_EndFuture	confirmed	Char Rena CH2a: = March, no code: m_bDisableGravity = false, CommonStateEndFuture
+32c75060	CX2GULire_ElvenRanger::LESI_SI1_LE_PIERCE_ARROW_EventProcess	confirmed	Char Rena CH2a: = March, no code: anim end -> WAIT / JUMP_DOWN, CommonEventProcess ( shared by the hyper state )
+32c75120	CX2GULire_ElvenRanger::LESI_SI3_LE_PHOENIX_STRIKE_EventProcess	confirmed	Char Rena CH2a: = March, no code: anim end -> WAIT / JUMP_DOWN, CommonEventProcess
+32c75d80	CX2GULire_ElvenRanger::LESI_SI1_LE_ASSAULT_KICK_EventProcess	confirmed	Char Rena CH2a: = March, no code: anim end, then any key after 1.3 s -> WAIT ( ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXC ), CommonEventProcess
+32c76490	CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_EventProcess	confirmed	Char Rena CH2a: = March, no code: anim end, then any key after 2.8 s -> WAIT, CommonEventProcess
+32c76560	CX2GULire_ElvenRanger::LESI_SI3_LE_AERO_TORNADO_HYPER_EventProcess	confirmed	Char Rena CH2a: = March, no code: = 32c76490
+32c769b0	CX2GULire_ElvenRanger::LESI_SI_A_LE_BACKJUMP_SHOT_EventProcess	confirmed	Char Rena CH2a: = March, no code: anim end -> WAIT / JUMP_DOWN, CommonEventProcess
+32c86b60	CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_FrameMove	confirmed	Char Rena CH2a: = March, no code: ChangeWorldColorByHyperMode, cut-in ( Dummy1_Rhand, 0.06, 0 ), CommonFrameMove
+32c86b90	CX2GULire_ElvenRanger::LESI_SI_LE_POWER_ATTACK_HYPER_FrameMove	confirmed	Char Rena CH2a: = March, no code: = 32c86b60
+32c86dc0	CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_FrameMove	confirmed	Char Rena CH2a: = March, no code: cut-in ( Dummy1_Rhand, 0.06, 1 ) and CommonFrameMove: March's live part under BALANCE_PATCH_20131107 ( its timer block is #ifndef )
+32c86df0	CX2GULire_ElvenRanger::LESI_SI2_LE_PERFECT_STORM_HYPER_FrameMove	confirmed	Char Rena CH2a: = March, no code: = 32c86dc0

@@ -1850,6 +1850,20 @@ public:
 		RNSI_P_RWS_SOFTBODY                                   = 23402,	// June's Enum.lua; the passive the state animation rate and the soft body action read
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-09 // char-rena CH2a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RENA_RAIL_STINGER                             = 23000,	// June's Enum.lua; the Rena skill switch cases
+		RNSI_SA_RENA_PERFECT_STORM                            = 23001,
+		RNSI_SA_RENA_AERO_TORNADO                             = 23002,
+		RNSI_SA_RENA_ASSAULT_KICK                             = 23003,
+		RNSI_SA_RENA_PHOENIX_STRIKE                           = 23004,
+		RNSI_SA_RENA_RAIL_STINGER_UPGRADE                     = 23026,
+		RNSI_SA_RENA_PERFECT_STORM_UPGRADE                    = 23027,
+		RNSI_SA_RENA_AERO_TORNADO_UPGRADE                     = 23028,
+		RNSI_SA_RENA_ASSAULT_KICK_UPGRADE                     = 23029,
+		RNSI_SA_RENA_PHOENIX_STRIKE_UPGRADE                   = 23030,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)
