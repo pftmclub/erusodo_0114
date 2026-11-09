@@ -31727,16 +31727,16 @@ void CX2GULire_ElvenRanger::UpdateSpineAimRotation()
 //}} Iruha : 2026-11-09 // char-rena CH1i
 //{{ Iruha : 2026-11-09 // char-rena CH1o
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
-/// char-rena CH1o: June 32c85b20 ( reader: unit vslot 0x6c 3229a530, Stage 33 ): a lock not above 0 is erased, the count left is June's word
+/// char-rena CH1o review: June 32c85b20 ( reader: unit vslot 0x6c 3229a530, Stage 33 ): a lock at or below 0 is erased ( a NaN stays: June's fcomp ), the count left is June's word
 unsigned short CX2GULire_ElvenRanger::GetRageFungusTargetLockCount()
 {
 	std::map< std::pair< int, UidType >, float >::iterator it = m_mapRageFungusTargetLockTime.begin();
 	while ( it != m_mapRageFungusTargetLockTime.end() )
 	{
-		if ( 0.f < it->second )
-			++it;
-		else
+		if ( it->second <= 0.f )
 			m_mapRageFungusTargetLockTime.erase( it++ );
+		else
+			++it;
 	}
 
 	return static_cast<unsigned short>( m_mapRageFungusTargetLockTime.size() );

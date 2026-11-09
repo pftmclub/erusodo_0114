@@ -1908,7 +1908,7 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		unsigned short m_usEradicationHitCount;	/// June +0x9810 ( constructor 0 ): Eradication's hit count
 		float m_fEradicationLoopEffectTime;	/// June +0x9814 ( constructor 0 ): Eradication's SA_EFFECTIVE_TIME
 		CX2EffectSet::Handle m_hEradicationLoopEffect;	/// June +0x9818 ( constructor -1 ): Eradication's loop effect set
-		unsigned short GetRageFungusTargetLockCount();	/// char-rena CH1o: June 32c85b20: drops the locks no longer above 0, returns how many stay ( read by unit vslot 0x6c 3229a530: Stage 33 )
+		unsigned short GetRageFungusTargetLockCount();	/// char-rena CH1o review: June 32c85b20: drops the locks at or below 0 ( a NaN stays ), returns how many stay ( read by unit vslot 0x6c 3229a530: Stage 33 )
 		void StoreGageSnapshot();	/// June 32c852f0 ( user vslot 0x740, base 32009780 Crest of Time snapshot not ported ): keeps the natural force count
 		int m_iSnapshotNaturalForceCount;	/// June +0x92b4 ( CX2GUUser snapshot region, constructor 0 ): the count StoreGageSnapshot keeps
 		void ResetEradicationLoop();	/// June 32ca2aa0: the loop's end ( CommonFrameMove ): the hit count restarts and the loop effect set stops

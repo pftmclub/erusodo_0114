@@ -1429,6 +1429,41 @@ Rena's `StoreGageSnapshot`. Other `+0x763c` readers: none beyond `32cb3200` (the
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-rena CH1o review` (Opus 5.5 high).
 
+### CH1o - Review (2026-11-09)
+
+**Verdict: PASS with one fix** (flag `_LIVE`, still `//#define`; the fix is in CH1o's `_CORE` helper). Read from the exe bytes (capstone over
+`unpacked_x2.exe`, `charport_adis.py rena`, vtables from the PE sections):
+- **Fix: `32c85b20` keeps a NaN lock.** `fldz; fcomp [node+0x20]; test ah,1; jne keep`: C0 is set on `0 < value` and on unordered, so June erases only
+  `value <= 0`. CH1o's `0.f < value` erased a NaN too (the Done note's "NaN too"). Now `if ( it->second <= 0.f ) erase( it++ ); else ++it;`; the return is
+  the word at `+0x97fc` (map size). Comments and the funcmap row corrected. No reachable NaN (the timers only lose frame time); kept for exactness.
+- **0x318.** `CX2GameUnit` 334883b4 / `CX2GUUser` 334781f4 / `CX2GUNPC` 334ba584 + 0x318 = `3208ddc0` (`ret 4`); Rena 335185bc + 0x318 = `32cb3200`.
+  `dispsweep 318`, `mov r,[r+0x318]` then `call r`: exactly `322cf0ee`, `322cf195`, `320149eb`. `32cb3200`: arg NULL -> return; `mov ecx, edi; call 32cb6dd0`
+  (twice, a temporary copy per trigger test; one const reference is the same read); `32cb6dd0` = `add ecx, 0x763c` + DamageData copy ctor `31e9cb70`;
+  triggers 0x25 / 0x26 = `DTT_ERADICATION` 37 / `_EXPLOSION` 38; `SA_EFFECTIVE_COUNT` (0x5a14 = Eradication) before / after `inc word [+0x9810]` with
+  `test ah,0x41; jp` = `!( limit > count )`; loop effect only when the instance is gone, `SA_EFFECTIVE_TIME`, `EffectSet_SA_RNW_Eradication_LoopFX` = the C++.
+- **`+0x763c`.** `dispsweep 763c`: the three stores `@3204a1e5` / `@327b4cb6` / `@327b4e95` each follow `call 32076140` and `push` the DamageData argument
+  into `31e9c190` (assignment); user side behind `322cc1c0` = `CX2Game::IsPve` (`jne` skip), after `SetGameUnitWhoAttackedMe( GetOwnerGameUnit() )`
+  (`32759f00`); NPC side: the user-attacker branch (`[attacker+0x264] == 0`) and the observer-attacker branch. The six `31f8f550` calls follow the
+  `+0xd80 / +0xd84` observer reset (= the widened inline reset; March has seven callers, the seventh `X2GameUnit.cpp:295` in the unit's own init, harmless).
+  Ctor `322a0c72`; `332b3e85` / `332b4a35` are EH unwind funclets (`jmp ~DamageData`), not readers. JUNE_BUGS 573 holds.
+- **Handlers.** `322cf060`: game vslot 0x98 (GetMyUnit) twice, `+0x867c`, `[pkt+9]` 64-bit != -1, vslot 0x54 UID = `+9/+0xd`, `push [pkt]` -> game vslot
+  0xa8; `322cf100`: UID = `+4/+8` or `+0xc/+0x10`, `push +0x18, +0x14` -> vslot 0xa0. CX2Game 3348bf94 + 0xa0 = `322cca00` (UID compare, `ret 8`) =
+  `GetUserUnitByUID`, + 0xa8 = `322ccac0` (`[npc+0x270]`, `ret 4`) = `GetNPCUnitByUID`; March `KEGS_*_DIE_NOT` offsets agree. Three divergent rows hold.
+- **0x1e8.** `CX2GameUnit` / `CX2GUNPC` + 0x1e8 = `3208ddc0`, `CX2GUUser` = `32011b80`, Rena = `32ca9ca0`. Call sites `31f86a92`, `320139a4`, `3276a7a8`
+  each follow `322752b0( +0x66ac, dd )` and push the same `dd`; Rena's `call 32011b80 @32ca9cc9` comes first. The sweep's other four `[r+0x1e8]` calls
+  (`31f0d981` in a state frame move `31f0d390`, three in `322ff710`) push nothing: another class's slot, not this one.
+- **`SetSkillLevelStateData`** = `3201f850` (Raven's review bytes); Rena 0x7a8 = `32028190`; the C++ matches. **Helpers**: `32c6dd10` (six minor names),
+  `32c6ddc0` (three `Lire_ChargeSoul*.X`), `32c83580` (`32c6dbd0` + `ImpactTickBlue` + `3226f1c0`) = March `:1209` / `:7409` / `:814` in order.
+
+**Hygiene.** Commit range `05d5f430^..05d5f430`, the 8 files: `files: 7 PASS, 1 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `7 deleted line(s)` (the
+CH1h `_CORE` declarations / head), 0 non-ASCII, 0 EOL-mismatched, 0 `#else/#endif` without the token, 0 encoding changes; RESULT FAIL only for
+`define: NOT FOUND` (`//#define`). Fix `--worktree` on the two Rena files: `files: 2 PASS`, `5 deleted line(s)` (the replaced helper lines, inside `_CORE`),
+same FAIL only. `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`. `enumscan.py --check` the 5 `.cpp`: 1 A row, the known
+`X2DamageEffect.cpp:1705`. Probes (`census.cl_cmd`, `/c /Zs /EHsc`) of the 5 `.cpp` off / with `_LIVE`: exit 0, 0 errors x10; Rena `.cpp` re-probed after
+the fix, off / on: 0 errors. Full build skipped: no play-test.
+
+**Nothing to play-test.** CH1p kickoff checked. Next: `/x2-phase char-rena CH1p` (Opus 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
