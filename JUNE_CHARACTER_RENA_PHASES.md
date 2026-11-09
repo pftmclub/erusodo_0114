@@ -1726,6 +1726,20 @@ Build (`--pch force`): `DEPLOY OK: X2_offline.exe is 26,148,864 B, dated 2026-11
 double jump, a bounding hit, damage and stand-up, riding, awakening; natural force from combo first hits, its gauge, spending, the awakening refund and a relog; `RENA DATA`
 per class; ErrorLog against the references. Skills are not tested here (Raven's precedent, user 2026-11-06: an unported skill cannot be cast); the two-casts check
 (cool time, MP, `ReservedSkillStart`) is CH2a's first hand-off.
+**Play-test (2026-11-09, run 19:24-19:32 on md5 034256dd): user "all test passed".** `offline_server.log`:
+- `RENA DATA` for all 7 classes, each `script LIRE_ELVENRANGER.lua motion MOTION_LIRE.X wait_state_change 1`; states 3: 169, 12: 177, 13: 172, 24: 175, 102: 187,
+  114: 184, 103: 193 (the review checks them against `ch1m_reg_by_class.tsv`).
+- `RENA NF`: `gauge UI ... g_pStatic_NF_Gage_Back shown` and `from packet: type 5` on every entry; the count climbs 0 -> 5 by combo hits (class 3: 1 at 19:25:17 ... 5 at
+  19:25:48) and drops on spending (5 -> 4, 3 -> 2, 1 -> 0 on every class); the last entry (back to unit 86, left at 4) reads `from packet: type 5, count 4 -> 4` and the
+  gauge shows `4 / 5`: the count survives a relog through `abil_count`.
+  **Open:** no `RENA NF awakening` line (no awakening with points held in this run); the review asks for that step once before retiring `_NF_DEBUG`.
+  **Debug-line flaw:** `RENA NF gauge` logs every frame, not only on a change (16,4xx lines; CH1q2 meant "every count change"); harmless, it goes with `_NF_DEBUG`.
+- START / WIN / LOSE: ErrorLog's `C3e-2 roll` / `rebind` lines pick `LESI_*_START` / `_WIN` / `_LOSE` tables for every job, list sizes 1-6, `list size 0` 0,
+  `re-bind skipped` 0.
+ErrorLog against `ErrorLog_pre_CH1_rena.txt` / `ErrorLog_pre_CH0b_rena.txt`: `KEM_ERROR` 0 / 0 / 0, `Motion Error` 0 / 0 / 0, `[LUA_SRC]` 7 / 11 / 7, `lua error` 3 / 4 / 3,
+no missing animation. The new line groups come from places, gear and effects those runs never opened: optional `.XET` probes (202 groups: Rena motion / costume / effect
+meshes), `result : N` on three Rena sounds (as Raven's), `HQ_CUTIN_LENA_N.DDS.GFX` (March's cut-in table plus `.gfx`, CH5's), `LIRE_BASIC_FACE_NW` textures (CH0b's
+`JUNE_BUGS` 562), Elysion `[ELYDBG]` / local-map control lines, `JUNE_FX MP_CRASH` traces. Nothing broke in play; no new routing. `AddGroupChainQuest` unbound x1 is pre-CH1.
 
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
