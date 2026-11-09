@@ -7,7 +7,7 @@
 | Depends on | CH1 review |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_SKILL` |
 | Log tag | `[JUNE_CHAR]` (`LUCIEL SKILL` / `NUM`) (`python tools/logs.py --grep "JUNE_CHAR LUCIEL"`) |
-| Review | kickoffs/char-luciel/CH2a-review.md (Opus 5.5 high; the phase writes it when done) |
+| Review | none of its own (user, 2026-11-10): the CH2b review covers CH2a, CH2b; do not write `CH2a-review.md` (any debug define stays on until then) |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 

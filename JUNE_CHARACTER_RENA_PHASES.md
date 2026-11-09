@@ -178,8 +178,8 @@ Scans re-run 2026-11-07: `census.py` 26 PASS, 0 FAIL, 0 `to-implement` rows (imp
 | CH1m-CH1p | Wiring behind `_LIVE` (registration; base callbacks + slot head; virtuals; 7ag + hooks + June-only keys) | Opus high, Opus review each | CH1a-CH1k reviews |
 | CH1q | Natural force, flag `_NF` (Open decision 1) | Opus high, Opus review | CH1p review, decision 1 |
 | CH1 | Final: define `_LIVE`, adopt the script, copy any held motion koms, play-test | Opus high, Opus review, user play-test | CH1q review, CH0b |
-| CH2a-CH2d | Skills: Rena + first jobs (3, 12, 13, 24) | Sonnet high, Opus review, user play-test | CH1 review |
-| CH2d0 | Trap summons: spawn rules, the 4 June `CreateNPCReq` sites, trap NPC scripts' binder gate, flag `_TRAP` | Opus high, Opus review | CH2c review |
+| CH2a-CH2d | Skills: Rena + first jobs (3, 12, 13, 24) | Sonnet high, Opus review per series (CH2a, CH2b each; CH2c + CH2d together, user 2026-11-10), user play-test | CH1 review |
+| CH2d0 | Trap summons: spawn rules, the 4 June `CreateNPCReq` sites, trap NPC scripts' binder gate, flag `_TRAP` | Opus high, Opus review | CH2c |
 | CH3a-CH3d | Skills: second jobs (102, 103, 114), hyper actives, transcendence rows | Sonnet high (CH3d Opus), Opus review, user play-test | CH2 reviews |
 | CH`n`0 | One Opus sub-phase per unmapped helper CH0 finds, before the Sonnet phase that needs it | Opus high, Opus review | as its phase |
 | CH4a-CH4b | Passives (InitPassiveSkillState, D8 re-keys, delegates); damage exception + overrides + memo | Opus high, Opus review, user play-test | CH2 reviews (CH4b: CH3c review) |

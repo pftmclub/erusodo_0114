@@ -7,7 +7,7 @@
 | Depends on | CH1l3 review
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_CORE` (compiled, unreferenced) and `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_LIVE` (`//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
-| Review | kickoffs/char-luciel/CH1m-review.md (Opus 5.5 high; the phase writes it when done) |
+| Review | none of its own (user, 2026-11-10): the CH1o review covers CH1m, CH1n, CH1o; do not write `CH1m-review.md` (any debug define stays on until then) |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 

@@ -4,10 +4,10 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-luciel CH1l3` |
 | Plan doc | `JUNE_CHARACTER_LUCIEL_PHASES.md` (branch `main`) |
-| Depends on | CH1l2 review, CH1l30 review; one at a time in `X2GULuciel.*`
+| Depends on | CH1l2, CH1l30 review; one at a time in `X2GULuciel.*`
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_CORE` (compiled, unreferenced) and `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_LIVE` (`//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
-| Review | kickoffs/char-luciel/CH1l3-review.md (Opus 5.5 high; the phase writes it when done) |
+| Review | kickoffs/char-luciel/CH1l3-review.md (Opus 5.5 high; the phase writes it when done). **It covers CH1l, CH1l2, CH1l3** (user, 2026-11-10): every covered Done note, `flagcheck --range` over all of them, `--check-all`, retires any debug define |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 

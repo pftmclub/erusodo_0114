@@ -4,10 +4,10 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-luciel CH3b` |
 | Plan doc | `JUNE_CHARACTER_LUCIEL_PHASES.md` (branch `main`) |
-| Depends on | CH3a review |
+| Depends on | CH3a |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_SKILL` |
 | Log tag | `[JUNE_CHAR]` (`LUCIEL SKILL` / `NUM`) (`python tools/logs.py --grep "JUNE_CHAR LUCIEL"`) |
-| Review | kickoffs/char-luciel/CH3b-review.md (Opus 5.5 high; the phase writes it when done) |
+| Review | kickoffs/char-luciel/CH3b-review.md (Opus 5.5 high; the phase writes it when done). **It covers CH3a, CH3b** (user, 2026-11-10): every covered Done note, `flagcheck --range` over all of them, `--check-all`, retires any debug define |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 

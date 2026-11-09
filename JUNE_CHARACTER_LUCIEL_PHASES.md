@@ -140,8 +140,8 @@ Digests are kept in `june2017_re/char_luciel/`. They were written by Sonnet suba
 | DU1 | Second body in `CX2GUUser`: members, minor-unit model, user sync, not-selected-body physics, one-shot reset | Opus high, Opus review | NU3 |
 | DU2 | Damage-state getter virtuals and their two engine readers | Opus high, Opus review | NU1 |
 | CH1a | Class skeleton: new files, ctor / dtor / members, own virtuals, `MemoConditionLuciel` | Opus high, Opus review | CH0, NU1 |
-| CH1b-CH1l | State bodies by group and override bands (11 sub-phases, below) | Sonnet high, Opus review each | CH1a; one at a time |
-| CH1m-CH1p | Wiring: registration; skill head + base callbacks; virtuals + keys + hooks; the in-class duo switch | Opus high, Opus review each | CH1b-CH1l reviews, DU1, DU2 |
+| CH1b-CH1l | State bodies by group and override bands (11 sub-phases, below) | Sonnet high, Opus review per series (user, 2026-11-10): CH1b-f2, CH1g-i, CH1k-k2, CH1l-l3 | CH1a; one at a time |
+| CH1m-CH1p | Wiring: registration; skill head + base callbacks; virtuals + keys + hooks; the in-class duo switch | Opus high, Opus review per series: CH1m-o together, CH1p alone | CH1b-CH1l reviews, DU1, DU2 |
 | CH1 | Final: define `_LIVE`, factory cases, adopt both scripts, play-test | Opus high, Opus review, user play-test | CH1p review, NU4, CH0b |
 | DU3 | June's equip-view rewrite (every class), item-templet minor-unit fields | Opus high, Opus review, user play-test | CH1 review |
 | DU4 | NESI renumber and the save migration | Opus xhigh, Opus review, user play-test | DU3 review |
@@ -149,10 +149,10 @@ Digests are kept in `june2017_re/char_luciel/`. They were written by Sonnet suba
 | CHN | Job change for 37 / 38 / 39 / 127 / 128 / 129 (Aisha's "Phase CH-N") | Opus high, Opus review, user play-test | CH1 review |
 | TU | Tutorial dungeon, field and world; first-entry route | Sonnet high, Opus review, user play-test | CH1 review |
 | CH2a0 | Lu/Ciel's summoned NPCs (CH0 places it before the first skill phase that spawns one) | Opus high, Opus review, user play-test | CH1 review |
-| CH2a-CH2d | Skills: base 200 and first jobs 37 / 38 / 39 | Sonnet high, Opus review, user play-test | CH1 review (CH2d: CHN) |
-| CH3a-CH3d | Skills: second jobs 127 / 128 / 129, hyper actives, transcendence rows | Sonnet high (CH3d Opus), Opus review, user play-test | CH2 reviews, CHN |
+| CH2a-CH2d | Skills: base 200 and first jobs 37 / 38 / 39 | Sonnet high, Opus review per series (user, 2026-11-10): CH2a-b, CH2c-c2, CH2d-d2, user play-test each | CH1 review (CH2d: CHN) |
+| CH3a-CH3d | Skills: second jobs 127 / 128 / 129, hyper actives, transcendence rows | Sonnet high (CH3d Opus), Opus review per series: CH3a-b, CH3c-c2, CH3d alone; user play-test | CH2 reviews, CHN |
 | CH`n`0 | One Opus sub-phase per unmapped helper CH0 finds | Opus high, Opus review | as its phase |
-| CH4a-CH4c | Passives; damage exception + overrides; memo and item readers | Opus high, Opus review, user play-test | CH2 reviews |
+| CH4a-CH4c | Passives; damage exception + overrides; memo and item readers | Opus high, Opus review per series: CH4a-b together, CH4c alone; user play-test | CH2 reviews |
 | CH5 | UI and data: two-body cut-ins, HUD portraits, bounding-key dialog, combination-point UI | Sonnet high, Opus review, user play-test | CH1 review, DU5 |
 | CH6 | Whole-character walk + gap reruns | Sonnet medium, user walk | CH3, CH4, CH5, TU reviews |
 | Z | Close-out | Sonnet medium | CH6 |

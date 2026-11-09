@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-rena CH2d0` |
 | Plan doc | `JUNE_CHARACTER_RENA_PHASES.md` (branch `main`) |
-| Depends on | CH2c review. One at a time: `X2GULire_ElvenRanger.*`, `X2GUNPC.*` |
+| Depends on | CH2c (play-test passed; no review of its own). One at a time: `X2GULire_ElvenRanger.*`, `X2GUNPC.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP` (+ `..._TRAP_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`RENA TRAP`) |
 | Review | `kickoffs/char-rena/CH2d0-review.md` (Opus 5.5 high; the phase writes it when done) |

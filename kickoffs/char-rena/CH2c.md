@@ -7,7 +7,7 @@
 | Depends on | CH2b review (and any `CH2c0`). One at a time: `X2GULire_ElvenRanger.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`RENA SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
-| Review | `kickoffs/char-rena/CH2c-review.md` (Opus 5.5 high; the phase writes it when done) |
+| Review | none of its own (user, 2026-11-10): the CH2d review covers CH2c + CH2d; do not write `CH2c-review.md` |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 
@@ -54,6 +54,6 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 ## Amended by CH2b review (2026-11-10)
 
-- **Debug flag:** the review retired `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG` (`//#define`, `Always.h:12067`); CH2c re-defines it for its own `[JUNE_CHAR] RENA SKILL` lines (the equip line already exists) and its review retires it again.
+- **Debug flag:** the review retired `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG` (`//#define`, `Always.h:12067`); CH2c re-defines it for its own `[JUNE_CHAR] RENA SKILL` lines (the equip line already exists) and the CH2d review retires it again (CH2c has no review of its own; the Done note says the define stays on).
 - **Skill icon:** `skillicons.py check` found 23210 (Mind of Sharpshooter) `NO_PIECE` (`DLG_Lena_SKILL_ScreenShot_04`); stage it from June (`kom.py stage-june`, then pack) so the gate passes.
 - **Shapes from CH2a / CH2b:** registration as in "Amended by CH2a" (hyper rows copy Init only where June's hyper row names one: Back Kick, Low Kick, Assault Impact did). A once-per-state MP cost is `CX2GUUser::FlushMpOnce` (June `3208dcb0`, a `CX2GameUnit` vslot `0xe8`; cleared in `CommonStateStartFuture`); a held-key follow-up is `ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_` (Back Kick).

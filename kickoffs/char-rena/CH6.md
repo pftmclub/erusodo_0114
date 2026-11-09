@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, medium** effort, then type `/x2-phase char-rena CH6` |
 | Plan doc | `JUNE_CHARACTER_RENA_PHASES.md` (branch `main`) |
-| Depends on | CH3d, CH4a, CH4b and CH5 reviews |
+| Depends on | CH3d, CH4b and CH5 reviews (CH4b's covers CH4a) |
 | Flag | none (a defect goes back to its phase's flag) |
 | Log tag | `[JUNE_CHAR]` (`RENA *`) |
 | Review | none (the user's walk is the gate) |

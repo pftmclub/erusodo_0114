@@ -7,7 +7,7 @@
 | Depends on | CH2d0 review (and any `CH2d1`). One at a time: `X2GULire_ElvenRanger.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`RENA SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
-| Review | `kickoffs/char-rena/CH2d-review.md` (Opus 5.5 high; the phase writes it when done) |
+| Review | `kickoffs/char-rena/CH2d-review.md` (Opus 5.5 high; the phase writes it when done). **It covers CH2c + CH2d** (user, 2026-11-10): both Done notes, `flagcheck --range` over both phases, `--check-all`, and it retires `_SKILL_DEBUG` |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 

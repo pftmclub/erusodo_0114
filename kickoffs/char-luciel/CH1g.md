@@ -7,7 +7,7 @@
 | Depends on | CH1f2 review; one at a time in `X2GULuciel.*`
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_CORE` (compiled, unreferenced) and `SERV_IRUHADEV_JUNE_CHAR_LUCIEL_LIVE` (`//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
-| Review | kickoffs/char-luciel/CH1g-review.md (Opus 5.5 high; the phase writes it when done) |
+| Review | none of its own (user, 2026-11-10): the CH1i review covers CH1g, CH1g2, CH1h, CH1i; do not write `CH1g-review.md` (any debug define stays on until then) |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 

@@ -7,7 +7,7 @@
 | Depends on | CH2d review. One at a time: `X2GULire_ElvenRanger.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`RENA SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
-| Review | `kickoffs/char-rena/CH3a-review.md` (Opus 5.5 high; the phase writes it when done) |
+| Review | none of its own (user, 2026-11-10): the CH3b review covers CH3a + CH3b; do not write `CH3a-review.md` (the `_SKILL_DEBUG` define stays on until then) |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 

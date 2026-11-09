@@ -7,7 +7,7 @@
 | Depends on | CH2d review, and no CH3 phase running (same files). One at a time: `X2GULire_ElvenRanger.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE` (+ `_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`RENA PASSIVE`) |
-| Review | `kickoffs/char-rena/CH4a-review.md` (Opus 5.5 high; the phase writes it when done) |
+| Review | none of its own (user, 2026-11-10): the CH4b review covers CH4a + CH4b; do not write `CH4a-review.md` (the `_PASSIVE_DEBUG` define stays on until then) |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 
