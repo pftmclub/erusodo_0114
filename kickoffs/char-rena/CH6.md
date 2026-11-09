@@ -44,3 +44,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 The walk adds the cut-in checks CH5 left to it: on each Rena job cast a skill that reaches `ShowActiveSkillCutInAndLight` and read `[JUNE_CHAR] RENA UI cut-in set <set> index <i> name <gfx>`
 (set 0 = jobs 3 / 12 / 13 / 24 with indices 0 / 1 / 2 on the skill's cut-in index; set 1 = 102 `HQ_CutIn_Rena_WS_01`; set 2 = 103 `_GA_01`; set 3 = 114 `_NW_01`), and the awakening hyper on 102 / 103 / 114
 (`[JUNE_CHAR] RENA UI hyper cut-in class <c> name HQ_Cutin_R{WS,GA,NW}_Transcendence`, only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME`).
+
+## Amended by CH2a review (2026-11-09)
+
+CH2a's play-test cast only the Enhanced ids on unawakened Rena. The walk adds, on class 3: each of Rail Stinger, Perfect Storm, Aero Tornado, Assault Kick and Phoenix Strike
+cast once while awakened (the hyper state: Rail Stinger and Aero Tornado use their own `_HYPER` tables), and one base id (23000-23004 or 23200 Backflip Shot, not the Enhanced one)
+slotted and cast: it must bind its own state, not fall into the Power Attack default.
