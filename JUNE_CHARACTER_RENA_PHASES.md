@@ -725,6 +725,29 @@ All 29 class-map rows of phase CH1e are written. 22 are `inside`: June's body in
 
 **Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1e review` (Opus 5.5 high), then CH1f.
 
+### CH1e - Review (2026-11-09, Opus 5.5 high)
+
+**Verdict: pass, no code change.** I read all 29 rows against `charport_adis.py rena --phase CH1e`, each cut at its first `int3`. Registrations were checked in `ch0_reg.tsv` (`32cadc90`).
+- **Follow-ups** (`stateChange < t || animation end`, window `keyInputStart <= t < keyInputEnd`, event time `[0]` at `+0x8c10..18`):
+  - Combat Ranger dash Z1 -> `0xb9` (185), dash Z2 -> `0xba` (186); otherwise the two listings are identical. On the animation end: off a line `JUMP_DOWN` and y - 45; on a line `WAIT` and `+0xde0 = 0.2`. The direction clear touches flag 0 only.
+  - Dash-jump Z1 -> `0xc0`, Z2 -> `0xc1`, each after the landing test (`0xc2`); Z3 is the landing test only.
+  - `32c78e40` is registered at id 213 with table `LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1`, as March registers `LESI_LGA_DASH_JUMP_Z`; that confirms the class-map fix. It goes to `0xd6` on `0.25 < t || end`, window `t < 100.0`, then `oneX`. The port's `0.f <=` lower bound is behaviour-equal because animation time is never negative.
+  - Double-jump attack Z: on a line, flag 0 -> `0x9d`, else `0x9f`; the animation end off a line does y - 15 (`LINE_RADIUS / 2`). `oneZ` sets the flag inside `( keyInputStart, keyInputEnd )`, both strict.
+  - Wind Sneaker: `ZZfrontZ` flag 0 -> `0xce`. `ZZfrontZZ`: off a line `JUMP_DOWN`, animation end -> `0xd0` (208), no flag. `0xd0` = `32c77c50` (table `ZZfrontZZZ_Landing`): end -> wait / jump-down y - 45, flag 0 -> `0xcf` (207). `0xcf` = `32c779c0`: `t < 0.516` off a line -> jump-down; end on a line -> wait. These ids match the registrations at 206 / 207 / 208.
+  - `DASH_XZ`: end on a line -> `0x16`, flag 0 -> `0xd2`. `DASH_XZZ`: end -> wait on a line, else jump-down.
+- **The seven `new` functions:** the follow-ups go to `0x102` / `0x103` / `0x104` (258 / 259 / 260) and `0x109` / `0x10a` (265 / 266), which are the second registrations. Ids 253 / 257 share `32c7feb0`, 254 / 258 `32c80200`, and so on (`ch0_reg.tsv`). X-X-Z, X-X-Z-Z and X-X-Z-Z-Z test the foot first (jump-down, y - 45). START tests `IsAnimationEnd` before the foot (`JUNE_BUGS` #564). In START and LOOP the compiler drops the skill arm of the cancel because the foot test already failed on that path, and the port's `SKILL_CANCEL_AFTER` (which tests `IsOnSomethingFuture()`) behaves the same.
+- **Cancels:** every listing that has a chain has skill `+0x8c90` (foot test, then the awakening arm), walk `+0x8c98`, back-walk `+0x8c94` and dash `+0x8c9c`, each with the foot test, and no Z / X cancel. In the `ZZfrontZZ` / `ZZfrontZZZ` FrameMoveFuture, the inlined `EventTimerOneshot( 0.3f )` / `( 0.54f )` is evaluated and its result dropped.
+- **Other rows = March:** Low Kick Init has June's seven preloads in order (`JUNE_BUGS` #563); the FrameMove thunk; EventProcess skips at 0.66 s; Z_UP skips at 0.65 s; `ZZfrontZ` FrameMoveFuture is a thunk; both StartFutures use `nowSpeed.x > GetDashSpeed()` and then `x 0.5`.
+- **Enum / guard:** the ten `_CORE` members sit between 253 / 257 / 261 / 264 in June-id order. The two lines flagcheck counts as deleted are the chain macros' `#ifdef` / `#endif` moving from `_LIVE` to `_CORE`. `ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_` is still guarded by `_LIVE` (CH1f amended).
+
+**Gates.**
+- `flagcheck ..._LIVE --with ..._CORE --range 844e19e9^..844e19e9`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `2 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`. `RESULT: FAIL` only because the `_LIVE` define is commented out. OTHER is the `.h` (`_CORE`).
+- `junediverge.py --check-all`: `allow-listed: 197`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s)`.
+- One-file `/Zs` probe (`census.cl_cmd`, no PCH): exit 0 and 0 errors with no extra defines, with `_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`.
+- No code changed, so there is no build; CH1e's `DEPLOY OK` (md5 `2ac4c86b...`) stands.
+
+Nothing to play-test. Next: `/x2-phase char-rena CH1f` (Sonnet 5.5 high).
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.
