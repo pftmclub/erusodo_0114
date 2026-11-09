@@ -588,6 +588,7 @@ enum BUFF_TEMPLET_ID
 //{{ Iruha : 2026-11-09 // char-rena CH1d
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 	BTI_BUFF_MIND_OF_MARKMAN              = 536,	// June's Enum.lua; Hunter's Steadiness, the arrow helpers test it
+	BTI_BUFF_GUNGNIR_SCOPE                = 537,	// June's Enum.lua; Grand Archer's Gungnir aim, its states test it
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 };

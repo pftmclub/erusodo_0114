@@ -21589,10 +21589,595 @@ void CX2GULire_ElvenRanger::LESI_RSR_DASH_ZX_EventProcess()
 
 	CommonEventProcess();
 }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
+// June 32c6d550: the follow-up faces back the way it came
+void CX2GULire_ElvenRanger::LESI_RGA_DASH_JUMP_ZXX_StateStartFuture()
+{
+	m_FrameDataFuture.syncData.bIsRight = !m_FrameDataFuture.syncData.bIsRight;
+	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+	CommonStateStartFuture();
+}
+
+// June 32ca02a0: three arrows from the left hand at 0.25 s ( 8 MP through the helper ), each a natural force combo bomb
+void CX2GULire_ElvenRanger::LESI_RGA_DASH_JUMP_ZXX_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.25f ) )
+	{
+		if( FlushMp( GetArrowMpConsumption( 8.0f ) ) == true )
+		{
+			D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			D3DXVECTOR3 degree = GetRotateDegree();
+			degree.y += 180.f;
+
+			LUA_GET_VALUE( m_LuaManager, "ARROW_DEGREE_Z", degree.z, 0.0f );
+			CX2DamageEffect::CEffect* pDE = NULL;
+
+			pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RGA_Dash_Jump_Combo_ZXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+
+			degree.z += 15.f;
+			pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RGA_Dash_Jump_Combo_ZXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+
+			degree.z -= 30.f;
+			pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RGA_Dash_Jump_Combo_ZXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+			if( NULL != pDE )
+			{
+				pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+				pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+				pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+				CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+				if( NULL != pMainEffect )
+					pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+			}
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			float fDegreeZ = 0.f;
+			LUA_GET_VALUE( m_LuaManager, "ARROW_DEGREE_Z", fDegreeZ, 0.0f );
+			CreateNotEnoughMPEffect( pos, 0.f, 180.f, fDegreeZ );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32c81340: the landing needs the animation end and the foot; the cancels need the foot on a line
+void CX2GULire_ElvenRanger::LESI_RGA_DASH_JUMP_ZXX_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() && true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32c815a0: the speed is released after 0.72 s
+void CX2GULire_ElvenRanger::LESI_RGA_DASH_JUMP_XXZ_FrameMoveFuture()
+{
+	if( 0.72f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		m_PhysicParam.passiveSpeed.x = -1.f;
+	}
+
+	CommonFrameMoveFuture();
+}
+
+// June 32ca0a90: 3 MP at 0.492 s; the Grand Archer plays its own effect set
+void CX2GULire_ElvenRanger::LESI_RGA_DASH_JUMP_XXZ_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.492f ) )
+	{
+		if( FlushMp( 3.0f ) == true )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_RGA_DASH_JUMP_XXZ", (CX2GameUnit*) this );
+		}
+		else
+		{
+			D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+			CreateNotEnoughMPEffect( pos, 0.f, 0.f, -90.f );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// June 32c815d0: landing turns the unit round; the Z follow-up fires at the animation end too
+void CX2GULire_ElvenRanger::LESI_RGA_DASH_JUMP_XXZ_EventProcess()
+{
+	if( true == IsOnSomethingFuture() )
+	{
+		m_FrameDataFuture.syncData.bIsRight = !m_FrameDataFuture.syncData.bIsRight;
+		m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+		StateChange( USI_JUMP_LANDING );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneZ == true, LESI_RGA_DASH_JUMP_ZXX )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32c6d5f0: the effect meshes and textures of the Gungnir states
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_READY_Init()
+{
+	TextureReadyInBackground( L"ColorBallFire.dds" );
+	TextureReadyInBackground( L"Explosion_Sphere.dds" );
+	TextureReadyInBackground( L"LCG_Ring01.dds" );
+	TextureReadyInBackground( L"MagicSquareLight01_Poision.tga" );
+	TextureReadyInBackground( L"LD_MagicSquare06.dds" );
+	XMeshReadyInBackground( L"Lire_FeatherA.Y" );
+	XMeshReadyInBackground( L"Lire_Uplight01.Y" );
+	XSkinMeshReadyInBackground( L"RGA_GungnirStigmaWait.X" );
+	XSkinMeshReadyInBackground( L"Rena_GungnirMagicSquareM01.X" );
+	XSkinMeshReadyInBackground( L"Rena_GungnirMagicSquareM02.X" );
+	XSkinMeshReadyInBackground( L"RGA_GungnirStigmaFire.X" );
+}
+
+// June 32ca9c20: a Gungnir that is still aimed is struck at once
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_READY_StateStart()
+{
+	if( true == HaveThisBuff( BTI_BUFF_GUNGNIR_SCOPE ) )
+		PlayGungnirAttackEffect();
+
+	CommonStateStart();
+}
+
+// June 32ca0f80: the targeting NPC is created once, 120 ahead and 300 above ( 240 above the unit when no line is below ), then the scope buff goes on
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_READY_FrameMove()
+{
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLight( L"Dummy1_Rhand", 0.06f, 0 );
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		const bool bIsRight = GetIsRight();
+		D3DXVECTOR3 vPos = GetPos();
+
+		const float fOffsetPosX = 120.f;
+		if( bIsRight )
+			vPos += GetDirVector() * fOffsetPosX;
+		else
+			vPos -= GetDirVector() * fOffsetPosX;
+		vPos.y += 300.f;
+
+		int iNewLineIndex = m_FrameDataNow.syncData.lastTouchLineIndex;
+		D3DXVECTOR3 vLandPos = vPos;
+		if( false == g_pX2Game->GetWorld()->GetLineMap()->CanDown( vPos, LINE_RADIUS, &vLandPos, &iNewLineIndex, NULL, true, false, true, false ) )
+		{
+			vPos = GetPos();
+			vPos.y += 240.f;
+		}
+
+		/// stand-in: June passes IsMyUnit() as a trailing CreateNPCReq argument that March's lacks ( always true offline )
+		if( true == IsMyUnit() )
+			g_pX2Game->CreateNPCReq( CX2UnitManager::NUI_RENA_TARGETING_GUNGNIR, 0, true, vPos, bIsRight, 0.3f, true, -1, (CX2Room::TEAM_NUM) GetTeam(), CX2NPCAI::NAT_ALLY, GetUnitUID() );
+
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_GUNGNIR_SCOPE, 1, NULL, 0, false );
+	}
+
+	CommonFrameMove();
+}
+
+// June 32ca1240: from 0.6 s the targeting NPC takes the camera and the control starts; no NPC for 10 s, or no game, ends it
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_READY_EventProcess()
+{
+	if( 0.6f <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+		if( NULL != pNPC )
+		{
+			pNPC->SetFocusCamera( true );
+			pNPC->SetFocusCameraForce( true );
+			pNPC->SetApplyCinematicUI( false );
+			StateChange( LESI_RGA_GUNGNIR_CONTROL_IDLE );
+		}
+		else if( 10.f < m_FrameDataFuture.unitCondition.fStateTime || false == IsEventGamePlayable( false ) )
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	m_InputData.Init();
+	CommonEventProcess();
+}
+
+// June 32c6d680
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_READY_StateEnd()
+{
+	CommonStateEnd();
+}
+
+// June 32ca1300: the targeting NPC is told to cancel
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CANCEL_StateStart()
+{
+	CommonStateStart();
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+	if( NULL != pNPC )
+		pNPC->StateChange( "SHOT_GUNGNIR_CANCEL", true );
+}
+
+// June 32c82d10: the animation end goes back to the wait or the fall and blocks attacks for 0.1 s; the skill and ground cancels run on their own, not behind the animation end
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CANCEL_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+		m_fCanNotAttackTime = 0.1f;
+	}
+
+	IF_SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32ca1a00: the targeting NPC goes idle and the aim loop effect set starts once
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_IDLE_StateStart()
+{
+	CommonStateStart();
+
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+	if( NULL != pNPC )
+		pNPC->StateChange( "SHOT_GUNGNIR_IDLE", true );
+
+	if( INVALID_EFFECTSET_HANDLE == m_hGungnirLoopEffect )
+		m_hGungnirLoopEffect = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_RGA_Gungnir_Loop", this );
+}
+
+// June 32ca1360: the nine control states share it; while the skill key is held and the scope buff lasts the pressed direction picks the targeting NPC's state, the release fires ( both distance tests compare with -750 and never pass )
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_IDLE_EventProcess()
+{
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+
+	if( false == IsEquippedSkillKeyReleased( m_InputData, GetFutureStateSkillID() ) && true == HaveThisBuff( BTI_BUFF_GUNGNIR_SCOPE ) )
+	{
+		/// stand-in: June leaves the horizontal gap uninitialised on this path ( JUNE_BUGS ); 0 lets both sides move
+		float fAimGapX = 0.f;
+		float fAimGapY = 0.f;
+
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+		if( NULL != pNPC )
+		{
+			const D3DXVECTOR3 vUnitPos( GetPos().x * GetDirVector().x, GetPos().y * GetDirVector().y, GetPos().z * GetDirVector().z );
+			const D3DXVECTOR3 vNpcPos( pNPC->GetPos().x * GetDirVector().x, pNPC->GetPos().y * GetDirVector().y, pNPC->GetPos().z * GetDirVector().z );
+
+			if( GetDistance( vUnitPos, vNpcPos ) < -750.f )
+			{
+				fAimGapX = ( vUnitPos.z - vNpcPos.z ) + ( vUnitPos.x - vNpcPos.x );
+				fAimGapY = vUnitPos.y - vNpcPos.y;
+			}
+
+			if( static_cast<double>( GetPos().y ) + 1500.0 <= pNPC->GetPos().y )
+				fAimGapY = fAimGapY - ( fAimGapY - 1500.f );
+		}
+
+		if( ( NULL == pNPC || ( 0.f <= fAimGapX && fAimGapY <= 0.f ) ) && true == m_InputData.pureUp && true == m_InputData.pureLeft )
+		{
+			if( LESI_RGA_GUNGNIR_CONTROL_UP_LEFT != GetNowStateID() )
+				StateChange( LESI_RGA_GUNGNIR_CONTROL_UP_LEFT );
+		}
+		else if( 0.f >= fAimGapX && 0.f >= fAimGapY && true == m_InputData.pureUp && true == m_InputData.pureRight )
+		{
+			if( LESI_RGA_GUNGNIR_CONTROL_UP_RIGHT != GetNowStateID() )
+				StateChange( LESI_RGA_GUNGNIR_CONTROL_UP_RIGHT );
+		}
+		else if( 0.f <= fAimGapX && 0.f <= fAimGapY && true == m_InputData.pureDown && true == m_InputData.pureLeft )
+		{
+			if( LESI_RGA_GUNGNIR_CONTROL_DOWN_LEFT != GetNowStateID() )
+				StateChange( LESI_RGA_GUNGNIR_CONTROL_DOWN_LEFT );
+		}
+		else if( 0.f >= fAimGapX && 0.f <= fAimGapY && true == m_InputData.pureDown && true == m_InputData.pureRight )
+		{
+			if( LESI_RGA_GUNGNIR_CONTROL_DOWN_RIGHT != GetNowStateID() )
+				StateChange( LESI_RGA_GUNGNIR_CONTROL_DOWN_RIGHT );
+		}
+		else if( 0.f <= fAimGapX && true == m_InputData.pureLeft )
+		{
+			if( LESI_RGA_GUNGNIR_CONTROL_LEFT != GetNowStateID() )
+				StateChange( LESI_RGA_GUNGNIR_CONTROL_LEFT );
+		}
+		else if( 0.f >= fAimGapX && true == m_InputData.pureRight )
+		{
+			if( LESI_RGA_GUNGNIR_CONTROL_RIGHT != GetNowStateID() )
+				StateChange( LESI_RGA_GUNGNIR_CONTROL_RIGHT );
+		}
+		else if( 0.f >= fAimGapY && true == m_InputData.pureUp )
+		{
+			if( LESI_RGA_GUNGNIR_CONTROL_UP != GetNowStateID() )
+				StateChange( LESI_RGA_GUNGNIR_CONTROL_UP );
+		}
+		else if( 0.f <= fAimGapY && true == m_InputData.pureDown )
+		{
+			if( LESI_RGA_GUNGNIR_CONTROL_DOWN != GetNowStateID() )
+				StateChange( LESI_RGA_GUNGNIR_CONTROL_DOWN );
+		}
+		else
+		{
+			if( LESI_RGA_GUNGNIR_CONTROL_IDLE != GetNowStateID() )
+				StateChange( LESI_RGA_GUNGNIR_CONTROL_IDLE );
+		}
+	}
+	else
+	{
+		CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+		if( NULL == pNPC )
+		{
+			StateChange( LESI_RGA_GUNGNIR_CONTROL_FIRE );
+		}
+		else
+		{
+			const D3DXVECTOR3 vUnitPos( GetPos().x * GetDirVector().x, GetPos().y * GetDirVector().y, GetPos().z * GetDirVector().z );
+			const D3DXVECTOR3 vNpcPos( pNPC->GetPos().x * GetDirVector().x, pNPC->GetPos().y * GetDirVector().y, pNPC->GetPos().z * GetDirVector().z );
+			const D3DXVECTOR3 vGap = vNpcPos - vUnitPos;
+			const float fDistance = sqrtf( vGap.x * vGap.x + vGap.y * vGap.y + vGap.z * vGap.z );
+
+			if( fDistance < -750.f )
+				StateChange( LESI_RGA_GUNGNIR_CANCEL );
+			else
+				StateChange( LESI_RGA_GUNGNIR_CONTROL_FIRE );
+		}
+	}
+
+	m_InputData.Init();
+	CommonEventProcess();
+}
+
+// June 32ca1bb0: the shot is taken: the targeting NPC fires, its spot is kept for the strike and the aim loop effect set stops
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_FIRE_StateStart()
+{
+	CommonStateStart();
+
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+	m_fGungnirPowerRate = GetPowerRate();
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+	if( NULL != pNPC )
+	{
+		pNPC->StateChange( "SHOT_GUNGNIR_FIRE", true );
+		m_vGungnirTargetPos = pNPC->GetPos();
+		m_vGungnirTargetDir = pNPC->GetDirVector();
+		m_bGungnirFirePending = true;
+		m_iGungnirTargetNPCUID = -1;
+	}
+
+	if( INVALID_EFFECTSET_HANDLE != m_hGungnirLoopEffect )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hGungnirLoopEffect );
+}
+
+// June 32ca9c50: the strike effect set at 0.04 s of the fire state, once the shot has been taken
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_FIRE_FrameMove()
+{
+	if( m_pXSkinAnim->EventTimerOneshot( 0.04f ) && true == m_bGungnirFirePending )
+		PlayGungnirAttackEffect();
+
+	CommonFrameMove();
+}
+
+// June 32c82f90: the animation end goes to the wait; the skill and ground cancels run on their own, not behind the animation end
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_FIRE_EventProcess()
+{
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+		StateChange( USI_WAIT );
+
+	IF_SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	RENA_GROUND_WALK_CANCEL
+	RENA_GROUND_BWALK_CANCEL
+	RENA_GROUND_DASH_CANCEL
+
+	CommonEventProcess();
+}
+
+// June 32ca1cc0: the camera returns to the unit
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_FIRE_StateEnd()
+{
+	if( true == IsMyUnit() )
+		g_pX2Game->InitFocusUnit();
+
+	CommonStateEnd();
+}
+
+// June 32ca1d10: the targeting NPC follows the pressed direction
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_LEFT_StateStart()
+{
+	CommonStateStart();
+
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+	if( NULL != pNPC )
+		pNPC->StateChange( "SHOT_GUNGNIR_LEFT", true );
+}
+
+// June 32ca1d70: the targeting NPC follows the pressed direction
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_RIGHT_StateStart()
+{
+	CommonStateStart();
+
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+	if( NULL != pNPC )
+		pNPC->StateChange( "SHOT_GUNGNIR_RIGHT", true );
+}
+
+// June 32ca1dd0: the targeting NPC follows the pressed direction
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_UP_StateStart()
+{
+	CommonStateStart();
+
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+	if( NULL != pNPC )
+		pNPC->StateChange( "SHOT_GUNGNIR_UP", true );
+}
+
+// June 32ca1e30: the targeting NPC follows the pressed direction
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_DOWN_StateStart()
+{
+	CommonStateStart();
+
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+	if( NULL != pNPC )
+		pNPC->StateChange( "SHOT_GUNGNIR_DOWN", true );
+}
+
+// June 32ca1e90: the targeting NPC follows the pressed direction
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_UP_LEFT_StateStart()
+{
+	CommonStateStart();
+
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+	if( NULL != pNPC )
+		pNPC->StateChange( "SHOT_GUNGNIR_UP_LEFT", true );
+}
+
+// June 32ca1ef0: the targeting NPC follows the pressed direction
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_UP_RIGHT_StateStart()
+{
+	CommonStateStart();
+
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+	if( NULL != pNPC )
+		pNPC->StateChange( "SHOT_GUNGNIR_UP_RIGHT", true );
+}
+
+// June 32ca1f50: the targeting NPC follows the pressed direction
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_DOWN_LEFT_StateStart()
+{
+	CommonStateStart();
+
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+	if( NULL != pNPC )
+		pNPC->StateChange( "SHOT_GUNGNIR_DOWN_LEFT", true );
+}
+
+// June 32ca1fb0: the targeting NPC follows the pressed direction
+void CX2GULire_ElvenRanger::LESI_RGA_GUNGNIR_CONTROL_DOWN_RIGHT_StateStart()
+{
+	CommonStateStart();
+
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+	if( NULL != pNPC )
+		pNPC->StateChange( "SHOT_GUNGNIR_DOWN_RIGHT", true );
+}
+
+// June 32ca9740: the strike effect set ( the awakening one while it lasts ) is played 4000 above the target spot, then the aim ends
+void CX2GULire_ElvenRanger::PlayGungnirAttackEffect()
+{
+	D3DXVECTOR3 vPos = m_vGungnirTargetPos;
+
+	/// stand-in: June's boss-raid field test ( 32481fa0, fields 40033 and others ) is false in this build; its branch ( 31e4dbf0 ) is not written
+	if( NULL != g_pX2Game && NULL != g_pX2Game->GetWorld() && NULL != g_pX2Game->GetWorld()->GetLineMap() )
+		vPos.y = g_pX2Game->GetWorld()->GetLineMap()->GetVerticalCrossLinePos( vPos, false ).y;
+	vPos.y += 4000.f;
+
+	if( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		const wstring wstrEffectSetName = ( 0.f < GetRemainHyperModeTime() ) ? L"EffectSet_SA_RGA_Gungnir_Attack_Hyper" : L"EffectSet_SA_RGA_Gungnir_Attack";
+		g_pX2Game->GetEffectSet()->PlayEffectSet( wstrEffectSetName, this, NULL, false, m_fGungnirPowerRate, -1.f, D3DXVECTOR3( 1, 1, 1 ), true, vPos, GetRotateDegree(), GetRotateDegree(), 1.f );
+	}
+
+	EndGungnirTargeting();
+}
+
+// June 32ca7750: the aim is over: the strike scale, the scope buff, the targeting NPC and the aim loop effect set go
+void CX2GULire_ElvenRanger::EndGungnirTargeting()
+{
+	m_fGungnirPowerRate = 0.f;
+	m_bGungnirFirePending = false;
+	EraseBuffTempletFromGameUnit( BTI_BUFF_GUNGNIR_SCOPE );
+	KillMySummonedNPC( CX2UnitManager::NUI_RENA_TARGETING_GUNGNIR, 0.f );
+
+	if( INVALID_EFFECTSET_HANDLE != m_hGungnirLoopEffect )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hGungnirLoopEffect );
+
+	CX2GUNPC* pNPC = g_pX2Game->GetNPCUnitByUID( m_iGungnirTargetNPCUID );
+	if( NULL != pNPC )
+	{
+		pNPC->StateChange( "SHOT_GUNGNIR_FIRE", true );
+		m_iGungnirTargetNPCUID = -1;
+	}
+}
+
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 #ifdef BALANCE_GRAND_ARCHER_20121213
 void CX2GULire_ElvenRanger::LESI_LGA_ZZX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// June 32c958e0 ( 2 MP through the helper at 0.3 s; the Grand Archer plays its own effect set )
+if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+{
+	if( FlushMp( GetArrowMpConsumption( 2.0f ) ) == true )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_RGA_ZZX", (CX2GameUnit*) this );
+	}
+	else
+	{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+		CreateNotEnoughMPEffect( pos, 0.f, 180.f, 0.f );
+	}
+}
+
+CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -21614,9 +22199,34 @@ void CX2GULire_ElvenRanger::LESI_LGA_ZZX_FrameMove()
 		}
 	}
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 void CX2GULire_ElvenRanger::LESI_LGA_ZZX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// June 32c78880 ( March's combo revamp: the X follow-up also fires at the animation end; the animation end tests the foot first, the cancels need the foot on a line )
+CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 );
+
+if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+{
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * 1.5f;
+	}
+	else
+	{
+		StateChange( LESI_SIEGE_WAIT );
+	}
+}
+ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneX == true, LESI_LGA_ZZXX )
+SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+RENA_GROUND_WALK_CANCEL
+RENA_GROUND_BWALK_CANCEL
+RENA_GROUND_DASH_CANCEL
+
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
 	CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 );
 
@@ -21657,6 +22267,7 @@ void CX2GULire_ElvenRanger::LESI_LGA_ZZX_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 #ifdef ADD_RENA_SYSTEM //±èÃ¢ÇÑ
@@ -21670,6 +22281,77 @@ void CX2GULire_ElvenRanger::LESI_LGA_ZZXX_StateStart()
 #endif //ADD_RENA_SYSTEM
 void CX2GULire_ElvenRanger::LESI_LGA_ZZXX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// June 32c95b20 ( 9 MP through the helper at 0.53 s; three Grand Archer arrows, each a natural force combo bomb )
+if( m_pXSkinAnim->EventTimerOneshot( 0.53f ) )
+{
+	if( FlushMp( GetArrowMpConsumption( 9.0f ) ) == true )
+	{
+		D3DXVECTOR3 posR = m_pXSkinAnim->GetCloneFramePosition( L"Dummy1_Rhand" );
+		D3DXVECTOR3 degree = GetRotateDegree();
+		degree.y += 180.f;
+
+		LUA_GET_VALUE( m_LuaManager, "ARROW_DEGREE_Z", degree.z, 0.0f );
+		CX2DamageEffect::CEffect* pDE = NULL;
+
+		pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RGA_Combo_ZZXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+		if( NULL != pDE )
+		{
+			pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+			pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+			CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+			if( NULL != pMainEffect )
+				pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+		}
+
+		degree.z += 15.f;
+		pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RGA_Combo_ZZXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+		if( NULL != pDE )
+		{
+			pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+			pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+			CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+			if( NULL != pMainEffect )
+				pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+		}
+
+		degree.z -= 30.f;
+		pDE = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RGA_Combo_ZZXX_Arrow", GetPowerRate() * m_fAttackPowerRateArrow, posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, m_SkillRelatedData.GetForceDownValueRateOfRenaArrowAttack(), m_fArrowRangeRate, m_iAddHitCountArrow, m_fHitGapArrow, m_iArrowMeshPlayerIndex, m_fHitAddMp );
+		if( NULL != pDE )
+		{
+			pDE->GetDamageData().backSpeed.x += m_ArrowData.m_fAddBackSpeedX;
+			pDE->GetDamageData().m_fHitDamageEffectInvokeRate = m_ArrowData.m_fVibrationShootingInvokeRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			pDE->GetDamageData().m_NaturalForceType = CX2DamageManager::NFT_COMBO_BOMB;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_NF
+			pDE->GetDamageData().m_fHitDamageEffectDamageRate = m_ArrowData.m_fVibrationShootingDamageRate;
+
+			CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDE->GetMainEffect();
+			if( NULL != pMainEffect )
+				pMainEffect->SetMaxLifeTime( GetArrowMaxLifeTime( pMainEffect->GetMaxLifeTime() ) );
+		}
+	}
+	else
+	{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+		float fDegreeZ = 0.f;
+		LUA_GET_VALUE( m_LuaManager, "ARROW_DEGREE_Z", fDegreeZ, 0.0f );
+		CreateNotEnoughMPEffect( pos, 0.f, 180.f, fDegreeZ );
+	}
+}
+
+CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.53f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -21748,9 +22430,23 @@ void CX2GULire_ElvenRanger::LESI_LGA_ZZXX_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 void CX2GULire_ElvenRanger::LESI_LGA_ZZXX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// June 32c78be0 ( the landing needs the animation end and the foot; the cancels need the foot on a line )
+if( true == m_pXSkinAnimFuture->IsAnimationEnd() && true == IsOnSomethingFuture() )
+{
+	StateChange( USI_JUMP_LANDING );
+}
+SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+RENA_GROUND_WALK_CANCEL
+RENA_GROUND_BWALK_CANCEL
+RENA_GROUND_DASH_CANCEL
+
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( true == m_pXSkinAnimFuture->IsAnimationEnd() &&
 		true == IsOnSomethingFuture() )
 	{
@@ -21764,6 +22460,7 @@ void CX2GULire_ElvenRanger::LESI_LGA_ZZXX_EventProcess()
 #endif //ADD_RENA_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 #else
@@ -21949,6 +22646,15 @@ void CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_Z_EventProcess()
 
 void CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_FrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// June 32c78f10 ( = March: the speed is released after 0.72 s )
+if( 0.72f < m_pXSkinAnimFuture->GetNowAnimationTime() )
+{
+	m_PhysicParam.passiveSpeed.x = -1.f;
+}
+
+CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	if( true == m_pXSkinAnimFuture->GetNowAnimationTime() > 0.72f )
 	{
 		m_PhysicParam.passiveSpeed.x = -1.f;
@@ -21963,11 +22669,29 @@ void CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_FrameMoveFuture()
 
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
 void CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// June 32c96320 ( 2 MP at 0.492 s; the Grand Archer plays its own effect set )
+if( m_pXSkinAnim->EventTimerOneshot( 0.492f ) )
+{
+	if( FlushMp( 2.0f ) == true )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_RGA_DASH_JUMP_ZX", (CX2GameUnit*) this );
+	}
+	else
+	{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+		CreateNotEnoughMPEffect( pos, 0.f, 0.f, -90.f );
+	}
+}
+
+CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.492f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -21993,6 +22717,7 @@ void CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -22001,6 +22726,18 @@ void CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_FrameMove()
 
 void CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// June 32c78f40 ( landing turns the unit round; the Z follow-up fires at the animation end too )
+if( true == IsOnSomethingFuture() )
+{
+	m_FrameDataFuture.syncData.bIsRight = !m_FrameDataFuture.syncData.bIsRight;
+	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+	StateChange( USI_JUMP_LANDING );
+}
+ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_( 0, 0, m_InputData.oneX == true, LESI_RGA_DASH_JUMP_ZXX )
+
+CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 	//if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	//{
 	//	StateChange( LESI_JUMP_DOWN );
@@ -22016,6 +22753,7 @@ void CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
 
@@ -24969,6 +25707,14 @@ void CX2GULire_ElvenRanger::DeleteEvokeNPCUID( UidType iNPCUID )
 
 void CX2GULire_ElvenRanger::ShowActiveSkillCutInAndLight( const WCHAR* szBoneName_, const float fTimeToShow_, const UINT uiCutInIndex_, const bool bOnlyLight_ /*= false */ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+// June 32c86890 ( the class map listed it as a new helper: it is March's cut-in helper ); not ported: the cut-in item override ( 31fd8a50 ) and the event 0x8b3 pair, with CH5's cut-in table
+if( true == m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) && true == GetShowCutInAndChangeWorldColor() && true == GetShowActiveSkillShow() )
+{
+	const SkillCutIn& cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_];
+	ActiveSkillShow( szBoneName_, cutIn.fileName.c_str(), cutIn.vSize, cutIn.vPosition, IsHyperState(), bOnlyLight_ );
+}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -24982,6 +25728,7 @@ void CX2GULire_ElvenRanger::ShowActiveSkillCutInAndLight( const WCHAR* szBoneNam
 #endif //APRIL_FOOLS_DAY
 			ActiveSkillShow( szBoneName_, s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_].fileName.c_str(), s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_].vSize, s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[uiCutInIndex_].vPosition, IsHyperState(), bOnlyLight_ );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 #ifdef BALANCE_PATCH_20120329
 //LESI_COMBO_X2

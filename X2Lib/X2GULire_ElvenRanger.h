@@ -202,6 +202,18 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 			LESI_RNW_DASH_JUMP_XZ_START,	/// June script id 277 ( Night Watcher follow-up after dash jump X; CH1m maps, CH1g owns the state )
 			LESI_RNW_DASH_JUMP_XXZ_START,	/// June script id 280 ( Night Watcher follow-up after dash jump X-X; CH1m maps, CH1g owns the state )
 			LESI_RGA_DASH_JUMP_XXZ_FROM_X2,	/// June script id 270 ( the same script table as 269 registered a second time, entered from dash jump X-X; CH1m maps )
+			LESI_RGA_DASH_JUMP_ZXX,	/// June script id 268 ( Grand Archer follow-up after dash jump Z-X and X-X-Z; CH1m maps, CH1f2 owns the state )
+			LESI_RGA_GUNGNIR_CANCEL,	/// June script id 284 ( Grand Archer Gungnir aim cancel; CH1m maps, CH1f2 owns the state )
+			LESI_RGA_GUNGNIR_CONTROL_IDLE,	/// June script id 285 ( the nine control states and the fire state are CH1f2's; CH1m maps )
+			LESI_RGA_GUNGNIR_CONTROL_FIRE,	/// June script id 286
+			LESI_RGA_GUNGNIR_CONTROL_LEFT,	/// June script id 287
+			LESI_RGA_GUNGNIR_CONTROL_RIGHT,	/// June script id 288
+			LESI_RGA_GUNGNIR_CONTROL_UP,	/// June script id 289
+			LESI_RGA_GUNGNIR_CONTROL_DOWN,	/// June script id 290
+			LESI_RGA_GUNGNIR_CONTROL_UP_LEFT,	/// June script id 291
+			LESI_RGA_GUNGNIR_CONTROL_UP_RIGHT,	/// June script id 292
+			LESI_RGA_GUNGNIR_CONTROL_DOWN_LEFT,	/// June script id 293
+			LESI_RGA_GUNGNIR_CONTROL_DOWN_RIGHT,	/// June script id 294
 #ifndef ADD_RENA_SYSTEM
 			LESI_SNIPING_RANGER_DOUBLE_JUMP_ATTACK_XX,	/// June script id 252 ( March declares it only under ADD_RENA_SYSTEM; CH1q owns the state, CH1f names it as the follow-up; CH1m maps )
 #endif ADD_RENA_SYSTEM
@@ -1833,6 +1845,41 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void LESI_RSR_DASH_ZX_EventProcess();	/// June 32c810e0
 		void UpdateSpineAimRotation();	/// June 32c863d0 ( user vslot 0x774 ): body in CH1i
 		D3DXVECTOR3 m_vSpineAimDegree;	/// June +0x97d4: the aim angles UpdateSpineAimRotation writes; the siege shot reads them
+		void LESI_RGA_DASH_JUMP_ZXX_StateStartFuture();	/// June 32c6d550
+		void LESI_RGA_DASH_JUMP_ZXX_FrameMove();	/// June 32ca02a0
+		void LESI_RGA_DASH_JUMP_ZXX_EventProcess();	/// June 32c81340
+		void LESI_RGA_DASH_JUMP_XXZ_FrameMoveFuture();	/// June 32c815a0
+		void LESI_RGA_DASH_JUMP_XXZ_FrameMove();	/// June 32ca0a90
+		void LESI_RGA_DASH_JUMP_XXZ_EventProcess();	/// June 32c815d0
+		void LESI_RGA_GUNGNIR_READY_Init();	/// June 32c6d5f0 ( the twelve Gungnir states register it )
+		void LESI_RGA_GUNGNIR_READY_StateStart();	/// June 32ca9c20
+		void LESI_RGA_GUNGNIR_READY_FrameMove();	/// June 32ca0f80
+		void LESI_RGA_GUNGNIR_READY_EventProcess();	/// June 32ca1240
+		void LESI_RGA_GUNGNIR_READY_StateEnd();	/// June 32c6d680
+		void LESI_RGA_GUNGNIR_CANCEL_StateStart();	/// June 32ca1300
+		void LESI_RGA_GUNGNIR_CANCEL_EventProcess();	/// June 32c82d10
+		void LESI_RGA_GUNGNIR_CONTROL_IDLE_StateStart();	/// June 32ca1a00
+		void LESI_RGA_GUNGNIR_CONTROL_IDLE_EventProcess();	/// June 32ca1360 ( the nine control states share it )
+		void LESI_RGA_GUNGNIR_CONTROL_FIRE_StateStart();	/// June 32ca1bb0
+		void LESI_RGA_GUNGNIR_CONTROL_FIRE_FrameMove();	/// June 32ca9c50
+		void LESI_RGA_GUNGNIR_CONTROL_FIRE_EventProcess();	/// June 32c82f90
+		void LESI_RGA_GUNGNIR_CONTROL_FIRE_StateEnd();	/// June 32ca1cc0
+		void LESI_RGA_GUNGNIR_CONTROL_LEFT_StateStart();	/// June 32ca1d10
+		void LESI_RGA_GUNGNIR_CONTROL_RIGHT_StateStart();	/// June 32ca1d70
+		void LESI_RGA_GUNGNIR_CONTROL_UP_StateStart();	/// June 32ca1dd0
+		void LESI_RGA_GUNGNIR_CONTROL_DOWN_StateStart();	/// June 32ca1e30
+		void LESI_RGA_GUNGNIR_CONTROL_UP_LEFT_StateStart();	/// June 32ca1e90
+		void LESI_RGA_GUNGNIR_CONTROL_UP_RIGHT_StateStart();	/// June 32ca1ef0
+		void LESI_RGA_GUNGNIR_CONTROL_DOWN_LEFT_StateStart();	/// June 32ca1f50
+		void LESI_RGA_GUNGNIR_CONTROL_DOWN_RIGHT_StateStart();	/// June 32ca1fb0
+		void PlayGungnirAttackEffect();	/// June 32ca9740: the strike effect set at the target spot, then the aim ends
+		void EndGungnirTargeting();	/// June 32ca7750 ( also reached from CommonFrameMove 32ca8bf0: CH1j )
+		float m_fGungnirPowerRate;	/// June +0x9798: the power rate at the shot, the strike effect set takes it
+		D3DXVECTOR3 m_vGungnirTargetPos;	/// June +0x97a0: the targeting NPC's position at the shot
+		D3DXVECTOR3 m_vGungnirTargetDir;	/// June +0x97ac: its direction vector ( nothing reads it )
+		int m_iGungnirTargetNPCUID;	/// June +0x97b8: the targeting NPC ( -1 none; the constructor, CH1h, sets it )
+		bool m_bGungnirFirePending;	/// June +0x97bc: set at the shot, the fire state plays the strike at 0.04 s
+		CX2EffectSet::Handle m_hGungnirLoopEffect;	/// June +0x97c0: the aim loop effect set ( INVALID_EFFECTSET_HANDLE none; the constructor, CH1h, sets it )
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 		/// 지연의 신호탄

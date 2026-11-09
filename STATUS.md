@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1f2 | **ready** (start: `/x2-phase char-rena CH1f2`): Grand Archer line `LGA` / `RGA` (37 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1f review | `X2GULire_ElvenRanger.*` | `CH1f2.md` |
+| CH1f2 | **done, review owed** (start: `/x2-phase char-rena CH1f2 review`): 8 fn inside + 29 new, 1 class-map fix, JUNE_BUGS 567-568; DEPLOY OK; nothing to play-test | Opus 5.5 / high | CH1f review | `X2GULire_ElvenRanger.*` | `CH1f2-review.md` |
 | CH1g | blocked (CH1f2 review): Trapping Ranger line `RTR` (46 fn) | Sonnet 5.5 / high, Opus review | CH1f2 review | `X2GULire_ElvenRanger.*` | `CH1g.md` |
 | CH1g2 | blocked (CH1g review): Night Watcher combos, dash XZ / XZZ (Gungnir spawn), start / win / lose (29 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1g review | `X2GULire_ElvenRanger.*` | `CH1g2.md` |
 | CH1g3 | blocked (CH1g2 review): Night Watcher accel dash + dash-jump states (27 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1g2 review | `X2GULire_ElvenRanger.*` | `CH1g3.md` |

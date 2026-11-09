@@ -43,3 +43,5 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7t L594 June UnitTemplet.lua m_HyperCutIn / m_BerserkCutIn keys and the HQ_Cut; §7t L620 skill cut-in names -> June .gfx: June HQ_CutIn_Rena_*; March HQ_CutIn_; §7ao L951 every class also brings: emulator allow-list id, LevelUpEvent TYPE row.
 - `ch0_unittemplet_rena.tsv`: every class adds `m_fLobbyRotationY` (30 / 30 / 25 / 1 / 30 / 20 / 10 for 3 / 12 / 13 / 24 / 102 / 103 / 114); 102 / 103 / 114 add `m_HyperCutIn` `HQ_Cutin_RWS/RGA/RNW_Transcendence` and change `name` `STR_ID_616` -> `STR_ID_4783` / `_4784` / `_17429` ("Wind Sneaker", "Grand Archer " with a trailing space, "Night Watcher": all in `general.ess` and `StringID_def`).
+
+- **Routed from CH1f2 (2026-11-09).** `ShowActiveSkillCutInAndLight` ( June `32c86890`, its body is under `_LIVE` since CH1f2 ) leaves out the customize cut-in item override ( `31fd8a50`, Stage 12 ) and the code event 0x8b3 cut-in pair ( June `337ae688` / `337ae6b8`, built at start-up, so the file names are not readable statically ): CH5 adds the pair with the cut-in table.

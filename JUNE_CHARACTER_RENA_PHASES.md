@@ -801,6 +801,42 @@ One-file `/Zs` probe (`census.cl_cmd`, no PCH), after the fix: exit 0 and 0 erro
 
 CH1f2 kickoff checked. Its done gate said phase `CH1f` and now says `CH1f2`; its amendment lists the CH1f members it may use. Nothing to play-test (`_LIVE` off). Next: `/x2-phase char-rena CH1f2` (Sonnet 5.5 high).
 
+### CH1f2 - Done (2026-11-09)
+
+All 37 class-map rows of phase CH1f2 are written: 8 `inside` (June's body in March's own function under `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, March's in `#else`) and 29 `new` (`_CORE`, compiled in every build, referenced by nothing yet). `_LIVE` stays `//#define`; `InitState*` untouched. 37 funcmap rows `Char Rena CH1f2`; 2 `JUNE_BUGS` rows (#567, #568). **One class-map correction** (`ch0_class_map.tsv` fixed): `32c86890` is March's `ShowActiveSkillCutInAndLight` (now `inside`), not a new helper; `32ca7750` / `32ca9740` got their names.
+
+| June | `CX2GULire_ElvenRanger::` |
+|---|---|
+| `32c958e0` `32c78880` / `32c95b20` `32c78be0` | Grand Archer Z-X / Z-X-X FrameMove / EventProcess (inside) |
+| `32c78f10` `32c96320` `32c78f40` | dash-jump Z-X FrameMoveFuture / FrameMove / EventProcess (inside) |
+| `32c6d550` `32ca02a0` `32c81340` | `LESI_RGA_DASH_JUMP_ZXX` StateStartFuture / FrameMove / EventProcess (new) |
+| `32c815a0` `32ca0a90` `32c815d0` | `LESI_RGA_DASH_JUMP_XXZ` FrameMoveFuture / FrameMove / EventProcess (new) |
+| `32c6d5f0` `32ca9c20` `32ca0f80` `32ca1240` `32c6d680` | Gungnir ready Init / StateStart / FrameMove / EventProcess / StateEnd (new) |
+| `32ca1300` `32c82d10` | Gungnir cancel StateStart / EventProcess (new) |
+| `32ca1a00` `32ca1360` | control idle StateStart / the EventProcess the nine control states share (new) |
+| `32ca1bb0` `32ca9c50` `32c82f90` `32ca1cc0` | control fire StateStart / FrameMove / EventProcess / StateEnd (new) |
+| `32ca1d10` `32ca1d70` `32ca1dd0` `32ca1e30` `32ca1e90` `32ca1ef0` `32ca1f50` `32ca1fb0` | the eight direction StateStarts (new) |
+| `32ca9740` `32ca7750` | `PlayGungnirAttackEffect`, `EndGungnirTargeting` (new) |
+| `32c86890` | `ShowActiveSkillCutInAndLight` (inside) |
+
+**Where June differs from March** (read from `charport_adis.py rena --phase CH1f2`; 32c81340 = 32c78be0 and the eight direction starts checked by a normalised instruction diff):
+- **Grand Archer arrows and MP.** Z-X 3 -> 2 MP (through `GetArrowMpConsumption`, the Grand Archer's own `EffectSet_RGA_ZZX`), Z-X-X 18 -> 9 (three `DamageEffect_RGA_Combo_ZZXX_Arrow`, combo bomb under `_NF`), dash-jump Z-X 3 -> 2 ( `FlushMp` direct, `EffectSet_RGA_DASH_JUMP_ZX` ). New states: Z-X-X after dash-jump Z-X-X (id 268, 8 MP at 0.25 s, three `..._Dash_Jump_Combo_ZXX_Arrow` from `Dummy2_Lhand`, combo bomb) and X-X-Z (269 / 270, 3 MP at 0.492 s, `EffectSet_RGA_DASH_JUMP_XXZ`).
+- **EventProcess.** Z-X: X follow-up also at the animation end, the animation end tests the foot first (jump down y - 45 / siege wait), foot-tested walk / back-walk / dash. Dash-jump Z-X, X-X-Z: landing turns the unit round (`bIsRight` flipped, `dirDegree.y + 180`) and the follow-up (X resp. Z) goes to 268, also at the animation end. Z-X-X EventProcess = Z-X-X's landing + cancels.
+- **Gungnir (the shape of Chung's Artillery Strike; `NUI_RENA_TARGETING_GUNGNIR` 2083, scope buff `BTI` 537 / `BFI` 627).** Ready FrameMove creates the targeting NPC at 0.001 s ( 120 ahead, 300 up, 240 above the unit when `CanDown` finds no line ), then the scope buff; Ready EventProcess hands the camera to the NPC from 0.6 s; the control states send the NPC `SHOT_GUNGNIR_<DIR>`; the fire state keeps the NPC's spot and power rate and plays the strike effect set (`..._Gungnir_Attack`, `_Hyper` while awake) 4000 above it at 0.04 s, then `EndGungnirTargeting`.
+- **Quirks kept (`JUNE_BUGS` #567, #568).** The control EventProcess compares both distances with `-750` (never true: the clamp is dead and a release always fires); its horizontal gap is an uninitialised stack float on the live path (stand-in 0: both sides may move). The 1500 test on the NPC's y stays.
+- **Stand-ins (one line each in the code).** `CreateNPCReq` lacks June's trailing `IsMyUnit` argument (as Chung); June's boss-raid test `32481fa0` is false here, its effect branch is not written; `ShowActiveSkillCutInAndLight` leaves out the cut-in item override (`31fd8a50`) and the event 0x8b3 pair (CH5).
+- **Added to the headers.** `X2GULire_ElvenRanger.h` (`_CORE`): 12 enum members (`LESI_RGA_DASH_JUMP_ZXX` 268, `LESI_RGA_GUNGNIR_CANCEL` 284 ... `_CONTROL_DOWN_RIGHT` 294), 29 declarations, six Gungnir members (June +0x9798 .. +0x97c0). `X2BuffFactor.h` (`JUNE_ENUM_NAMES`): `BTI_BUFF_GUNGNIR_SCOPE` 537.
+- **Routed, no new plan.** The constructor's initialisers for the new members -> `CH1h.md`; `CommonFrameMove` calls `EndGungnirTargeting` -> `CH1j.md`; the cut-in pair -> `CH5.md`. The READY state's own enum member has no June id in `ch0_state_enum_names.tsv`: CH1m / CH2c.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE --with ..._CORE --worktree --files X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). OTHER = the `.h` (`_CORE`). `flagcheck SERV_IRUHADEV_JUNE_ENUM_NAMES --files X2Lib/X2BuffFactor.h`: `1 PASS`, `RESULT: PASS`.
+- One-file `/Zs` probe (`census.cl_cmd`, no PCH) of `X2GULire_ElvenRanger.cpp`: exit 0, 0 errors with no extra defines, with `/D SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`.
+- `junediverge.py --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h X2Lib/X2BuffFactor.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `0 A/B row(s)`.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,095,616 B, 2026-11-09 09:03:36`; `DEPLOY OK: X2_offline.exe is 26,095,616 B, dated 2026-11-09 09:03:42, md5 24f50a02177102b27d4a2067d51dcb71, equal to X2/US_SERVICE/x2.exe (2026-11-09 09:03:36); built at main 964f0268 + 3 uncommitted code file(s).`
+- `exestr` (a `_CORE` string is compiled in, a `_LIVE`-only one is not): `EXESTR OK: 1 of 1 found in X2_offline.exe ... md5 24f50a02...` for `EffectSet_SA_RGA_Gungnir_Loop` (wide); `EXESTR OK: 1 of 1 absent` for `DamageEffect_RGA_Combo_ZZXX_Arrow`.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1f2 review` (Opus 5.5 high), then CH1g.
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

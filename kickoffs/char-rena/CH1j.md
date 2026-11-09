@@ -57,3 +57,5 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §5 L183-L198 class keys BOW_SKILL_STATE x26, CREATE_TRAP_BLADE x2; §7 L256 class code scales the cached state power rate (+0x7cc8).
 - **Natural-force / combo-revamp rows** (`ch0_nf.tsv` col 8 = `CH1j`): 3; March blocks under `ADD_RENA_SYSTEM` inside your functions stay dead, June's NF lines go under `_NF`.
 - CommonStateStart `32ca81b0` reads `BOW_SKILL_STATE` (flag `+0x981d`, @32ca82c2), `CREATE_TRAP_BLADE` and `DAMAGEDATA_CHANGE_TIME*`; CommonStateEnd `32ca5060` reads `+0x981d` @32ca5078; GetActualCoolTime (CH4b) reads it @32c7be7b. CommonFrameMove `32ca8bf0` and CommonFrameMoveFuture `32c87990` hold NF lines (cannon-ball count sync, `UpdateNaturalForceEffect` inline): write them under `_NF`. June passes a skill-templet byte to `31fe28f0` in CommonStateStart (@32ca898c) where March derives an NF count from MP.
+
+- **Routed from CH1f2 (2026-11-09).** `CommonFrameMove` ( `32ca8bf0` ) calls `EndGungnirTargeting()` ( June `32ca7750`, declared and written by CH1f2 ): call it by that name.

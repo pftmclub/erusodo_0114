@@ -550,7 +550,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c86720	state-fn	LESI_A_LGA_RAPID_SHOT_READY.FrameMove LESI_A_LGA_RAPID_SHOT_ATTACK.FrameMove LESI_A_LGA_RAPID_SHOT_FINISH.FrameMove	inside X2GULire_ElvenRanger.cpp:3390 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_ATTACK_FrameMove ; inside X2GULire_ElvenRanger.cpp:3397 CX2GULire_ElvenRanger::LESI_A_LGA_RAPID_SHOT_FINISH_FrameMove	inside	-	CH2c	3 states	y
 32c86740	override 0x424	?	inside (ADD_RENA_SYSTEM) X2GULire_ElvenRanger.cpp:23989 CX2GULire_ElvenRanger::DeleteDamageRelateSkillData	inside	-	CH1q	natural force / ADD_RENA_SYSTEM: DeleteDamageRelateSkillData (0x424)	n
 32c86790	helper	called by 32cb5dd0	-	new	?	CH4a	name: called by 32cb5dd0(helper)	y
-32c86890	helper	called by 32c86ac0 32c86af0 32c86b60 32c86b90	-	new	?	CH1f2	name: called by 32c86ac0(dead) 32c86af0(ShowActiveSkillCutInAndLight) 32c86b60(LESI_SI_LE_POWER_ATTACK1.Fra) 32c86b90(LESI_SI_LE_POWER_ATTACK1.Fra)	y
+32c86890	helper	called by 32c86ac0 32c86af0 32c86b60 32c86b90	inside X2GULire_ElvenRanger.cpp:24970 CX2GULire_ElvenRanger::ShowActiveSkillCutInAndLight	inside	-	CH1f2	name: called by 32c86ac0(dead) 32c86af0(ShowActiveSkillCutInAndLight) 32c86b60(LESI_SI_LE_POWER_ATTACK1.Fra) 32c86b90(LESI_SI_LE_POWER_ATTACK1.Fra) | CH1f2 correction: it is March's ShowActiveSkillCutInAndLight ( the cut-in helper ), not a new helper	y
 32c86ac0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e898a937ff	y
 32c86af0	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GULire_ElvenRanger.h:1677 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	inside	-	CH1k	base 33093ad0	n
 32c86b20	state-fn	LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT.Start LESI_HA_LGA_CRYOTRON_BOLT_CHARGE_SHOT.Start LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING.Start	inside X2GULire_ElvenRanger.cpp:4420 CX2GULire_ElvenRanger::LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT_StateStart	inside	-	CH3d	3 states	n
@@ -794,7 +794,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32ca76f0	state-fn	LESI_RNW_DASH_XZZ_FULL_CHARGE_END.Start	-	new	LESI_RNW_DASH_XZZ_FULL_CHARGE_END_StateStart	CH1g2	1 states	y
 32ca7710	state-fn	LESI_RNW_DASH_XZZ_END.Start	-	new	LESI_RNW_DASH_XZZ_END_StateStart	CH1g2	1 states	y
 32ca7730	state-fn	LESI_RNW_DASH_JUMP_XXZ_LOOP.Start	-	new	LESI_RNW_DASH_JUMP_XXZ_LOOP_StateStart	CH1g3	1 states	y
-32ca7750	helper	called by 32ca8bf0 32ca9740	-	new	?	CH1f2	name: called by 32ca8bf0(CommonFrameMove) 32ca9740(helper)	y
+32ca7750	helper	called by 32ca8bf0 32ca9740	-	new	EndGungnirTargeting	CH1f2	name: called by 32ca8bf0(CommonFrameMove) 32ca9740(helper)	y
 32ca7810	state-fn	LESI_SA_RNW_ERADICATION_ATTACK.Start	-	new	LESI_SA_RNW_ERADICATION_ATTACK_StateStart	CH3c	1 states	y
 32ca7860	override 0x90	Win	X2GULire_ElvenRanger.h:414 virtual void Win();	inside	-	CH1h	base 32014660	y
 32ca78b0	override 0x690	InitPassiveSkillState	X2GULire_ElvenRanger.h:580 virtual void InitPassiveSkillState();	inside	-	CH4a	base 31fe19d0	n
@@ -815,7 +815,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32ca9680	state-fn	LESI_DASH_COMBO_RTR_ZX.FrameMove	inside X2GULire_ElvenRanger.cpp:2116 CX2GULire_ElvenRanger::LESI_DASH_COMBO_RTR_ZX_FrameMove	inside	-	CH1g	1 states	n
 32ca9700	state-fn	LESI_DASH_JUMP_ATTACK_RTR_Z.FrameMove	inside X2GULire_ElvenRanger.cpp:2363 CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_Z_FrameMove	inside	-	CH1g	1 states	y
 32ca9720	state-fn	LESI_DASH_JUMP_ATTACK_RTR_ZZ.FrameMove	inside X2GULire_ElvenRanger.cpp:2373 CX2GULire_ElvenRanger::LESI_DASH_JUMP_ATTACK_RTR_ZZ_FrameMove	inside	-	CH1g	1 states	y
-32ca9740	helper	called by 32ca9c20 32ca9c50	-	new	?	CH1f2	name: called by 32ca9c20(LESI_RGA_GUNGNIR_READY.Start) 32ca9c50(LESI_RGA_GUNGNIR_CONTROL_FIR)	y
+32ca9740	helper	called by 32ca9c20 32ca9c50	-	new	PlayGungnirAttackEffect	CH1f2	name: called by 32ca9c20(LESI_RGA_GUNGNIR_READY.Start) 32ca9c50(LESI_RGA_GUNGNIR_CONTROL_FIR)	y
 32ca9c20	state-fn	LESI_RGA_GUNGNIR_READY.Start LESI_RGA_GUNGNIR_CONTROL_IDLE.Start LESI_RGA_GUNGNIR_CONTROL_FIRE.Start +9	-	new	LESI_RGA_GUNGNIR_READY_StateStart	CH1f2	12 states	n
 32ca9c50	state-fn	LESI_RGA_GUNGNIR_CONTROL_FIRE.FrameMove	-	new	LESI_RGA_GUNGNIR_CONTROL_FIRE_FrameMove	CH1f2	1 states	n
 32ca9ca0	override 0x1e8	?	- (name unsettled)	new	?	CH1h	base 32011b80; name: virtual 0x1e8 (base 32011b80); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
