@@ -691,6 +691,40 @@ All 36 class-map rows of phase CH1d2 are written, every one `inside`: June's bod
 
 Nothing to play-test. Next: `/x2-phase char-rena CH1e` (Sonnet 5.5 high).
 
+### CH1e - Done (2026-11-09)
+
+All 29 class-map rows of phase CH1e are written. 22 are `inside`: June's body in March's own `CX2GULire_ElvenRanger` function under `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, March's in `#else SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`. 7 are `new` (`_CORE`, compiled in every build, referenced by nothing yet; one block after `LESI_LWS_DASH_XZZ_EventProcess`, declared beside `GetArrowMaxLifeTime` in the `.h`). `_LIVE` stays `//#define`. 29 funcmap rows `Char Rena CH1e`; 2 `JUNE_BUGS` rows (#563, #564). **One class-map correction:** `32c78e40` (June id 213) is March's `LESI_LGA_DASH_JUMP_Z_EventProcess`, not the Combat Ranger dash-jump Z1 function the map named (`ch0_class_map.tsv` row fixed).
+
+| June | `CX2GULire_ElvenRanger::` |
+|---|---|
+| `32c6bf40` `32c6bfa0` `32c770a0` | `LESI_SA_LCR_LOW_KICK` Init / FrameMove / EventProcess (inside) |
+| `32c6e2e0` `32c6e390` | Combat Ranger `DOUBLE_JUMP_ATTACK_Z` / `_Z_UP` EventProcess (inside) |
+| `32c84510` `32c72850` `32c84590` `32c72bc0` | Combat Ranger `DASH_COMBO_Z1` StartFuture / EventProcess, `Z2` StartFuture / EventProcess (inside) |
+| `32c73d10` `32c73e10` `32c73f10` `32c78e40` | Combat Ranger `DASH_JUMP_COMBO_Z1` / `Z2` / `Z3` EventProcess, `LESI_LGA_DASH_JUMP_Z` EventProcess (inside) |
+| `32c6c120` `32c77370` `32c776d0` `32c77710` `32c77980` `32c779c0` `32c77c50` | Wind Sneaker `ZZfrontZ` FrameMoveFuture / EventProcess, `ZZfrontZZ` FrameMoveFuture / EventProcess, `ZZfrontZZZ` FrameMoveFuture / EventProcess, `ZZfrontZZZ_Landing` EventProcess (inside) |
+| `32c782f0` `32c78610` | Wind Sneaker `DASH_XZ` / `DASH_XZZ` EventProcess (inside) |
+| `32c7feb0` `32c80200` `32c80480` `32c807c0` | `LESI_RCR_COMBO_XXZ` / `XXZZ` / `XXZZ_LANDING` / `XXZZZ` EventProcess (new) |
+| `32c80a40` `32c80c70` `32c80e80` | `LESI_RWS_DASH_JUMP_XXZ_START` / `_LOOP` / `_END` EventProcess (new) |
+
+**Where June differs from March** (read from `charport_adis.py rena --phase CH1e`; the rest is March's logic written out whole with `// June <va> ( = March )`):
+- **EventProcess = March's `ADD_RENA_SYSTEM` revamp** (dead until CH1q) with the animation-end follow-up (`ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_`) and the foot test on the cancels (`RENA_GROUND_*`), as CH1d / CH1d2. Chain: skill (`+0x8c90`), walk, back-walk, dash; no Z / X cancel. Direction clear = flag 0 only (`CANCEL_COMBO_ON_DIRECTION_CHANGE( 1 )`).
+  - Combat Ranger dash Z1 -> `LESI_COMBAT_RANGER_DASH_COMBO_Z2` (June id 185), dash Z2 -> `LESI_DASH_COMBO_Z2` (186); both set `m_fCanNotAttackTime` 0.2 on the animation end on a line, jump-down at `y - 45` off it. Dash-jump Z1 -> Z2 -> Z3, each with the landing test first. Double-jump attack Z: flag 0 from `oneZ` inside `( keyInputStart, keyInputEnd )` (March's `ADD_RENA_SYSTEM` branch), `LINE_RADIUS / 2` fall at the animation end off a line.
+  - `LESI_LGA_DASH_JUMP_Z` (id 213, shares the Combat Ranger Z1 script table, as March does): X -> `LESI_LGA_DASH_JUMP_ZX`, change time 0.25 s or the animation end, window 100.0 with no lower bound.
+  - **Wind Sneaker front combo.** `ZZfrontZ` (205) flag 0 -> `ZZfrontZZ` (206). `ZZfrontZZ` has no follow-up flag: its animation end goes to **id 208** (`ZZfrontZZZ_Landing`). 208's animation end -> wait, its flag 0 -> **id 207** (`ZZfrontZZZ`), whose animation end on a line -> wait (March had `ZZfrontZZZ` -> landing). The names are the script tables'; CH1m registers by id. FrameMoveFuture of 206 / 207: the `EventTimerOneshot( 0.3f )` / `( 0.54f )` is tested and the March speed line (`GetDashSpeed()` / `+ 400`) is gone. `DASH_XZ` has no `> 0.3 s` condition (March's non-NF branch had).
+  - **Low Kick** Init preloads seven other assets (`JUNE_BUGS` #563); FrameMove / EventProcess = March (0.66 s skip).
+- **The seven `new` functions.** `LESI_RCR_COMBO_XXZ_EventProcess` (ids 253 and 257 share it): off a line `JUMP_DOWN` at `y - 45`, animation end wait, flag 0 Z -> **id 258**; `XXZZ` (254 / 258): animation end -> id 259; `XXZZ_LANDING` (255 / 259): end -> wait / jump-down, flag 0 Z -> id 260; `XXZZZ` (256 / 260): like XXZ without the flag. `RWS_DASH_JUMP_XXZ_START` (261 / 264): animation end -> id 265, on a line -> id 266, then the chain with no landing test before it; `_LOOP` (262 / 265): on a line -> id 266; `_END` (263 / 266): end -> wait. The shared EventProcess only reaches the second registration (`JUNE_BUGS` #564).
+- **Enum** (`_CORE`, `X2GULire_ElvenRanger.h`, June script ids, no `Enum.lua` value): `LESI_RCR_COMBO_XXZZ` 254, `_XXZZ_LANDING` 255, `_XXZZZ` 256, `_XXZZ_FROM_X2` 258, `_XXZZ_LANDING_FROM_X2` 259, `_XXZZZ_FROM_X2` 260, `LESI_RWS_DASH_JUMP_XXZ_LOOP` 262, `_END` 263, `_LOOP_FROM_X2` 265, `_END_FROM_X2` 266 (the `_FROM_X2` names follow CH1d's 257 / 264: the same script table registered a second time). CH1m maps the ids.
+- **Chain macros' guard.** The `ELSE_IF_STATE_CHANGE_ON_EX_STRUCT_OR_ANIMATION_END_` / `RENA_GROUND_*` block's `#ifdef` / `#endif` moved from `_LIVE` to `_CORE` (the two deleted flagcheck lines), because the `new` functions are compiled with `_LIVE` off and use them.
+- **Not here:** no natural-force line in CH1e's rows (`ch0_nf.tsv` col 8 `CH1e` rows are March blocks that stay dead until CH1q); `InitState*` untouched.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE --with ..._CORE --worktree --files X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `2 deleted line(s)` (the guard above), `0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). OTHER = the `.h` (`flagcheck ..._CORE` on it: `PASS +17`). `git diff --patience --numstat`: `.cpp` 471 / 2, `.h` 17 / 0.
+- One-file `/Zs` probe (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH) of `X2GULire_ElvenRanger.cpp`: exit 0, 0 errors with no extra defines, with `/D SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE`, and with `_LIVE` + `_NF` + `ADD_RENA_SYSTEM`. `cl /P` off / on: `RCR_KickW1_01.X` 0 / 1; `CX2GULire_ElvenRanger::LESI_RCR_COMBO_XXZ_EventProcess()` 1 / 1 (compiled in every build); 1,457 `CX2GULire_ElvenRanger::` mentions both ways.
+- `junediverge.py --check X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s)`.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,082,816 B, 2026-11-09 07:08:25`; `DEPLOY OK: X2_offline.exe is 26,082,816 B, dated 2026-11-09 07:08:32, md5 2ac4c86b2d008815ec221cabd4f7ba8a, equal to X2/US_SERVICE/x2.exe (2026-11-09 07:08:25); built at main 0101c954 + 2 uncommitted code file(s).` `_LIVE` is off and no string was added to a live path, so no `exestr` line.
+
+**Nothing to play-test** (`_LIVE` is off; nothing registers a June body). Next: `/x2-phase char-rena CH1e review` (Opus 5.5 high), then CH1f.
+
 ## Phase CH2 - Skills: Rena and the first jobs (classes 3, 12, 13, 24)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`.

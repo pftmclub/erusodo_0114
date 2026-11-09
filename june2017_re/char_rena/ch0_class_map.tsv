@@ -380,7 +380,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32c78610	state-fn	LESI_LWS_DASH_XZZ.EventProcess	inside X2GULire_ElvenRanger.cpp:2235 CX2GULire_ElvenRanger::LESI_LWS_DASH_XZZ_EventProcess	inside	-	CH1e	1 states	n
 32c78880	state-fn	LESI_LGA_ZZX.EventProcess	inside X2GULire_ElvenRanger.cpp:2538 CX2GULire_ElvenRanger::LESI_LGA_ZZX_EventProcess	inside	-	CH1f2	1 states	n
 32c78be0	state-fn	LESI_LGA_ZZXX.EventProcess	inside X2GULire_ElvenRanger.cpp:2549 CX2GULire_ElvenRanger::LESI_LGA_ZZXX_EventProcess	inside	-	CH1f2	1 states	n
-32c78e40	state-fn	LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1.EventProcess	inside X2GULire_ElvenRanger.cpp:2317 CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1_EventProcess	inside	-	CH1e	1 states	y
+32c78e40	state-fn	LESI_LGA_DASH_JUMP_Z.EventProcess	inside X2GULire_ElvenRanger.cpp:20581 CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_Z_EventProcess	inside	-	CH1e	1 states	y
 32c78f10	state-fn	LESI_LGA_DASH_JUMP_ZX.FrameMoveFuture	inside X2GULire_ElvenRanger.cpp:2346 CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_FrameMoveFuture	inside	-	CH1f2	1 states	n
 32c78f40	state-fn	LESI_LGA_DASH_JUMP_ZX.EventProcess	inside X2GULire_ElvenRanger.cpp:2348 CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_ZX_EventProcess	inside	-	CH1f2	1 states	y
 32c79060	state-fn	LESI_SA_LWS_SLIDE_KICK_CANCEL.EventProcess	inside X2GULire_ElvenRanger.cpp:3967 CX2GULire_ElvenRanger::LESI_SA_LWS_SLIDE_KICK_CANCEL_EventProcess	inside	-	CH3a	1 states	y

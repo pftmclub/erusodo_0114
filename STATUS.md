@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH1e | **ready** (start: `/x2-phase char-rena CH1e`): Combat Ranger + Wind Sneaker lines (29 fn) | Sonnet 5.5 / high, Opus review | CH1d2 review | `X2GULire_ElvenRanger.*` | `CH1e.md` |
+| CH1e | **done, review owed** (start: `/x2-phase char-rena CH1e review`): 22 fn inside + 7 new, 10 `_CORE` enum members; DEPLOY OK; nothing to play-test | Opus 5.5 / high | CH1d2 review | `X2GULire_ElvenRanger.*` | `CH1e-review.md` |
 | CH1f | blocked (CH1e review): Sniping Ranger line `SNIPING` / `SIEGE` / `LSR` / `RSR` (43 fn) | Sonnet 5.5 / high, Opus review | CH1e review | `X2GULire_ElvenRanger.*` | `CH1f.md` |
 | CH1f2 | blocked (CH1f review): Grand Archer line `LGA` / `RGA` (37 fn; CH0 split) | Sonnet 5.5 / high, Opus review | CH1f review | `X2GULire_ElvenRanger.*` | `CH1f2.md` |
 | CH1g | blocked (CH1f2 review): Trapping Ranger line `RTR` (46 fn) | Sonnet 5.5 / high, Opus review | CH1f2 review | `X2GULire_ElvenRanger.*` | `CH1g.md` |

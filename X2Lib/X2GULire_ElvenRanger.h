@@ -182,9 +182,19 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 			LESI_TRANSFORMED,
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 			LESI_RCR_COMBO_XXZ,	/// June script id 253 ( Combat Ranger / Wind Sneaker follow-up after X-X; CH1m maps, CH1e owns the state )
+			LESI_RCR_COMBO_XXZZ,	/// June script id 254 ( Combat Ranger / Wind Sneaker follow-up after X-X-Z; CH1m maps, CH1e owns the state )
+			LESI_RCR_COMBO_XXZZ_LANDING,	/// June script id 255 ( landing of the X-X-Z-Z state; CH1m maps, CH1e owns the state )
+			LESI_RCR_COMBO_XXZZZ,	/// June script id 256 ( follow-up after the X-X-Z-Z landing; CH1m maps, CH1e owns the state )
 			LESI_RCR_COMBO_XXZ_FROM_X2,	/// June script id 257 ( the same script table registered a second time, entered from X-X; CH1m maps )
+			LESI_RCR_COMBO_XXZZ_FROM_X2,	/// June script id 258 ( the same script table registered a second time; the X-X-Z follow-up enters it; CH1m maps )
+			LESI_RCR_COMBO_XXZZ_LANDING_FROM_X2,	/// June script id 259 ( the same script table registered a second time; CH1m maps )
+			LESI_RCR_COMBO_XXZZZ_FROM_X2,	/// June script id 260 ( the same script table registered a second time; CH1m maps )
 			LESI_RWS_DASH_JUMP_XXZ_START,	/// June script id 261 ( Wind Sneaker follow-up after dash jump X-X; CH1m maps, CH1e owns the state )
+			LESI_RWS_DASH_JUMP_XXZ_LOOP,	/// June script id 262 ( Wind Sneaker dash jump X-X-Z loop; CH1m maps, CH1e owns the state )
+			LESI_RWS_DASH_JUMP_XXZ_END,	/// June script id 263 ( Wind Sneaker dash jump X-X-Z end; CH1m maps, CH1e owns the state )
 			LESI_RWS_DASH_JUMP_XXZ_START_FROM_X2,	/// June script id 264 ( the same script table registered a second time, entered from dash jump X-X-X; CH1m maps )
+			LESI_RWS_DASH_JUMP_XXZ_LOOP_FROM_X2,	/// June script id 265 ( the same script table registered a second time; the start state enters it; CH1m maps )
+			LESI_RWS_DASH_JUMP_XXZ_END_FROM_X2,	/// June script id 266 ( the same script table registered a second time; CH1m maps )
 			LESI_RSR_DASH_ZX,	/// June script id 267 ( Sniping Ranger / Grand Archer follow-up after dash Z; CH1m maps, CH1f owns the state )
 			LESI_RGA_DASH_JUMP_XXZ,	/// June script id 269 ( Grand Archer follow-up after dash jump X-X; CH1m maps, CH1f owns the state )
 			LESI_RTR_DOUBLE_JUMP_ZX,	/// June script id 271 ( Trapping Ranger / Night Watcher follow-up after the double jump landing; CH1m maps, CH1g owns the state )
@@ -1806,6 +1816,13 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void KillMySummonedNPC( const int iNPCID_, const float fUnusedTime_ );	/// June 32ca2010
 		float GetArrowMpConsumption( const float fMp_ );	/// June 32c85330
 		float GetArrowMaxLifeTime( const float fMaxLifeTime_ );	/// June 32c7fe20
+		void LESI_RCR_COMBO_XXZ_EventProcess();	/// June 32c7feb0
+		void LESI_RCR_COMBO_XXZZ_EventProcess();	/// June 32c80200
+		void LESI_RCR_COMBO_XXZZ_LANDING_EventProcess();	/// June 32c80480
+		void LESI_RCR_COMBO_XXZZZ_EventProcess();	/// June 32c807c0
+		void LESI_RWS_DASH_JUMP_XXZ_START_EventProcess();	/// June 32c80a40
+		void LESI_RWS_DASH_JUMP_XXZ_LOOP_EventProcess();	/// June 32c80c70
+		void LESI_RWS_DASH_JUMP_XXZ_END_EventProcess();	/// June 32c80e80
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 
 		/// 지연의 신호탄

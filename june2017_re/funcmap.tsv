@@ -8728,3 +8728,32 @@ CX2Game +0xc20 (Rena CH1a)	none in March: CX2Game byte read by the Rena wait / c
 32c90f10	CX2GULire_ElvenRanger::DashJumpComboX1FrameMove	PORTED	Char Rena CH1d2: inside: June body under JUNE_CHAR_RENA_LIVE
 32c91780	CX2GULire_ElvenRanger::DashJumpComboX2FrameMove	PORTED	Char Rena CH1d2: inside: June body under JUNE_CHAR_RENA_LIVE
 32c91f10	CX2GULire_ElvenRanger::DashJumpComboX3FrameMove	PORTED	Char Rena CH1d2: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6bf40	CX2GULire_ElvenRanger::LESI_SA_LCR_LOW_KICK_Init	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6bfa0	CX2GULire_ElvenRanger::LESI_SA_LCR_LOW_KICK_FrameMove	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6c120	CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZ_FrameMoveFuture	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6e2e0	CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c6e390	CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_LESI_DOUBLE_JUMP_ATTACK_Z_UP_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c72850	CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_COMBO_Z1_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c72bc0	CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_COMBO_Z2_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c73d10	CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z1_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c73e10	CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z2_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c73f10	CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_JUMP_COMBO_Z3_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c770a0	CX2GULire_ElvenRanger::LESI_SA_LCR_LOW_KICK_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c77370	CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZ_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c776d0	CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZZ_FrameMoveFuture	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c77710	CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZZ_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c77980	CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZZZ_FrameMoveFuture	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c779c0	CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZZZ_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c77c50	CX2GULire_ElvenRanger::LESI_LWS_ZZfrontZZZ_Landing_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c782f0	CX2GULire_ElvenRanger::LESI_LWS_DASH_XZ_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c78610	CX2GULire_ElvenRanger::LESI_LWS_DASH_XZZ_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c78e40	CX2GULire_ElvenRanger::LESI_LGA_DASH_JUMP_Z_EventProcess	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c84510	CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_COMBO_Z1_StartFuture	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c84590	CX2GULire_ElvenRanger::LESI_COMBAT_RANGER_DASH_COMBO_Z2_StartFuture	PORTED	Char Rena CH1e: inside: June body under JUNE_CHAR_RENA_LIVE
+32c7feb0	CX2GULire_ElvenRanger::LESI_RCR_COMBO_XXZ_EventProcess	PORTED	Char Rena CH1e: new (_CORE): June body, compiled in every build, referenced by nothing yet
+32c80200	CX2GULire_ElvenRanger::LESI_RCR_COMBO_XXZZ_EventProcess	PORTED	Char Rena CH1e: new (_CORE): June body, compiled in every build, referenced by nothing yet
+32c80480	CX2GULire_ElvenRanger::LESI_RCR_COMBO_XXZZ_LANDING_EventProcess	PORTED	Char Rena CH1e: new (_CORE): June body, compiled in every build, referenced by nothing yet
+32c807c0	CX2GULire_ElvenRanger::LESI_RCR_COMBO_XXZZZ_EventProcess	PORTED	Char Rena CH1e: new (_CORE): June body, compiled in every build, referenced by nothing yet
+32c80a40	CX2GULire_ElvenRanger::LESI_RWS_DASH_JUMP_XXZ_START_EventProcess	PORTED	Char Rena CH1e: new (_CORE): June body, compiled in every build, referenced by nothing yet
+32c80c70	CX2GULire_ElvenRanger::LESI_RWS_DASH_JUMP_XXZ_LOOP_EventProcess	PORTED	Char Rena CH1e: new (_CORE): June body, compiled in every build, referenced by nothing yet
+32c80e80	CX2GULire_ElvenRanger::LESI_RWS_DASH_JUMP_XXZ_END_EventProcess	PORTED	Char Rena CH1e: new (_CORE): June body, compiled in every build, referenced by nothing yet
