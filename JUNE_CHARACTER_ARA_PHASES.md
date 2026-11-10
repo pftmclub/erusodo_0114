@@ -761,6 +761,35 @@ Next: `/x2-phase char-ara CH1h` (Sonnet 5.5 high). Its kickoff was checked and a
 
 **Nothing to play-test.** Next: `/x2-phase char-ara CH1i` (Sonnet 5.5 high). The CH1k review covers CH1h-CH1k.
 
+### CH1i - Done (2026-11-11)
+
+**14 class-map rows accounted for: 3 written `inside` ( `_LIVE` ), 4 written `new` ( `_CORE` ), 7 = March ( no code ).** funcmap rows `Char Ara CH1i` ( 14 ); `JUNE_BUGS` 595.
+
+| June | `CX2GUAra::` | Result |
+|---|---|---|
+| `32b95cf0` | SetEquippedSkillLevel ( 0x7b8 ) | **inside.** 41 blocks in June's order, keyed by June's `RNSI_` ids; `GetEquippedActiveSkillTemplet( id, true )` then `SetEquippedSkillLevelStateData` ( 64 sites ). 7 blocks ( 27043-27046, 27226, 27047, 27048 ) and Specter of Storm's two degree states ( templet `+0x178` = `m_iDeleteSkillIDByUpgrade` != 0 ) test the templet first. The callee `SetSkillLevelStateData` is CH1o's ( its `+ 1.0` term ) |
+| `32ba83d0` | UpdateNotRenderingOtherEquipList ( 0x630 ) | **inside.** June's own function ( not the base's ): hyper mode only; 16 one-piece groups ( `DITT_` names, `IsDivisionItem` on the one-piece equip ) hide promotion equips by position; the arm, face1 and face2 accessories pick the hand / hair / face hides by group and by whether a one-piece group hid anything ( `bEquipHidden` ). The 17 hide loops share two named helpers in `_CONST_ARA_CH1I_`; `SetHideNoRenderable` as June ( +0x9170 ) |
+| `32ba4710` | IsInJobLine ( 0x670 ) | **new.** Lines 1 / 2 / 3 = classes 28 / 118, 31 / 119, 34 / 124 ( declared by CH1d ) |
+| `32ba4620` | ReplaceStateIDBySkill ( 0x6b4 ) | **new.** Skill behind the state id ( `GetSkillIDByEquipSlotID` = June `32890140` ) through `GetUpgradeBaseSkillID` ( `32207210` ): Wolf Spear 27014 / 27039, Steal Soul 27020, Sever 27024, Get Blood 27026 -> `ASI_SA_ALD_WOLF_SPEAR`, `ASI_A_AYR_STEAL_SOUL`, `ASI_SA_ALS_SEVER`, `ASI_SA_AA_GET_BLOOD` ( June 262 / 271 / 301 / 311 ); caller `32d3f140` compares it with the running state |
+| `32b956d0` | IsDamageTriggerConditionMet ( 0x74c ) | **new.** Returns true. Found its caller by byte scan: `EffectToUnit` `3262efca` asks a user defender with the CEffect's `+0x7ac` ( `DAMAGE_TRIGGER_CONDITION`, -1 = none ) and skips the hit on false; March has no caller |
+| `32bd6a70` | FindSkillFPGainEntry | **new.** `find_if` over the 0x18-byte FP-gain records by the skill-tree same-skill test; CH4a's `32bca010` calls it |
+| `32bc1a90` `32bab410` `32bc89e0` | HyperModeFrameMove, CanRidingState, UpdateEquipViewListInfo | **= March.** `CommonHyperModeFrameMove( 0.693, 0.759, 1.287, false )`; the 13 / 14 / 19 / 20 / 75 / 76 / 77 / 81 / 82 / 154 state list ( `USI_*` and `ASI_HYPER_WAIT` ); the Berserk helper trio called in June's order. `32bc89e0` takes a third `slotId` in June: Stage 8's, as Chung CH1l0 |
+| `32ba6990` `32baea90` `32bc15d0` | Get / Remove / Add BerserkEquip... | **= March**, read in full. June's differences are Stage 8 / 16 / 33 pieces ( Lu/Ciel form table, `IsDisabled` and `0x4d` usable test, 3-argument `GetEquippingItemByEquipPos`, enchant getter `32882540` ); CreateEquip's unit type is zeroed by its ctor unless UC_ANYONE, which is March's gate |
+| `32bae630` | SetShowViewList ( 0x63c ) | **= March.** June first clears `bShow` when the riding byte `+0x93da` is 1 ( not ported, Stage 17, reads 0 as in CH1h ); no code |
+| `32bd7780` | vector<int> growth helper | compiler template, no code |
+
+**Names registered.** `X2SkillTree.h` ( `JUNE_ENUM_NAMES`, values checked against `Enum.src.lua` by the generator ): 39 `RNSI_` names ( `RNSI_SA_ARA_WIND_WEDGE` 27003 ... `RNSI_SA_ASR_SPECTER_OF_BLADE` 27048, plus `_WOLF_SPEAR_UPGRADE` 27039 and `RNSI_SA_ALS_SEVER` 27024 ). `X2GUAra.h` ( `_CORE`, `ARA_STATE_ID` tail ): 27 June-only state members with their June script ids and owning phases ( `ASI_SA_ASR_SHADOW_RISING_LANDING` 195 ... `ASI_A_ASD_SWALLOW_ASSAULT_TEETH_END` 342, `ASI_SA_ALS_SEVER` 301, `ASI_SA_AA_GET_BLOOD` 311 ); C++ values follow the enum, registration is by script name ( CH1m ). **Three June states keep March's member:** 223 `ASI_A_ALH_ROCK_CRASH_FALLING_START` = `ASI_A_ALH_ROCK_CRASH_START`, 251 `ASI_A_ASD_FALLING_BLOSSOM_Finish` = `ASI_A_ASD_FALLING_BLOSSOM_FINISH`, 250 = `ASI_SA_ASD_SUPPRESSION` ( CH0's pair rows ). State 305 has two June names ( `..._SPECTER_OF_STORM_FINISH` / `_ULTIMATE_FINISH` ); the first is used.
+**Always.h:** +12, guards only ( `_LIVE` needs `SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP`, `_CORE` needs `SERV_IRUHADEV_JUNE_SKILL_TEMPLET`; both defined above the guard, lines 10814 / 7968 ). No new flag.
+**Routed.** CH1m: register the 27 new state names by script name. CH2 / CH3 skill phases own those states ( comment on each member ). CH1o: wire `ReplaceStateIDBySkill` ( 0x6b4 ), `IsDamageTriggerConditionMet` ( 0x74c, with an `EffectToUnit` caller ) and `IsInJobLine` ( 0x670 ); `SetSkillLevelStateData`'s `+ 1.0` term. Stage 8 / 16: the equip-view set listed above.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ARA_CORE --with JUNE_CHAR_ARA_LIVE JUNE_CHAR_ARA_FP JUNE_ENUM_NAMES --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `.cpp` PASS +759, `.h` PASS +31; `files: 2 PASS, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `flagcheck JUNE_ENUM_NAMES --worktree --files X2Lib/X2SkillTree.h`: `PASS~`, `RESULT: PASS`. `Always.h` +12 ( pure insertion ): flagcheck reports `ERROR` at the earlier phase's line 12220 ( a conditional it cannot evaluate ), as for CH1h.
+- One-file `/c /Zs /EHsc` probes ( `census.cl_cmd`, no PCH, `X2GUAra.cpp` ): exit 0, 0 errors with `_LIVE` off, with `-DSERV_IRUHADEV_JUNE_CHAR_ARA_LIVE`, and with `_LIVE` + `_FP` + `_SKILL` + `_SPECTER`. `cl /P` off / `_LIVE`: `HideEquipsAtPositions(` 0 / 21, `RNSI_SA_ARA_WIND_WEDGE, true` 0 / 1, `DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_HAIR,` 0 / 1, `SI_A_AM_WIND_WEDGE` 7 / 5.
+- `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2SkillTree.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `0 A/B row(s)`.
+- Full build skipped: no play-test ( `_LIVE` is off ), so no `DEPLOY OK` / `exestr` line. No `_DEBUG` define exists; every new block carries `// char-ara CH1i`.
+
+**Nothing to play-test.** Next: `/x2-phase char-ara CH1j` ( Sonnet 5.5 high ). The CH1k review covers CH1h-CH1k.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

@@ -271,6 +271,33 @@ public:
 		ASI_DASH_JUMP_COMBO_AA_ZXX,			/// char-ara CH1g: June script id 287 ( Asura dash-jump Z-X-X; CH1m maps )
 		ASI_DASH_JUMP_COMBO_ASR_XZZ,		/// char-ara CH1g: June script id 328 ( Asura dash-jump X-Z-Z; CH1m maps )
 		ASI_DASH_JUMP_COMBO_ASR_XZZZ,		/// char-ara CH1g: June script id 329 ( Asura dash-jump X-Z-Z-Z; CH1m maps )
+		ASI_SA_ASR_SHADOW_RISING_LANDING,	/// char-ara CH1i: June script id 195 ( CH3c owns the state; CH1m maps )
+		ASI_SA_ASR_SHADOW_RISING_END,	/// char-ara CH1i: June script id 196 ( CH3c owns the state; CH1m maps )
+		ASI_SA_ALD_ENERGY_WAVE_FIRE,	/// char-ara CH1i: June script id 279 ( CH2c owns the state; CH1m maps )
+		ASI_A_ALS_VIEW_BETWEEN_FINISH,	/// char-ara CH1i: June script id 289 ( CH2d3 owns the state; CH1m maps )
+		ASI_A_ALS_SHAKE_CHAOS_FINISH,	/// char-ara CH1i: June script id 292 ( CH2d3 owns the state; CH1m maps )
+		ASI_A_AA_RAID_ATTACK,	/// char-ara CH1i: June script id 295 ( CH3c2 owns the state; CH1m maps )
+		ASI_A_AA_RAID_ATTACK_FINISH,	/// char-ara CH1i: June script id 296 ( CH3c2 owns the state; CH1m maps )
+		ASI_SA_AA_SPECTER_OF_THUNDER_FIND,	/// char-ara CH1i: June script id 299 ( CH2d owns the state; CH1m maps )
+		ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING,	/// char-ara CH1i: June script id 300 ( CH2d owns the state; CH1m maps )
+		ASI_SA_ALS_SEVER,	/// char-ara CH1i: June script id 301 ( CH2d2 owns the state; CH1m maps )
+		ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH,	/// char-ara CH1i: June script id 303 ( CH2d owns the state; CH1m maps )
+		ASI_SA_ALS_SPECTER_OF_STORM_FINISH,	/// char-ara CH1i: June script id 305 ( CH2d owns the state; CH1m maps )
+		ASI_SA_ALS_SPECTER_OF_STORM_LANDING,	/// char-ara CH1i: June script id 306 ( CH2d owns the state; CH1m maps )
+		ASI_SA_ASR_SPECTER_OF_BLADE_FINISH,	/// char-ara CH1i: June script id 308 ( CH3c owns the state; CH1m maps )
+		ASI_SA_ALS_VERITABLE_PANDEMONIUM,	/// char-ara CH1i: June script id 309 ( CH2d2 owns the state; CH1m maps )
+		ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH,	/// char-ara CH1i: June script id 310 ( CH2d2 owns the state; CH1m maps )
+		ASI_SA_AA_GET_BLOOD,	/// char-ara CH1i: June script id 311 ( CH3c owns the state; CH1m maps )
+		ASI_SA_AA_GET_BLOOD_FINISH,	/// char-ara CH1i: June script id 312 ( CH3c owns the state; CH1m maps )
+		ASI_SA_ALS_SPECTER_OF_STORM_DEGREE,	/// char-ara CH1i: June script id 334 ( CH2d2 owns the state; CH1m maps )
+		ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE,	/// char-ara CH1i: June script id 335 ( CH2d2 owns the state; CH1m maps )
+		ASI_SA_ASD_LINK_FLOWER_SLASH_1st,	/// char-ara CH1i: June script id 336 ( CH3a2 owns the state; CH1m maps )
+		ASI_SA_ASD_LINK_FLOWER_SLASH_2nd,	/// char-ara CH1i: June script id 337 ( CH3a2 owns the state; CH1m maps )
+		ASI_SA_ASD_LINK_FLOWER_SLASH_LAST,	/// char-ara CH1i: June script id 338 ( CH3a2 owns the state; CH1m maps )
+		ASI_SA_ASD_CONTINUITY_STRIKE_THROWING_END,	/// char-ara CH1i: June script id 339 ( CH3a2 owns the state; CH1m maps )
+		ASI_SA_AYR_RESTRICTION_ENERGY_END,	/// char-ara CH1i: June script id 340 ( CH3b owns the state; CH1m maps )
+		ASI_SA_AYR_REVERSE_GRAVITY_FIELD_END,	/// char-ara CH1i: June script id 341 ( CH3b owns the state; CH1m maps )
+		ASI_A_ASD_SWALLOW_ASSAULT_TEETH_END,	/// char-ara CH1i: June script id 342 ( CH3a2 owns the state; CH1m maps )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	#pragma endregion 2-1, 2-2Â÷ ÀüÁ÷
 
@@ -1439,6 +1466,10 @@ protected:
 	int			m_iSkillFPGainSerial;				/// June +0x9840: -1 after Init / ReInit
 	int			m_iSkillFPGainCount;				/// June +0x9844: 0 after Init / ReInit
 	std::vector<int>		m_vecSkillFPGainSerial;	/// June +0x9848: cleared by Init / ReInit
+	// char-ara CH1i: the CH1i functions that need the record type above
+	std::vector<SkillFPGainRecord>::iterator	FindSkillFPGainEntry( std::vector<SkillFPGainRecord>::iterator itFirst_, std::vector<SkillFPGainRecord>::iterator itLast_, const int iSkillID_ ) const;	/// June 32bd6a70: body in CH1i, CH4a calls it
+	bool		IsDamageTriggerConditionMet( const int iDamageTriggerCondition_ ) const;	/// June 32b956d0 ( unit vslot 0x74c )
+	void		ReplaceStateIDBySkill( int* pStateID_ ) const;	/// June 32ba4620 ( user vslot 0x6b4 )
 	// char-ara CH1h2: members of AttackResultByType ( June offsets in june2017_re/char_ara/ch1_offsets.tsv )
 	float		m_fSpecterOfThunderCoolTime;		/// June +0x979c: wait before Specter of Thunder plays its effect set again ( CH1j counts it down )
 	float		m_fSpecterOfThunderPowerRate;		/// June +0x97a0: power rate that effect set plays with

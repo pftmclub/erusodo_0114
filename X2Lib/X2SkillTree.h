@@ -1827,6 +1827,49 @@ public:
 		RNSI_P_AYR_OPEN_MIND                                  = 27417,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH1i
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_ARA_WIND_WEDGE                                = 27003,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ARA_PULLING_PIERCE                            = 27001,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_A_ALH_TIGER_CLAW                                 = 27203,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ARA_TEMPEST_DANCE                             = 27000,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ARA_SHADOW_KNOT                               = 27004,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ALH_DOUBLE_COLLISION                          = 27006,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_A_ASD_BREAKING                                   = 27207,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_A_ALH_ROCK_CRASH                                 = 27202,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ASD_TURBULENT_WAVE                            = 27010,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ALH_WHITE_TIGER                               = 27005,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ASD_PEERLESSNESS_SLASH                        = 27012,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ALH_MOONLIGHT_SLASH                           = 27008,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ASD_SWALLOW_ASSAULT                           = 27011,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_A_ASD_LOW_BRANDISH                               = 27206,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ALH_SUPPRESSION                               = 27009,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_A_ALH_DRAGON_FALLING                             = 27204,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_A_AYR_HIGH_SPEED                                 = 27212,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_A_ALD_WOLF_CLAW                                  = 27208,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ALD_HELL_OF_TORNADO                           = 27013,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ALD_WOLF_SPEAR                                = 27014,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_A_ALD_FINGER_BULLET                              = 27209,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_AYR_ENERGY_BEAD                               = 27018,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ALD_PRISON_SPEAR                              = 27016,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_AYR_STEAL_SOUL                                = 27020,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_AYR_ENERGY_VOID                               = 27019,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ALD_ENERGY_WAVE                               = 27015,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_A_ALS_VIEW_BETWEEN                               = 27214,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_A_ALS_SHAKE_CHAOS                                = 27215,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ALS_SEVER                                     = 27024,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ALS_RESTRAINTS_SPECTER                        = 27022,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ALS_SPECTER_OF_STORM                          = 27021,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ASD_LINK_FLOWER_SLASH                         = 27043,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ASD_CONTINUITY_STRIKE_THROWING                = 27044,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_AYR_RESTRICTION_ENERGY                        = 27045,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_AYR_REVERSE_GRAVITY_FIELD                     = 27046,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_A_ASD_SWALLOW_ASSAULT_TEETH                      = 27226,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ASR_SHADOW_RISING                             = 27047,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ASR_SPECTER_OF_BLADE                          = 27048,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+		RNSI_SA_ALD_WOLF_SPEAR_UPGRADE                        = 27039,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-09 // char-rena CH1i
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_SA_RWS_VIOLENT_ATTACK                            = 23008,	// June's Enum.lua; SetEquippedSkillLevel sets its landing states

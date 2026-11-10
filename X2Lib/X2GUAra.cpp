@@ -136,6 +136,47 @@ namespace _CONST_ARA_CH1H_
 }
 using namespace _CONST_ARA_CH1H_;
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+namespace _CONST_ARA_CH1I_
+{
+	// char-ara CH1i: June 32ba83d0 hide step ( SetShowObject( false ) ); true when an equip at one of the positions was hidden
+	bool HideEquipsAtPositions( std::vector<CX2EqipPtr>& vecEquip_, const CX2Unit::EQIP_POSITION* aePosition_, const int iPositionCount_ )
+	{
+		bool bHidden = false;
+
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquip, vecEquip_ )
+		{
+			if ( NULL == pEquip )
+				continue;
+
+			for ( int iPosition = 0; iPosition < iPositionCount_; ++iPosition )
+			{
+				if ( aePosition_[iPosition] == pEquip->GetEqipPos() )
+				{
+					pEquip->SetShowObject( false );
+					bHidden = true;
+					break;
+				}
+			}
+		}
+
+		return bHidden;
+	}
+
+	// char-ara CH1i: June 32ba83d0, the per-equip IsDivisionItem flags ( read only after the whole list was walked )
+	bool IsAnyEquipDivisionItem( const CX2ItemManager* pItemManager_, const int iDivisionType_, std::vector<CX2EqipPtr>& vecEquip_ )
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquip, vecEquip_ )
+		{
+			if ( NULL != pEquip && true == pItemManager_->IsDivisionItem( iDivisionType_, pEquip->GetItemID() ) )
+				return true;
+		}
+
+		return false;
+	}
+}
+using namespace _CONST_ARA_CH1I_;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 
 #pragma region 생성자
 /** @function 	: CX2GUAra
@@ -2894,6 +2935,343 @@ void CX2GUAra::InitStateByUnitClass()
 */
 /*virtual*/ void CX2GUAra::SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1i: June 32b95cf0, one block per skill ( RNSI_ ids, the upgrade swapped templet ); the state-data callee is CH1o's
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ARA_WIND_WEDGE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ARA_WIND_WEDGE, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ARA_WIND_WEDGE_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ARA_PULLING_PIERCE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ARA_PULLING_PIERCE, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ARA_PULLING_PIERCE_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ALH_TIGER_CLAW == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ALH_TIGER_CLAW, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ARA_TIGER_CLAW_START );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ARA_TIGER_CLAW_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ARA_TEMPEST_DANCE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ARA_TEMPEST_DANCE, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ARA_TEMPEST_DANCE_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ARA_SHADOW_KNOT == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ARA_SHADOW_KNOT, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ARA_SHADOW_KNOT_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ALH_DOUBLE_COLLISION == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ALH_DOUBLE_COLLISION, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALH_DOUBLE_COLLISION_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ASD_BREAKING == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ASD_BREAKING, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ALH_BREAKING_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ALH_BREAKING_AVOIDANCE );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ALH_ROCK_CRASH == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ALH_ROCK_CRASH, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ALH_ROCK_CRASH_START );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ALH_ROCK_CRASH_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ASD_TURBULENT_WAVE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ASD_TURBULENT_WAVE, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ASD_TURBULENT_WAVE_START );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ASD_TURBULENT_WAVE_LOOP );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ASD_TURBULENT_WAVE_END );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ASD_VOID_BREAK );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ALH_WHITE_TIGER == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ALH_WHITE_TIGER, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ASD_PEERLESSNESS_SLASH == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ASD_PEERLESSNESS_SLASH, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALH_PEERLESSNESS_SLASH_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ALH_MOONLIGHT_SLASH == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ALH_MOONLIGHT_SLASH, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALH_DESCENT_DRAGON );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ASD_SWALLOW_ASSAULT == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ASD_SWALLOW_ASSAULT, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALH_SWALLOW_ASSAULT_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ASD_LOW_BRANDISH == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ASD_LOW_BRANDISH, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ASD_LOW_BRANDISH_SLICE );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ASD_LOW_BRANDISH_KICK );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ALH_SUPPRESSION == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ALH_SUPPRESSION, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ASD_SUPPRESSION );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ALH_DRAGON_FALLING == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ALH_DRAGON_FALLING, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ASD_FALLING_BLOSSOM_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_AYR_HIGH_SPEED == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_AYR_HIGH_SPEED, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_AYR_HIGH_SPEED );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ALD_WOLF_CLAW == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ALD_WOLF_CLAW, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ALD_WOLF_CLAW_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ALD_HELL_OF_TORNADO == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ALD_HELL_OF_TORNADO, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALD_HELL_OF_TORNADO_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALD_WOLF_SPEAR );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALD_WOLF_SPEAR_FINISH );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALD_WOLF_BREAK );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ALD_FINGER_BULLET == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ALD_FINGER_BULLET, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALD_FINGER_BULLET_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_AYR_ENERGY_BEAD == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_AYR_ENERGY_BEAD, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALD_ENERGY_BEAD_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ALD_PRISON_SPEAR == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ALD_PRISON_SPEAR, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALD_PRISON_SPEAR_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_AYR_STEAL_SOUL == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_AYR_STEAL_SOUL, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_AYR_STEAL_SOUL_FINISH );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_AYR_OPEN_THE_HELL );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_AYR_ENERGY_VOID == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_AYR_ENERGY_VOID, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_AYR_ENERGY_VOID_LOOP );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_AYR_ENERGY_VOID_END );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ALD_ENERGY_WAVE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ALD_ENERGY_WAVE, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALD_ENERGY_WAVE_FIRE );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ALS_VIEW_BETWEEN == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ALS_VIEW_BETWEEN, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ALS_VIEW_BETWEEN_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ALS_SHAKE_CHAOS == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ALS_SHAKE_CHAOS, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ALS_SHAKE_CHAOS_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ASR_RAID == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ASR_RAID, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_AA_RAID_ATTACK );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_AA_RAID_ATTACK_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_THUNDER == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_THUNDER, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_AA_SPECTER_OF_THUNDER_FIND );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ALS_SEVER == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ALS_SEVER, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALS_VERITABLE_PANDEMONIUM );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ALS_RESTRAINTS_SPECTER == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ALS_RESTRAINTS_SPECTER, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_STORM == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_STORM, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALS_SPECTER_OF_STORM_FINISH );
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALS_SPECTER_OF_STORM_LANDING );
+
+		if ( NULL != pSkillTemplet && 0 != pSkillTemplet->m_iDeleteSkillIDByUpgrade )	// June +0x178: the enhanced skill adds its degree states
+		{
+			SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALS_SPECTER_OF_STORM_DEGREE );
+			SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE );
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ASR_GET_BLOOD == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ASR_GET_BLOOD, true );
+
+		SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_AA_GET_BLOOD_FINISH );
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ASD_LINK_FLOWER_SLASH == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ASD_LINK_FLOWER_SLASH, true );
+
+		if ( NULL != pSkillTemplet )	// June tests the templet before its states
+		{
+			SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ASD_LINK_FLOWER_SLASH_1st );
+			SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ASD_LINK_FLOWER_SLASH_2nd );
+			SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ASD_LINK_FLOWER_SLASH_LAST );
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ASD_CONTINUITY_STRIKE_THROWING == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ASD_CONTINUITY_STRIKE_THROWING, true );
+
+		if ( NULL != pSkillTemplet )	// June tests the templet before its states
+		{
+			SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ASD_CONTINUITY_STRIKE_THROWING_END );
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_AYR_RESTRICTION_ENERGY == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_AYR_RESTRICTION_ENERGY, true );
+
+		if ( NULL != pSkillTemplet )	// June tests the templet before its states
+		{
+			SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_AYR_RESTRICTION_ENERGY_END );
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_AYR_REVERSE_GRAVITY_FIELD == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_AYR_REVERSE_GRAVITY_FIELD, true );
+
+		if ( NULL != pSkillTemplet )	// June tests the templet before its states
+		{
+			SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_AYR_REVERSE_GRAVITY_FIELD_END );
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_A_ASD_SWALLOW_ASSAULT_TEETH == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ASD_SWALLOW_ASSAULT_TEETH, true );
+
+		if ( NULL != pSkillTemplet )	// June tests the templet before its states
+		{
+			SetEquippedSkillLevelStateData( pSkillTemplet, ASI_A_ASD_SWALLOW_ASSAULT_TEETH_END );
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ASR_SHADOW_RISING == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ASR_SHADOW_RISING, true );
+
+		if ( NULL != pSkillTemplet )	// June tests the templet before its states
+		{
+			SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ASR_SHADOW_RISING_LANDING );
+			SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ASR_SHADOW_RISING_END );
+		}
+	}
+
+	if ( true == bChangeAll_ || CX2SkillTree::RNSI_SA_ASR_SPECTER_OF_BLADE == eSkillID_ )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_SA_ASR_SPECTER_OF_BLADE, true );
+
+		if ( NULL != pSkillTemplet )	// June tests the templet before its states
+		{
+			SetEquippedSkillLevelStateData( pSkillTemplet, ASI_SA_ASR_SPECTER_OF_BLADE_FINISH );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 	if ( true == bChangeAll_ || CX2SkillTree::SI_A_AM_WIND_WEDGE == eSkillID_ )
 #else //UPGRADE_SKILL_SYSTEM_2013
@@ -3166,6 +3544,7 @@ void CX2GUAra::InitStateByUnitClass()
 
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -5138,6 +5517,312 @@ void CX2GUAra::ReplaceWeapon( CX2EqipPtr pWeaponPtr_ )
 #ifdef FIX_ARA_ONE_PIECE_FOR_BERSERK
 /*virtual*/ void CX2GUAra::UpdateNotRenderingOtherEquipList()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1i: June 32ba83d0 ( the base's division groups, tested on the promotion equips; EP_AC_TEMP3 is June's EP_AC_EARRING )
+	if ( IsFullHyperMode() )
+	{
+		SetHideNoRenderable( false );
+
+		const CX2ItemManager* pItemManager = g_pData->GetItemManager();
+		bool bEquipHidden = false;				// June bVar5: a one-piece group hid an equip
+		bool bHideHairItemWorn = false;			// June bVar13: a promotion equip is a not-rendering-hair item
+		bool bDrawFaceAccessoryWorn = false;	// June bVar6: a promotion equip is a draw-face-accessory item
+		CX2EqipPtr pOnePieceEquip = GetEquipPtrFromEquipViewListByEquipPosition( CX2Unit::EP_ONEPIECE_FASHION );
+
+		if ( NULL != pOnePieceEquip )
+		{
+			const int iOnePieceItemID = pOnePieceEquip->GetItemID();
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_HAIR, iOnePieceItemID ) )
+			{
+				BOOST_TEST_FOREACH( CX2EqipPtr, pEquip, m_vecPromotionEquipList )
+				{
+					if ( NULL == pEquip )
+						continue;
+
+					const CX2Unit::EQIP_POSITION eEquipPosition = pEquip->GetEqipPos();
+					const bool bHairItem = pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR, pEquip->GetItemID() );
+
+					if ( true == bHairItem )
+						bHideHairItemWorn = true;
+
+					// a not-rendering-hair item also hides the second face accessory and the earring slot
+					if ( CX2Unit::EP_DEFENCE_BODY == eEquipPosition || CX2Unit::EP_DEFENCE_LEG == eEquipPosition || CX2Unit::EP_DEFENCE_HAND == eEquipPosition || CX2Unit::EP_DEFENCE_FOOT == eEquipPosition
+						|| ( true == bHairItem && ( CX2Unit::EP_AC_FACE2 == eEquipPosition || CX2Unit::EP_AC_TEMP3 == eEquipPosition ) ) )
+					{
+						pEquip->SetShowObject( false );
+						bEquipHidden = true;
+					}
+				}
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_HAIR, CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT, CX2Unit::EP_AC_TEMP3 };
+
+				if ( true == IsAnyEquipDivisionItem( pItemManager, CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR, m_vecPromotionEquipList ) )
+					bHideHairItemWorn = true;
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_AC_BODY, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_HAIR, CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT, CX2Unit::EP_AC_BODY };
+
+				if ( true == IsAnyEquipDivisionItem( pItemManager, CX2ItemManager::DITT_ITEM_ID_DRAW_FACE_ACC_WITH_NO_ONE_PEACE_AVATAR_SET1, m_vecPromotionEquipList ) )
+					bDrawFaceAccessoryWorn = true;
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_ARM, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_HAIR, CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT, CX2Unit::EP_AC_ARM };
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_FACE1, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_HAIR, CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT, CX2Unit::EP_AC_FACE1, CX2Unit::EP_AC_TEMP3 };
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_FACE1_FACE2, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_HAIR, CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT, CX2Unit::EP_AC_FACE1, CX2Unit::EP_AC_FACE2, CX2Unit::EP_AC_TEMP3 };
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_FACE_FACE2_FACE3, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_HAIR, CX2Unit::EP_DEFENCE_FACE, CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT, CX2Unit::EP_AC_FACE2, CX2Unit::EP_AC_FACE3, CX2Unit::EP_AC_TEMP3 };
+
+				SetHideNoRenderable( true );
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_HAIR_AND_ALL_ACCESSORY, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_HAIR, CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT, CX2Unit::EP_AC_FACE1, CX2Unit::EP_AC_FACE2, CX2Unit::EP_AC_BODY, CX2Unit::EP_AC_ARM, CX2Unit::EP_AC_NECKLESS, CX2Unit::EP_AC_TEMP3 };
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_HAIR_AND_FACE1, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT };
+
+				if ( true == IsAnyEquipDivisionItem( pItemManager, CX2ItemManager::DITT_ITEM_ID_DRAW_FACE_ACC_WITH_NO_ONE_PEACE_AVATAR_SET1, m_vecPromotionEquipList ) )
+					bDrawFaceAccessoryWorn = true;
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_HAIR_NOT_FACE1, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT, CX2Unit::EP_AC_FACE1 };
+
+				if ( true == IsAnyEquipDivisionItem( pItemManager, CX2ItemManager::DITT_ITEM_ID_DRAW_FACE_ACC_WITH_NO_ONE_PEACE_AVATAR_SET1, m_vecPromotionEquipList ) )
+					bDrawFaceAccessoryWorn = true;
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_ONLY_RENDERING_HAIR_AND_FACE, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT, CX2Unit::EP_AC_FACE1, CX2Unit::EP_AC_FACE2, CX2Unit::EP_AC_FACE3, CX2Unit::EP_AC_BODY, CX2Unit::EP_AC_LEG, CX2Unit::EP_AC_ARM, CX2Unit::EP_AC_NECKLESS, CX2Unit::EP_AC_TEMP3 };
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_RENDERING_BODY, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_HAIR, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_AC_FACE1, CX2Unit::EP_AC_FACE2, CX2Unit::EP_AC_NECKLESS, CX2Unit::EP_AC_TEMP3 };
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_ONLY_RENDERING_HAIR_AND_FACE_FACE2_FACE3, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_HAIR, CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT, CX2Unit::EP_AC_BODY, CX2Unit::EP_AC_ARM, CX2Unit::EP_AC_NECKLESS, CX2Unit::EP_AC_TEMP3 };
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_ONLY_RENDERING_WEAPON, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_HAIR, CX2Unit::EP_DEFENCE_FACE, CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT,
+					CX2Unit::EP_AC_FACE1, CX2Unit::EP_AC_FACE2, CX2Unit::EP_AC_FACE3, CX2Unit::EP_AC_BODY, CX2Unit::EP_AC_ARM, CX2Unit::EP_AC_RING, CX2Unit::EP_AC_NECKLESS, CX2Unit::EP_AC_TEMP3, CX2Unit::EP_AC_TEMP4, CX2Unit::EP_RAVEN_LEFT_ARM };
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PIECE_AVATAR_NOT_RENDERING_ALL_FACE_ACCESSARY, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_HAIR, CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT, CX2Unit::EP_AC_FACE1, CX2Unit::EP_AC_FACE2, CX2Unit::EP_AC_FACE3, CX2Unit::EP_AC_TEMP3 };
+
+				SetHideNoRenderable( true );
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_ONE_PICE_AVATAR_NOT_RENDERING_FACE_AND_ALL_FACE_ACCESSARY, iOnePieceItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_DEFENCE_HAIR, CX2Unit::EP_DEFENCE_FACE, CX2Unit::EP_DEFENCE_BODY, CX2Unit::EP_DEFENCE_LEG, CX2Unit::EP_DEFENCE_HAND, CX2Unit::EP_DEFENCE_FOOT, CX2Unit::EP_AC_FACE1, CX2Unit::EP_AC_FACE2, CX2Unit::EP_AC_FACE3, CX2Unit::EP_AC_TEMP3 };
+
+				SetHideNoRenderable( true );
+
+				if ( true == HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) ) )
+					bEquipHidden = true;
+			}
+		}
+
+		CX2EqipPtr pArmEquip = GetEquipPtrFromEquipViewListByEquipPosition( CX2Unit::EP_AC_ARM );
+
+		if ( NULL != pArmEquip && true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAND, pArmEquip->GetItemID() ) )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pEquip, m_vecPromotionEquipList )
+			{
+				if ( NULL != pEquip && CX2Unit::EP_DEFENCE_HAND == pEquip->GetEqipPos() && false == IsFullHyperMode() )	// June tests the hyper mode again; always false here
+					pEquip->SetShowObject( false );
+			}
+		}
+
+		CX2EqipPtr pFace1Equip = GetEquipPtrFromEquipViewListByEquipPosition( CX2Unit::EP_AC_FACE1 );
+
+		if ( NULL != pFace1Equip )
+		{
+			const int iFace1ItemID = pFace1Equip->GetItemID();
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE2_FACE3, iFace1ItemID ) )
+			{
+				BOOST_TEST_FOREACH( CX2EqipPtr, pEquip, m_vecPromotionEquipList )
+				{
+					if ( NULL == pEquip )
+						continue;
+
+					switch ( pEquip->GetEqipPos() )
+					{
+					case CX2Unit::EP_AC_FACE1:
+						if ( true == bEquipHidden )
+							pEquip->SetShowObject( false );
+						break;
+
+					case CX2Unit::EP_AC_FACE2:
+						pEquip->SetShowObject( false );
+						break;
+
+					case CX2Unit::EP_AC_FACE3:
+					case CX2Unit::EP_AC_TEMP3:
+						if ( false == bEquipHidden )
+							pEquip->SetShowObject( false );
+						break;
+					}
+				}
+			}
+
+			if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE2, iFace1ItemID ) )
+			{
+				static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_AC_FACE2, CX2Unit::EP_AC_TEMP3 };
+
+				HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) );
+			}
+			else if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR, iFace1ItemID ) )
+			{
+				if ( false == bEquipHidden || true == bHideHairItemWorn )
+				{
+					BOOST_TEST_FOREACH( CX2EqipPtr, pEquip, m_vecPromotionEquipList )
+					{
+						if ( NULL != pEquip && CX2Unit::EP_DEFENCE_HAIR == pEquip->GetEqipPos() && false == IsFullHyperMode() )	// June tests the hyper mode again; always false here
+							pEquip->SetShowObject( false );
+					}
+				}
+				else
+				{
+					BOOST_TEST_FOREACH( CX2EqipPtr, pEquip, m_vecPromotionEquipList )
+					{
+						if ( NULL == pEquip )
+							continue;
+
+						switch ( pEquip->GetEqipPos() )
+						{
+						case CX2Unit::EP_DEFENCE_HAIR:
+							if ( true == bDrawFaceAccessoryWorn )
+								pEquip->SetShowObject( false );
+							break;
+
+						case CX2Unit::EP_AC_FACE1:
+							if ( false == bDrawFaceAccessoryWorn )
+								pEquip->SetShowObject( false );
+							break;
+
+						case CX2Unit::EP_AC_FACE2:
+						case CX2Unit::EP_AC_TEMP3:
+							pEquip->SetShowObject( false );
+							break;
+						}
+					}
+				}
+			}
+			else if ( true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE_FACE2_FACE3, iFace1ItemID )
+				|| true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_AND_ALL_FACE_ACCESSARY, iFace1ItemID ) )
+			{
+				// June runs the two groups as two copies of the same block ( 0x2a, then 0x41 )
+				if ( true == bEquipHidden )
+				{
+					static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_AC_FACE1, CX2Unit::EP_AC_TEMP3 };
+
+					HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) );
+				}
+				else
+				{
+					static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_AC_FACE2, CX2Unit::EP_AC_FACE3, CX2Unit::EP_AC_TEMP3 };
+
+					SetHideNoRenderable( true );
+					HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) );
+				}
+			}
+
+			CX2EqipPtr pFace2Equip = GetEquipPtrFromEquipViewListByEquipPosition( CX2Unit::EP_AC_FACE2 );
+
+			if ( NULL != pFace2Equip && true == pItemManager->IsDivisionItem( CX2ItemManager::DITT_ITEM_ID_NOT_RENDERING_HAIR_FACE_FACE1_FACE3, pFace2Equip->GetItemID() ) )
+			{
+				if ( true == bEquipHidden )
+				{
+					static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_AC_FACE2, CX2Unit::EP_AC_TEMP3 };
+
+					HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) );
+				}
+				else
+				{
+					static const CX2Unit::EQIP_POSITION aePosition[] = { CX2Unit::EP_AC_FACE1, CX2Unit::EP_AC_FACE3, CX2Unit::EP_AC_TEMP3 };
+
+					SetHideNoRenderable( true );
+					HideEquipsAtPositions( m_vecPromotionEquipList, aePosition, _countof( aePosition ) );
+				}
+			}
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( IsFullHyperMode() )
 	{
 		#ifdef FACE_OFF_MONSTER_HEAD_TEST
@@ -5598,6 +6283,7 @@ void CX2GUAra::ReplaceWeapon( CX2EqipPtr pWeaponPtr_ )
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #endif //FIX_ARA_ONE_PIECE_FOR_BERSERK
 #pragma endregion 렌더링 하지 않아도 되는 장비 리스트 갱신
@@ -21080,6 +21766,79 @@ void CX2GUAra::MarkSkillFPGainHitByDamage( const CX2DamageManager::DamageData* p
 bool CX2GUAra::IsNowStateSameOrUpgradeSkill( const int iSkillID_ ) const
 {
 	return ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( GetNowStateSkillID(), iSkillID_ ) );
+}
+
+// char-ara CH1i: June 32b956d0 ( unit vslot 0x74c, asked with a CEffect's damage trigger condition before the effect hits a user; Ara accepts every one )
+bool CX2GUAra::IsDamageTriggerConditionMet( const int iDamageTriggerCondition_ ) const
+{
+	UNREFERENCED_PARAMETER( iDamageTriggerCondition_ );
+
+	return true;
+}
+
+// char-ara CH1i: June 32ba4620 ( user vslot 0x6b4 ): the skill behind the state id ( June 32890140, March's GetSkillIDByEquipSlotID ) names the id the state is replaced by
+void CX2GUAra::ReplaceStateIDBySkill( int* pStateID_ ) const
+{
+	if ( NULL == GetUnit() )
+		return;
+
+	const int iBaseSkillID = static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillIDByEquipSlotID( *pStateID_ ) ) );	// June 32207210
+
+	if ( 0 == iBaseSkillID )
+		return;
+
+	switch ( iBaseSkillID )
+	{
+	case CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR:
+	case CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR_UPGRADE:
+		*pStateID_ = ASI_SA_ALD_WOLF_SPEAR;
+		break;
+
+	case CX2SkillTree::RNSI_SA_AYR_STEAL_SOUL:
+		*pStateID_ = ASI_A_AYR_STEAL_SOUL;
+		break;
+
+	case CX2SkillTree::RNSI_SA_ALS_SEVER:
+		*pStateID_ = ASI_SA_ALS_SEVER;
+		break;
+
+	case CX2SkillTree::RNSI_SA_ASR_GET_BLOOD:
+		*pStateID_ = ASI_SA_AA_GET_BLOOD;
+		break;
+	}
+}
+
+// char-ara CH1i: June 32ba4710 ( user vslot 0x670 ): the unit is in the job line, 1 Little Hsien / Sakra Devanam, 2 Little Devil / Yama Raja, 3 Little Specter / Asura
+bool CX2GUAra::IsInJobLine( int iJobLine_ )
+{
+	if ( NULL == GetUnit() )
+		return false;
+
+	switch ( iJobLine_ )
+	{
+	case 1:
+		return ( CX2Unit::UC_ARA_LITTLE_HSIEN == GetUnitClass() || CX2Unit::UC_ARA_SAKRA_DEVANAM == GetUnitClass() );
+
+	case 2:
+		return ( CX2Unit::UC_ARA_LITTLE_DEVIL == GetUnitClass() || CX2Unit::UC_ARA_YAMA_RAJA == GetUnitClass() );
+
+	case 3:
+		return ( CX2Unit::UC_ARA_LITTLE_SPECTER == GetUnitClass() || CX2Unit::UC_ARA_ASURA == GetUnitClass() );
+	}
+
+	return false;
+}
+
+// char-ara CH1i: June 32bd6a70 ( std::find_if over the records by the skill-tree same-skill test, June 31edf580; no skill tree finds none )
+std::vector<CX2GUAra::SkillFPGainRecord>::iterator CX2GUAra::FindSkillFPGainEntry( std::vector<SkillFPGainRecord>::iterator itFirst_, std::vector<SkillFPGainRecord>::iterator itLast_, const int iSkillID_ ) const
+{
+	for ( ; itFirst_ != itLast_; ++itFirst_ )
+	{
+		if ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( itFirst_->m_iSkillID, iSkillID_ ) )
+			break;
+	}
+
+	return itFirst_;
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 //#ifdef FIX_GAIN_FORCE_BUG

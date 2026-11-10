@@ -12275,3 +12275,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ( HaveSkillBuff, SetSkillBuffFactors )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH1i - guards only ( no new flag ): UpdateNotRenderingOtherEquipList tests the division groups ( DITT names, IsDivisionItem ), ReplaceStateIDBySkill calls GetUpgradeBaseSkillID.
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ) && !defined( SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_DIVERGE_NOT_RENDERING_EQUIP ( DITT_ITEM_ID_* names and the division groups )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_CORE ) && !defined( SERV_IRUHADEV_JUNE_SKILL_TEMPLET )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_CORE needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( CX2SkillTree::GetUpgradeBaseSkillID )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+//////////////////////////////////////////////////////////////////////////
