@@ -2438,6 +2438,7 @@ Read from the raw listings (`charport_adis.py rena`: `32ca78b0` uncarved, its ca
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 19 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
 (OTHER = the trigger names under `JUNE_ENUM_NAMES`; the 19 took CRLF from their anchor in this mixed-ending file: the namespace block before a CRLF comment, one `#endif` before a CRLF `}`).
 `junediverge.py --check` (4 files): `allow-listed: 5`, `RESULT: PASS`. `enumscan.py --check X2GULire_ElvenRanger.cpp`: `0 A/B row(s)`. No skill added: no icon gate.
+**Range (commit `9398775a`):** `--range 9398775a^..9398775a`, same 4 files: `files: 1 PASS, 1 PASS~, 1 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; 0 deleted; `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,193,920 B, dated 2026-11-10 14:52:45, md5 82ae5d0d9e5b51d0b73964a90c373173, equal to X2/US_SERVICE/x2.exe (2026-11-10 14:52:34); built at main 643e4515 + 4 uncommitted code file(s).`
 `EXESTR OK: 7 of 7 found in X2_offline.exe, 26193920 B, dated 2026-11-10 14:52:45, md5 82ae5d0d9e5b51d0b73964a90c373173` (wide: the bowstring, sharp kick, gungnir, mp, cool time, random shot and shooting magnum lines).
 **Save:** backup `db_backup/els_db_20261110_144145_pre_sql.sql`; unit 92 learns Random Shot Pleasure 23415 (born sealed: unsealed row too), slot -1.
