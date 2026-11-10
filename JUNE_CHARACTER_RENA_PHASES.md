@@ -2549,7 +2549,7 @@ transition on un-transcended units (user rule, 2026-10-28):** one unit per secon
 relog. A defect goes back to its phase's flag.
 
 **Done gate:** the walk passes; 0 unexplained `no_state` rows; no new `KEM_ERROR`.
-### CH6 - Done (2026-11-10, Sonnet 5.5): scans PASSED, walk owed
+### CH6 - Done (2026-11-10, Sonnet 5.5): scans PASSED, walk PASSED
 
 **No code change, no flag, no build, no kom** (flagcheck / junediverge n/a; full build skipped: no code; deployed exe is CH4b's). Save backed up first: `data\db_backup\els_db_20261110_152940_pre_pre_ch6_rena_walk.sql`.
 
@@ -2567,7 +2567,7 @@ relog. A defect goes back to its phase's flag.
 
 **Walk units (in the save).** Un-transcended: 86 (3), 87 (12), 88 (13), 91 (24), 35 (24 lv70), 12 `reyaa` (103). Transcended: 89 (102), 90 (114), 92 (103). Transition test (created this phase with `createchar.py`, lv 99, transcendence 0, no quest 42030 row): 93 `WindSneakerTC` (102), 94 `GrandArcherTC` (103), 95 `NightWatcherTC` (114) ("TC" = to be changed). (CH0b's note listed 89 / 90 as plain units; the save has them transcended, so they serve as the transcended pair.)
 
-**Open: the user's walk** (kickoff CH6 plus the CH5, CH2a, CH2b, CH3d-review and CH4b-review amendments) is the gate. Log tag `[JUNE_CHAR]`, `[JUNE_TRANSCEND]`; `ErrorLog.txt` 0 `KEM_ERROR` / `Motion Error`.
+**Gate status: PASSED (2026-11-10).** User walk: all tests passed and normal. Logs: skill cut-in sets 0 (idx 0/1/2: 8/11/8 lines), 1 (idx 0/1/2: 4/3/1), 2 (idx 0/2: 7/1), 3 (idx 0: 12) with `HQ_CutIn_Rena_01/02/03`, `_WS_01`, `_GA_01`, `_NW_01`; `RENA UI hyper cut-in class 103 name HQ_Cutin_RGA_Transcendence` x2 (102 / 114 awakening hyper lines not seen: only logged when the class script sets `SHOW_HYPER_CUT_IN_TIME`; user saw no defect). `JUNE_TRANSCEND`: `/tc 1`, book 288493 and quest 42030 each on units 93 (102) / 94 (103) / 95 (114), guide popup `DLG_Transcendental_Change_Guide_Lena.lua` for 102 / 103 / 114, relog `UNIT 93 ... transcendence 1`. `ErrorLog.txt` 0 `KEM_ERROR`, 0 `Motion Error`; packets 0 EXCEPTION, 25 UNHANDLED all `E_DISABLE_HB_CHECK_REQ` (heartbeat, harmless offline). Not log-visible (no debug lines): Eradication free cast, natural force, trap behaviour, Spiral Strike spin; the user reported no defect.
 
 ## Phase Z - Close-out
 
