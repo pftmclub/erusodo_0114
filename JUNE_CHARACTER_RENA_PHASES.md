@@ -2177,6 +2177,38 @@ Opus 5.5 high. Kickoff `kickoffs/char-rena/CH3b2-review.md`. **Verdict: pass, no
 
 **Next:** CH3c0 (Night Watcher engine hook), kickoff `kickoffs/char-rena/CH3c0.md` checked, now ready.
 
+### CH3c0 - Done (2026-11-10)
+
+Opus 5.5 high. Kickoff `kickoffs/char-rena/CH3c0.md`. **Verdict: = March, no code change, no flag.** Ghidra read-only.
+
+- **What the hook is.** Not new: it is Night Watcher's *Start of Delayed Firing* / explosion-arrow bookkeeping, which March already has under
+  `SERV_RENA_NIGHT_WATCHER` (on). CH0 mapped the 14 functions as `new` with no March pair; every one has a March body.
+- **Base.** `31fcd700` = `CX2GUUser::UpdateStartOfDelayedFiring( bool )` (`X2GUUser.cpp:44227`): unit `+0x867c` class `+0x38` == 0x72
+  (`UC_LIRE_NIGHT_WATCHER`) -> tail jump to Rena's. The three callers pass what March's pass: `32037afb` push 1 = `X2GUUser.cpp:13344`,
+  `322739d9` push 0 = `X2GameUnit.cpp:18908`, `3279bbd8` push 1 = `X2GUNPC.cpp:12939`.
+- **Class side** (`X2GULire_ElvenRanger.cpp`): `32ca6cd0` = `UpdateStartOfDelayedFiring` (:33326), `32c9aae0` =
+  `CreateStartOfDelayedFiringDataVector` (:33482), `32cb5a60` = its ground-arrow lambda (:33513) through `ApplyFunctionToLiveInstances`
+  `32cb5c60`, `32c9a810` = `DeleteStartOfDelayedFiring` (:33399), `32c9aa60` = `SetStartOfDelayedFiringOrderNum` (:33463). The other 8
+  (`32cb5df0` / `5810` / `5550` / `56d0` / `5a00` / `5390` / `5310` / `5060`) are the `std::sort` instance for
+  `StartOfDelayedFiringDataSort` (compare `+0x8` order number), no source body.
+- **Checked against March's live branch.** Struct offsets (`m_iType` +0, attacker +4, order +8, arrow index +0xc, cool time +0x10, size 0x28);
+  type 7 = `DET_ARROW_OF_EXPLOSION_READY`, 2 = `DET_ARROW_OF_EXPLOSION_DELAY_GROUND`; constants 10.0f (`335152a0`,
+  `START_OF_DELAYED_FIRING_DELAY_ACTIVE_TIME`), 5 (`MAX_ARROW_OF_EXPLOSION`), 0.01f (`33437810`, the delete cool time). June counts only
+  ground arrows and never erases unit arrows: March's `BALANCE_PATCH_20131107` branch. `cl /P` probe: `SERV_RENA_NIGHT_WATCHER`,
+  `BALANCE_PATCH_20131107`, `X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE` all on. The lambda's `FLD1` push before the vslot 0x204 call is the ctor's
+  6th argument (1.0f), not a `GetPowerRate` argument (`31fcb230` is a plain `RET`), so the ctor call = March's.
+- **funcmap:** 15 rows `Char Rena CH3c0` (14 + the base), all `= March`. CH0's rows 8578 / 8579 are superseded by them.
+
+**Gates.** No source file changed, so no `flagcheck` range and no build: full build skipped (no play-test, no code). `junediverge.py --check
+X2Lib/X2GULire_ElvenRanger.cpp X2Lib/X2GULire_ElvenRanger.h`: allow-listed 5, `RESULT: PASS`. `enumscan.py --check
+X2Lib/X2GULire_ElvenRanger.cpp`: 0 A/B rows.
+
+**Review.** No separate CH3c0 review: there is no code to review. The CH3 skill review (`CH3d-review.md`) re-checks this verdict in one line
+(spot-check `32ca6cd0` and `32cb5a60` against March). **CH3c** depends on CH3c0 only and is ready; it calls March's
+`UpdateStartOfDelayedFiring` and the `StartOfDelayedFiringData` helpers by name (kickoff amended).
+
+**Next:** CH3c (Night Watcher skills), `kickoffs/char-rena/CH3c.md`, Sonnet 5.5 high.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as two from the start; CH0 adds CH4c if the

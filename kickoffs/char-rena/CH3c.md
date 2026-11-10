@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-rena CH3c` |
 | Plan doc | `JUNE_CHARACTER_RENA_PHASES.md` (branch `main`) |
-| Depends on | CH3c0 review (CH0 helper phase). One at a time: `X2GULire_ElvenRanger.*` |
+| Depends on | CH3c0 (done 2026-11-10, = March, no review of its own). One at a time: `X2GULire_ElvenRanger.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`RENA SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
 | Review | none of its own (user, 2026-11-10, amended): the CH3 skill review at CH3d (`CH3d-review.md`) covers it; `_SKILL_DEBUG` stays on; add this phase's spot-check list to `CH3d-review.md` |
@@ -56,3 +56,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1n (2026-11-09)
 
 - **Slot state:** Eradication (23060) registers `LESI_SA_RNW_ERADICATION_ATTACK` ( 302, CH1i's `_CORE` member ) by table name. The id switch takes `GetUpgradeBaseSkillID( eSkillID_ )` (`CH2a.md`, Amended by CH1n).
+
+## Amended by CH3c0 (2026-11-10)
+
+- **The Night Watcher engine hook is March's, unchanged** (CH3c0 Done note; funcmap rows `Char Rena CH3c0`). Call these by name, never a copy:
+  `CX2GUUser::UpdateStartOfDelayedFiring( bool )` (June `31fcd700`) -> `CX2GULire_ElvenRanger::UpdateStartOfDelayedFiring` (`32ca6cd0`),
+  `CreateStartOfDelayedFiringDataVector` (`32c9aae0`), `DeleteStartOfDelayedFiring` (`32c9a810`), `SetStartOfDelayedFiringOrderNum` (`32c9aa60`),
+  `CreateEntireExplosionDataVector` (`32c9ac00`, CH1k), `ClearStartOfDelayedFiringData` (`32ca6e90`); data `CX2DamageManager::StartOfDelayedFiringData`
+  / `StartOfDelayedFiringDataSort`, `CX2GameUnit::AccessStartOfDelayedFiringData()`. A June call to one of these addresses is the March function.
