@@ -1850,6 +1850,20 @@ public:
 		RNSI_P_RWS_SOFTBODY                                   = 23402,	// June's Enum.lua; the passive the state animation rate and the soft body action read
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-10 // char-rena CH4a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_P_RWS_FRIENDSHIP_OF_NATURE                       = 23401,	// June's Enum.lua; Rena's passives read by InitPassiveSkillState and its callbacks
+		RNSI_P_RWS_POWERFUL_SHOT                              = 23403,
+		RNSI_P_RSR_HAWK_EYE                                   = 23404,
+		RNSI_P_RGA_POWERFUL_BOWSTRING                         = 23405,
+		RNSI_P_RNW_PRIOR_PLANNED_BLOW                         = 23409,
+		RNSI_P_RNW_VITALPOINT_PIERCING                        = 23410,
+		RNSI_P_RNW_SHARPEN_ARROW                              = 23411,
+		RNSI_P_RWS_OPEN_MIND                                  = 23412,
+		RNSI_P_RGA_OPEN_MIND                                  = 23414,
+		RNSI_P_RNW_OPEN_MIND                                  = 23416,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-09 // char-rena CH2a
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_SA_RENA_RAIL_STINGER                             = 23000,	// June's Enum.lua; the Rena skill switch cases

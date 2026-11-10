@@ -2744,6 +2744,9 @@ class CX2GUNPC : public CX2GameUnit
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 		void InitDelegateProcess();		/// June 3275f0a0 ( vslot 0x340 ); Rena's push 3275a490 comes with her port
 		void EveSummonAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// June 3275a120
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+		void RenaSummonAttackResult( const CX2DamageManager::DamageData& damageData_ );	/// char-rena CH4a: June 3275a490 ( defined in X2GULire_ElvenRanger.cpp )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 		/// June buff port Phase 16: June slot 113 for an NPC (+0x8474 = GetNPCSyncData().m_usRandomTableIndex)

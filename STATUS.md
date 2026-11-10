@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH4a | **ready** after CH3a (`/x2-phase char-rena CH4a`, Opus 5.5 high; same file, one at a time): passives `32ca78b0`, D8 re-keys 3405 / 3400 -> 23405 / 23400, delegates, flag `_PASSIVE` | Opus 5.5 / high, no review of its own (CH4b review covers it), user play-test | CH2d review | `X2GULire_ElvenRanger.*` | `CH4a.md` |
+| CH4a | **play-test owed** (units 89 / 92 / 90): InitPassiveSkillState whole on June ids (D8 23405), 4 attack-result callbacks + summon push, DEPLOY OK; no review of its own (CH4b's) | Opus 5.5 / high, no review of its own (CH4b review covers it), user play-test | CH2d review | `X2GULire_ElvenRanger.*`, `X2GUNPC.*` | `CH4a.md` |
 | CH4b | blocked (CH4a): `SetDamageExceptionProcess` `32cad510`, GetActualCoolTime / MPConsume, `MemoConditionRena`; its review also covers CH4a | Opus 5.5 / high, Opus review, user play-test | CH4a, CH3c | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH4b.md` |
 | CH6 | blocked (CH4b review): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH4b review | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-ara` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |

@@ -1932,6 +1932,13 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		int m_iSnapshotNaturalForceCount;	/// June +0x92b4 ( CX2GUUser snapshot region, constructor 0 ): the count StoreGageSnapshot keeps
 		void RestoreGageSnapshot();	/// char-rena CH1q: June 32c89230 ( user vslot 0x744, base 3204da60 Crest of Time restore not ported ): gives the count back
 		float m_fOpenMindMpPerNaturalForce;	/// char-rena CH1q: June +0x97e0 ( constructor 0 ): Open Mind's MP per natural force point consumed ( InitPassiveSkillState 32ca78b0 writes it: CH4a )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+		float m_fOpenMindEffectRate;	/// char-rena CH4a: June +0x97e4 ( constructor 0 ): Open Mind's effect-set rate ( SA_EFFECTIVE_RATE ), InitPassiveSkillState writes it
+		void PlayOpenMindEffect( const CX2DamageManager::DamageData& damageData_ );	/// char-rena CH4a: June 32ca2180 ( attack result; the summons' 3275a490 calls it too )
+		void PlayPredatorLuckyEffect( const CX2DamageManager::DamageData& damageData_ );	/// char-rena CH4a: June 32ca2390 ( attack result )
+		void ExplodeEradicationDebuff( const CX2DamageManager::DamageData& damageData_ );	/// char-rena CH4a: June 32ca28b0 ( attack result )
+		void LockRageFungusTarget( const CX2DamageManager::DamageData& damageData_ );	/// char-rena CH4a: June 32c86790 ( attack result )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 		void ResetEradicationLoop();	/// June 32ca2aa0: the loop's end ( CommonFrameMove ): the hit count restarts and the loop effect set stops
 		float GetPredatorDamageMultiple( const int iStage_ );	/// June 32c6d800: one Predator stage's SA_SKILLDAMAGE_MULTIPLE_01..04 ( 1.0 past the fourth )
 		int GetPredatorDamageStage( const float fRoll_ );	/// June 32c83280: the stage a 0..1 roll falls in ( widths SA_SKILLDAMAGE_MULTIPLE_01..03_RATE, the rest is stage 3 )

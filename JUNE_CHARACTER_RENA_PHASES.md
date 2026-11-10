@@ -2363,6 +2363,42 @@ memo or a passive engine piece is over ~45 functions).
 **Done gate:** each passive's effect shows (CH0 names the stat or log line per passive); Powerful Bowstring / Sharp Kick act on June's ids; 0
 Rena `no_state` rows left except passives with no state in June.
 
+### CH4a - Done (2026-11-10)
+
+**Landed.** Commit: see `git log`, "char-rena Phase CH4a". Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE` (+ temporary `_PASSIVE_DEBUG`, on until the CH4b review). Files:
+`X2GULire_ElvenRanger.*`, `X2GUNPC.*` (one declaration, one push), `X2SkillTree.h` (10 names under `JUNE_ENUM_NAMES`), `X2DamageManager.h` (4 DTT names), `Always.h`.
+Read from the raw listings (`charport_adis.py rena`: `32ca78b0` uncarved, its callbacks and thunks, `3275f0a0`, `3275a490`); funcmap rows marked `(CH4a)`.
+- **`InitPassiveSkillState` `32ca78b0` whole** inside March's (March in `#else`), every level `GetSkillLevel( id, true, 0, true )`. March read its 34xx ids, which a June save
+  never has: **every Rena passive except Sharp Kick / Hunter's Ability / Random Shot / Persistent Mind / Predator's roll (CH1) was off.** Blocks: Hawk Eye 23404 (range, siege
+  damage, siege level = upgrade 23221 else base 23201 at least 1); Powerful Shot 23403 and Sharpen Arrow 23411 (range); **D8: Powerful Bowstring 23405** (arrow power);
+  force-down rate 1 with **no Sharp Arrow read** (June has none); Powerful Shot user templet (back speed, power); Commune of Nature 23406 (charge MP); Friendship of Nature 23401
+  (delegate + data, once); Vibration Shooting 23407; Vital Point Piercing 23410 (delegate); Prior Planned Blow 23409; the quick get-up keyed on **Soft Body 23402** (March: Agile
+  Movement 3401) for classes 12 / 102; Open Mind (first learned of 23412 / 23414 / 23416: MP per natural force SA 0x4f, effect rate SA 5 = new `m_fOpenMindEffectRate` +0x97e4).
+- **Attack-result pushes** (June +0x66ac = `m_vecDelegateProcessInAttackResult`; March had none): `PlayOpenMindEffect` `32ca2180` (kick 20 / bow 21 or arrow hit + command /
+  trap-and-sword 22 trigger per job, natural force > 0, roll < rate -> `EffectSet_RENA_OPEN_MIND` on the target); `PlayPredatorLuckyEffect` `32ca2390` (trigger 24 + Predator
+  critical -> `EffectSet_SA_ENW_Predator_Lucky`, owned by the target); `LockRageFungusTarget` `32c86790` (Rage Fungus hit -> lock 1.0, CH1o's sweep counts it); `ExplodeEradicationDebuff`
+  `32ca28b0` (Eradication trigger on a target with Eradication's debuff -> erase + `EffectSet_SA_RNW_Eradication_Debuff_Explosion`).
+- **Summons (checklist 7am l.923):** `CX2GUNPC::RenaSummonAttackResult` = June `3275a490`, the second push of `InitDelegateProcess` `3275f0a0`: a summon of a Rena owner runs her Open Mind check.
+  Stand-in (one line): the GUT_USER test replaces June's unchecked owner read (Eve's pattern).
+- **`ProcessFriendshipNature` `32c6dac0` / `ProcessVPP` `32c7af80`**: June's bodies on 23401 / 23410; VPP's roll offset is 0x10 + the per-frame roll count (`m_usRandomRollCount`, counted up).
+- **D8 status:** InitPassiveSkillState reads 23405; Sharp Kick 23400 was CH1's CommonStateStart; the SetDamageExceptionProcess pair (3405 / 3400) is CH4b's whole function (kickoff amended).
+- **Divergence rows:** `CX2GULire_ElvenRanger::InitPassiveSkillState`, `::ProcessFriendshipNature`, `::ProcessVPP` (ported). No new JUNE_BUGS row (569 holds for the lock map's key).
+- **Not found here (CH1k amendment):** the writer of user action 0x28 (Soft Body); routed to CH4b (kickoff amended).
+
+**Hygiene.** One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH): `X2GULire_ElvenRanger.cpp`, `X2GUNPC.cpp` exit 0, 0 errors (the new `#error` guards pass).
+`enumprobe`: SA 5 / 0xf / 0x1f / 0x2a / 0x2b / 0x31 / 0x36 / 0x42 / 0x4f, `SRO_VITALPOINT_PIERCING` 16, `HT_ARROW_HIT` 16, `AT_COMMAND` 2, `UT_LIRE` 3, classes 12 / 102 = June's.
+`flagcheck.py JUNE_CHAR_RENA_PASSIVE --with JUNE_CHAR_RENA_PASSIVE_DEBUG --worktree --files` (7): `files: 3 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 2 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
+(OTHER = the names under `JUNE_ENUM_NAMES`). `junediverge.py --check` (7 files): `RESULT: PASS`; `--check-all`: `allow-listed: 202`, `RESULT: PASS`. `enumscan.py --check X2GULire_ElvenRanger.cpp X2GUNPC.cpp`: `0 A/B row(s)`.
+`skillicons.py check 23400-23417`: `skills 18, misses 0`, `RESULT: PASS`.
+**Range:** RANGE_LINE
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,191,360 B, dated 2026-11-10 14:09:44, md5 3534a8a0f7694338219db9b3f3fdccdd, equal to X2/US_SERVICE/x2.exe (2026-11-10 14:09:37); built at main bc7f513b + 7 uncommitted code file(s).`
+`EXESTR OK: 6 of 6 found in X2_offline.exe, 26191360 B, dated 2026-11-10 14:09:44, md5 3534a8a0f7694338219db9b3f3fdccdd` (wide: 3 log lines, 3 effect-set names).
+**Save:** backup `db_backup/els_db_20261110_140036_pre_sql.sql`; added 23402 (unit 89), 23406 (92), 23410 + 23417 (90), slot -1.
+
+**How to see it in game:** one `[JUNE_CHAR] RENA PASSIVE init` line per load with the values above; `open mind effect`, `predator lucky effect`, `rage fungus lock`,
+`eradication debuff explosion`, `friendship of nature buff`, `vital point piercing` lines when each fires.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_UI`. Sub-tag `UI`.

@@ -105,6 +105,14 @@ class CX2DamageManager
 			DTT_ERADICATION_EXPLOSION             = 38,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-10 // char-rena CH4a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			DTT_RENA_KICK_ATTACK                  = 20,	// June's Enum.lua; Open Mind's three triggers ( PlayOpenMindEffect )
+			DTT_RENA_BOW_ATTACK                   = 21,
+			DTT_RENA_TRAP_AND_SWORD_ATTACK        = 22,
+			DTT_RNW_PREDATOR_PLAY_EFFECT          = 24,	// June's Enum.lua; Predator's lucky effect set ( PlayPredatorLuckyEffect )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 		};
 #endif
 

@@ -47,3 +47,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
   June addresses: `32c6d4d0`(new ?) `32c7be00`(new GetActualCoolTime) `32c85690` `32cad510`.
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §7b L330 per-class SetDamageExceptionProcess blocks: funcmap 32cad510 (Rena); §7an L939 GetCharacterSpecializationB() readers: row lists Rena 32c85838; §7an L278 Spec A / Spec B readers (l.278): Rena 32ca7130, 32cb6290 (spec A), 32c.
 - MemoConditionRena vtable `33516854` (TD `3373d730`): slot 1 `32c6d4d0` (decide). GetActualCoolTime 0x6a4 `32c7be00` reads the `BOW_SKILL_STATE` flag `+0x981d`. SetDamageExceptionProcess `32cad510`.
+
+## Amended by CH4a (2026-11-10)
+
+- D8's other half is still March's: `SetDamageExceptionProcess` keeps `SI_P_LSR_POWERFUL_BOWSTRING` 3405 and `SI_P_LCR_SHARP_KICK` 3400 (two blocks near
+  `X2GULire_ElvenRanger.cpp` 34968 / 35017 after CH4a). June's `32cad510` whole replaces them with 23405 / 23400; `RNSI_P_RGA_POWERFUL_BOWSTRING` is registered now.
+- The attack-result list (`m_vecDelegateProcessInAttackResult`, June +0x66ac) now holds Rena's four June callbacks; nothing in CH4b pushes to it.
+- Not found in CH4a's functions (CH1k amendment): the writer of user action `0x28` (Soft Body, `NoStateChangeActionFrameMove`). Look in the overrides
+  CH4b ports (`32c85690`, the damage path) before closing; if June has no writer there, say so in the CH4b review.

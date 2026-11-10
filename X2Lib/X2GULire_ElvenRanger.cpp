@@ -476,6 +476,9 @@ CX2GULire_ElvenRanger::CX2GULire_ElvenRanger( int unitIndex, int teamNum,
 	m_fSkillCameraOverrideValue = 0.f;
 	m_bAfterImageSaved = false;	// June's after-image byte +0x1d1 starts false
 	m_fOpenMindMpPerNaturalForce = 0.f;	// char-rena CH1q: June @32ca4252
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+	m_fOpenMindEffectRate = 0.f;	// char-rena CH4a: June @32ca425e
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	m_fRapidShotAimAngle = 0.f;	// char-rena CH2c: June @32ca4272
@@ -734,6 +737,25 @@ void CX2GULire_ElvenRanger::DamageReact( CX2DamageManager::DamageData* pDamageDa
 //{{ oasis907 : 김상윤 [2010.11.4] // 윈드 스니커 - 자연과의 친화(패시브)
 void CX2GULire_ElvenRanger::ProcessFriendshipNature()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+	// char-rena CH4a: June 32c6dac0 ( delegate thunk 32cb4aa0 ): March's steps on June's id 23401
+	if( NULL == m_pFriendshipNatureData || false == m_pFriendshipNatureData->CanActivate() )
+		return;
+
+	if( m_pFriendshipNatureData->m_fInvokeRate < GetRandomFloat() )
+		return;
+
+	ReInitFriendshipNature();
+
+	if( NULL != GetUnit() && 0 < GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RWS_FRIENDSHIP_OF_NATURE, true, 0, true ) )
+		SetBuffFactorToGameUnit( g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RWS_FRIENDSHIP_OF_NATURE ), 0 );
+
+	m_pFriendshipNatureData->m_bCanActivate	= false;
+	m_pFriendshipNatureData->m_fTimeElapsed = 0.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE friendship of nature buff ( unit %I64d )", GetUnitUID() );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 	if(m_pFriendshipNatureData == NULL)
 		return;
 
@@ -769,6 +791,7 @@ void CX2GULire_ElvenRanger::ProcessFriendshipNature()
 
 	m_pFriendshipNatureData->m_bCanActivate	= false;
 	m_pFriendshipNatureData->m_fTimeElapsed = 0.f;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 }
 
 void CX2GULire_ElvenRanger::ReInitFriendshipNature()
@@ -5002,6 +5025,170 @@ void CX2GULire_ElvenRanger::InitEquippedActiveSkillState(bool bOnlySkillLevel /*
 /*virtual*/ void CX2GULire_ElvenRanger::InitPassiveSkillState()
 {
 	CX2GUUser::InitPassiveSkillState();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+	// char-rena CH4a: June 32ca78b0 ( vslot 0x690, uncarved ) whole, after the base 31fe19d0 above
+	m_fArrowRangeRate		= 1.f;
+	m_fSiegeDamageByPassive	= 1.f;
+
+	int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RSR_HAWK_EYE, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RSR_HAWK_EYE );
+		if( NULL != pSkillTemplet )
+		{
+			m_fArrowRangeRate		*= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel );
+			m_fSiegeDamageByPassive	=  pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel );
+
+			int iSiegeSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_RENA_SIEGEMODE_UPGRADE, true, 0, true );
+			if( 0 == iSiegeSkillLevel )	// June reads the upgrade first, then the base at no less than 1
+				iSiegeSkillLevel = max( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_RENA_SIEGEMODE, true, 0, true ), 1 );
+
+			SetSiegeModeEffectiveValue( iSiegeSkillLevel );
+		}
+	}
+
+	iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RWS_POWERFUL_SHOT, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RWS_POWERFUL_SHOT );
+		if( NULL != pSkillTemplet )
+			m_fArrowRangeRate *= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel );
+	}
+
+	iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RNW_SHARPEN_ARROW, true, 0, true );
+	if( 0 < iSkillLevel )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RNW_SHARPEN_ARROW );
+		if( NULL != pSkillTemplet )
+			m_fArrowRangeRate *= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, iSkillLevel );
+	}
+
+	m_fAttackPowerRateArrow = 1.f;
+	m_fHitGapArrow = -1.f;
+	m_fHitAddMp = -1.f;
+	m_iAddHitCountArrow = 0;
+
+	iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RGA_POWERFUL_BOWSTRING, true, 0, true );	// D8: June's 23405 ( March: 3405 )
+	if( 0 < iSkillLevel )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RGA_POWERFUL_BOWSTRING );
+		if( NULL != pSkillTemplet )
+			m_fAttackPowerRateArrow *= pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel );
+	}
+
+	m_SkillRelatedData.SetForceDownValueRateOfRenaArrowAttack( 1.f );	// June +0x4050; June reads no Sharp Arrow ( March 3407 ) after it
+
+	const CX2SkillTree::SkillTemplet* pMySkillTemplet = GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( CX2SkillTree::RNSI_P_RWS_POWERFUL_SHOT, true );
+	if( NULL != pMySkillTemplet )
+	{
+		if( NULL == GetUnit() )
+			return;
+
+		const int iSkillTempletLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pMySkillTemplet->m_eID, true, 0, true ) );
+		m_ArrowData.m_fAddBackSpeedX = pMySkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_BACK_SPEED_X, iSkillTempletLevel );
+		m_fAttackPowerRateArrow *= pMySkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillTempletLevel );
+	}
+
+	m_ChargeMPData.m_fChargeStateMP = 0.f;
+	pMySkillTemplet = GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( CX2SkillTree::RNSI_P_RGA_COMMUNE_OF_NATURE, true );
+	if( NULL != pMySkillTemplet )
+	{
+		if( NULL == GetUnit() )
+			return;
+
+		const int iSkillTempletLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pMySkillTemplet->m_eID, true, 0, true ) );
+		m_ChargeMPData.m_fChargeStateMP = pMySkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_REGENERATION_ABS, iSkillTempletLevel );
+	}
+
+	pMySkillTemplet = GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( CX2SkillTree::RNSI_P_RWS_FRIENDSHIP_OF_NATURE, true );
+	if( NULL != pMySkillTemplet )
+	{
+		m_delegateFriendshipOfNature = DelegateFriendshipOfNature::from_method<CX2GULire_ElvenRanger, &CX2GULire_ElvenRanger::ProcessFriendshipNature>( this );
+		if( NULL == m_pFriendshipNatureData )
+		{
+			m_pFriendshipNatureData = new FriendshipNatureData;
+			if( NULL == GetUnit() )
+				return;
+
+			const int iSkillTempletLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pMySkillTemplet->m_eID, true, 0, true ) );
+			m_pFriendshipNatureData->m_fInvokeRate = pMySkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillTempletLevel );
+		}
+	}
+	else
+		m_delegateFriendshipOfNature = DelegateFriendshipOfNature();
+
+	m_ArrowData.m_fVibrationShootingInvokeRate = 0.f;
+	m_ArrowData.m_fVibrationShootingDamageRate = 0.f;
+	pMySkillTemplet = GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( CX2SkillTree::RNSI_P_RGA_VIBRATION_SHOOTING, true );
+	if( NULL != pMySkillTemplet )
+	{
+		if( NULL == GetUnit() )
+			return;
+
+		const int iSkillTempletLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pMySkillTemplet->m_eID, true, 0, true ) );
+		m_ArrowData.m_fVibrationShootingInvokeRate = pMySkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillTempletLevel );
+		m_ArrowData.m_fVibrationShootingDamageRate = pMySkillTemplet->GetSkillPowerRateValue( iSkillTempletLevel );
+	}
+
+	if( NULL != GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( CX2SkillTree::RNSI_P_RNW_VITALPOINT_PIERCING, true ) )
+		m_delegateVitalPointPiercing = DelegateVitalPointPiercing::from_method<CX2GULire_ElvenRanger, &CX2GULire_ElvenRanger::ProcessVPP>( this );
+	else
+		m_delegateVitalPointPiercing = DelegateVitalPointPiercing();
+
+	pMySkillTemplet = GetUnit()->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( CX2SkillTree::RNSI_P_RNW_PRIOR_PLANNED_BLOW, true );
+	if( NULL != pMySkillTemplet )
+	{
+		if( NULL == GetUnit() )
+			return;
+
+		const int iSkillTempletLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( pMySkillTemplet->m_eID, true, 0, true ) );
+		m_fPriorPlannedBlowDownValue		= pMySkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_ABS, iSkillTempletLevel );
+		m_fPriorPlannedBlowIncreaseDamage	= pMySkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillTempletLevel );
+		m_fPriorPlannedBlowIncreaseHPRate	= pMySkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_HP_INTAKE_REL_DAMAGE, iSkillTempletLevel );
+		m_bUsePriorPlannedBlow				= true;
+	}
+
+	m_bAbleAgileMovement = false;
+	const CX2Unit::UNIT_CLASS eUnitClass = GetUnit()->GetClass();
+	if( 0 < GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RWS_SOFTBODY, true, 0, true )
+		&& ( CX2Unit::UC_LIRE_COMBAT_RANGER == eUnitClass || CX2Unit::UC_LIRE_WIND_SNEAKER == eUnitClass ) )
+		m_bAbleAgileMovement = true;	// June keys the quick get-up on Soft Body 23402 ( March: Agile Movement 3401 )
+
+	m_fOpenMindMpPerNaturalForce = 0.f;
+	m_fOpenMindEffectRate = 0.f;
+	int iOpenMindSkillID = CX2SkillTree::SI_NONE;
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RWS_OPEN_MIND ) )
+		iOpenMindSkillID = CX2SkillTree::RNSI_P_RWS_OPEN_MIND;
+	else if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RGA_OPEN_MIND ) )
+		iOpenMindSkillID = CX2SkillTree::RNSI_P_RGA_OPEN_MIND;
+	else if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RNW_OPEN_MIND ) )
+		iOpenMindSkillID = CX2SkillTree::RNSI_P_RNW_OPEN_MIND;
+
+	if( CX2SkillTree::SI_NONE != iOpenMindSkillID )
+	{
+		m_fOpenMindMpPerNaturalForce = GetLearnedSkillAbilityValue( CX2SkillTree::SA_RECOVER_MP_ABS, iOpenMindSkillID );
+		m_fOpenMindEffectRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iOpenMindSkillID );
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GULire_ElvenRanger, PlayOpenMindEffect ) );
+	}
+
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RNW_PREDATOR ) )
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GULire_ElvenRanger, PlayPredatorLuckyEffect ) );
+
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_SA_RNW_RAGE_FUNGUS ) )
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GULire_ElvenRanger, LockRageFungusTarget ) );
+
+	if( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_SA_RNW_ERADICATION ) )
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GULire_ElvenRanger, ExplodeEradicationDebuff ) );
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE init ( unit %I64d class %d: arrow range x%.3f, siege x%.3f, arrow power x%.3f, back speed %.1f, charge mp %.1f, friendship %d rate %.3f, vibration %.3f / %.3f, vital point %d, prior blow %d, agile %d, open mind %d mp %.1f rate %.3f, attack result list %d )",
+		GetUnitUID(), static_cast<int>( eUnitClass ), m_fArrowRangeRate, m_fSiegeDamageByPassive, m_fAttackPowerRateArrow, m_ArrowData.m_fAddBackSpeedX, m_ChargeMPData.m_fChargeStateMP,
+		m_delegateFriendshipOfNature ? 1 : 0, NULL != m_pFriendshipNatureData ? m_pFriendshipNatureData->m_fInvokeRate : 0.f,
+		m_ArrowData.m_fVibrationShootingInvokeRate, m_ArrowData.m_fVibrationShootingDamageRate, m_delegateVitalPointPiercing ? 1 : 0,
+		m_bUsePriorPlannedBlow ? 1 : 0, m_bAbleAgileMovement ? 1 : 0, iOpenMindSkillID, m_fOpenMindMpPerNaturalForce, m_fOpenMindEffectRate,
+		static_cast<int>( m_vecDelegateProcessInAttackResult.size() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 
 	m_fArrowRangeRate		= 1.f;
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
@@ -5371,6 +5558,7 @@ void CX2GULire_ElvenRanger::InitEquippedActiveSkillState(bool bOnlySkillLevel /*
 		m_bAbleAgileMovement = true;
 	}
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 
 }
 
@@ -32436,6 +32624,30 @@ void CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_EventProcess()
 
 void CX2GULire_ElvenRanger::ProcessVPP()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+	// char-rena CH4a: June 32c7af80 ( delegate thunk 32cb4ab0 ): June's id 23410; the roll's table offset counts up per roll this frame
+	if( false == IsUseTrapBalde() )
+		return;
+
+	const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RNW_VITALPOINT_PIERCING, true, 0, true );
+	if( iSkillLevel <= 0 )
+		return;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RNW_VITALPOINT_PIERCING );
+	if( NULL == pSkillTemplet )
+		return;
+
+	const float fRoll = GetRandomFloat( CKTDXRandomNumbers::SRO_VITALPOINT_PIERCING + m_usRandomRollCount++ );
+	if( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel ) < fRoll )
+		return;
+
+	SetBuffFactorToGameUnit( pSkillTemplet, 0 );
+	UpNowMp( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, iSkillLevel ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE vital point piercing ( unit %I64d, roll %.3f, mp +%.1f )", GetUnitUID(), fRoll,
+		pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, iSkillLevel ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 	if( IsUseTrapBalde() == false )
 		return;
 
@@ -32475,6 +32687,7 @@ void CX2GULire_ElvenRanger::ProcessVPP()
 		}
 	}
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 }
 
 void CX2GULire_ElvenRanger::SetFatalityData()
@@ -34318,6 +34531,96 @@ void CX2GULire_ElvenRanger::UpdateSpineAimRotation()
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 //}} Iruha : 2026-11-09 // char-rena CH1i
+//{{ Iruha : 2026-11-10 // char-rena CH4a
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+// char-rena CH4a: June 32ca2180 ( thunk 32cb66e0, attack result; the summons' 3275a490 too ): Open Mind's effect set on the hit target
+void CX2GULire_ElvenRanger::PlayOpenMindEffect( const CX2DamageManager::DamageData& damageData_ )
+{
+	const bool bOpenMindHit =
+		( CX2DamageManager::DTT_RENA_KICK_ATTACK == damageData_.m_eDamageTrigger && 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RWS_OPEN_MIND ) )
+		|| ( ( CX2DamageManager::DTT_RENA_BOW_ATTACK == damageData_.m_eDamageTrigger
+				|| ( CX2DamageManager::HT_ARROW_HIT == damageData_.hitType && CX2DamageManager::AT_COMMAND == damageData_.attackType ) )
+			&& 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RGA_OPEN_MIND ) )
+		|| ( CX2DamageManager::DTT_RENA_TRAP_AND_SWORD_ATTACK == damageData_.m_eDamageTrigger && 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_RNW_OPEN_MIND ) );
+	if( false == bOpenMindHit || GetNaturalForceCount() <= 0 )
+		return;
+
+	const float fRoll = GetRandomFloat();
+	if( false == ( fRoll < m_fOpenMindEffectRate ) )	// June's fcompp: a NaN rate plays nothing
+		return;
+
+	if( null == damageData_.optrDefenderGameUnit )
+		return;
+
+	CX2GameUnit* pDefender = damageData_.optrDefenderGameUnit.GetObservable();
+	g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_RENA_OPEN_MIND", this, pDefender );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE open mind effect ( unit %I64d, trigger %d, roll %.3f < %.3f, natural force %d )", GetUnitUID(),
+		static_cast<int>( damageData_.m_eDamageTrigger ), fRoll, m_fOpenMindEffectRate, GetNaturalForceCount() );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+}
+
+// char-rena CH4a: June 32ca2390 ( thunk 32cb66f0, attack result ): a Predator critical plays the lucky effect set, owned by the hit target
+void CX2GULire_ElvenRanger::PlayPredatorLuckyEffect( const CX2DamageManager::DamageData& damageData_ )
+{
+	if( GetSkillLevelValue( CX2SkillTree::RNSI_P_RNW_PREDATOR ) <= 0 || CX2DamageManager::DTT_RNW_PREDATOR_PLAY_EFFECT != damageData_.m_eDamageTrigger
+		|| false == m_bPredatorCritical || null == damageData_.optrDefenderGameUnit )
+		return;
+
+	CX2GameUnit* pDefender = damageData_.optrDefenderGameUnit.GetObservable();
+	g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_ENW_Predator_Lucky", pDefender );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE predator lucky effect ( unit %I64d )", GetUnitUID() );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+}
+
+// char-rena CH4a: June 32ca28b0 ( thunk 32cb6700, attack result ): an Eradication hit takes the Eradication debuff off its target and explodes it
+void CX2GULire_ElvenRanger::ExplodeEradicationDebuff( const CX2DamageManager::DamageData& damageData_ )
+{
+	if( null == damageData_.optrDefenderGameUnit || true == GetRidingOn() || false == damageData_.IsAttackTrigger( CX2DamageManager::DTT_ERADICATION ) )
+		return;
+
+	CX2GameUnit* pDefender = damageData_.optrDefenderGameUnit.GetObservable();
+	const BUFF_TEMPLET_ID eDebuffID = GetSkillBuffTempletID( CX2SkillTree::RNSI_SA_RNW_ERADICATION, 0, true );
+	if( false == pDefender->HaveThisBuff( eDebuffID ) )
+		return;
+
+	pDefender->EraseBuffTempletFromGameUnit( eDebuffID );
+	g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_RNW_Eradication_Debuff_Explosion", this, pDefender );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE eradication debuff explosion ( unit %I64d, buff %d )", GetUnitUID(), static_cast<int>( eDebuffID ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+}
+
+// char-rena CH4a: June 32c86790 ( thunk 32cb5dd0, attack result ): a Rage Fungus hit locks its target for 1.0 ( insert or reset; June's key is uid first, JUNE_BUGS 569 )
+void CX2GULire_ElvenRanger::LockRageFungusTarget( const CX2DamageManager::DamageData& damageData_ )
+{
+	if( CX2SkillTree::RNSI_SA_RNW_RAGE_FUNGUS != damageData_.m_iAppliedSkillID || null == damageData_.optrDefenderGameUnit )
+		return;
+
+	CX2GameUnit* pDefender = damageData_.optrDefenderGameUnit.GetObservable();
+	m_mapRageFungusTargetLockTime[ std::make_pair( static_cast<int>( pDefender->GetGameUnitType() ), pDefender->GetUnitUID() ) ] = 1.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE rage fungus lock ( unit %I64d, target %I64d, locks %d )", GetUnitUID(), pDefender->GetUnitUID(),
+		static_cast<int>( m_mapRageFungusTargetLockTime.size() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+}
+
+// char-rena CH4a: June 3275a490 ( thunk 327bf2c0, CX2GUNPC::InitDelegateProcess ): a summon of a Rena owner hands its hit to her Open Mind check
+void CX2GUNPC::RenaSummonAttackResult( const CX2DamageManager::DamageData& damageData_ )
+{
+	CX2GameUnit* pOwner = GetOwnerGameUnit();
+	if( NULL == pOwner || CX2GameUnit::GUT_USER != pOwner->GetGameUnitType() )	// stands in for June's unchecked +0x867c read
+		return;
+
+	CX2GUUser* pOwnerUser = static_cast<CX2GUUser*>( pOwner );
+	if( CX2Unit::UT_LIRE != pOwnerUser->GetUnitType() )
+		return;
+
+	static_cast<CX2GULire_ElvenRanger*>( pOwnerUser )->PlayOpenMindEffect( damageData_ );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+//}} Iruha : 2026-11-10 // char-rena CH4a
 //{{ Iruha : 2026-11-09 // char-rena CH1o
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_CORE
 /// char-rena CH1o review: June 32c85b20 ( reader: unit vslot 0x6c 3229a530, Stage 33 ): a lock at or below 0 is erased ( a NaN stays: June's fcomp ), the count left is June's word

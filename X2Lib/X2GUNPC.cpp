@@ -2959,6 +2959,9 @@ void CX2GUNPC::Init( bool bUseTeamPos, int startPosIndex )
 void CX2GUNPC::InitDelegateProcess()
 {
 	InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUNPC, EveSummonAttackResult ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+	InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUNPC, RenaSummonAttackResult ) );	// char-rena CH4a: June 3275f0a0's second push ( thunk 327bf2c0 )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 }
 // June 3275a120 ( June_EveSummonAttackResult ) is defined in X2GuEve.cpp, where CX2GUEve is complete
 //}} Iruha : 2026-10-28 // June character Eve Phase CH4b

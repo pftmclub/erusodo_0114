@@ -12144,3 +12144,38 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND needs SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE and SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND ( the allow-list chain and the picture rows it extends )
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-10
+// Description: char-rena CH4a - Rena's passives as June 2017 has them: InitPassiveSkillState 32ca78b0 whole on June's ids
+//              ( D8: Powerful Bowstring 23405 in place of March's 3405 ), Friendship of Nature 32c6dac0 and Vital Point
+//              Piercing 32c7af80 on June's ids, and June's four attack-result pushes ( Open Mind effect set 32ca2180, Predator's
+//              lucky effect 32ca2390, Rage Fungus target lock 32c86790, Eradication debuff explosion 32ca28b0 ) plus the
+//              summons' Open Mind push 3275a490 in CX2GUNPC::InitDelegateProcess. Log [JUNE_CHAR] RENA PASSIVE.
+//              Revert: undefine the flag ( JUNE_CHAR_RENA_PASSIVE ).
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_RENA_CORE ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE, SERV_IRUHADEV_JUNE_CHAR_RENA_CORE and SERV_IRUHADEV_JUNE_ENUM_NAMES
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ) || !defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE ) || !defined( SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE needs SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS, SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE and SERV_IRUHADEV_JUNE_DIVERGE_INIT_PASSIVE_SKILL_STATE ( the base clears the attack-result list )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ( CX2GUNPC::InitDelegateProcess, GetSkillBuffTempletID ) and SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST ( the summons' attack-result run )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-10
+// Description: char-rena CH4a - temporary [JUNE_CHAR] RENA PASSIVE log lines ( init values, each attack-result callback, the two
+//              delegates ) for the play-test; they sit inside JUNE_CHAR_RENA_PASSIVE code only; the CH4b review retires them.
+//              Revert: undefine the flag ( JUNE_CHAR_RENA_PASSIVE_DEBUG ).
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+#ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+//////////////////////////////////////////////////////////////////////////
