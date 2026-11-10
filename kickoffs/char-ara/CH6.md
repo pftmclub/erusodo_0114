@@ -26,6 +26,6 @@ and return to the village; **the becoming-transcended transition** on un-transce
 (guide popup with the class picture, new skill-tree rows, HUD portrait, relog).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+Nothing in the CH0 maps carries this phase's id; the plan section is the scope.

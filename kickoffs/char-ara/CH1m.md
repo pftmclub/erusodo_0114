@@ -41,6 +41,13 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 3** (`awk -F'\t' '$7=="CH1m"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 3).
+  June addresses: `32bca580` `32bcced0` `32bcf4a0`.
+- **States: 5** (`awk -F'\t' '$8=="CH1m"' june2017_re/char_ara/ch0_state_skill.tsv`, part 1, col 8 = phase): `USI_EVENT_PROTON_BOMB_CONTROL_FIRE`, `USI_EVENT_PROTON_BOMB_CONTROL_IDLE`, `USI_EVENT_SNIPER_CONTROL_FIRE`, `USI_EVENT_SNIPER_CONTROL_IDLE`, `USI_EVENT_SNIPER_END`.
+- **Checklist rows: 5** (`awk -F'\t' '$5 ~ /(^| )CH1m( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S; L428 USI_WAIT_STATE_CHANGE registered in every class InitState; L472 bounding user states USI_BOUNDING_DOWN / _LANDCRASH / _UP in; L954 every class also brings: emulator allow-list id, LevelUpEven; L978 transcend Ara: 32bb22d0 hyper effect start (vslot 49) branch.
+- **CH-N (class path) rows: 4** (`awk -F'\t' '$7 ~ /(^| )CH1m( |$)/' june2017_re/char_ara/ch0_classn.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
+- **Identified callees first needed here: 1** (`awk -F'\t' '$8 ~ /(^| )CH1m( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `32d3ee60`.
+- `ch0_reg.tsv` 162 rows (`charport_states.py init 32bca580 32bcf4a0 3202b110 32bcced0`); `ch0c_listing_check.py` 162 / 162. Five std::string rows checked by hand: 23 `USI_HYPER_MODE` (`31fdd490`), 155 `ASI_BERSERK_MODE` (`31fdd800`), 9 / 11 / 12 START / WIN / LOSE roll (`31fe22d0`, base callbacks).
+- June's `USI_END` is 152, March's 100: every one of the 105 shared `ASI_` names differs by 52. Register by June's id (`ch0_state_enum_names.tsv`, 350 rows; 138 June registration names are not in the C++ enum). June registers `ASI_A_ALS_SHAKE_CHAOS`'s table at both 291 (its Enum value) and 333 (`32bd1c95`, `32bd4d7c`, no Enum name): 333 stays a number with a one-line comment.

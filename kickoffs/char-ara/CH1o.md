@@ -39,6 +39,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 4** (`awk -F'\t' '$7=="CH1o"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; new 4).
+  June addresses: `32b92fa0`(new ?) `32b92fb0`(new ?) `32bab110`(new TakeFPGainByHitID) `32bab6b0`(new TakeSkillFPGainByHit).
+- **Checklist rows: 1** (`awk -F'\t' '$5 ~ /(^| )CH1o( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L286 SetSkillLevelStateData hoisted into CX2GUUser; March copy X2.
+- **Force-power rows: 1** (`awk -F'\t' '$7 ~ /(^| )CH1o( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: unchecked 1).
+- **Identified callees first needed here: 1** (`awk -F'\t' '$8 ~ /(^| )CH1o( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `31d29310`.
+- 2 rows left by the map (unsettled callers). `GetDefenceRateBySkill` 0x428 `32b956a0` is CH4b (l.940).

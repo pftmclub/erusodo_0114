@@ -39,6 +39,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 9** (`awk -F'\t' '$7=="CH4b"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 2, new 7).
+  June addresses: `32b955c0`(new ?) `32b956a0`(new GetDefenceRateBySkill) `32b958e0`(new ShownSkillCoolTime) `32b96730` `32ba45d0` `32ba46f0`(new ?) `32ba47f0`(new ?) `32badc80`(new SumSocketOptionAfterSlots) `32bc1530`(new ApplyEffectSetScaleBySkill).
+- **Checklist rows: 6** (`awk -F'\t' '$5 ~ /(^| )CH4b( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L237 buff hyper count readers / writers: 32ba6cc0 (vslot 39), 32b; L284 vslot 485 override 32badc80 (Ara vtable 33505314): skill-gro; L328 skill-memo entry 31fdbbb0 and the class callers of 31fdbcc0 ; L424 EffectSetToPlay +0x34 / +0x38 and user slots 0x4c4 / 0x4c8 a; L940 vslot 0x428 JuneGetDefenceRateBySkill: Ara 32b956a0 (the ove; L991 Ara: 0x3ac JuneModifyFinalDamageByGameUnitType 32ba45d0 (mov.
+- **CH-N (class path) rows: 1** (`awk -F'\t' '$7 ~ /(^| )CH4b( |$)/' june2017_re/char_ara/ch0_classn.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
+- **Identified callees first needed here: 2** (`awk -F'\t' '$8 ~ /(^| )CH4b( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `31fca980` `32d3f040`.
+- 0x300 `32ba47f0` CEffect hook (skill 27411: effect +0x3f0 x (100 - `+0x9740`) x 0.01 when `+0x973c` != 0). MemoCondition `32b955c0` / `32ba46f0`.

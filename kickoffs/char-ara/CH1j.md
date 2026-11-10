@@ -51,6 +51,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 19** (`awk -F'\t' '$7=="CH1j"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 9, new 10).
+  June addresses: `32b90be0` `32b90bf0` `32b90c00` `32b95a00`(new IsSkillAffectedByHellGateOpen) `32b95b00`(new IsSkillAffectedByLoadOfAsura) `32b95b30`(new IsSkillAffectedByFoxSmile) `32ba7b80`(new GetPassiveSkillRate) `32ba7cf0`(new UpdateOpenMindBuffByForcePower) `32ba7da0`(new UpdateValorDevotionTimer) `32ba7ec0`(new GetNowSkillPassiveRate) `32baa0d0` `32bb0bf0` `32bc13c0`(new CreateTranscendenceDamageEffectByTimer) `32bc5ea0`(new StopKillEnemyEffectSet) `32bc6aa0`(new CleanupSkillFPGainTable) `32bc8380` `32bce2e0` `32bd2a40` `32bd7280`.
+- **Checklist rows: 1** (`awk -F'\t' '$5 ~ /(^| )CH1j( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L184 class keys ADD_FORCE_POWER x9, USE_FORCE_POWER x26, FP_CANCE.
+- **Force-power rows: 4** (`awk -F'\t' '$7 ~ /(^| )CH1j( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: differs 2, june-only 1, same 1).
+- **Specter / tail rows: 2** (`awk -F'\t' '$7 ~ /(^| )CH1j( |$)/' june2017_re/char_ara/ch0_specter.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
+- **Identified callees first needed here: 4** (`awk -F'\t' '$8 ~ /(^| )CH1j( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `3207ff00` `32e87810` `32feae90` `33048830`.

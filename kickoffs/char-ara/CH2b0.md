@@ -40,6 +40,7 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Checklist rows: 3** (`awk -F'\t' '$5 ~ /(^| )CH2b0( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L775-L778 SLockOnSystem::ProcessLockOn 3200fa20 @3200ff98 (March X2GUA; L775-L777 ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK EventProcess (@32bc204c, M; L782 Ara landing helper 32bc0420 ( NULL, &idx ).
+- The plan's "landing helper `32bc0420`" is Specter of Thunder's (CH2d), not the lock-on's: this phase is `3200fa20` and its candidate-loop `CanDown` only. `SLockOnSystem::CreateLockOnSystem` `32b4cf30`: June's struct has one extra float at `+0x30`: add the member here. The first caller is Swallow Assault in CH3a (a 118 skill in June), so CH2b0 must land before CH3a (it does).

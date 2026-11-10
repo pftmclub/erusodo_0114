@@ -51,6 +51,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 29** (`awk -F'\t' '$7=="CH1d"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 28, new 1).
+  June addresses: `32b90ff0` `32b91000`(new ASI_COMBO_ZZZXAttack_StateStart) `32b91040` `32b91050` `32b91070` `32b91080` `32b910a0` `32b97ae0` `32b97d10` `32b97f00` `32b98460` `32b985b0` `32b98600` `32b98620` `32b98680` `32b986a0` `32b987f0` `32b98a90` `32b98bd0` `32b98d00` `32b98f00` `32b99370` `32b995b0` `32b99890` `32bb0080` `32bb0120` `32bb01c0` `32bb4630` `32bb4820`.
+- **States: 15** (`awk -F'\t' '$8=="CH1d"' june2017_re/char_ara/ch0_state_skill.tsv`, part 1, col 8 = phase): `ASI_COMBO_Z`, `ASI_COMBO_ZZ`, `ASI_COMBO_ZZZ`, `ASI_COMBO_ZZZZ`, `ASI_COMBO_ZZZXStart`, `ASI_COMBO_ZZZXCharge`, `ASI_COMBO_ZZZXAttack`, `ASI_COMBO_ZZX`, `ASI_COMBO_X`, `ASI_COMBO_XX`, `ASI_COMBO_XXX`, `ASI_COMBO_XXXloop`, `ASI_COMBO_XXXloopX`, `ASI_COMBO_XXdownX`, `ASI_COMBO_XXdownXX`.
+- **Checklist rows: 2** (`awk -F'\t' '$5 ~ /(^| )CH1d( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S; L669 combo hits carry June's AT_COMMAND tag; adopt the script wit.
+- **Force-power rows: 1** (`awk -F'\t' '$7 ~ /(^| )CH1d( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: differs 1).

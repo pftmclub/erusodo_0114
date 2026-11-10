@@ -37,6 +37,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 2** (`awk -F'\t' '$7=="CH2c0"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 2).
+  June addresses: `32bbb050` `32bbb720`.
+- **Checklist rows: 1** (`awk -F'\t' '$5 ~ /(^| )CH2c0( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L1031-L1035 Ara add-N-stacks buff path: 3229da40 (CX2GameUnit add N to a.
+- **Identified callees first needed here: 1** (`awk -F'\t' '$8 ~ /(^| )CH2c0( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `3229da40`.

@@ -24,7 +24,8 @@ CLASS_RANGE = {'eve': (0x32965dd0, 0x329cf86f), 'chung': (0x32bd86f0, 0x32c25a1f
                 'luciel': (0x32ae4080, 0x32b4e76f),
                 'elsword': (0x32cf2da0, 0x32d2763f),
                 'raven': (0x32c25a20, 0x32c6a63d),
-                'rena': (0x32c6a8d0, 0x32cb6c6d)}
+                'rena': (0x32c6a8d0, 0x32cb6c6d),
+                'ara': (0x32b90b70, 0x32bd86e0)}
 
 
 def load(key):

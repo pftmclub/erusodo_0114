@@ -51,6 +51,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 3** (`awk -F'\t' '$7=="CH1c"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 3).
+  June addresses: `32b90f30` `32bc0140` `32bc5ba0`.
+- **States: 37** (`awk -F'\t' '$8=="CH1c"' june2017_re/char_ara/ch0_state_skill.tsv`, part 1, col 8 = phase): `ASI_PEPPER_RUN_READY`, `ASI_PEPPER_RUN`, `ASI_PEPPER_RUN_END`, `ASI_PEPPER_RUN_JUMP_UP`, `ASI_PEPPER_RUN_JUMP_DOWN`, `ASI_AMUSEMENT_ITEM_PHOENIX_RUN`, `ASI_AMUSEMENT_ITEM_PHOENIX_RUN_END`, `ASI_DANCE_Z`, `ASI_DANCE_X`, `ASI_DANCE_WAIT`, `ASI_RIDING_START`, `ASI_RIDING_ON`, `ASI_RIDING_OFF`, `ASI_RIDING_WAIT_HABIT`, `ASI_RIDING_WAIT`, `ASI_RIDING_WALK`, `ASI_RIDING_JUMP_UP`, `ASI_RIDING_JUMP_DOWN`, `ASI_RIDING_JUMP_LANDING`, `ASI_RIDING_DASH`, `ASI_RIDING_DASH_END`, `ASI_RIDING_DASH_JUMP`, `ASI_RIDING_DASH_JUMP_LANDING`, `ASI_RIDING_DAMAGE_FRONT`, `ASI_RIDING_DAMAGE_FRONT`, `ASI_RIDING_ATTACK_Z`, `ASI_RIDING_ATTACK_X`, `ASI_RIDING_JUMP_ATTACK_Z`, `ASI_RIDING_ATTACK_SPECIAL`, `ASI_RIDING_DIE`, `ASI_RIDING_SPECIAL_MOVE`, `ASI_RIDING_HYPER_MODE`, `ASI_RIDING_SPECIFIC`, `ASI_RIDING_ATTACK_X_READY`, `ASI_RIDING_ATTACK_X_READY_2`, `ASI_RIDING_ATTACK_X_END`, `ASI_RIDING_DAMAGE_BACK`.
+- **Checklist rows: 1** (`awk -F'\t' '$5 ~ /(^| )CH1c( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S.
+- June's script defines `ASI_RIDING_DAMAGE_FRONT` twice (the second wins) and June registers `ASI_RIDING_DAMAGE_BACK` with no table; `ASI_RIDING_JUMP_READY` is dead data. Keep verbatim; `JUNE_BUGS.md` row for the duplicate.

@@ -51,6 +51,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 20** (`awk -F'\t' '$7=="CH1f"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 14, new 6).
+  June addresses: `32b93070` `32b9cfa0` `32b9d0e0` `32b9d300` `32b9d430` `32b9d470` `32b9d4b0` `32ba5640`(new ASI_COMBO_ALD_XXdownXX_EventProcess) `32ba5740`(new ASI_COMBO_ALD_XXdownXXX_EventProcess) `32ba5840`(new ASI_COMBO_ALD_XXdownXXXX_EventProcess) `32bbfde0` `32bc0ac0`(new ASI_COMBO_ALD_XXdownXX_FrameMove) `32bc0b10`(new ASI_COMBO_ALD_XXdownXXX_FrameMove) `32bc0b60`(new ASI_COMBO_ALD_XXdownXXXX_FrameMove) `32bc25a0` `32bc2650` `32bc26a0` `32bc26f0` `32bc27a0` `32bc2850`.
+- **States: 19** (`awk -F'\t' '$8=="CH1f"' june2017_re/char_ara/ch0_state_skill.tsv`, part 1, col 8 = phase): `ASI_ALD_START`, `ASI_ALD_WIN`, `ASI_ALD_WIN2`, `ASI_ALD_LOSE`, `ASI_ALD_LOSE2`, `ASI_AYR_START`, `ASI_AYR_WIN`, `ASI_AYR_WIN2`, `ASI_AYR_LOSE`, `ASI_AYR_LOSE2`, `ASI_COMBO_ALD_ZZXX`, `ASI_COMBO_ALD_ZZZFrontZ`, `ASI_DASH_JUMP_COMBO_ALD_ZX`, `ASI_DASH_JUMP_COMBO_ALD_ZXX`, `ASI_DASH_JUMP_COMBO_AYR_XZ`, `ASI_DASH_COMBO_AYR_ZZ`, `ASI_COMBO_ALD_XXdownXX`, `ASI_COMBO_ALD_XXdownXXX`, `ASI_COMBO_ALD_XXdownXXXX`.
+- **Checklist rows: 1** (`awk -F'\t' '$5 ~ /(^| )CH1f( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S.

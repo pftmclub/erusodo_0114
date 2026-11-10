@@ -42,6 +42,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Checklist rows: 9** (`awk -F'\t' '$5 ~ /(^| )CH1( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L14 character script Ara_Martial_Artist.lua feeds SetDamageDataF; L208 adopt the character's June script with luasrc.py adopt-june,; L423 "EFFECT_SET_LIST_* variants (_FINAL / _FINAL_ULTIMATE; Ara a; L427 USEFUL_VALUE rows and getters (every class with June scripts; L509 SET_LIMIT_MAX_G_SPEED in <prefix>DAMAGE_BOUNDING_DOWN (-4000; L548 TIME_STOP_IMMUNE_STATE = TRUE in the class script (76 June s; L592 "SHOW_HYPER_CUT_IN_TIME in the class script (""plus Ara's be; L669 combo hits carry June's AT_COMMAND tag; adopt the script wit; L760 stage June Motion_ARA* files with the class script; skill an.
+- **Specter / tail rows: 2** (`awk -F'\t' '$7 ~ /(^| )CH1( |$)/' june2017_re/char_ara/ch0_specter.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
+- Held motions `Motion_Ara_LD.x` / `_SD.x` (`ch1_held_motions.tsv`). Before deciding the LD case: June's script also plays the mixed-case `SI_SA_ALD_ENERGY_WAVE_Start` (src.lua:14486, 14614) against a file with `_START`: check June's animation lookup (March `KTDGXSkinAnim.cpp:2131` is case-sensitive); if June's is case-sensitive too it is June's bug (keep, `JUNE_BUGS.md` row).

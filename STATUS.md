@@ -116,9 +116,8 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0 | **ready** (`/x2-phase char-ara CH0`, Opus 5.5 high; read-only, runs beside char-rena): class / state / key / checklist maps, assets, force-power, Specter and CH-N maps | Opus 5.5 / high | - | `june2017_re/char_ara/`, funcmap rows, kickoffs | `CH0.md` |
-| CH0b | blocked (CH0, char-rena CH6 walk): every June Ara asset whole; walk units 7 / 28 / 118 / lv99 31 | Sonnet 5.5 / high, user play-test | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH1a | blocked (CH0, char-rena Z): movement and slot-head states | Sonnet 5.5 / high | CH0, char-rena Z | `X2GUAra.*`, Always.h | `CH1a.md` |
+| CH0b | blocked (char-rena CH6 walk): 5,886 June assets (new data205), LD / SD motions held; walk units 7 / 28 / 118 / lv99 31 | Sonnet 5.5 / high, user play-test | CH0, char-rena CH6 | koms, save | `CH0b.md` |
+| CH1a | blocked (char-rena Z): movement and slot-head states | Sonnet 5.5 / high | CH0, char-rena Z | `X2GUAra.*`, Always.h | `CH1a.md` |
 | CH1b | blocked (CH1a): reactions; review covers CH1a-CH1b | Sonnet 5.5 / high, Opus review | CH1a | `X2GUAra.*` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding, pepper run, dance | Sonnet 5.5 / high | CH1b review | `X2GUAra.*` | `CH1c.md` |
 | CH1d | blocked (CH1c): ground combos | Sonnet 5.5 / high | CH1c | `X2GUAra.*` | `CH1d.md` |
@@ -142,20 +141,26 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | CHNb | blocked (CHNa review): job change to 34 / 124 (quests 35560-35568, seeds, dialogs) | Opus 5.5 / high, Opus review, user play-test | CHNa review | `FieldQuest.lua`, `Handlers_Quest.cpp`, `X2OfflineClassChangeSeed.h` | `CHNb.md` |
 | CH2a | blocked (CH1 review): Martial Artist (7) skills; no review of its own | Sonnet 5.5 / high, user play-test | CH1 review | `X2GUAra.*` | `CH2a.md` |
 | CH2b0 | blocked (CH1 review): lock-on `ProcessLockOn` `3200fa20`, flag `_LOCKON`; amends char-luciel CH3c20 | Opus 5.5 / high, Opus review | CH1 review | `X2GUAra.*`, `kickoffs/char-luciel/CH3c20.md` | `CH2b0.md` |
-| CH2b | blocked (CH2a, CH2b0 review): Little Hsien (28) skills | Sonnet 5.5 / high, user play-test | CH2a, CH2b0 review | `X2GUAra.*` | `CH2b.md` |
+| CH2b | blocked (CH2a, CH2b0 review): Little Hsien (28) SA-tier skills | Sonnet 5.5 / high, user play-test | CH2a, CH2b0 review | `X2GUAra.*` | `CH2b.md` |
+| CH2b2 | blocked (CH2b): Little Hsien (28) A-tier skills (CH0 split) | Sonnet 5.5 / high, user play-test | CH2b | `X2GUAra.*` | `CH2b2.md` |
 | CH2c0 | blocked (CH1 review): add-N-stacks buff path 7at, flag `_STACK` | Opus 5.5 / high, Opus review | CH1 review | `X2GUAra.*`, `X2GageManager.*` | `CH2c0.md` |
-| CH2c | blocked (CH2b, CH2c0 review): Little Devil (31) skills | Sonnet 5.5 / high, user play-test | CH2b, CH2c0 review | `X2GUAra.*` | `CH2c.md` |
-| CH2d | blocked (CH2c, CHNb review): Little Specter (34) skills; CH2 stage review (CH2a-CH2d) | Sonnet 5.5 / high, Opus review, user play-test | CH2c, CHNb review | `X2GUAra.*` | `CH2d.md` |
-| CH3a | blocked (CH2d review): Sakra Devanam (118) skills | Sonnet 5.5 / high, user play-test | CH2d review | `X2GUAra.*` | `CH3a.md` |
-| CH3b | blocked (CH3a): Yama Raja (119) skills | Sonnet 5.5 / high, user play-test | CH3a | `X2GUAra.*` | `CH3b.md` |
-| CH3c | blocked (CH3b, CHNb review): Asura (124) skills, Fox Phantom render stand-in (7w) | Sonnet 5.5 / high, user play-test | CH3b, CHNb review | `X2GUAra.*` | `CH3c.md` |
-| CH3d | blocked (CH3c): hyper actives + transcendence rows 118 / 119 / 124; CH3 stage review (CH3a-CH3d) | Opus 5.5 / high, Opus review, user play-test | CH3c | `X2GUAra.*`, `Handlers_Quest.cpp`, data036 | `CH3d.md` |
+| CH2c | blocked (CH2b2, CH2c0 review): Little Devil (31) SA-tier skills | Sonnet 5.5 / high, user play-test | CH2b2, CH2c0 review | `X2GUAra.*` | `CH2c.md` |
+| CH2c2 | blocked (CH2c): Little Devil (31) A-tier skills (CH0 split) | Sonnet 5.5 / high, user play-test | CH2c | `X2GUAra.*` | `CH2c2.md` |
+| CH2d | blocked (CH2c2, CHNb review): Little Specter (34) skills, ids < 27024 | Sonnet 5.5 / high, user play-test | CH2c2, CHNb review | `X2GUAra.*` | `CH2d.md` |
+| CH2d2 | blocked (CH2d): Little Specter (34) ids 27024-27199 (CH0 split) | Sonnet 5.5 / high, user play-test | CH2d | `X2GUAra.*` | `CH2d2.md` |
+| CH2d3 | blocked (CH2d2): Little Specter (34) A tier; CH2 stage review (CH2a-CH2d3) | Sonnet 5.5 / high, Opus review, user play-test | CH2d2 | `X2GUAra.*` | `CH2d3.md` |
+| CH3a | blocked (CH2d3 review): Sakra Devanam (118) skills, smallest id < 27012 (incl. Swallow Assault on CH2b0's lock-on) | Sonnet 5.5 / high, user play-test | CH2d3 review | `X2GUAra.*` | `CH3a.md` |
+| CH3a2 | blocked (CH3a): Sakra Devanam (118) remaining skills (CH0 split) | Sonnet 5.5 / high, user play-test | CH3a | `X2GUAra.*` | `CH3a2.md` |
+| CH3b | blocked (CH3a2): Yama Raja (119) skills | Sonnet 5.5 / high, user play-test | CH3a2 | `X2GUAra.*` | `CH3b.md` |
+| CH3c | blocked (CH3b, CHNb review): Asura (124) SA-tier skills, Fox Phantom render stand-in (7w) | Sonnet 5.5 / high, user play-test | CH3b, CHNb review | `X2GUAra.*` | `CH3c.md` |
+| CH3c2 | blocked (CH3c): Asura (124) A-tier skills (CH0 split) | Sonnet 5.5 / high, user play-test | CH3c | `X2GUAra.*` | `CH3c2.md` |
+| CH3d | blocked (CH3c2): hyper actives + transcendence rows 118 / 119 / 124; CH3 stage review (CH3a-CH3d) | Opus 5.5 / high, Opus review, user play-test | CH3c2 | `X2GUAra.*`, `Handlers_Quest.cpp`, data036 | `CH3d.md` |
 | CH4a | blocked (CH3d review): passives `32bcd9c0`, 0x780 hook `32bca010`, delegates; no review of its own | Opus 5.5 / high, user play-test | CH3d review | `X2GUAra.*`, `X2GUUser.*` | `CH4a.md` |
 | CH4b | blocked (CH4a): overrides + `MemoConditionAra`; CH4 stage review (CH4a-CH4b) | Opus 5.5 / high, Opus review, user play-test | CH4a | `X2GUAra.*`, `X2GUUser.*` | `CH4b.md` |
 | CH6 | blocked (CH4b review, CH5 review, CHNb review): scans rerun + user walk incl. both job changes and the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH4b, CH5, CHNb reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template + CH-N rewrite, `stage7-plan` -> `char-elesis` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: -
+Done: CH0 (2026-11-10).
 
 Decisions answered 2026-11-10 (plan "Open decisions"): 1 stat rows for 34 / 124 follow Ara's own rule (CHNa writes, user packs); 2 the lobby orb handles are retired (CH5).
 

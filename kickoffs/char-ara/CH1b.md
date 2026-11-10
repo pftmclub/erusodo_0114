@@ -51,6 +51,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 17** (`awk -F'\t' '$7=="CH1b"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 17).
+  June addresses: `32b90dd0` `32b90df0` `32b90f40` `32b96b30` `32b96bc0` `32b96c30` `32b96c70` `32b96cd0` `32b96d40` `32b96f20` `32b96f70` `32b97350` `32b97390` `32b97770` `32b97780` `32b97800` `32bab2d0`.
+- **States: 38** (`awk -F'\t' '$8=="CH1b"' june2017_re/char_ara/ch0_state_skill.tsv`, part 1, col 8 = phase): `ASI_DIE_FRONT`, `ASI_DIE_BACK`, `ASI_START`, `ASI_START_INTRUDE`, `ASI_WIN`, `ASI_WIN2`, `ASI_LOSE`, `ASI_LOSE2`, `ASI_DAMAGE_GROGGY`, `ASI_DAMAGE_SMALL_FRONT`, `ASI_DAMAGE_SMALL_BACK`, `ASI_DAMAGE_BIG_FRONT`, `ASI_DAMAGE_BIG_BACK`, `ASI_DAMAGE_DOWN_FRONT`, `ASI_DAMAGE_DOWN_BACK`, `ASI_DAMAGE_STANDUP_FRONT`, `ASI_DAMAGE_STANDUP_BACK`, `ASI_DAMAGE_BOUNDING_DOWN`, `ASI_DAMAGE_BOUNDING_LANDCRASH`, `ASI_DAMAGE_BOUNDING_UP`, `ASI_DAMAGE_AIR_SMALL`, `ASI_DAMAGE_AIR_DOWN`, `ASI_DAMAGE_AIR_DOWN_INVINCIBLE`, `ASI_DAMAGE_AIR_DOWN_LANDING`, `ASI_DAMAGE_AIR_FALL`, `ASI_DAMAGE_AIR_UP`, `ASI_DAMAGE_AIR_FLY_FRONT`, `ASI_DAMAGE_AIR_FLY_BACK`, `ASI_DAMAGE_REVENGE`, `ASI_STANDUP_ROLLING_FRONT_FRONT`, `ASI_STANDUP_ROLLING_FRONT_BACK`, `ASI_STANDUP_ROLLING_BACK_FRONT`, `ASI_STANDUP_ROLLING_BACK_BACK`, `ASI_STANDUP_ATTACK_FRONT`, `ASI_STANDUP_ATTACK_BACK`, `ASI_STANDUP_ATTACK_FRONT_NO_DOWN`, `ASI_STANDUP_ATTACK_BACK_NO_DOWN`, `ASI_WALL_LANDING`.
+- **Checklist rows: 2** (`awk -F'\t' '$5 ~ /(^| )CH1b( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S; L852-L855 "pass June's skip / adjust / level / creator at every ported.
+- **Identified callees first needed here: 1** (`awk -F'\t' '$8 ~ /(^| )CH1b( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `32d278f0`.
+- `ASI_WALL_LANDING` is registered by June's C++ with no script table (state_skill note): transcribe the callbacks, no table needed.

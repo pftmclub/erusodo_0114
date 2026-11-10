@@ -2043,3 +2043,94 @@ UC_ADD_LUNATIC_PSYKER	122	X2GUAdd.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	
 UC_ADD_LUNATIC_PSYKER	122	X2GUAdd.cpp	29038	RNSI_SA_ALP_QUICKSILVER_STRIKE	Quicksilver Strike	15	1	16	1	n	n	no_state			n	n			
 UC_ADD_LUNATIC_PSYKER	122	X2GUAdd.cpp	29416	RNSI_P_ALP_ENERGY_AMPLIFY	Amplify Energy	8	1	16	4	n	n	no_state			n	n			
 UC_ADD_LUNATIC_PSYKER	122	X2GUAdd.cpp	29058	RNSI_SA_ALP_SUPERSONIC	Supersonic	16	1	17	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27200	RNSI_A_ARA_GAIN_FORCE	Energy\n Absorption	6	1	0	0	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27220	RNSI_A_ARA_GAIN_FORCE_UPGRADE	#Cffcc00[Enhanced]#CX\nEnergy Absorption	6	1	0	0	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27029	RNSI_SA_ARA_TEMPEST_DANCE_UPGRADE	#Cffcc00[Enhanced]#CX\nTempest Dance	15	1	0	2	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27000	RNSI_SA_ARA_TEMPEST_DANCE	Tempest Dance	15	1	0	2	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27030	RNSI_SA_ARA_PULLING_PIERCE_UPGRADE	#Cffcc00[Enhanced]#CX\nDragon Stance 2: Pulling Thrust	14	1	1	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27001	RNSI_SA_ARA_PULLING_PIERCE	Dragon Stance 2:\n Pulling Thrust	14	1	1	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27002	RNSI_SA_ARA_FALLING_DRAGON	Falling Dragon	16	1	2	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27031	RNSI_SA_ARA_FALLING_DRAGON_UPGRADE	#Cffcc00[Enhanced]#CX\nFalling Dragon	16	1	2	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27032	RNSI_SA_ARA_WIND_WEDGE_UPGRADE	#Cffcc00[Enhanced]#CX\nWolf Stance 2: Wind Wedge	14	1	3	0	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27003	RNSI_SA_ARA_WIND_WEDGE	Wolf Stance 2:\n Wind Wedge	14	1	3	0	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27214	RNSI_A_ALS_VIEW_BETWEEN	Phantom Fox Stance 1:\n Savor	6	1	3	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27225	RNSI_A_ALS_VIEW_BETWEEN_UPGRADE	#Cffcc00[Enhanced]#CX\nPhantom Fox Stance 1: Savor	6	1	3	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27021	RNSI_SA_ALS_SPECTER_OF_STORM	Spell: Storm	15	1	3	2	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27036	RNSI_SA_ALS_SPECTER_OF_STORM_UPGRADE	#Cffcc00[Enhanced]#CX\nSpell: Storm	15	1	3	2	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27410	RNSI_P_ALS_FILLED_POWER	Assimilation	8	4	3	3	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27033	RNSI_SA_ARA_SHADOW_KNOT_UPGRADE	#Cffcc00[Enhanced]#CX\nExorcism Stance 3: Shadoweave	16	1	4	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27004	RNSI_SA_ARA_SHADOW_KNOT	Exorcism Stance 3:\n Shadoweave	16	1	4	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27221	RNSI_A_ARA_SHOULDER_BLOW_UPGRADE	#Cffcc00[Enhanced]#CX\nSteel Body	6	1	4	4	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27201	RNSI_A_ARA_SHOULDER_BLOW	Steel Body	6	1	4	4	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27022	RNSI_SA_ALS_RESTRAINTS_SPECTER	Exorcism Stance 2:\n Specter Restraints	14	1	5	0	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27041	RNSI_SA_ALS_RESTRAINTS_SPECTER_UPGRADE	#Cffcc00[Enhanced]#CX\nExorcism Stance 2: Specter Restraints	14	1	5	0	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27023	RNSI_SA_ALS_SPECTER_OF_THUNDER	Spell: Thunder	15	1	5	2	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27042	RNSI_SA_ALS_SPECTER_OF_THUNDER_UPGRADE	#Cffcc00[Enhanced]#CX\nSpell: Thunder	15	1	5	2	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27215	RNSI_A_ALS_SHAKE_CHAOS	Phantom Fox Stance 2:\n Discordance	6	1	6	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27239	RNSI_A_ALS_SHAKE_CHAOS_UPGRADE	#Cffcc00[Enhanced]#CX Phantom Fox Stance 2: Discordance	6	1	6	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27216	RNSI_A_ALS_MANA_DRAIN	Mana Drain	6	1	6	4	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27240	RNSI_A_ALS_MANA_DRAIN_UPGRADE	#Cffcc00[Enhanced]#CX Mana Drain	6	1	6	4	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27024	RNSI_SA_ALS_SEVER	Exorcism Stance 4:\n Darkness Sever	15	1	7	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27059	RNSI_SA_ALS_SEVER_UPGRADE	#Cffcc00[Enhanced]#CX Exorcism Stance 4: Darkness Sever	15	1	7	1	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27217	RNSI_A_ALS_QUICK_PIERCING	Heavenly Strike	6	1	8	0	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27241	RNSI_A_ALS_QUICK_PIERCING_UPGRADE	#Cffcc00[Enhanced]#CX Heavenly Strike	6	1	8	0	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27025	RNSI_SA_ALS_SUPPRESSION_SPECTER	Suppression:\n Specter	16	1	8	2	n	n	no_state			n	n			
+UC_ARA_LITTLE_SPECTER	34	X2GUAra.cpp	27060	RNSI_SA_ALS_SUPPRESSION_SPECTER_UPGRADE	#Cffcc00[Enhanced]#CX Suppression: Specter	16	1	8	2	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27220	RNSI_A_ARA_GAIN_FORCE_UPGRADE	#Cffcc00[Enhanced]#CX\nEnergy Absorption	6	1	0	0	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27200	RNSI_A_ARA_GAIN_FORCE	Energy\n Absorption	6	1	0	0	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27000	RNSI_SA_ARA_TEMPEST_DANCE	Tempest Dance	15	1	0	2	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27029	RNSI_SA_ARA_TEMPEST_DANCE_UPGRADE	#Cffcc00[Enhanced]#CX\nTempest Dance	15	1	0	2	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	900	SI_ETC_WS_COMMON_LOVE	Extreme Heavenly Love	12	2	0	4	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27030	RNSI_SA_ARA_PULLING_PIERCE_UPGRADE	#Cffcc00[Enhanced]#CX\nDragon Stance 2: Pulling Thrust	14	1	1	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27001	RNSI_SA_ARA_PULLING_PIERCE	Dragon Stance 2:\n Pulling Thrust	14	1	1	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27031	RNSI_SA_ARA_FALLING_DRAGON_UPGRADE	#Cffcc00[Enhanced]#CX\nFalling Dragon	16	1	2	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27002	RNSI_SA_ARA_FALLING_DRAGON	Falling Dragon	16	1	2	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27003	RNSI_SA_ARA_WIND_WEDGE	Wolf Stance 2:\n Wind Wedge	14	1	3	0	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27032	RNSI_SA_ARA_WIND_WEDGE_UPGRADE	#Cffcc00[Enhanced]#CX\nWolf Stance 2: Wind Wedge	14	1	3	0	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27214	RNSI_A_ALS_VIEW_BETWEEN	Phantom Fox Stance 1:\n Savor	6	1	3	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27225	RNSI_A_ALS_VIEW_BETWEEN_UPGRADE	#Cffcc00[Enhanced]#CX\nPhantom Fox Stance 1: Savor	6	1	3	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27021	RNSI_SA_ALS_SPECTER_OF_STORM	Spell: Storm	15	1	3	2	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27036	RNSI_SA_ALS_SPECTER_OF_STORM_UPGRADE	#Cffcc00[Enhanced]#CX\nSpell: Storm	15	1	3	2	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27410	RNSI_P_ALS_FILLED_POWER	Assimilation	8	4	3	3	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27004	RNSI_SA_ARA_SHADOW_KNOT	Exorcism Stance 3:\n Shadoweave	16	1	4	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27033	RNSI_SA_ARA_SHADOW_KNOT_UPGRADE	#Cffcc00[Enhanced]#CX\nExorcism Stance 3: Shadoweave	16	1	4	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27221	RNSI_A_ARA_SHOULDER_BLOW_UPGRADE	#Cffcc00[Enhanced]#CX\nSteel Body	6	1	4	4	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27201	RNSI_A_ARA_SHOULDER_BLOW	Steel Body	6	1	4	4	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27022	RNSI_SA_ALS_RESTRAINTS_SPECTER	Exorcism Stance 2:\n Specter Restraints	14	1	5	0	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27041	RNSI_SA_ALS_RESTRAINTS_SPECTER_UPGRADE	#Cffcc00[Enhanced]#CX\nExorcism Stance 2: Specter Restraints	14	1	5	0	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27023	RNSI_SA_ALS_SPECTER_OF_THUNDER	Spell: Thunder	15	1	5	2	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27042	RNSI_SA_ALS_SPECTER_OF_THUNDER_UPGRADE	#Cffcc00[Enhanced]#CX\nSpell: Thunder	15	1	5	2	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27215	RNSI_A_ALS_SHAKE_CHAOS	Phantom Fox Stance 2:\n Discordance	6	1	6	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27239	RNSI_A_ALS_SHAKE_CHAOS_UPGRADE	#Cffcc00[Enhanced]#CX Phantom Fox Stance 2: Discordance	6	1	6	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27216	RNSI_A_ALS_MANA_DRAIN	Mana Drain	6	1	6	4	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27240	RNSI_A_ALS_MANA_DRAIN_UPGRADE	#Cffcc00[Enhanced]#CX Mana Drain	6	1	6	4	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27024	RNSI_SA_ALS_SEVER	Exorcism Stance 4:\n Darkness Sever	15	1	7	0	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27059	RNSI_SA_ALS_SEVER_UPGRADE	#Cffcc00[Enhanced]#CX Exorcism Stance 4: Darkness Sever	15	1	7	0	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27218	RNSI_A_ASR_RAID	Phantom Fox Stance 3:\n Rapid Raid	6	1	7	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27242	RNSI_A_ASR_RAID_UPGRADE	#Cffcc00[Enhanced]#CX Phantom Fox Stance 3:\n Rapid Raid	6	1	7	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27026	RNSI_SA_ASR_GET_BLOOD	Phantom Fox Stance 4:\n Fox's Meal	14	1	7	2	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27061	RNSI_SA_ASR_GET_BLOOD_UPGRADE	#Cffcc00[Enhanced]#CX Phantom Fox Stance 4: Fox's Meal	14	1	7	2	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27411	RNSI_P_ASR_ENERGY_REINFORCE	Specter Power\n Release	8	4	7	3	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27217	RNSI_A_ALS_QUICK_PIERCING	Heavenly Strike	6	1	8	0	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27241	RNSI_A_ALS_QUICK_PIERCING_UPGRADE	#Cffcc00[Enhanced]#CX Heavenly Strike	6	1	8	0	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27025	RNSI_SA_ALS_SUPPRESSION_SPECTER	Suppression:\n Specter	16	1	8	2	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27060	RNSI_SA_ALS_SUPPRESSION_SPECTER_UPGRADE	#Cffcc00[Enhanced]#CX Suppression: Specter	16	1	8	2	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27412	RNSI_P_ASR_LOAD_OF_ASURA	Repose of Souls	8	4	9	3	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27027	RNSI_SA_ASR_FIRE_FOX	Fox Fire	16	1	9	4	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27062	RNSI_SA_ASR_FIRE_FOX_UPGRADE	#Cffcc00[Enhanced]#CX Fox Fire	16	1	9	4	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27219	RNSI_A_ASR_SPECTER_WALK	Specter Walk	6	1	10	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27243	RNSI_A_ASR_SPECTER_WALK_UPGRADE	#Cffcc00[Enhanced]#CX Specter Walk	6	1	10	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27028	RNSI_SA_ASR_NECROMANCY	Spell:\n Necromancy	15	1	11	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27063	RNSI_SA_ASR_NECROMANCY_UPGRADE	#Cffcc00[Enhanced]#CX Spell: Necromancy	15	1	11	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27413	RNSI_P_ASR_FOX_SMILE	Fox's Laugh	8	4	12	3	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27414	RNSI_P_ASR_SPIRITUAL_EYE	Spell:\n Spiritual Eye	8	4	12	4	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27602	RNSI_HA_ASR_NINE_TAILED_FOX	Millennium Fox	13	1	13	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27605	RNSI_HA_ASR_NINE_TAILED_FOX_UPGRADE	#Cffcc00[Enhanced]#CX\nMillennium Fox	13	1	13	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27047	RNSI_SA_ASR_SHADOW_RISING	Shadow Blast	14	1	14	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27419	RNSI_P_ASR_OPEN_MIND	Awakened Will: Asura	8	1	14	3	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27228	RNSI_A_ASR_FOX_GHOST	Fox Spirit	6	1	15	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	106	RNSI_P_COMMON_HYPER_AURA	Awakened One	1	1	15	4	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27048	RNSI_SA_ASR_SPECTER_OF_BLADE	Spell: Ellipse of Blades	15	1	16	1	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27420	RNSI_P_ASR_SPIRITISM_WEIRD_FOX	Spirit Synchronous: Millennium Fox	8	1	16	4	n	n	no_state			n	n			
+UC_ARA_ASURA	124	X2GUAra.cpp	27066	RNSI_SA_ASR_FOX_PHANTOM	Fox Illusion	16	1	17	1	n	n	no_state			n	n			

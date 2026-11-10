@@ -44,6 +44,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Checklist rows: 1** (`awk -F'\t' '$5 ~ /(^| )CHNa( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L1007-L1009 GetX2UnitClassCompatibility 31ed6500: June cases for unit cl.
+- **CH-N (class path) rows: 13** (`awk -F'\t' '$7 ~ /(^| )CHNa( |$)/' june2017_re/char_ara/ch0_classn.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
+- `ch0_classn.tsv` (45 rows) is the list. Live breaks for 34 / 124: `X2SocketItem.cpp:2897` (`>= UC_END` drops 996 of 5,235 rows incl. Asura's 75; June `3271a810` accepts 1..202: bound 202, never renumber `UC_END`; flag `_CLASS_PATH`); `GetX2UnitClassCompatibility` (`X2Unit.h:1456-2172`, June `31ed6500`: 34 accepts {7, 34}, 124 accepts {7, 34, 124}); **`X2GageManager.cpp:180-190` has no 34 / 124 arm while `X2GUAra.cpp:3028` static_casts the gauge to `CX2AraGageData`: a crash, fix first**; `X2Unit.cpp:3021` `GetClassLevel` (-1; June `3234c170`: 34 = 1, 124 = 2; divergence row); `tools/createchar.py` (`CLASSES` / `PARENT` lack 34 / 124).
+- Stat rows: `X2OfflineStatTable.cpp:355-369` falls back to `UnitTypeOf(class)`'s rows silently once CH5's templet rows exist (no log on success: add one); per Open decision 1 the stat rows follow Ara's own rule (server Lua, user packs).
+- Not needed (verified): `X2GUUser.cpp:534-545` (dead behind the GFX talk cut-in early return), `X2OfflineLuaEnumSeed.h:117-118` (not a bound test), `X2ItemManager_Preprocessing.cpp:688` / `X2GameEdit.cpp:1643` (log / dev only: optional), `AnimationNameTable.lua` (already June's, `ALS_*` / `AA_*` present). `CorrelateUnitClassTemplet.lua` is March's (no 34 / 124 chain; read only by the skill-note memo list): adopt June's.

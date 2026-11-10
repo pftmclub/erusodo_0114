@@ -187,6 +187,41 @@ CHARS = {
              'npc-lua (check ledger)', '-', 'NPC / shadow / bot copy of the character'),
         ],
     ),
+    'ara': dict(
+        owner='char-ara',
+        script='Ara_Martial_Artist', lo=0x32b90b70, hi=0x32bd86e0,
+        unit_type=7, unit_type_name='UT_ARA',
+        unit_classes=[7, 28, 31, 34, 118, 119, 124],                 # Martial Artist, Little Hsien / Devil / Specter, Sakra Devanam, Yama Raja, Asura; no third jobs
+        tokens=['ara'],                                              # whole token, any case ("Aral" / "Parasite" / "Baram" are other tokens)
+        abbr=['LH', 'LD', 'YR', 'ALH', 'ALD', 'ALS', 'ASD', 'AYR', 'ASR', 'AAS'],   # not LS / SD / AA as whole tokens: other things (3LS, Add's SD, Altera's AA); LD is Ara's (LD_SLICER_*, LD_Combo*)
+        abbr_exclude=re.compile(r'(?i)(^|_)pet_|_EVENT_|^HQ_Shop_Pet|^Motion_NPC_Event_|luciel|_(ciel|lu)_'),     # LD is also Luciel's Diablura in 5 names (DLG_Class_Change_Luciel_LD, HQ_Lobby_LD_Ciel_*)
+        short_re=re.compile(r'^(?:SI_(?:SA|A|HA)_|SA_|A_)?(?:AA|SD)_'),   # Asura effects AA_*, Sakra Devanam SD_*: only as a name prefix
+        job_re=re.compile(r'(?i)little[_ ]?(hsien|devil|specter)|sakra[_ ]?devanam|yama[_ ]?raja|asura|specter'),
+        lua_script='Ara_Martial_Artist',
+        skill_lua=[],                                                # Ara summons no NPC (plan_june_side section 2: NPC / SUMMON 0)
+        extra_lua=['DLG_Transcendental_Change_Guide_Ara', 'DLG_1ST_Class_Change_Guide_Ara', 'DLG_2ND_Class_Change_Guide_Ara', 'DLG_Class_Change_Guide_Ara',
+                   'DLG_Ara_ForcePower'],
+        skill_icon_ranges=[(106, 106), (900, 900), (27000, 27066), (27200, 27244), (27400, 27420), (27600, 27605)],
+        motion_glob=re.compile(r'(?i)^Motion_Ara'),
+        march_motion_koms=('data033', 'data012'),
+        tutorial_re=re.compile(r'(?i)^tuto'),
+        owner_rules=[
+            (r'(?i)^DLG_PVP_Game_Damaged_Ara|^DLG_UI_JUMPING_(EVENT|SYSTEM)_ARA|^DLG_Unit_(Create|Select)_',
+             'stage9-ui', '-', 'jumping / unit / PvP dialog'),
+            (r'(?i)^DLG_(1ST|2ND)_Class_Change_Guide_Ara', 'char-ara', 'CH5', 'class-change guide dialog (June-only; adopt-june, not stage-june)'),
+            (r'(?i)^DLG_Class_Change_(Guide_)?Ara', 'char-ara', 'CH0b-adopt', 'class-change dialog Lua (adopt-june, not stage-june: June bytecode fails the pack gate)'),
+            (r'(?i)^DLG_Class_Change_', 'stage9-ui', '-', 'class-change dialog'),
+            (r'(?i)^DLG_Transcendental_Change_Guide_Ara', 'char-ara', 'CH3d', 'transcendence guide (Stage 6 pattern)'),
+            (r'(?i)^(PET_|Pet_|HQ_Shop_Pet)', 'stage17-pet', '-', 'pet asset'),
+            (r'(?i)^Motion_EVENT_', 'june-dungeons', '-', 'event NPC motion, not the character'),
+            (r'(?i)^POPUP_TR_(S_DEVANAM|Y_RAJA|ASURA)\.', 'char-ara', 'CH0b', 'transcendence guide picture named by DLG_Transcendental_Change_Guide_Ara'),
+            (r'(?i)^POPUP_TR_', 'stage6-transcendence', '-', 'transcendence job popup UI'),
+            (r'(?i)^(Dungeon_Tutorial_Ara|Motion_(Time_Ara|Time2_Ara)|MOTION_HAMEL_SUMMON_DUMMY_ARA|NUI_HAMEL_SHADOW_ARA|Time2_Stage\d+_ara)',
+             'june-dungeons', '-', 'dungeon / boss / summon copy of the character'),
+            (r'(?i)^((NPC_|Npc_)Ara|.*_SHADOW_ARA|TIME_ARA|PVP_BOT_ARA|APINK_ANGEL_\d+_ARA|EVENT_.*ARA|CSM_Ara)',
+             'npc-lua (check ledger)', '-', 'NPC / shadow / bot copy of the character'),
+        ],
+    ),
     'luciel': dict(
         owner='char-luciel',
         script='Luciel_Duo', lo=0x32ae4080, hi=0x32b4e76f,

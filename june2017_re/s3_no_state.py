@@ -62,6 +62,10 @@ JUNE_ONLY_FAMILIES = {          # family_cpp_file -> UNIT_CLASS names, in the or
     'X2GULuciel.cpp': ('UC_LUCIEL_DUO', 'UC_LUCIEL_CHILIARCH', 'UC_LUCIEL_ROYAL_GUARD', 'UC_LUCIEL_DIABLURA',
                        'UC_LUCIEL_DREAD_LORD', 'UC_LUCIEL_NOBLESSE', 'UC_LUCIEL_DEMONIO'),
 }
+# Classes of a family that the tsv has no rows for (appended by --append-missing; the tsv's other rows are never touched).
+TSV_MISSING_CLASSES = {
+    'X2GUAra.cpp': ('UC_ARA_LITTLE_SPECTER', 'UC_ARA_ASURA'),
+}
 COLS = ['unit_class_name', 'unit_class_value', 'family_cpp_file', 'skill_id', 'skill_name', 'templet_name',
         'skill_type', 'master_level', 'row', 'column', 'in_cpp_enum', 'cpp_case_in_family', 'verdict',
         'march_value_of_name', 'march_names_at_same_id', 'cpp_any_token_in_family', 'case_in_X2GUUser_cpp',
@@ -323,8 +327,8 @@ def lua_table(text, name):
     return {k: int(v) for k, v in re.findall(r'^\t(\w+) = (-?\d+),?\s*$', m.group(1), re.M)}
 
 
-def june_only_rows(fam):
-    """Tree rows (columns 1-10 of the tsv) for a June-only family from June's Lua source."""
+def june_only_rows(fam, only=None):
+    """Tree rows (columns 1-10 of the tsv) for a June-only family (or the given classes) from June's Lua source."""
     enum = read_latin1(os.path.join(JUNE_LUA_DIR, 'Enum.src.lua'))
     classes = lua_table(enum, 'UNIT_CLASS')
     names = {}
@@ -345,7 +349,7 @@ def june_only_rows(fam):
             uc = g['m_eUnitClass'].split('.')[-1]
             tree.setdefault(uc, []).append(g)
     rows = []
-    for uc in JUNE_ONLY_FAMILIES[fam]:
+    for uc in (only or JUNE_ONLY_FAMILIES[fam]):
         for g in tree.get(uc, []):
             sid = int(g['m_iSkillID'])
             cand = names.get(sid, [])
@@ -365,11 +369,23 @@ def main():
     ap.add_argument('--live-lines', help='file of live line ranges (start-end or file:start-end per line)')
     ap.add_argument('--preprocess', action='store_true', help='use cl /P for exact live branches')
     ap.add_argument('--loose', action='store_true', help='const definitions and == compares also count as has_state')
+    ap.add_argument('--append-missing', action='store_true', help='append the TSV_MISSING_CLASSES rows of --family to --tsv and exit')
     ap.add_argument('-o', '--out', help='write here instead of stdout')
     ap.add_argument('--keep-i', help='with --preprocess: where to leave the .i file (default: next to -o or temp)')
     a = ap.parse_args()
 
     fam = a.family
+    if a.append_missing:
+        add = june_only_rows(fam, TSV_MISSING_CLASSES[fam])
+        with open(a.tsv, encoding='utf-8', newline='') as fh:
+            have = {r.split('\t')[0] for r in fh.read().split('\n')[1:] if r}
+        add = [d for d in add if d['unit_class_name'] not in have]
+        with open(a.tsv, 'a', encoding='utf-8', newline='\n') as fh:
+            for d in add:
+                d = dict(d, in_cpp_enum='n', cpp_case_in_family='n', verdict='no_state', cpp_any_token_in_family='n', case_in_X2GUUser_cpp='n')
+                fh.write('\t'.join(d.get(c, '') for c in COLS) + '\n')
+        print('appended %d rows' % len(add))
+        return
     base_cpp = os.path.join(X2LIB, fam)
     files = a.class_file or [base_cpp, os.path.splitext(base_cpp)[0] + '.h']
     files = [f if os.path.isabs(f) else os.path.join(TRUNK, f) for f in files]

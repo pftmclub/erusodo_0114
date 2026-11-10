@@ -1,0 +1,1412 @@
+june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carved
+32b90b70	helper	-	-	-	-	n/a	CH0 Opus: CRT _swprintf_c wrapper (library)	y
+32b90b90	override 0x48	InitEffect	X2GUAra.h:565 virtual void InitEffect();	inside	-	CH1h	base 32012760	y
+32b90bc0	override 0x548	CreateMinorParticleArray	X2GUAra.h:578 virtual void CreateMinorParticleArray();	inside	-	CH1h	base 32012920	n
+32b90bd0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c3cccccccccccccc	n
+32b90be0	override 0x7d8	CommonStateEndFuture	X2GUAra.h:476 virtual void CommonStateEndFuture();	inside	-	CH1j	base 31fdd8e0	n
+32b90bf0	override 0x7dc	CommonStateEnd	X2GUAra.h:477 virtual void CommonStateEnd();	inside	-	CH1j	base 32015250	n
+32b90c00	override 0x7e8	CommonRender_Prepare	X2GUAra.h:479 virtual RENDER_HINT CommonRender_Prepare();	inside	-	CH1j	base 31fd07b0	y
+32b90c20	override 0x7f4	SpecialAttackEventProcess	X2GUAra.h:481 virtual bool SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition	inside	-	CH1k	base 31aa1d30	y
+32b90d20	override 0x250	UnSetSpecificValueByBuffTempletID	X2GUAra.h:617 virtual void UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	inside	-	CH1h	base 3202ed60	y
+32b90da0	override 0x688	?	- (name unsettled)	-	-	n/a	CH0 Opus: vslot 0x688 AfterInitEquippedActiveSkillState is a jmp to the base 31fcd740: same as base, nothing to port	n
+32b90db0	not-Ara	called only from outside the range: 31fca1f6	-	-	-	n/a	shared / folded code	y
+32b90dc0	not-Ara	called only from outside the range: 31fee00c	-	-	-	n/a	shared / folded code	y
+32b90dd0	state-fn	ASI_DIE_FRONT.FrameMove ASI_RIDING_DIE.FrameMove	inside X2GUAra.cpp:367 CX2GUAra::DieFrontFrameMove ; inside X2GUAra.cpp:980 CX2GUAra::DieFrontFrameMove	inside	-	CH1b	2 states	n
+32b90df0	state-fn	ASI_DIE_BACK.FrameMove	inside X2GUAra.cpp:378 CX2GUAra::DieBackFrameMove	inside	-	CH1b	1 states	n
+32b90e10	state-fn	ASI_WAIT.StartFuture	inside X2GUAra.cpp:397 CX2GUAra::WaitStartFuture	inside	-	CH1a	1 states	y
+32b90e40	state-fn	ASI_HYPER_WAIT.End	inside X2GUAra.cpp:410 CX2GUAra::HyperWaitStateEnd	inside	-	CH1a	1 states	n
+32b90e60	state-fn	ASI_JUMP_LANDING.Start ASI_DASH_JUMP_LANDING.Start	inside X2GUAra.cpp:453 CX2GUAra::JumpLandingStart ; inside X2GUAra.cpp:496 CX2GUAra::JumpLandingStart	inside	-	CH1a	2 states	y
+32b90e90	state-fn	ASI_DASH.Start	inside X2GUAra.cpp:463 CX2GUAra::DashStart	inside	-	CH1d2	1 states	y
+32b90ec0	state-fn	ASI_DASH_JUMP_POWER_LANDING.StartFuture	inside X2GUAra.cpp:738 CX2GUAra::DashJumpPowerLandingStartFuture	inside	-	CH1d2	1 states	y
+32b90ef0	state-fn	ASI_DASH_JUMP_POWER_LANDING.Start	inside X2GUAra.cpp:739 CX2GUAra::DashJumpPowerLandingStart	inside	-	CH1d2	1 states	y
+32b90f20	state-fn	ASI_HYPER_MODE.Start ASI_ASD_HYPER_MODE.Start ASI_AYR_HYPER_MODE.Start +5	inside X2GUAra.cpp:505 CX2GUUser::HyperModeStart ; inside X2GUAra.cpp:517 CX2GUUser::HyperModeStart	inside	-	CH1a	8 states	n
+32b90f30	state-fn	ASI_RIDING_HYPER_MODE.Start	inside X2GUAra.cpp:1047 CX2GUUser::RidingHyperModeStart	inside	-	CH1c	1 states	n
+32b90f40	state-fn	ASI_STANDUP_ATTACK_FRONT.End ASI_STANDUP_ATTACK_BACK.End ASI_STANDUP_ATTACK_FRONT_NO_DOWN.End +1	inside X2GUAra.cpp:721 CX2GUAra::StandUpAttackEnd ; inside X2GUAra.cpp:730 CX2GUAra::StandUpAttackEnd ; inside X2GUAra.cpp:1428 CX2GUAra::StandUpAttackEnd ; inside X2GUAra.cpp:1435 CX2GUAra::StandUpAttackEnd	inside	-	CH1b	4 states	y
+32b90f80	state-fn	ASI_AIRIAL_DASH.StartFuture	inside X2GUAra.cpp:1062 CX2GUAra::AirialDashStartFuture	inside	-	CH1a	1 states	y
+32b90fb0	state-fn	ASI_AIRIAL_DASH.EndFuture	inside X2GUAra.cpp:1067 CX2GUAra::AirialDashEndFuture	inside	-	CH1a	1 states	y
+32b90fd0	state-fn	ASI_DOUBLE_JUMP_FRONT.StartFuture ASI_DOUBLE_JUMP_UP.StartFuture	inside X2GUAra.cpp:1075 CX2GUAra::DoubleJumpStartFuture ; inside X2GUAra.cpp:1084 CX2GUAra::DoubleJumpStartFuture	inside	-	CH1a	2 states	y
+32b90ff0	state-fn	ASI_COMBO_ZZZ.FrameMove	inside X2GUAra.cpp:1110 CX2GUAra::ComboZZZFrameMove	inside	-	CH1d	1 states	n
+32b91000	state-fn	ASI_COMBO_ZZZXAttack.Start	-	new	ASI_COMBO_ZZZXAttack_StateStart	CH1d	1 states	y
+32b91040	state-fn	ASI_COMBO_XXXloop.FrameMove	inside X2GUAra.cpp:1193 CX2GUAra::ComboXXXloopFrameMove	inside	-	CH1d	1 states	n
+32b91050	state-fn	ASI_COMBO_XXXloopX.Start	inside X2GUAra.cpp:1202 CX2GUAra::ComboXXXloopXStateStart	inside	-	CH1d	1 states	y
+32b91070	state-fn	ASI_COMBO_XXXloopX.FrameMove	inside X2GUAra.cpp:1203 CX2GUAra::ComboXXXloopXFrameMove	inside	-	CH1d	1 states	n
+32b91080	state-fn	ASI_COMBO_XXXloopX.End	inside X2GUAra.cpp:1205 CX2GUAra::ComboXXXloopXStateEnd	inside	-	CH1d	1 states	y
+32b910a0	state-fn	ASI_COMBO_XXdownX.FrameMove	inside X2GUAra.cpp:1213 CX2GUAra::ComboXXdownXFrameMove	inside	-	CH1d	1 states	n
+32b910b0	state-fn	ASI_DASH_COMBO_Z.FrameMove	inside X2GUAra.cpp:1231 CX2GUAra::ComboDashZFrameMove	inside	-	CH1d2	1 states	n
+32b910c0	state-fn	ASI_DASH_COMBO_ZpushX_CHARGE.FrameMove	inside X2GUAra.cpp:1244 CX2GUAra::ComboDashZpushX_ChargeFrameMove	inside	-	CH1d2	1 states	y
+32b91120	state-fn	ASI_DASH_COMBO_ZpushX_ATTACK.Start	-	new	ASI_DASH_COMBO_ZpushX_ATTACK_StateStart	CH1d2	1 states	y
+32b91160	helper	called by 32b987f0 32ba4870 32ba74b0 32babee0	-	inside	-	CH1a	inside: MARCH HAS X2GUAra.cpp:9260; GetEnableDash(2) and arial count < max -> StateChange(ASI_AIRIAL_DASH 0xa4) else JUMP_DOWN 0x11; callers: combo / dash-jump EventProcess	y
+32b911b0	state-fn	ASI_SA_ARA_WIND_WEDGE_START.Init	inside X2GUAra.cpp:9280 CX2GUAra::ASI_SA_ARA_WIND_WEDGE_START_Init	inside	-	CH2a	1 states	n
+32b91200	state-fn	ASI_SA_ARA_WIND_WEDGE_END.Init	inside X2GUAra.cpp:9387 CX2GUAra::ASI_SA_ARA_WIND_WEDGE_END_Init	inside	-	CH2a	1 states	n
+32b91250	state-fn	ASI_SA_ARA_WIND_WEDGE_END.FrameMove	inside X2GUAra.cpp:9388 CX2GUAra::ASI_SA_ARA_WIND_WEDGE_END_FrameMove	inside	-	CH2a	1 states	n
+32b91260	state-fn	ASI_SA_ARA_PULLING_PIERCE_START.Init	inside X2GUAra.cpp:9454 CX2GUAra::ASI_SA_ARA_PULLING_PIERCE_START_Init	inside	-	CH2a	1 states	n
+32b912d0	state-fn	ASI_SA_ARA_PULLING_PIERCE_END.Init	inside X2GUAra.cpp:9569 CX2GUAra::ASI_SA_ARA_PULLING_PIERCE_END_Init	inside	-	CH2a	1 states	n
+32b91330	state-fn	ASI_SA_ARA_FALLING_DRAGON.Init	inside X2GUAra.cpp:2066 CX2GUAra::ASI_SA_ARA_FALLING_DRAGON_Init	inside	-	CH2a	1 states	n
+32b91390	state-fn	ASI_SA_ASR_SHADOW_RISING_JUMP.Init ASI_SA_ASR_SHADOW_RISING_LANDING.Init ASI_SA_ASR_SHADOW_RISING_END.Init	-	new	ASI_SA_ASR_SHADOW_RISING_JUMP_Init	CH3c	3 states	n
+32b914a0	state-fn	ASI_SA_ASR_SHADOW_RISING_LANDING.Init	-	new	ASI_SA_ASR_SHADOW_RISING_LANDING_Init	CH3c	1 states	n
+32b915c0	state-fn	ASI_SA_ASR_SHADOW_RISING_END.Init	-	new	ASI_SA_ASR_SHADOW_RISING_END_Init	CH3c	1 states	n
+32b916d0	state-fn	ASI_SA_ARA_TEMPEST_DANCE_START.Init ASI_SA_ARA_TEMPEST_DANCE_END.Init	inside X2GUAra.cpp:2034 CX2GUAra::ASI_SA_ARA_TEMPEST_DANCE_START_Init ; inside X2GUAra.cpp:2049 CX2GUAra::ASI_SA_ARA_TEMPEST_DANCE_END_Init	inside	-	CH2a	2 states	n
+32b91750	state-fn	ASI_SA_ARA_TEMPEST_DANCE_END.Init	inside X2GUAra.cpp:2049 CX2GUAra::ASI_SA_ARA_TEMPEST_DANCE_END_Init	inside	-	CH2a	1 states	n
+32b917e0	state-fn	ASI_SA_ARA_TEMPEST_DANCE_END.FrameMove	inside X2GUAra.cpp:2050 CX2GUAra::ASI_SA_ARA_TEMPEST_DANCE_END_FrameMove	inside	-	CH2a	1 states	n
+32b917f0	state-fn	ASI_SA_ARA_SHADOW_KNOT_START.Init	inside X2GUAra.cpp:2085 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_START_Init	inside	-	CH2a	1 states	n
+32b91940	state-fn	ASI_SA_ARA_SHADOW_KNOT_WAIT.Init	inside X2GUAra.cpp:2101 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_WAIT_Init	inside	-	CH2a	1 states	n
+32b91a90	state-fn	ASI_SA_ARA_SHADOW_KNOT_WAIT.FrameMove ASI_SA_ARA_SHADOW_KNOT_CATCH.FrameMove	inside X2GUAra.cpp:2102 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_WAIT_FrameMove	inside	-	CH2a	2 states	n
+32b91ae0	state-fn	ASI_SA_ARA_SHADOW_KNOT_CATCH.Init	inside X2GUAra.cpp:2110 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_CATCH_Init	inside	-	CH2a	1 states	n
+32b91c30	state-fn	ASI_SA_ARA_SHADOW_KNOT_END.Init	inside X2GUAra.cpp:2117 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_END_Init	inside	-	CH2a	1 states	n
+32b91d80	state-fn	ASI_SA_ARA_SHADOW_KNOT_END.FrameMove	inside X2GUAra.cpp:2118 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_END_FrameMove	inside	-	CH2a	1 states	n
+32b91d90	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_READY.Init	inside X2GUAra.cpp:10571 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_Init	inside	-	CH2b	1 states	n
+32b91e20	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE.Init	inside X2GUAra.cpp:10740 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_Init	inside	-	CH2b	1 states	n
+32b91eb0	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK.Init	inside X2GUAra.cpp:10810 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_Init	inside	-	CH2b	1 states	n
+32b91f50	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK.Init	inside X2GUAra.cpp:10949 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_Init	inside	-	CH2b	1 states	n
+32b91ff0	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_READY.Init ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK.Init ASI_SA_ALH_SWALLOW_ASSAULT_FINISH.Init +1	inside X2GUAra.cpp:2268 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Ready_Init ; inside X2GUAra.cpp:2287 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_Init ; inside X2GUAra.cpp:2297 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Finish_Init	inside	-	CH3a	4 states	n
+32b92070	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_READY.End ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK.End ASI_SA_ALH_SWALLOW_ASSAULT_FINISH.End +1	inside X2GUAra.cpp:2271 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Ready_StateEnd ; inside X2GUAra.cpp:2291 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_StateEnd	inside	-	CH3a	4 states	n
+32b92080	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK.Init	inside X2GUAra.cpp:2287 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_Init	inside	-	CH3a	1 states	n
+32b921a0	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK.Start	inside X2GUAra.cpp:2288 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_StateStart	inside	-	CH3a	1 states	n
+32b921b0	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK.End	inside X2GUAra.cpp:2291 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_StateEnd	inside	-	CH3a	1 states	n
+32b921d0	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_FINISH.Init	inside X2GUAra.cpp:2297 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Finish_Init	inside	-	CH3a	1 states	n
+32b922b0	state-fn	ASI_A_ARA_TIGER_CLAW_START.Init	inside X2GUAra.cpp:11498 CX2GUAra::ASI_A_ARA_TIGER_CLAW_START_Init	inside	-	CH2b2	1 states	n
+32b92300	state-fn	ASI_A_ARA_TIGER_CLAW_START.Start	inside X2GUAra.cpp:11499 CX2GUAra::ASI_A_ARA_TIGER_CLAW_START_StateStart	inside	-	CH2b2	1 states	y
+32b92340	state-fn	ASI_A_ARA_TIGER_CLAW_START.End	inside X2GUAra.cpp:11502 CX2GUAra::ASI_A_ARA_TIGER_CLAW_START_StateEnd	inside	-	CH2b2	1 states	y
+32b92360	state-fn	ASI_A_ARA_TIGER_CLAW_END.Init	inside X2GUAra.cpp:11614 CX2GUAra::ASI_A_ARA_TIGER_CLAW_END_Init	inside	-	CH2b2	1 states	n
+32b923a0	state-fn	ASI_A_ARA_FORCE_SPEAR.Init	inside X2GUAra.cpp:2378 CX2GUAra::ASI_A_ARA_FORCE_SPEAR_Init	inside	-	CH2c2	1 states	n
+32b92400	state-fn	ASI_A_ARA_GAIN_FORCE.Init	inside X2GUAra.cpp:2359 CX2GUAra::ASI_A_ARA_GAIN_FORCE_Init	inside	-	CH2a	1 states	n
+32b92460	state-fn	ASI_A_ALH_BREAKING.Init ASI_A_ALH_BREAKING_ATTACK.Init ASI_A_ALH_BREAKING_AVOIDANCE.Init	inside X2GUAra.cpp:2393 CX2GUAra::ASI_A_ALH_BREAKING_Init ; inside X2GUAra.cpp:2410 CX2GUAra::ASI_A_ALH_BREAKING_ATTACK_Init	inside	-	CH3a2	3 states	n
+32b92480	state-fn	ASI_A_ALH_BREAKING_ATTACK.Start	-	new	ASI_A_ALH_BREAKING_ATTACK_StateStart	CH3a2	1 states	y
+32b924e0	state-fn	ASI_A_ALH_BREAKING_ATTACK.Init	inside X2GUAra.cpp:2410 CX2GUAra::ASI_A_ALH_BREAKING_ATTACK_Init	inside	-	CH3a2	1 states	n
+32b92510	state-fn	ASI_A_ALH_BREAKING_ATTACK.EndFuture	inside X2GUAra.cpp:2413 CX2GUAra::ASI_A_ALH_BREAKING_ATTACK_EndFuture	inside	-	CH3a2	1 states	y
+32b92530	state-fn	ASI_A_ALH_BREAKING_AVOIDANCE.Start	-	new	ASI_A_ALH_BREAKING_AVOIDANCE_StateStart	CH3a2	1 states	y
+32b92590	state-fn	ASI_SA_ALH_DOUBLE_COLLISION_START.Init	inside X2GUAra.cpp:12106 CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_START_Init	inside	-	CH2b	1 states	n
+32b92620	state-fn	ASI_SA_ASD_TURBULENT_WAVE_START.Init	inside X2GUAra.cpp:12295 CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_Init	inside	-	CH3a	1 states	n
+32b926d0	state-fn	ASI_SA_ASD_TURBULENT_WAVE_START.Start	inside X2GUAra.cpp:12296 CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_Start	inside	-	CH3a	1 states	y
+32b926f0	state-fn	ASI_SA_ASD_TURBULENT_WAVE_END.Init	inside X2GUAra.cpp:12498 CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_END_Init	inside	-	CH3a	1 states	n
+32b92720	state-fn	ASI_SA_ASD_SUPPRESSION.Init	inside X2GUAra.cpp:2170 CX2GUAra::ASI_SA_ASD_SUPPRESSION_Init	inside	-	CH2b	1 states	n
+32b92810	state-fn	ASI_SA_ASD_SUPPRESSION.Start	inside X2GUAra.cpp:2171 CX2GUAra::ASI_SA_ASD_SUPPRESSION_StateStart	inside	-	CH2b	1 states	n
+32b92820	state-fn	ASI_SA_ALH_POWER_OF_WHITER_TIGER.Init ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING.Init	inside X2GUAra.cpp:2213 CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_Init	inside	-	CH2b	2 states	n
+32b928d0	state-fn	ASI_SA_ALH_POWER_OF_WHITER_TIGER.End ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING.End	inside X2GUAra.cpp:2216 CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_End	inside	-	CH2b	2 states	n
+32b928e0	state-fn	ASI_SA_ALH_PEERLESSNESS_SLASH_START.Init ASI_SA_ALH_PEERLESSNESS_SLASH_END.Init	inside X2GUAra.cpp:2239 CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_START_Init	inside	-	CH3a2	2 states	n
+32b929c0	state-fn	ASI_SA_ALH_PEERLESSNESS_SLASH_START.Start ASI_SA_ALH_PEERLESSNESS_SLASH_END.Start	inside X2GUAra.cpp:2238 CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_START_Start	inside	-	CH3a2	2 states	y
+32b929e0	state-fn	ASI_SA_ALH_PEERLESSNESS_SLASH_END.FrameMove	inside X2GUAra.cpp:2258 CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_END_FrameMove	inside	-	CH3a2	1 states	n
+32b929f0	state-fn	ASI_SA_ALH_DESCENT_DRAGON.Init	inside X2GUAra.cpp:13057 CX2GUAra::ASI_SA_ALH_DESCENT_DRAGON_Init	inside	-	CH2b	1 states	n
+32b92a50	state-fn	ASI_SA_ALH_DESCENT_DRAGON.Start	-	new	ASI_SA_ALH_DESCENT_DRAGON_StateStart	CH2b	1 states	n
+32b92a60	state-fn	ASI_A_ALH_ROCK_CRASH_FALLING_START.Init	inside X2GUAra.cpp:13127 CX2GUAra::ASI_A_ALH_ROCK_CRASH_START_Init	inside	-	CH2b2	1 states	n
+32b92ab0	state-fn	ASI_A_ALH_ROCK_CRASH_FALLING_START.Start	inside X2GUAra.cpp:13128 CX2GUAra::ASI_A_ALH_ROCK_CRASH_START_StateStart	inside	-	CH2b2	1 states	y
+32b92ad0	state-fn	ASI_A_ALH_ROCK_CRASH_END.Init	inside X2GUAra.cpp:13272 CX2GUAra::ASI_A_ALH_ROCK_CRASH_END_Init	inside	-	CH2b2	1 states	n
+32b92b20	state-fn	ASI_A_ASD_LOW_BRANDISH_SLICE.Init	inside X2GUAra.cpp:13348 CX2GUAra::ASI_A_ASD_LOW_BRANDISH_SLIDING_Init	inside	-	CH3a2	1 states	n
+32b92b70	state-fn	ASI_A_ASD_LOW_BRANDISH_SLICE.Start	inside X2GUAra.cpp:13349 CX2GUAra::ASI_A_ASD_LOW_BRANDISH_SLIDING_StateStart	inside	-	CH3a2	1 states	y
+32b92b90	state-fn	ASI_A_ASD_LOW_BRANDISH_SLICE.End	inside X2GUAra.cpp:13352 CX2GUAra::ASI_A_ASD_LOW_BRANDISH_SLIDING_StateEnd	inside	-	CH3a2	1 states	n
+32b92ba0	state-fn	ASI_A_ASD_LOW_BRANDISH_KICK.Init	inside X2GUAra.cpp:13449 CX2GUAra::ASI_A_ASD_LOW_BRANDISH_KICK_Init	inside	-	CH3a2	1 states	n
+32b92be0	state-fn	ASI_SA_ASD_VOID_BREAK.Init	inside X2GUAra.cpp:13509 CX2GUAra::ASI_SA_ASD_VOID_BREAK_Init	inside	-	CH3a	1 states	n
+32b92c50	state-fn	ASI_A_ARA_QUICK_PIERCING.Init ASI_A_ARA_QUICK_PIERCING_TRENSCENDENCE.Init	-	new	ASI_A_ARA_QUICK_PIERCING_Init	CH2d3	2 states	n
+32b92c80	state-fn	ASI_A_ARA_QUICK_PIERCING.FrameMove ASI_A_ARA_QUICK_PIERCING_TRENSCENDENCE.FrameMove	inside X2GUAra.cpp:2457 CX2GUAra::ASI_A_ARA_Quick_Piercing_FrameMove	inside	-	CH2d3	2 states	n
+32b92c90	state-fn	ASI_A_ARA_SHOULDER_BLOW.Init	inside X2GUAra.cpp:2470 CX2GUAra::ASI_A_ARA_Shoulder_Blow_Init	inside	-	CH2a	1 states	n
+32b92d60	state-fn	ASI_A_ARA_SHOULDER_BLOW.FrameMove	inside X2GUAra.cpp:2471 CX2GUAra::ASI_A_ALH_Shoulder_Blow_FrameMove	inside	-	CH2a	1 states	n
+32b92d70	state-fn	ASI_A_ASD_FALLING_BLOSSOM_Start.Init ASI_A_ASD_FALLING_BLOSSOM_Finish.Init	inside X2GUAra.cpp:2485 CX2GUAra::ASI_A_ASD_Falling_Blossom_Start_Init ; inside X2GUAra.cpp:2500 CX2GUAra::ASI_A_ASD_Falling_Blossom_Finish_Init	inside	-	CH2b2	2 states	n
+32b92e60	state-fn	ASI_A_ASD_FALLING_BLOSSOM_Finish.Init	inside X2GUAra.cpp:2500 CX2GUAra::ASI_A_ASD_Falling_Blossom_Finish_Init	inside	-	CH2b2	1 states	n
+32b92f50	state-fn	ASI_A_ARA_QUICK_STAB.Init	inside X2GUAra.cpp:2511 CX2GUAra::ASI_A_ARA_Quick_Stab_Init	inside	-	CH2b2	1 states	n
+32b92f90	state-fn	ASI_A_ARA_QUICK_STAB.FrameMove	inside X2GUAra.cpp:2512 CX2GUAra::ASI_A_ARA_Quick_Stab_FrameMove	inside	-	CH2b2	1 states	n
+32b92fa0	helper	-	-	new	?	CH1o	CH0 Opus: getter of +0x9650 called from shared CX2GUUser code 320474ec: CH1o decides the user-virtual / callback shape; name: -; CH0 Opus: getter of +0x9650 called from shared CX2GUUser code 320474ec: CH1o decides the user-virtual / callback shape	y
+32b92fb0	helper	-	-	new	?	CH1o	CH0 Opus: getter of +0x9654 called from shared CX2GUUser code 3204756c: CH1o decides the user-virtual / callback shape; name: -; CH0 Opus: getter of +0x9654 called from shared CX2GUUser code 3204756c: CH1o decides the user-virtual / callback shape	y
+32b92fc0	state-fn	ASI_HA_ASD_THOUSANDS_BLOSSOMS.Init	inside X2GUAra.cpp:2325 CX2GUAra::ASI_HA_ASD_THOUSANDS_BLOSSOMS_Init	inside	-	CH3d	1 states	n
+32b93070	state-fn	ASI_DASH_JUMP_COMBO_AYR_XZ.StartFuture	inside X2GUAra.cpp:1449 CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_StateStartFuture	inside	-	CH1f	1 states	y
+32b930b0	state-fn	ASI_A_ALD_WOLF_CLAW.Init	inside X2GUAra.cpp:14316 CX2GUAra::ASI_A_ALD_WOLF_CLAW_Init	inside	-	CH2c2	1 states	n
+32b93170	state-fn	ASI_A_ALD_WOLF_CLAW.Start	inside X2GUAra.cpp:14317 CX2GUAra::ASI_A_ALD_WOLF_CLAW_StateStart	inside	-	CH2c2	1 states	y
+32b93190	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32b93240	state-fn	ASI_A_ALD_CONVERSION_HEALTH.Init	inside X2GUAra.cpp:14451 CX2GUAra::ASI_A_ALD_CONVERSION_HEALTH_Init	inside	-	CH2c2	1 states	n
+32b932b0	state-fn	ASI_A_ALD_CONVERSION_MANA.Init	inside X2GUAra.cpp:14543 CX2GUAra::ASI_A_ALD_CONVERSION_MANA_Init	inside	-	CH2c2	1 states	n
+32b93320	state-fn	ASI_A_AYR_HIGH_SPEED_READY.EventProcess	inside X2GUAra.cpp:14635 CX2GUAra::ASI_A_AYR_HIGH_SPEED_READY_EventProcess	inside	-	CH3b	1 states	y
+32b933b0	state-fn	ASI_A_AYR_HIGH_SPEED.Init	inside X2GUAra.cpp:14678 CX2GUAra::ASI_A_AYR_HIGH_SPEED_Init	inside	-	CH3b	1 states	n
+32b933e0	state-fn	ASI_A_AYR_HIGH_SPEED.StartFuture	inside X2GUAra.cpp:14679 CX2GUAra::ASI_A_AYR_HIGH_SPEED_StateStartFuture	inside	-	CH3b	1 states	y
+32b93430	state-fn	ASI_A_AYR_HIGH_SPEED.EndFuture	inside X2GUAra.cpp:14681 CX2GUAra::ASI_A_AYR_HIGH_SPEED_StateEndFuture	inside	-	CH3b	1 states	y
+32b93460	state-fn	ASI_SA_ALD_ENERGY_WAVE.Init	inside X2GUAra.cpp:14768 CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_Init	inside	-	CH2c	1 states	n
+32b93540	state-fn	ASI_SA_ALD_ENERGY_WAVE.StartFuture	-	new	ASI_SA_ALD_ENERGY_WAVE_StateStartFuture	CH2c	1 states	y
+32b93570	state-fn	ASI_SA_ALD_ENERGY_WAVE.Start	-	new	ASI_SA_ALD_ENERGY_WAVE_StateStart	CH2c	1 states	n
+32b93590	helper	-	-	-	-	n/a	CH0 Opus: ASI_SA_ALD_ENERGY_WAVE_CHARGE FrameMove: June registers no such state (dead data), dead code	n
+32b935d0	helper	-	-	-	-	n/a	CH0 Opus: ASI_SA_ALD_ENERGY_WAVE_CHARGE EventProcess: June registers no such state (dead data), dead code	y
+32b93640	state-fn	ASI_SA_ALD_HELL_OF_TORNADO.Start	inside X2GUAra.cpp:14829 CX2GUAra::ASI_SA_ALD_HELL_OF_TORNADO_StateStart	inside	-	CH2c	1 states	y
+32b93660	state-fn	ASI_SA_ALD_HELL_OF_TORNADO.Init	inside X2GUAra.cpp:14828 CX2GUAra::ASI_SA_ALD_HELL_OF_TORNADO_Init	inside	-	CH2c	1 states	n
+32b93740	state-fn	ASI_SA_ALD_HELL_OF_TORNADO_FINISH.Init	inside X2GUAra.cpp:14911 CX2GUAra::ASI_SA_ALD_HELL_OF_TORNADO_FINISH_Init	inside	-	CH2c	1 states	n
+32b93800	state-fn	ASI_SA_ALD_WOLF_SPEAR.Init	inside X2GUAra.cpp:14972 CX2GUAra::ASI_SA_ALD_WOLF_SPEAR_Init	inside	-	CH2c	1 states	n
+32b93820	state-fn	ASI_SA_ALD_WOLF_SPEAR.Start	inside X2GUAra.cpp:14973 CX2GUAra::ASI_SA_ALD_WOLF_SPEAR_StateStart	inside	-	CH2c	1 states	y
+32b93840	state-fn	ASI_SA_ALD_WOLF_SPEAR_FINISH.Init	inside X2GUAra.cpp:15034 CX2GUAra::ASI_SA_ALD_WOLF_SPEAR_FINISH_Init	inside	-	CH2c	1 states	n
+32b93860	state-fn	ASI_SA_ALD_FINGER_BULLET.Init	inside X2GUAra.cpp:15080 CX2GUAra::ASI_SA_ALD_FINGER_BULLET_Init	inside	-	CH2c2	1 states	n
+32b93910	state-fn	ASI_SA_ALD_FINGER_BULLET_FINISH.Init	inside X2GUAra.cpp:15162 CX2GUAra::ASI_SA_ALD_FINGER_BULLET_FINISH_Init	inside	-	CH2c2	1 states	n
+32b93930	state-fn	ASI_SA_ALD_ENERGY_BEAD.Init	inside X2GUAra.cpp:15244 CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_Init	inside	-	CH3b	1 states	n
+32b93990	state-fn	ASI_SA_ALD_ENERGY_BEAD.Start	inside X2GUAra.cpp:15245 CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_StateStart	inside	-	CH3b	1 states	y
+32b939b0	state-fn	ASI_SA_ALD_ENERGY_BEAD_FINISH.Init	inside X2GUAra.cpp:15316 CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_FINISH_Init	inside	-	CH3b	1 states	n
+32b939f0	state-fn	ASI_SA_ALD_PRISON_SPEAR.Start	inside X2GUAra.cpp:15366 CX2GUAra::ASI_SA_ALD_PRISON_SPEAR_StateStart	inside	-	CH2c	1 states	y
+32b93a10	state-fn	ASI_SA_ALD_PRISON_SPEAR.Init	inside X2GUAra.cpp:15365 CX2GUAra::ASI_SA_ALD_PRISON_SPEAR_Init	inside	-	CH2c	1 states	n
+32b93a70	state-fn	ASI_SA_ALD_PRISON_SPEAR_FINISH.Init	inside X2GUAra.cpp:15437 CX2GUAra::ASI_SA_ALD_PRISON_SPEAR_FINISH_Init	inside	-	CH2c	1 states	n
+32b93aa0	state-fn	ASI_A_AYR_STEAL_SOUL.Init	inside X2GUAra.cpp:15485 CX2GUAra::ASI_A_AYR_STEAL_SOUL_Init	inside	-	CH3b	1 states	n
+32b93b00	state-fn	ASI_A_AYR_STEAL_SOUL_FINISH.Init	inside X2GUAra.cpp:15558 CX2GUAra::ASI_A_AYR_STEAL_SOUL_FINISH_Init	inside	-	CH3b	1 states	n
+32b93b80	state-fn	ASI_SA_AYR_ENERGY_VOID_START.Init	inside X2GUAra.cpp:15645 CX2GUAra::ASI_SA_AYR_ENERGY_VOID_START_Init	inside	-	CH3b	1 states	n
+32b93bc0	state-fn	ASI_SA_AYR_ENERGY_VOID_START.StartFuture	inside X2GUAra.cpp:15646 CX2GUAra::ASI_SA_AYR_ENERGY_VOID_START_StateStartFuture	inside	-	CH3b	1 states	y
+32b93bf0	state-fn	ASI_SA_AYR_ENERGY_VOID_START.Start	inside X2GUAra.cpp:15647 CX2GUAra::ASI_SA_AYR_ENERGY_VOID_START_StateStart	inside	-	CH3b	1 states	y
+32b93c10	state-fn	ASI_SA_AYR_ENERGY_VOID_LOOP.Init	inside X2GUAra.cpp:15704 CX2GUAra::ASI_SA_AYR_ENERGY_VOID_LOOP_Init	inside	-	CH3b	1 states	n
+32b93c90	state-fn	ASI_SA_AYR_ENERGY_VOID_END.Init	inside X2GUAra.cpp:15846 CX2GUAra::ASI_SA_AYR_ENERGY_VOID_END_Init	inside	-	CH3b	1 states	n
+32b93d00	state-fn	ASI_SA_AYR_SUPPRESSION_ENERGY.Init	inside X2GUAra.cpp:15953 CX2GUAra::ASI_SA_AYR_SUPPRESSION_ENERGY_Init	inside	-	CH2c	1 states	n
+32b93dc0	state-fn	ASI_SA_ALD_WOLF_BREAK.Init	inside X2GUAra.cpp:16014 CX2GUAra::ASI_SA_ALD_WOLF_BREAK_Init	inside	-	CH2c	1 states	n
+32b93e20	state-fn	ASI_SA_ALD_WOLF_BREAK.Start	inside X2GUAra.cpp:16015 CX2GUAra::ASI_SA_ALD_WOLF_BREAK_StateStart	inside	-	CH2c	1 states	y
+32b93e40	state-fn	ASI_SA_AYR_OPEN_THE_HELL.Init	inside X2GUAra.cpp:16133 CX2GUAra::ASI_SA_AYR_OPEN_THE_HELL_Init	inside	-	CH3b	1 states	n
+32b93ec0	state-fn	ASI_HA_AYR_ENERGY_CANNON.Init	inside X2GUAra.cpp:16206 CX2GUAra::ASI_HA_AYR_ENERGY_CANNON_Init	inside	-	CH3d	1 states	n
+32b93fa0	state-fn	ASI_DASH_COMBO_ALS_XX.EndFuture	-	new	ASI_DASH_COMBO_ALS_XX_StateEndFuture	CH1g	1 states	y
+32b93fe0	state-fn	ASI_DASH_JUMP_COMBO_ALS_ZX.StartFuture	-	new	ASI_DASH_JUMP_COMBO_ALS_ZX_StateStartFuture	CH1g	1 states	y
+32b94070	state-fn	ASI_COMBO_AA_XXDownXZStart.Start	-	new	ASI_COMBO_AA_XXDownXZStart_StateStart	CH1g	1 states	n
+32b94090	state-fn	ASI_DASH_JUMP_COMBO_AA_ZXX.EndFuture	-	new	ASI_DASH_JUMP_COMBO_AA_ZXX_StateEndFuture	CH1g	1 states	y
+32b940d0	state-fn	ASI_A_ALS_VIEW_BETWEEN.Init	-	new	ASI_A_ALS_VIEW_BETWEEN_Init	CH2d3	1 states	n
+32b94150	state-fn	ASI_A_ALS_VIEW_BETWEEN_FINISH.Init	-	new	ASI_A_ALS_VIEW_BETWEEN_FINISH_Init	CH2d3	1 states	n
+32b941d0	state-fn	ASI_A_ALS_SPECTER_WALK.Init	-	new	ASI_A_ALS_SPECTER_WALK_Init	CH3c2	1 states	n
+32b94290	state-fn	ASI_A_ALS_SHAKE_CHAOS.Init	-	new	ASI_A_ALS_SHAKE_CHAOS_Init	CH2d3	1 states	n
+32b94310	state-fn	ASI_A_ALS_SHAKE_CHAOS.Start	-	new	ASI_A_ALS_SHAKE_CHAOS_StateStart	CH2d3	1 states	y
+32b94340	state-fn	ASI_A_ALS_SHAKE_CHAOS.Start ASI_A_ALS_SHAKE_CHAOS_FINISH.Start	-	new	ASI_A_ALS_SHAKE_CHAOS_StateStart	CH2d3	2 states	y
+32b94360	state-fn	ASI_A_ALS_SHAKE_CHAOS_FINISH.Init	-	new	ASI_A_ALS_SHAKE_CHAOS_FINISH_Init	CH2d3	1 states	n
+32b943e0	state-fn	ASI_A_AA_RAID.Init	-	new	ASI_A_AA_RAID_Init	CH3c2	1 states	n
+32b94420	state-fn	ASI_A_AA_RAID.StartFuture	-	new	ASI_A_AA_RAID_StateStartFuture	CH3c2	1 states	n
+32b94440	state-fn	ASI_A_AA_RAID.Start	-	new	ASI_A_AA_RAID_StateStart	CH3c2	1 states	y
+32b94460	state-fn	ASI_A_AA_RAID.End	-	new	ASI_A_AA_RAID_StateEnd	CH3c2	1 states	n
+32b94480	state-fn	ASI_A_AA_RAID_ATTACK.Init	-	new	ASI_A_AA_RAID_ATTACK_Init	CH3c2	1 states	n
+32b94510	state-fn	ASI_A_AA_RAID_ATTACK_FINISH.Init	-	new	ASI_A_AA_RAID_ATTACK_FINISH_Init	CH3c2	1 states	n
+32b94580	state-fn	ASI_A_ALS_MANA_DRAIN.Init	-	new	ASI_A_ALS_MANA_DRAIN_Init	CH2d3	1 states	n
+32b94600	state-fn	ASI_SA_AA_NECROMANCY.Init	-	new	ASI_SA_AA_NECROMANCY_Init	CH3c	1 states	n
+32b94690	state-fn	ASI_SA_AA_NECROMANCY.Start	-	new	ASI_SA_AA_NECROMANCY_StateStart	CH3c	1 states	y
+32b946c0	state-fn	ASI_SA_AA_SPECTER_OF_THUNDER.Init	-	new	ASI_SA_AA_SPECTER_OF_THUNDER_Init	CH2d	1 states	n
+32b94750	state-fn	ASI_SA_AA_SPECTER_OF_THUNDER.Start	-	new	ASI_SA_AA_SPECTER_OF_THUNDER_StateStart	CH2d	1 states	y
+32b94780	state-fn	ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING.Init	-	new	ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_Init	CH2d	1 states	n
+32b94810	state-fn	ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING.End	-	new	ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_StateEnd	CH2d	1 states	y
+32b94830	state-fn	ASI_SA_ALS_SEVER.Init	-	new	ASI_SA_ALS_SEVER_Init	CH2d2	1 states	n
+32b948c0	state-fn	ASI_SA_ALS_RESTRAINTS_SPECTER.Init	-	new	ASI_SA_ALS_RESTRAINTS_SPECTER_Init	CH2d	1 states	n
+32b94990	state-fn	ASI_SA_ALS_RESTRAINTS_SPECTER.Start	-	new	ASI_SA_ALS_RESTRAINTS_SPECTER_StateStart	CH2d	1 states	y
+32b949b0	state-fn	ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH.Init	-	new	ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_Init	CH2d	1 states	n
+32b94aa0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM.Init	-	new	ASI_SA_ALS_SPECTER_OF_STORM_Init	CH2d	1 states	n
+32b94b60	state-fn	ASI_SA_ALS_SPECTER_OF_STORM.Start	-	new	ASI_SA_ALS_SPECTER_OF_STORM_StateStart	CH2d	1 states	y
+32b94b80	state-fn	ASI_SA_ALS_SPECTER_OF_STORM.End	-	new	ASI_SA_ALS_SPECTER_OF_STORM_StateEnd	CH2d	1 states	y
+32b94bc0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_FINISH.Init ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.Init	-	new	ASI_SA_ALS_SPECTER_OF_STORM_FINISH_Init	CH2d	2 states	n
+32b94ca0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_LANDING.Init	-	new	ASI_SA_ALS_SPECTER_OF_STORM_LANDING_Init	CH2d	1 states	n
+32b94cd0	state-fn	ASI_SA_ASR_SPECTER_OF_BLADE.Init ASI_SA_ASR_SPECTER_OF_BLADE_FINISH.Init	-	new	ASI_SA_ASR_SPECTER_OF_BLADE_Init	CH3c	2 states	n
+32b94d70	state-fn	ASI_SA_ASR_SPECTER_OF_BLADE.Start ASI_SA_ASR_SPECTER_OF_BLADE_FINISH.Start	-	new	ASI_SA_ASR_SPECTER_OF_BLADE_StateStart	CH3c	2 states	y
+32b94d90	state-fn	ASI_SA_ASR_SPECTER_OF_BLADE_FINISH.Init	-	new	ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_Init	CH3c	1 states	n
+32b94e40	state-fn	ASI_SA_AA_GET_BLOOD.Init	-	new	ASI_SA_AA_GET_BLOOD_Init	CH3c	1 states	n
+32b94ec0	state-fn	ASI_SA_AA_GET_BLOOD_FINISH.Init	-	new	ASI_SA_AA_GET_BLOOD_FINISH_Init	CH3c	1 states	n
+32b94f00	state-fn	ASI_SA_AA_FIRE_FOX.Init	-	new	ASI_SA_AA_FIRE_FOX_Init	CH3c	1 states	n
+32b94ff0	state-fn	ASI_SA_AA_FIRE_FOX.Start	-	new	ASI_SA_AA_FIRE_FOX_StateStart	CH3c	1 states	n
+32b95010	state-fn	ASI_SA_AA_FIRE_FOX.End	-	new	ASI_SA_AA_FIRE_FOX_StateEnd	CH3c	1 states	n
+32b95030	state-fn	ASI_SA_AA_SUPPRESSION_SPECTER.Init	-	new	ASI_SA_AA_SUPPRESSION_SPECTER_Init	CH2d2	1 states	n
+32b95120	state-fn	ASI_SA_ALS_VERITABLE_PANDEMONIUM.Init	-	new	ASI_SA_ALS_VERITABLE_PANDEMONIUM_Init	CH2d2	1 states	n
+32b95150	state-fn	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH.Init	-	new	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_Init	CH2d2	1 states	n
+32b951e0	state-fn	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH.EndFuture	-	new	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateEndFuture	CH2d2	1 states	n
+32b951f0	state-fn	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH.End	-	new	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateEnd	CH2d2	1 states	y
+32b95210	state-fn	ASI_SA_AA_SMASH.Init	-	new	ASI_SA_AA_SMASH_Init	CH3c	1 states	n
+32b95290	state-fn	ASI_HA_AA_NINE_TAILED_FOX.Init	-	new	ASI_HA_AA_NINE_TAILED_FOX_Init	CH3d	1 states	n
+32b952a0	state-fn	ASI_SA_ASD_LINK_FLOWER_SLASH_1st.EndFuture ASI_SA_ASD_LINK_FLOWER_SLASH_2nd.EndFuture	-	new	ASI_SA_ASD_LINK_FLOWER_SLASH_1st_StateEndFuture	CH3a2	2 states	y
+32b952c0	state-fn	ASI_SA_ASD_ADVENT_DRAGON.Init	-	new	ASI_SA_ASD_ADVENT_DRAGON_Init	CH3a2	1 states	n
+32b95370	state-fn	ASI_SA_AYR_RAKSASA_FIRE.Init	-	new	ASI_SA_AYR_RAKSASA_FIRE_Init	CH3b	1 states	n
+32b95460	state-fn	ASI_SA_ASR_FOX_PHANTOM.Init	-	new	ASI_SA_ASR_FOX_PHANTOM_Init	CH3c	1 states	n
+32b95520	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51817c2408241c00	n
+32b95560	helper	called by 32bcfaa0	-	inside	-	CH1k	inside: MARCH HAS X2GUAra.cpp:16650; skill 0x697b WIND_WEDGE and memo (GetEqippedSkillMemo stub 31fca9e0) -> 1 else the argument; caller CanUseSpecialAttack 32bcfaa0	y
+32b95590	helper	called by 32bcfaa0	-	new	IsReflectionSkill	CH1k	name: named (medium): bool(templet*): templet id (+8) == RNSI_A_AYR_REFLECTION 0x6a4d or _UPGRADE 0x6a66; caller CanUseSpecialAttack 32bcfaa0 (March tests SI_A_ALD_REFLECTION inline)	y
+32b955c0	helper	-	-	new	?	CH4b	MemoConditionAra vtable 33502680 slot 1 (memo condition decide); name: MemoConditionAra vtable 33502680 slot 1 (RTTI .?AVMemoConditionAra@CX2GUAra@@, type descriptor 3373d604); name by the memo-condition pattern (CH4b decision)	n
+32b955e0	thunk	jmp 31fc8cf0	-	-	-	n/a	not ported	n
+32b955f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51d98108970000d9	n
+32b95640	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b44240450e8c61b	n
+32b956a0	override 0x428	?	- (name unsettled)	new	GetDefenceRateBySkill	CH4b	vslot 0x428 override; name: named (high): vslot 0x428; X2GUUser.h:3265 GetDefenceRateBySkill(int iAttackType); body returns float +0x9748 when > 0 else 1.0	n
+32b956d0	override 0x74c	?	- (name unsettled)	new	?	CH1i	base 32ec5990; name: virtual 0x74c (base 32ec5990); not named by any sibling class map, funcmap or X2GUUser.h; read the body; read: Opus caller: vslot 0x74c (returns true)	n
+32b956e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d905601c4433c3cc	n
+32b956f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b44240450e8161b	n
+32b95750	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b44240450e8b61a	n
+32b95870	helper	called by 32ba6610	-	new	StateChangeLinkFlowerSlash	CH1k	name: named (medium): skill 0x69a3 LINK_FLOWER_SLASH: chains StateChange 0x150 -> 0x151 -> 0x152 (1st/2nd/LAST) by timer +0x987c and now state +0x9878; caller SpecialAttackEventProcess use-part 32ba6610	y
+32b958e0	override 0x6a8	ShownSkillCoolTime	- (CX2GUAra does not declare it in March; X2GUUser.h:3515 virtual float ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ ) { return fCoolTime_; })	new	ShownSkillCoolTime	CH4b	ShownSkillCoolTime (vslot 0x6a8)	n
+32b95910	helper	called by 32bd5470	-	new	ProcessDemigodHitCount	CH4a	name: named (medium): attack-result delegate (pushed by 32bcd9c0 via thunk 32bd5470): ushort counter +0x9674++ for P_AYR_DEMIGOD 0x6b1a, over ability 0xb1 -> reset and vslot 0x23c(0x6b1a,0,1)	y
+32b95980	helper	called by 32bd5480	-	new	MarkRestrictionEnergyHit	CH4a	name: named (low): attack-result delegate (thunk 32bd5480): DamageData skill (+0x5c4) == 0x69a5 RESTRICTION_ENERGY sets byte +0x9890 = 1	y
+32b959a0	helper	called by 32bd5490	-	new	ProcessGainGoodEnergyBallOnHit	CH4a	name: named (low): attack-result delegate (thunk 32bd5490): DamageData::IsAttackTrigger(0x1b) -> vslot 0x23c(0x6a5b = A_AYR_GAIN_GOOD_ENERGY_BALL,0,1)	y
+32b959d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b44240450e83618	n
+32b95a00	helper	called by 32ba7ec0	-	new	IsSkillAffectedByHellGateOpen	CH1j	name: named (medium): bool(skill): ENERGY_BEAD 0x6988 / PRISON_SPEAR 0x698a / STEAL_SOUL 0x698c / FINGER_BULLET 0x6a49; 32ba7ec0 then reads passive P_AYR_HELL_GATE_OPEN 0x6b10	y
+32b95b00	helper	called by 32ba7ec0	-	new	IsSkillAffectedByLoadOfAsura	CH1j	name: named (medium): bool(skill): 0x697c SHADOW_KNOT / 0x698e / 0x6990; 32ba7ec0 then reads passive P_ASR_LOAD_OF_ASURA 0x6b14	y
+32b95b30	helper	called by 32ba7ec0	-	new	IsSkillAffectedByFoxSmile	CH1j	name: named (medium): bool(skill): 0x6992 / 0x6a4e / 0x6a4f / 0x6a52; 32ba7ec0 then reads passive P_ASR_FOX_SMILE 0x6b15	y
+32b95c30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 80b9209600000175	n
+32b95c70	helper	-	-	new	?	CH1q	CH0 Opus: SetFPCancel (+0x9620): force power; name: -; CH0 Opus: SetFPCancel (+0x9620): force power	y
+32b95c80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 33c085c974063b4c	n
+32b95ca0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53558b6c240c5650	n
+32b95cf0	override 0x7b8	SetEquippedSkillLevel	X2GUAra.h:466 virtual void SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );	inside	-	CH1i	base 31aa1d30	n
+32b96620	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8f83d43ff	y
+32b96640	helper	-	AppendMajorParticleToDeviceList	inside	-	CH1h	CH0 Opus: AppendMajorParticleToDeviceList (March has it; device-list code)	y
+32b96700	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e8f83d43ff	y
+32b96720	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c781a0950000ffff	n
+32b96730	override 0x6a0	GetActualMPConsume	X2GUAra.h:484 virtual float GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;	inside	-	CH4b	GetActualMPConsume (vslot 0x6a0)	n
+32b968f0	override 0x28	NotifyShowObjectChanged	X2GUAra.h:595 virtual void NotifyShowObjectChanged();	inside	-	CH1h	base 31ff1950	y
+32b96940	override 0x4	OnFrameMove	X2GUAra.h:610 virtual HRESULT OnFrameMove( double fTime, float fElapsedTime );	inside	-	CH1h	base 3206eaf0	n
+32b96980	override 0x90	Win	X2GUAra.h:561 virtual void Win();	inside	-	CH1h	base 32014660	y
+32b969c0	override 0x98	Draw	X2GUAra.h:563 virtual void Draw();	inside	-	CH1h	base 31ff17c0	y
+32b96a00	override 0xa0	SetFullHyperMode	X2GUAra.h:608 virtual void SetFullHyperMode( const bool bBerserkMode_ );	inside	-	CH1q	SetFullHyperMode (vslot 0xa0)	y
+32b96a30	override 0x3a8	ApplyRenderParam	X2GUAra.h:618 virtual void ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ );	inside	-	CH1h	base 31fd4460	n
+32b96af0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b4424088b8c81a0	n
+32b96b10	helper	-	-	new	?	CH1h	CH0 Opus: device-list helper (calls CX2GameUnit::Weapon::AppendEnchantParticleForSwordToDeviceList 3226ecc0; next to 32b96b16): the builder marked it not-Ara; name: -; CH0 Opus: device-list helper (calls CX2GameUnit::Weapon::AppendEnchantParticleForSwordToDeviceList 3226ecc0; next to 32b96b16): the builder marked it not-Ara	y
+32b96b30	state-fn	ASI_DIE_FRONT.StartFuture ASI_RIDING_DIE.StartFuture	inside X2GUAra.cpp:365 CX2GUAra::DieFrontStartFuture ; inside X2GUAra.cpp:978 CX2GUAra::DieFrontStartFuture	inside	-	CH1b	2 states	y
+32b96bc0	state-fn	ASI_DIE_FRONT.Start ASI_RIDING_DIE.Start	inside X2GUAra.cpp:366 CX2GUAra::DieFrontStart ; inside X2GUAra.cpp:979 CX2GUAra::DieFrontStart	inside	-	CH1b	2 states	y
+32b96c30	state-fn	ASI_DIE_FRONT.EventProcess ASI_RIDING_DIE.EventProcess	inside X2GUAra.cpp:368 CX2GUAra::DieFrontEventProcess ; inside X2GUAra.cpp:981 CX2GUAra::DieFrontEventProcess	inside	-	CH1b	2 states	y
+32b96c70	state-fn	ASI_DIE_BACK.StartFuture	inside X2GUAra.cpp:376 CX2GUAra::DieBackStartFuture	inside	-	CH1b	1 states	y
+32b96cd0	state-fn	ASI_DIE_BACK.Start	inside X2GUAra.cpp:377 CX2GUAra::DieBackStart	inside	-	CH1b	1 states	y
+32b96d40	state-fn	ASI_DIE_BACK.EventProcess	inside X2GUAra.cpp:379 CX2GUAra::DieBackEventProcess	inside	-	CH1b	1 states	y
+32b96d80	state-fn	ASI_WAIT.Start	inside X2GUAra.cpp:398 CX2GUAra::WaitStart	inside	-	CH1a	1 states	y
+32b96db0	state-fn	ASI_JUMP_UP.EventProcess	inside X2GUAra.cpp:436 CX2GUAra::JumpUpEventProcess	inside	-	CH1a	1 states	n
+32b96ee0	state-fn	ASI_DASH_END.FrameMove	inside X2GUAra.cpp:474 CX2GUAra::DashEndFrameMove	inside	-	CH1d2	1 states	n
+32b96f20	state-fn	ASI_DAMAGE_DOWN_FRONT.FrameMove	inside X2GUAra.cpp:571 CX2GUAra::DamageDownFrontFrameMove	inside	-	CH1b	1 states	n
+32b96f70	state-fn	ASI_DAMAGE_DOWN_FRONT.EventProcess	inside X2GUAra.cpp:572 CX2GUAra::DamageDownFrontEventProcess	inside	-	CH1b	1 states	n
+32b97350	state-fn	ASI_DAMAGE_DOWN_BACK.FrameMove	inside X2GUAra.cpp:580 CX2GUAra::DamageDownBackFrameMove	inside	-	CH1b	1 states	n
+32b97390	state-fn	ASI_DAMAGE_DOWN_BACK.EventProcess	inside X2GUAra.cpp:581 CX2GUAra::DamageDownBackEventProcess	inside	-	CH1b	1 states	n
+32b97770	state-fn	ASI_DAMAGE_AIR_DOWN_LANDING.EventProcess	inside X2GUAra.cpp:634 CX2GUAra::DamageAirDownLandingEventProcess	inside	-	CH1b	1 states	n
+32b97780	state-fn	ASI_STANDUP_ROLLING_FRONT_FRONT.EventProcess ASI_STANDUP_ROLLING_FRONT_BACK.EventProcess ASI_STANDUP_ROLLING_BACK_FRONT.EventProcess +6	inside X2GUAra.cpp:684 CX2GUAra::StandUpRollingEventProcess ; inside X2GUAra.cpp:693 CX2GUAra::StandUpRollingEventProcess ; inside X2GUAra.cpp:702 CX2GUAra::StandUpRollingEventProcess ; inside X2GUAra.cpp:711 CX2GUAra::StandUpRollingEventProcess ; inside X2GUAra.cpp:1383 CX2GUAra::StandUpRollingEventProcess ; inside X2GUAra.cpp:1390 CX2GUAra::StandUpRollingEventProcess ; inside X2GUAra.cpp:1397 CX2GUAra::StandUpRollingEventProcess ; inside X2GUAra.cpp:1404 CX2GUAra::StandUpRollingEventProcess ; inside X2GUAra.cpp:2419 CX2GUAra::StandUpRollingEventProcess	inside	-	CH1b	9 states	y
+32b97800	state-fn	ASI_STANDUP_ATTACK_FRONT.EventProcess ASI_STANDUP_ATTACK_BACK.EventProcess ASI_STANDUP_ATTACK_FRONT_NO_DOWN.EventProcess +1	inside X2GUAra.cpp:720 CX2GUAra::StandUpAttackEventProcess ; inside X2GUAra.cpp:729 CX2GUAra::StandUpAttackEventProcess ; inside X2GUAra.cpp:1427 CX2GUAra::StandUpAttackEventProcess ; inside X2GUAra.cpp:1434 CX2GUAra::StandUpAttackEventProcess	inside	-	CH1b	4 states	y
+32b97880	state-fn	ASI_AIRIAL_DASH.Start	inside X2GUAra.cpp:1063 CX2GUAra::AirialDashStart	inside	-	CH1a	1 states	y
+32b97900	state-fn	ASI_AIRIAL_DASH.FrameMoveFuture	inside X2GUAra.cpp:1064 CX2GUAra::AirialDashFrameMoveFuture	inside	-	CH1a	1 states	n
+32b979f0	state-fn	ASI_DOUBLE_JUMP_UP.EventProcess	inside X2GUAra.cpp:1086 CX2GUAra::DoubleJumpUpEventProcess	inside	-	CH1a	1 states	n
+32b97a70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 53568bf18b068b90	y
+32b97ae0	state-fn	ASI_COMBO_Z.EventProcess	inside X2GUAra.cpp:1094 CX2GUAra::ComboZEventProcess	inside	-	CH1d	1 states	n
+32b97d10	state-fn	ASI_COMBO_ZZ.EventProcess	inside X2GUAra.cpp:1102 CX2GUAra::ComboZZEventProcess	inside	-	CH1d	1 states	y
+32b97f00	state-fn	ASI_COMBO_ZZZ.EventProcess	inside X2GUAra.cpp:1111 CX2GUAra::ComboZZZEventProcess	inside	-	CH1d	1 states	n
+32b98460	state-fn	ASI_COMBO_ZZZZ.EventProcess	inside X2GUAra.cpp:1122 CX2GUAra::ComboZZZZEventProcess	inside	-	CH1d	1 states	n
+32b985b0	state-fn	ASI_COMBO_ZZZXStart.EventProcess	inside X2GUAra.cpp:1130 CX2GUAra::ComboZZZXStartEventProcess	inside	-	CH1d	1 states	y
+32b98600	state-fn	ASI_COMBO_ZZZXCharge.Start	inside X2GUAra.cpp:1138 CX2GUAra::ComboZZZXChargeStateStart	inside	-	CH1d	1 states	y
+32b98620	state-fn	ASI_COMBO_ZZZXCharge.EventProcess	inside X2GUAra.cpp:1140 CX2GUAra::ComboZZZXChargeEventProcess	inside	-	CH1d	1 states	y
+32b98680	state-fn	ASI_COMBO_ZZZXCharge.End	inside X2GUAra.cpp:1141 CX2GUAra::ComboZZZXChargeStateEnd	inside	-	CH1d	1 states	y
+32b986a0	state-fn	ASI_COMBO_ZZZXAttack.EventProcess	inside X2GUAra.cpp:1150 CX2GUAra::ComboZZZXAttackEventProcess	inside	-	CH1d	1 states	n
+32b987f0	state-fn	ASI_COMBO_ZZX.EventProcess	inside X2GUAra.cpp:1159 CX2GUAra::ComboZZXEventProcess	inside	-	CH1d	1 states	y
+32b98a90	state-fn	ASI_COMBO_X.EventProcess	inside X2GUAra.cpp:1167 CX2GUAra::ComboXEventProcess	inside	-	CH1d	1 states	y
+32b98bd0	state-fn	ASI_COMBO_XX.EventProcess	inside X2GUAra.cpp:1175 CX2GUAra::ComboXXEventProcess	inside	-	CH1d	1 states	y
+32b98d00	state-fn	ASI_COMBO_XXX.EventProcess	inside X2GUAra.cpp:1184 CX2GUAra::ComboXXXEventProcess	inside	-	CH1d	1 states	y
+32b98f00	state-fn	ASI_COMBO_XXXloop.EventProcess	inside X2GUAra.cpp:1194 CX2GUAra::ComboXXXloopEventProcess	inside	-	CH1d	1 states	n
+32b99370	state-fn	ASI_COMBO_XXXloopX.EventProcess	inside X2GUAra.cpp:1204 CX2GUAra::ComboXXXloopXEventProcess	inside	-	CH1d	1 states	n
+32b995b0	state-fn	ASI_COMBO_XXdownX.EventProcess	inside X2GUAra.cpp:1214 CX2GUAra::ComboXXdownXEventProcess	inside	-	CH1d	1 states	y
+32b99890	state-fn	ASI_COMBO_XXdownXX.EventProcess	inside X2GUAra.cpp:1222 CX2GUAra::ComboXXdownXXEventProcess	inside	-	CH1d	1 states	y
+32b99960	state-fn	ASI_DASH_COMBO_Z.EventProcess	inside X2GUAra.cpp:1232 CX2GUAra::ComboDashZEventProcess	inside	-	CH1d2	1 states	n
+32b99df0	state-fn	ASI_DASH_COMBO_ZpushX_CHARGE.Start	inside X2GUAra.cpp:1243 CX2GUAra::ComboDashZpushX_ChargeStateStart	inside	-	CH1d2	1 states	n
+32b99e10	state-fn	ASI_DASH_COMBO_ZpushX_CHARGE.EventProcess	inside X2GUAra.cpp:1245 CX2GUAra::ComboDashZpushX_ChargeEventProcess	inside	-	CH1d2	1 states	y
+32b99e70	state-fn	ASI_DASH_COMBO_ZpushX_CHARGE.End	inside X2GUAra.cpp:1246 CX2GUAra::ComboDashZpushX_ChargeStateEnd	inside	-	CH1d2	1 states	y
+32b99e90	state-fn	ASI_DASH_COMBO_ZpushX_ATTACK.EventProcess	inside X2GUAra.cpp:1255 CX2GUAra::ComboDashZpushX_AttackEventProcess	inside	-	CH1d2	1 states	n
+32b99fe0	state-fn	ASI_DASH_COMBO_X.EventProcess	inside X2GUAra.cpp:1264 CX2GUAra::ComboDashXEventProcess	inside	-	CH1d2	1 states	y
+32b9a0b0	state-fn	ASI_JUMP_ATTACK_Z.EventProcess	inside X2GUAra.cpp:1274 CX2GUAra::JumpAttackZEventProcess	inside	-	CH1a	1 states	y
+32b9a1e0	state-fn	ASI_JUMP_ATTACK_X.FrameMove	inside X2GUAra.cpp:1283 CX2GUAra::JumpAttackXFrameMove	inside	-	CH1a	1 states	y
+32b9a240	state-fn	ASI_JUMP_ATTACK_X.EventProcess	inside X2GUAra.cpp:1284 CX2GUAra::JumpAttackXEventProcess	inside	-	CH1a	1 states	y
+32b9a280	state-fn	ASI_DASH_JUMP_COMBO_Z.EventProcess	inside X2GUAra.cpp:1292 CX2GUAra::DashJumpComboZEventProcess	inside	-	CH1d2	1 states	y
+32b9a5f0	state-fn	ASI_DASH_JUMP_COMBO_ZZ.EventProcess	inside X2GUAra.cpp:1300 CX2GUAra::DashJumpComboZZEventProcess	inside	-	CH1d2	1 states	y
+32b9a6f0	state-fn	ASI_DASH_JUMP_COMBO_ZZZ.FrameMove	inside X2GUAra.cpp:1308 CX2GUAra::DashJumpComboZZZFrameMove	inside	-	CH1d2	1 states	y
+32b9a750	state-fn	ASI_DASH_JUMP_COMBO_ZZZ.EventProcess	inside X2GUAra.cpp:1309 CX2GUAra::DashJumpComboZZZEventProcess	inside	-	CH1d2	1 states	y
+32b9a780	state-fn	ASI_DASH_JUMP_COMBO_X.EventProcess	inside X2GUAra.cpp:1317 CX2GUAra::DashJumpComboXEventProcess	inside	-	CH1d2	1 states	y
+32b9aa40	state-fn	ASI_SA_ARA_WIND_WEDGE_END.EventProcess	inside X2GUAra.cpp:9389 CX2GUAra::ASI_SA_ARA_WIND_WEDGE_END_EventProcess	inside	-	CH2a	1 states	y
+32b9aa80	state-fn	ASI_SA_ARA_PULLING_PIERCE_END.EventProcess	inside X2GUAra.cpp:9571 CX2GUAra::ASI_SA_ARA_PULLING_PIERCE_END_EventProcess	inside	-	CH2a	1 states	y
+32b9aac0	state-fn	ASI_SA_ARA_FALLING_DRAGON.EventProcess	inside X2GUAra.cpp:2068 CX2GUAra::ASI_SA_ARA_FALLING_DRAGON_EventProcess	inside	-	CH2a	1 states	y
+32b9ab00	state-fn	ASI_SA_ASR_SHADOW_RISING_JUMP.EventProcess ASI_SA_ASR_SHADOW_RISING_LANDING.EventProcess ASI_SA_ASR_SHADOW_RISING_END.EventProcess	-	new	ASI_SA_ASR_SHADOW_RISING_JUMP_EventProcess	CH3c	3 states	y
+32b9ab40	state-fn	ASI_SA_ASR_SHADOW_RISING_END.EventProcess	-	new	ASI_SA_ASR_SHADOW_RISING_END_EventProcess	CH3c	1 states	y
+32b9ab80	state-fn	ASI_SA_ARA_TEMPEST_DANCE_END.EventProcess	inside X2GUAra.cpp:2051 CX2GUAra::ASI_SA_ARA_TEMPEST_DANCE_END_EventProcess	inside	-	CH2a	1 states	y
+32b9abc0	state-fn	ASI_SA_ARA_SHADOW_KNOT_START.EventProcess	inside X2GUAra.cpp:2088 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_START_EventProcess	inside	-	CH2a	1 states	y
+32b9ac00	state-fn	ASI_SA_ARA_SHADOW_KNOT_END.EventProcess	inside X2GUAra.cpp:2119 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_END_EventProcess	inside	-	CH2a	1 states	y
+32b9ac40	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_READY.StartFuture	inside X2GUAra.cpp:10573 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_StateStartFuture	inside	-	CH2b	1 states	n
+32b9ad50	helper	-	-	-	-	n/a	CH0 Opus: switch jump table (data), not code	n
+32b9ad90	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_READY.EventProcess	inside X2GUAra.cpp:10575 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_EventProcess	inside	-	CH2b	1 states	n
+32b9ae20	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE.FrameMove	inside X2GUAra.cpp:10741 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_FrameMove	inside	-	CH2b	1 states	n
+32b9ae80	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE.EventProcess	inside X2GUAra.cpp:10742 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_EventProcess	inside	-	CH2b	1 states	n
+32b9aee0	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK.Start	inside X2GUAra.cpp:10811 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_StateStart	inside	-	CH2b	1 states	n
+32b9af30	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK.End	inside X2GUAra.cpp:10813 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_StateEnd	inside	-	CH2b	1 states	n
+32b9af60	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK.EventProcess	inside X2GUAra.cpp:10814 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_EventProcess	inside	-	CH2b	1 states	n
+32b9b160	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK.Start	inside X2GUAra.cpp:10950 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_StateStart	inside	-	CH2b	1 states	n
+32b9b1c0	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK.EventProcess	inside X2GUAra.cpp:10953 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_EventProcess	inside	-	CH2b	1 states	n
+32b9b3c0	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_READY.Start ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK.Start ASI_SA_ALH_SWALLOW_ASSAULT_FINISH.Start +1	inside X2GUAra.cpp:2269 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Ready_StateStart ; inside X2GUAra.cpp:2288 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_StateStart ; inside X2GUAra.cpp:2298 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Finish_StateStart	inside	-	CH3a	4 states	y
+32b9b440	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_READY.EventProcess ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK.EventProcess ASI_SA_ALH_SWALLOW_ASSAULT_FINISH.EventProcess +1	inside X2GUAra.cpp:2272 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Ready_EventProcess ; inside X2GUAra.cpp:2290 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_EventProcess ; inside X2GUAra.cpp:2300 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Finish_EventProcess ; inside X2GUAra.cpp:2306 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Escape_EventProcess	inside	-	CH3a	4 states	y
+32b9b490	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_FINISH.FrameMove	inside X2GUAra.cpp:2299 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Finish_FrameMove	inside	-	CH3a	1 states	n
+32b9b4e0	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_FINISH.EventProcess	inside X2GUAra.cpp:2300 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Finish_EventProcess	inside	-	CH3a	1 states	n
+32b9b6f0	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_ESCAPE.EventProcess	inside X2GUAra.cpp:2306 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Escape_EventProcess	inside	-	CH3a	1 states	y
+32b9b740	state-fn	ASI_A_ARA_TIGER_CLAW_END.EventProcess	inside X2GUAra.cpp:11616 CX2GUAra::ASI_A_ARA_TIGER_CLAW_END_EventProcess	inside	-	CH2b2	1 states	y
+32b9b7e0	state-fn	ASI_A_ARA_FORCE_SPEAR.EventProcess	inside X2GUAra.cpp:2380 CX2GUAra::ASI_A_ARA_FORCE_SPEAR_EventProcess	inside	-	CH2c2	1 states	y
+32b9b820	state-fn	ASI_A_ARA_GAIN_FORCE.EventProcess	inside X2GUAra.cpp:2361 CX2GUAra::ASI_A_ARA_GAIN_FORCE_EventProcess	inside	-	CH2a	1 states	y
+32b9b920	state-fn	ASI_COMBO_ALH_ZZXX.EventProcess	inside X2GUAra.cpp:1358 CX2GUAra::ASI_COMBO_ALH_ZZXX_EventProcess	inside	-	CH1e	1 states	y
+32b9b950	state-fn	ASI_COMBO_ALH_ZZXX_LANDING.EventProcess	inside X2GUAra.cpp:1364 CX2GUAra::ASI_COMBO_ALH_ZZXX_LANDING_EventProcess	inside	-	CH1e	1 states	n
+32b9bae0	state-fn	ASI_DASH_COMBO_ALH_ZZ.EventProcess	inside X2GUAra.cpp:1370 CX2GUAra::ASI_DASH_COMBO_ALH_ZZ_EventProcess	inside	-	CH1e	1 states	n
+32b9bcc0	state-fn	ASI_JUMP_ATTACK_ALH_ZZ.EventProcess	inside X2GUAra.cpp:1376 CX2GUAra::ASI_JUMP_ATTACK_ALH_ZZ_EventProcess	inside	-	CH1e	1 states	y
+32b9bd00	state-fn	ASI_A_ALH_BREAKING.EventProcess ASI_A_ALH_BREAKING_ATTACK.EventProcess ASI_A_ALH_BREAKING_AVOIDANCE.EventProcess	inside X2GUAra.cpp:2395 CX2GUAra::ASI_A_ALH_BREAKING_EventProcess ; inside X2GUAra.cpp:2412 CX2GUAra::ASI_A_ALH_BREAKING_ATTACK_EventProcess ; inside X2GUAra.cpp:2419 CX2GUAra::StandUpRollingEventProcess	inside	-	CH3a2	3 states	y
+32b9bde0	state-fn	ASI_A_ALH_BREAKING_ATTACK.EventProcess	inside X2GUAra.cpp:2412 CX2GUAra::ASI_A_ALH_BREAKING_ATTACK_EventProcess	inside	-	CH3a2	1 states	y
+32b9bee0	state-fn	ASI_SA_ALH_DOUBLE_COLLISION_END.EventProcess	inside X2GUAra.cpp:12211 CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_END_EventProcess	inside	-	CH2b	1 states	y
+32b9bfe0	state-fn	ASI_DASH_JUMP_COMBO_ASD_ZX.EventProcess	inside X2GUAra.cpp:1344 CX2GUAra::ASI_DASH_JUMP_COMBO_ASD_ZX_EventProcess	inside	-	CH1e	1 states	y
+32b9c050	state-fn	ASI_DOUBLE_JUMP_FRONT_COMBO_ASD_Z_BACK.EventProcess	inside X2GUAra.cpp:1350 CX2GUAra::ASI_DOUBLE_JUMP_FRONT_COMBO_ASD_Z_BACK_EventProcess	inside	-	CH1e	1 states	n
+32b9c0c0	state-fn	ASI_SA_ASD_TURBULENT_WAVE_START.EventProcess	inside X2GUAra.cpp:12299 CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_EventProcess	inside	-	CH3a	1 states	y
+32b9c0f0	state-fn	ASI_SA_ASD_TURBULENT_WAVE_END.EventProcess	inside X2GUAra.cpp:12500 CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_END_EventProcess	inside	-	CH3a	1 states	y
+32b9c140	state-fn	ASI_SA_ASD_SUPPRESSION.EventProcess	inside X2GUAra.cpp:2173 CX2GUAra::ASI_SA_ASD_SUPPRESSION_EventProcess	inside	-	CH2b	1 states	y
+32b9c190	state-fn	ASI_SA_ALH_POWER_OF_WHITER_TIGER.EventProcess ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING.EventProcess	inside X2GUAra.cpp:2215 CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_EventProcess ; inside X2GUAra.cpp:2231 CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING_EventProcess	inside	-	CH2b	2 states	y
+32b9c1d0	state-fn	ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING.EventProcess	inside X2GUAra.cpp:2231 CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING_EventProcess	inside	-	CH2b	1 states	n
+32b9c3b0	state-fn	ASI_SA_ALH_PEERLESSNESS_SLASH_END.EventProcess	inside X2GUAra.cpp:2259 CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_END_EventProcess	inside	-	CH3a2	1 states	y
+32b9c3e0	state-fn	ASI_SA_ALH_DESCENT_DRAGON.EventProcess	inside X2GUAra.cpp:13059 CX2GUAra::ASI_SA_ALH_DESCENT_DRAGON_EventProcess	inside	-	CH2b	1 states	y
+32b9c410	state-fn	ASI_A_ALH_ROCK_CRASH_END.EventProcess	inside X2GUAra.cpp:13274 CX2GUAra::ASI_A_ALH_ROCK_CRASH_END_EventProcess	inside	-	CH2b2	1 states	y
+32b9c510	state-fn	ASI_A_ASD_LOW_BRANDISH_KICK.EventProcess	inside X2GUAra.cpp:13451 CX2GUAra::ASI_A_ASD_LOW_BRANDISH_KICK_EventProcess	inside	-	CH3a2	1 states	y
+32b9c610	state-fn	ASI_SA_ASD_VOID_BREAK.EventProcess	inside X2GUAra.cpp:13511 CX2GUAra::ASI_SA_ASD_VOID_BREAK_EventProcess	inside	-	CH3a	1 states	n
+32b9c810	state-fn	ASI_A_ARA_QUICK_PIERCING.EventProcess ASI_A_ARA_QUICK_PIERCING_TRENSCENDENCE.EventProcess	inside X2GUAra.cpp:2456 CX2GUAra::ASI_A_ARA_Quick_Piercing_EventProcess	inside	-	CH2d3	2 states	y
+32b9c910	state-fn	ASI_A_ARA_SHOULDER_BLOW.EventProcess	inside X2GUAra.cpp:2472 CX2GUAra::ASI_A_ALH_Shoulder_Blow_EventProcess	inside	-	CH2a	1 states	n
+32b9cb10	state-fn	ASI_A_ASD_FALLING_BLOSSOM_Finish.EventProcess	inside X2GUAra.cpp:2501 CX2GUAra::ASI_A_ASD_Falling_Blossom_Finish_EventProcess	inside	-	CH2b2	1 states	n
+32b9cd20	state-fn	ASI_A_ARA_QUICK_STAB.EventProcess	inside X2GUAra.cpp:2513 CX2GUAra::ASI_A_ARA_Quick_Stab_EventProcess	inside	-	CH2b2	1 states	n
+32b9cf00	state-fn	ASI_P_ASD_BRUTAL_PIERCING.EventProcess ASI_P_ASD_BRUTAL_PIERCING_SMALL.EventProcess	-	new	ASI_P_ASD_BRUTAL_PIERCING_EventProcess	CH1e	2 states	y
+32b9cf50	state-fn	ASI_HA_ASD_THOUSANDS_BLOSSOMS.EventProcess	inside X2GUAra.cpp:2326 CX2GUAra::ASI_HA_ASD_THOUSANDS_BLOSSOMS_EventProcess	inside	-	CH3d	1 states	y
+32b9cfa0	state-fn	ASI_COMBO_ALD_ZZXX.EventProcess	inside X2GUAra.cpp:1473 CX2GUAra::ASI_COMBO_ALD_ZZXX_EventProcess	inside	-	CH1f	1 states	y
+32b9d0e0	state-fn	ASI_COMBO_ALD_ZZZFrontZ.EventProcess	inside X2GUAra.cpp:1482 CX2GUAra::ASI_COMBO_ALD_ZZZFrontZ_EventProcess	inside	-	CH1f	1 states	n
+32b9d300	state-fn	ASI_DASH_JUMP_COMBO_ALD_ZX.EventProcess	inside X2GUAra.cpp:1491 CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZX_EventProcess	inside	-	CH1f	1 states	n
+32b9d430	state-fn	ASI_DASH_JUMP_COMBO_ALD_ZXX.EventProcess	inside X2GUAra.cpp:1500 CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZXX_EventProcess	inside	-	CH1f	1 states	n
+32b9d470	state-fn	ASI_DASH_JUMP_COMBO_AYR_XZ.EventProcess	inside X2GUAra.cpp:1451 CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_EventProcess	inside	-	CH1f	1 states	n
+32b9d4b0	state-fn	ASI_DASH_COMBO_AYR_ZZ.EventProcess	inside X2GUAra.cpp:1460 CX2GUAra::ASI_DASH_COMBO_AYR_ZZ_EventProcess	inside	-	CH1f	1 states	n
+32b9d6d0	state-fn	ASI_A_ALD_WOLF_CLAW_FINISH.EventProcess	inside X2GUAra.cpp:14392 CX2GUAra::ASI_A_ALD_WOLF_CLAW_FINISH_Init	inside	-	CH2c2	1 states	n
+32b9d8f0	state-fn	ASI_A_ALD_CONVERSION_HEALTH.EventProcess	inside X2GUAra.cpp:14453 CX2GUAra::ASI_A_ALD_CONVERSION_HEALTH_EventProcess	inside	-	CH2c2	1 states	y
+32b9da00	state-fn	ASI_A_ALD_CONVERSION_MANA.EventProcess	inside X2GUAra.cpp:14545 CX2GUAra::ASI_A_ALD_CONVERSION_MANA_EventProcess	inside	-	CH2c2	1 states	y
+32b9db10	state-fn	ASI_A_AYR_HIGH_SPEED.EventProcess	inside X2GUAra.cpp:14680 CX2GUAra::ASI_A_AYR_HIGH_SPEED_EventProcess	inside	-	CH3b	1 states	n
+32b9dd20	state-fn	ASI_SA_ALD_ENERGY_WAVE.EventProcess	inside X2GUAra.cpp:14769 CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_EventProcess	inside	-	CH2c	1 states	y
+32b9dd60	state-fn	ASI_SA_ALD_ENERGY_WAVE_FIRE.EventProcess	-	new	ASI_SA_ALD_ENERGY_WAVE_FIRE_EventProcess	CH2c	1 states	n
+32b9df70	state-fn	ASI_SA_ALD_HELL_OF_TORNADO_FINISH.EventProcess	inside X2GUAra.cpp:14912 CX2GUAra::ASI_SA_ALD_HELL_OF_TORNADO_FINISH_EventProcess	inside	-	CH2c	1 states	n
+32b9e190	state-fn	ASI_SA_ALD_WOLF_SPEAR_FINISH.EventProcess	inside X2GUAra.cpp:15035 CX2GUAra::ASI_SA_ALD_WOLF_SPEAR_FINISH_EventProcess	inside	-	CH2c	1 states	n
+32b9e3b0	state-fn	ASI_SA_ALD_FINGER_BULLET_FINISH.EventProcess	inside X2GUAra.cpp:15164 CX2GUAra::ASI_SA_ALD_FINGER_BULLET_FINISH_EventProcess	inside	-	CH2c2	1 states	y
+32b9e4c0	state-fn	ASI_SA_ALD_ENERGY_BEAD_FINISH.EventProcess ASI_SA_ALD_PRISON_SPEAR_FINISH.EventProcess	inside X2GUAra.cpp:15317 CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_FINISH_EventProcess ; inside X2GUAra.cpp:15438 CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_FINISH_EventProcess	inside	-	CH2c	2 states	y
+32b9e5d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b8ed08700	y
+32b9e6e0	state-fn	ASI_A_AYR_STEAL_SOUL_FINISH.EventProcess	inside X2GUAra.cpp:15560 CX2GUAra::ASI_A_AYR_STEAL_SOUL_FINISH_EventProcess	inside	-	CH3b	1 states	y
+32b9e7f0	state-fn	ASI_SA_AYR_ENERGY_VOID_START.EventProcess	inside X2GUAra.cpp:15648 CX2GUAra::ASI_SA_AYR_ENERGY_VOID_START_EventProcess	inside	-	CH3b	1 states	y
+32b9e820	state-fn	ASI_SA_AYR_ENERGY_VOID_LOOP.EventProcess	inside X2GUAra.cpp:15706 CX2GUAra::ASI_SA_AYR_ENERGY_VOID_LOOP_EventProcess	inside	-	CH3b	1 states	y
+32b9e8a0	state-fn	ASI_SA_AYR_ENERGY_VOID_END.EventProcess	inside X2GUAra.cpp:15849 CX2GUAra::ASI_SA_AYR_ENERGY_VOID_END_EventProcess	inside	-	CH3b	1 states	n
+32b9eac0	state-fn	ASI_SA_AYR_SUPPRESSION_ENERGY.EventProcess	inside X2GUAra.cpp:15954 CX2GUAra::ASI_SA_AYR_SUPPRESSION_ENERGY_EventProcess	inside	-	CH2c	1 states	n
+32b9ece0	state-fn	ASI_SA_ALD_WOLF_BREAK.EventProcess	inside X2GUAra.cpp:16017 CX2GUAra::ASI_SA_ALD_WOLF_BREAK_EventProcess	inside	-	CH2c	1 states	y
+32b9ed30	state-fn	ASI_SA_AYR_OPEN_THE_HELL.EventProcess	inside X2GUAra.cpp:16135 CX2GUAra::ASI_SA_AYR_OPEN_THE_HELL_EventProcess	inside	-	CH3b	1 states	y
+32b9ed80	state-fn	ASI_HA_AYR_ENERGY_CANNON.EventProcess	inside X2GUAra.cpp:16207 CX2GUAra::ASI_HA_AYR_ENERGY_CANNON_EventProcess	inside	-	CH3d	1 states	y
+32b9edd0	state-fn	ASI_DASH_COMBO_ALS_X.EventProcess	-	new	ASI_DASH_COMBO_ALS_X_EventProcess	CH1g	1 states	y
+32b9ef70	state-fn	ASI_DASH_COMBO_ALS_XX.EventProcess	-	new	ASI_DASH_COMBO_ALS_XX_EventProcess	CH1g	1 states	n
+32b9f290	state-fn	ASI_COMBO_ALS_XXXLoopZ.EventProcess	-	new	ASI_COMBO_ALS_XXXLoopZ_EventProcess	CH1g	1 states	n
+32b9f5b0	state-fn	ASI_DASH_JUMP_COMBO_ALS_ZX.EventProcess	-	new	ASI_DASH_JUMP_COMBO_ALS_ZX_EventProcess	CH1g	1 states	n
+32b9f9b0	state-fn	ASI_COMBO_AA_XXDownXZStart.EventProcess	-	new	ASI_COMBO_AA_XXDownXZStart_EventProcess	CH1g	1 states	n
+32b9fce0	state-fn	ASI_COMBO_AA_XXDownXZLoop.EventProcess	-	new	ASI_COMBO_AA_XXDownXZLoop_EventProcess	CH1g	1 states	n
+32ba0040	state-fn	ASI_COMBO_AA_XXDownXZLoopX.EventProcess	-	new	ASI_COMBO_AA_XXDownXZLoopX_EventProcess	CH1g	1 states	n
+32ba0360	state-fn	ASI_DASH_JUMP_COMBO_AA_ZXX.EventProcess	-	new	ASI_DASH_JUMP_COMBO_AA_ZXX_EventProcess	CH1g	1 states	n
+32ba0680	state-fn	ASI_A_ALS_VIEW_BETWEEN_FINISH.EventProcess	-	new	ASI_A_ALS_VIEW_BETWEEN_FINISH_EventProcess	CH2d3	1 states	n
+32ba09a0	state-fn	ASI_A_ALS_SPECTER_WALK.EventProcess	-	new	ASI_A_ALS_SPECTER_WALK_EventProcess	CH3c2	1 states	n
+32ba0cc0	state-fn	ASI_A_ALS_SHAKE_CHAOS_FINISH.EventProcess	-	new	ASI_A_ALS_SHAKE_CHAOS_FINISH_EventProcess	CH2d3	1 states	n
+32ba0fe0	state-fn	ASI_A_AA_RAID.EventProcess	-	new	ASI_A_AA_RAID_EventProcess	CH3c2	1 states	y
+32ba1020	state-fn	ASI_A_AA_RAID_ATTACK_FINISH.EventProcess	-	new	ASI_A_AA_RAID_ATTACK_FINISH_EventProcess	CH3c2	1 states	n
+32ba1340	state-fn	ASI_A_ALS_MANA_DRAIN.Start	-	new	ASI_A_ALS_MANA_DRAIN_StateStart	CH2d3	1 states	y
+32ba1370	state-fn	ASI_A_ALS_MANA_DRAIN.EventProcess	-	new	ASI_A_ALS_MANA_DRAIN_EventProcess	CH2d3	1 states	n
+32ba1690	state-fn	ASI_SA_AA_NECROMANCY.EventProcess	-	new	ASI_SA_AA_NECROMANCY_EventProcess	CH3c	1 states	n
+32ba19b0	state-fn	ASI_SA_AA_SPECTER_OF_THUNDER.EventProcess	-	new	ASI_SA_AA_SPECTER_OF_THUNDER_EventProcess	CH2d	1 states	n
+32ba1d00	state-fn	ASI_SA_AA_SPECTER_OF_THUNDER_FIND.FrameMove	-	new	ASI_SA_AA_SPECTER_OF_THUNDER_FIND_FrameMove	CH2d	1 states	n
+32ba1d70	state-fn	ASI_SA_AA_SPECTER_OF_THUNDER_FIND.EventProcess	-	new	ASI_SA_AA_SPECTER_OF_THUNDER_FIND_EventProcess	CH2d	1 states	y
+32ba1db0	state-fn	ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING.FrameMove	-	new	ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_FrameMove	CH2d	1 states	n
+32ba1e40	state-fn	ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING.EventProcess	-	new	ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_EventProcess	CH2d	1 states	n
+32ba2140	state-fn	ASI_SA_ALS_SEVER.EventProcess	-	new	ASI_SA_ALS_SEVER_EventProcess	CH2d2	1 states	n
+32ba2460	state-fn	ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH.EventProcess	-	new	ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_EventProcess	CH2d	1 states	n
+32ba2760	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_FINISH.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_FINISH_EventProcess	CH2d	1 states	y
+32ba27a0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_LANDING.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_LANDING_EventProcess	CH2d	1 states	n
+32ba2aa0	state-fn	ASI_SA_ASR_SPECTER_OF_BLADE_FINISH.EventProcess	-	new	ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_EventProcess	CH3c	1 states	y
+32ba2af0	state-fn	ASI_SA_AA_GET_BLOOD.Start	-	new	ASI_SA_AA_GET_BLOOD_StateStart	CH3c	1 states	y
+32ba2b30	state-fn	ASI_SA_AA_GET_BLOOD_FINISH.EventProcess	-	new	ASI_SA_AA_GET_BLOOD_FINISH_EventProcess	CH3c	1 states	n
+32ba2e50	state-fn	ASI_SA_AA_FIRE_FOX.EventProcess	-	new	ASI_SA_AA_FIRE_FOX_EventProcess	CH3c	1 states	n
+32ba3170	state-fn	ASI_SA_AA_SUPPRESSION_SPECTER.EventProcess	-	new	ASI_SA_AA_SUPPRESSION_SPECTER_EventProcess	CH2d2	1 states	n
+32ba3490	state-fn	ASI_SA_ALS_VERITABLE_PANDEMONIUM.StartFuture	-	new	ASI_SA_ALS_VERITABLE_PANDEMONIUM_StateStartFuture	CH2d2	1 states	y
+32ba34d0	state-fn	ASI_SA_ALS_VERITABLE_PANDEMONIUM.EventProcess	-	new	ASI_SA_ALS_VERITABLE_PANDEMONIUM_EventProcess	CH2d2	1 states	n
+32ba3500	state-fn	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH.EventProcess	-	new	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_EventProcess	CH2d2	1 states	n
+32ba3820	state-fn	ASI_SA_AA_SMASH.StartFuture	-	new	ASI_SA_AA_SMASH_StateStartFuture	CH3c	1 states	y
+32ba3860	state-fn	ASI_SA_AA_SMASH.EventProcess	-	new	ASI_SA_AA_SMASH_EventProcess	CH3c	1 states	n
+32ba3b80	state-fn	ASI_HA_AA_NINE_TAILED_FOX.EventProcess	-	new	ASI_HA_AA_NINE_TAILED_FOX_EventProcess	CH3d	1 states	n
+32ba3ea0	state-fn	ASI_SA_ASD_LINK_FLOWER_SLASH_1st.EventProcess	-	new	ASI_SA_ASD_LINK_FLOWER_SLASH_1st_EventProcess	CH3a2	1 states	n
+32ba40a0	state-fn	ASI_SA_ASD_LINK_FLOWER_SLASH_2nd.EventProcess	-	new	ASI_SA_ASD_LINK_FLOWER_SLASH_2nd_EventProcess	CH3a2	1 states	n
+32ba42a0	state-fn	ASI_SA_ASD_LINK_FLOWER_SLASH_LAST.EventProcess	-	new	ASI_SA_ASD_LINK_FLOWER_SLASH_LAST_EventProcess	CH3a2	1 states	n
+32ba44a0	state-fn	ASI_SA_AYR_RESTRICTION_ENERGY_START.Start ASI_SA_AYR_RESTRICTION_ENERGY_END.Start	-	new	ASI_SA_AYR_RESTRICTION_ENERGY_START_StateStart	CH3b	2 states	y
+32ba44e0	helper	called by 32bcfaa0	-	inside	-	CH1k	also called from outside the class: 322e15ad; inside: MARCH HAS X2GUAra.cpp:16614 (3-arg June form): WIND_WEDGE(+UPGRADE) memo -> 1, SHADOW_KNOT(+UPGRADE) memo -> 2, flag set: -1 for SHOULDER_BLOW / QUICK_STAB / FORCE_SPEAR / QUICK_PIERCING; caller 32bcfaa0 and 322e15ad	y
+32ba45d0	override 0x3ac	ModifyFinalDamageByGameUnitType	X2GUAra.h:663 virtual void ModifyFinalDamageByGameUnitType( OUT CX2DamageManager::DAMAGE_TYPE& damageType_, OUT float& fAttackerPhysicDamage_,	inside	-	CH4b	ModifyFinalDamageByGameUnitType (vslot 0x3ac)	n
+32ba4620	override 0x6b4	?	- (name unsettled)	new	?	CH1i	base 3208ddc0; name: virtual 0x6b4 (base 3208ddc0); not named by any sibling class map, funcmap or X2GUUser.h; read the body; read: Opus caller: vslot 0x6b4 (replacement state id for skills 27014-27039)	n
+32ba4680	helper	-	-	-	-	n/a	CH0 Opus: a case block inside 32ba4620 (vslot 0x6b4 switch), not a function	n
+32ba46c0	override 0x6b8	GetHypetMpdeStateID	X2GUAra.h:683 virtual const int GetHypetMpdeStateID();	inside	-	CH1q	GetHypetMpdeStateID (vslot 0x6b8)	n
+32ba46f0	helper	-	-	new	?	CH4b	MemoCondition constructor (vtable 33502680 @32ba46f8; MemoConditionAra RTTI); name: -; MemoCondition constructor (vtable 33502680 @32ba46f8; MemoConditionAra RTTI); read: MemoCondition constructor (stores vtable 33502680 @32ba46f8): left for the CH4b memo-condition naming decision; not read	y
+32ba4710	override 0x670	?	- (name unsettled)	new	IsInJobLine	CH1i	base 331a4950; name: named (high): Opus caller: Chung precedent, bool(int line): 1 = 28/118, 2 = 31/119, 3 = 34/124; not re-decompiled	n
+32ba4760	helper	called by 32bc3190 32bc3260 32bc3580 32bc4410	-	new	GetMpScaledPowerRate	CH2d	name: named (low): float(this, n, skillId, bUpgrade): level = GetSkillLevel(id or upgrade swap); returns n x 30.0 / GetActualMPConsume(id, level, 1) + 1.0; callers VIEW_BETWEEN / SHAKE_CHAOS / RAID_ATTACK / RESTRAINTS_SPECTER states	y
+32ba47f0	override 0x300	?	- (name unsettled)	new	?	CH4b	CH0 Opus: vslot 0x300 CEffect hook: skill 27411 effect +0x3f0 x (100 - +0x9740) x 0.01 when +0x973c != 0 (passive; effect-set hooks are CH4b); name: virtual 0x300 (base CH0 Opus: vslot 0x300 CEffect hook: skill 27411 effect +0x3f0 x (100 - +0x9740) x 0.01 when +0x973c != 0 (passive; effect-set hooks are CH4b)); not named by any sibling class map, funcmap or X2GUUser.h; read the body; read: Opus caller: vslot 0x300 (CEffect hook, skill 27411 power rate); no name yet	n
+32ba4840	override 0x740	?	- (name unsettled)	new	StoreGageSnapshot	CH1q	gauge snapshot (vslot 0x740); name: named (high): vslot 0x740: IsMyUnit -> base 32009780 + gage FP into +0x92bc; same name as Chung 32bed760 / Rena (Crest of Time snapshot)	y
+32ba4870	state-fn	ASI_COMBO_ALH_XXXZ.EventProcess	-	new	ASI_COMBO_ALH_XXXZ_EventProcess	CH1e	1 states	n
+32ba4d00	state-fn	ASI_COMBO_ALH_XXXZX.EventProcess	-	new	ASI_COMBO_ALH_XXXZX_EventProcess	CH1e	1 states	y
+32ba4d30	state-fn	ASI_COMBO_ALH_XXXZX_Landing.EventProcess	-	new	ASI_COMBO_ALH_XXXZX_Landing_EventProcess	CH1e	1 states	n
+32ba4ec0	state-fn	ASI_DASH_COMBO_ALS_ZX.EventProcess	-	new	ASI_DASH_COMBO_ALS_ZX_EventProcess	CH1g	1 states	n
+32ba5050	state-fn	ASI_DASH_JUMP_COMBO_ASD_XZ.EventProcess	-	new	ASI_DASH_JUMP_COMBO_ASD_XZ_EventProcess	CH1e	1 states	y
+32ba5080	state-fn	ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING.EventProcess	-	new	ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING_EventProcess	CH1e	1 states	n
+32ba5210	state-fn	ASI_COMBO_ASR_ZZZX.EventProcess	-	new	ASI_COMBO_ASR_ZZZX_EventProcess	CH1g	1 states	n
+32ba53a0	state-fn	ASI_DASH_JUMP_COMBO_ASR_XZ.EventProcess	-	new	ASI_DASH_JUMP_COMBO_ASR_XZ_EventProcess	CH1g	1 states	n
+32ba54d0	state-fn	ASI_DASH_JUMP_COMBO_ASR_XZZ.EventProcess	-	new	ASI_DASH_JUMP_COMBO_ASR_XZZ_EventProcess	CH1g	1 states	n
+32ba5600	state-fn	ASI_DASH_JUMP_COMBO_ASR_XZZZ.EventProcess	-	new	ASI_DASH_JUMP_COMBO_ASR_XZZZ_EventProcess	CH1g	1 states	n
+32ba5640	state-fn	ASI_COMBO_ALD_XXdownXX.EventProcess	-	new	ASI_COMBO_ALD_XXdownXX_EventProcess	CH1f	1 states	y
+32ba5740	state-fn	ASI_COMBO_ALD_XXdownXXX.EventProcess	-	new	ASI_COMBO_ALD_XXdownXXX_EventProcess	CH1f	1 states	y
+32ba5840	state-fn	ASI_COMBO_ALD_XXdownXXXX.EventProcess	-	new	ASI_COMBO_ALD_XXdownXXXX_EventProcess	CH1f	1 states	y
+32ba5870	state-fn	ASI_SA_ALH_LINK_FLOWER.EventProcess	-	new	ASI_SA_ALH_LINK_FLOWER_EventProcess	CH2b	1 states	n
+32ba5ab0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM.Start	-	new	ASI_SA_ALS_SPECTER_OF_STORM_StateStart	CH2d	1 states	n
+32ba5b50	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_DEGREE.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_EventProcess	CH2d2	1 states	n
+32ba5e90	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_EventProcess	CH2d2	1 states	n
+32ba61d0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.FrameMoveFuture	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMoveFuture	CH2d2	1 states	y
+32ba61f0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_EventProcess	CH2d2	1 states	y
+32ba6220	helper	-	-	new	ASI_SA_ALS_SPECTER_OF_STORM_LANDING_EventProcess	CH2d	CH0 Opus: ASI_SA_ALS_SPECTER_OF_STORM_LANDING EventProcess (thunk 32bd6a10 stored by its setup helper 32bc9fc0; skill 27021 / 27036); name: named (high): thunk 32bd6a10 is stored at [state+0x48] by the registration helper 32bc9fc0 (table name ASI_SA_ALS_SPECTER_OF_STORM_LANDING); on-ground check -> StateChange JUMP_DOWN / 0xd, then CommonEventProcess; col 7 says CH1o, belongs to CH2d	y
+32ba6270	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes a16058773353568b	n
+32ba62c0	helper	called by 32babba0 32bad670 32bc9c70 32bcfaa0	-	new	MarkNowSkillFPGainReady	CH1k	name: named (low): walks the FP-gain table (+0x9858, 0x18-byte entries) and sets flag byte +1 on sub-entries matching skill +0x9844 / hit id +0x9840; called by 32babba0 and the Specter of Storm states	y
+32ba6440	override 0x328	?	- (name unsettled)	new	?	CH4a	CH0 Opus: vslot 0x328 float hook: passive 27417 (FP-gated roll, adds skill value 0x1f) and 27420 (count on state skill 27216): CH4a passive hooks; name: virtual 0x328 (base CH0 Opus: vslot 0x328 float hook: passive 27417 (FP-gated roll, adds skill value 0x1f) and 27420 (count on state skill 27216): CH4a passive hooks); not named by any sibling class map, funcmap or X2GUUser.h; read the body; read: Opus caller: vslot 0x328 (float hook, passives 27417 / 27420)	y
+32ba6560	helper	called by 32bbd3a0 32bc3580	-	new	ApplyRaidRangeRate	CH3c2	name: named (medium): static(mesh*): ability 0x52 of RNSI_A_ASR_RAID via TryGetEquippedSkillAbilityValue scales the mesh +0xb24..+0xb2c; callers RAID_ATTACK FrameMove / FINISH	y
+32ba6610	override 0x7fc	SpecialAttackEventProcess part: skill use (slot 511)	- (no virtual of that name in X2GUAra.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32ba6830	override 0x5f0	COMMON_BUFF_FrameMove	X2GUAra.h:593 virtual void COMMON_BUFF_FrameMove();	inside	-	CH1h	base 31aa1d30	y
+32ba6990	helper	called by 32bc89e0	-	inside	-	CH1i	inside: MARCH HAS X2GUAra.cpp:5103; 4-arg form (this, &remove, &add, item*, &index) searching the promotion list +0x95a4; caller UpdateEquipViewListInfo 32bc89e0	y
+32ba6c20	override 0x94	Lose	X2GUAra.h:562 virtual void Lose();	inside	-	CH1h	base 31ff15d0	n
+32ba6cc0	override 0x9c	IsFullHyperMode	X2GUAra.h:607 virtual bool IsFullHyperMode() const;	inside	-	CH1q	IsFullHyperMode (vslot 0x9c)	n
+32ba6d00	override 0x24c	SetSpecificValueByBuffTempletID	X2GUAra.h:616 virtual void SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );	inside	-	CH1h	base 3204b5e0	n
+32ba6e50	override 0x314	ApplyRenderParamOnEmptyRenderParamByBuff	X2GUAra.h:619 virtual void ApplyRenderParamOnEmptyRenderParamByBuff( CKTDGXRenderer::RenderParam* pRenderParam_ );	inside	-	CH1h	base 3226e190	n
+32ba6ef0	helper	-	X2GUAra.h:512 void SetForcePower( int iForcePower_ );	inside	-	CH1q	SetForcePower (spec-B reader inside)	y
+32ba6f80	helper	-	-	inside	-	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::ResetForcePowerWhenRebirthInPV; was CH1h; inside: MARCH HAS X2GUAra.cpp:6179; (myKills, enemyKills) compare then SetForcePower(+0x9611 or max); caller ReInit 32bc8030 (PvP); ch0_fp.tsv agrees	y
+32ba6fd0	helper	called by 32baa1c0 32baa1f0	-	inside	-	CH1a	inside: MARCH HAS X2GUAra.cpp:6535; ChangeAnim BoostPowerWait / Fatal by hyper state and a script bool, then Play; callers HYPER_WAIT StartFuture / Start	y
+32ba73c0	state-fn	ASI_JUMP_READY.EventProcess	inside X2GUAra.cpp:427 CX2GUAra::JumpReadyEventProcess	inside	-	CH1a	1 states	n
+32ba7470	state-fn	ASI_DASH_END.StartFuture	inside X2GUAra.cpp:473 CX2GUAra::DashEndStartFuture	inside	-	CH1d2	1 states	n
+32ba74b0	state-fn	ASI_DASH_JUMP.EventProcess	inside X2GUAra.cpp:486 CX2GUAra::DashJumpEventProcess	inside	-	CH1d2	1 states	n
+32ba7820	state-fn	ASI_DOUBLE_JUMP_FRONT.EventProcess	inside X2GUAra.cpp:1076 CX2GUAra::DoubleJumpFrontEventProcess	inside	-	CH1a	1 states	n
+32ba79b0	state-fn	ASI_JUMP_ATTACK_Z.FrameMoveFuture	inside X2GUAra.cpp:1273 CX2GUAra::JumpAttackZFrameMoveFuture	inside	-	CH1a	1 states	n
+32ba7a40	state-fn	ASI_JUMP_ATTACK_X.FrameMoveFuture	inside X2GUAra.cpp:1282 CX2GUAra::JumpAttackXFrameMoveFuture	inside	-	CH1a	1 states	n
+32ba7ad0	state-fn	ASI_SA_ALH_PEERLESSNESS_SLASH_START.End ASI_SA_ALH_PEERLESSNESS_SLASH_END.End	inside X2GUAra.cpp:2242 CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_START_End	inside	-	CH3a2	2 states	y
+32ba7b50	override 0x744	?	- (name unsettled)	new	RestoreGageSnapshot	CH1q	gauge snapshot (vslot 0x744); name: named (high): vslot 0x744: IsMyUnit -> SetForcePower(+0x92bc) then base 3204da60; same name as Chung 32bf4600 / Rena	y
+32ba7b80	helper	called by 32ba7ec0	-	new	GetPassiveSkillRate	CH1j	name: named (low): float(passiveId): skill level > 0 -> templet ability 0xb0 (1.0 if <= 0), else 1.0; only caller 32ba7ec0	y
+32ba7c20	state-fn	ASI_SA_ALS_SPECTER_OF_STORM.StartFuture	-	new	ASI_SA_ALS_SPECTER_OF_STORM_StateStartFuture	CH2d	1 states	y
+32ba7c90	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.StartFuture	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_StateStartFuture	CH2d2	1 states	y
+32ba7cf0	helper	called by 32bce2e0	-	new	UpdateOpenMindBuffByForcePower	CH1j	name: named (medium): CommonFrameMove: P_ASD_OPEN_MIND 0x6b17 learned; FP full -> buff on / FP empty -> off through 3229ea50 and vslot 0x23c	y
+32ba7da0	helper	called by 32bce2e0	-	new	UpdateValorDevotionTimer	CH1j	name: named (medium): CommonFrameMove: float +0x9868 -= elapsed; P_ASD_VALOR_DEVOTION 0x6b18: FP full -> timer = ability 0xa9, FP empty and timer > 0 -> 0 and vslot 0x23c(0x6b18,0,1)	y
+32ba7e40	helper	called by 32bd6b10	-	new	ProcessAsuraOpenMindOnHit	CH4a	name: named (low): attack-result delegate (thunk 32bd6b10): DamageData target present, not 0x1a0 base, own debuff count (IS_DEBUF) != 0 or 3226fce0 -> vslot 0x23c(0x6b1b = P_ASR_OPEN_MIND)	y
+32ba7ec0	helper	called by 32bc8380	-	new	GetNowSkillPassiveRate	CH1j	name: named (low): float stored to this+0x8908 by CommonStateStartFuture: per skill of the state returns passive rate (FULLMOON_SLASH / POWER_OF_TIGER / HOWLING / HELL_GATE_OPEN / LOAD_OF_ASURA / FOX_SMILE via 32ba7b80), default 1.0	y
+32ba8150	override 0x54c	InitEnchantWeaponEffectUnitSpecific	X2GUAra.h:566 virtual void InitEnchantWeaponEffectUnitSpecific();	inside	-	CH1h	base 31aa1d30	n
+32ba8180	override 0x30	NotifyDGManagerChanged	X2GUAra.h:596 virtual void NotifyDGManagerChanged( CKTDGManager& refInManager_ );	inside	-	CH1h	base 31fd56e0	y
+32ba83d0	override 0x630	UpdateNotRenderingOtherEquipList	X2GUAra.h:604 virtual void UpdateNotRenderingOtherEquipList();	inside	-	CH1i	base 3201c3a0	y
+32baa0d0	helper	called by 32bce2e0	-	inside	-	CH1j	inside: MARCH HAS X2GUAra.cpp:6059; (animTime, count): EventTimer then FP + count with the +0x9644 overflow-to-MP conversion; caller CommonFrameMove 32bce2e0	y
+32baa1c0	state-fn	ASI_HYPER_WAIT.StartFuture	inside X2GUAra.cpp:407 CX2GUAra::HyperWaitStartFuture	inside	-	CH1a	1 states	y
+32baa1f0	state-fn	ASI_HYPER_WAIT.Start	inside X2GUAra.cpp:408 CX2GUAra::HyperWaitStart	inside	-	CH1a	1 states	y
+32baa230	helper	state registration helper of ASI_SA_ARA_WIND_WEDGE_END	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2a	called by 32bd2751 32bd40ba	y
+32baa280	helper	state registration helper of ASI_SA_ARA_SHADOW_KNOT_END	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2a	called by 32bd0dec 32bd49fe	y
+32baa2d0	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_READY.Start	inside X2GUAra.cpp:10572 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_StateStart	inside	-	CH2b	1 states	y
+32baa410	helper	state registration helper of ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2b	called by 32bd10b5 32bd3c87	y
+32baa460	state-fn	ASI_SA_ALH_DOUBLE_COLLISION_START.Start	inside X2GUAra.cpp:12105 CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_START_Start	inside	-	CH2b	1 states	y
+32baa520	helper	state registration helper of ASI_SA_ALH_DOUBLE_COLLISION_END	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2b	called by 32bd0f6e 32bd3ba6	y
+32baa560	state-fn	ASI_A_ASD_FALLING_BLOSSOM_Start.Start ASI_A_ASD_FALLING_BLOSSOM_Finish.Start	inside X2GUAra.cpp:2486 CX2GUAra::ASI_A_ASD_Falling_Blossom_Start_StateStart	inside	-	CH2b2	2 states	y
+32baa640	helper	state registration helper of ASI_A_ALD_WOLF_CLAW_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c2	called by 32bd1852 32bd419e	y
+32baa680	state-fn	ASI_A_ALD_CONVERSION_MANA.FrameMove	inside X2GUAra.cpp:14544 CX2GUAra::ASI_A_ALD_CONVERSION_MANA_FrameMove	inside	-	CH2c2	1 states	y
+32baa7f0	helper	state registration helper of ASI_A_AYR_HIGH_SPEED_READY	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3b	called by 32bd1891 32bd189a	y
+32baa830	helper	state registration helper of ASI_A_AYR_HIGH_SPEED	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3b	called by 32bd18bc	y
+32baa890	helper	state registration helper of ASI_SA_ALD_ENERGY_WAVE	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c	called by 32bd18d8 32bd18e1	y
+32baa8f0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568b7424088b068b	n
+32baa940	helper	state registration helper of ASI_SA_ALD_HELL_OF_TORNADO_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c	called by 32bd194a	y
+32baa990	helper	state registration helper of ASI_SA_ALD_WOLF_SPEAR_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c	called by 32bd1991 32bd427f	y
+32baa9e0	helper	state registration helper of ASI_SA_ALD_ENERGY_BEAD_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3b	called by 32bd1a1f 32bd44d7	y
+32baaa30	helper	state registration helper of ASI_SA_ALD_PRISON_SPEAR_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c	called by 32bd1a66 32bd45bb	y
+32baaa80	helper	state registration helper of ASI_SA_AYR_ENERGY_VOID_START	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3b	called by 32bd1ac9 32bd1ad2	y
+32baaae0	helper	state registration helper of ASI_SA_AYR_SUPPRESSION_ENERGY	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c	called by 32bd1b54 32bd1b5d	y
+32baab30	helper	state registration helper of ASI_HA_AYR_ENERGY_CANNON	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3d	called by 32bd26e0 32bd26e9	y
+32baab80	helper	state registration helper of ASI_A_AA_RAID	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3c2	called by 32bd1cc2 32bd1ccb 32bd4e0d	y
+32baabf0	helper	state registration helper of ASI_SA_AA_NECROMANCY	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3c	called by 32bd1d4e 32bd1d57	y
+32baac40	helper	state registration helper of ASI_SA_AA_SPECTER_OF_THUNDER_FIND	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1da8	y
+32baac90	helper	state registration helper of ASI_SA_AA_SUPPRESSION_SPECTER	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d2	called by 32bd1ffc 32bd2005	y
+32baace0	helper	state registration helper of ASI_HA_AA_NINE_TAILED_FOX	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3d	called by 32bd2703 32bd270c	y
+32baad30	helper	-	-	inside	-	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpForcePower; was CH4a; inside: MARCH HAS X2GUAra.cpp:16882; attack-result delegate (thunk 32bd6c80): clamp to max, adds DamageData +0x58c with MP conversion; ch0_fp.tsv agrees	y
+32baae10	helper	state registration helper of ASI_SA_ALH_LINK_FLOWER	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2b	called by 32bd1804 32bd180d 32bd3f92	y
+32baae50	helper	-	-	new	UpForcePowerByHyperModeBuffCount	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpForcePower; was CH1h; name: named (medium): tail of ApplyHyperModeBuff 32bab210: FP gain list[+0x9720][hyper count used - hyper count - 1], MP gain +0x9730, passive 0x6b19 hook (ch0_fp.tsv)	y
+32baafc0	override 0x324	ChangeMaxCharacterAddResource	- (CX2GUAra does not declare it in March; X2GameUnit.h:3804 virtual void ChangeMaxCharacterAddResource( const float fRate_ ) {})	new	ChangeMaxCharacterAddResource	CH1q	ChangeMaxCharacterAddResource (vslot 0x324)	n
+32bab090	helper	called by 32bab5c0 32bcfaa0	-	new	GetReadyFPGainOfSkillHit	CH1k	name: named (low): FP-gain table (+0x9858): first sub-entry with both flags set -> returns the entry gain (ushort) and hit id out; callers 32bab5c0 and 32bcfaa0	y
+32bab110	helper	reached only through callers with no phased caller 32bab5d9	-	new	TakeFPGainByHitID	CH1o	phase unsettled: read it; name: named (low): FP-gain table: sub-entries with hit id == arg get id = -1, returns the entry gain; caller 32bab5c0	y
+32bab160	helper	called by 32bab1d0 32bd2a40	-	new	MarkSkillFPGainHit	CH1h	name: named (low): FP-gain table: entries of the same skill (31edf580) set flag byte +2 on sub-entries with key == arg; callers 32bab1d0 (vslot 0x2fc) and CommonStateStart 32bd2a40	y
+32bab1d0	override 0x2fc	?	- (name unsettled)	new	?	CH1h	base 3208ddc0; name: virtual 0x2fc (base 3208ddc0); not named by any sibling class map, funcmap or X2GUUser.h; read the body; read: Opus caller: vslot 0x2fc (my-unit-only; calls 32bab160 with arg+0x5c4, arg+0x5e8); FP-gain table hit marker hook, no name yet	n
+32bab210	override 0xc0	ApplyHyperModeBuff	ApplyHyperModeBuff	inside	-	CH1q	CH0 Opus: vslot 0xc0 ApplyHyperModeBuff; its tail 32baae50 is the June FP gain by used hyper count (GAIN_FORCEPOWER_USEDHYPERCOUNT / GAIN_MP_BY_FPCONVERSION_HYPERMODE)	y
+32bab220	override 0x828	IsNotCommonMoveState	- (CX2GUAra does not declare it in March; X2GUUser.h:3449 virtual bool IsNotCommonMoveState();)	new	IsNotCommonMoveState	CH1k	base 31fd7640	n
+32bab2d0	state-fn	ASI_STANDUP_ROLLING_FRONT_FRONT.End ASI_STANDUP_ROLLING_FRONT_BACK.End ASI_STANDUP_ROLLING_BACK_FRONT.End +6	inside X2GUAra.cpp:685 CX2GUAra::StandUpRollingEnd ; inside X2GUAra.cpp:694 CX2GUAra::StandUpRollingEnd ; inside X2GUAra.cpp:703 CX2GUAra::StandUpRollingEnd ; inside X2GUAra.cpp:712 CX2GUAra::StandUpRollingEnd ; inside X2GUAra.cpp:1384 CX2GUAra::StandUpRollingEnd ; inside X2GUAra.cpp:1391 CX2GUAra::StandUpRollingEnd ; inside X2GUAra.cpp:1398 CX2GUAra::StandUpRollingEnd ; inside X2GUAra.cpp:1405 CX2GUAra::StandUpRollingEnd ; inside X2GUAra.cpp:2420 CX2GUAra::StandUpRollingEnd	inside	-	CH1b	9 states	y
+32bab370	state-fn	ASI_SA_ASD_LINK_FLOWER_SLASH_1st.StartFuture ASI_SA_ASD_LINK_FLOWER_SLASH_2nd.StartFuture	-	new	ASI_SA_ASD_LINK_FLOWER_SLASH_1st_StateStartFuture	CH3a2	2 states	y
+32bab3c0	state-fn	ASI_SA_ASD_LINK_FLOWER_SLASH_LAST.StartFuture	-	new	ASI_SA_ASD_LINK_FLOWER_SLASH_LAST_StateStartFuture	CH3a2	1 states	y
+32bab410	override 0x628	CanRidingState	X2GUAra.h:445 virtual bool CanRidingState();	inside	-	CH1i	base 31fd7930	y
+32bab500	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE.FrameMove ASI_SA_ALS_SPECTER_OF_STORM_DEGREE.FrameMove	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_FrameMove	CH2d2	2 states	n
+32bab5c0	helper	-	-	new	UpForcePowerByReadySkillGain	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpForcePower; was CH1j; name: named (low): gain = 32bab090, consume 32bab110, if byte +0x983c == 0: UpForcePower inline (MP conversion, passive 0x6b19) and set +0x983c = 1; callers 32babba0 / Specter states / CommonStateStartFuture	y
+32bab6b0	helper	reached only through callers with no phased caller 32bab7c0	-	new	TakeSkillFPGainByHit	CH1o	phase unsettled: read it; name: named (low): FP-gain table: finds the entry of skill arg2 whose sub-entry key == arg3 and flag set, returns gain and clears the id; caller 32bab780	y
+32bab780	helper	-	-	new	UpForcePowerBySkillHit	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpForcePower; was CH1h; name: named (medium): attack-result: IsMyUnit and byte +0x983c == 0 -> gain from 32bab6b0(DD skill +0x5c4 or +0x590, key +0x5e8) -> UpForcePower inline; caller AttackResultByType 32bceca0	y
+32bab890	helper	called by 32bc7e90	-	inside	-	CH1h	inside: MARCH HAS X2GUAra.cpp:4353; PROMOTION_ITEM_ID_LIST by unit class + TAIL_TYPE; caller Init 32bc7e90	y
+32babab0	helper	-	-	-	-	n/a	CH0 Opus: switch jump table (data), not code	n
+32babb50	helper	state registration helper of ASI_A_ALD_CONVERSION_MANA	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c2	called by 32bd0b11 32bd0b1a	y
+32babba0	helper	-	-	new	StateChangeOrFPCancel	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row (new) FP-cancel-or-StateChange helper; was CH2a; name: named (medium): (nextStateId): if FP-cancel probe flag +0x9621 and skill != NONE and not Reflection -> 32ba62c0 / 32bab5c0 / vslot 0x7fc skill use, else StateChange(next); March inlines it 22 times (ch0_fp.tsv); callers WIND_WEDGE / PULLING_PIERCE / TEMPEST_DANCE ... EventProcess	y
+32babc60	override 0x540	CreateMajorParticleArray	X2GUAra.h:569 virtual void CreateMajorParticleArray();	inside	-	CH1h	base 32012800	n
+32babdf0	helper	called by 32badd50 32bae120	-	inside	-	CH1h	inside: MARCH HAS X2GUAra.cpp:4530; swaps the weapon equip, ChangeEnchantLevel, CreateWeapon; callers 32badd50 / 32bae120	y
+32babee0	state-fn	ASI_JUMP_DOWN.EventProcess	inside X2GUAra.cpp:445 CX2GUAra::JumpDownEventProcess	inside	-	CH1a	1 states	y
+32bac120	state-fn	ASI_SA_ARA_WIND_WEDGE_START.EventProcess	inside X2GUAra.cpp:9282 CX2GUAra::ASI_SA_ARA_WIND_WEDGE_START_EventProcess	inside	-	CH2a	1 states	y
+32bac1b0	state-fn	ASI_SA_ARA_PULLING_PIERCE_START.EventProcess	inside X2GUAra.cpp:9456 CX2GUAra::ASI_SA_ARA_PULLING_PIERCE_START_EventProcess	inside	-	CH2a	1 states	y
+32bac240	state-fn	ASI_SA_ASR_SHADOW_RISING_LANDING.EventProcess	-	new	ASI_SA_ASR_SHADOW_RISING_LANDING_EventProcess	CH3c	1 states	y
+32bac2d0	state-fn	ASI_SA_ARA_TEMPEST_DANCE_START.EventProcess ASI_SA_ARA_TEMPEST_DANCE_END.EventProcess	inside X2GUAra.cpp:2036 CX2GUAra::ASI_SA_ARA_TEMPEST_DANCE_START_EventProcess ; inside X2GUAra.cpp:2051 CX2GUAra::ASI_SA_ARA_TEMPEST_DANCE_END_EventProcess	inside	-	CH2a	2 states	y
+32bac3a0	state-fn	ASI_SA_ARA_SHADOW_KNOT_CATCH.EventProcess	inside X2GUAra.cpp:2111 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_CATCH_EventProcess	inside	-	CH2a	1 states	y
+32bac430	state-fn	ASI_A_ARA_TIGER_CLAW_START.EventProcess	inside X2GUAra.cpp:11501 CX2GUAra::ASI_A_ARA_TIGER_CLAW_START_EventProcess	inside	-	CH2b2	1 states	y
+32bac4c0	state-fn	ASI_SA_ALH_DOUBLE_COLLISION_START.EventProcess	inside X2GUAra.cpp:12108 CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_START_EventProcess	inside	-	CH2b	1 states	y
+32bac550	state-fn	ASI_SA_ASD_TURBULENT_WAVE_LOOP.EventProcess	inside X2GUAra.cpp:12415 CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_LOOP_EventProcess	inside	-	CH3a	1 states	y
+32bac5e0	state-fn	ASI_SA_ALH_PEERLESSNESS_SLASH_START.EventProcess ASI_SA_ALH_PEERLESSNESS_SLASH_END.EventProcess	inside X2GUAra.cpp:2241 CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_START_EventProcess ; inside X2GUAra.cpp:2259 CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_END_EventProcess	inside	-	CH3a2	2 states	y
+32bac6d0	state-fn	ASI_A_ALH_ROCK_CRASH_FALLING_START.EventProcess	inside X2GUAra.cpp:13130 CX2GUAra::ASI_A_ALH_ROCK_CRASH_START_EventProcess	inside	-	CH2b2	1 states	y
+32bac760	state-fn	ASI_A_ASD_LOW_BRANDISH_SLICE.EventProcess	inside X2GUAra.cpp:13351 CX2GUAra::ASI_A_ASD_LOW_BRANDISH_SLIDING_EventProcess	inside	-	CH3a2	1 states	y
+32bac7f0	state-fn	ASI_A_ASD_FALLING_BLOSSOM_Start.EventProcess ASI_A_ASD_FALLING_BLOSSOM_Finish.EventProcess	inside X2GUAra.cpp:2487 CX2GUAra::ASI_A_ASD_Falling_Blossom_Start_EventProcess ; inside X2GUAra.cpp:2501 CX2GUAra::ASI_A_ASD_Falling_Blossom_Finish_EventProcess	inside	-	CH2b2	2 states	y
+32bac880	state-fn	ASI_A_ALD_WOLF_CLAW.EventProcess	inside X2GUAra.cpp:14318 CX2GUAra::ASI_A_ALD_WOLF_CLAW_EventProcess	inside	-	CH2c2	1 states	y
+32bac910	state-fn	ASI_A_ALD_CONVERSION_HEALTH.FrameMove	inside X2GUAra.cpp:14452 CX2GUAra::ASI_A_ALD_CONVERSION_HEALTH_FrameMove	inside	-	CH2c2	1 states	y
+32bacb50	state-fn	ASI_SA_ALD_HELL_OF_TORNADO.EventProcess	inside X2GUAra.cpp:14830 CX2GUAra::ASI_SA_ALD_HELL_OF_TORNADO_EventProcess	inside	-	CH2c	1 states	n
+32bacdb0	state-fn	ASI_SA_ALD_WOLF_SPEAR.EventProcess	inside X2GUAra.cpp:14974 CX2GUAra::ASI_SA_ALD_WOLF_SPEAR_EventProcess	inside	-	CH2c	1 states	y
+32bace40	state-fn	ASI_SA_ALD_FINGER_BULLET.EventProcess	inside X2GUAra.cpp:15082 CX2GUAra::ASI_SA_ALD_FINGER_BULLET_EventProcess	inside	-	CH2c2	1 states	y
+32bacfa0	state-fn	ASI_SA_ALD_ENERGY_BEAD.EventProcess	inside X2GUAra.cpp:15246 CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_EventProcess	inside	-	CH3b	1 states	y
+32bad100	state-fn	ASI_SA_ALD_PRISON_SPEAR.EventProcess	inside X2GUAra.cpp:15367 CX2GUAra::ASI_SA_ALD_PRISON_SPEAR_EventProcess	inside	-	CH2c	1 states	y
+32bad260	state-fn	ASI_A_AYR_STEAL_SOUL.EventProcess	inside X2GUAra.cpp:15487 CX2GUAra::ASI_A_AYR_STEAL_SOUL_EventProcess	inside	-	CH3b	1 states	y
+32bad3c0	state-fn	ASI_A_ALS_VIEW_BETWEEN.EventProcess	-	new	ASI_A_ALS_VIEW_BETWEEN_EventProcess	CH2d3	1 states	y
+32bad450	state-fn	ASI_A_ALS_SHAKE_CHAOS.EventProcess	-	new	ASI_A_ALS_SHAKE_CHAOS_EventProcess	CH2d3	1 states	y
+32bad550	state-fn	ASI_A_AA_RAID_ATTACK.EventProcess	-	new	ASI_A_AA_RAID_ATTACK_EventProcess	CH3c2	1 states	y
+32bad5e0	state-fn	ASI_SA_ALS_RESTRAINTS_SPECTER.EventProcess	-	new	ASI_SA_ALS_RESTRAINTS_SPECTER_EventProcess	CH2d	1 states	y
+32bad670	state-fn	ASI_SA_ALS_SPECTER_OF_STORM.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_EventProcess	CH2d	1 states	y
+32bad790	state-fn	ASI_SA_ASR_SPECTER_OF_BLADE.EventProcess ASI_SA_ASR_SPECTER_OF_BLADE_FINISH.EventProcess	-	new	ASI_SA_ASR_SPECTER_OF_BLADE_EventProcess	CH3c	2 states	y
+32bad880	state-fn	ASI_SA_AA_GET_BLOOD.EventProcess	-	new	ASI_SA_AA_GET_BLOOD_EventProcess	CH3c	1 states	y
+32bad910	state-fn	ASI_SA_ASD_CONTINUITY_STRIKE_THROWING_START.EventProcess ASI_SA_ASD_CONTINUITY_STRIKE_THROWING_END.EventProcess	-	new	ASI_SA_ASD_CONTINUITY_STRIKE_THROWING_START_EventProcess	CH3a2	2 states	y
+32bad9a0	state-fn	ASI_SA_AYR_RESTRICTION_ENERGY_START.EventProcess ASI_SA_AYR_RESTRICTION_ENERGY_END.EventProcess	-	new	ASI_SA_AYR_RESTRICTION_ENERGY_START_EventProcess	CH3b	2 states	y
+32bada30	state-fn	ASI_SA_AYR_REVERSE_GRAVITY_FIELD_START.EventProcess ASI_SA_AYR_REVERSE_GRAVITY_FIELD_END.EventProcess	-	new	ASI_SA_AYR_REVERSE_GRAVITY_FIELD_START_EventProcess	CH3b	2 states	y
+32badac0	state-fn	ASI_A_ASD_SWALLOW_ASSAULT_TEETH_START.EventProcess ASI_A_ASD_SWALLOW_ASSAULT_TEETH_END.EventProcess	-	new	ASI_A_ASD_SWALLOW_ASSAULT_TEETH_START_EventProcess	CH3a2	2 states	y
+32badb50	helper	called by 32bcfaa0	-	inside	-	CH1k	inside: MARCH HAS X2GUAra.cpp:16837; "HP_CONSUME_REL" numerical value of RNSI_A_ALD_CONVERSION_HEALTH x gage; caller SpecialAttackEventProcess part 32bcfaa0	y
+32badc80	override 0x794	?	- (name unsettled)	new	SumSocketOptionAfterSlots	CH4b	vslot 485 (0x794) socket pass; name: named (high): vslot 0x794; X2GUUser.h:3192 names it (base 33093ad0; skill-group socket pass 31fe14f0 over the 32d3f040 list)	y
+32badd50	helper	called by 32bae630 32baec10	-	inside	-	CH1h	inside: MARCH HAS X2GUAra.cpp:4460; walks the promotion lists +0x95a4 / tail list +0x95e8 (tail index = min(buff hyper count,3)-1), ReplaceWeapon; callers SetShowViewList 32bae630 / InitPromotionEquipList	y
+32bae120	helper	called by 32bae630 32baec10	-	inside	-	CH1h	inside: MARCH HAS X2GUAra.cpp:4505; walks the unit view list +0x8834 with tail show/hide by IsBuffHyperMode and hyper count < 3; callers SetShowViewList / InitPromotionEquipList	y
+32bae3d0	helper	called by 32bae680 32bae6f0 32bae7a0 32baea70	-	inside	-	CH1k	inside: MARCH HAS X2GUAra.cpp:4218; (animTime, bOnlyLight): EventTimer, cut-in set pick, ActiveSkillShow at Dummy2_Lhand; called by WIND_WEDGE_START etc. and ShowActiveSkillCutInAndLightByScript 32baea70	y
+32bae630	override 0x63c	SetShowViewList	X2GUAra.h:598 virtual void SetShowViewList( bool bShow_ );	inside	-	CH1i	base 31fd5b80	y
+32bae680	state-fn	ASI_SA_ARA_WIND_WEDGE_START.FrameMove	inside X2GUAra.cpp:9281 CX2GUAra::ASI_SA_ARA_WIND_WEDGE_START_FrameMove	inside	-	CH2a	1 states	y
+32bae6f0	state-fn	ASI_SA_ARA_TEMPEST_DANCE_START.FrameMove ASI_SA_ARA_TEMPEST_DANCE_END.FrameMove	inside X2GUAra.cpp:2035 CX2GUAra::ASI_SA_ARA_TEMPEST_DANCE_START_FrameMove ; inside X2GUAra.cpp:2050 CX2GUAra::ASI_SA_ARA_TEMPEST_DANCE_END_FrameMove	inside	-	CH2a	2 states	y
+32bae750	helper	state registration helper of ASI_SA_ARA_SHADOW_KNOT_CATCH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2a	called by 32bd0dca 32bd4968	y
+32bae7a0	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_READY.FrameMove ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK.FrameMove ASI_SA_ALH_SWALLOW_ASSAULT_FINISH.FrameMove +1	inside X2GUAra.cpp:2270 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Ready_FrameMove ; inside X2GUAra.cpp:2289 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_FrameMove ; inside X2GUAra.cpp:2299 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Finish_FrameMove	inside	-	CH3a	4 states	n
+32bae840	helper	state registration helper of ASI_SA_ALH_DOUBLE_COLLISION_START	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2b	called by 32bd0f43 32bd0f4c 32bd3b0f	y
+32bae890	helper	state registration helper of ASI_A_ALD_WOLF_CLAW	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c2	called by 32bd1827 32bd1830 32bd4107	y
+32bae8e0	helper	state registration helper of ASI_A_ALD_CONVERSION_HEALTH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c2	called by 32bd186e 32bd1877	y
+32bae930	helper	state registration helper of ASI_SA_ALD_HELL_OF_TORNADO	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c	called by 32bd191f 32bd1928	y
+32bae980	helper	state registration helper of ASI_SA_ALD_WOLF_SPEAR	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c	called by 32bd1966 32bd196f 32bd41eb	y
+32bae9d0	helper	state registration helper of ASI_SA_ALD_ENERGY_BEAD	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3b	called by 32bd19f4 32bd19fd 32bd4440	y
+32baea20	helper	state registration helper of ASI_SA_ALD_PRISON_SPEAR	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c	called by 32bd1a3b 32bd1a44 32bd4524	y
+32baea70	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GUAra.h:545 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	inside	-	CH1k	base 33093ad0	n
+32baea90	helper	called by 32bc89e0	-	inside	-	CH1i	inside: MARCH HAS X2GUAra.cpp:5313; (equip, index): equip pos 2/8/9/10/11 -> removes view-list entries whose attr (+0x19c) matches; caller UpdateEquipViewListInfo 32bc89e0	y
+32baec10	helper	called by 32bc7e90	-	inside	-	CH1h	inside: MARCH HAS X2GUAra.cpp:4159; builds dummy equips, TAIL_TYPE tails into +0x95e8; caller Init 32bc7e90 (ch0_specter.tsv)	y
+32baf270	override 0x634	?	UpdateEquipCollisionData	inside	-	CH1q2	CH0 Opus: vslot 0x634 = UpdateEquipCollisionData (Chung precedent); June adds the tail list 32bd7780 (+0x2569) gated by buff hyper count	y
+32baf390	helper	state registration helper of ASI_SA_ARA_WIND_WEDGE_START	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2a	called by 32bd2726 32bd272f 32bd4023	y
+32baf3e0	state-fn	ASI_SA_ALD_FINGER_BULLET.Start	inside X2GUAra.cpp:15081 CX2GUAra::ASI_SA_ALD_FINGER_BULLET_StateStart	inside	-	CH2c2	1 states	n
+32baf450	state-fn	ASI_SA_ALD_FINGER_BULLET_FINISH.FrameMove	inside X2GUAra.cpp:15163 CX2GUAra::ASI_SA_ALD_FINGER_BULLET_FINISH_FrameMove	inside	-	CH2c2	1 states	y
+32baf600	state-fn	ASI_A_AYR_STEAL_SOUL.Start	inside X2GUAra.cpp:15486 CX2GUAra::ASI_A_AYR_STEAL_SOUL_StateStart	inside	-	CH3b	1 states	n
+32baf670	state-fn	ASI_A_AYR_STEAL_SOUL_FINISH.FrameMove	inside X2GUAra.cpp:15559 CX2GUAra::ASI_A_AYR_STEAL_SOUL_FINISH_FrameMove	inside	-	CH3b	1 states	y
+32baf810	helper	called by 32bd7a90	-	inside	-	CH4a	inside: MARCH HAS X2GUAra.cpp:16905; attack-result delegate (thunk 32bd7a90): skill STEAL_SOUL 0x698c / FINGER_BULLET 0x6a49, adds the hit unit to the pointer list +0x96b0 (32bd7920 push_back)	y
+32baf980	override 0x810	SpecialAttackNoStageChange	X2GUAra.h:592 virtual bool SpecialAttackNoStageChange( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	inside	-	CH1k	base 31aa1d30	n
+32bafa30	override 0x60	DamageReact	X2GUAra.h:559 virtual void DamageReact( OUT CX2DamageManager::DamageData* pDamageData_ );	inside	-	CH1h	base 320462a0	y
+32bb0080	state-fn	ASI_COMBO_ZZZXAttack.End	inside X2GUAra.cpp:1151 CX2GUAra::ComboZZZXAttackStateEnd	inside	-	CH1d	1 states	y
+32bb0120	state-fn	ASI_COMBO_XXX.Start	inside X2GUAra.cpp:1183 CX2GUAra::ComboXXXStateStart	inside	-	CH1d	1 states	y
+32bb01c0	state-fn	ASI_COMBO_XXXloop.Start	inside X2GUAra.cpp:1192 CX2GUAra::ComboXXXloopStateStart	inside	-	CH1d	1 states	y
+32bb0260	state-fn	ASI_DASH_COMBO_ZpushX_ATTACK.FrameMove	inside X2GUAra.cpp:1254 CX2GUAra::ComboDashZpushX_AttackFrameMove	inside	-	CH1d2	1 states	n
+32bb0330	state-fn	ASI_DASH_COMBO_ZpushX_ATTACK.End	inside X2GUAra.cpp:1256 CX2GUAra::ComboDashZpushX_AttackStateEnd	inside	-	CH1d2	1 states	y
+32bb03d0	state-fn	ASI_SA_ALH_PEERLESSNESS_SLASH_START.FrameMove ASI_SA_ALH_PEERLESSNESS_SLASH_END.FrameMove	inside X2GUAra.cpp:2240 CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_START_FrameMove ; inside X2GUAra.cpp:2258 CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_END_FrameMove	inside	-	CH3a2	2 states	y
+32bb0650	helper	state registration helper of ASI_SA_ALD_FINGER_BULLET	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c2	called by 32bd19ad 32bd19b6 32bd435c	y
+32bb06a0	helper	state registration helper of ASI_SA_ALD_FINGER_BULLET_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c2	called by 32bd19d8 32bd43f3	y
+32bb06f0	helper	state registration helper of ASI_A_AYR_STEAL_SOUL	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3b	called by 32bd1a82 32bd1a8b 32bd4608	y
+32bb0740	helper	state registration helper of ASI_A_AYR_STEAL_SOUL_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3b	called by 32bd1aad 32bd469f	y
+32bb0790	state-fn	ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING.StartFuture	-	new	ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_StateStartFuture	CH2d	1 states	y
+32bb09f0	helper	called by 32bbcdc0 32bbcff0 32bbd240 32bbd3a0	-	new	ScaleMeshInstanceRange	CH2d	name: named (low): static(mesh*, rate): scales the mesh instance scale (+0x238 / +0x23c by +0x200) and the protected float +0x5f8; callers VIEW_BETWEEN Frame / FINISH, SHAKE_CHAOS_FINISH, RAID_ATTACK_FINISH	y
+32bb0bf0	override 0x7c8	CommonFrameMoveFuture	X2GUAra.h:473 virtual void CommonFrameMoveFuture();	inside	-	CH1j	base 32061bf0	y
+32bb0d10	helper	called by 32bcd9c0	-	inside	-	CH4a	inside: MARCH HAS X2GUAra.cpp:16856; if FINGER_BULLET / STEAL_SOUL learned push the AddHitUnitInfo delegate, always push the UpNowForcePowerHit delegate; caller InitPassiveSkillState 32bcd9c0	y
+32bb0da0	override 0x3c	InitComponent	X2GUAra.h:459 virtual void InitComponent();	inside	-	CH1h	base 31fee090	y
+32bb1c50	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff68098e333364	y
+32bb1d80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e818de43ff	y
+32bb1dc0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff682c8e333364	y
+32bb1ef0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1e808dd43ff	y
+32bb1f30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b4c240c83	y
+32bb1fb0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf168702a7233	y
+32bb1ff0	override 0x800	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	- (no virtual of that name in X2GUAra.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32bb2280	override 0x4c	DeleteMinorParticle	X2GUAra.h:585 virtual void DeleteMinorParticle();	inside	-	CH1h	base 31fc87c0	y
+32bb22d0	override 0xc4	HyperModeBuffEffectStart	X2GUAra.h:613 virtual void HyperModeBuffEffectStart();	inside	-	CH1q	force power / berserk: HyperModeBuffEffectStart (vslot 0xc4)	y
+32bb2740	override 0xc8	HyperModeBuffEffectEnd	X2GUAra.h:614 virtual void HyperModeBuffEffectEnd();	inside	-	CH1q	force power / berserk: HyperModeBuffEffectEnd (vslot 0xc8)	y
+32bb2b40	helper	-	-	inside	-	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpForcePowerAtThisAnimationTim; was CH1j; inside: MARCH HAS X2GUAra.cpp:6122 (June merges ConsumeForcePower into it, ch0_fp.tsv); n - 1 for SHOULDER_BLOW-type skills, berserk MP, passive 0x6b19 / 0x6b1b, SetForcePower(now - n); 18 state callers + CommonFrameMove	y
+32bb2d40	state-fn	ASI_WAIT.EventProcess	inside X2GUAra.cpp:399 CX2GUAra::WaitEventProcess	inside	-	CH1a	1 states	y
+32bb2ff0	state-fn	ASI_HYPER_WAIT.EventProcess	inside X2GUAra.cpp:409 CX2GUAra::HyperWaitEventProcess	inside	-	CH1a	1 states	y
+32bb3290	state-fn	ASI_WALK.EventProcess	inside X2GUAra.cpp:419 CX2GUAra::WalkEventProcess	inside	-	CH1a	1 states	y
+32bb34d0	state-fn	ASI_JUMP_LANDING.EventProcess	inside X2GUAra.cpp:454 CX2GUAra::JumpLandingEventProcess	inside	-	CH1a	1 states	y
+32bb37e0	state-fn	ASI_DASH.EventProcess	inside X2GUAra.cpp:465 CX2GUAra::DashEventProcess	inside	-	CH1d2	1 states	y
+32bb3ab0	state-fn	ASI_DASH_END.EventProcess	inside X2GUAra.cpp:475 CX2GUAra::DashEndEventProcess	inside	-	CH1d2	1 states	y
+32bb3df0	state-fn	ASI_DASH_JUMP_LANDING.EventProcess	inside X2GUAra.cpp:497 CX2GUAra::DashJumpLandingEventProcess	inside	-	CH1d2	1 states	y
+32bb3ff0	state-fn	ASI_DASH_JUMP_POWER_LANDING.EventProcess	inside X2GUAra.cpp:740 CX2GUAra::DashJumpPowerLandingEventProcess	inside	-	CH1d2	1 states	y
+32bb4200	state-fn	ASI_AIRIAL_DASH.FrameMove	inside X2GUAra.cpp:1065 CX2GUAra::AirialDashFrameMove	inside	-	CH1a	1 states	y
+32bb43a0	state-fn	ASI_AIRIAL_DASH.EventProcess	inside X2GUAra.cpp:1066 CX2GUAra::AirialDashEventProcess	inside	-	CH1a	1 states	y
+32bb4630	state-fn	ASI_COMBO_ZZZXCharge.FrameMove	inside X2GUAra.cpp:1139 CX2GUAra::ComboZZZXChargeFrameMove	inside	-	CH1d	1 states	y
+32bb4820	state-fn	ASI_COMBO_ZZZXAttack.FrameMove	inside X2GUAra.cpp:1149 CX2GUAra::ComboZZZXAttackFrameMove	inside	-	CH1d	1 states	y
+32bb4a40	state-fn	ASI_SA_ARA_PULLING_PIERCE_START.FrameMove	inside X2GUAra.cpp:9455 CX2GUAra::ASI_SA_ARA_PULLING_PIERCE_START_FrameMove	inside	-	CH2a	1 states	y
+32bb4db0	state-fn	ASI_SA_ARA_PULLING_PIERCE_END.FrameMove	inside X2GUAra.cpp:9570 CX2GUAra::ASI_SA_ARA_PULLING_PIERCE_END_FrameMove	inside	-	CH2a	1 states	y
+32bb50c0	state-fn	ASI_SA_ASR_SHADOW_RISING_JUMP.FrameMove ASI_SA_ASR_SHADOW_RISING_LANDING.FrameMove ASI_SA_ASR_SHADOW_RISING_END.FrameMove	-	new	ASI_SA_ASR_SHADOW_RISING_JUMP_FrameMove	CH3c	3 states	y
+32bb5310	state-fn	ASI_SA_ASR_SHADOW_RISING_LANDING.FrameMove	-	new	ASI_SA_ASR_SHADOW_RISING_LANDING_FrameMove	CH3c	1 states	y
+32bb5600	state-fn	ASI_SA_ASR_SHADOW_RISING_END.FrameMove	-	new	ASI_SA_ASR_SHADOW_RISING_END_FrameMove	CH3c	1 states	y
+32bb57a0	state-fn	ASI_SA_ARA_SHADOW_KNOT_START.FrameMove	inside X2GUAra.cpp:2087 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_START_FrameMove	inside	-	CH2a	1 states	y
+32bb5a70	state-fn	ASI_SA_ARA_SHADOW_KNOT_WAIT.EventProcess	inside X2GUAra.cpp:2103 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_WAIT_EventProcess	inside	-	CH2a	1 states	y
+32bb5b50	state-fn	ASI_SA_ARA_SHADOW_KNOT_WAIT.End ASI_SA_ARA_SHADOW_KNOT_CATCH.End ASI_SA_ARA_SHADOW_KNOT_END.End	inside X2GUAra.cpp:2104 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_WAIT_StateEnd	inside	-	CH2a	3 states	n
+32bb5bb0	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_READY.FrameMove	inside X2GUAra.cpp:10574 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_FrameMove	inside	-	CH2b	1 states	n
+32bb5f40	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK.FrameMove	inside X2GUAra.cpp:10812 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_FrameMove	inside	-	CH2b	1 states	y
+32bb6410	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK.FrameMove	inside X2GUAra.cpp:10951 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_FrameMove	inside	-	CH2b	1 states	y
+32bb68e0	state-fn	ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK.End	inside X2GUAra.cpp:10952 CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_StateEnd	inside	-	CH2b	1 states	y
+32bb6950	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK.FrameMove	inside X2GUAra.cpp:2289 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_FrameMove	inside	-	CH3a	1 states	y
+32bb7010	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_FINISH.Start	inside X2GUAra.cpp:2298 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Finish_StateStart	inside	-	CH3a	1 states	n
+32bb7170	state-fn	ASI_A_ARA_TIGER_CLAW_START.FrameMove	inside X2GUAra.cpp:11500 CX2GUAra::ASI_A_ARA_TIGER_CLAW_START_FrameMove	inside	-	CH2b2	1 states	y
+32bb7490	state-fn	ASI_A_ARA_TIGER_CLAW_END.FrameMove	inside X2GUAra.cpp:11615 CX2GUAra::ASI_A_ARA_TIGER_CLAW_END_FrameMove	inside	-	CH2b2	1 states	y
+32bb77b0	state-fn	ASI_A_ARA_FORCE_SPEAR.FrameMove	inside X2GUAra.cpp:2379 CX2GUAra::ASI_A_ARA_FORCE_SPEAR_FrameMove	inside	-	CH2c2	1 states	y
+32bb7e10	state-fn	ASI_A_ARA_GAIN_FORCE.FrameMove	inside X2GUAra.cpp:2360 CX2GUAra::ASI_A_ARA_GAIN_FORCE_FrameMove	inside	-	CH2a	1 states	y
+32bb84e0	state-fn	ASI_A_ALH_BREAKING.FrameMove ASI_A_ALH_BREAKING_ATTACK.FrameMove ASI_A_ALH_BREAKING_AVOIDANCE.FrameMove	inside X2GUAra.cpp:2394 CX2GUAra::ASI_A_ALH_BREAKING_FrameMove ; inside X2GUAra.cpp:2411 CX2GUAra::ASI_A_ALH_BREAKING_ATTACK_FrameMove	inside	-	CH3a2	3 states	y
+32bb8680	state-fn	ASI_A_ALH_BREAKING_ATTACK.FrameMove	inside X2GUAra.cpp:2411 CX2GUAra::ASI_A_ALH_BREAKING_ATTACK_FrameMove	inside	-	CH3a2	1 states	y
+32bb8850	state-fn	ASI_SA_ASD_TURBULENT_WAVE_START.FrameMove	inside X2GUAra.cpp:12297 CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_FrameMove	inside	-	CH3a	1 states	y
+32bb9040	state-fn	ASI_SA_ASD_TURBULENT_WAVE_START.End	inside X2GUAra.cpp:12298 CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_End	inside	-	CH3a	1 states	y
+32bb90a0	state-fn	ASI_SA_ASD_TURBULENT_WAVE_LOOP.FrameMove	inside X2GUAra.cpp:12414 CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_LOOP_FrameMove	inside	-	CH3a	1 states	y
+32bb94c0	state-fn	ASI_SA_ASD_TURBULENT_WAVE_LOOP.End	inside X2GUAra.cpp:12416 CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_LOOP_End	inside	-	CH3a	1 states	y
+32bb9510	state-fn	ASI_SA_ASD_TURBULENT_WAVE_END.FrameMove	inside X2GUAra.cpp:12499 CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_END_FrameMove	inside	-	CH3a	1 states	y
+32bb96d0	state-fn	ASI_SA_ALH_POWER_OF_WHITER_TIGER.FrameMove ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING.FrameMove	inside X2GUAra.cpp:2214 CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_FrameMove ; inside X2GUAra.cpp:2230 CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING_FrameMove	inside	-	CH2b	2 states	y
+32bb99d0	state-fn	ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING.FrameMove	inside X2GUAra.cpp:2230 CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING_FrameMove	inside	-	CH2b	1 states	y
+32bb9ec0	state-fn	ASI_SA_ALH_DESCENT_DRAGON.FrameMove	inside X2GUAra.cpp:13058 CX2GUAra::ASI_SA_ALH_DESCENT_DRAGON_FrameMove	inside	-	CH2b	1 states	y
+32bba350	state-fn	ASI_A_ALH_ROCK_CRASH_FALLING_START.FrameMove	inside X2GUAra.cpp:13129 CX2GUAra::ASI_A_ALH_ROCK_CRASH_START_FrameMove	inside	-	CH2b2	1 states	y
+32bba6d0	state-fn	ASI_A_ALH_ROCK_CRASH_FALLING_START.End	inside X2GUAra.cpp:13131 CX2GUAra::ASI_A_ALH_ROCK_CRASH_START_StateEnd	inside	-	CH2b2	1 states	y
+32bba730	state-fn	ASI_A_ALH_ROCK_CRASH_END.FrameMove	inside X2GUAra.cpp:13273 CX2GUAra::ASI_A_ALH_ROCK_CRASH_END_FrameMove	inside	-	CH2b2	1 states	y
+32bba8f0	state-fn	ASI_A_ASD_LOW_BRANDISH_SLICE.FrameMove	inside X2GUAra.cpp:13350 CX2GUAra::ASI_A_ASD_LOW_BRANDISH_SLIDING_FrameMove	inside	-	CH3a2	1 states	y
+32bbaab0	state-fn	ASI_A_ASD_LOW_BRANDISH_KICK.FrameMove	inside X2GUAra.cpp:13450 CX2GUAra::ASI_A_ASD_LOW_BRANDISH_KICK_FrameMove	inside	-	CH3a2	1 states	y
+32bbac50	state-fn	ASI_P_ASD_BRUTAL_PIERCING.Start ASI_P_ASD_BRUTAL_PIERCING_SMALL.Start	-	new	ASI_P_ASD_BRUTAL_PIERCING_StateStart	CH1e	2 states	y
+32bbadc0	state-fn	ASI_SA_AYR_ENERGY_VOID_END.Start	inside X2GUAra.cpp:15847 CX2GUAra::ASI_SA_AYR_ENERGY_VOID_END_StateStart	inside	-	CH3b	1 states	y
+32bbae10	state-fn	ASI_SA_AYR_ENERGY_VOID_END.FrameMove	inside X2GUAra.cpp:15848 CX2GUAra::ASI_SA_AYR_ENERGY_VOID_END_FrameMove	inside	-	CH3b	1 states	y
+32bbb050	state-fn	ASI_SA_ALD_WOLF_BREAK.FrameMove	inside X2GUAra.cpp:16016 CX2GUAra::ASI_SA_ALD_WOLF_BREAK_FrameMove	inside	-	CH2c0	add-N-stacks buff helper (SA_ALD_WOLF_Break / P_AYR_GOOD_ENERGY_BALL effects)	y
+32bbb720	state-fn	ASI_SA_AYR_OPEN_THE_HELL.FrameMove	inside X2GUAra.cpp:16134 CX2GUAra::ASI_SA_AYR_OPEN_THE_HELL_FrameMove	inside	-	CH2c0	add-N-stacks buff helper (SA_ALD_WOLF_Break / P_AYR_GOOD_ENERGY_BALL effects)	y
+32bbbc70	state-fn	ASI_DASH_COMBO_ALS_XX.FrameMove	-	new	ASI_DASH_COMBO_ALS_XX_FrameMove	CH1g	1 states	y
+32bbbe60	state-fn	ASI_COMBO_ALS_XXXLoopZ.FrameMove	-	new	ASI_COMBO_ALS_XXXLoopZ_FrameMove	CH1g	1 states	y
+32bbc050	state-fn	ASI_DASH_JUMP_COMBO_ALS_ZX.FrameMove	-	new	ASI_DASH_JUMP_COMBO_ALS_ZX_FrameMove	CH1g	1 states	y
+32bbc240	state-fn	ASI_COMBO_AA_XXDownXZStart.FrameMove	-	new	ASI_COMBO_AA_XXDownXZStart_FrameMove	CH1g	1 states	y
+32bbc600	state-fn	ASI_COMBO_AA_XXDownXZLoop.FrameMove	-	new	ASI_COMBO_AA_XXDownXZLoop_FrameMove	CH1g	1 states	y
+32bbc980	state-fn	ASI_COMBO_AA_XXDownXZLoopX.FrameMove	-	new	ASI_COMBO_AA_XXDownXZLoopX_FrameMove	CH1g	1 states	y
+32bbcbd0	state-fn	ASI_DASH_JUMP_COMBO_AA_ZXX.FrameMove	-	new	ASI_DASH_JUMP_COMBO_AA_ZXX_FrameMove	CH1g	1 states	y
+32bbcdc0	state-fn	ASI_A_ALS_VIEW_BETWEEN.FrameMove	-	new	ASI_A_ALS_VIEW_BETWEEN_FrameMove	CH2d3	1 states	y
+32bbcff0	state-fn	ASI_A_ALS_VIEW_BETWEEN_FINISH.FrameMove	-	new	ASI_A_ALS_VIEW_BETWEEN_FINISH_FrameMove	CH2d3	1 states	y
+32bbd240	state-fn	ASI_A_ALS_SHAKE_CHAOS_FINISH.FrameMove	-	new	ASI_A_ALS_SHAKE_CHAOS_FINISH_FrameMove	CH2d3	1 states	y
+32bbd3a0	state-fn	ASI_A_AA_RAID_ATTACK_FINISH.FrameMove	-	new	ASI_A_AA_RAID_ATTACK_FINISH_FrameMove	CH3c2	1 states	y
+32bbd5d0	helper	state registration helper of ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1dca	y
+32bbd640	state-fn	ASI_SA_ALS_SEVER.FrameMove	-	new	ASI_SA_ALS_SEVER_FrameMove	CH2d2	1 states	y
+32bbd840	state-fn	ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH.FrameMove	-	new	ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_FrameMove	CH2d	1 states	y
+32bbdae0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_FINISH.FrameMove ASI_SA_ALS_SPECTER_OF_STORM_LANDING.FrameMove	-	new	ASI_SA_ALS_SPECTER_OF_STORM_FINISH_FrameMove	CH2d	2 states	y
+32bbdeb0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_LANDING.Start	-	new	ASI_SA_ALS_SPECTER_OF_STORM_LANDING_StateStart	CH2d	1 states	y
+32bbdf00	state-fn	ASI_SA_ASR_SPECTER_OF_BLADE_FINISH.FrameMove	-	new	ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_FrameMove	CH3c	1 states	y
+32bbe060	state-fn	ASI_SA_AA_GET_BLOOD.FrameMove	-	new	ASI_SA_AA_GET_BLOOD_FrameMove	CH3c	1 states	y
+32bbe2a0	state-fn	ASI_SA_AA_GET_BLOOD.End	-	new	ASI_SA_AA_GET_BLOOD_StateEnd	CH3c	1 states	y
+32bbe2f0	state-fn	ASI_SA_AA_GET_BLOOD_FINISH.FrameMove	-	new	ASI_SA_AA_GET_BLOOD_FINISH_FrameMove	CH3c	1 states	y
+32bbe500	state-fn	ASI_SA_AA_GET_BLOOD_FINISH.End	-	new	ASI_SA_AA_GET_BLOOD_FINISH_StateEnd	CH3c	1 states	y
+32bbe550	state-fn	ASI_SA_ALS_VERITABLE_PANDEMONIUM.FrameMove	-	new	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FrameMove	CH2d2	1 states	y
+32bbec00	state-fn	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH.FrameMove	-	new	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_FrameMove	CH2d2	1 states	y
+32bbf500	state-fn	ASI_SA_AA_SMASH.FrameMove	-	new	ASI_SA_AA_SMASH_FrameMove	CH3c	1 states	y
+32bbfde0	helper	called by 32bc0ac0 32bc0b10 32bc0b60 32bc25a0	-	inside	-	CH1f	inside: MARCH HAS X2GUAra.cpp:16699; effect EffectSet_SA_AYR_ORB_KI_FX_DAMAGE at Bip01_R/L_Finger2 by bool, damage / force-down scaling; callers ALD combo FrameMoves	y
+32bbffff	helper	-	-	-	-	n/a	CH0 Opus: false pointer (mid-instruction), not a function	n
+32bc0140	helper	called by 32bc1a90 32bc5ba0	-	inside	-	CH1c	inside: MARCH HAS X2GUAra.cpp:17025; (t1,t2,t3,bSound): EventTimer chain with awakening effect set and UpDownCrashCamera; callers HyperModeFrameMove 32bc1a90 / RidingHyperModeFrameMove 32bc5ba0	y
+32bc0420	helper	-	-	new	CalcLockOnLandingPos	CH2d	CH0 Opus: both callers are in FindSpecterOfThunderLockOnTarget 32bc5f80 (Specter of Thunder, CH2d), not the lock-on: the plan named it CH2b0; name: named (low): helper (hand phase CH2b0, Little Hsien): line-map CanDown, D3DXVec3Normalize, GetDistance3Sq; called from 32bc5f80 twice	y
+32bc08d0	state-fn	ASI_COMBO_ASR_ZZZX.FrameMove	-	new	ASI_COMBO_ASR_ZZZX_FrameMove	CH1g	1 states	y
+32bc0ac0	state-fn	ASI_COMBO_ALD_XXdownXX.FrameMove	-	new	ASI_COMBO_ALD_XXdownXX_FrameMove	CH1f	1 states	y
+32bc0b10	state-fn	ASI_COMBO_ALD_XXdownXXX.FrameMove	-	new	ASI_COMBO_ALD_XXdownXXX_FrameMove	CH1f	1 states	y
+32bc0b60	state-fn	ASI_COMBO_ALD_XXdownXXXX.FrameMove	-	new	ASI_COMBO_ALD_XXdownXXXX_FrameMove	CH1f	1 states	y
+32bc0bb0	helper	called by 32bc66d0 32bc6720 32bc6770	-	new	CreateDashJumpXZBullet	CH1g	name: named (medium): FlushMp then DamageEffect_ASR_Dash_Jump_XZ_pr... at Bip01_R/L_Finger2, else CreateNotEnoughMPEffect; callers DASH_JUMP_COMBO_ASR_XZ / XZZ FrameMove	y
+32bc0e30	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.FrameMove	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMove	CH2d2	1 states	y
+32bc12e0	helper	called by 32bc67f0 32bc6820	-	new	SetStoneProtractorAimArrowFade	CH2d	name: named (low): (bHide): sets the particle sequence of handle +0x18 (alpha 0 or fade value) and its child; callers 32bc67f0 / 32bc6820 (Specter of Storm)	y
+32bc13c0	helper	called by 32bce2e0	-	new	CreateTranscendenceDamageEffectByTimer	CH1j	name: named (low): CommonFrameMove: P_AYR_OPEN_MIND learned and counter +0x986c != 0 and 1/3 s since +0x9870 -> counter--, DamageEffect_P_AYR_TRANCENDENCE_ at Bip01	y
+32bc1530	override 0x4c8	?	- (name unsettled)	new	ApplyEffectSetScaleBySkill	CH4b	vslot 0x4c8 override; name: named (low): vslot 0x4c8 hook after an EffectSet play: RELATE_SKILL (+0x38) == A_ASR_RAID_UPGRADE 0x6a6a and ability 0x52 -> effect set scale +0x70/+0x74/+0x78 and byte +0x7c = 0	y
+32bc15d0	helper	called by 32bc89e0	-	inside	-	CH1i	inside: MARCH HAS X2GUAra.cpp:5204; (item*): caller UpdateEquipViewListInfo 32bc89e0 right after 32baea90; 216-line body not read in full	y
+32bc19a0	override 0xd0	?	CreateGageData	inside	-	CH1q	CH0 Opus: vslot 0xd0 = CreateGageData (new CX2AraGageData: copy of my gage 32a37970 if IsMyUnit, else 32498550); the gauge is force-power code	y
+32bc1a70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 56578b7c240c578b	n
+32bc1a90	override 0x600	HyperModeFrameMove	X2GUAra.h:768 void HyperModeFrameMove(); (no virtual keyword; overrides the CX2GUUser pure virtual)	inside	-	CH1i	base 31aa1d30	n
+32bc1ac0	state-fn	ASI_SA_ARA_FALLING_DRAGON.FrameMove	inside X2GUAra.cpp:2067 CX2GUAra::ASI_SA_ARA_FALLING_DRAGON_FrameMove	inside	-	CH2a	1 states	y
+32bc1ef0	state-fn	ASI_SA_ARA_SHADOW_KNOT_START.Start	inside X2GUAra.cpp:2086 CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_START_StateStart	inside	-	CH2a	1 states	y
+32bc1f30	state-fn	ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK.EventProcess	inside X2GUAra.cpp:2290 CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_EventProcess	inside	-	CH3a	1 states	n
+32bc2190	state-fn	ASI_SA_ASD_SUPPRESSION.FrameMove	inside X2GUAra.cpp:2172 CX2GUAra::ASI_SA_ASD_SUPPRESSION_FrameMove	inside	-	CH2b	1 states	y
+32bc25a0	state-fn	ASI_COMBO_ALD_ZZXX.FrameMove	inside X2GUAra.cpp:1472 CX2GUAra::ASI_COMBO_ALD_ZZXX_FrameMove	inside	-	CH1f	1 states	y
+32bc2650	state-fn	ASI_COMBO_ALD_ZZZFrontZ.FrameMove	inside X2GUAra.cpp:1481 CX2GUAra::ASI_COMBO_ALD_ZZZFrontZ_FrameMove	inside	-	CH1f	1 states	n
+32bc26a0	state-fn	ASI_DASH_JUMP_COMBO_ALD_ZX.FrameMove	inside X2GUAra.cpp:1490 CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZX_FrameMove	inside	-	CH1f	1 states	n
+32bc26f0	state-fn	ASI_DASH_JUMP_COMBO_ALD_ZXX.FrameMove	inside X2GUAra.cpp:1499 CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZXX_FrameMove	inside	-	CH1f	1 states	y
+32bc27a0	state-fn	ASI_DASH_JUMP_COMBO_AYR_XZ.FrameMove	inside X2GUAra.cpp:1450 CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_FrameMove	inside	-	CH1f	1 states	y
+32bc2850	state-fn	ASI_DASH_COMBO_AYR_ZZ.FrameMove	inside X2GUAra.cpp:1459 CX2GUAra::ASI_DASH_COMBO_AYR_ZZ_FrameMove	inside	-	CH1f	1 states	n
+32bc2900	state-fn	ASI_SA_ALD_ENERGY_WAVE_FIRE.FrameMove	-	new	ASI_SA_ALD_ENERGY_WAVE_FIRE_FrameMove	CH2c	1 states	y
+32bc2c50	state-fn	ASI_SA_AYR_ENERGY_VOID_LOOP.Start	inside X2GUAra.cpp:15705 CX2GUAra::ASI_SA_AYR_ENERGY_VOID_LOOP_StateStart	inside	-	CH3b	1 states	y
+32bc3190	state-fn	ASI_A_ALS_VIEW_BETWEEN.Start	-	new	ASI_A_ALS_VIEW_BETWEEN_StateStart	CH2d3	1 states	y
+32bc31f0	state-fn	ASI_A_ALS_SPECTER_WALK.FrameMove	-	new	ASI_A_ALS_SPECTER_WALK_FrameMove	CH3c2	1 states	n
+32bc3260	state-fn	ASI_A_ALS_SHAKE_CHAOS.FrameMove	-	new	ASI_A_ALS_SHAKE_CHAOS_FrameMove	CH2d3	1 states	y
+32bc3580	state-fn	ASI_A_AA_RAID_ATTACK.FrameMove	-	new	ASI_A_AA_RAID_ATTACK_FrameMove	CH3c2	1 states	y
+32bc3bc0	state-fn	ASI_A_ALS_MANA_DRAIN.FrameMove	-	new	ASI_A_ALS_MANA_DRAIN_FrameMove	CH2d3	1 states	y
+32bc3e40	state-fn	ASI_A_ALS_MANA_DRAIN.End	-	new	ASI_A_ALS_MANA_DRAIN_StateEnd	CH2d3	1 states	n
+32bc3f50	state-fn	ASI_SA_ALS_SEVER.End	-	new	ASI_SA_ALS_SEVER_StateEnd	CH2d2	1 states	n
+32bc4410	state-fn	ASI_SA_ALS_RESTRAINTS_SPECTER.FrameMove	-	new	ASI_SA_ALS_RESTRAINTS_SPECTER_FrameMove	CH2d	1 states	n
+32bc4670	state-fn	ASI_SA_ALS_SPECTER_OF_STORM.FrameMove	-	new	ASI_SA_ALS_SPECTER_OF_STORM_FrameMove	CH2d	1 states	y
+32bc4b90	state-fn	ASI_SA_ASR_SPECTER_OF_BLADE.FrameMove ASI_SA_ASR_SPECTER_OF_BLADE_FINISH.FrameMove	-	new	ASI_SA_ASR_SPECTER_OF_BLADE_FrameMove	CH3c	2 states	y
+32bc4d50	state-fn	ASI_SA_AA_FIRE_FOX.FrameMove	-	new	ASI_SA_AA_FIRE_FOX_FrameMove	CH3c	1 states	y
+32bc5280	state-fn	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH.StartFuture	-	new	ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateStartFuture	CH2d2	1 states	y
+32bc56d0	state-fn	ASI_SA_AYR_RESTRICTION_ENERGY_START.FrameMove ASI_SA_AYR_RESTRICTION_ENERGY_END.FrameMove	-	new	ASI_SA_AYR_RESTRICTION_ENERGY_START_FrameMove	CH3b	2 states	y
+32bc5a50	helper	-	-	new	?	CH4a	CH0 Opus: resurrection test behind checklist l.258 (reads +0x96c0, the FP gauge, skill 27409): class-map builder marked it not-Ara; name: -; CH0 Opus: resurrection test behind checklist l.258 (reads +0x96c0, the FP gauge, skill 27409): class-map builder marked it not-Ara	y
+32bc5ba0	state-fn	ASI_RIDING_HYPER_MODE.FrameMove	inside X2GUAra.cpp:1048 CX2GUAra::RidingHyperModeFrameMove	inside	-	CH1c	1 states	n
+32bc5bc0	helper	-	-	new	GainFullHyperKillReward	CH1q	CH0 Opus: berserk regen body called by the 0x318 hook and 32bc9a60; name: named (medium): berserk kill reward: HP += max HP x [3344f248], FP + 1 with +0x9644 overflow, EffectSet KILL_ENEMY_WHEN_FULL_H(yper); callers DoProcessWhenKillEnemy hook 32bc8be0 and 32bc9a60 (ch0_fp.tsv)	y
+32bc5ea0	helper	called by 32bd2a40	-	new	StopKillEnemyEffectSet	CH1j	name: named (medium): CommonStateStart: handle +0x9718 valid and state != SWALLOW_ASSAULT_ATTACK -> CX2EffectSet::StopEffectSet; handle is the KILL_ENEMY effect set of 32bc5bc0	y
+32bc5f80	helper	called by 32bc94f0	-	new	FindSpecterOfThunderLockOnTarget	CH2d	name: named (low): SA_AA_SPECTER_OF_THUNDER StartFuture helper: IsValidUnit, GetDistance3Sq to units in range, 32bc0420 landing pos, 32293b80; skill 0x698f memo and ability 0x9d	y
+32bc66d0	state-fn	ASI_DASH_JUMP_COMBO_ASR_XZ.FrameMove	-	new	ASI_DASH_JUMP_COMBO_ASR_XZ_FrameMove	CH1g	1 states	n
+32bc6720	state-fn	ASI_DASH_JUMP_COMBO_ASR_XZZ.FrameMove ASI_DASH_JUMP_COMBO_ASR_XZZZ.FrameMove	-	new	ASI_DASH_JUMP_COMBO_ASR_XZZ_FrameMove	CH1g	2 states	y
+32bc6770	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d90518784333568b	n
+32bc67f0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE.FrameMoveFuture ASI_SA_ALS_SPECTER_OF_STORM_DEGREE.FrameMoveFuture	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_FrameMoveFuture	CH2d2	2 states	y
+32bc6820	helper	called by 32bc9c70	-	new	CreateStoneProtractorAimArrow	CH2d	name: named (medium): particle sequence "Ara_StomeProtractor_AimArrow" at Bip01 (+ 31cf9570 CreateNewParticle), then 32bc12e0; caller SA_ALS_SPECTER_OF_STORM state 32bc9c70	y
+32bc6aa0	helper	called by 32bc8380	-	new	CleanupSkillFPGainTable	CH1j	name: named (medium): FP-gain table: erases sub-entries with flag +1 set or negative id, then empty entries; caller CommonStateStartFuture 32bc8380	y
+32bc6bf0	helper	-	X2GUAra.h:441 CX2GUAra constructor	inside	-	CH1h	ctor: CX2GUAra::CX2GUAra (vtable store 32bc6c4d; its only caller 32bc79c9 is the unit factory 32bc7970, outside the class map)	y
+32bc7970	not-Ara	called only from outside the range: 322cee48 322d5d2f	-	-	-	n/a	shared / folded code	y
+32bc79f0	helper	-	X2GUAra.h:442 virtual ~CX2GUAra	inside	-	CH1h	dtor body: CX2GUAra::~CX2GUAra (vtable store 32bc7a1d; the scalar deleting dtor 32bd8680 calls it)	y
+32bc7e90	override 0x40	Init	X2GUAra.h:452 virtual void Init( bool bUseTeamPos_, int iStartPosIndex_ );	inside	-	CH1h	base 3204ea20	n
+32bc8030	override 0x44	ReInit	X2GUAra.h:558 virtual void ReInit( bool bTeamPos_ = false, int iStartPosIndex_ = -1 );	inside	-	CH1h	base 32022380	y
+32bc8380	override 0x7c0	CommonStateStartFuture	X2GUAra.h:470 virtual void CommonStateStartFuture();	inside	-	CH1j	base 320506f0	y
+32bc84b0	override 0x80c	NoStateChangeActionFrameMove	X2GUAra.h:483 virtual void NoStateChangeActionFrameMove();	inside	-	CH1k	base 32008e40	y
+32bc89e0	override 0x644	UpdateEquipViewListInfo	X2GUAra.h:601 virtual bool UpdateEquipViewListInfo( CX2Item* pItemToAddInViewList, CX2Item* const pItemToRemoveInViewList );	inside	-	CH1i	base 3201b930	y
+32bc8b90	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b8ed48700	y
+32bc8be0	override 0x318	?	- (name unsettled)	new	?	CH1q	CH0 Opus: vslot 0x318 hook gated on IsFullHyperMode -> 32bc5bc0 (HP += max HP x k, FP + 1 with the +0x9644 overflow, effect set; also called by the berserk hit roll 32bc9a60): berserk mechanic; name: virtual 0x318 (base CH0 Opus: vslot 0x318 hook gated on IsFullHyperMode -> 32bc5bc0 (HP += max HP x k, FP + 1 with the +0x9644 overflow, effect set; also called by the berserk hit roll 32bc9a60): berserk mechanic); not named by any sibling class map, funcmap or X2GUUser.h; read the body; read: Opus caller: vslot 0x318 (gated on IsFullHyperMode, calls 32bc5bc0 = full-hyper kill reward); looks like the DoProcessWhenKillEnemy hook (ch0_fp.tsv) but base 3208ddc0 is unnamed	y
+32bc8c00	helper	state registration helper of ASI_SA_ARA_PULLING_PIERCE_START	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2a	called by 32bd0bed 32bd0bf6 32bd3a2b	y
+32bc8c50	helper	state registration helper of ASI_SA_ARA_PULLING_PIERCE_END	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2a	called by 32bd0c18 32bd3ac2	y
+32bc8ca0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568b7424088b068b	n
+32bc8cf0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568b7424088b068b	n
+32bc8d40	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568b7424088b068b	n
+32bc8d90	helper	state registration helper of ASI_SA_ARA_SHADOW_KNOT_WAIT	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2a	called by 32bd0da8 32bd48cc	y
+32bc8df0	helper	state registration helper of ASI_SA_ALH_MOONLIGHT_SLASH_READY	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2b	called by 32bd108a 32bd1093 32bd3bf3	y
+32bc8e60	helper	state registration helper of ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2b	called by 32bd10f9 32bd3d14	y
+32bc8ed0	helper	state registration helper of ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2b	called by 32bd113d 32bd3da5	y
+32bc8f40	helper	state registration helper of ASI_A_ARA_TIGER_CLAW_START	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2b2	called by 32bd0efc 32bd0f05 32bd3665	y
+32bc8fb0	helper	state registration helper of ASI_A_ARA_TIGER_CLAW_END	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2b2	called by 32bd0f27 32bd36fc	y
+32bc9000	helper	state registration helper of ASI_SA_ASD_TURBULENT_WAVE_START	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3a	called by 32bd0f8a 32bd0f93 32bd382d	y
+32bc9070	helper	state registration helper of ASI_SA_ASD_TURBULENT_WAVE_LOOP	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3a	called by 32bd0fb5 32bd38c1	y
+32bc90c0	helper	state registration helper of ASI_SA_ASD_TURBULENT_WAVE_END	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3a	called by 32bd0ff9 32bd394e	y
+32bc9110	helper	state registration helper of ASI_SA_ALH_DESCENT_DRAGON	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2b	called by 32bd3e35	y
+32bc9170	helper	state registration helper of ASI_A_ALH_ROCK_CRASH_FALLING_START	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2b2	called by 32bd1776 32bd177f 32bd3580	y
+32bc91e0	helper	state registration helper of ASI_A_ALH_ROCK_CRASH_END	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2b2	called by 32bd17a1 32bd3618	y
+32bc9230	helper	state registration helper of ASI_A_ASD_LOW_BRANDISH_SLICE	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3a2	called by 32bd17bd 32bd17c6 32bd3749	y
+32bc92a0	helper	state registration helper of ASI_A_ASD_LOW_BRANDISH_KICK	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3a2	called by 32bd17e8 32bd37e0	y
+32bc92f0	helper	state registration helper of ASI_SA_AYR_ENERGY_VOID_END	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3b	called by 32bd1b38	y
+32bc9350	helper	state registration helper of ASI_SA_ALD_WOLF_BREAK	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c	called by 32bd430f	y
+32bc93b0	helper	state registration helper of ASI_SA_AYR_OPEN_THE_HELL	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3b	called by 32bd46f8	y
+32bc9400	helper	state registration helper of ASI_A_ALS_VIEW_BETWEEN_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d3	called by 32bd1c1a 32bd4c34	y
+32bc9450	helper	state registration helper of ASI_A_ALS_SHAKE_CHAOS_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d3	called by 32bd1ca6 32bd4db7	y
+32bc94a0	helper	state registration helper of ASI_A_AA_RAID_ATTACK_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3c2	called by 32bd1d0f 32bd4f3a	y
+32bc94f0	state-fn	ASI_SA_AA_SPECTER_OF_THUNDER.StartFuture	-	new	ASI_SA_AA_SPECTER_OF_THUNDER_StateStartFuture	CH2d	1 states	y
+32bc9540	helper	state registration helper of ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1e60 32bd47e5	y
+32bc9590	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1ea7	y
+32bc95e0	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_LANDING	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1ec9	y
+32bc9630	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568b7424088b068b	n
+32bc9680	helper	state registration helper of ASI_SA_AA_GET_BLOOD	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3c	called by 32bd1f92 32bd1f9b 32bd4f90	y
+32bc96f0	helper	state registration helper of ASI_SA_AA_GET_BLOOD_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3c	called by 32bd1fbd 32bd502a	y
+32bc9750	helper	state registration helper of ASI_SA_ALS_VERITABLE_PANDEMONIUM	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d2	called by 32bd4aee	y
+32bc97b0	helper	state registration helper of ASI_SA_AA_SMASH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3c	called by 32bd508c	y
+32bc9810	state-fn	ASI_SA_AYR_RESTRICTION_ENERGY_END.FrameMove	-	new	ASI_SA_AYR_RESTRICTION_ENERGY_END_FrameMove	CH3b	1 states	y
+32bc9a60	helper	-	-	new	ProcessFullHyperHitReward	CH1q	CH0 Opus: June-only berserk per-hit reward roll (FULL_HYPER_MODE_ADVANTAGE_* keys), called from AttackResultByType; name: named (medium): berserk per-hit roll (ch0_fp.tsv): counter +0x9700 vs FULL_HYPER_MODE_ADVANTAGE_COUNT, socket rate x spec A, then 32bc5bc0; caller AttackResultByType 32bceca0	y
+32bc9c70	state-fn	ASI_SA_ALS_SPECTER_OF_STORM.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_EventProcess	CH2d	1 states	y
+32bc9f50	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d2	called by 32bd1f54	y
+32bc9fc0	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_LANDING	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1f76	y
+32bca010	override 0x780	?	- (name unsettled)	new	DamageExceptionClassHook	CH4a	the 0x780 hook (base 33093ad0); name: named (high): vslot 0x780; X2GUUser.h:3144 names it (base 33093ad0, (DamageData*, float& fPowerRate)); body fills the FP-gain table (27415 / 27417 blocks)	y
+32bca580	registrar	InitState body (112 registrations + the hyper row id 23 + the berserk row id 155; called by the wrapper 32bcf4a0 @32bcf53e)	X2GUAra.cpp InitState	inside	-	CH1m		y
+32bcced0	registrar	InitState per-class part (41 registrations of the combo / quick-stand / brutal-piercing states)	X2GUAra.cpp InitState	inside	-	CH1m		y
+32bcd9c0	override 0x690	InitPassiveSkillState	X2GUAra.h:463 virtual void InitPassiveSkillState();	inside	-	CH4a	InitPassiveSkillState (vslot 0x690): registers no state	y
+32bce2e0	override 0x7cc	CommonFrameMove	X2GUAra.h:474 virtual void CommonFrameMove();	inside	-	CH1j	base 32063650	y
+32bce710	helper	state registration helper of ASI_SA_ARA_SHADOW_KNOT_START	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2a	called by 32bd0d7d 32bd0d86 32bd4832	y
+32bce770	helper	state registration helper of ASI_SA_ALD_ENERGY_WAVE_FIRE	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2c	called by 32bd1903	y
+32bce7c0	helper	state registration helper of ASI_SA_AYR_ENERGY_VOID_LOOP	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3b	called by 32bd1af4	y
+32bce810	helper	state registration helper of ASI_A_ALS_VIEW_BETWEEN	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d3	called by 32bd1bef 32bd1bf8 32bd4b9a	y
+32bce870	helper	state registration helper of ASI_A_ALS_SPECTER_WALK	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3c2	called by 32bd1c36 32bd1c3f	y
+32bce8c0	helper	state registration helper of ASI_A_ALS_SHAKE_CHAOS	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d3	called by 32bd1c59 32bd1c62 32bd4c8a	y
+32bce920	helper	state registration helper of ASI_A_ALS_SHAKE_CHAOS	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d3	called by 32bd1c84 32bd4d21	y
+32bce970	helper	state registration helper of ASI_A_AA_RAID_ATTACK	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3c2	called by 32bd1ced 32bd4ea4	y
+32bce9c0	helper	state registration helper of ASI_A_ALS_MANA_DRAIN	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d3	called by 32bd1d2b 32bd1d34	y
+32bcea30	helper	state registration helper of ASI_SA_ALS_SEVER	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d2	called by 32bd1e12 32bd1e1b 32bd4a54	y
+32bcea90	helper	state registration helper of ASI_SA_ALS_RESTRAINTS_SPECTER	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1e35 32bd1e3e 32bd474e	y
+32bceaf0	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1e7c 32bd1e85	y
+32bceb60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568b7424088b068b	n
+32bcebc0	helper	state registration helper of ASI_SA_AA_FIRE_FOX	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3c	called by 32bd1fd9 32bd1fe2	y
+32bcec30	helper	state registration helper of ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d2	called by 32bd4b4d	y
+32bceca0	override 0x4e0	AttackResultByType	X2GUAra.h:679 virtual void AttackResultByType( CX2DamageManager::DamageData &pDamageData );	inside	-	CH1h	base 320144d0	y
+32bcf400	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_DEGREE	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d2	called by 32bd1f10	y
+32bcf450	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d2	called by 32bd1f32	y
+32bcf4a0	override 0x7a4 + registrar	InitState	X2GUAra.h:454 virtual void InitState();	inside	-	CH1m	base 31aa1d30	y
+32bcfaa0	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	- (no virtual of that name in X2GUAra.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32bd0900	helper	state registration helper of ASI_SA_AA_SPECTER_OF_THUNDER	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1d7d 32bd1d86	y
+32bd0960	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1ee5 32bd1eee	y
+32bd09d0	override 0x7b4 + registrar	SetEquippedSkillFuncBySkillSlotIndex	X2GUAra.h:464 virtual void SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_,	inside	-	CH1n	base 31aa1d30	y
+32bd2a40	override 0x7c4	CommonStateStart	X2GUAra.h:471 virtual void CommonStateStart();	inside	-	CH1j	base 32057b80	y
+32bd2ec0	state-fn	ASI_SA_ASD_VOID_BREAK.FrameMove	inside X2GUAra.cpp:13510 CX2GUAra::ASI_SA_ASD_VOID_BREAK_FrameMove	inside	-	CH3a	1 states	y
+32bd32f0	override 0x29c	?	GetReduceDebuffDurationRate	inside	-	CH4a	CH0 Opus: vslot 0x29c = GetReduceDebuffDurationRate (skill 27415 0x6b17 tail, checklist l.267)	y
+32bd3470	helper	state registration helper of ASI_SA_ASD_VOID_BREAK	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3a	called by 32bd39de	y
+32bd34c0	override 0x68c	?	InitAquiredActiveSkillState	inside	-	CH1n	CH0 Opus: vslot 0x68c = InitAquiredActiveSkillState( skill id ) (March X2GUUser.h:3039, X2GUAra.cpp:16262): second skill-state switch (56 states); head with CH1n, case bodies with their state phases	y
+32bd5250	not-Ara	called only from outside the range: 33048859	-	-	-	n/a	shared / folded code	y
+32bd52a0	thunk	jmp 32b90dd0	-	-	-	n/a	not ported	n
+32bd52b0	thunk	jmp 32b90df0	-	-	-	n/a	not ported	n
+32bd52c0	thunk	jmp 32b90e10	-	-	-	n/a	not ported	n
+32bd52d0	thunk	jmp 32b90e40	-	-	-	n/a	not ported	n
+32bd52e0	thunk	jmp 32b90e60	-	-	-	n/a	not ported	n
+32bd52f0	thunk	jmp 32b90e90	-	-	-	n/a	not ported	n
+32bd5300	thunk	jmp 32b90f20	-	-	-	n/a	not ported	n
+32bd5310	thunk	jmp 32b90f40	-	-	-	n/a	not ported	n
+32bd5320	thunk	jmp 32b90ec0	-	-	-	n/a	not ported	n
+32bd5330	thunk	jmp 32b90ef0	-	-	-	n/a	not ported	n
+32bd5340	thunk	jmp 32b90f30	-	-	-	n/a	not ported	n
+32bd5350	thunk	jmp 32b90f80	-	-	-	n/a	not ported	n
+32bd5360	thunk	jmp 32b90fb0	-	-	-	n/a	not ported	n
+32bd5370	thunk	jmp 32b90fd0	-	-	-	n/a	not ported	n
+32bd5380	thunk	jmp 32b90ff0	-	-	-	n/a	not ported	n
+32bd5390	thunk	jmp 32b91000	-	-	-	n/a	not ported	n
+32bd53a0	thunk	jmp 32b91040	-	-	-	n/a	not ported	n
+32bd53b0	thunk	jmp 32b91050	-	-	-	n/a	not ported	n
+32bd53c0	thunk	jmp 32b91070	-	-	-	n/a	not ported	n
+32bd53d0	thunk	jmp 32b91080	-	-	-	n/a	not ported	n
+32bd53e0	thunk	jmp 32b910a0	-	-	-	n/a	not ported	n
+32bd53f0	thunk	jmp 32b910b0	-	-	-	n/a	not ported	n
+32bd5400	thunk	jmp 32b910c0	-	-	-	n/a	not ported	n
+32bd5410	thunk	jmp 32b91120	-	-	-	n/a	not ported	n
+32bd5420	thunk	jmp 32b93070	-	-	-	n/a	not ported	n
+32bd5430	thunk	jmp 32b94070	-	-	-	n/a	not ported	n
+32bd5440	thunk	jmp 32b94090	-	-	-	n/a	not ported	n
+32bd5450	thunk	jmp 32b93fa0	-	-	-	n/a	not ported	n
+32bd5460	thunk	jmp 32b93fe0	-	-	-	n/a	not ported	n
+32bd5470	helper	called by 32bcd9c0	-	new	?	CH4a	name: called by 32bcd9c0(InitPassiveSkillState); read: n/a: delegate thunk (push edx; call 32b95910; ret), compiler macro code	n
+32bd5480	helper	called by 32bcd9c0	-	new	?	CH4a	name: called by 32bcd9c0(InitPassiveSkillState); read: n/a: delegate thunk (push edx; call 32b95980; ret), compiler macro code	n
+32bd5490	helper	called by 32bcd9c0	-	new	?	CH4a	name: called by 32bcd9c0(InitPassiveSkillState); read: n/a: delegate thunk (push edx; call 32b959a0; ret), compiler macro code	n
+32bd54a0	thunk	jmp 32b916d0	-	-	-	n/a	not ported	n
+32bd54b0	thunk	jmp 32b91750	-	-	-	n/a	not ported	n
+32bd54c0	thunk	jmp 32b917e0	-	-	-	n/a	not ported	n
+32bd54d0	thunk	jmp 32b91330	-	-	-	n/a	not ported	n
+32bd54e0	thunk	jmp 32b92400	-	-	-	n/a	not ported	n
+32bd54f0	thunk	jmp 32b92c90	-	-	-	n/a	not ported	n
+32bd5500	thunk	jmp 32b92d60	-	-	-	n/a	not ported	n
+32bd5510	thunk	jmp 32b92720	-	-	-	n/a	not ported	n
+32bd5520	thunk	jmp 32b92810	-	-	-	n/a	not ported	n
+32bd5530	thunk	jmp 32b92820	-	-	-	n/a	not ported	n
+32bd5540	thunk	jmp 32b928d0	-	-	-	n/a	not ported	n
+32bd5550	thunk	jmp 32b929c0	-	-	-	n/a	not ported	n
+32bd5560	thunk	jmp 32b928e0	-	-	-	n/a	not ported	n
+32bd5570	thunk	jmp 32b929e0	-	-	-	n/a	not ported	n
+32bd5580	thunk	jmp 32b91ff0	-	-	-	n/a	not ported	n
+32bd5590	thunk	jmp 32b92070	-	-	-	n/a	not ported	n
+32bd55a0	thunk	jmp 32b92080	-	-	-	n/a	not ported	n
+32bd55b0	thunk	jmp 32b921a0	-	-	-	n/a	not ported	n
+32bd55c0	thunk	jmp 32b921b0	-	-	-	n/a	not ported	n
+32bd55d0	thunk	jmp 32b921d0	-	-	-	n/a	not ported	n
+32bd55e0	thunk	jmp 32b92fc0	-	-	-	n/a	not ported	n
+32bd55f0	thunk	jmp 32b92d70	-	-	-	n/a	not ported	n
+32bd5600	thunk	jmp 32b92e60	-	-	-	n/a	not ported	n
+32bd5610	thunk	jmp 32b92f50	-	-	-	n/a	not ported	n
+32bd5620	thunk	jmp 32b92f90	-	-	-	n/a	not ported	n
+32bd5630	thunk	jmp 32b92460	-	-	-	n/a	not ported	n
+32bd5640	thunk	jmp 32b924e0	-	-	-	n/a	not ported	n
+32bd5650	thunk	jmp 32b92480	-	-	-	n/a	not ported	n
+32bd5660	thunk	jmp 32b92510	-	-	-	n/a	not ported	n
+32bd5670	thunk	jmp 32b92530	-	-	-	n/a	not ported	n
+32bd5680	thunk	jmp 32b923a0	-	-	-	n/a	not ported	n
+32bd5690	thunk	jmp 32b92c50	-	-	-	n/a	not ported	n
+32bd56a0	thunk	jmp 32b92c80	-	-	-	n/a	not ported	n
+32bd56b0	thunk	jmp 32b952a0	-	-	-	n/a	not ported	n
+32bd56c0	thunk	jmp 32b91390	-	-	-	n/a	not ported	n
+32bd56d0	thunk	jmp 32b914a0	-	-	-	n/a	not ported	n
+32bd56e0	thunk	jmp 32b915c0	-	-	-	n/a	not ported	n
+32bd56f0	thunk	jmp 32b94cd0	-	-	-	n/a	not ported	n
+32bd5700	thunk	jmp 32b94d70	-	-	-	n/a	not ported	n
+32bd5710	thunk	jmp 32b94d90	-	-	-	n/a	not ported	n
+32bd5720	thunk	jmp 32b952c0	-	-	-	n/a	not ported	n
+32bd5730	thunk	jmp 32b95370	-	-	-	n/a	not ported	n
+32bd5740	thunk	jmp 32b95460	-	-	-	n/a	not ported	n
+32bd5750	thunk	jmp 32b911b0	-	-	-	n/a	not ported	n
+32bd5760	thunk	jmp 32b91200	-	-	-	n/a	not ported	n
+32bd5770	thunk	jmp 32b91250	-	-	-	n/a	not ported	n
+32bd5780	thunk	jmp 32b91260	-	-	-	n/a	not ported	n
+32bd5790	thunk	jmp 32b912d0	-	-	-	n/a	not ported	n
+32bd57a0	thunk	jmp 32b917f0	-	-	-	n/a	not ported	n
+32bd57b0	thunk	jmp 32b91940	-	-	-	n/a	not ported	n
+32bd57c0	thunk	jmp 32b91a90	-	-	-	n/a	not ported	n
+32bd57d0	thunk	jmp 32b91ae0	-	-	-	n/a	not ported	n
+32bd57e0	thunk	jmp 32b91c30	-	-	-	n/a	not ported	n
+32bd57f0	thunk	jmp 32b91d80	-	-	-	n/a	not ported	n
+32bd5800	thunk	jmp 32b91d90	-	-	-	n/a	not ported	n
+32bd5810	thunk	jmp 32b91e20	-	-	-	n/a	not ported	n
+32bd5820	thunk	jmp 32b91eb0	-	-	-	n/a	not ported	n
+32bd5830	thunk	jmp 32b91f50	-	-	-	n/a	not ported	n
+32bd5840	thunk	jmp 32b922b0	-	-	-	n/a	not ported	n
+32bd5850	thunk	jmp 32b92300	-	-	-	n/a	not ported	n
+32bd5860	thunk	jmp 32b92340	-	-	-	n/a	not ported	n
+32bd5870	thunk	jmp 32b92360	-	-	-	n/a	not ported	n
+32bd5880	thunk	jmp 32b92590	-	-	-	n/a	not ported	n
+32bd5890	thunk	jmp 32b92620	-	-	-	n/a	not ported	n
+32bd58a0	thunk	jmp 32b926d0	-	-	-	n/a	not ported	n
+32bd58b0	thunk	jmp 32b926f0	-	-	-	n/a	not ported	n
+32bd58c0	thunk	jmp 32b929f0	-	-	-	n/a	not ported	n
+32bd58d0	thunk	jmp 32b92a50	-	-	-	n/a	not ported	n
+32bd58e0	thunk	jmp 32b92a60	-	-	-	n/a	not ported	n
+32bd58f0	thunk	jmp 32b92ab0	-	-	-	n/a	not ported	n
+32bd5900	thunk	jmp 32b92ad0	-	-	-	n/a	not ported	n
+32bd5910	thunk	jmp 32b92b20	-	-	-	n/a	not ported	n
+32bd5920	thunk	jmp 32b92b70	-	-	-	n/a	not ported	n
+32bd5930	thunk	jmp 32b92b90	-	-	-	n/a	not ported	n
+32bd5940	thunk	jmp 32b92ba0	-	-	-	n/a	not ported	n
+32bd5950	thunk	jmp 32b92be0	-	-	-	n/a	not ported	n
+32bd5960	thunk	jmp 32b930b0	-	-	-	n/a	not ported	n
+32bd5970	thunk	jmp 32b93170	-	-	-	n/a	not ported	n
+32bd5980	thunk	jmp 32b93240	-	-	-	n/a	not ported	n
+32bd5990	thunk	jmp 32b932b0	-	-	-	n/a	not ported	n
+32bd59a0	thunk	jmp 32b93320	-	-	-	n/a	not ported	n
+32bd59b0	thunk	jmp 32b933b0	-	-	-	n/a	not ported	n
+32bd59c0	thunk	jmp 32b933e0	-	-	-	n/a	not ported	n
+32bd59d0	thunk	jmp 32b93430	-	-	-	n/a	not ported	n
+32bd59e0	thunk	jmp 32b93460	-	-	-	n/a	not ported	n
+32bd59f0	thunk	jmp 32b93540	-	-	-	n/a	not ported	n
+32bd5a00	thunk	jmp 32b93570	-	-	-	n/a	not ported	n
+32bd5a10	thunk	jmp 32b93590	-	-	-	n/a	not ported	n
+32bd5a20	thunk	jmp 32b935d0	-	-	-	n/a	not ported	n
+32bd5a30	thunk	jmp 32b93660	-	-	-	n/a	not ported	n
+32bd5a40	thunk	jmp 32b93640	-	-	-	n/a	not ported	n
+32bd5a50	thunk	jmp 32b93740	-	-	-	n/a	not ported	n
+32bd5a60	thunk	jmp 32b93800	-	-	-	n/a	not ported	n
+32bd5a70	thunk	jmp 32b93820	-	-	-	n/a	not ported	n
+32bd5a80	thunk	jmp 32b93840	-	-	-	n/a	not ported	n
+32bd5a90	thunk	jmp 32b93860	-	-	-	n/a	not ported	n
+32bd5aa0	thunk	jmp 32b93910	-	-	-	n/a	not ported	n
+32bd5ab0	thunk	jmp 32b93930	-	-	-	n/a	not ported	n
+32bd5ac0	thunk	jmp 32b93990	-	-	-	n/a	not ported	n
+32bd5ad0	thunk	jmp 32b939b0	-	-	-	n/a	not ported	n
+32bd5ae0	thunk	jmp 32b93a10	-	-	-	n/a	not ported	n
+32bd5af0	thunk	jmp 32b939f0	-	-	-	n/a	not ported	n
+32bd5b00	thunk	jmp 32b93a70	-	-	-	n/a	not ported	n
+32bd5b10	thunk	jmp 32b93aa0	-	-	-	n/a	not ported	n
+32bd5b20	thunk	jmp 32b93b00	-	-	-	n/a	not ported	n
+32bd5b30	thunk	jmp 32b93b80	-	-	-	n/a	not ported	n
+32bd5b40	thunk	jmp 32b93bc0	-	-	-	n/a	not ported	n
+32bd5b50	thunk	jmp 32b93bf0	-	-	-	n/a	not ported	n
+32bd5b60	thunk	jmp 32b93c10	-	-	-	n/a	not ported	n
+32bd5b70	thunk	jmp 32b93c90	-	-	-	n/a	not ported	n
+32bd5b80	thunk	jmp 32b93d00	-	-	-	n/a	not ported	n
+32bd5b90	thunk	jmp 32b93dc0	-	-	-	n/a	not ported	n
+32bd5ba0	thunk	jmp 32b93e20	-	-	-	n/a	not ported	n
+32bd5bb0	thunk	jmp 32b93e40	-	-	-	n/a	not ported	n
+32bd5bc0	thunk	jmp 32b93ec0	-	-	-	n/a	not ported	n
+32bd5bd0	thunk	jmp 32b940d0	-	-	-	n/a	not ported	n
+32bd5be0	thunk	jmp 32b94150	-	-	-	n/a	not ported	n
+32bd5bf0	thunk	jmp 32b941d0	-	-	-	n/a	not ported	n
+32bd5c00	thunk	jmp 32b94290	-	-	-	n/a	not ported	n
+32bd5c10	thunk	jmp 32b94310	-	-	-	n/a	not ported	n
+32bd5c20	thunk	jmp 32b94340	-	-	-	n/a	not ported	n
+32bd5c30	thunk	jmp 32b94360	-	-	-	n/a	not ported	n
+32bd5c40	thunk	jmp 32b943e0	-	-	-	n/a	not ported	n
+32bd5c50	thunk	jmp 32b94420	-	-	-	n/a	not ported	n
+32bd5c60	thunk	jmp 32b94440	-	-	-	n/a	not ported	n
+32bd5c70	thunk	jmp 32b94460	-	-	-	n/a	not ported	n
+32bd5c80	thunk	jmp 32b94480	-	-	-	n/a	not ported	n
+32bd5c90	thunk	jmp 32b94510	-	-	-	n/a	not ported	n
+32bd5ca0	thunk	jmp 32b94580	-	-	-	n/a	not ported	n
+32bd5cb0	thunk	jmp 32b94600	-	-	-	n/a	not ported	n
+32bd5cc0	thunk	jmp 32b94690	-	-	-	n/a	not ported	n
+32bd5cd0	thunk	jmp 32b946c0	-	-	-	n/a	not ported	n
+32bd5ce0	thunk	jmp 32b94750	-	-	-	n/a	not ported	n
+32bd5cf0	thunk	jmp 32b94780	-	-	-	n/a	not ported	n
+32bd5d00	thunk	jmp 32b94810	-	-	-	n/a	not ported	n
+32bd5d10	thunk	jmp 32b94830	-	-	-	n/a	not ported	n
+32bd5d20	thunk	jmp 32b948c0	-	-	-	n/a	not ported	n
+32bd5d30	thunk	jmp 32b94990	-	-	-	n/a	not ported	n
+32bd5d40	thunk	jmp 32b949b0	-	-	-	n/a	not ported	n
+32bd5d50	thunk	jmp 32b94aa0	-	-	-	n/a	not ported	n
+32bd5d60	thunk	jmp 32b94b60	-	-	-	n/a	not ported	n
+32bd5d70	thunk	jmp 32b94b80	-	-	-	n/a	not ported	n
+32bd5d80	thunk	jmp 32b94bc0	-	-	-	n/a	not ported	n
+32bd5d90	thunk	jmp 32b94ca0	-	-	-	n/a	not ported	n
+32bd5da0	thunk	jmp 32b94e40	-	-	-	n/a	not ported	n
+32bd5db0	thunk	jmp 32b94ec0	-	-	-	n/a	not ported	n
+32bd5dc0	thunk	jmp 32b94f00	-	-	-	n/a	not ported	n
+32bd5dd0	thunk	jmp 32b94ff0	-	-	-	n/a	not ported	n
+32bd5de0	thunk	jmp 32b95010	-	-	-	n/a	not ported	n
+32bd5df0	thunk	jmp 32b95030	-	-	-	n/a	not ported	n
+32bd5e00	thunk	jmp 32b95120	-	-	-	n/a	not ported	n
+32bd5e10	thunk	jmp 32b95150	-	-	-	n/a	not ported	n
+32bd5e20	thunk	jmp 32b951e0	-	-	-	n/a	not ported	n
+32bd5e30	thunk	jmp 32b951f0	-	-	-	n/a	not ported	n
+32bd5e40	thunk	jmp 32b95210	-	-	-	n/a	not ported	n
+32bd5e50	thunk	jmp 32b95290	-	-	-	n/a	not ported	n
+32bd5e60	helper	called by 32bae120 32bc9a60	-	new	IsBuffHyperModeActive	CH1h	name: named (low): bool: float +0x9744 > 0 (the same test IsFullHyperMode 32ba6cc0 uses to read the buff hyper count); callers 32bae120 / 32bc9a60	y
+32bd5e80	helper	-	-	new	?	CH1q	CH0 Opus: force-power getter thunk; name: -; CH0 Opus: force-power getter thunk	y
+32bd5e90	thunk	jmp 32b96b30	-	-	-	n/a	not ported	n
+32bd5ea0	thunk	jmp 32b96bc0	-	-	-	n/a	not ported	n
+32bd5eb0	thunk	jmp 32b96c30	-	-	-	n/a	not ported	n
+32bd5ec0	thunk	jmp 32b96c70	-	-	-	n/a	not ported	n
+32bd5ed0	thunk	jmp 32b96cd0	-	-	-	n/a	not ported	n
+32bd5ee0	thunk	jmp 32b96d40	-	-	-	n/a	not ported	n
+32bd5ef0	thunk	jmp 32b96d80	-	-	-	n/a	not ported	n
+32bd5f00	thunk	jmp 32b96db0	-	-	-	n/a	not ported	n
+32bd5f10	thunk	jmp 32b96ee0	-	-	-	n/a	not ported	n
+32bd5f20	thunk	jmp 32adf320	-	-	-	n/a	not ported	n
+32bd5f30	thunk	jmp 32b96f20	-	-	-	n/a	not ported	n
+32bd5f40	thunk	jmp 32b96f70	-	-	-	n/a	not ported	n
+32bd5f50	thunk	jmp 32b97350	-	-	-	n/a	not ported	n
+32bd5f60	thunk	jmp 32b97390	-	-	-	n/a	not ported	n
+32bd5f70	thunk	jmp 32b97770	-	-	-	n/a	not ported	n
+32bd5f80	thunk	jmp 32b97780	-	-	-	n/a	not ported	n
+32bd5f90	thunk	jmp 32b97800	-	-	-	n/a	not ported	n
+32bd5fa0	thunk	jmp 32b97880	-	-	-	n/a	not ported	n
+32bd5fb0	thunk	jmp 32b97900	-	-	-	n/a	not ported	n
+32bd5fc0	thunk	jmp 32b979f0	-	-	-	n/a	not ported	n
+32bd5fd0	thunk	jmp 32b97ae0	-	-	-	n/a	not ported	n
+32bd5fe0	thunk	jmp 32b97d10	-	-	-	n/a	not ported	n
+32bd5ff0	thunk	jmp 32b97f00	-	-	-	n/a	not ported	n
+32bd6000	thunk	jmp 32b98460	-	-	-	n/a	not ported	n
+32bd6010	thunk	jmp 32b985b0	-	-	-	n/a	not ported	n
+32bd6020	thunk	jmp 32b98600	-	-	-	n/a	not ported	n
+32bd6030	thunk	jmp 32b98620	-	-	-	n/a	not ported	n
+32bd6040	thunk	jmp 32b98680	-	-	-	n/a	not ported	n
+32bd6050	thunk	jmp 32b986a0	-	-	-	n/a	not ported	n
+32bd6060	thunk	jmp 32b987f0	-	-	-	n/a	not ported	n
+32bd6070	thunk	jmp 32b98a90	-	-	-	n/a	not ported	n
+32bd6080	thunk	jmp 32b98bd0	-	-	-	n/a	not ported	n
+32bd6090	thunk	jmp 32b98d00	-	-	-	n/a	not ported	n
+32bd60a0	thunk	jmp 32b98f00	-	-	-	n/a	not ported	n
+32bd60b0	thunk	jmp 32b99370	-	-	-	n/a	not ported	n
+32bd60c0	thunk	jmp 32b995b0	-	-	-	n/a	not ported	n
+32bd60d0	thunk	jmp 32b99890	-	-	-	n/a	not ported	n
+32bd60e0	thunk	jmp 32b99960	-	-	-	n/a	not ported	n
+32bd60f0	thunk	jmp 32b99df0	-	-	-	n/a	not ported	n
+32bd6100	thunk	jmp 32b99e10	-	-	-	n/a	not ported	n
+32bd6110	thunk	jmp 32b99e70	-	-	-	n/a	not ported	n
+32bd6120	thunk	jmp 32b99e90	-	-	-	n/a	not ported	n
+32bd6130	thunk	jmp 32b99fe0	-	-	-	n/a	not ported	n
+32bd6140	thunk	jmp 32b9a0b0	-	-	-	n/a	not ported	n
+32bd6150	thunk	jmp 32b9a1e0	-	-	-	n/a	not ported	n
+32bd6160	thunk	jmp 32b9a240	-	-	-	n/a	not ported	n
+32bd6170	thunk	jmp 32b9a280	-	-	-	n/a	not ported	n
+32bd6180	thunk	jmp 32b9a5f0	-	-	-	n/a	not ported	n
+32bd6190	thunk	jmp 32b9a6f0	-	-	-	n/a	not ported	n
+32bd61a0	thunk	jmp 32b9a750	-	-	-	n/a	not ported	n
+32bd61b0	thunk	jmp 32b9a780	-	-	-	n/a	not ported	n
+32bd61c0	thunk	jmp 32b9bfe0	-	-	-	n/a	not ported	n
+32bd61d0	thunk	jmp 32b9c050	-	-	-	n/a	not ported	n
+32bd61e0	thunk	jmp 32ba5050	-	-	-	n/a	not ported	n
+32bd61f0	thunk	jmp 32ba5080	-	-	-	n/a	not ported	n
+32bd6200	thunk	jmp 32b9b920	-	-	-	n/a	not ported	n
+32bd6210	thunk	jmp 32b9b950	-	-	-	n/a	not ported	n
+32bd6220	thunk	jmp 32b9bae0	-	-	-	n/a	not ported	n
+32bd6230	thunk	jmp 32b9bcc0	-	-	-	n/a	not ported	n
+32bd6240	thunk	jmp 32ba4870	-	-	-	n/a	not ported	n
+32bd6250	thunk	jmp 32ba4d00	-	-	-	n/a	not ported	n
+32bd6260	thunk	jmp 32ba4d30	-	-	-	n/a	not ported	n
+32bd6270	thunk	jmp 32b9cf00	-	-	-	n/a	not ported	n
+32bd6280	thunk	jmp 32b9d470	-	-	-	n/a	not ported	n
+32bd6290	thunk	jmp 32b9d4b0	-	-	-	n/a	not ported	n
+32bd62a0	thunk	jmp 32b9cfa0	-	-	-	n/a	not ported	n
+32bd62b0	thunk	jmp 32b9d0e0	-	-	-	n/a	not ported	n
+32bd62c0	thunk	jmp 32b9d300	-	-	-	n/a	not ported	n
+32bd62d0	thunk	jmp 32b9d430	-	-	-	n/a	not ported	n
+32bd62e0	thunk	jmp 32ba5640	-	-	-	n/a	not ported	n
+32bd62f0	thunk	jmp 32ba5740	-	-	-	n/a	not ported	n
+32bd6300	thunk	jmp 32ba5840	-	-	-	n/a	not ported	n
+32bd6310	thunk	jmp 32b9f9b0	-	-	-	n/a	not ported	n
+32bd6320	thunk	jmp 32b9fce0	-	-	-	n/a	not ported	n
+32bd6330	thunk	jmp 32ba0040	-	-	-	n/a	not ported	n
+32bd6340	thunk	jmp 32ba0360	-	-	-	n/a	not ported	n
+32bd6350	thunk	jmp 32ba5210	-	-	-	n/a	not ported	n
+32bd6360	thunk	jmp 32ba53a0	-	-	-	n/a	not ported	n
+32bd6370	thunk	jmp 32ba54d0	-	-	-	n/a	not ported	n
+32bd6380	thunk	jmp 32ba5600	-	-	-	n/a	not ported	n
+32bd6390	thunk	jmp 32b9edd0	-	-	-	n/a	not ported	n
+32bd63a0	thunk	jmp 32b9ef70	-	-	-	n/a	not ported	n
+32bd63b0	thunk	jmp 32b9f290	-	-	-	n/a	not ported	n
+32bd63c0	thunk	jmp 32b9f5b0	-	-	-	n/a	not ported	n
+32bd63d0	thunk	jmp 32ba4ec0	-	-	-	n/a	not ported	n
+32bd63e0	thunk	jmp 32b9ab80	-	-	-	n/a	not ported	n
+32bd63f0	thunk	jmp 32b9aac0	-	-	-	n/a	not ported	n
+32bd6400	thunk	jmp 32b9b820	-	-	-	n/a	not ported	n
+32bd6410	thunk	jmp 32b9c910	-	-	-	n/a	not ported	n
+32bd6420	thunk	jmp 32b9c140	-	-	-	n/a	not ported	n
+32bd6430	thunk	jmp 32b9c190	-	-	-	n/a	not ported	n
+32bd6440	thunk	jmp 32b9c1d0	-	-	-	n/a	not ported	n
+32bd6450	thunk	jmp 32b9c3b0	-	-	-	n/a	not ported	n
+32bd6460	thunk	jmp 32b9b3c0	-	-	-	n/a	not ported	n
+32bd6470	thunk	jmp 32b9b440	-	-	-	n/a	not ported	n
+32bd6480	thunk	jmp 32b9b490	-	-	-	n/a	not ported	n
+32bd6490	thunk	jmp 32b9b4e0	-	-	-	n/a	not ported	n
+32bd64a0	thunk	jmp 32b9b6f0	-	-	-	n/a	not ported	n
+32bd64b0	thunk	jmp 32b9cf50	-	-	-	n/a	not ported	n
+32bd64c0	thunk	jmp 32b9cb10	-	-	-	n/a	not ported	n
+32bd64d0	thunk	jmp 32b9cd20	-	-	-	n/a	not ported	n
+32bd64e0	thunk	jmp 32b9bd00	-	-	-	n/a	not ported	n
+32bd64f0	thunk	jmp 32b9bde0	-	-	-	n/a	not ported	n
+32bd6500	thunk	jmp 32b9b7e0	-	-	-	n/a	not ported	n
+32bd6510	thunk	jmp 32b9c810	-	-	-	n/a	not ported	n
+32bd6520	thunk	jmp 32ba3ea0	-	-	-	n/a	not ported	n
+32bd6530	thunk	jmp 32ba40a0	-	-	-	n/a	not ported	n
+32bd6540	thunk	jmp 32ba42a0	-	-	-	n/a	not ported	n
+32bd6550	thunk	jmp 32ba44a0	-	-	-	n/a	not ported	n
+32bd6560	thunk	jmp 32b9ab00	-	-	-	n/a	not ported	n
+32bd6570	thunk	jmp 32b9ab40	-	-	-	n/a	not ported	n
+32bd6580	thunk	jmp 32ba2aa0	-	-	-	n/a	not ported	n
+32bd6590	thunk	jmp 32b9aa40	-	-	-	n/a	not ported	n
+32bd65a0	thunk	jmp 32b9aa80	-	-	-	n/a	not ported	n
+32bd65b0	thunk	jmp 32b9abc0	-	-	-	n/a	not ported	n
+32bd65c0	thunk	jmp 32b9ac00	-	-	-	n/a	not ported	n
+32bd65d0	thunk	jmp 32b9ac40	-	-	-	n/a	not ported	n
+32bd65e0	thunk	jmp 32b9ad90	-	-	-	n/a	not ported	n
+32bd65f0	thunk	jmp 32b9ae20	-	-	-	n/a	not ported	n
+32bd6600	thunk	jmp 32b9ae80	-	-	-	n/a	not ported	n
+32bd6610	thunk	jmp 32b9aee0	-	-	-	n/a	not ported	n
+32bd6620	thunk	jmp 32b9af30	-	-	-	n/a	not ported	n
+32bd6630	thunk	jmp 32b9af60	-	-	-	n/a	not ported	n
+32bd6640	thunk	jmp 32b9b160	-	-	-	n/a	not ported	n
+32bd6650	thunk	jmp 32b9b1c0	-	-	-	n/a	not ported	n
+32bd6660	thunk	jmp 32b9b740	-	-	-	n/a	not ported	n
+32bd6670	thunk	jmp 32b9bee0	-	-	-	n/a	not ported	n
+32bd6680	thunk	jmp 32b9c0c0	-	-	-	n/a	not ported	n
+32bd6690	thunk	jmp 32b9c0f0	-	-	-	n/a	not ported	n
+32bd66a0	thunk	jmp 32b9c3e0	-	-	-	n/a	not ported	n
+32bd66b0	thunk	jmp 32b9c410	-	-	-	n/a	not ported	n
+32bd66c0	thunk	jmp 32b9c510	-	-	-	n/a	not ported	n
+32bd66d0	thunk	jmp 32b9c610	-	-	-	n/a	not ported	n
+32bd66e0	thunk	jmp 32b9d6d0	-	-	-	n/a	not ported	n
+32bd66f0	thunk	jmp 32b9d8f0	-	-	-	n/a	not ported	n
+32bd6700	thunk	jmp 32b9da00	-	-	-	n/a	not ported	n
+32bd6710	thunk	jmp 32b9db10	-	-	-	n/a	not ported	n
+32bd6720	thunk	jmp 32b9dd20	-	-	-	n/a	not ported	n
+32bd6730	thunk	jmp 32b9dd60	-	-	-	n/a	not ported	n
+32bd6740	thunk	jmp 32b9df70	-	-	-	n/a	not ported	n
+32bd6750	thunk	jmp 32b9e190	-	-	-	n/a	not ported	n
+32bd6760	thunk	jmp 32b9e3b0	-	-	-	n/a	not ported	n
+32bd6770	thunk	jmp 32b9e4c0	-	-	-	n/a	not ported	n
+32bd6780	thunk	jmp 32b9e6e0	-	-	-	n/a	not ported	n
+32bd6790	thunk	jmp 32b9e7f0	-	-	-	n/a	not ported	n
+32bd67a0	thunk	jmp 32b9e820	-	-	-	n/a	not ported	n
+32bd67b0	thunk	jmp 32b9e8a0	-	-	-	n/a	not ported	n
+32bd67c0	thunk	jmp 32b9eac0	-	-	-	n/a	not ported	n
+32bd67d0	thunk	jmp 32b9ece0	-	-	-	n/a	not ported	n
+32bd67e0	thunk	jmp 32b9ed30	-	-	-	n/a	not ported	n
+32bd67f0	thunk	jmp 32b9ed80	-	-	-	n/a	not ported	n
+32bd6800	thunk	jmp 32ba0680	-	-	-	n/a	not ported	n
+32bd6810	thunk	jmp 32ba09a0	-	-	-	n/a	not ported	n
+32bd6820	thunk	jmp 32ba0cc0	-	-	-	n/a	not ported	n
+32bd6830	thunk	jmp 32ba0fe0	-	-	-	n/a	not ported	n
+32bd6840	thunk	jmp 32ba1020	-	-	-	n/a	not ported	n
+32bd6850	thunk	jmp 32ba1340	-	-	-	n/a	not ported	n
+32bd6860	thunk	jmp 32ba1370	-	-	-	n/a	not ported	n
+32bd6870	thunk	jmp 32ba1690	-	-	-	n/a	not ported	n
+32bd6880	thunk	jmp 32ba19b0	-	-	-	n/a	not ported	n
+32bd6890	thunk	jmp 32ba1d00	-	-	-	n/a	not ported	n
+32bd68a0	thunk	jmp 32ba1d70	-	-	-	n/a	not ported	n
+32bd68b0	thunk	jmp 32ba1db0	-	-	-	n/a	not ported	n
+32bd68c0	thunk	jmp 32ba1e40	-	-	-	n/a	not ported	n
+32bd68d0	thunk	jmp 32ba2140	-	-	-	n/a	not ported	n
+32bd68e0	thunk	jmp 32ba2460	-	-	-	n/a	not ported	n
+32bd68f0	thunk	jmp 32ba2760	-	-	-	n/a	not ported	n
+32bd6900	thunk	jmp 32ba27a0	-	-	-	n/a	not ported	n
+32bd6910	thunk	jmp 32ba2af0	-	-	-	n/a	not ported	n
+32bd6920	thunk	jmp 32ba2b30	-	-	-	n/a	not ported	n
+32bd6930	thunk	jmp 32ba2e50	-	-	-	n/a	not ported	n
+32bd6940	thunk	jmp 32ba3170	-	-	-	n/a	not ported	n
+32bd6950	thunk	jmp 32ba3490	-	-	-	n/a	not ported	n
+32bd6960	thunk	jmp 32ba34d0	-	-	-	n/a	not ported	n
+32bd6970	thunk	jmp 32ba3500	-	-	-	n/a	not ported	n
+32bd6980	thunk	jmp 32ba3820	-	-	-	n/a	not ported	n
+32bd6990	thunk	jmp 32ba3860	-	-	-	n/a	not ported	n
+32bd69a0	thunk	jmp 32ba3b80	-	-	-	n/a	not ported	n
+32bd69b0	thunk	jmp 32ba5870	-	-	-	n/a	not ported	n
+32bd69c0	thunk	jmp 32ba5ab0	-	-	-	n/a	not ported	n
+32bd69d0	thunk	jmp 32ba5b50	-	-	-	n/a	not ported	n
+32bd69e0	thunk	jmp 32ba5e90	-	-	-	n/a	not ported	n
+32bd69f0	thunk	jmp 32ba61d0	-	-	-	n/a	not ported	n
+32bd6a00	thunk	jmp 32ba61f0	-	-	-	n/a	not ported	n
+32bd6a10	thunk	jmp 32ba6220	-	-	-	n/a	not ported	n
+32bd6a20	helper	called by 32bb7010 32bc1f30	-	new	StateChangeSwallowAssaultEscape	CH3a	name: named (medium): copies x,y(+const),z of the object at +0x966c into +0x7e3c..+0x7e44 then StateChange(0xf6 = ASI_SA_ALH_SWALLOW_ASSAULT_ESCAPE); callers SWALLOW_ASSAULT_F / A states	y
+32bd6a70	helper	called by 32bca010	-	new	FindSkillFPGainEntry	CH1i	name: named (low): find_if over FP-gain table entries (0x18 stride) by same-skill test (31edf580); caller 32bca010	y
+32bd6ab0	thunk	jmp 32ba73c0	-	-	-	n/a	not ported	n
+32bd6ac0	thunk	jmp 32ba7470	-	-	-	n/a	not ported	n
+32bd6ad0	thunk	jmp 32ba74b0	-	-	-	n/a	not ported	n
+32bd6ae0	thunk	jmp 32ba7820	-	-	-	n/a	not ported	n
+32bd6af0	thunk	jmp 32ba79b0	-	-	-	n/a	not ported	n
+32bd6b00	thunk	jmp 32ba7a40	-	-	-	n/a	not ported	n
+32bd6b10	helper	called by 32bcd9c0	-	new	?	CH4a	name: called by 32bcd9c0(InitPassiveSkillState); read: n/a: delegate thunk (push edx; call 32ba7e40; ret), compiler macro code	n
+32bd6b20	thunk	jmp 32ba7ad0	-	-	-	n/a	not ported	n
+32bd6b30	thunk	jmp 32ba7c20	-	-	-	n/a	not ported	n
+32bd6b40	thunk	jmp 32ba7c90	-	-	-	n/a	not ported	n
+32bd6b50	helper	-	-	-	-	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	n
+32bd6ba0	helper	-	-	-	-	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	y
+32bd6c00	helper	-	-	-	-	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	y
+32bd6c20	thunk	jmp 32baa1c0	-	-	-	n/a	not ported	n
+32bd6c30	thunk	jmp 32baa1f0	-	-	-	n/a	not ported	n
+32bd6c40	thunk	jmp 32baa560	-	-	-	n/a	not ported	n
+32bd6c50	thunk	jmp 32baa2d0	-	-	-	n/a	not ported	n
+32bd6c60	thunk	jmp 32baa460	-	-	-	n/a	not ported	n
+32bd6c70	thunk	jmp 32baa680	-	-	-	n/a	not ported	n
+32bd6c80	helper	-	-	new	?	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpNowForcePowerHitOthers (dele; was CH4a; name: -; CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpNowForcePowerHitOthers (dele; was CH4a; read: n/a: delegate thunk (push edx; call 32baad30; ret), compiler macro code	n
+32bd6c90	not-Ara	called only from outside the range: 3207a1ca 3207a1f8 321cae48	-	-	-	n/a	shared / folded code	y
+32bd6cd0	helper	-	-	-	-	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	y
+32bd6de0	helper	-	-	-	-	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	y
+32bd6e80	helper	-	-	-	-	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	y
+32bd6ed0	thunk	jmp 32bab2d0	-	-	-	n/a	not ported	n
+32bd6ee0	thunk	jmp 32bab370	-	-	-	n/a	not ported	n
+32bd6ef0	thunk	jmp 32bab3c0	-	-	-	n/a	not ported	n
+32bd6f00	thunk	jmp 32bab500	-	-	-	n/a	not ported	n
+32bd6f10	helper	-	-	-	-	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	y
+32bd6fe0	helper	-	-	-	-	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	y
+32bd7020	helper	-	-	-	-	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	y
+32bd7060	helper	-	-	-	-	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	y
+32bd71c0	helper	-	-	-	-	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	y
+32bd7230	helper	-	-	-	-	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	y
+32bd7280	helper	called by 32bd2a40	-	inside	-	CH1j	inside: MARCH HAS X2GUAra.cpp:6216; ANIM_NAME_TAIL / TRANSITION_TAIL keys then ChangeAnim on the tail equip (ch0_specter.tsv, ch0_keys.tsv); caller CommonStateStart 32bd2a40	y
+32bd7580	thunk	jmp 32babee0	-	-	-	n/a	not ported	n
+32bd7590	thunk	jmp 32bac2d0	-	-	-	n/a	not ported	n
+32bd75a0	thunk	jmp 32bac5e0	-	-	-	n/a	not ported	n
+32bd75b0	thunk	jmp 32bac7f0	-	-	-	n/a	not ported	n
+32bd75c0	thunk	jmp 32bad910	-	-	-	n/a	not ported	n
+32bd75d0	thunk	jmp 32bad9a0	-	-	-	n/a	not ported	n
+32bd75e0	thunk	jmp 32bada30	-	-	-	n/a	not ported	n
+32bd75f0	thunk	jmp 32bac240	-	-	-	n/a	not ported	n
+32bd7600	thunk	jmp 32bad790	-	-	-	n/a	not ported	n
+32bd7610	thunk	jmp 32badac0	-	-	-	n/a	not ported	n
+32bd7620	thunk	jmp 32bac120	-	-	-	n/a	not ported	n
+32bd7630	thunk	jmp 32bac1b0	-	-	-	n/a	not ported	n
+32bd7640	thunk	jmp 32bac3a0	-	-	-	n/a	not ported	n
+32bd7650	thunk	jmp 32bac430	-	-	-	n/a	not ported	n
+32bd7660	thunk	jmp 32bac4c0	-	-	-	n/a	not ported	n
+32bd7670	thunk	jmp 32bac550	-	-	-	n/a	not ported	n
+32bd7680	thunk	jmp 32bac6d0	-	-	-	n/a	not ported	n
+32bd7690	thunk	jmp 32bac760	-	-	-	n/a	not ported	n
+32bd76a0	thunk	jmp 32bac880	-	-	-	n/a	not ported	n
+32bd76b0	thunk	jmp 32bac910	-	-	-	n/a	not ported	n
+32bd76c0	thunk	jmp 32bacb50	-	-	-	n/a	not ported	n
+32bd76d0	thunk	jmp 32bacdb0	-	-	-	n/a	not ported	n
+32bd76e0	thunk	jmp 32bace40	-	-	-	n/a	not ported	n
+32bd76f0	thunk	jmp 32bacfa0	-	-	-	n/a	not ported	n
+32bd7700	thunk	jmp 32bad100	-	-	-	n/a	not ported	n
+32bd7710	thunk	jmp 32bad260	-	-	-	n/a	not ported	n
+32bd7720	thunk	jmp 32bad3c0	-	-	-	n/a	not ported	n
+32bd7730	thunk	jmp 32bad450	-	-	-	n/a	not ported	n
+32bd7740	thunk	jmp 32bad550	-	-	-	n/a	not ported	n
+32bd7750	thunk	jmp 32bad5e0	-	-	-	n/a	not ported	n
+32bd7760	thunk	jmp 32bad670	-	-	-	n/a	not ported	n
+32bd7770	thunk	jmp 32bad880	-	-	-	n/a	not ported	n
+32bd7780	helper	called by 32baf270	-	new	?	CH1i	name: called by 32baf270(?); read: template: vector<int> copy constructor; caller UpdateEquipCollisionData 32baf270	y
+32bd7830	helper	-	-	-	-	n/a	CH0 Opus: unwind funclet of an EH frame, not a function	n
+32bd7850	thunk	jmp 32bae6f0	-	-	-	n/a	not ported	n
+32bd7860	thunk	jmp 32bae7a0	-	-	-	n/a	not ported	n
+32bd7870	thunk	jmp 32bae680	-	-	-	n/a	not ported	n
+32bd7880	helper	-	-	-	-	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	y
+32bd78d0	helper	-	-	-	-	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	y
+32bd7920	helper	-	-	-	-	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	y
+32bd7990	thunk	jmp 32baf3e0	-	-	-	n/a	not ported	n
+32bd79a0	thunk	jmp 32baf450	-	-	-	n/a	not ported	n
+32bd79b0	thunk	jmp 32baf600	-	-	-	n/a	not ported	n
+32bd79c0	thunk	jmp 32baf670	-	-	-	n/a	not ported	n
+32bd79d0	helper	-	-	-	-	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	y
+32bd7a90	helper	called by 32bb0d10	-	new	?	CH4a	name: called by 32bb0d10(helper); read: n/a: delegate thunk (push edx; call 32baf810; ret), compiler macro code	n
+32bd7aa0	thunk	jmp 32bb0080	-	-	-	n/a	not ported	n
+32bd7ab0	thunk	jmp 32bb0120	-	-	-	n/a	not ported	n
+32bd7ac0	thunk	jmp 32bb01c0	-	-	-	n/a	not ported	n
+32bd7ad0	thunk	jmp 32bb0260	-	-	-	n/a	not ported	n
+32bd7ae0	thunk	jmp 32bb0330	-	-	-	n/a	not ported	n
+32bd7af0	thunk	jmp 32bb03d0	-	-	-	n/a	not ported	n
+32bd7b00	thunk	jmp 32bb0790	-	-	-	n/a	not ported	n
+32bd7b10	helper	-	-	-	-	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	y
+32bd7c00	helper	called by 32bcd9c0	-	inside	-	CH4a	inside: MARCH HAS X2GUUser.h:4244 (inline setter); June sets the protected bool +0x96f0 when it changes (KProtectedType registry write); pushed by InitPassiveSkillState (March calls SetCanAvoidance at X2GUAra.cpp:1731)	n
+32bd7c80	helper	-	-	-	-	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	y
+32bd7da0	helper	-	-	-	-	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	y
+32bd7e20	thunk	jmp 32bb2d40	-	-	-	n/a	not ported	n
+32bd7e30	thunk	jmp 32bb2ff0	-	-	-	n/a	not ported	n
+32bd7e40	thunk	jmp 32bb3290	-	-	-	n/a	not ported	n
+32bd7e50	thunk	jmp 32bb34d0	-	-	-	n/a	not ported	n
+32bd7e60	thunk	jmp 32bb37e0	-	-	-	n/a	not ported	n
+32bd7e70	thunk	jmp 32bb3ab0	-	-	-	n/a	not ported	n
+32bd7e80	thunk	jmp 32bb3df0	-	-	-	n/a	not ported	n
+32bd7e90	thunk	jmp 32bb3ff0	-	-	-	n/a	not ported	n
+32bd7ea0	thunk	jmp 32bb4200	-	-	-	n/a	not ported	n
+32bd7eb0	thunk	jmp 32bb43a0	-	-	-	n/a	not ported	n
+32bd7ec0	thunk	jmp 32bb4630	-	-	-	n/a	not ported	n
+32bd7ed0	thunk	jmp 32bb4820	-	-	-	n/a	not ported	n
+32bd7ee0	thunk	jmp 32bbac50	-	-	-	n/a	not ported	n
+32bd7ef0	thunk	jmp 32bc0ac0	-	-	-	n/a	not ported	n
+32bd7f00	thunk	jmp 32bc0b10	-	-	-	n/a	not ported	n
+32bd7f10	thunk	jmp 32bc0b60	-	-	-	n/a	not ported	n
+32bd7f20	thunk	jmp 32bbc240	-	-	-	n/a	not ported	n
+32bd7f30	thunk	jmp 32bbc600	-	-	-	n/a	not ported	n
+32bd7f40	thunk	jmp 32bbc980	-	-	-	n/a	not ported	n
+32bd7f50	thunk	jmp 32bbcbd0	-	-	-	n/a	not ported	n
+32bd7f60	thunk	jmp 32bc08d0	-	-	-	n/a	not ported	n
+32bd7f70	thunk	jmp 32bbbc70	-	-	-	n/a	not ported	n
+32bd7f80	thunk	jmp 32bbbe60	-	-	-	n/a	not ported	n
+32bd7f90	thunk	jmp 32bbc050	-	-	-	n/a	not ported	n
+32bd7fa0	thunk	jmp 32bb7e10	-	-	-	n/a	not ported	n
+32bd7fb0	thunk	jmp 32bb96d0	-	-	-	n/a	not ported	n
+32bd7fc0	thunk	jmp 32bb99d0	-	-	-	n/a	not ported	n
+32bd7fd0	thunk	jmp 32bb6950	-	-	-	n/a	not ported	n
+32bd7fe0	thunk	jmp 32bb7010	-	-	-	n/a	not ported	n
+32bd7ff0	thunk	jmp 32bb84e0	-	-	-	n/a	not ported	n
+32bd8000	thunk	jmp 32bb8680	-	-	-	n/a	not ported	n
+32bd8010	thunk	jmp 32bb77b0	-	-	-	n/a	not ported	n
+32bd8020	thunk	jmp 32bb50c0	-	-	-	n/a	not ported	n
+32bd8030	thunk	jmp 32bb5310	-	-	-	n/a	not ported	n
+32bd8040	thunk	jmp 32bb5600	-	-	-	n/a	not ported	n
+32bd8050	thunk	jmp 32bbdf00	-	-	-	n/a	not ported	n
+32bd8060	thunk	jmp 32bb4a40	-	-	-	n/a	not ported	n
+32bd8070	thunk	jmp 32bb4db0	-	-	-	n/a	not ported	n
+32bd8080	thunk	jmp 32bb57a0	-	-	-	n/a	not ported	n
+32bd8090	thunk	jmp 32bb5a70	-	-	-	n/a	not ported	n
+32bd80a0	thunk	jmp 32bb5b50	-	-	-	n/a	not ported	n
+32bd80b0	thunk	jmp 32bb5bb0	-	-	-	n/a	not ported	n
+32bd80c0	thunk	jmp 32bb5f40	-	-	-	n/a	not ported	n
+32bd80d0	thunk	jmp 32bb6410	-	-	-	n/a	not ported	n
+32bd80e0	thunk	jmp 32bb68e0	-	-	-	n/a	not ported	n
+32bd80f0	thunk	jmp 32bb7170	-	-	-	n/a	not ported	n
+32bd8100	thunk	jmp 32bb7490	-	-	-	n/a	not ported	n
+32bd8110	thunk	jmp 32bb8850	-	-	-	n/a	not ported	n
+32bd8120	thunk	jmp 32bb9040	-	-	-	n/a	not ported	n
+32bd8130	thunk	jmp 32bb90a0	-	-	-	n/a	not ported	n
+32bd8140	thunk	jmp 32bb94c0	-	-	-	n/a	not ported	n
+32bd8150	thunk	jmp 32bb9510	-	-	-	n/a	not ported	n
+32bd8160	thunk	jmp 32bb9ec0	-	-	-	n/a	not ported	n
+32bd8170	thunk	jmp 32bba350	-	-	-	n/a	not ported	n
+32bd8180	thunk	jmp 32bba6d0	-	-	-	n/a	not ported	n
+32bd8190	thunk	jmp 32bba730	-	-	-	n/a	not ported	n
+32bd81a0	thunk	jmp 32bba8f0	-	-	-	n/a	not ported	n
+32bd81b0	thunk	jmp 32bbaab0	-	-	-	n/a	not ported	n
+32bd81c0	thunk	jmp 32bbadc0	-	-	-	n/a	not ported	n
+32bd81d0	thunk	jmp 32bbae10	-	-	-	n/a	not ported	n
+32bd81e0	thunk	jmp 32bbb050	-	-	-	n/a	not ported	n
+32bd81f0	thunk	jmp 32bbb720	-	-	-	n/a	not ported	n
+32bd8200	thunk	jmp 32bbcdc0	-	-	-	n/a	not ported	n
+32bd8210	thunk	jmp 32bbcff0	-	-	-	n/a	not ported	n
+32bd8220	thunk	jmp 32bbd240	-	-	-	n/a	not ported	n
+32bd8230	thunk	jmp 32bbd3a0	-	-	-	n/a	not ported	n
+32bd8240	thunk	jmp 32bbd640	-	-	-	n/a	not ported	n
+32bd8250	thunk	jmp 32bbd840	-	-	-	n/a	not ported	n
+32bd8260	thunk	jmp 32bbdae0	-	-	-	n/a	not ported	n
+32bd8270	thunk	jmp 32bbdeb0	-	-	-	n/a	not ported	n
+32bd8280	thunk	jmp 32bbe060	-	-	-	n/a	not ported	n
+32bd8290	thunk	jmp 32bbe2a0	-	-	-	n/a	not ported	n
+32bd82a0	thunk	jmp 32bbe2f0	-	-	-	n/a	not ported	n
+32bd82b0	thunk	jmp 32bbe500	-	-	-	n/a	not ported	n
+32bd82c0	thunk	jmp 32bbe550	-	-	-	n/a	not ported	n
+32bd82d0	thunk	jmp 32bbec00	-	-	-	n/a	not ported	n
+32bd82e0	thunk	jmp 32bbf500	-	-	-	n/a	not ported	n
+32bd82f0	thunk	jmp 32bc0e30	-	-	-	n/a	not ported	n
+32bd8300	helper	-	-	-	-	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	y
+32bd83e0	thunk	jmp 32bc5ba0	-	-	-	n/a	not ported	n
+32bd83f0	thunk	jmp 32bc27a0	-	-	-	n/a	not ported	n
+32bd8400	thunk	jmp 32bc2850	-	-	-	n/a	not ported	n
+32bd8410	thunk	jmp 32bc25a0	-	-	-	n/a	not ported	n
+32bd8420	thunk	jmp 32bc2650	-	-	-	n/a	not ported	n
+32bd8430	thunk	jmp 32bc26a0	-	-	-	n/a	not ported	n
+32bd8440	thunk	jmp 32bc26f0	-	-	-	n/a	not ported	n
+32bd8450	thunk	jmp 32bc66d0	-	-	-	n/a	not ported	n
+32bd8460	thunk	jmp 32bc6720	-	-	-	n/a	not ported	n
+32bd8470	thunk	jmp 32bc1ac0	-	-	-	n/a	not ported	n
+32bd8480	thunk	jmp 32bc2190	-	-	-	n/a	not ported	n
+32bd8490	thunk	jmp 32bc1f30	-	-	-	n/a	not ported	n
+32bd84a0	thunk	jmp 32bc56d0	-	-	-	n/a	not ported	n
+32bd84b0	thunk	jmp 32bc4b90	-	-	-	n/a	not ported	n
+32bd84c0	thunk	jmp 32bc1ef0	-	-	-	n/a	not ported	n
+32bd84d0	thunk	jmp 32bc2900	-	-	-	n/a	not ported	n
+32bd84e0	thunk	jmp 32bc2c50	-	-	-	n/a	not ported	n
+32bd84f0	thunk	jmp 32bc3190	-	-	-	n/a	not ported	n
+32bd8500	thunk	jmp 32bc31f0	-	-	-	n/a	not ported	n
+32bd8510	thunk	jmp 32bc3260	-	-	-	n/a	not ported	n
+32bd8520	thunk	jmp 32bc3580	-	-	-	n/a	not ported	n
+32bd8530	thunk	jmp 32bc3bc0	-	-	-	n/a	not ported	n
+32bd8540	thunk	jmp 32bc3e40	-	-	-	n/a	not ported	n
+32bd8550	thunk	jmp 32bc3f50	-	-	-	n/a	not ported	n
+32bd8560	thunk	jmp 32bc4410	-	-	-	n/a	not ported	n
+32bd8570	thunk	jmp 32bc4670	-	-	-	n/a	not ported	n
+32bd8580	thunk	jmp 32bc4d50	-	-	-	n/a	not ported	n
+32bd8590	thunk	jmp 32bc5280	-	-	-	n/a	not ported	n
+32bd85a0	thunk	jmp 32bc67f0	-	-	-	n/a	not ported	n
+32bd85b0	helper	-	-	-	-	n/a	adjustor thunk (ecx -= 0x1a0) to the scalar dtor 32bd8680, secondary vtable @33505308: compiler code	n
+32bd85c0	helper	-	-	-	-	n/a	adjustor thunk (ecx -= 0x190) to the scalar dtor 32bd8680, secondary vtable @33505300: compiler code	n
+32bd85d0	override 0x4b0	GetComboZStateID	X2GUAra.h:642 virtual int GetComboZStateID() const { return ASI_COMBO_Z; }	inside	-	CH1h	base 3208df10	n
+32bd85e0	override 0x4b4	GetComboXStateID	X2GUAra.h:643 virtual int GetComboXStateID() const { return ASI_COMBO_X; }	inside	-	CH1h	base 3208df10	n
+32bd85f0	override 0x51c	?	- (name unsettled)	new	IsHyperModeState	CH1q	IsHyperModeState (vslot 0x51c); name: named (high): vslot 0x51c; X2GUUser.h:4290 IsHyperModeState; body: now state index (/100) == 0x17 (USI_HYPER_MODE) or 0x9b (ASI_BERSERK_MODE), ch0_fp.tsv	n
+32bd8650	thunk	jmp 32bc9810	-	-	-	n/a	not ported	n
+32bd8660	thunk	jmp 32bc94f0	-	-	-	n/a	not ported	n
+32bd8670	thunk	jmp 32bc9c70	-	-	-	n/a	not ported	n
+32bd8680	override 0x0	~CX2GUAra (scalar deleting dtor)	X2GUAra.h:442 virtual ~CX2GUAra();	inside	-	CH1h	base 3208f650	y
+32bd86a0	thunk	jmp 32bd2ec0	-	-	-	n/a	not ported	n
+32bd86b0	not-Ara	called only from outside the range: 31fca1e8	-	-	-	n/a	shared / folded code	y
+32bd86c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c781047d0000a200	n
+32bd86e0	not-Ara	called only from outside the range: 31fee004	-	-	-	n/a	shared / folded code	y
+# totals kind: dead=35, helper=198, not-Ara=7, override=77, registrar=2, state-fn=542, thunk=547; functions in range 1408; carved 540; uncarved 868 (thunks 554)
+# totals per phase (to transcribe): CH1a=30, CH1b=17, CH1c=3, CH1d=29, CH1d2=26, CH1e=13, CH1f=20, CH1g=28, CH1h=36, CH1i=14, CH1j=19, CH1k=16, CH1m=3, CH1n=2, CH1o=4, CH1q=25, CH1q2=1, CH2a=48, CH2b=45, CH2b2=28, CH2c0=2, CH2c=36, CH2c2=25, CH2d=49, CH2d2=31, CH2d3=29, CH3a=34, CH3a2=35, CH3b=44, CH3c=43, CH3c2=19, CH3d=8, CH4a=17, CH4b=9, n/a=31
+# inside/new per phase: CH1a inside=30, CH1b inside=17, CH1c inside=3, CH1d inside=28, CH1d new=1, CH1d2 inside=25, CH1d2 new=1, CH1e inside=6, CH1e new=7, CH1f inside=14, CH1f new=6, CH1g new=28, CH1h inside=32, CH1h new=4, CH1i inside=9, CH1i new=5, CH1j inside=9, CH1j new=10, CH1k inside=11, CH1k new=5, CH1m inside=3, CH1n inside=2, CH1o new=4, CH1q inside=11, CH1q new=14, CH1q2 inside=1, CH2a inside=48, CH2b inside=43, CH2b new=2, CH2b2 inside=28, CH2c0 inside=2, CH2c inside=32, CH2c new=4, CH2c2 inside=25, CH2d inside=10, CH2d new=39, CH2d2 inside=7, CH2d2 new=24, CH2d3 inside=8, CH2d3 new=21, CH3a inside=33, CH3a new=1, CH3a2 inside=24, CH3a2 new=11, CH3b inside=38, CH3b new=6, CH3c inside=5, CH3c new=38, CH3c2 inside=4, CH3c2 new=15, CH3d inside=6, CH3d new=2, CH4a inside=5, CH4a new=12, CH4b inside=2, CH4b new=7, n/a -=31

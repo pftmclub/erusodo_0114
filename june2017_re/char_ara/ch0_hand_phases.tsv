@@ -1,0 +1,84 @@
+fn	phase	why	march_pair
+32bcd9c0	CH4a	InitPassiveSkillState (vslot 0x690): registers no state	
+32bca010	CH4a	the 0x780 hook (base 33093ad0)	
+32b96730	CH4b	GetActualMPConsume (vslot 0x6a0)	
+32ba45d0	CH4b	ModifyFinalDamageByGameUnitType (vslot 0x3ac)	
+32b958e0	CH4b	ShownSkillCoolTime (vslot 0x6a8)	
+32b956a0	CH4b	vslot 0x428 override	
+32badc80	CH4b	vslot 485 (0x794) socket pass	
+32bc1530	CH4b	vslot 0x4c8 override	
+32ba46f0	CH4b	MemoCondition constructor (vtable 33502680 @32ba46f8; MemoConditionAra RTTI)	
+32ba6ef0	CH1q	SetForcePower (spec-B reader inside)	X2GUAra.h:512 void SetForcePower( int iForcePower_ );
+32bb22d0	CH1q	force power / berserk: HyperModeBuffEffectStart (vslot 0xc4)	
+32bb2740	CH1q	force power / berserk: HyperModeBuffEffectEnd (vslot 0xc8)	
+32bd85f0	CH1q	IsHyperModeState (vslot 0x51c)	
+32ba46c0	CH1q	GetHypetMpdeStateID (vslot 0x6b8)	
+32baafc0	CH1q	ChangeMaxCharacterAddResource (vslot 0x324)	
+32ba4840	CH1q	gauge snapshot (vslot 0x740)	
+32ba7b50	CH1q	gauge snapshot (vslot 0x744)	
+32ba6cc0	CH1q	IsFullHyperMode (vslot 0x9c)	
+32b96a00	CH1q	SetFullHyperMode (vslot 0xa0)	
+32bbb050	CH2c0	add-N-stacks buff helper (SA_ALD_WOLF_Break / P_AYR_GOOD_ENERGY_BALL effects)	
+32bbb720	CH2c0	add-N-stacks buff helper (SA_ALD_WOLF_Break / P_AYR_GOOD_ENERGY_BALL effects)	
+32bc6bf0	CH1h	ctor: CX2GUAra::CX2GUAra (vtable store 32bc6c4d; its only caller 32bc79c9 is the unit factory 32bc7970, outside the class map)	X2GUAra.h:441 CX2GUAra constructor
+32bc79f0	CH1h	dtor body: CX2GUAra::~CX2GUAra (vtable store 32bc7a1d; the scalar deleting dtor 32bd8680 calls it)	X2GUAra.h:442 virtual ~CX2GUAra
+32b955c0	CH4b	MemoConditionAra vtable 33502680 slot 1 (memo condition decide)	
+32b955e0	CH4b	MemoConditionAra vtable 33502680 slot 2	
+32bd85b0	n/a	adjustor thunk (ecx -= 0x1a0) to the scalar dtor 32bd8680, secondary vtable @33505308: compiler code	
+32bd85c0	n/a	adjustor thunk (ecx -= 0x190) to the scalar dtor 32bd8680, secondary vtable @33505300: compiler code	
+32bc19a0	CH1q	CH0 Opus: vslot 0xd0 = CreateGageData (new CX2AraGageData: copy of my gage 32a37970 if IsMyUnit, else 32498550); the gauge is force-power code	CreateGageData
+32bd32f0	CH4a	CH0 Opus: vslot 0x29c = GetReduceDebuffDurationRate (skill 27415 0x6b17 tail, checklist l.267)	GetReduceDebuffDurationRate
+32ba47f0	CH4b	CH0 Opus: vslot 0x300 CEffect hook: skill 27411 effect +0x3f0 x (100 - +0x9740) x 0.01 when +0x973c != 0 (passive; effect-set hooks are CH4b)	
+32ba6440	CH4a	CH0 Opus: vslot 0x328 float hook: passive 27417 (FP-gated roll, adds skill value 0x1f) and 27420 (count on state skill 27216): CH4a passive hooks	
+32baf270	CH1q2	CH0 Opus: vslot 0x634 = UpdateEquipCollisionData (Chung precedent); June adds the tail list 32bd7780 (+0x2569) gated by buff hyper count	UpdateEquipCollisionData
+32b90da0	n/a	CH0 Opus: vslot 0x688 AfterInitEquippedActiveSkillState is a jmp to the base 31fcd740: same as base, nothing to port	
+32bd34c0	CH1n	CH0 Opus: vslot 0x68c = InitAquiredActiveSkillState( skill id ) (March X2GUUser.h:3039, X2GUAra.cpp:16262): second skill-state switch (56 states); head with CH1n, case bodies with their state phases	InitAquiredActiveSkillState
+32ba4680	n/a	CH0 Opus: a case block inside 32ba4620 (vslot 0x6b4 switch), not a function	
+32bbffff	n/a	CH0 Opus: false pointer (mid-instruction), not a function	
+32bd7830	n/a	CH0 Opus: unwind funclet of an EH frame, not a function	
+32bc8be0	CH1q	CH0 Opus: vslot 0x318 hook gated on IsFullHyperMode -> 32bc5bc0 (HP += max HP x k, FP + 1 with the +0x9644 overflow, effect set; also called by the berserk hit roll 32bc9a60): berserk mechanic	
+32bc5bc0	CH1q	CH0 Opus: berserk regen body called by the 0x318 hook and 32bc9a60	
+32bc9a60	CH1q	CH0 Opus: June-only berserk per-hit reward roll (FULL_HYPER_MODE_ADVANTAGE_* keys), called from AttackResultByType	
+32baad30	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpForcePower; was CH4a	
+32baae50	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpForcePower; was CH1h	
+32bab5c0	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpForcePower; was CH1j	
+32bab780	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpForcePower; was CH1h	
+32bb2b40	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpForcePowerAtThisAnimationTim; was CH1j	
+32ba6f80	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::ResetForcePowerWhenRebirthInPV; was CH1h	
+32bd6c80	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpNowForcePowerHitOthers (dele; was CH4a	
+32babba0	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row (new) FP-cancel-or-StateChange helper; was CH2a	
+32bab210	CH1q	CH0 Opus: vslot 0xc0 ApplyHyperModeBuff; its tail 32baae50 is the June FP gain by used hyper count (GAIN_FORCEPOWER_USEDHYPERCOUNT / GAIN_MP_BY_FPCONVERSION_HYPERMODE)	ApplyHyperModeBuff
+32bc0420	CH2d	CH0 Opus: both callers are in FindSpecterOfThunderLockOnTarget 32bc5f80 (Specter of Thunder, CH2d), not the lock-on: the plan named it CH2b0	
+32b96640	CH1h	CH0 Opus: AppendMajorParticleToDeviceList (March has it; device-list code)	AppendMajorParticleToDeviceList
+32ba6220	CH2d	CH0 Opus: ASI_SA_ALS_SPECTER_OF_STORM_LANDING EventProcess (thunk 32bd6a10 stored by its setup helper 32bc9fc0; skill 27021 / 27036)	
+32b93590	n/a	CH0 Opus: ASI_SA_ALD_ENERGY_WAVE_CHARGE FrameMove: June registers no such state (dead data), dead code	
+32b935d0	n/a	CH0 Opus: ASI_SA_ALD_ENERGY_WAVE_CHARGE EventProcess: June registers no such state (dead data), dead code	
+32b9ad50	n/a	CH0 Opus: switch jump table (data), not code	
+32babab0	n/a	CH0 Opus: switch jump table (data), not code	
+32b90b70	n/a	CH0 Opus: CRT _swprintf_c wrapper (library)	
+32bd6b50	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	
+32bd6ba0	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	
+32bd6c00	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	
+32bd7020	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	
+32bd7230	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	
+32bd7880	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	
+32bd78d0	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	
+32bd7920	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	
+32bd79d0	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	
+32bd7c80	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	
+32bd7da0	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	
+32bd8300	n/a	CH0 Opus: std:: template instantiation in the Ara object (library; the caller ports with its own container)	
+32bd6cd0	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	
+32bd6de0	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	
+32bd6e80	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	
+32bd6f10	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	
+32bd6fe0	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	
+32bd7060	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	
+32bd71c0	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	
+32bd7b10	n/a	CH0 Opus: COMDAT copy of shared combo-and-skill-chain code compiled into the Ara object (not class code)	
+32bc5a50	CH4a	CH0 Opus: resurrection test behind checklist l.258 (reads +0x96c0, the FP gauge, skill 27409): class-map builder marked it not-Ara	
+32b95c70	CH1q	CH0 Opus: SetFPCancel (+0x9620): force power	
+32bd5e80	CH1q	CH0 Opus: force-power getter thunk	
+32b92fa0	CH1o	CH0 Opus: getter of +0x9650 called from shared CX2GUUser code 320474ec: CH1o decides the user-virtual / callback shape	
+32b92fb0	CH1o	CH0 Opus: getter of +0x9654 called from shared CX2GUUser code 3204756c: CH1o decides the user-virtual / callback shape	
+32b96b10	CH1h	CH0 Opus: device-list helper (calls CX2GameUnit::Weapon::AppendEnchantParticleForSwordToDeviceList 3226ecc0; next to 32b96b16): the builder marked it not-Ara	

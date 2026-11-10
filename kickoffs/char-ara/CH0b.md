@@ -30,6 +30,15 @@ Done gate: the stage list re-runs 0 `missing` / `march-copy`; the play-test (one
 replaced March asset in the Done note and `MODS.md`.
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Checklist rows: 1** (`awk -F'\t' '$5 ~ /(^| )CH0b( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L760 stage June Motion_ARA* files with the class script; skill an.
+- **Specter / tail rows: 2** (`awk -F'\t' '$7 ~ /(^| )CH0b( |$)/' june2017_re/char_ara/ch0_specter.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
+- **CH-N (class path) rows: 1** (`awk -F'\t' '$7 ~ /(^| )CH0b( |$)/' june2017_re/char_ara/ch0_classn.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
+- Stage list `june2017_re/char_ara/ch0b_stage_list.tsv` 5,886 rows; dry run `STAGE-JUNE DRY RUN: 34 kom(s), 5886 staged (5562 new, 324 replaced, 0 identical), 0 refused`; one new kom **data205** (56 June-only motions: `Motion_Ara_LS.x`, `Motion_Ara_AA.x`, `Motion_Standard_Ara.X`, 53 emotions): pack it and copy it as a new kom (Rena's data201 precedent). Differing class motions -> data033; `Motion_Ara_Tail_03.x` / `_06.x` -> data131.
+- Held for CH1 final, not in the list (`ch1_held_motions.tsv`): `Motion_Ara_LD.x` (drops `SI_SA_ALD_ENERGY_WAVE_Start` / `_End`: June's file has `_START` / `_END`, March's lookup is case-sensitive) and `Motion_Ara_SD.x` (drops `SI_SA_ASD_FallingBlossom_Start` / `_Finish`). `_ARA`, `_Field`, `_Emotion`, `_LH`, `_YR` go now.
+- `adopt-june` (bytecode, then `luabind.py check`): the 7 `CH0b-adopt` rows of `ch0_assets.tsv` (col 3 owner/phase): `DLG_Class_Change_Ara_LH` / `_LD` / `_LS` / `_SD` / `_YR` / `_AS`, `DLG_Class_Change_Guide_Ara`; plus `DLG_1ST_Class_Change_Guide_Ara.lua` / `DLG_2ND_Class_Change_Guide_Ara.lua` (data034, absent in March; CHNb wires them through LevelUpEvent).
+- `POPUP_TR_S_DEVANAM` / `_Y_RAJA` / `_ASURA` (+ `.TET`, data215) are in the list. Movies (`Movie_Create_Ara_AA/_Base/_SD/_YR.avi`) are loose and identical: nothing to stage. All 41 cut-in `.gfx` are already June's; 31 `HQ_CutIn_Ara_*` textures are in the list.
+- Icon gate: `python tools/skillicons.py check 106 900 27000-27066 27200-27244 27400-27420 27600-27605`. Before staging: 74 misses on 5 sheets, all 10 sheet files in the list. One June gap: 27414 piece `SI_P_AA_SPIRITUAL_EYE` absent from June's own `DLG_ARA_SKILL_ScreenShot_04.TET` -> `JUNE_BUGS.md` row + `skillicons_june_gaps.tsv` row.
+- Effect closure `ch0_effect_closure.tsv` 7,600 rows: 169 unique missing, 136 files all in the list; 33 are names June itself lacks (dangling).
+- Walk units to create (none exist): classes 7, 28, 118, and a level-99 31 (`createchar.py`, after a `db_backup`).

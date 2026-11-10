@@ -283,6 +283,67 @@ which. Add `ara` to `charport_adis.py`'s `CLASS_RANGE`; confirm it lists the 32 
 tables and every skill id mapped; the 32 uncarved overrides have rows; assets union routes a / b / c and the motion kom is named; the motion
 question answered; the force-power, Specter and CH-N maps exist; kickoffs amended; open questions listed.
 
+### CH0 - Done (2026-11-10)
+
+Read-only: no flag, no build. Outputs in `june2017_re/char_ara/`; tables live in the tsvs, per-phase detail in each kickoff's "Amended by CH0".
+
+**Tooling.** Rena's builders copied with Ara's range / vtable / registrars: `ch0_build_vtable.py`, `ch0_skill_listing_emu.py` (now follows the 86
+`helper( state*, id )` cases and runs the second switch), `ch0_march_live_states.py`, `ch0_build_state_skill.py`, `ch0_build_state_enum_names.py`,
+`ch0_build_keys.py`, `ch0_build_class_map.py`, `ch0_make_hand_names.py` (+ merge of `ch0_new_names.tsv`), `ch0_unmapped_callees.py`,
+`ch0_passive_ids.py`, `ch0_build_enum_names.py`, `ch0_build_unittemplet.py`, `ch0_numtables.py`, `ch0_build_checklist_rows.py`, `ch0_amend_kickoffs.py`,
+`ch0_funcmap_rows.py`. `charport_adis.py` and `char_eve/ch0_build_assets.py` gained `ara` (Rena's asset outputs byte-identical through the new script).
+**S3 fix (template defect 2):** `s3_no_state.py --append-missing` appended June's 34 / 124 tree rows (91) to `s3_reform_ids_no_state.tsv`; the old file is
+a byte prefix of the new one. Rebuild order: the class-map builder docstring (`NO_HAND_NAMES=1` build, `make_hand_names`, build).
+
+**Step 0.** `charport_states.py init 32bca580 32bcf4a0 3202b110 32bcced0` -> `ch0_reg.tsv`; `ch0c_listing_check.py` **162 / 162**. The five std::string
+rows read by hand: 23 `USI_HYPER_MODE` (`31fdd490`), 155 `ASI_BERSERK_MODE` (`31fdd800`), 9 / 11 / 12 START / WIN / LOSE (`31fe22d0`, base callbacks).
+`32bd09d0`: memo pre-switch, type switch (12 entries), id switch (244 entries, 62 targets), id 27600 by compare, hyper switch (5 entries). **Second
+switch:** vslot 0x68c `32bd34c0` = `InitAquiredActiveSkillState( skill id )` (March `X2GUAra.cpp:16262`), 56 more skill states.
+`ch0_skill_listing_rows.tsv` 246 rows.
+
+**Maps.**
+- `ch0_class_map.tsv`: 1,408 starts (540 carved): state-fn 542, thunk 547, helper 198, override 77 (all 32 uncarved have rows), dead 35, not-Ara 7.
+  Per phase: CH1a 30, CH1b 17, CH1c 3, CH1d 29, CH1d2 26, CH1e 13, CH1f 20, CH1g 28, CH1h 36, CH1i 14, CH1j 19, CH1k 16, CH1m 3, CH1n 2, CH1o 4,
+  CH1q 25, CH1q2 1 (+ `ch0_specter.tsv`), CH2a 48, CH2b 45, CH2b2 28, CH2c0 2, CH2c 36, CH2c2 25, CH2d 49, CH2d2 31, CH2d3 29, CH3a 34, CH3a2 35,
+  CH3b 44, CH3c 43, CH3c2 19, CH3d 8, CH4a 17, CH4b 9, n/a 31. Hand routings: `ch0_hand_phases.tsv` (col 4 = the March function). 15 `new` rows
+  keep `?` (overrides whose role the note gives, passives for CH4a / CH4b to name).
+- Overrides named by body: 0xd0 `CreateGageData` (CH1q), 0x29c `GetReduceDebuffDurationRate` (CH4a), 0x634 `UpdateEquipCollisionData` (CH1q2),
+  0x670 `IsInJobLine` (CH1i), 0x68c `InitAquiredActiveSkillState` (CH1n), 0x688 a jmp to the base (n/a); `32bd86b0` / `32bd86e0` = her empty
+  `AppendDeviceToDeviceList` / `AppendComponentToDeviceList` (empty in March too), `32bd86c0` unreferenced.
+- `ch0_state_skill.tsv`: **338 / 338** (319 mapped, 12 dead data, 6 `INIT_*`, `PROMOTION_ITEM_ID_LIST`), **139 / 139 ids** (22 passive, 2 stateless);
+  0 March-only states; no state id in a `UCHAR` (7l). Groups: `ALH` / `ASD` Little Hsien / Sakra Devanam (CH1e), `ALD` / `AYR` (CH1f), `ALS` / `AA` /
+  `ASR` (CH1g); `A` / `SA` / `HA` / `P` / `SI1` by skill. June's `USI_END` is 152 (March 100): all 105 shared `ASI_` names differ by 52; register by
+  June's id (`ch0_state_enum_names.tsv`).
+- `ch0_keys.tsv` (250): 14 june-only, 7 neither, 4 march-only-site, each with an owner; `32057b80` is `CX2GUUser::CommonStateStart`.
+- `ch0_checklist_rows.tsv`: 133 rows, 87 phase, 46 n/a. Eight rows corrected in place (l.121, 237, 286, 666, 775-776, 781, 854 (`32a4dcaa` is Ain's), 868).
+- `ch0_passive_ids.tsv`: 65 March `SI_*` reads, 41 differ (March 7000s vs June 27000s), 9 cross-line. `ch0_enum_names.tsv`: 136 of 139 June ids need
+  registering. `ch0_unittemplet_ara.tsv`: all string ids present. S3 baseline `ch0_s3_baseline.txt`: 288 rows, 281 `no_state` (34: 34, 124: 57).
+
+**Force power** (`ch0_fp.tsv`, 114 rows): FP lives in the gauge (`+0xc04`); `SetForcePower` converts a spend into MP x spec B (`+0x6d04`); max FP 10;
+`+0x9621` FP-cancel probe; 7 `INIT_COMPONENT` keys -> members -> readers mapped; gauge vtables match March's. CH1q about 44 functions: **not split**.
+**Specter / tails** (`ch0_specter.tsv`, 19 rows): one reader (`AttackResultByType` Specter of Thunder); `ANIM_NAME_TAIL` / `TRANSITION_TAIL` are March's
+already, June-only is `TAIL_TYPE`; CH1q2 about 14. **CH-N** (`ch0_classn.tsv`, 45 rows): live breaks are the socket bound, class compatibility, the
+gauge create (**a crash today**: `X2GUAra.cpp:3028` casts to `CX2AraGageData`), `GetClassLevel`, `createchar.py`; the quest route is already June's.
+
+**Assets.** `ch0_assets.tsv` 12,474 rows; **`ch0b_stage_list.tsv` 5,886**: `STAGE-JUNE DRY RUN: 34 kom(s), 5886 staged (5562 new, 324 replaced, 0
+identical), 0 refused`; new kom **data205** (56 June-only motions); class motions -> data033; tails -> data131. **Motion question:** `Motion_Ara_LD.x`
+(case: `_START` vs `_Start`) and `_SD.x` (`FallingBlossom`) drop names March plays: **held for CH1** (`ch1_held_motions.tsv`); `_ARA`, `_Field`,
+`_Emotion`, `_LH`, `_YR` go now. Closure 7,600 rows (136 missing files, all in the list). Icons: 74 misses on 5 sheets, all in the list but 27414
+(June's own `.TET` gap: CH0b row).
+
+**Item 6.** `ch0_unmapped_identified.tsv` 64 rows: 49 same, 4 differs, 9 june-only, 2 unknown (inside Opus phases); **needs-opus 0**: no `CH<n>0`
+phase. `CX2GUUser::GetPressedSkillState` `31fd3360` differs (5 slots per bank): `june_march_divergent.tsv` row + allow row, replaced in CH1p (7ag).
+`funcmap.tsv`: rows `Char Ara CH0`.
+
+**Splits and kickoffs.** CH2b -> CH2b / CH2b2, CH2c -> CH2c / CH2c2, CH2d -> CH2d / CH2d2 / CH2d3 (the CH2 stage review moves to CH2d3),
+CH3a -> CH3a / CH3a2, CH3c -> CH3c / CH3c2. CH2a (48), CH2b (45), CH2d (49), CH3b (44) stay whole. Every kickoff CH0b-CH6 has "Amended by CH0".
+
+**Plan-doc inconsistencies.** Swallow Assault is a Sakra Devanam (118) skill in June (27011): CH3a, not CH2b; the "landing helper `32bc0420`" is
+Specter of Thunder's (CH2d), not CH2b0's; l.312's CEffect writer is in a CH2d helper, not CH1h; `X2GUUser.cpp:534-545` and `X2OfflineLuaEnumSeed.h`
+need no CHNa edit; the StatTable type fallback does not log; 41794 / 41796 / 41803 / 41805 are costume pieces, not promotion items;
+`plan_checklist_rows.md` calls 34 / 124 Little Devil / Yama Raja.
+**Drift:** none (the class 31 / 119 lobby idle names dropped by the live June `Motion_ARA_Common.x` / `_Lobby.x` go to CH5). **Open for the user:** none.
+
 ## Phase CH0b - Every June Ara asset, whole, first
 
 **Run with:** Sonnet 5.5 high, then a user play-test. No C++ unless CH0 found a March reader a June asset breaks (then

@@ -39,6 +39,8 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Checklist rows: 4** (`awk -F'\t' '$5 ~ /(^| )CH1p( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L184 per-character parser census; L184 class keys ADD_FORCE_POWER x9, USE_FORCE_POWER x26, FP_CANCE; L472 bounding user states USI_BOUNDING_DOWN / _LANDCRASH / _UP in; L805 pressed-index space 5 + 5: CommonSpecialAttackEventProcess a.
+- **Force-power rows: 1** (`awk -F'\t' '$7 ~ /(^| )CH1p( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: differs 1).
+- Replace `CX2GUUser::GetPressedSkillState` (June `31fd3360`: B slot at index > 4, index - 5) with the 7ag reader set, then drop the CH0 allow row for `CX2GUAra::CanUseSpecialAttack`.

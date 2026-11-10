@@ -51,6 +51,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 13** (`awk -F'\t' '$7=="CH1e"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 6, new 7).
+  June addresses: `32b9b920` `32b9b950` `32b9bae0` `32b9bcc0` `32b9bfe0` `32b9c050` `32b9cf00`(new ASI_P_ASD_BRUTAL_PIERCING_EventProcess) `32ba4870`(new ASI_COMBO_ALH_XXXZ_EventProcess) `32ba4d00`(new ASI_COMBO_ALH_XXXZX_EventProcess) `32ba4d30`(new ASI_COMBO_ALH_XXXZX_Landing_EventProcess) `32ba5050`(new ASI_DASH_JUMP_COMBO_ASD_XZ_EventProcess) `32ba5080`(new ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING_EventProcess) `32bbac50`(new ASI_P_ASD_BRUTAL_PIERCING_StateStart).
+- **States: 27** (`awk -F'\t' '$8=="CH1e"' june2017_re/char_ara/ch0_state_skill.tsv`, part 1, col 8 = phase): `ASI_ALH_START`, `ASI_ALH_WIN`, `ASI_ALH_WIN2`, `ASI_ALH_LOSE`, `ASI_ALH_LOSE2`, `ASI_ASD_START`, `ASI_ASD_WIN`, `ASI_ASD_WIN2`, `ASI_ASD_LOSE`, `ASI_ASD_LOSE2`, `ASI_P_ALH_QUICK_STAND_FRONT_FRONT`, `ASI_P_ALH_QUICK_STAND_FRONT_BACK`, `ASI_P_ALH_QUICK_STAND_BACK_FRONT`, `ASI_P_ALH_QUICK_STAND_BACK_BACK`, `ASI_COMBO_ALH_ZZXX`, `ASI_COMBO_ALH_ZZXX_LANDING`, `ASI_DASH_COMBO_ALH_ZZ`, `ASI_JUMP_ATTACK_ALH_ZZ`, `ASI_DASH_JUMP_COMBO_ASD_ZX`, `ASI_DOUBLE_JUMP_FRONT_COMBO_ASD_Z_BACK`, `ASI_COMBO_ALH_XXXZ`, `ASI_COMBO_ALH_XXXZX`, `ASI_DASH_JUMP_COMBO_ASD_XZ`, `ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING`, `ASI_P_ASD_BRUTAL_PIERCING`, `ASI_P_ASD_BRUTAL_PIERCING_SMALL`, `ASI_COMBO_ALH_XXXZX_Landing`.
+- **Checklist rows: 1** (`awk -F'\t' '$5 ~ /(^| )CH1e( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S.
+- `ASI_COMBO_ALH_XXXZX_LANDING` (script table) has no exe string; June registers `ASI_COMBO_ALH_XXXZX_Landing` (different case, no table): keep June's registration verbatim, `JUNE_BUGS.md` row. Registered `P_*` states (quick-stand, quicken-guard, brutal-piercing) follow their line token into CH1e.

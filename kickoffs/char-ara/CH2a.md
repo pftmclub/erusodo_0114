@@ -7,7 +7,7 @@
 | Depends on | CH1 review (and any Opus `CH2a0` helper phase CH0 wrote). One at a time with CH1-CH4: they all edit `X2GUAra.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`ARA SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
-| Review | none of its own: the CH2d review covers it (its `_DEBUG` define stays on) |
+| Review | none of its own: the CH2d3 review covers it (its `_DEBUG` define stays on) |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 
@@ -44,6 +44,13 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 48** (`awk -F'\t' '$7=="CH2a"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 48).
+  June addresses: `32b911b0` `32b91200` `32b91250` `32b91260` `32b912d0` `32b91330` `32b916d0` `32b91750` `32b917e0` `32b917f0` `32b91940` `32b91a90` `32b91ae0` `32b91c30` `32b91d80` `32b92400` `32b92c90` `32b92d60` `32b9aa40` `32b9aa80` `32b9aac0` `32b9ab80` `32b9abc0` `32b9ac00` `32b9b820` `32b9c910` `32baa230` `32baa280` `32bac120` `32bac1b0` `32bac2d0` `32bac3a0` `32bae680` `32bae6f0` `32bae750` `32baf390` `32bb4a40` `32bb4db0` `32bb57a0` `32bb5a70` `32bb5b50` `32bb7e10` `32bc1ac0` `32bc1ef0` `32bc8c00` `32bc8c50` `32bc8d90` `32bce710`.
+- **States: 13** (`awk -F'\t' '$8=="CH2a"' june2017_re/char_ara/ch0_state_skill.tsv`, part 1, col 8 = phase): `ASI_SA_ARA_WIND_WEDGE_START`, `ASI_SA_ARA_WIND_WEDGE_END`, `ASI_SA_ARA_PULLING_PIERCE_START`, `ASI_SA_ARA_PULLING_PIERCE_END`, `ASI_SA_ARA_FALLING_DRAGON`, `ASI_SA_ARA_TEMPEST_DANCE_START`, `ASI_SA_ARA_TEMPEST_DANCE_END`, `ASI_SA_ARA_SHADOW_KNOT_START`, `ASI_SA_ARA_SHADOW_KNOT_WAIT`, `ASI_SA_ARA_SHADOW_KNOT_CATCH`, `ASI_SA_ARA_SHADOW_KNOT_END`, `ASI_A_ARA_GAIN_FORCE`, `ASI_A_ARA_SHOULDER_BLOW`.
+- **Skills: 14** (`ch0_state_skill.tsv` part 2, col 6 = the class-level phase; a split half takes the skills whose states (col 5, then part 1 col 8) are its own): 27000 RNSI_SA_ARA_TEMPEST_DANCE, 27001 RNSI_SA_ARA_PULLING_PIERCE, 27002 RNSI_SA_ARA_FALLING_DRAGON, 27003 RNSI_SA_ARA_WIND_WEDGE, 27004 RNSI_SA_ARA_SHADOW_KNOT, 27029 RNSI_SA_ARA_TEMPEST_DANCE_UPGRADE, 27030 RNSI_SA_ARA_PULLING_PIERCE_UPGRADE, 27031 RNSI_SA_ARA_FALLING_DRAGON_UPGRADE, 27032 RNSI_SA_ARA_WIND_WEDGE_UPGRADE, 27033 RNSI_SA_ARA_SHADOW_KNOT_UPGRADE, 27200 RNSI_A_ARA_GAIN_FORCE, 27201 RNSI_A_ARA_SHOULDER_BLOW, 27220 RNSI_A_ARA_GAIN_FORCE_UPGRADE, 27221 RNSI_A_ARA_SHOULDER_BLOW_UPGRADE.
+- **Checklist rows: 3** (`awk -F'\t' '$5 ~ /(^| )CH2a( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S; L713-L745 an id of a listed type with no case plays the class's first ; L726 types 14-16 / 17 / 18 named in the class switch.
+- **Force-power rows: 16** (`awk -F'\t' '$7 ~ /(^| )CH2a( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: differs 10, unchecked 6).
+- **Identified callees first needed here: 1** (`awk -F'\t' '$8 ~ /(^| )CH2a( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `32a31a70`.
+- 48 functions (whole). The `32babba0` FP-cancel helper is CH1q's (called here).

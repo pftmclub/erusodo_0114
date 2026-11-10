@@ -1,0 +1,247 @@
+# Ara UnitTemplet rows: June june_src_fixed/data036_kom/UnitTemplet.src.lua vs March live kom_contents/data036_kom/UnitTemplet.lua (5 Ara rows March, 7 June)
+# string table = general.ess (live game-dir text table, 45160 ids, XOR 0x10 utf-16le); sd_live / sd_june = STR_ID_n defined in StringID_def.src.lua (March live 45160 ids / June 45160 ids)
+# UC_ARA_MARTIAL_ARTIST: March keys 23 (row at 1158), June keys 24 (row at 1158); same 23, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 1
+# UC_ARA_LITTLE_HSIEN: March keys 23 (row at 1183), June keys 24 (row at 1184); same 23, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 15
+# UC_ARA_SAKRA_DEVANAM: March keys 24 (row at 1208), June keys 27 (row at 1210); same 24, changed 0, june-only 3, march-only 0
+#    m_BerserkCutIn: - -> "HQ_Cutin_ASD_1_Transcendence"
+#    m_HyperCutIn: - -> "HQ_Cutin_ASD_Transcendence"
+#    m_fLobbyRotationY: - -> 1
+# UC_ARA_LITTLE_DEVIL: March keys 23 (row at 1308), June keys 24 (row at 1342); same 23, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 10
+# UC_ARA_YAMA_RAJA: March keys 24 (row at 1333), June keys 27 (row at 1368); same 24, changed 0, june-only 3, march-only 0
+#    m_BerserkCutIn: - -> "HQ_Cutin_AYR_1_Transcendence"
+#    m_HyperCutIn: - -> "HQ_Cutin_AYR_Transcendence"
+#    m_fLobbyRotationY: - -> 15
+# UC_ARA_LITTLE_SPECTER: March keys 0 (row at ABSENT), June keys 24 (row at 1397); same 0, changed 0, june-only 24, march-only 0
+#    basicBodyItemID: - -> 41410
+#    basicFaceItemID: - -> 41795
+#    basicHairItemID: - -> 41793
+#    basicWeaponItemID: - -> 41450
+#    basicLegItemID: - -> 41420
+#    promotionBodyItemID: - -> 41789
+#    promotionWeaponItemID: - -> 41788
+#    m_CommonMotion: - -> "Motion_ARA_Common.x"
+#    m_FieldMotion: - -> "Motion_ARA_Field.x"
+#    m_LobbyMotion: - -> "Motion_ARA_Lobby.x"
+#    m_EmotionMotion: - -> "Motion_ARA_Emotion.x"
+#    m_GameMotion0: - -> "Motion_ARA.x"
+#    promotionLegItemID: - -> 41790
+#    m_GameMotion1: - -> "Motion_Ara_LS.x"
+#    m_fLobbyRotationY: - -> 1
+#    basicFootItemID: - -> 41440
+#    introMovieFIleName: - -> "Movie_Create_Ara_AA.avi"
+#    basicHandItemID: - -> 41430
+#    promotionHandItemID: - -> 41791
+#    promotionFootItemID: - -> 41792
+#    unitType: - -> UNIT_TYPE.UT_ARA
+#    unitClass: - -> UNIT_CLASS.UC_ARA_LITTLE_SPECTER
+#    name: - -> STR_ID_31537
+#    description: - -> STR_ID_31539
+# UC_ARA_ASURA: March keys 0 (row at ABSENT), June keys 27 (row at 1423); same 0, changed 0, june-only 27, march-only 0
+#    basicBodyItemID: - -> 41410
+#    basicFaceItemID: - -> 41804
+#    basicHairItemID: - -> 41802
+#    basicWeaponItemID: - -> 41450
+#    basicLegItemID: - -> 41420
+#    promotionBodyItemID: - -> 41798
+#    promotionWeaponItemID: - -> 41797
+#    m_CommonMotion: - -> "Motion_ARA_Common.x"
+#    m_FieldMotion: - -> "Motion_ARA_Field.x"
+#    m_BerserkCutIn: - -> "HQ_Cutin_ASR_1_Transcendence"
+#    m_EmotionMotion: - -> "Motion_ARA_Emotion.x"
+#    m_GameMotion0: - -> "Motion_ARA.x"
+#    promotionLegItemID: - -> 41799
+#    m_GameMotion1: - -> "Motion_Ara_LS.x"
+#    m_HyperCutIn: - -> "HQ_Cutin_ASR_Transcendence"
+#    basicFootItemID: - -> 41440
+#    introMovieFIleName: - -> "Movie_Create_Ara_AA.avi"
+#    m_LobbyMotion: - -> "Motion_ARA_Lobby.x"
+#    m_fLobbyRotationY: - -> 40
+#    basicHandItemID: - -> 41430
+#    m_GameMotion2: - -> "Motion_Ara_AA.x"
+#    promotionHandItemID: - -> 41800
+#    promotionFootItemID: - -> 41801
+#    unitType: - -> UNIT_TYPE.UT_ARA
+#    unitClass: - -> UNIT_CLASS.UC_ARA_ASURA
+#    name: - -> STR_ID_31538
+#    description: - -> STR_ID_31540
+unit_class	key	march_value	june_value	diff	string_check
+UC_ARA_MARTIAL_ARTIST	basicBodyItemID	41410	41410	same	
+UC_ARA_MARTIAL_ARTIST	basicFaceItemID	41400	41400	same	
+UC_ARA_MARTIAL_ARTIST	basicHairItemID	41390	41390	same	
+UC_ARA_MARTIAL_ARTIST	basicWeaponItemID	41450	41450	same	
+UC_ARA_MARTIAL_ARTIST	basicLegItemID	41420	41420	same	
+UC_ARA_MARTIAL_ARTIST	promotionBodyItemID	41470	41470	same	
+UC_ARA_MARTIAL_ARTIST	promotionWeaponItemID	41460	41460	same	
+UC_ARA_MARTIAL_ARTIST	m_CommonMotion	"Motion_ARA_Common.x"	"Motion_ARA_Common.x"	same	
+UC_ARA_MARTIAL_ARTIST	m_FieldMotion	"Motion_ARA_Field.x"	"Motion_ARA_Field.x"	same	
+UC_ARA_MARTIAL_ARTIST	m_LobbyMotion	"Motion_ARA_Lobby.x"	"Motion_ARA_Lobby.x"	same	
+UC_ARA_MARTIAL_ARTIST	m_EmotionMotion	"Motion_ARA_Emotion.x"	"Motion_ARA_Emotion.x"	same	
+UC_ARA_MARTIAL_ARTIST	m_GameMotion0	"Motion_ARA.x"	"Motion_ARA.x"	same	
+UC_ARA_MARTIAL_ARTIST	promotionLegItemID	41480	41480	same	
+UC_ARA_MARTIAL_ARTIST	m_GameMotion1	"Motion_Ara_LH.x"	"Motion_Ara_LH.x"	same	
+UC_ARA_MARTIAL_ARTIST	m_fLobbyRotationY	-	1	june-only	
+UC_ARA_MARTIAL_ARTIST	basicFootItemID	41440	41440	same	
+UC_ARA_MARTIAL_ARTIST	introMovieFIleName	"Movie_Create_Ara_Base.avi"	"Movie_Create_Ara_Base.avi"	same	
+UC_ARA_MARTIAL_ARTIST	basicHandItemID	41430	41430	same	
+UC_ARA_MARTIAL_ARTIST	promotionHandItemID	41490	41490	same	
+UC_ARA_MARTIAL_ARTIST	promotionFootItemID	41500	41500	same	
+UC_ARA_MARTIAL_ARTIST	unitType	UNIT_TYPE.UT_ARA	UNIT_TYPE.UT_ARA	same	
+UC_ARA_MARTIAL_ARTIST	unitClass	UNIT_CLASS.UC_ARA_MARTIAL_ARTIST	UNIT_CLASS.UC_ARA_MARTIAL_ARTIST	same	
+UC_ARA_MARTIAL_ARTIST	name	STR_ID_21181	STR_ID_21181	same	STR_ID_21181 general.ess=y sd_live=y sd_june=y "Ara"
+UC_ARA_MARTIAL_ARTIST	description	STR_ID_21181	STR_ID_21181	same	STR_ID_21181 general.ess=y sd_live=y sd_june=y "Ara"
+UC_ARA_LITTLE_HSIEN	basicBodyItemID	41410	41410	same	
+UC_ARA_LITTLE_HSIEN	basicFaceItemID	41400	41400	same	
+UC_ARA_LITTLE_HSIEN	basicHairItemID	41585	41585	same	
+UC_ARA_LITTLE_HSIEN	basicWeaponItemID	41450	41450	same	
+UC_ARA_LITTLE_HSIEN	basicLegItemID	41420	41420	same	
+UC_ARA_LITTLE_HSIEN	promotionBodyItemID	41600	41600	same	
+UC_ARA_LITTLE_HSIEN	promotionWeaponItemID	41590	41590	same	
+UC_ARA_LITTLE_HSIEN	m_CommonMotion	"Motion_ARA_Common.x"	"Motion_ARA_Common.x"	same	
+UC_ARA_LITTLE_HSIEN	m_FieldMotion	"Motion_ARA_Field.x"	"Motion_ARA_Field.x"	same	
+UC_ARA_LITTLE_HSIEN	m_LobbyMotion	"Motion_ARA_Lobby.x"	"Motion_ARA_Lobby.x"	same	
+UC_ARA_LITTLE_HSIEN	m_EmotionMotion	"Motion_ARA_Emotion.x"	"Motion_ARA_Emotion.x"	same	
+UC_ARA_LITTLE_HSIEN	m_GameMotion0	"Motion_ARA.x"	"Motion_ARA.x"	same	
+UC_ARA_LITTLE_HSIEN	promotionLegItemID	41610	41610	same	
+UC_ARA_LITTLE_HSIEN	m_GameMotion1	"Motion_Ara_LH.x"	"Motion_Ara_LH.x"	same	
+UC_ARA_LITTLE_HSIEN	m_fLobbyRotationY	-	15	june-only	
+UC_ARA_LITTLE_HSIEN	basicFootItemID	41440	41440	same	
+UC_ARA_LITTLE_HSIEN	introMovieFIleName	"Movie_Create_Ara_SD.avi"	"Movie_Create_Ara_SD.avi"	same	
+UC_ARA_LITTLE_HSIEN	basicHandItemID	41430	41430	same	
+UC_ARA_LITTLE_HSIEN	promotionHandItemID	41620	41620	same	
+UC_ARA_LITTLE_HSIEN	promotionFootItemID	41630	41630	same	
+UC_ARA_LITTLE_HSIEN	unitType	UNIT_TYPE.UT_ARA	UNIT_TYPE.UT_ARA	same	
+UC_ARA_LITTLE_HSIEN	unitClass	UNIT_CLASS.UC_ARA_LITTLE_HSIEN	UNIT_CLASS.UC_ARA_LITTLE_HSIEN	same	
+UC_ARA_LITTLE_HSIEN	name	STR_ID_22115	STR_ID_22115	same	STR_ID_22115 general.ess=y sd_live=y sd_june=y "Little Hsien"
+UC_ARA_LITTLE_HSIEN	description	STR_ID_22328	STR_ID_22328	same	STR_ID_22328 general.ess=y sd_live=y sd_june=y "Ara (Little Hsien)"
+UC_ARA_SAKRA_DEVANAM	basicBodyItemID	41410	41410	same	
+UC_ARA_SAKRA_DEVANAM	basicFaceItemID	41400	41400	same	
+UC_ARA_SAKRA_DEVANAM	basicHairItemID	41645	41645	same	
+UC_ARA_SAKRA_DEVANAM	basicWeaponItemID	41450	41450	same	
+UC_ARA_SAKRA_DEVANAM	basicLegItemID	41420	41420	same	
+UC_ARA_SAKRA_DEVANAM	promotionBodyItemID	41660	41660	same	
+UC_ARA_SAKRA_DEVANAM	promotionWeaponItemID	41650	41650	same	
+UC_ARA_SAKRA_DEVANAM	m_CommonMotion	"Motion_ARA_Common.x"	"Motion_ARA_Common.x"	same	
+UC_ARA_SAKRA_DEVANAM	m_FieldMotion	"Motion_ARA_Field.x"	"Motion_ARA_Field.x"	same	
+UC_ARA_SAKRA_DEVANAM	m_BerserkCutIn	-	"HQ_Cutin_ASD_1_Transcendence"	june-only	
+UC_ARA_SAKRA_DEVANAM	m_EmotionMotion	"Motion_ARA_Emotion.x"	"Motion_ARA_Emotion.x"	same	
+UC_ARA_SAKRA_DEVANAM	m_GameMotion0	"Motion_ARA.x"	"Motion_ARA.x"	same	
+UC_ARA_SAKRA_DEVANAM	promotionLegItemID	41670	41670	same	
+UC_ARA_SAKRA_DEVANAM	m_GameMotion1	"Motion_Ara_LH.x"	"Motion_Ara_LH.x"	same	
+UC_ARA_SAKRA_DEVANAM	m_HyperCutIn	-	"HQ_Cutin_ASD_Transcendence"	june-only	
+UC_ARA_SAKRA_DEVANAM	basicFootItemID	41440	41440	same	
+UC_ARA_SAKRA_DEVANAM	introMovieFIleName	"Movie_Create_Ara_SD.avi"	"Movie_Create_Ara_SD.avi"	same	
+UC_ARA_SAKRA_DEVANAM	m_LobbyMotion	"Motion_ARA_Lobby.x"	"Motion_ARA_Lobby.x"	same	
+UC_ARA_SAKRA_DEVANAM	m_fLobbyRotationY	-	1	june-only	
+UC_ARA_SAKRA_DEVANAM	basicHandItemID	41430	41430	same	
+UC_ARA_SAKRA_DEVANAM	m_GameMotion2	"Motion_Ara_SD.x"	"Motion_Ara_SD.x"	same	
+UC_ARA_SAKRA_DEVANAM	promotionHandItemID	41680	41680	same	
+UC_ARA_SAKRA_DEVANAM	promotionFootItemID	41690	41690	same	
+UC_ARA_SAKRA_DEVANAM	unitType	UNIT_TYPE.UT_ARA	UNIT_TYPE.UT_ARA	same	
+UC_ARA_SAKRA_DEVANAM	unitClass	UNIT_CLASS.UC_ARA_SAKRA_DEVANAM	UNIT_CLASS.UC_ARA_SAKRA_DEVANAM	same	
+UC_ARA_SAKRA_DEVANAM	name	STR_ID_22116	STR_ID_22116	same	STR_ID_22116 general.ess=y sd_live=y sd_june=y "Sakra Devanam"
+UC_ARA_SAKRA_DEVANAM	description	STR_ID_22329	STR_ID_22329	same	STR_ID_22329 general.ess=y sd_live=y sd_june=y "Ara (Sakra Devanam)"
+UC_ARA_LITTLE_DEVIL	basicBodyItemID	41410	41410	same	
+UC_ARA_LITTLE_DEVIL	basicFaceItemID	41400	41400	same	
+UC_ARA_LITTLE_DEVIL	basicHairItemID	41730	41730	same	
+UC_ARA_LITTLE_DEVIL	basicWeaponItemID	41450	41450	same	
+UC_ARA_LITTLE_DEVIL	basicLegItemID	41420	41420	same	
+UC_ARA_LITTLE_DEVIL	promotionBodyItemID	41732	41732	same	
+UC_ARA_LITTLE_DEVIL	promotionWeaponItemID	41731	41731	same	
+UC_ARA_LITTLE_DEVIL	m_CommonMotion	"Motion_ARA_Common.x"	"Motion_ARA_Common.x"	same	
+UC_ARA_LITTLE_DEVIL	m_FieldMotion	"Motion_ARA_Field.x"	"Motion_ARA_Field.x"	same	
+UC_ARA_LITTLE_DEVIL	m_LobbyMotion	"Motion_ARA_Lobby.x"	"Motion_ARA_Lobby.x"	same	
+UC_ARA_LITTLE_DEVIL	m_EmotionMotion	"Motion_ARA_Emotion.x"	"Motion_ARA_Emotion.x"	same	
+UC_ARA_LITTLE_DEVIL	m_GameMotion0	"Motion_ARA.x"	"Motion_ARA.x"	same	
+UC_ARA_LITTLE_DEVIL	promotionLegItemID	41733	41733	same	
+UC_ARA_LITTLE_DEVIL	m_GameMotion1	"Motion_Ara_LD.x"	"Motion_Ara_LD.x"	same	
+UC_ARA_LITTLE_DEVIL	m_fLobbyRotationY	-	10	june-only	
+UC_ARA_LITTLE_DEVIL	basicFootItemID	41440	41440	same	
+UC_ARA_LITTLE_DEVIL	introMovieFIleName	"Movie_Create_Ara_YR.avi"	"Movie_Create_Ara_YR.avi"	same	
+UC_ARA_LITTLE_DEVIL	basicHandItemID	41430	41430	same	
+UC_ARA_LITTLE_DEVIL	promotionHandItemID	41734	41734	same	
+UC_ARA_LITTLE_DEVIL	promotionFootItemID	41735	41735	same	
+UC_ARA_LITTLE_DEVIL	unitType	UNIT_TYPE.UT_ARA	UNIT_TYPE.UT_ARA	same	
+UC_ARA_LITTLE_DEVIL	unitClass	UNIT_CLASS.UC_ARA_LITTLE_DEVIL	UNIT_CLASS.UC_ARA_LITTLE_DEVIL	same	
+UC_ARA_LITTLE_DEVIL	name	STR_ID_26771	STR_ID_26771	same	STR_ID_26771 general.ess=y sd_live=y sd_june=y "Little Devil"
+UC_ARA_LITTLE_DEVIL	description	STR_ID_26773	STR_ID_26773	same	STR_ID_26773 general.ess=y sd_live=y sd_june=y "Ara Haan (Little Devil)"
+UC_ARA_YAMA_RAJA	basicBodyItemID	41410	41410	same	
+UC_ARA_YAMA_RAJA	basicFaceItemID	41400	41400	same	
+UC_ARA_YAMA_RAJA	basicHairItemID	41737	41737	same	
+UC_ARA_YAMA_RAJA	basicWeaponItemID	41450	41450	same	
+UC_ARA_YAMA_RAJA	basicLegItemID	41420	41420	same	
+UC_ARA_YAMA_RAJA	promotionBodyItemID	41739	41739	same	
+UC_ARA_YAMA_RAJA	promotionWeaponItemID	41738	41738	same	
+UC_ARA_YAMA_RAJA	m_CommonMotion	"Motion_ARA_Common.x"	"Motion_ARA_Common.x"	same	
+UC_ARA_YAMA_RAJA	m_FieldMotion	"Motion_ARA_Field.x"	"Motion_ARA_Field.x"	same	
+UC_ARA_YAMA_RAJA	m_BerserkCutIn	-	"HQ_Cutin_AYR_1_Transcendence"	june-only	
+UC_ARA_YAMA_RAJA	m_EmotionMotion	"Motion_ARA_Emotion.x"	"Motion_ARA_Emotion.x"	same	
+UC_ARA_YAMA_RAJA	m_GameMotion0	"Motion_ARA.x"	"Motion_ARA.x"	same	
+UC_ARA_YAMA_RAJA	promotionLegItemID	41740	41740	same	
+UC_ARA_YAMA_RAJA	m_GameMotion1	"Motion_Ara_LD.x"	"Motion_Ara_LD.x"	same	
+UC_ARA_YAMA_RAJA	m_HyperCutIn	-	"HQ_Cutin_AYR_Transcendence"	june-only	
+UC_ARA_YAMA_RAJA	basicFootItemID	41440	41440	same	
+UC_ARA_YAMA_RAJA	introMovieFIleName	"Movie_Create_Ara_YR.avi"	"Movie_Create_Ara_YR.avi"	same	
+UC_ARA_YAMA_RAJA	m_LobbyMotion	"Motion_ARA_Lobby.x"	"Motion_ARA_Lobby.x"	same	
+UC_ARA_YAMA_RAJA	m_fLobbyRotationY	-	15	june-only	
+UC_ARA_YAMA_RAJA	basicHandItemID	41430	41430	same	
+UC_ARA_YAMA_RAJA	m_GameMotion2	"Motion_Ara_YR.x"	"Motion_Ara_YR.x"	same	
+UC_ARA_YAMA_RAJA	promotionHandItemID	41741	41741	same	
+UC_ARA_YAMA_RAJA	promotionFootItemID	41742	41742	same	
+UC_ARA_YAMA_RAJA	unitType	UNIT_TYPE.UT_ARA	UNIT_TYPE.UT_ARA	same	
+UC_ARA_YAMA_RAJA	unitClass	UNIT_CLASS.UC_ARA_YAMA_RAJA	UNIT_CLASS.UC_ARA_YAMA_RAJA	same	
+UC_ARA_YAMA_RAJA	name	STR_ID_26772	STR_ID_26772	same	STR_ID_26772 general.ess=y sd_live=y sd_june=y "Yama Raja"
+UC_ARA_YAMA_RAJA	description	STR_ID_26774	STR_ID_26774	same	STR_ID_26774 general.ess=y sd_live=y sd_june=y "Ara Haan (Yama Raja)"
+UC_ARA_LITTLE_SPECTER	basicBodyItemID	-	41410	june-only	
+UC_ARA_LITTLE_SPECTER	basicFaceItemID	-	41795	june-only	
+UC_ARA_LITTLE_SPECTER	basicHairItemID	-	41793	june-only	
+UC_ARA_LITTLE_SPECTER	basicWeaponItemID	-	41450	june-only	
+UC_ARA_LITTLE_SPECTER	basicLegItemID	-	41420	june-only	
+UC_ARA_LITTLE_SPECTER	promotionBodyItemID	-	41789	june-only	
+UC_ARA_LITTLE_SPECTER	promotionWeaponItemID	-	41788	june-only	
+UC_ARA_LITTLE_SPECTER	m_CommonMotion	-	"Motion_ARA_Common.x"	june-only	
+UC_ARA_LITTLE_SPECTER	m_FieldMotion	-	"Motion_ARA_Field.x"	june-only	
+UC_ARA_LITTLE_SPECTER	m_LobbyMotion	-	"Motion_ARA_Lobby.x"	june-only	
+UC_ARA_LITTLE_SPECTER	m_EmotionMotion	-	"Motion_ARA_Emotion.x"	june-only	
+UC_ARA_LITTLE_SPECTER	m_GameMotion0	-	"Motion_ARA.x"	june-only	
+UC_ARA_LITTLE_SPECTER	promotionLegItemID	-	41790	june-only	
+UC_ARA_LITTLE_SPECTER	m_GameMotion1	-	"Motion_Ara_LS.x"	june-only	
+UC_ARA_LITTLE_SPECTER	m_fLobbyRotationY	-	1	june-only	
+UC_ARA_LITTLE_SPECTER	basicFootItemID	-	41440	june-only	
+UC_ARA_LITTLE_SPECTER	introMovieFIleName	-	"Movie_Create_Ara_AA.avi"	june-only	
+UC_ARA_LITTLE_SPECTER	basicHandItemID	-	41430	june-only	
+UC_ARA_LITTLE_SPECTER	promotionHandItemID	-	41791	june-only	
+UC_ARA_LITTLE_SPECTER	promotionFootItemID	-	41792	june-only	
+UC_ARA_LITTLE_SPECTER	unitType	-	UNIT_TYPE.UT_ARA	june-only	
+UC_ARA_LITTLE_SPECTER	unitClass	-	UNIT_CLASS.UC_ARA_LITTLE_SPECTER	june-only	
+UC_ARA_LITTLE_SPECTER	name	-	STR_ID_31537	june-only	STR_ID_31537 general.ess=y sd_live=y sd_june=y "Little\nSpecter"
+UC_ARA_LITTLE_SPECTER	description	-	STR_ID_31539	june-only	STR_ID_31539 general.ess=y sd_live=y sd_june=y "Ara (Little Specter)"
+UC_ARA_ASURA	basicBodyItemID	-	41410	june-only	
+UC_ARA_ASURA	basicFaceItemID	-	41804	june-only	
+UC_ARA_ASURA	basicHairItemID	-	41802	june-only	
+UC_ARA_ASURA	basicWeaponItemID	-	41450	june-only	
+UC_ARA_ASURA	basicLegItemID	-	41420	june-only	
+UC_ARA_ASURA	promotionBodyItemID	-	41798	june-only	
+UC_ARA_ASURA	promotionWeaponItemID	-	41797	june-only	
+UC_ARA_ASURA	m_CommonMotion	-	"Motion_ARA_Common.x"	june-only	
+UC_ARA_ASURA	m_FieldMotion	-	"Motion_ARA_Field.x"	june-only	
+UC_ARA_ASURA	m_BerserkCutIn	-	"HQ_Cutin_ASR_1_Transcendence"	june-only	
+UC_ARA_ASURA	m_EmotionMotion	-	"Motion_ARA_Emotion.x"	june-only	
+UC_ARA_ASURA	m_GameMotion0	-	"Motion_ARA.x"	june-only	
+UC_ARA_ASURA	promotionLegItemID	-	41799	june-only	
+UC_ARA_ASURA	m_GameMotion1	-	"Motion_Ara_LS.x"	june-only	
+UC_ARA_ASURA	m_HyperCutIn	-	"HQ_Cutin_ASR_Transcendence"	june-only	
+UC_ARA_ASURA	basicFootItemID	-	41440	june-only	
+UC_ARA_ASURA	introMovieFIleName	-	"Movie_Create_Ara_AA.avi"	june-only	
+UC_ARA_ASURA	m_LobbyMotion	-	"Motion_ARA_Lobby.x"	june-only	
+UC_ARA_ASURA	m_fLobbyRotationY	-	40	june-only	
+UC_ARA_ASURA	basicHandItemID	-	41430	june-only	
+UC_ARA_ASURA	m_GameMotion2	-	"Motion_Ara_AA.x"	june-only	
+UC_ARA_ASURA	promotionHandItemID	-	41800	june-only	
+UC_ARA_ASURA	promotionFootItemID	-	41801	june-only	
+UC_ARA_ASURA	unitType	-	UNIT_TYPE.UT_ARA	june-only	
+UC_ARA_ASURA	unitClass	-	UNIT_CLASS.UC_ARA_ASURA	june-only	
+UC_ARA_ASURA	name	-	STR_ID_31538	june-only	STR_ID_31538 general.ess=y sd_live=y sd_june=y "Asura"
+UC_ARA_ASURA	description	-	STR_ID_31540	june-only	STR_ID_31540 general.ess=y sd_live=y sd_june=y "Ara (Asura)"

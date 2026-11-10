@@ -1,0 +1,143 @@
+# skill ids: 139 distinct (Ara tree rows of the s3 run, family X2GUAra.cpp); June names: Enum.src.lua SKILL_ID (2407 names); March C++: X2SkillTree.h SKILL_ID live branch via cl /P (1368 names); core: live data036_kom/Enum.lua SKILL_ID (805 names)
+# tally: core:absent 75, core:name 64, lookalike 21, name 3, none 115
+# cpp_enum: name = same name+value live; lookalike = RNSI_ -> SI_ name live; value-only = other live name at the value; none = no live member at the value. cpp_state: live / DEAD-BRANCH / COMMENTED / absent
+kind	june_name	june_value	june_enum_line	cpp_enum	cpp_h_line	cpp_state	core_enum_lua	core_line	skill_type	tree_classes	templet_name	note
+skill	RNSI_P_COMMON_HYPER_AURA	106	15375	name	2096	live	absent		1	118,119,124	Awakened One	march live names at value: RNSI_P_COMMON_HYPER_AURA
+skill	SI_ETC_WS_COMMON_LOVE	900	16050	name	132	live	absent		12	7,28,31,34,118,119,124	Extreme Heavenly Love	march live names at value: SI_ETC_WS_COMMON_LOVE
+skill	RNSI_SA_ARA_TEMPEST_DANCE	27000	16651	none		absent	name	12440	15	7,28,31,34,118,119,124	Tempest Dance	
+skill	RNSI_SA_ARA_PULLING_PIERCE	27001	15432	none		absent	name	12438	14	7,28,31,34,118,119,124	Dragon Stance 2:\n Pulling Thrust	
+skill	RNSI_SA_ARA_FALLING_DRAGON	27002	16628	none		absent	name	12437	16	7,28,31,34,118,119,124	Falling Dragon	
+skill	RNSI_SA_ARA_WIND_WEDGE	27003	15405	none		absent	name	12441	14	7,28,31,34,118,119,124	Wolf Stance 2:\n Wind Wedge	
+skill	RNSI_SA_ARA_SHADOW_KNOT	27004	16005	none		absent	name	12439	16	7,28,31,34,118,119,124	Exorcism Stance 3:\n Shadoweave	
+skill	RNSI_SA_ALH_WHITE_TIGER	27005	15995	lookalike		absent	name	12405	15	28,118	Fierce Tiger\n Strike	
+skill	RNSI_SA_ALH_DOUBLE_COLLISION	27006	15257	none		absent	name	12401	14	28,118	Dragon Stance 3:\n Eight Trigram Palm	
+skill	RNSI_SA_ALH_LINK_FLOWER	27007	15256	none		absent	name	12402	15	28,118	Fire Lotus	
+skill	RNSI_SA_ALH_MOONLIGHT_SLASH	27008	15220	lookalike		absent	name	12403	15	28,118	Dragon Stance 4:\n Moonlight Slash	
+skill	RNSI_SA_ALH_SUPPRESSION	27009	16147	none		absent	name	12404	16	28,118	Suppression	
+skill	RNSI_SA_ASD_TURBULENT_WAVE	27010	16607	none		absent	name	12447	14	118	Tiger Stance 4:\n Raging Wave	
+skill	RNSI_SA_ASD_SWALLOW_ASSAULT	27011	15880	none		absent	name	12446	16	118	Flying Kite	
+skill	RNSI_SA_ASD_PEERLESSNESS_SLASH	27012	16208	none		absent	name	12445	15	118	Matchless Truth	
+skill	RNSI_SA_ALD_HELL_OF_TORNADO	27013	16261	lookalike		absent	name	12392	15	31,119	Infernal Circle	
+skill	RNSI_SA_ALD_WOLF_SPEAR	27014	15647	lookalike		absent	name	12395	14	31,119	Wolf Stance 4:\n Wolf Fang	
+skill	RNSI_SA_ALD_ENERGY_WAVE	27015	15901	lookalike		absent	name	12391	15	31,119	Energy Wave	
+skill	RNSI_SA_ALD_PRISON_SPEAR	27016	14519	lookalike		absent	name	12393	15	31,119	Rakshasa\nStance 3: Spear Prison	
+skill	RNSI_SA_ALD_SUPPRESSION_ENERGY	27017	14619	none		absent	name	12394	16	31,119	Suppression\n Energy	
+skill	RNSI_SA_AYR_ENERGY_BEAD	27018	16658	none		absent	name	12464	14	119	Rakshasa Stance 2:\n Energy Burst	
+skill	RNSI_SA_AYR_ENERGY_VOID	27019	16018	lookalike		absent	name	12465	16	119	Energy Void	
+skill	RNSI_SA_AYR_STEAL_SOUL	27020	15130	none		absent	name	12469	15	119	Rakshasa Stance 4:\n Soul Escape	
+skill	RNSI_SA_ALS_SPECTER_OF_STORM	27021	15633	none		absent	name	12413	15	34,124	Spell: Storm	
+skill	RNSI_SA_ALS_RESTRAINTS_SPECTER	27022	16231	none		absent	name	12411	14	34,124	Exorcism Stance 2:\n Specter Restraints	
+skill	RNSI_SA_ALS_SPECTER_OF_THUNDER	27023	15687	none		absent	name	12414	15	34,124	Spell: Thunder	
+skill	RNSI_SA_ALS_SEVER	27024	14658	none		absent	name	12412	15	34,124	Exorcism Stance 4:\n Darkness Sever	
+skill	RNSI_SA_ALS_SUPPRESSION_SPECTER	27025	15516	none		absent	name	12415	16	34,124	Suppression:\n Specter	
+skill	RNSI_SA_ASR_GET_BLOOD	27026	14608	none		absent	name	12450	14	124	Phantom Fox Stance 4:\n Fox's Meal	
+skill	RNSI_SA_ASR_FIRE_FOX	27027	14538	none		absent	name	12448	16	124	Fox Fire	
+skill	RNSI_SA_ASR_NECROMANCY	27028	15374	none		absent	name	12451	15	124	Spell:\n Necromancy	
+skill	RNSI_SA_ARA_TEMPEST_DANCE_UPGRADE	27029	16113	none		absent	absent		15	7,28,31,34,118,119,124	#Cffcc00[Enhanced]#CX\nTempest Dance	
+skill	RNSI_SA_ARA_PULLING_PIERCE_UPGRADE	27030	14441	none		absent	absent		14	7,28,31,34,118,119,124	#Cffcc00[Enhanced]#CX\nDragon Stance 2: Pulling Thrust	
+skill	RNSI_SA_ARA_FALLING_DRAGON_UPGRADE	27031	15120	none		absent	absent		16	7,28,31,34,118,119,124	#Cffcc00[Enhanced]#CX\nFalling Dragon	
+skill	RNSI_SA_ARA_WIND_WEDGE_UPGRADE	27032	16103	none		absent	absent		14	7,28,31,34,118,119,124	#Cffcc00[Enhanced]#CX\nWolf Stance 2: Wind Wedge	
+skill	RNSI_SA_ARA_SHADOW_KNOT_UPGRADE	27033	14596	none		absent	absent		16	7,28,31,34,118,119,124	#Cffcc00[Enhanced]#CX\nExorcism Stance 3: Shadoweave	
+skill	RNSI_SA_ALH_WHITE_TIGER_UPGRADE	27034	15269	none		absent	absent		15	28,118	#Cffcc00[Enhanced]#CX\nFierce Tiger Strike	
+skill	RNSI_SA_ALD_HELL_OF_TORNADO_UPGRADE	27035	16597	none		absent	absent		15	31,119	#Cffcc00[Enhanced]#CX\nInfernal Circle	
+skill	RNSI_SA_ALS_SPECTER_OF_STORM_UPGRADE	27036	14364	none		absent	absent		15	34,124	#Cffcc00[Enhanced]#CX\nSpell: Storm	
+skill	RNSI_SA_ALH_DOUBLE_COLLISION_UPGRADE	27037	16100	none		absent	absent		14	28,118	#Cffcc00[Enhanced]#CX\nDragon Stance 3: Eight Trigram Palm	
+skill	RNSI_SA_ALH_LINK_FLOWER_UPGRADE	27038	14355	none		absent	absent		15	28,118	#Cffcc00[Enhanced]#CX\nFire Lotus	
+skill	RNSI_SA_ALD_WOLF_SPEAR_UPGRADE	27039	14512	none		absent	absent		14	31,119	#Cffcc00[Enhanced]#CX\nWolf Stance 4: Wolf Fang	
+skill	RNSI_SA_ALD_ENERGY_WAVE_UPGRADE	27040	14585	none		absent	absent		15	31,119	#Cffcc00[Enhanced]#CX\nEnergy Wave	
+skill	RNSI_SA_ALS_RESTRAINTS_SPECTER_UPGRADE	27041	15886	none		absent	absent		14	34,124	#Cffcc00[Enhanced]#CX\nExorcism Stance 2: Specter Restraints	
+skill	RNSI_SA_ALS_SPECTER_OF_THUNDER_UPGRADE	27042	15898	none		absent	absent		15	34,124	#Cffcc00[Enhanced]#CX\nSpell: Thunder	
+skill	RNSI_SA_ASD_LINK_FLOWER_SLASH	27043	14317	none		absent	name	12444	14	118	Flame Lotus Strike	
+skill	RNSI_SA_ASD_CONTINUITY_STRIKE_THROWING	27044	15071	none		absent	name	12443	15	118	Tiger Stance - Fierce Spear Dance	
+skill	RNSI_SA_AYR_RESTRICTION_ENERGY	27045	16533	none		absent	name	12467	14	119	Bind: Energy	
+skill	RNSI_SA_AYR_REVERSE_GRAVITY_FIELD	27046	15291	none		absent	name	12468	15	119	Vortex Energy	
+skill	RNSI_SA_ASR_SHADOW_RISING	27047	15002	none		absent	name	12452	14	124	Shadow Blast	
+skill	RNSI_SA_ASR_SPECTER_OF_BLADE	27048	14425	none		absent	name	12453	15	124	Spell: Ellipse of Blades	
+skill	RNSI_SA_ALH_MOONLIGHT_SLASH_UPGRADE	27049	16249	none		absent	absent		15	28,118	#Cffcc00[Enhanced]#CX Dragon Stance 4: Moonlight Slash	
+skill	RNSI_SA_ALH_SUPPRESSION_UPGRADE	27050	15731	none		absent	absent		16	28,118	#Cffcc00[Enhanced]#CX Suppression	
+skill	RNSI_SA_ASD_TURBULENT_WAVE_UPGRADE	27051	16598	none		absent	absent		14	118	#Cffcc00[Enhanced]#CX Tiger Stance 4: Raging Wave	
+skill	RNSI_SA_ASD_SWALLOW_ASSAULT_UPGRADE	27052	15922	none		absent	absent		16	118	#Cffcc00[Enhanced]#CX Flying Kite	
+skill	RNSI_SA_ASD_PEERLESSNESS_SLASH_UPGRADE	27053	16561	none		absent	absent		15	118	#Cffcc00[Enhanced]#CX Matchless Truth	
+skill	RNSI_SA_ALD_PRISON_SPEAR_UPGRADE	27054	15805	none		absent	absent		15	31,119	#Cffcc00[Enhanced]#CX Rakshasa Stance 3: Spear Prison	
+skill	RNSI_SA_ALD_SUPPRESSION_ENERGY_UPGRADE	27055	15571	none		absent	absent		16	31,119	#Cffcc00[Enhanced]#CX Suppression: Energy	
+skill	RNSI_SA_AYR_ENERGY_BEAD_UPGRADE	27056	15020	none		absent	absent		14	119	#Cffcc00[Enhanced]#CX Rakshasa Stance 2: Energy Burst	
+skill	RNSI_SA_AYR_ENERGY_VOID_UPGRADE	27057	14329	none		absent	absent		16	119	#Cffcc00[Enhanced]#CX Energy Void	
+skill	RNSI_SA_AYR_STEAL_SOUL_UPGRADE	27058	16083	none		absent	absent		15	119	#Cffcc00[Enhanced]#CX Rakshasa Stance 4: Soul Escape	
+skill	RNSI_SA_ALS_SEVER_UPGRADE	27059	16493	none		absent	absent		15	34,124	#Cffcc00[Enhanced]#CX Exorcism Stance 4: Darkness Sever	
+skill	RNSI_SA_ALS_SUPPRESSION_SPECTER_UPGRADE	27060	14304	none		absent	absent		16	34,124	#Cffcc00[Enhanced]#CX Suppression: Specter	
+skill	RNSI_SA_ASR_GET_BLOOD_UPGRADE	27061	16466	none		absent	absent		14	124	#Cffcc00[Enhanced]#CX Phantom Fox Stance 4: Fox's Meal	
+skill	RNSI_SA_ASR_FIRE_FOX_UPGRADE	27062	16215	none		absent	absent		16	124	#Cffcc00[Enhanced]#CX Fox Fire	
+skill	RNSI_SA_ASR_NECROMANCY_UPGRADE	27063	15605	none		absent	absent		15	124	#Cffcc00[Enhanced]#CX Spell: Necromancy	
+skill	RNSI_SA_ASD_ADVENT_DRAGON	27064	16194	none		absent	name	12442	16	118	Spiritual Dragon	
+skill	RNSI_SA_AYR_RAKSASA_FIRE	27065	14454	none		absent	name	12466	16	119	Rakshasa Inferno	
+skill	RNSI_SA_ASR_FOX_PHANTOM	27066	15162	none		absent	name	12449	16	124	Fox Illusion	
+skill	RNSI_A_ARA_GAIN_FORCE	27200	14679	none		absent	name	12122	6	7,28,31,34,118,119,124	Energy\n Absorption	
+skill	RNSI_A_ARA_SHOULDER_BLOW	27201	14535	none		absent	name	12123	6	7,28,31,34,118,119,124	Steel Body	
+skill	RNSI_A_ALH_ROCK_CRASH	27202	16185	lookalike		absent	name	12101	6	28,118	Tiger Stance 1:\n Rock Smash	
+skill	RNSI_A_ALH_TIGER_CLAW	27203	16525	none		absent	name	12102	6	28,118	Tiger Stance 2:\n Tiger Claw	
+skill	RNSI_A_ALH_DRAGON_FALLING	27204	15984	none		absent	name	12100	6	28,118	Fall	
+skill	RNSI_A_ALH_QUICK_STAB	27205	15839	none		absent	name	12787	6	28,118	Quick Thrust	
+skill	RNSI_A_ASD_LOW_BRANDISH	27206	16491	lookalike		absent	name	12790	6	118	Tiger Stance 3: Earth Axis	
+skill	RNSI_A_ASD_BREAKING	27207	14299	none		absent	name	12789	6	118	Counter Switch	
+skill	RNSI_A_ALD_WOLF_CLAW	27208	15782	lookalike		absent	name	12096	6	31,119	Wolf Stance 3:\n Wolf Claw	
+skill	RNSI_A_ALD_FINGER_BULLET	27209	14687	none		absent	name	12094	6	31,119	Rakshasa Stance 1:\n Soul Reaping	
+skill	RNSI_A_ALD_CONVERSION_HEALTH	27210	16641	lookalike		absent	name	12093	6	31,119	Life Swap	
+skill	RNSI_A_ALD_FORCE_SPEAR	27211	15471	none		absent	name	12095	6	31,119	Force Spear	
+skill	RNSI_A_AYR_HIGH_SPEED	27212	16425	lookalike		absent	name	12132	6	119	High Speed	
+skill	RNSI_A_AYR_REFLECTION	27213	15456	none		absent	name	12794	6	119	Repel	
+skill	RNSI_A_ALS_VIEW_BETWEEN	27214	14681	none		absent	name	12108	6	34,124	Phantom Fox Stance 1:\n Savor	
+skill	RNSI_A_ALS_SHAKE_CHAOS	27215	15884	none		absent	name	12107	6	34,124	Phantom Fox Stance 2:\n Discordance	
+skill	RNSI_A_ALS_MANA_DRAIN	27216	16162	none		absent	name	12106	6	34,124	Mana Drain	
+skill	RNSI_A_ALS_QUICK_PIERCING	27217	15174	none		absent	name	12788	6	34,124	Heavenly Strike	
+skill	RNSI_A_ASR_RAID	27218	15554	none		absent	name	12126	6	124	Phantom Fox Stance 3:\n Rapid Raid	
+skill	RNSI_A_ASR_SPECTER_WALK	27219	14530	none		absent	name	12127	6	124	Specter Walk	
+skill	RNSI_A_ARA_GAIN_FORCE_UPGRADE	27220	15108	none		absent	absent		6	7,28,31,34,118,119,124	#Cffcc00[Enhanced]#CX\nEnergy Absorption	
+skill	RNSI_A_ARA_SHOULDER_BLOW_UPGRADE	27221	16542	none		absent	absent		6	7,28,31,34,118,119,124	#Cffcc00[Enhanced]#CX\nSteel Body	
+skill	RNSI_A_ALH_ROCK_CRASH_UPGRADE	27223	14380	none		absent	absent		6	28,118	#Cffcc00[Enhanced]#CX\nTiger Stance 1: Rock Smash	
+skill	RNSI_A_ALD_WOLF_CLAW_UPGRADE	27224	16571	none		absent	absent		6	31,119	#Cffcc00[Enhanced]#CX\nWolf Stance 3: Wolf Claw	
+skill	RNSI_A_ALS_VIEW_BETWEEN_UPGRADE	27225	16171	none		absent	absent		6	34,124	#Cffcc00[Enhanced]#CX\nPhantom Fox Stance 1: Savor	
+skill	RNSI_A_ASD_SWALLOW_ASSAULT_TEETH	27226	14316	none		absent	name	12124	6	118	Charging Fury	
+skill	RNSI_A_AYR_GAIN_GOOD_ENERGY_BALL	27227	15036	none		absent	name	12131	6	119	Absorption Nova	
+skill	RNSI_A_ASR_FOX_GHOST	27228	15157	none		absent	name	12125	6	124	Fox Spirit	
+skill	RNSI_A_ALH_TIGER_CLAW_UPGRADE	27229	16366	none		absent	absent		6	28,118	#Cffcc00[Enhanced]#CX Tiger Stance 2: Tiger Claw	
+skill	RNSI_A_ALH_DRAGON_FALLING_UPGRADE	27230	16461	none		absent	absent		6	28,118	#Cffcc00[Enhanced]#CX Fall	
+skill	RNSI_A_ALH_QUICK_STAB_UPGRADE	27231	15702	none		absent	absent		6	28,118	#Cffcc00[Enhanced]#CX Quick Thrust	
+skill	RNSI_A_ASD_LOW_BRANDISH_UPGRADE	27232	15171	none		absent	absent		6	118	#Cffcc00[Enhanced]#CX Tiger Stance 3: Earth Axis	
+skill	RNSI_A_ASD_BREAKING_UPGRADE	27233	14782	none		absent	absent		6	118	#Cffcc00[Enhanced]#CX Counter Switch	
+skill	RNSI_A_ALD_FINGER_BULLET_UPGRADE	27234	16159	none		absent	absent		6	31,119	#Cffcc00[Enhanced]#CX Rakshasa Stance 1: Soul Reaping	
+skill	RNSI_A_ALD_CONVERSION_HEALTH_UPGRADE	27235	15942	none		absent	absent		6	31,119	#Cffcc00[Enhanced]#CX Life Swap	
+skill	RNSI_A_ALD_FORCE_SPEAR_UPGRADE	27236	15412	none		absent	absent		6	31,119	#Cffcc00[Enhanced]#CX Force Spear	
+skill	RNSI_A_AYR_HIGH_SPEED_UPGRADE	27237	16580	none		absent	absent		6	119	#Cffcc00[Enhanced]#CX High Speed	
+skill	RNSI_A_AYR_REFLECTION_UPGRADE	27238	14786	none		absent	absent		6	119	#Cffcc00[Enhanced]#CX Repel	
+skill	RNSI_A_ALS_SHAKE_CHAOS_UPGRADE	27239	16199	none		absent	absent		6	34,124	#Cffcc00[Enhanced]#CX Phantom Fox Stance 2: Discordance	
+skill	RNSI_A_ALS_MANA_DRAIN_UPGRADE	27240	14356	none		absent	absent		6	34,124	#Cffcc00[Enhanced]#CX Mana Drain	
+skill	RNSI_A_ALS_QUICK_PIERCING_UPGRADE	27241	15427	none		absent	absent		6	34,124	#Cffcc00[Enhanced]#CX Heavenly Strike	
+skill	RNSI_A_ASR_RAID_UPGRADE	27242	15916	none		absent	absent		6	124	#Cffcc00[Enhanced]#CX Phantom Fox Stance 3:\n Rapid Raid	
+skill	RNSI_A_ASR_SPECTER_WALK_UPGRADE	27243	16003	none		absent	absent		6	124	#Cffcc00[Enhanced]#CX Specter Walk	
+skill	RNSI_P_ALH_FILLED_POWER	27400	16460	lookalike		absent	absent		8	28,118	Abundant Power	
+skill	RNSI_P_ASD_VIGOR_ENERGIZE	27401	14829	name	2325	live	absent		8	118	Energy\n Activation	march live names at value: RNSI_P_ASD_VIGOR_ENERGIZE
+skill	RNSI_P_ASD_FULLMOON_SLASH	27402	14486	lookalike		absent	absent		8	118	Full Moon Slash	
+skill	RNSI_P_ASD_POWER_OF_TIGER	27403	14528	lookalike		absent	absent		8	118	Tiger Power	
+skill	RNSI_P_ASD_BRUTAL_PIERCING	27404	16225	lookalike		absent	absent		8	118	Ultimate\n Spearmanship	
+skill	RNSI_P_ALD_ENERGY_BULLET_REINFORCE	27405	14682	none		absent	absent		8	31,119	Spirit Enhancement	
+skill	RNSI_P_AYR_ENERGY_REINFORCE	27406	15773	none		absent	absent		8	119	Energy\n Enhancement	
+skill	RNSI_P_AYR_HOWLING	27407	15084	lookalike		absent	absent		8	119	Howling Wolf	
+skill	RNSI_P_AYR_HELL_GATE_OPEN	27408	16076	lookalike		absent	absent		8	119	Hell Gate	
+skill	RNSI_P_AYR_RESURRECTION	27409	15513	lookalike		absent	absent		8	119	Resurrection	
+skill	RNSI_P_ALS_FILLED_POWER	27410	15667	none		absent	absent		8	34,124	Assimilation	
+skill	RNSI_P_ASR_ENERGY_REINFORCE	27411	15540	none		absent	absent		8	124	Specter Power\n Release	
+skill	RNSI_P_ASR_LOAD_OF_ASURA	27412	15971	none		absent	absent		8	124	Repose of Souls	
+skill	RNSI_P_ASR_FOX_SMILE	27413	14581	none		absent	absent		8	124	Fox's Laugh	
+skill	RNSI_P_ASR_SPIRITUAL_EYE	27414	14775	none		absent	absent		8	124	Spell:\n Spiritual Eye	
+skill	RNSI_P_ASD_OPEN_MIND	27415	15422	none		absent	absent		8	118	Awakened Will: Sakra Devanam	
+skill	RNSI_P_ASD_VALOR_DEVOTION	27416	14731	none		absent	absent		8	118	Valor and Devotion	
+skill	RNSI_P_AYR_OPEN_MIND	27417	16117	none		absent	absent		8	119	Awakened Will: Yama Raja	
+skill	RNSI_P_AYR_DEMIGOD	27418	15134	none		absent	absent		8	119	Sage Spirit	
+skill	RNSI_P_ASR_OPEN_MIND	27419	15983	none		absent	absent		8	124	Awakened Will: Asura	
+skill	RNSI_P_ASR_SPIRITISM_WEIRD_FOX	27420	16183	none		absent	absent		8	124	Spirit Synchronous: Millennium Fox	
+skill	RNSI_HA_ASD_THOUSANDS_BLOSSOMS	27600	14840	lookalike		absent	name	12279	13	118	Heaven's Wrath	
+skill	RNSI_HA_AYR_ENERGY_CANNON	27601	14440	lookalike		absent	name	12282	13	119	Hell Blast	
+skill	RNSI_HA_ASR_NINE_TAILED_FOX	27602	14352	none		absent	name	12280	13	124	Millennium Fox	
+skill	RNSI_HA_ASD_THOUSANDS_BLOSSOMS_UPGRADE	27603	16277	none		absent	absent		13	118	#Cffcc00[Enhanced]#CX\nHeaven's Wrath	
+skill	RNSI_HA_AYR_ENERGY_CANNON_UPGRADE	27604	14550	none		absent	absent		13	119	#Cffcc00[Enhanced]#CX\nHell Blast	
+skill	RNSI_HA_ASR_NINE_TAILED_FOX_UPGRADE	27605	15944	none		absent	absent		13	124	#Cffcc00[Enhanced]#CX\nMillennium Fox	

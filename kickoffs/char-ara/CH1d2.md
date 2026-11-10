@@ -51,6 +51,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 26** (`awk -F'\t' '$7=="CH1d2"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 25, new 1).
+  June addresses: `32b90e90` `32b90ec0` `32b90ef0` `32b910b0` `32b910c0` `32b91120`(new ASI_DASH_COMBO_ZpushX_ATTACK_StateStart) `32b96ee0` `32b99960` `32b99df0` `32b99e10` `32b99e70` `32b99e90` `32b99fe0` `32b9a280` `32b9a5f0` `32b9a6f0` `32b9a750` `32b9a780` `32ba7470` `32ba74b0` `32bb0260` `32bb0330` `32bb37e0` `32bb3ab0` `32bb3df0` `32bb3ff0`.
+- **States: 13** (`awk -F'\t' '$8=="CH1d2"' june2017_re/char_ara/ch0_state_skill.tsv`, part 1, col 8 = phase): `ASI_DASH`, `ASI_DASH_END`, `ASI_DASH_JUMP`, `ASI_DASH_JUMP_LANDING`, `ASI_DASH_JUMP_POWER_LANDING`, `ASI_DASH_COMBO_Z`, `ASI_DASH_COMBO_ZpushX_CHARGE`, `ASI_DASH_COMBO_ZpushX_ATTACK`, `ASI_DASH_COMBO_X`, `ASI_DASH_JUMP_COMBO_Z`, `ASI_DASH_JUMP_COMBO_ZZ`, `ASI_DASH_JUMP_COMBO_ZZZ`, `ASI_DASH_JUMP_COMBO_X`.
+- **Checklist rows: 2** (`awk -F'\t' '$5 ~ /(^| )CH1d2( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S; L669 combo hits carry June's AT_COMMAND tag; adopt the script wit.
+- **Force-power rows: 4** (`awk -F'\t' '$7 ~ /(^| )CH1d2( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: differs 1, unchecked 3).
+- All `ASI_DASH*` without a line token are here.

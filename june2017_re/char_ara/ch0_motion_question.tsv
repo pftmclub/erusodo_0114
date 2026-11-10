@@ -1,0 +1,92 @@
+file	animation	in_march	in_june	played_by_march_code	played_by_june_script	note
+Motion_ARA.x	(no name dropped)	-	-	-	-	March 4920232 B, June 6761825 B; 3 new names
+Motion_ARA.x	Dance_Wait	no	yes	no	Ara_Martial_Artist.src.lua:7120	new in June
+Motion_ARA.x	Dance_X	no	yes	no	Ara_Martial_Artist.src.lua:7115	new in June
+Motion_ARA.x	Dance_Z	no	yes	no	Ara_Martial_Artist.src.lua:7110	new in June
+Motion_ARA_Common.x	ALD_lobbyWait	yes	no	X2Lib/X2SquareUnit.cpp:1079; X2Lib/X2UnitViewerUI.cpp:2173	no	case rename -> June has ALD_LobbyWait (June plays it through AnimationNameTable.lua:190,191,192)
+Motion_ARA_Common.x	AA_LobbyDownLanding	no	yes	no	no	new in June
+Motion_ARA_Common.x	AA_LobbyWait	no	yes	no	no	new in June
+Motion_ARA_Common.x	ALD_LobbyWait	no	yes	no	no	new in June
+Motion_ARA_Common.x	ALS_LobbyDownLanding	no	yes	no	no	new in June
+Motion_ARA_Common.x	ALS_LobbyWait	no	yes	no	no	new in June
+Motion_ARA_Common.x	ASD_LobbyWait1	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash1_DownLanding	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash1_Wait	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash1_WaitHabit	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash2_DownLanding	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash2_Wait	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash2_WaitHabit	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash3_DownLanding	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash3_Wait	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash3_WaitHabit	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash4_DownLanding	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash4_Wait	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash4_WaitHabit	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash5_DownLanding	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash5_Wait	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash5_WaitHabit	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash6_DownLanding	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash6_Wait	no	yes	no	no	new in June
+Motion_ARA_Common.x	Cash6_WaitHabit	no	yes	no	no	new in June
+Motion_ARA_Common.x	Event1_WaitHabit	no	yes	no	no	new in June
+Motion_ARA_Common.x	Ride_2	no	yes	no	no	new in June
+Motion_ARA_Common.x	Ride_3	no	yes	no	no	new in June
+Motion_ARA_Emotion.x	(no name dropped)	-	-	-	-	March 1106392 B, June 1509224 B; 0 new names
+Motion_Ara_Emotion_CRAYONPOP_Sorted.X	(no name dropped)	-	-	-	-	March 851209 B, June 851209 B; 0 new names; identical bytes
+Motion_Ara_Emotion_DeepBow.X	(no name dropped)	-	-	-	-	March 549986 B, June 549986 B; 0 new names; identical bytes
+Motion_ARA_Field.x	(no name dropped)	-	-	-	-	March 266669 B, June 432272 B; 2 new names
+Motion_ARA_Field.x	Ride_2	no	yes	no	no	new in June
+Motion_ARA_Field.x	Ride_3	no	yes	no	no	new in June
+Motion_Ara_LD.x	SI_SA_ALD_ENERGY_WAVE_End	yes	no	no	Ara_Martial_Artist.src.lua:14614	case rename -> June has SI_SA_ALD_ENERGY_WAVE_END (June plays it through AnimationNameTable.lua:no)
+Motion_Ara_LD.x	SI_SA_ALD_ENERGY_WAVE_Start	yes	no	Ara_Martial_Artist.lua bytecode const x1	Ara_Martial_Artist.src.lua:14486	case rename -> June has SI_SA_ALD_ENERGY_WAVE_START (June plays it through AnimationNameTable.lua:no)
+Motion_Ara_LD.x	ALD_ComboXXDownX	no	yes	no	Ara_Martial_Artist.src.lua:19435	new in June
+Motion_Ara_LD.x	ALD_ComboXXDownXX	no	yes	no	Ara_Martial_Artist.src.lua:19455	new in June
+Motion_Ara_LD.x	ALD_ComboXXDownXXX	no	yes	no	Ara_Martial_Artist.src.lua:19475	new in June
+Motion_Ara_LD.x	SI_SA_ALD_ENERGY_WAVE_END	no	yes	no	Ara_Martial_Artist.src.lua:14614	new in June
+Motion_Ara_LD.x	SI_SA_ALD_ENERGY_WAVE_LOOP	no	yes	no	Ara_Martial_Artist.src.lua:14588	new in June
+Motion_Ara_LD.x	SI_SA_ALD_ENERGY_WAVE_START	no	yes	no	Ara_Martial_Artist.src.lua:14486	new in June
+Motion_Ara_LD.x	SI_SA_AYR_SUPPRESSION_ENERGY	no	yes	Ara_Martial_Artist.lua bytecode const x1	Ara_Martial_Artist.src.lua:15578	new in June
+Motion_Ara_LH.x	(no name dropped)	-	-	-	-	March 1858731 B, June 3044189 B; 7 new names
+Motion_Ara_LH.x	ALH_Combo_XXXZ	no	yes	no	no	new in June
+Motion_Ara_LH.x	ALH_Combo_XXXZX	no	yes	no	Ara_Martial_Artist.src.lua:19180	new in June
+Motion_Ara_LH.x	ALH_Combo_XXXZX_Landing	no	yes	no	Ara_Martial_Artist.src.lua:19231	new in June
+Motion_Ara_LH.x	SA_ALH_LINK_FLOWER	no	yes	no	Ara_Martial_Artist.src.lua:19492	new in June
+Motion_Ara_LH.x	SI_SA_ALH_FallingBlossom_Finish	no	yes	no	Ara_Martial_Artist.src.lua:13570	new in June
+Motion_Ara_LH.x	SI_SA_ALH_FallingBlossom_Start	no	yes	no	Ara_Martial_Artist.src.lua:13534	new in June
+Motion_Ara_LH.x	SI_SA_ASD_SUPPRESSION	no	yes	Ara_Martial_Artist.lua bytecode const x1	Ara_Martial_Artist.src.lua:12674	new in June
+Motion_ARA_Lobby.x	AYR_LobbyReadyAtcion	yes	no	X2Lib/X2UnitViewerUI.cpp:5260	no	not in any June Eve motion file
+Motion_ARA_Lobby.x	AA_LobbyReadyAction	no	yes	no	no	new in June
+Motion_ARA_Lobby.x	ALS_LobbyReadyAction	no	yes	no	no	new in June
+Motion_ARA_Lobby.x	AYR_LobbyReadyAction	no	yes	no	no	new in June
+Motion_Ara_SD.x	SI_SA_ASD_FallingBlossom_Finish	yes	no	Ara_Martial_Artist.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Ara_SD.x	SI_SA_ASD_FallingBlossom_Start	yes	no	Ara_Martial_Artist.lua bytecode const x1	no	not in any June Eve motion file
+Motion_Ara_SD.x	SI_SA_ASD_SUPPRESSION	yes	no	Ara_Martial_Artist.lua bytecode const x1	Ara_Martial_Artist.src.lua:12674	moved to June Motion_Ara_LH.x
+Motion_Ara_SD.x	ASD_DashJump_Combo_XZ	no	yes	no	Ara_Martial_Artist.src.lua:19256	new in June
+Motion_Ara_SD.x	ASD_DashJump_Combo_XZ_Landing	no	yes	no	Ara_Martial_Artist.src.lua:19307	new in June
+Motion_Ara_SD.x	SI_A_ASD_SWALLOW_ASSAULT_TEETH_END	no	yes	no	Ara_Martial_Artist.src.lua:19802	new in June
+Motion_Ara_SD.x	SI_A_ASD_SWALLOW_ASSAULT_TEETH_START	no	yes	no	Ara_Martial_Artist.src.lua:19761	new in June
+Motion_Ara_SD.x	SI_SA_ASD_ADVENT_DRAGON	no	yes	no	Ara_Martial_Artist.src.lua:20199	new in June
+Motion_Ara_SD.x	SI_SA_ASD_CONTINUITY_STRIKE_THROWING_END	no	yes	no	Ara_Martial_Artist.src.lua:20152	new in June
+Motion_Ara_SD.x	SI_SA_ASD_CONTINUITY_STRIKE_THROWING_START	no	yes	no	Ara_Martial_Artist.src.lua:20076	new in June
+Motion_Ara_SD.x	SI_SA_ASD_LINK_FLOWER_SLASH_1st	no	yes	no	Ara_Martial_Artist.src.lua:19856	new in June
+Motion_Ara_SD.x	SI_SA_ASD_LINK_FLOWER_SLASH_2nd	no	yes	no	Ara_Martial_Artist.src.lua:19933	new in June
+Motion_Ara_SD.x	SI_SA_ASD_LINK_FLOWER_SLASH_Last	no	yes	no	Ara_Martial_Artist.src.lua:19996	new in June
+Motion_Ara_YR.x	(no name dropped)	-	-	-	-	March 1699345 B, June 2834570 B; 6 new names
+Motion_Ara_YR.x	SI_A_AYR_GAIN_GOOD_ENERGY_BALL	no	yes	no	Ara_Martial_Artist.src.lua:20289	new in June
+Motion_Ara_YR.x	SI_SA_AYR_RAKSASA_FIRE	no	yes	no	Ara_Martial_Artist.src.lua:20543	new in June
+Motion_Ara_YR.x	SI_SA_AYR_RESTRICTION_ENERGY_END	no	yes	no	Ara_Martial_Artist.src.lua:20417	new in June
+Motion_Ara_YR.x	SI_SA_AYR_RESTRICTION_ENERGY_START	no	yes	no	Ara_Martial_Artist.src.lua:20346	new in June
+Motion_Ara_YR.x	SI_SA_AYR_REVERSE_GRAVITY_FIELD_END	no	yes	no	Ara_Martial_Artist.src.lua:20507	new in June
+Motion_Ara_YR.x	SI_SA_AYR_REVERSE_GRAVITY_FIELD_START	no	yes	no	Ara_Martial_Artist.src.lua:20436	new in June
+# per file: March bytes, June bytes, dropped names, new names, identical
+# Motion_ARA.x	4920232	6761825	dropped=0	new=3	differs
+# Motion_ARA_Common.x	1175834	6054910	dropped=1	new=27	differs
+# Motion_ARA_Emotion.x	1106392	1509224	dropped=0	new=0	differs
+# Motion_Ara_Emotion_CRAYONPOP_Sorted.X	851209	851209	dropped=0	new=0	identical
+# Motion_Ara_Emotion_DeepBow.X	549986	549986	dropped=0	new=0	identical
+# Motion_ARA_Field.x	266669	432272	dropped=0	new=2	differs
+# Motion_Ara_LD.x	2263878	3162196	dropped=2	new=7	differs
+# Motion_Ara_LH.x	1858731	3044189	dropped=0	new=7	differs
+# Motion_ARA_Lobby.x	883056	1466552	dropped=1	new=3	differs
+# Motion_Ara_SD.x	2129503	3557126	dropped=3	new=10	differs
+# Motion_Ara_YR.x	1699345	2834570	dropped=0	new=6	differs

@@ -1,0 +1,93 @@
+fn	proposed_name	why
+32b91160	StateChangeAirialDashIfPossible	inside: MARCH HAS X2GUAra.cpp:9260; GetEnableDash(2) and arial count < max -> StateChange(ASI_AIRIAL_DASH 0xa4) else JUMP_DOWN 0x11; callers: combo / dash-jump EventProcess
+32b92fa0	?	-; CH0 Opus: getter of +0x9650 called from shared CX2GUUser code 320474ec: CH1o decides the user-virtual / callback shape
+32b92fb0	?	-; CH0 Opus: getter of +0x9654 called from shared CX2GUUser code 3204756c: CH1o decides the user-virtual / callback shape
+32b95560	GetActualFPGainCount	inside: MARCH HAS X2GUAra.cpp:16650; skill 0x697b WIND_WEDGE and memo (GetEqippedSkillMemo stub 31fca9e0) -> 1 else the argument; caller CanUseSpecialAttack 32bcfaa0
+32b95590	IsReflectionSkill	named (medium): bool(templet*): templet id (+8) == RNSI_A_AYR_REFLECTION 0x6a4d or _UPGRADE 0x6a66; caller CanUseSpecialAttack 32bcfaa0 (March tests SI_A_ALD_REFLECTION inline)
+32b955c0	?	MemoConditionAra vtable 33502680 slot 1 (RTTI .?AVMemoConditionAra@CX2GUAra@@, type descriptor 3373d604); name by the memo-condition pattern (CH4b decision)
+32b956a0	GetDefenceRateBySkill	named (high): vslot 0x428; X2GUUser.h:3265 GetDefenceRateBySkill(int iAttackType); body returns float +0x9748 when > 0 else 1.0
+32b956d0	?	virtual 0x74c (base 32ec5990); not named by any sibling class map, funcmap or X2GUUser.h; read the body; read: Opus caller: vslot 0x74c (returns true)
+32b95870	StateChangeLinkFlowerSlash	named (medium): skill 0x69a3 LINK_FLOWER_SLASH: chains StateChange 0x150 -> 0x151 -> 0x152 (1st/2nd/LAST) by timer +0x987c and now state +0x9878; caller SpecialAttackEventProcess use-part 32ba6610
+32b95910	ProcessDemigodHitCount	named (medium): attack-result delegate (pushed by 32bcd9c0 via thunk 32bd5470): ushort counter +0x9674++ for P_AYR_DEMIGOD 0x6b1a, over ability 0xb1 -> reset and vslot 0x23c(0x6b1a,0,1)
+32b95980	MarkRestrictionEnergyHit	named (low): attack-result delegate (thunk 32bd5480): DamageData skill (+0x5c4) == 0x69a5 RESTRICTION_ENERGY sets byte +0x9890 = 1
+32b959a0	ProcessGainGoodEnergyBallOnHit	named (low): attack-result delegate (thunk 32bd5490): DamageData::IsAttackTrigger(0x1b) -> vslot 0x23c(0x6a5b = A_AYR_GAIN_GOOD_ENERGY_BALL,0,1)
+32b95a00	IsSkillAffectedByHellGateOpen	named (medium): bool(skill): ENERGY_BEAD 0x6988 / PRISON_SPEAR 0x698a / STEAL_SOUL 0x698c / FINGER_BULLET 0x6a49; 32ba7ec0 then reads passive P_AYR_HELL_GATE_OPEN 0x6b10
+32b95b00	IsSkillAffectedByLoadOfAsura	named (medium): bool(skill): 0x697c SHADOW_KNOT / 0x698e / 0x6990; 32ba7ec0 then reads passive P_ASR_LOAD_OF_ASURA 0x6b14
+32b95b30	IsSkillAffectedByFoxSmile	named (medium): bool(skill): 0x6992 / 0x6a4e / 0x6a4f / 0x6a52; 32ba7ec0 then reads passive P_ASR_FOX_SMILE 0x6b15
+32b95c70	?	-; CH0 Opus: SetFPCancel (+0x9620): force power
+32b96b10	?	-; CH0 Opus: device-list helper (calls CX2GameUnit::Weapon::AppendEnchantParticleForSwordToDeviceList 3226ecc0; next to 32b96b16): the builder marked it not-Ara
+32ba44e0	GetActualFPConsume	inside: MARCH HAS X2GUAra.cpp:16614 (3-arg June form): WIND_WEDGE(+UPGRADE) memo -> 1, SHADOW_KNOT(+UPGRADE) memo -> 2, flag set: -1 for SHOULDER_BLOW / QUICK_STAB / FORCE_SPEAR / QUICK_PIERCING; caller 32bcfaa0 and 322e15ad
+32ba4620	?	virtual 0x6b4 (base 3208ddc0); not named by any sibling class map, funcmap or X2GUUser.h; read the body; read: Opus caller: vslot 0x6b4 (replacement state id for skills 27014-27039)
+32ba46f0	?	-; MemoCondition constructor (vtable 33502680 @32ba46f8; MemoConditionAra RTTI); read: MemoCondition constructor (stores vtable 33502680 @32ba46f8): left for the CH4b memo-condition naming decision; not read
+32ba4710	IsInJobLine	named (high): Opus caller: Chung precedent, bool(int line): 1 = 28/118, 2 = 31/119, 3 = 34/124; not re-decompiled
+32ba4760	GetMpScaledPowerRate	named (low): float(this, n, skillId, bUpgrade): level = GetSkillLevel(id or upgrade swap); returns n x 30.0 / GetActualMPConsume(id, level, 1) + 1.0; callers VIEW_BETWEEN / SHAKE_CHAOS / RAID_ATTACK / RESTRAINTS_SPECTER states
+32ba47f0	?	virtual 0x300 (base CH0 Opus: vslot 0x300 CEffect hook: skill 27411 effect +0x3f0 x (100 - +0x9740) x 0.01 when +0x973c != 0 (passive; effect-set hooks are CH4b)); not named by any sibling class map, funcmap or X2GUUser.h; read the body; read: Opus caller: vslot 0x300 (CEffect hook, skill 27411 power rate); no name yet
+32ba4840	StoreGageSnapshot	named (high): vslot 0x740: IsMyUnit -> base 32009780 + gage FP into +0x92bc; same name as Chung 32bed760 / Rena (Crest of Time snapshot)
+32ba6220	ASI_SA_ALS_SPECTER_OF_STORM_LANDING_EventProcess	named (high): thunk 32bd6a10 is stored at [state+0x48] by the registration helper 32bc9fc0 (table name ASI_SA_ALS_SPECTER_OF_STORM_LANDING); on-ground check -> StateChange JUMP_DOWN / 0xd, then CommonEventProcess; col 7 says CH1o, belongs to CH2d
+32ba62c0	MarkNowSkillFPGainReady	named (low): walks the FP-gain table (+0x9858, 0x18-byte entries) and sets flag byte +1 on sub-entries matching skill +0x9844 / hit id +0x9840; called by 32babba0 and the Specter of Storm states
+32ba6440	?	virtual 0x328 (base CH0 Opus: vslot 0x328 float hook: passive 27417 (FP-gated roll, adds skill value 0x1f) and 27420 (count on state skill 27216): CH4a passive hooks); not named by any sibling class map, funcmap or X2GUUser.h; read the body; read: Opus caller: vslot 0x328 (float hook, passives 27417 / 27420)
+32ba6560	ApplyRaidRangeRate	named (medium): static(mesh*): ability 0x52 of RNSI_A_ASR_RAID via TryGetEquippedSkillAbilityValue scales the mesh +0xb24..+0xb2c; callers RAID_ATTACK FrameMove / FINISH
+32ba6990	GetAddItemAndRemoveItemToViewListBerserk	inside: MARCH HAS X2GUAra.cpp:5103; 4-arg form (this, &remove, &add, item*, &index) searching the promotion list +0x95a4; caller UpdateEquipViewListInfo 32bc89e0
+32ba6f80	ResetForcePowerWhenRebirthInPVPGame	inside: MARCH HAS X2GUAra.cpp:6179; (myKills, enemyKills) compare then SetForcePower(+0x9611 or max); caller ReInit 32bc8030 (PvP); ch0_fp.tsv agrees
+32ba6fd0	PlayAnimationHyperWaitStart	inside: MARCH HAS X2GUAra.cpp:6535; ChangeAnim BoostPowerWait / Fatal by hyper state and a script bool, then Play; callers HYPER_WAIT StartFuture / Start
+32ba7b50	RestoreGageSnapshot	named (high): vslot 0x744: IsMyUnit -> SetForcePower(+0x92bc) then base 3204da60; same name as Chung 32bf4600 / Rena
+32ba7b80	GetPassiveSkillRate	named (low): float(passiveId): skill level > 0 -> templet ability 0xb0 (1.0 if <= 0), else 1.0; only caller 32ba7ec0
+32ba7cf0	UpdateOpenMindBuffByForcePower	named (medium): CommonFrameMove: P_ASD_OPEN_MIND 0x6b17 learned; FP full -> buff on / FP empty -> off through 3229ea50 and vslot 0x23c
+32ba7da0	UpdateValorDevotionTimer	named (medium): CommonFrameMove: float +0x9868 -= elapsed; P_ASD_VALOR_DEVOTION 0x6b18: FP full -> timer = ability 0xa9, FP empty and timer > 0 -> 0 and vslot 0x23c(0x6b18,0,1)
+32ba7e40	ProcessAsuraOpenMindOnHit	named (low): attack-result delegate (thunk 32bd6b10): DamageData target present, not 0x1a0 base, own debuff count (IS_DEBUF) != 0 or 3226fce0 -> vslot 0x23c(0x6b1b = P_ASR_OPEN_MIND)
+32ba7ec0	GetNowSkillPassiveRate	named (low): float stored to this+0x8908 by CommonStateStartFuture: per skill of the state returns passive rate (FULLMOON_SLASH / POWER_OF_TIGER / HOWLING / HELL_GATE_OPEN / LOAD_OF_ASURA / FOX_SMILE via 32ba7b80), default 1.0
+32baa0d0	UpForcePowerAtThisAnimationTime	inside: MARCH HAS X2GUAra.cpp:6059; (animTime, count): EventTimer then FP + count with the +0x9644 overflow-to-MP conversion; caller CommonFrameMove 32bce2e0
+32baad30	UpNowForcePowerHitOthers	inside: MARCH HAS X2GUAra.cpp:16882; attack-result delegate (thunk 32bd6c80): clamp to max, adds DamageData +0x58c with MP conversion; ch0_fp.tsv agrees
+32baae50	UpForcePowerByHyperModeBuffCount	named (medium): tail of ApplyHyperModeBuff 32bab210: FP gain list[+0x9720][hyper count used - hyper count - 1], MP gain +0x9730, passive 0x6b19 hook (ch0_fp.tsv)
+32bab090	GetReadyFPGainOfSkillHit	named (low): FP-gain table (+0x9858): first sub-entry with both flags set -> returns the entry gain (ushort) and hit id out; callers 32bab5c0 and 32bcfaa0
+32bab110	TakeFPGainByHitID	named (low): FP-gain table: sub-entries with hit id == arg get id = -1, returns the entry gain; caller 32bab5c0
+32bab160	MarkSkillFPGainHit	named (low): FP-gain table: entries of the same skill (31edf580) set flag byte +2 on sub-entries with key == arg; callers 32bab1d0 (vslot 0x2fc) and CommonStateStart 32bd2a40
+32bab1d0	?	virtual 0x2fc (base 3208ddc0); not named by any sibling class map, funcmap or X2GUUser.h; read the body; read: Opus caller: vslot 0x2fc (my-unit-only; calls 32bab160 with arg+0x5c4, arg+0x5e8); FP-gain table hit marker hook, no name yet
+32bab5c0	UpForcePowerByReadySkillGain	named (low): gain = 32bab090, consume 32bab110, if byte +0x983c == 0: UpForcePower inline (MP conversion, passive 0x6b19) and set +0x983c = 1; callers 32babba0 / Specter states / CommonStateStartFuture
+32bab6b0	TakeSkillFPGainByHit	named (low): FP-gain table: finds the entry of skill arg2 whose sub-entry key == arg3 and flag set, returns gain and clears the id; caller 32bab780
+32bab780	UpForcePowerBySkillHit	named (medium): attack-result: IsMyUnit and byte +0x983c == 0 -> gain from 32bab6b0(DD skill +0x5c4 or +0x590, key +0x5e8) -> UpForcePower inline; caller AttackResultByType 32bceca0
+32bab890	LoadPromotionItemID	inside: MARCH HAS X2GUAra.cpp:4353; PROMOTION_ITEM_ID_LIST by unit class + TAIL_TYPE; caller Init 32bc7e90
+32babba0	StateChangeOrFPCancel	named (medium): (nextStateId): if FP-cancel probe flag +0x9621 and skill != NONE and not Reflection -> 32ba62c0 / 32bab5c0 / vslot 0x7fc skill use, else StateChange(next); March inlines it 22 times (ch0_fp.tsv); callers WIND_WEDGE / PULLING_PIERCE / TEMPEST_DANCE ... EventProcess
+32babdf0	ReplaceWeapon	inside: MARCH HAS X2GUAra.cpp:4530; swaps the weapon equip, ChangeEnchantLevel, CreateWeapon; callers 32badd50 / 32bae120
+32badb50	CanUseConversionHealth	inside: MARCH HAS X2GUAra.cpp:16837; "HP_CONSUME_REL" numerical value of RNSI_A_ALD_CONVERSION_HEALTH x gage; caller SpecialAttackEventProcess part 32bcfaa0
+32badc80	SumSocketOptionAfterSlots	named (high): vslot 0x794; X2GUUser.h:3192 names it (base 33093ad0; skill-group socket pass 31fe14f0 over the 32d3f040 list)
+32badd50	SetShowPromotionEquips	inside: MARCH HAS X2GUAra.cpp:4460; walks the promotion lists +0x95a4 / tail list +0x95e8 (tail index = min(buff hyper count,3)-1), ReplaceWeapon; callers SetShowViewList 32bae630 / InitPromotionEquipList
+32bae120	SetShowOriginalViewList	inside: MARCH HAS X2GUAra.cpp:4505; walks the unit view list +0x8834 with tail show/hide by IsBuffHyperMode and hyper count < 3; callers SetShowViewList / InitPromotionEquipList
+32bae3d0	ShowActiveSkillCutInAndLightByBerserkMode	inside: MARCH HAS X2GUAra.cpp:4218; (animTime, bOnlyLight): EventTimer, cut-in set pick, ActiveSkillShow at Dummy2_Lhand; called by WIND_WEDGE_START etc. and ShowActiveSkillCutInAndLightByScript 32baea70
+32baea90	RemoveBerserkEquipFromViewList	inside: MARCH HAS X2GUAra.cpp:5313; (equip, index): equip pos 2/8/9/10/11 -> removes view-list entries whose attr (+0x19c) matches; caller UpdateEquipViewListInfo 32bc89e0
+32baec10	InitPromotionEquipList	inside: MARCH HAS X2GUAra.cpp:4159; builds dummy equips, TAIL_TYPE tails into +0x95e8; caller Init 32bc7e90 (ch0_specter.tsv)
+32baf810	AddHitUnitInfoByDamageData	inside: MARCH HAS X2GUAra.cpp:16905; attack-result delegate (thunk 32bd7a90): skill STEAL_SOUL 0x698c / FINGER_BULLET 0x6a49, adds the hit unit to the pointer list +0x96b0 (32bd7920 push_back)
+32bb09f0	ScaleMeshInstanceRange	named (low): static(mesh*, rate): scales the mesh instance scale (+0x238 / +0x23c by +0x200) and the protected float +0x5f8; callers VIEW_BETWEEN Frame / FINISH, SHAKE_CHAOS_FINISH, RAID_ATTACK_FINISH
+32bb0d10	SetAttackResultDelegate	inside: MARCH HAS X2GUAra.cpp:16856; if FINGER_BULLET / STEAL_SOUL learned push the AddHitUnitInfo delegate, always push the UpNowForcePowerHit delegate; caller InitPassiveSkillState 32bcd9c0
+32bb2b40	UseForcePower	inside: MARCH HAS X2GUAra.cpp:6122 (June merges ConsumeForcePower into it, ch0_fp.tsv); n - 1 for SHOULDER_BLOW-type skills, berserk MP, passive 0x6b19 / 0x6b1b, SetForcePower(now - n); 18 state callers + CommonFrameMove
+32bbfde0	CreateEnergeBullet	inside: MARCH HAS X2GUAra.cpp:16699; effect EffectSet_SA_AYR_ORB_KI_FX_DAMAGE at Bip01_R/L_Finger2 by bool, damage / force-down scaling; callers ALD combo FrameMoves
+32bc0140	CommonHyperModeFrameMove	inside: MARCH HAS X2GUAra.cpp:17025; (t1,t2,t3,bSound): EventTimer chain with awakening effect set and UpDownCrashCamera; callers HyperModeFrameMove 32bc1a90 / RidingHyperModeFrameMove 32bc5ba0
+32bc0420	CalcLockOnLandingPos	named (low): helper (hand phase CH2b0, Little Hsien): line-map CanDown, D3DXVec3Normalize, GetDistance3Sq; called from 32bc5f80 twice
+32bc0bb0	CreateDashJumpXZBullet	named (medium): FlushMp then DamageEffect_ASR_Dash_Jump_XZ_pr... at Bip01_R/L_Finger2, else CreateNotEnoughMPEffect; callers DASH_JUMP_COMBO_ASR_XZ / XZZ FrameMove
+32bc12e0	SetStoneProtractorAimArrowFade	named (low): (bHide): sets the particle sequence of handle +0x18 (alpha 0 or fade value) and its child; callers 32bc67f0 / 32bc6820 (Specter of Storm)
+32bc13c0	CreateTranscendenceDamageEffectByTimer	named (low): CommonFrameMove: P_AYR_OPEN_MIND learned and counter +0x986c != 0 and 1/3 s since +0x9870 -> counter--, DamageEffect_P_AYR_TRANCENDENCE_ at Bip01
+32bc1530	ApplyEffectSetScaleBySkill	named (low): vslot 0x4c8 hook after an EffectSet play: RELATE_SKILL (+0x38) == A_ASR_RAID_UPGRADE 0x6a6a and ability 0x52 -> effect set scale +0x70/+0x74/+0x78 and byte +0x7c = 0
+32bc15d0	AddBerserkEquipToViewList	inside: MARCH HAS X2GUAra.cpp:5204; (item*): caller UpdateEquipViewListInfo 32bc89e0 right after 32baea90; 216-line body not read in full
+32bc5a50	?	-; CH0 Opus: resurrection test behind checklist l.258 (reads +0x96c0, the FP gauge, skill 27409): class-map builder marked it not-Ara
+32bc5bc0	GainFullHyperKillReward	named (medium): berserk kill reward: HP += max HP x [3344f248], FP + 1 with +0x9644 overflow, EffectSet KILL_ENEMY_WHEN_FULL_H(yper); callers DoProcessWhenKillEnemy hook 32bc8be0 and 32bc9a60 (ch0_fp.tsv)
+32bc5ea0	StopKillEnemyEffectSet	named (medium): CommonStateStart: handle +0x9718 valid and state != SWALLOW_ASSAULT_ATTACK -> CX2EffectSet::StopEffectSet; handle is the KILL_ENEMY effect set of 32bc5bc0
+32bc5f80	FindSpecterOfThunderLockOnTarget	named (low): SA_AA_SPECTER_OF_THUNDER StartFuture helper: IsValidUnit, GetDistance3Sq to units in range, 32bc0420 landing pos, 32293b80; skill 0x698f memo and ability 0x9d
+32bc6820	CreateStoneProtractorAimArrow	named (medium): particle sequence "Ara_StomeProtractor_AimArrow" at Bip01 (+ 31cf9570 CreateNewParticle), then 32bc12e0; caller SA_ALS_SPECTER_OF_STORM state 32bc9c70
+32bc6aa0	CleanupSkillFPGainTable	named (medium): FP-gain table: erases sub-entries with flag +1 set or negative id, then empty entries; caller CommonStateStartFuture 32bc8380
+32bc8be0	?	virtual 0x318 (base CH0 Opus: vslot 0x318 hook gated on IsFullHyperMode -> 32bc5bc0 (HP += max HP x k, FP + 1 with the +0x9644 overflow, effect set; also called by the berserk hit roll 32bc9a60): berserk mechanic); not named by any sibling class map, funcmap or X2GUUser.h; read the body; read: Opus caller: vslot 0x318 (gated on IsFullHyperMode, calls 32bc5bc0 = full-hyper kill reward); looks like the DoProcessWhenKillEnemy hook (ch0_fp.tsv) but base 3208ddc0 is unnamed
+32bc9a60	ProcessFullHyperHitReward	named (medium): berserk per-hit roll (ch0_fp.tsv): counter +0x9700 vs FULL_HYPER_MODE_ADVANTAGE_COUNT, socket rate x spec A, then 32bc5bc0; caller AttackResultByType 32bceca0
+32bca010	DamageExceptionClassHook	named (high): vslot 0x780; X2GUUser.h:3144 names it (base 33093ad0, (DamageData*, float& fPowerRate)); body fills the FP-gain table (27415 / 27417 blocks)
+32bd5470	?	called by 32bcd9c0(InitPassiveSkillState); read: n/a: delegate thunk (push edx; call 32b95910; ret), compiler macro code
+32bd5480	?	called by 32bcd9c0(InitPassiveSkillState); read: n/a: delegate thunk (push edx; call 32b95980; ret), compiler macro code
+32bd5490	?	called by 32bcd9c0(InitPassiveSkillState); read: n/a: delegate thunk (push edx; call 32b959a0; ret), compiler macro code
+32bd5e60	IsBuffHyperModeActive	named (low): bool: float +0x9744 > 0 (the same test IsFullHyperMode 32ba6cc0 uses to read the buff hyper count); callers 32bae120 / 32bc9a60
+32bd5e80	?	-; CH0 Opus: force-power getter thunk
+32bd6a20	StateChangeSwallowAssaultEscape	named (medium): copies x,y(+const),z of the object at +0x966c into +0x7e3c..+0x7e44 then StateChange(0xf6 = ASI_SA_ALH_SWALLOW_ASSAULT_ESCAPE); callers SWALLOW_ASSAULT_F / A states
+32bd6a70	FindSkillFPGainEntry	named (low): find_if over FP-gain table entries (0x18 stride) by same-skill test (31edf580); caller 32bca010
+32bd6b10	?	called by 32bcd9c0(InitPassiveSkillState); read: n/a: delegate thunk (push edx; call 32ba7e40; ret), compiler macro code
+32bd6c80	?	-; CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpNowForcePowerHitOthers (dele; was CH4a; read: n/a: delegate thunk (push edx; call 32baad30; ret), compiler macro code
+32bd7280	ChangeAnimTail	inside: MARCH HAS X2GUAra.cpp:6216; ANIM_NAME_TAIL / TRANSITION_TAIL keys then ChangeAnim on the tail equip (ch0_specter.tsv, ch0_keys.tsv); caller CommonStateStart 32bd2a40
+32bd7780	?	called by 32baf270(?); read: template: vector<int> copy constructor; caller UpdateEquipCollisionData 32baf270
+32bd7a90	?	called by 32bb0d10(helper); read: n/a: delegate thunk (push edx; call 32baf810; ret), compiler macro code
+32bd7c00	SetCanAvoidance	inside: MARCH HAS X2GUUser.h:4244 (inline setter); June sets the protected bool +0x96f0 when it changes (KProtectedType registry write); pushed by InitPassiveSkillState (March calls SetCanAvoidance at X2GUAra.cpp:1731)
+32bd85f0	IsHyperModeState	named (high): vslot 0x51c; X2GUUser.h:4290 IsHyperModeState; body: now state index (/100) == 0x17 (USI_HYPER_MODE) or 0x9b (ASI_BERSERK_MODE), ch0_fp.tsv

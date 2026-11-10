@@ -51,6 +51,12 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 16** (`awk -F'\t' '$7=="CH1k"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 11, new 5).
+  June addresses: `32b90c20` `32b95560` `32b95590`(new IsReflectionSkill) `32b95870`(new StateChangeLinkFlowerSlash) `32ba44e0` `32ba62c0`(new MarkNowSkillFPGainReady) `32ba6610` `32bab090`(new GetReadyFPGainOfSkillHit) `32bab220`(new IsNotCommonMoveState) `32badb50` `32bae3d0` `32baea70` `32baf980` `32bb1ff0` `32bc84b0` `32bcfaa0`.
+- **Checklist rows: 9** (`awk -F'\t' '$5 ~ /(^| )CH1k( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L214 standing check: the class overrides ReservedSkillStart (June; L253 class skill-use function sets the cooldown then calls ApplyS; L262 every class's vslot 510 lookup (Phase 7d put the quick-slot ; L263 dev free-skill gate around the cool-time / MP / hyper-stone ; L265 riding-key skill wait after CheckSkillUsePVPOfficial in the ; L852-L855 "pass June's skip / adjust / level / creator at every ported; L866-L867 JuneShowSkillNameStateString( iSkillID ) 3200ab60 callers in; L902 new CX2GUUser hooks for every class: 0x654, 0x850, 0x860, 51; L991 Ara: 0x3ac JuneModifyFinalDamageByGameUnitType 32ba45d0 (mov.
+- **Force-power rows: 3** (`awk -F'\t' '$7 ~ /(^| )CH1k( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: differs 3).
+- **Identified callees first needed here: 8** (`awk -F'\t' '$8 ~ /(^| )CH1k( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `31e4eeb0` `31fd3360` `32071930` `32078b00` `3234cba0` `32371c90` `3288fee0` `3288ff30`.
+- `ReservedSkillStart` (Rules). `CanUseSpecialAttack` `32bcfaa0` takes a bool (1 = FP-cancel probe) and reads `+0x9621`; `SpecialAttackEventProcess` `32b90c20` saves and restores it: the `+0x9621` lines go under `_FP`.
+- `GetPressedSkillState` `31fd3360` differs from March (slot B at index > 4, 5 slots per bank): `june_march_divergent.tsv` row added by CH0, replaced in CH1p (7ag); CH1k's transcription of `CanUseSpecialAttack` calls it under the allow row CH0 added (`june_diverge_allow.tsv`). `32d278f0` (RidingPet dying state) is CH1b's: March's `m_DyingState` + a stand-in comment.

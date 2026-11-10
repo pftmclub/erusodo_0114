@@ -42,6 +42,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **CH-N (class path) rows: 6** (`awk -F'\t' '$7 ~ /(^| )CHNb( |$)/' june2017_re/char_ara/ch0_classn.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
+- The quest route is already in place: the shipped `FieldQuest.lua` is June's; 35560-35563 (`CJT_JOB_THIRD`, class 7, level 15; 35563 rewards `UC_ARA_LITTLE_SPECTER`), 35564-35568 (class 34, level 35; 35568 rewards `UC_ARA_ASURA`); `Handlers_Quest.cpp:586-620` accepts any class; auto-learn has 14 / 23 rows.
+- 41794 / 41796 / 41803 / 41805 are Eun-mode hair / face costume pieces (PROMOTION_ITEM_ID_LIST), not class-change items. `X2OfflineClassChangeSeed.h` is cash-item only: PARENT_ROWS 34 -> 7, 124 -> 34 optional (generated file: regenerate, never hand-edit).
+- Left for this phase: the two `LevelUpEvent.lua` rows (level 15 -> `DLG_1ST_Class_Change_Guide_Ara`; level 35 adds 34 and the 2ND dialog), the dialogs (staged in CH0b), `luabind.py check`, the play-test. Small: may fold into one session.

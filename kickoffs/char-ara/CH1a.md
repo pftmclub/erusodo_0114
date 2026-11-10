@@ -51,6 +51,13 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 30** (`awk -F'\t' '$7=="CH1a"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 30).
+  June addresses: `32b90e10` `32b90e40` `32b90e60` `32b90f20` `32b90f80` `32b90fb0` `32b90fd0` `32b91160` `32b96d80` `32b96db0` `32b97880` `32b97900` `32b979f0` `32b9a0b0` `32b9a1e0` `32b9a240` `32ba6fd0` `32ba73c0` `32ba7820` `32ba79b0` `32ba7a40` `32baa1c0` `32baa1f0` `32babee0` `32bb2d40` `32bb2ff0` `32bb3290` `32bb34d0` `32bb4200` `32bb43a0`.
+- **States: 23** (`awk -F'\t' '$8=="CH1a"' june2017_re/char_ara/ch0_state_skill.tsv`, part 1, col 8 = phase): `ASI_WAIT_STATE_CHANGE`, `ASI_WAIT`, `ASI_HYPER_WAIT`, `ASI_WALK`, `ASI_JUMP_READY`, `ASI_JUMP_UP`, `ASI_JUMP_DOWN`, `ASI_JUMP_LANDING`, `ASI_HYPER_MODE`, `ASI_ASD_HYPER_MODE`, `ASI_AYR_HYPER_MODE`, `ASI_AA_HYPER_MODE`, `ASI_BERSERK_MODE`, `ASI_ASD_BERSERK_MODE`, `ASI_AYR_BERSERK_MODE`, `ASI_AA_BERSERK_MODE`, `ASI_COMMON_BUFF`, `ASI_THROW_ITEM`, `ASI_AIRIAL_DASH`, `ASI_DOUBLE_JUMP_FRONT`, `ASI_DOUBLE_JUMP_UP`, `ASI_JUMP_ATTACK_Z`, `ASI_JUMP_ATTACK_X`.
+- **Skills: 1** (`ch0_state_skill.tsv` part 2, col 6 = the class-level phase; a split half takes the skills whose states (col 5, then part 1 col 8) are its own): 900 SI_ETC_WS_COMMON_LOVE.
+- **Checklist rows: 4** (`awk -F'\t' '$5 ~ /(^| )CH1a( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S; L428 USI_WAIT_STATE_CHANGE registered in every class InitState; L516-L521 Ara's APPLY_MOVEMENT_SPEED = TRUE in ASI_AIRIAL_DASH (Ara_Ma; L713-L745 an id of a listed type with no case plays the class's first .
+- **Force-power rows: 5** (`awk -F'\t' '$7 ~ /(^| )CH1a( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: unchecked 5).
+- Hyper and berserk tables: the four berserk tables (`ASI_BERSERK_MODE` and the ASD / AYR / AA variants) are CH1a like the hyper tables; their registration is CH1m. `ASI_JUMP_ATTACK_Z` / `_X` are CH1a by the `JUMP*` prefix.
+- Force-power lines in these states (`FP_CANCEL`, `ADD_FORCE_POWER`, the shared anim-end helper `32babba0`) go under `_FP` inside the `_LIVE` body: CH1q writes the helpers (`ch0_fp.tsv`).

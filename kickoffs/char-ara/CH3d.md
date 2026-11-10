@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-ara CH3d` |
 | Plan doc | `JUNE_CHARACTER_ARA_PHASES.md` (branch `main`) |
-| Depends on | CH3c. One at a time with CH1-CH4: they all edit `X2GUAra.*` |
+| Depends on | CH3c2. One at a time with CH1-CH4: they all edit `X2GUAra.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` and `SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`ARA SKILL`) |
 | Review | `kickoffs/char-ara/CH3d-review.md` (Opus 5.5 high; the phase writes it when done); the CH3 stage review: covers CH3a-CH3d, retires `_SKILL_DEBUG` |
@@ -42,6 +42,11 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 8** (`awk -F'\t' '$7=="CH3d"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 6, new 2).
+  June addresses: `32b92fc0` `32b93ec0` `32b95290`(new ASI_HA_AA_NINE_TAILED_FOX_Init) `32b9cf50` `32b9ed80` `32ba3b80`(new ASI_HA_AA_NINE_TAILED_FOX_EventProcess) `32baab30` `32baace0`.
+- **States: 3** (`awk -F'\t' '$8=="CH3d"' june2017_re/char_ara/ch0_state_skill.tsv`, part 1, col 8 = phase): `ASI_HA_ASD_THOUSANDS_BLOSSOMS`, `ASI_HA_AYR_ENERGY_CANNON`, `ASI_HA_AA_NINE_TAILED_FOX`.
+- **Skills: 6** (`ch0_state_skill.tsv` part 2, col 6 = the class-level phase; a split half takes the skills whose states (col 5, then part 1 col 8) are its own): 27600 RNSI_HA_ASD_THOUSANDS_BLOSSOMS, 27601 RNSI_HA_AYR_ENERGY_CANNON, 27602 RNSI_HA_ASR_NINE_TAILED_FOX, 27603 RNSI_HA_ASD_THOUSANDS_BLOSSOMS_UPGRADE, 27604 RNSI_HA_AYR_ENERGY_CANNON_UPGRADE, 27605 RNSI_HA_ASR_NINE_TAILED_FOX_UPGRADE.
+- **Checklist rows: 9** (`awk -F'\t' '$5 ~ /(^| )CH3d( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S; L592 "SHOW_HYPER_CUT_IN_TIME in the class script (""plus Ara's be; L594 June UnitTemplet.lua m_HyperCutIn / m_BerserkCutIn keys and ; L607 hyper active skills: cut-in shown whatever the option says (; L713-L745 an id of a listed type with no case plays the class's first ; L814 TC slot A-5 / B-5 states and the Stage 6 skips; L954 every class also brings: emulator allow-list id, LevelUpEven; L959 hyper-effect start returns at once for a transcended unit; L978 transcend Ara: 32bb22d0 hyper effect start (vslot 49) branch.
+- **CH-N (class path) rows: 1** (`awk -F'\t' '$7 ~ /(^| )CH3d( |$)/' june2017_re/char_ara/ch0_classn.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).

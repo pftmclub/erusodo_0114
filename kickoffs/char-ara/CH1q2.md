@@ -41,6 +41,12 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 1** (`awk -F'\t' '$7=="CH1q2"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 1).
+  June addresses: `32baf270`.
+- **Checklist rows: 2** (`awk -F'\t' '$5 ~ /(^| )CH1q2( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L184 class keys IS_SPECTER_STATE x40, TAIL_TYPE x1 (+ ANIM_NAME_T; L237 buff hyper count readers / writers: 32ba6cc0 (vslot 39), 32b.
+- **Force-power rows: 1** (`awk -F'\t' '$7 ~ /(^| )CH1q2( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: differs 1).
+- **Specter / tail rows: 14** (`awk -F'\t' '$7 ~ /(^| )CH1q2( |$)/' june2017_re/char_ara/ch0_specter.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
+- `ch0_specter.tsv` (19 rows), about 14 functions / members: `IS_SPECTER_STATE` is read by `CX2GUUser::CommonStateStartFuture` `320506f0` (into `+0x7da9`) and `CommonStateStart` `32057b80` (into `+0x8049`; the census label "Lire ReservedSkillStart" is wrong) into `StateParam::bSpecterState` (+0x95); 40 tables (basic combo / dash / jump-attack / stand-up attack). One reader: Ara's `AttackResultByType` `32bceca0` @`32bcee1c` (Specter of Thunder buff: cooldown `+0x979c`, chance `+0x9790` from BTI 424 `BTI_BUFF_SPECTEROFTHUNDER` / skill 27023 via `32ba6d00` / `32b90d20`). Register BTI 423 / 424 under JUNE_ENUM_NAMES (March has neither). No class test: in practice only 34 / 124 reach it.
+- Tails: `ANIM_NAME_TAIL` / `TRANSITION_TAIL` are March's already (`X2GUAra.cpp:6219`; June `ChangeAnimTail` `32bd7280` is the same). June-only: `TAIL_TYPE` (`LoadPromotionItemID` `32bab890`, class cases 34 / 124, vector at +0x95d8), `InitPromotionEquipList` `32baec10`, tail show `32badd50` / `32bae120` (index min(buff count, 3) - 1), `UpdateEquipCollisionData` 0x634 `32baf270`; items 41786 / 41787 (3 / 6 tails, in the live `item.kim`), 41580 (9 tails). No class test: all 7 classes, gated by the buff hyper count.

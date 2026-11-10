@@ -40,6 +40,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Checklist rows: 4** (`awk -F'\t' '$5 ~ /(^| )CH5( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L368 unit-viewer ALD_LobbyWait row; March's hand-made orb (m_hSeq; L594 June UnitTemplet.lua m_HyperCutIn / m_BerserkCutIn keys and ; L620 skill cut-in names -> June .gfx: June HQ_CutIn_Ara_*; March ; L954 every class also brings: emulator allow-list id, LevelUpEven.
+- **Force-power rows: 1** (`awk -F'\t' '$7 ~ /(^| )CH5( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: same 1).
+- **CH-N (class path) rows: 6** (`awk -F'\t' '$7 ~ /(^| )CH5( |$)/' june2017_re/char_ara/ch0_classn.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
+- `ch0_unittemplet_ara.tsv`: 7 / 28 / 31 add `m_fLobbyRotationY` only (1 / 15 / 10); 118 / 119 add `m_fLobbyRotationY` (1 / 15), `m_HyperCutIn` (`HQ_Cutin_ASD_Transcendence` / `_AYR_`) and `m_BerserkCutIn` (`HQ_Cutin_ASD_1_Transcendence` / `_AYR_1_`); 34 (24 keys, `STR_ID_31537` / `_31539`, `Motion_Ara_LS.x`, `Movie_Create_Ara_AA.avi`) and 124 (27 keys, `STR_ID_31538` / `_31540`, `m_GameMotion2 = Motion_Ara_AA.x`) are new. All string ids are in `general.ess`. The templet loader has no `UC_END` refusal: the 34 / 124 rows go in here (CHNa needs them).
+- The live data033 already holds June's `Motion_ARA_Common.x` and `Motion_ARA_Lobby.x`; they lack `ALD_lobbyWait` (June: `ALD_LobbyWait`; played at `X2SquareUnit.cpp:1079`, `X2UnitViewerUI.cpp:2173`) and `AYR_LobbyReadyAtcion` (`X2UnitViewerUI.cpp:5260`): class 31 / 119 lobby idles. Check whether those sites are live and what June plays there; fix in this phase (Ara's lobby).

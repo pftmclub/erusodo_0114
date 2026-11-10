@@ -51,6 +51,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
-## Amended by CH0
+## Amended by CH0 (2026-11-10)
 
-(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+- **Functions: 14** (`awk -F'\t' '$7=="CH1i"' june2017_re/char_ara/ch0_class_map.tsv`, col 7 = phase; col 5 inside / new; inside 9, new 5).
+  June addresses: `32b956d0`(new ?) `32b95cf0` `32ba4620`(new ?) `32ba4710`(new IsInJobLine) `32ba6990` `32ba83d0` `32bab410` `32bae630` `32baea90` `32bc15d0` `32bc1a90` `32bc89e0` `32bd6a70`(new FindSkillFPGainEntry) `32bd7780`(new ?).
+- **Identified callees first needed here: 8** (`awk -F'\t' '$8 ~ /(^| )CH1i( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `31fac1c0` `32070a80` `3207b630` `32276a80` `32737f30` `32882540` `32a79680` `32dfd1c0`.
+- 14 functions. 0x670 `32ba4710` = `IsInJobLine( int )` (Chung's name and CH1o decision): 1 = classes 28 / 118, 2 = 31 / 119, 3 = 34 / 124 (the 34 / 124 arm is live code only once CHNa loads them). 0x6b4 `32ba4620`: replacement state id for skills 27014-27039 (writes state ids 262 / 271 / 301 / 311): name it from the body. 0x74c `32b956d0` returns true. 0x688 `32b90da0` is a jmp to the base `31fcd740` (same as base): n/a. 0x634 `32baf270` = `UpdateEquipCollisionData` moved to CH1q2 (tail list). 0x68c `32bd34c0` = `InitAquiredActiveSkillState` moved to CH1n.
