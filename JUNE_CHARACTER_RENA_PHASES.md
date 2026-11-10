@@ -2162,6 +2162,21 @@ Opus 5.5 high. Fixes the two CH3b play-test failures. Kickoff `kickoffs/char-ren
 - Gungnir: 2 casts, `spawning 1 NPC(s)` 1000026 / 1000027 each followed by `[JUNE_CHAR] SUMMON npc 2083 uid ... skill 23049` and `ES_CREATE EffectSet_SA_RGA_Gungnir_Loop ... ownerState=232` ( control idle reached ); the spear summoner's `DamageEffect_SA_RSR_Gungnir_Spear` / `_Explosion` / `_FX` hit NPCs 1000021, 1000013, 1000002.
 - `ErrorLog.txt`: 0 Motion Error / KEM_ERROR; packets 0 EXCEPTION ( 2 known `E_DISABLE_HB_CHECK_REQ` UNHANDLED ).
 
+### CH3b2 - Review (2026-11-10)
+
+Opus 5.5 high. Kickoff `kickoffs/char-rena/CH3b2-review.md`. **Verdict: pass, no code change.**
+
+- **`EffectToUnit` vs June `3262b6e0` @3262ba99-3262bb4f (Ghidra, read-only).** Pass. EDI = the damage effect: `+0x9a0` = `m_bIsOnlyTargetAttack`, `+0x938/+0x93c` = `m_LockOnUnitUID` (`UidType`, what `GetLockOnUnitUID()` returns), `+0x940` = `m_LockOnNPCUID` (`int`). Switch on defender `+0x264`: 0 (`GUT_USER = 0`) -> vslot 0x54 int64 compare = `pDefender->GetUnitUID()` (virtual on `CX2GameUnit`, `X2GameUnit.h:2252`); 1 (`GUT_NPC`) -> int32 `+0x270` compare = `CX2GUNPC::GetUID()` (`(int)m_UnitUID`); any other type -> `3262f54e` (skip). Placed right after the `ONLY_RELATIONSHIP` block (@3262ba35-3262ba93), as in June. March's block intact in `#else`.
+- **Stand-in** (@3262baca-3262bb22). Confirmed. `32481fa0` is true only when the game state is 0x15 and `3266cdc0( field )` matches 0x9c61 / 0x9c62 / 0x9c67-0x9c6c = fields 40033 / 40034 / 40039-40044, which this build lacks (funcmap `32481fa0 (CH2a)`). `32757490` returns `+0x8ee0` (int64) when `+0x8f04` is set and `+0x8f05` == the argument: March `FollowTargetUnitBone` = `UidType` +0x0, `wstring` +0x8 (0x1c B), `m_bUseFollowTargetUnitBone` +0x24, `m_bIsUser` +0x25. The funcmap row holds.
+- **Readers.** `m_bIsOnlyTargetAttack`: written only by `ONLY_TARGET_ATTACK` in `X2DamageEffect.cpp:8529` / `:8735`, read only at `X2DamageManager.cpp:2920`. June `DamageEffect.src.lua` sets it on 5 effects: `DamageEffect_SA_RSR_WindBlast_Arrow` (46237), `DamageEffect_RESTRAINTS_SPECTER_Finish_Damage` (111169), `DAMAGE_EFFECT_PROTECT_GUARD_MAGIC_EX` / `_PHYSIC_EX` (257274 / 257341), `DAMAGE_EFFECT_SHADOW_EX` (259373). Their user defenders keep March's compare; an NPC defender now matches by the lock-on NPC UID, as in June. No PvP-only path changes.
+- **Data.** Pass. `data036 Enum.lua:2507` `NUI_RENA_TARGETING_GUNGNIR = 2083,` = June `Enum.src.lua:3402`. The `char-rena CH3b2` block at `data037 NPCTemplet.lua:21495-21505` = June `NPCTemplet.src.lua:18661-18668`, all 7 fields identical (only the `--{{ --}}` markers added); BOM + CRLF kept. `ledger --check` PASS (29 rows), `core --check` PASS (27 rows), `luabind.py check Rena_Targeting_Gungnir` 17 methods, 0 unbound, PASS.
+- **Rena's other summoned NPC ids.** All 6 have an `Enum.lua` row and an `NPCTemplet.lua` row: 2083, `NUI_ENTANGLE_TRAP_RENA` 457, `NUI_EVOKE_TRAP_LIRE` 1020, `_MEMO` 1025, `NUI_RENA_ANGER_OF_ELF` 1420, `_DELAY` 1421. No miss.
+- **Play-test lines** re-read in the logs: `CE_HIT DamageEffect_SA_RSR_WindBlast_Arrow SPAWN_INHERIT child=..._Arrow_Explosion`, `[JUNE_CHAR] SUMMON npc 2083 uid 1000027 skill 23049`, `ES_CREATE EffectSet_SA_RGA_Gungnir_Loop ... ownerState=232`.
+
+**Hygiene.** `flagcheck.py SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC --range 1cb6fa14^..1cb6fa14`: 1 PASS (`X2DamageManager.cpp` +19), 1 DEFINE, 0 deleted, 0 non-ASCII, 0 FAIL, `RESULT: PASS`; later commits naming the flag: `e077384f` only (docs, no code). `junediverge.py --check-all`: allow-listed 202, `RESULT: PASS`. `enumscan.py --check X2Lib/X2DamageManager.cpp`: 0 A/B rows. One-file `/Zs` probe of `X2DamageManager.cpp` (`census.cl_cmd`, no PCH): exit 0, 0 errors. Full build skipped: no play-test (CH3b2's `DEPLOY OK` md5 `60d22c2c` stands). No debug define to retire.
+
+**Next:** CH3c0 (Night Watcher engine hook), kickoff `kickoffs/char-rena/CH3c0.md` checked, now ready.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as two from the start; CH0 adds CH4c if the
