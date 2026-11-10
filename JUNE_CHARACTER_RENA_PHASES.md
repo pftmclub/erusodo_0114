@@ -2595,3 +2595,7 @@ what it does / look for / if not. Log tag `[JUNE_CHAR]`, `python tools/logs.py -
 
 Settled by standing rules, not decisions: the motion koms deploy with CH1 final if June drops a name March plays (7ad); trap summons get their
 own Opus sub-phase (Eve / Chung lesson); June-side icon gaps are `JUNE_BUGS.md` rows (Raven's 535).
+
+### Phase Z - Done (2026-11-10, Sonnet 5.5)
+
+Docs only: no code, no build, no flag, no kom (full build skipped: no play-test). `MODS.md` section `June character: Rena, the whole port` (flags, data, revert order: exe + data036 + data033 + motion koms together; natural force's `ServerDefine.h` second home); checklist rows already carry `(Rena: CHn)` marks (51 lines); Rena paragraph and lessons added to the Aisha plan's "Template for Stage 7"; backlog Stage 7 closing note; `char-ara` CH0b and CH1a set to ready; the `char-rena` block moved to `STATUS_ARCHIVE.md` with a *Closed plans* row. `Always.h`: `JUNE_CHAR_RENA_CORE / LIVE / NF / SKILL / TRAP / TRANSCEND / PASSIVE / UI` defined; every `_DEBUG` (`NF`, `SKILL`, `TRAP`, `PASSIVE`) is commented out. Left open and routed: skill icon gaps (`JUNE_BUGS` 561 / 576, June's own), camera pair -> Stage 9, `IMMUNITY_EDT_LIST_AT_THIS_STATE` -> Stage 2. User owes nothing.

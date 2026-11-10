@@ -6297,3 +6297,21 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` ( the hyper-active bodies; now needs 
 - **Damage:** no number changes; the hyper actives' numbers are June's `NewSkillTempletVer2.lua`. Cryotron Bolt's guided-arrow damage ( June's `DamageEffect.lua` row ) is new in play, since March never spawned the arrows.
 - `data036` ( `LevelUpEvent.lua` TYPE5 = June's TYPE2 row ): `PACK OK data036`, `COPY OK data036` md5 569962cf.
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND` ( allow-list and pictures ), `python tools/build.py --deploy`; the extra `TYPE5` only adds the level-70 guide popup ( delete the block, `luasrc.py refresh data036 LevelUpEvent.lua`, pack ). The hyper-active changes go back with `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` ( all of Rena's skill port ).
+
+### June character: Rena, the whole port (char-rena, closed 2026-11-10)
+
+Plan `JUNE_CHARACTER_RENA_PHASES.md` (CH0-CH6, Z, 95 commits from 2026-11-07); per-phase entries are the `Stage 7 Rena` sections above. All seven classes (3, 12, 13, 24, 102, 103, 114) run on June's class core, natural force (March's dormant `ADD_RENA_SYSTEM` code, decision 1 = (a)), skills, trap summons, passives, cut-in table and transcendence rows. CH6 walk PASSED (all seven classes, the becoming-transcended transition on 102 / 103 / 114, skill cut-in sets 0-3, hyper cut-ins; 0 KEM_ERROR, 0 Motion Error).
+
+| Flag (all in `KTDXLIB/Always.h`) | What it holds |
+|---|---|
+| `SERV_IRUHADEV_JUNE_CHAR_RENA_CORE`, `_LIVE`, `_NF` | class core (inert until LIVE); LIVE is the switch (June's bodies inside March's `CX2GULire_ElvenRanger` functions, March's in `#else`); NF = natural force, defines `ADD_RENA_SYSTEM` |
+| `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL`, `_TRAP`, `_TRANSCEND` | skill states CH2 / CH3; trap summon spawn rules and the six summon cases (CH2d0); Wind Sneaker / Grand Archer / Night Watcher transcended hyper actives, allow-list 102 / 103 / 114, pictures |
+| `SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE`, `_UI` | CH4a-CH4b passives, damage-exception, MP and cool-time overrides; CH5 skill cut-in table |
+
+**Second home:** `SERV_IRUHADEV_JUNE_CHAR_RENA_NF` is also defined in `KncWX2Server/Common/ServerDefine.h` (`CommonPacket.h` is read before `Always.h`) and listed in `SECOND_HOMES` of `tools/flagcheck.py`; toggle both together.
+
+No `SERV_IRUHADEV_JUNE_CHAR_RENA_*_DEBUG` flag is defined (`_NF_DEBUG`, `_SKILL_DEBUG`, `_TRAP_DEBUG`, `_PASSIVE_DEBUG` all commented out, retired in their reviews). JUNE_BUGS rows for Rena: 561-581 (568 withdrawn).
+
+**Data (one deploy unit):** CH0b staged 4,762 June files byte-exact into 31 koms (4,459 new, 303 replaced; backup `kom_backup_stage_june/20261107_112732`; `data201` is a new archive, 32 koms copied with data034); CH1 final adopted `Lire_ElvenRanger.lua` as June's bytecode and replaced `Motion_Lire.x`, `_GA`, `_RTR`, `_SR`, `_WS` in data033 (backup `kom_backup_stage_june/20261109_180909`); data034 class-change guide dialogs (2 Lua); data036 `UnitTemplet.lua` (Rena's 7 blocks, core-list source, CH5), `LevelUpEvent.lua` (`TYPE5`, CH3d) and the other core-list files carry June's Rena rows only; skill icon sheets (known miss `JUNE_BUGS` 561 / 576); transcended portraits and `POPUP_TR_*` guide textures. Damage numbers per skill are in the `Stage 7 Rena` sections.
+
+**Revert, in this order:** (1) comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE` (the other Rena flags then compile March's code; comment `_NF` in both homes with it), (2) restore data036 files from the `kom_backup_tools` backups and `kom.py copy data036`, (3) restore the replaced motion / texture files from the two `kom_backup_stage_june` backups above and `kom.py pack` / `copy` the koms, (4) `touch X2Lib/stdafx.cpp`, `python tools/build.py --deploy`. Exe, data036, data033 and the motion koms must change together. Save: unchanged (units 86-95 were added for the walk).
