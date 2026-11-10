@@ -550,6 +550,36 @@ All 29 class-map rows of phase CH1d are written: 28 `inside` (June's body in Mar
 
 **Nothing to play-test.** Phase tag in every block: `// char-ara CH1d`. Review: none of its own, the CH1d2 review covers CH1c-CH1d2 (no `_DEBUG` define exists yet). Next: `/x2-phase char-ara CH1d2` (Sonnet 5.5 high).
 
+### CH1d2 - Done (2026-11-10)
+
+All 26 class-map rows of phase CH1d2 are written: 25 `inside` (June's body in March's own `CX2GUAra` function under `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE`, March's in `#else`) and 1 new (`ASI_DASH_COMBO_ZpushX_ATTACK_StateStart` `32b91120`, under `_CORE`, referenced by nothing until CH1m). Five state names join `ARA_STATE_ID` under `_CORE`: `ASI_DASH_COMBO_ALS_X` (280), `ASI_DASH_JUMP_COMBO_ALS_ZX` (283), `ASI_DASH_JUMP_COMBO_ASD_XZ` (320), `ASI_DASH_COMBO_ALS_ZX` (325), `ASI_DASH_JUMP_COMBO_ASR_XZ` (327). No new `Always.h` define. 26 funcmap rows `Char Ara CH1d2`; checklist L178 carries `(Ara: CH1d2 ...)`; `JUNE_BUGS.md` row 587; `MODS.md` section "Stage 7 Ara, CH1d2".
+
+| June | `CX2GUAra::` | June | `CX2GUAra::` |
+|---|---|---|---|
+| `32b90e90` `32bb37e0` `32ba7470` `32b96ee0` `32bb3ab0` | Dash Start / EP, DashEnd StartFuture / FrameMove / EP | `32ba74b0` `32bb3df0` `32b90ec0` `32b90ef0` `32bb3ff0` | DashJump EP, DashJumpLanding EP, PowerLanding StartFuture / Start / EP |
+| `32b910b0` `32b99960` | ComboDashZ FrameMove / EP | `32b99df0` `32b910c0` `32b99e10` `32b99e70` | ZpushX Charge Start / FrameMove / EP / End |
+| `32b91120` (new) `32bb0260` `32b99e90` `32bb0330` | ZpushX Attack StateStart / FrameMove / EP / End | `32b99fe0` | ComboDashX EP |
+| `32b9a280` `32b9a5f0` `32b9a6f0` `32b9a750` `32b9a780` | DashJumpCombo Z / ZZ / ZZZ(FrameMove) / ZZZ(EP) / X EP | | |
+
+**Where June differs from March** (read from `charport_adis.py ara --phase CH1d2`; the rest is March's logic written out whole):
+- **Line 3 (classes 34 / 124, `IsInJobLine( 3 )`, CH1d's `_CORE` declaration):** Dash and DashEnd EP: X -> `ASI_DASH_COMBO_ALS_X` (DashEnd only after the 0.3 x max-time test). ComboDashZ gains event 3 (X -> `ASI_DASH_COMBO_ALS_ZX`, tested first) and the Z-push-X charge (`pureX`, event 0) is refused on line 3. DashJumpComboZ gains event 3 (X -> `ASI_DASH_JUMP_COMBO_ALS_ZX`).
+- **Class tests** (unit class at `+0x38`: 28 / 118 Hsien / Sakra, 31 / 119 Devil / Yama, 124 Asura): DashJumpComboX is now event 0 Yama Z -> `AYR_XZ`, event 1 Sakra Z -> `ASD_XZ`, event 2 Asura Z -> `ASR_XZ` (March had Yama only); the other event conditions equal March's.
+- **DashJump EP:** a new branch for both direction keys held: only a fresh `oneRight` against the facing or `oneLeft` with it clamps the speed and picks JUMP_UP / JUMP_DOWN (March ran the `pureRight` arm). Everything else equals March.
+- **Dash EP / DashEnd EP hyper entry:** `StateChange( GetHypetMpdeStateID() )` with the `IsAwakeImpossible()` test, as CH1a (June's override equals March's berserk / hyper choice).
+- **Flag macro:** the dash combos use CH1a's `ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_`; `SKILL_CANCEL_AFTER` is the shared macro.
+- **FrameMoves:** ComboDashZ is `CommonFrameMove` only (no `DAMAGE_DATA_NEXT` swap). Z-push-X charge has no 0.495 s effect set; Z-push-X attack keeps an empty 0.001 s timer (no scaling, no effect set): `ASI_DASH_COMBO_ZpushX_ATTACK_StateStart` scales `fPhysic *= 1 + 0.25 x charge` (March x1 .. x3, June x1 .. x1.5; `MODS.md`). June's single `+0x9604` charge field is two March members (`m_fZZZXChargeTime` for ZZZX, `m_fZpushXChargeTime` for the dash): the states never overlap, so the split is exact.
+- **ComboDashX (FP cancel):** the same shape as CH1d's XX-down-XX: Reflection id test (`RNSI_A_AYR_REFLECTION`), `m_bFPCancelProbe` under `_FP`, `StateChangeSpecialAttack` / `CanUseSpecialAttack()` as stand-ins for vslots 0x7fc / 0x7f8 (CH1k).
+- **Equal to March:** Dash Start, DashEnd StartFuture (`GetDashSpeed()` already carries `m_fRunJumpSpeedRate`) / FrameMove, DashJumpLanding EP, PowerLanding (`(max - transition) / 6` = `GetMaxAnimationTime() / 6`), ZpushX Charge Start / EP / End, Attack EP / End, DashJumpComboZZ / ZZZ. DashEnd's `(max - transition) x 0.3` = `GetMaxAnimationTime() x 0.3f`.
+- **JUNE_BUGS 587:** the dash Z-push-X states play no effect set from code. No branch drifted out of scope.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --with ..._CORE ..._FP --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is `//#define` (by design). cpp +637, `.h` +6.
+- One-file `/c /Zs /EHsc` probe of `X2GUAra.cpp` (`census.cl_cmd`, no PCH): exit 0, 0 errors with `_LIVE` off, with `/D ..._LIVE`, and with `_LIVE` + `_FP`; `cl /P`: `ASI_DASH_COMBO_ALS_ZX` 1 line off / 2 on, `ASI_DASH_JUMP_COMBO_ASR_XZ` 1 / 2.
+- `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: 0 A/B rows.
+- Full build skipped: no play-test (`_LIVE` is off), so no `DEPLOY OK` / `exestr` line.
+
+**Nothing to play-test.** Phase tag in every block: `// char-ara CH1d2`. Review: `kickoffs/char-ara/CH1d2-review.md` (Opus 5.5 high, covers CH1c-CH1d2; no `_DEBUG` define exists yet). Next: `/x2-phase char-ara CH1d2 review` on Opus 5.5 high.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

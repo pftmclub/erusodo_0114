@@ -253,6 +253,11 @@ public:
 		ASI_COMBO_ALS_XXXLoopZ,				/// char-ara CH1d: June script id 282 ( Little Specter XXX-loop-Z; CH1m maps, CH1g owns the state )
 		ASI_COMBO_AA_XXDownXZStart,			/// char-ara CH1d: June script id 284 ( Asura X-X-down-X-Z start; CH1m maps, CH1g owns the state )
 		ASI_COMBO_ASR_ZZZX,					/// char-ara CH1d: June script id 326 ( Asura Z-Z-Z-X; CH1m maps, CH1g owns the state )
+		ASI_DASH_COMBO_ALS_X,				/// char-ara CH1d2: June script id 280 ( Little Specter dash X; CH1m maps, CH1g owns the state )
+		ASI_DASH_JUMP_COMBO_ALS_ZX,			/// char-ara CH1d2: June script id 283 ( Little Specter dash-jump Z-X; CH1m maps, CH1g owns the state )
+		ASI_DASH_JUMP_COMBO_ASD_XZ,			/// char-ara CH1d2: June script id 320 ( Sakra Devanam dash-jump X-Z; CH1m maps, CH1e owns the state )
+		ASI_DASH_COMBO_ALS_ZX,				/// char-ara CH1d2: June script id 325 ( Little Specter dash Z-X; CH1m maps, CH1g owns the state )
+		ASI_DASH_JUMP_COMBO_ASR_XZ,			/// char-ara CH1d2: June script id 327 ( Asura dash-jump X-Z; CH1m maps, CH1g owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	#pragma endregion 2-1, 2-2Â÷ ÀüÁ÷
 
@@ -801,6 +806,7 @@ protected:
 	void ComboZZZXAttackStateEnd();
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	void ASI_COMBO_ZZZXAttack_StateStart();	/// char-ara CH1d: June 32b91000
+	void ASI_DASH_COMBO_ZpushX_ATTACK_StateStart();	/// char-ara CH1d2: June 32b91120
 	bool IsInJobLine( int iJobLine_ );		/// char-ara CH1d: June 32ba4710 ( vslot 0x670 ): body in CH1i
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	void ComboZZXEventProcess();

@@ -9629,3 +9629,29 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32b910a0	CX2GUAra::ComboXXdownXFrameMove	PORTED	Char Ara CH1d: inside; thunk to CommonFrameMove
 32b995b0	CX2GUAra::ComboXXdownXEventProcess	PORTED	Char Ara CH1d: inside; adds Asura Z flag 1 (AA_XXDownXZStart) and Little Devil X flag 2 (ALD_XXdownXX)
 32b99890	CX2GUAra::ComboXXdownXXEventProcess	PORTED	Char Ara CH1d: inside; FP-cancel shape: Reflection id test, +0x9621 probe byte under _FP; CanUseSpecialAttack / StateChangeSpecialAttack stand-ins for CH1k
+32b90e90	CX2GUAra::DashStart	PORTED	Char Ara CH1d2: inside; same as March
+32b90ec0	CX2GUAra::DashJumpPowerLandingStartFuture	PORTED	Char Ara CH1d2: inside; same as March
+32b90ef0	CX2GUAra::DashJumpPowerLandingStart	PORTED	Char Ara CH1d2: inside; same as March
+32b910b0	CX2GUAra::ComboDashZFrameMove	PORTED	Char Ara CH1d2: inside; thunk to CommonFrameMove ( no DAMAGE_DATA_NEXT swap )
+32b910c0	CX2GUAra::ComboDashZpushX_ChargeFrameMove	PORTED	Char Ara CH1d2: inside; no 0.495 s EffectSet_Ara_ZpushX_Charge ( JUNE_BUGS 587 )
+32b91120	CX2GUAra::ASI_DASH_COMBO_ZpushX_ATTACK_StateStart	PORTED	Char Ara CH1d2: new under _CORE; damage x ( 1 + 0.25 x charge ) at state start; CH1m registers
+32b96ee0	CX2GUAra::DashEndFrameMove	PORTED	Char Ara CH1d2: inside; same as March
+32b99960	CX2GUAra::ComboDashZEventProcess	PORTED	Char Ara CH1d2: inside; adds event 3 ( oneX + IsInJobLine( 3 ) -> ASI_DASH_COMBO_ALS_ZX ), ZpushX charge only when not line 3, OR_ANIMATION_END_ macro
+32b99df0	CX2GUAra::ComboDashZpushX_ChargeStateStart	PORTED	Char Ara CH1d2: inside; same as March
+32b99e10	CX2GUAra::ComboDashZpushX_ChargeEventProcess	PORTED	Char Ara CH1d2: inside; same as March
+32b99e70	CX2GUAra::ComboDashZpushX_ChargeStateEnd	PORTED	Char Ara CH1d2: inside; same as March
+32b99e90	CX2GUAra::ComboDashZpushX_AttackEventProcess	PORTED	Char Ara CH1d2: inside; same as March
+32b99fe0	CX2GUAra::ComboDashXEventProcess	PORTED	Char Ara CH1d2: inside; FP-cancel shape: Reflection id test, +0x9621 probe byte under _FP; CanUseSpecialAttack / StateChangeSpecialAttack stand-ins for CH1k
+32b9a280	CX2GUAra::DashJumpComboZEventProcess	PORTED	Char Ara CH1d2: inside; adds event 3 ( oneX + IsInJobLine( 3 ) -> ASI_DASH_JUMP_COMBO_ALS_ZX ), OR_ANIMATION_END_ macro
+32b9a5f0	CX2GUAra::DashJumpComboZZEventProcess	PORTED	Char Ara CH1d2: inside; OR_ANIMATION_END_ macro
+32b9a6f0	CX2GUAra::DashJumpComboZZZFrameMove	PORTED	Char Ara CH1d2: inside; same as March
+32b9a750	CX2GUAra::DashJumpComboZZZEventProcess	PORTED	Char Ara CH1d2: inside; same as March
+32b9a780	CX2GUAra::DashJumpComboXEventProcess	PORTED	Char Ara CH1d2: inside; adds Sakra Z flag 1 ( ASD_XZ ) and Asura Z flag 2 ( ASR_XZ ), OR_ANIMATION_END_ macro
+32ba7470	CX2GUAra::DashEndStartFuture	PORTED	Char Ara CH1d2: inside; same as March ( GetDashSpeed already carries the run-jump rate )
+32ba74b0	CX2GUAra::DashJumpEventProcess	PORTED	Char Ara CH1d2: inside; adds the both-keys-held turn branch ( oneRight / oneLeft against the facing )
+32bb0260	CX2GUAra::ComboDashZpushX_AttackFrameMove	PORTED	Char Ara CH1d2: inside; empty 0.001 s timer, no damage scaling and no effect set ( JUNE_BUGS 587 )
+32bb0330	CX2GUAra::ComboDashZpushX_AttackStateEnd	PORTED	Char Ara CH1d2: inside; same as March
+32bb37e0	CX2GUAra::DashEventProcess	PORTED	Char Ara CH1d2: inside; oneX on line 3 -> ASI_DASH_COMBO_ALS_X, hyper entry through GetHypetMpdeStateID()
+32bb3ab0	CX2GUAra::DashEndEventProcess	PORTED	Char Ara CH1d2: inside; oneX on line 3 -> ASI_DASH_COMBO_ALS_X
+32bb3df0	CX2GUAra::DashJumpLandingEventProcess	PORTED	Char Ara CH1d2: inside; same as March
+32bb3ff0	CX2GUAra::DashJumpPowerLandingEventProcess	PORTED	Char Ara CH1d2: inside; same as March
