@@ -2132,6 +2132,31 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (no new define; `_SKILL_DE
 
 **Play-test (2026-11-10, unit 92 set 1; logs read).** The user reports eight of the ten skills pass ( Stigma Arrow, Entangle, One Target Shot, Aero Strafe, Freezing Arrow and the rest of set 1 ). **Wind Blast:** the arrow chases but never explodes; the log has `wind blast lock on npc uid 1000011` and no `CE_HIT` for the arrow ( the other skills log theirs ). Lead: `X2DamageManager.cpp:2920` ( `m_bIsOnlyTargetAttack` ) casts every defender, NPCs included, to `CX2GUUser` and needs its unit uid to equal the lock-on unit uid, so an NPC lock ( NPC uid ) is never hit; June's template has `ONLY_TARGET_ATTACK = TRUE`. **Gungnir:** stays in its first animation; no `Gungnir_Loop` effect set, so `LESI_RGA_GUNGNIR_CONTROL_IDLE` was never entered; `READY_EventProcess` waits for the aim NPC link ( CH2d0's case in `SetUserSummonedNPCInfo`, whose debug line is retired ), cause unknown. Both go to **CH3b2** ( `kickoffs/char-rena/CH3b2.md`, Opus: shared engine file plus a diagnosis build ).
 
+### CH3b2 - Done (2026-11-10)
+
+Opus 5.5 high. Fixes the two CH3b play-test failures. Kickoff `kickoffs/char-rena/CH3b2.md`. No review of its own: the CH3b review covers it (its kickoff now lists this note and an engine check).
+
+**Wind Blast never hit: engine, new flag `SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC`** (`Always.h`, end).
+- June `3262b6e0` @3262ba99-3262bb4f (`EffectToUnit`, right after the `ONLY_RELATIONSHIP` test, same place as March's): when `LockOnData.m_bIsOnlyTargetAttack` (+0x9a0) is set it switches on the defender's type (+0x264): a user is skipped unless `GetUnitUID()` (vslot 0x54) = `m_LockOnUnitUID` (+0x938/+0x93c); an NPC is skipped unless `GetUID()` (+0x270) = `m_LockOnNPCUID` (+0x940); any other type is skipped. March `static_cast`ed every defender to `CX2GUUser` and compared the unit UID only, so a locked-on NPC never passed.
+- June's NPC branch then (@3262baca-3262bb22), in a boss-raid field (`32481fa0`), retargets to the NPC its follow-target UID names (`32757490( 0 )` = March's `FIELD_BOSS_RAID` `m_sFollowTargetUnitData`, layout matches) when that NPC is a boss (vslot 0x3c8). Stand-in, one-line comment: `32481fa0` is false in this build (the existing precedent in `X2GULire_ElvenRanger.cpp` / `X2GUArme_VioletMage.cpp`).
+- `X2DamageManager.cpp` `EffectToUnit`, inside `LOCK_ON_USER_ONLY_ON`, March's block in `#else`. The only reader of `m_bIsOnlyTargetAttack` (grep).
+- The lock-on writes were already June's: CH3b's Wind Blast block calls `SetLockOnNPCUID` and `CX2DamageEffect::SetLockOnTargetUID` writes only the UID field (no `m_bLockOnUserUnit`), as June `32c9d7b0` @32c9d9ac-@32c9d9e1 does. No change there.
+
+**Gungnir stayed in its ready state: data, not code.**
+- The CH3b logs show all three casts spawned the targeting NPC on the emulator (`spawning 1 NPC(s)` 1000026 / 27 / 28) but never a `[JUNE_CHAR] SUMMON npc 2083` line (unconditional in `SetSummonHelperInfo`), and `OpenScriptFile.log` never opened its script: the client never built the NPC. `NUI_RENA_TARGETING_GUNGNIR` (2083) existed in C++ (CH2d0) but in neither `data036 Enum.lua` nor `data037 NPCTemplet.lua`, so `GetNPCUnitInfo( 2083 )` is NULL and both create paths refuse it. `LESI_RGA_GUNGNIR_READY_EventProcess` = June `32ca1240` (re-read): with no NPC it waits for the 10 s timeout, which is what the user saw.
+- Added (core-list BOM source, ledger refreshed): `NUI_RENA_TARGETING_GUNGNIR = 2083,` in `Enum.lua`'s `NPC_UNIT_ID` beside the other port-added names; June's `AddNPCTemplet` row verbatim (`june_src_fixed/data037_kom/NPCTemplet.src.lua:18660`; script `Rena_Targeting_Gungnir.lua`, already June's bytecode in data037; mesh `CDC_AS_ROCKON_DUMMY.X`, March data117, the same mesh and `Normal` anim as Chung's working targeting NPC) at the end of `NPCTemplet.lua` in a `char-rena CH3b2` block.
+- `luabind.py check Rena_Targeting_Gungnir`: 17 methods, 0 unbound, PASS. `luasrc.py ledger --check` PASS, `core --check` PASS.
+- `PACK OK data036`, `PACK OK data037`; `COPY OK data036` md5 d42346f0 (backup `kom_backup_tools\data036.kom.20261110_110459`), `COPY OK data037` md5 5eea4f8e (backup `..._110500`).
+- Found, not ported (March engine, not June): in a battle field an NPC whose templet is missing never finishes `AddNPCUnitUIDResource`, and the field's in-order create queue (`CX2BattleFieldGame::OnFrameMove`, front only) then stalls every later field NPC. Moot once every summoned id has a row; noted only.
+
+**Hygiene.**
+- `flagcheck.py SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC --worktree`: 1 PASS (`X2DamageManager.cpp` +19), 1 DEFINE, 0 deleted, 0 FAIL, `RESULT: PASS`.
+- `junediverge.py --check X2Lib/X2DamageManager.cpp KTDXLIB/Always.h`: `RESULT: PASS`. `enumscan.py --check X2Lib/X2DamageManager.cpp`: 0 A/B rows.
+- `DEPLOY OK: X2_offline.exe is 26,184,704 B, dated 2026-11-10 11:16:01, md5 60d22c2cb5a3f7f747c958b9b3034753, equal to X2/US_SERVICE/x2.exe (2026-11-10 11:15:54); built at main 2e297802 + 2 uncommitted code file(s).` `EXESTR OK: 2 of 2` ( wide `JUNE_FX CE_HIT`, `[JUNE_CHAR] SUMMON npc` ).
+- funcmap rows `3262b6e0 @3262ba99-3262bb4f`, `32757490`, `32ca1240`. No JUNE_BUGS row (no June quirk). `MODS.md` "Stage 7 Rena, CH3b2".
+
+**How to see it in game.** Wind Blast's arrow explodes on the enemy it chases. Gungnir: hold the skill key, the aim mark appears and the arrow keys move it, release fires.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as two from the start; CH0 adds CH4c if the

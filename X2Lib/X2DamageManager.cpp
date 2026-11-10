@@ -2919,12 +2919,31 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 #ifdef LOCK_ON_USER_ONLY_ON
 		if( true == pAttacker->GetLockOnData().m_bIsOnlyTargetAttack )
 		{
+#ifdef SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC
+			// char-rena CH3b2: June 3262b6e0 @3262ba99-3262bb4f, a user matches the lock-on unit UID, an NPC the lock-on NPC UID, any other unit is skipped
+			if( CX2GameUnit::GUT_USER == pDefender->GetGameUnitType() )
+			{
+				if( pDefender->GetUnitUID() != pAttacker->GetLockOnUnitUID() )
+					continue;
+			}
+			else if( CX2GameUnit::GUT_NPC == pDefender->GetGameUnitType() )
+			{
+				// stand-in: June's boss-raid field test 32481fa0 is false in this build; its follow-target retarget ( @3262baca-3262bb22 ) is not written
+				if( static_cast<CX2GUNPC*>( pDefender )->GetUID() != pAttacker->GetLockOnData().m_LockOnNPCUID )
+					continue;
+			}
+			else
+			{
+				continue;
+			}
+#else SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC
 			CX2GUUser* pUser = static_cast<CX2GUUser*>( pDefender );
 			if( pUser == NULL )
 				continue;
 
 			if( pUser->GetUnitUID() != pAttacker->GetLockOnUnitUID() )
 				continue;
+#endif SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC
 		}
 #endif //LOCK_ON_USER_ONLY_ON
 //#ifdef PVP_BOSS_COMBAT_TEST

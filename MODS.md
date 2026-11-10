@@ -6258,3 +6258,10 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (same flag; `_SKILL_DEBUG` stays on fo
 | Ace in the Hole (23059) | Power Attack default | 14.76 x 2 arrows, 53.37 final arrow + 6.69 explosion |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every class-103 skill falls back to the Power Attack default, and CH2a's - CH3a's too), `python tools/build.py --deploy`.
+
+## Stage 7 Rena, CH3b2: only-target hits on NPCs, Gungnir's targeting NPC row (2026-11-10)
+
+Flag `SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC` (`KTDXLIB/Always.h`, end). Plan `JUNE_CHARACTER_RENA_PHASES.md` "CH3b2 - Done".
+- **What changes in game.** A damage effect with `LOCK_ON_DATA.ONLY_TARGET_ATTACK = TRUE` hits the NPC it is locked on (June `3262b6e0` @3262ba99: a user is matched by the lock-on unit UID, an NPC by the lock-on NPC UID, any other unit is skipped). March cast every defender to `CX2GUUser`, so no NPC could pass and Wind Blast's arrow flew through its target. `X2Lib/X2DamageManager.cpp` `EffectToUnit`, inside `LOCK_ON_USER_ONLY_ON`, March's block in `#else`. June's boss-raid retarget (@3262baca, gate `32481fa0`) is a stand-in: false in this build.
+- **Data (no flag; core-list source).** `data036 Enum.lua` gains `NPC_UNIT_ID.NUI_RENA_TARGETING_GUNGNIR = 2083` and `data037 NPCTemplet.lua` gains June's row for it (`Rena_Targeting_Gungnir.lua`, mesh `CDC_AS_ROCKON_DUMMY.X`), verbatim from `june_src_fixed/data037_kom/NPCTemplet.src.lua:18660`. Without the row the client never built Gungnir's aim NPC (CH2d0 registered it in C++ only), so the cast stayed in its ready state. Ledger refreshed; data036 + data037 packed and copied (backups `kom_backup_tools\data036.kom.20261110_110459`, `data037.kom.20261110_110500`).
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC`, `python tools/build.py --deploy`; for the data, delete the `NUI_RENA_TARGETING_GUNGNIR` line in `Enum.lua` and the `char-rena CH3b2` block at the end of `NPCTemplet.lua`, `luasrc.py refresh` both, pack and copy data036 / data037.

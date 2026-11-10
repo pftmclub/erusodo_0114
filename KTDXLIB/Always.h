@@ -12118,3 +12118,13 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-10
+// Description: June character port ( Rena ) Phase CH3b2 - ONLY_TARGET_ATTACK ( damage effect lock-on data ) matches an NPC defender by the
+//              lock-on NPC UID and a user by the lock-on unit UID, and skips any other unit ( June EffectToUnit 3262b6e0 @3262ba99 ); March cast
+//              every defender to a user, so no NPC ever passed ( Wind Blast's arrow flew through its target ).
+//              Revert: undefine the flag ( JUNE_ONLY_TARGET_ATTACK_NPC ).
+#define SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC
+//////////////////////////////////////////////////////////////////////////
