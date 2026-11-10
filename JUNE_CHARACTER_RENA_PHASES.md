@@ -2474,7 +2474,7 @@ Listings `charport_adis.py rena 32ca78b0 32ca2180 32ca2390 32c86790 32ca28b0 32c
   `june_march_divergent.tsv` rows 444-448: pass.
 - **Logs:** run 15:04-15:09:41 after deploy md5 82ae5d0d holds every CH4b line except Eradication's `mp:` / `cool time -> -1.00` (count never reached; the latter is unreachable, above); ErrorLog 0 matches. CH4a's lines as its note.
 - **Gates:** `flagcheck JUNE_CHAR_RENA_PASSIVE --with .._DEBUG --range dd5435d3^..9398775a --files` (7): `files: 4 PASS, 2 PASS~ (blank/marker only), 2 DEFINE, 3 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 19 EOL-mismatched inserted line(s)` (CH4b's, as its note); `RESULT: PASS`.
-  `junediverge.py --check-all`: `allow-listed: 202`, `RESULT: PASS`. `enumscan.py --check X2GULire_ElvenRanger.cpp X2GUNPC.cpp`: `0 A/B row(s)`. `/Zs` probes of both cpps: exit 0, 0 errors. Retirement: `//#define SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG` (bytepatch, CP949 / CRLF unchanged); build started, not awaited.
+  `junediverge.py --check-all`: `allow-listed: 202`, `RESULT: PASS`. `enumscan.py --check X2GULire_ElvenRanger.cpp X2GUNPC.cpp`: `0 A/B row(s)`. `/Zs` probes of both cpps: exit 0, 0 errors. Retirement: `//#define SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG` (bytepatch, CP949 / CRLF unchanged); build started, not awaited. Range `8be626f3^..8be626f3 --files Always.h`: `1 DEFINE, 0 FAIL`, `1 deleted line(s)` (the `//#define`), `RESULT: PASS`.
   CH6's kickoff checked: ready (CH3d, CH4b, CH5 reviews done); one line added (the Eradication kill count).
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
