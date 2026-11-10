@@ -104,7 +104,8 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH3b | **play-test owed** (unit 92 `GrandArcherT`, three sets; then "check logs", then `/x2-phase char-rena CH3b review`): Grand Archer (103) skills written ( 16 ids ), `_SKILL_DEBUG` on until the review, which also covers CH3a | Sonnet 5.5 / high, Opus review, user play-test | CH3a | `X2GULire_ElvenRanger.*` | `CH3b.md` |
+| CH3b | **play-test: 8 of 10 skills pass** (user 2026-11-10); Wind Blast never hits ( the only-target check skips NPCs ) and Gungnir never leaves its ready state: fix is CH3b2 ( below ); `_SKILL_DEBUG` on until the review, which also covers CH3a | Sonnet 5.5 / high, Opus review, user play-test | CH3a | `X2GULire_ElvenRanger.*` | `CH3b.md` |
+| CH3b2 | **ready** (`/x2-phase char-rena CH3b2`, Opus 5.5 high): Wind Blast engine fix ( `X2DamageManager` only-target check, June `3262b6e0` ) + Gungnir diagnosis and fix; one build, one play-test ( unit 92 set 1, slots Q and R ) | Opus 5.5 / high, folded into the CH3b review, user play-test | CH3b | `X2GULire_ElvenRanger.*`, `X2DamageManager.*`, `X2Game.cpp` | `CH3b2.md` |
 | CH3c0 | blocked (CH3b review): Night Watcher engine hook (base `31fcd700` -> `32ca6cd0`, 14 fn; CH0 found it unmapped) | Opus 5.5 / high, Opus review | CH3b review | `X2GULire_ElvenRanger.*`, `X2GUUser.*`, `X2GUNPC.*`, `X2DamageManager.*` | `CH3c0.md` |
 | CH3c | blocked (CH3c0 review): Night Watcher (114) skills | Sonnet 5.5 / high, Opus review, user play-test | CH3c0 review | `X2GULire_ElvenRanger.*` | `CH3c.md` |
 | CH3d | blocked (CH3c review): hyper actives + transcendence rows, skill icons PASS | Opus 5.5 / high, Opus review, user play-test | CH3c review | `X2GULire_ElvenRanger.*`, `X2GUUser.*`, `X2Offline*` | `CH3d.md` |
