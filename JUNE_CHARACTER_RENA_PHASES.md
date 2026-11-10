@@ -2549,6 +2549,25 @@ transition on un-transcended units (user rule, 2026-10-28):** one unit per secon
 relog. A defect goes back to its phase's flag.
 
 **Done gate:** the walk passes; 0 unexplained `no_state` rows; no new `KEM_ERROR`.
+### CH6 - Done (2026-11-10, Sonnet 5.5): scans PASSED, walk owed
+
+**No code change, no flag, no build, no kom** (flagcheck / junediverge n/a; full build skipped: no code; deployed exe is CH4b's). Save backed up first: `data\db_backup\els_db_20261110_152940_pre_pre_ch6_rena_walk.sql`.
+
+| Scan | Before (planning, 2026-11-07) | After |
+|---|---|---|
+| `census.py --summary` | 26 PASS, 0 FAIL | 26 PASS, 0 FAIL, 0 `to-implement` (census.tsv unchanged) |
+| `charport_scan.py` (`C:/tmp/cps6rena`) | `Lire_ElvenRanger {'no NUMERICAL_DATA_INDEX': 65, 'no DAMAGE table': 12}` | identical; src/bytecode mismatch none |
+| `charport_keys.py Lire_ElvenRanger` | 256 keys, june-only 8 | 256 keys: 243 both / 6 june-only / 3 neither / 4 march-only-site (june-only: `BBT_` / `BFT_` no reader, camera pair `FORCE_DYNAMIC_CAMERA_INDEX` + `RETAIN_CAMERA_STATE` (Stage 9), `IMMUNITY_EDT_LIST_AT_THIS_STATE` (Stage 2), `IMMUNE_TO_SUPER_ARMOR_DOWN` (class key, ported CH2/CH3)) |
+| `s3_no_state.py --family X2GULire_ElvenRanger.cpp --preprocess` | 267 rows, 260 `no_state` | 267 rows, `no_state=61` (35 ids), **0 unexplained** |
+
+**The 35 `no_state` ids** (the generator resolves unqualified `case SI_*` only):
+- 15 actives with a `case CX2SkillTree::RNSI_*` state in `X2GULire_ElvenRanger.cpp`: 23000 (5811), 23005 (5945), 23006 (5930), 23008 (6349), 23010 (6440), 23012 (6024), 23016 (6592), 23019 (6175), 23022 (6755), 23023 (6769), 23060 Eradication (6880), 23201 (5916), 23210 (6099); 900 `SI_ETC_WS_COMMON_LOVE` at 5779.
+- 106 Awakened One: no class state in June (as Raven's 106 / 900); hyper aura is read through the buff path.
+- 23400-23417 type-8 passives (18 ids): no class state in June; read through `GetSkillLevelValue` / buff factors (CH4a, CH4b; the CH4 review passed them).
+
+**Walk units (in the save).** Un-transcended: 86 (3), 87 (12), 88 (13), 91 (24), 35 (24 lv70), 12 `reyaa` (103). Transcended: 89 (102), 90 (114), 92 (103). Transition test (created this phase with `createchar.py`, lv 99, transcendence 0, no quest 42030 row): 93 `WindSneakerTC` (102), 94 `GrandArcherTC` (103), 95 `NightWatcherTC` (114) ("TC" = to be changed). (CH0b's note listed 89 / 90 as plain units; the save has them transcended, so they serve as the transcended pair.)
+
+**Open: the user's walk** (kickoff CH6 plus the CH5, CH2a, CH2b, CH3d-review and CH4b-review amendments) is the gate. Log tag `[JUNE_CHAR]`, `[JUNE_TRANSCEND]`; `ErrorLog.txt` 0 `KEM_ERROR` / `Motion Error`.
 
 ## Phase Z - Close-out
 
