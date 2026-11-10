@@ -40,6 +40,10 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
 
 
+## Amended by the user (2026-11-10)
+
+- **Creation screen is part of this port.** Add to the Task: Ara's entries on the character-creation screen for classes 7 / 28 / 31 / 118 / 119: adopt `DLG_Unit_Create_ClassChange_Button_Ara.lua` (`adopt-june`, `luabind.py check`; row owner moved to `char-ara` / `CH5` in `ch0_assets.tsv`), list every June function the creation state and unit viewer run for Ara from Ghidra, port them under `_UI`. Done gate adds: open the creation screen, pick Ara, each class preview (and the `Movie_Create_Ara_*` movies) shows June's art, no new error. 34 / 124 are CHNa's.
+
 ## Amended by CH0 (2026-11-10)
 
 - **Checklist rows: 4** (`awk -F'\t' '$5 ~ /(^| )CH5( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L368 unit-viewer ALD_LobbyWait row; March's hand-made orb (m_hSeq; L594 June UnitTemplet.lua m_HyperCutIn / m_BerserkCutIn keys and ; L620 skill cut-in names -> June .gfx: June HQ_CutIn_Ara_*; March ; L954 every class also brings: emulator allow-list id, LevelUpEven.

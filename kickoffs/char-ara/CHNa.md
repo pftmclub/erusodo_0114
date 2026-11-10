@@ -20,6 +20,8 @@ cat june2017_re/char_ara/ch0_classn.tsv
 
 ## Task
 
+**Amended by the user (2026-11-10): the creation screen is part of this port, not Stage 9.** Also add Little Specter (34) and Asura (124) to the creation screen's Ara class tree and previews (the `DLG_Unit_Create_ClassChange_Button_Ara.lua` rows CH5 adopted, preview mesh / motion, `Movie_Create_Ara_AA`), once the class loads; the play-test opens the creation screen and checks both entries.
+
 Do CHNa from `ch0_classn.tsv`. `UC_END` is 124 = `UC_ARA_ASURA`, so every `< UC_END` test refuses Asura: the socket loader
 (`X2SocketItem.cpp:2897`) first, then `X2ItemManager_Preprocessing.cpp:688`, `X2GameEdit.cpp:1643`, `X2OfflineLuaEnumSeed.h:117-118` and whatever else CH0
 lists, each given June's bound (read June's own test, never guess a new end value); the class switches with no 34 / 124 arm (`X2GageManager.cpp:180-190`

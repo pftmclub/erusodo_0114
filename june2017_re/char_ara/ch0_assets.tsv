@@ -1347,7 +1347,7 @@ DLG_UI_JUMPING_SYSTEM_ARA_2ND_CLASS.lua	lua	a	datai014	3851	-	-	missing	stage9-u
 DLG_UI_Text_05.TET	other	b	data151	3956	data151	3956	june-bytes	char-ara	CH0b	piece table of DLG_UI_Text_05.tga; bytes==June
 DLG_UI_Text_05.tga	texture	b	data151	1048620	data151	1048620	june-bytes	char-ara	CH0b	named in DLG_1ST_Class_Change_Guide_Ara; bytes==June
 DLG_Unit_Background_ara.tga	texture	a	data051	1048620	data051	1048620	march-copy	char-ara	CH0b	token ara; same size, bytes differ
-DLG_Unit_Create_ClassChange_Button_Ara.lua	lua	a	data034	4964	data034	3546	march-copy	stage9-ui	-	token Ara; jumping / unit / PvP dialog
+DLG_Unit_Create_ClassChange_Button_Ara.lua	lua	a	data034	4964	data034	3546	march-copy	char-ara	CH5	token Ara; jumping / unit / PvP dialog
 DM_ARA_JC.tga	texture	a	data048	74028	data048	74028	june-bytes	char-ara	CH0b	token ARA; bytes==June
 Down.ogg	sound	b	data070	6650	data070	6650	june-bytes	char-ara	CH0b	named in Ara_Martial_Artist; bytes==June
 DragonStrike.dds	texture	b	data132	8320	data132	8320	june-bytes	char-ara	CH0b	effect closure; bytes==June

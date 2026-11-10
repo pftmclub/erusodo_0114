@@ -1586,6 +1586,8 @@ ORDER  BY UnitClass;
 
 ## Standing rules (every stage, every kickoff)
 
+- **The character-creation screen is part of each character port (user, 2026-11-10), never Stage 9.** A char plan's phases (the UI / CH5 phase, and the class-path phase for June-only classes) port that character's entries: her `DLG_Unit_Create_ClassChange_Button_<Name>.lua`, the creation state's and unit viewer's class previews, the `Movie_Create_<Name>_*` movies. Lu/Ciel's plan already does (NU0 item 4, 2026-11-02). Plans closed before this date (Eve, Chung, Elsword, Raven, Rena) have the entries unported.
+
 - **Sources.** Read June Lua only from `june_src_fixed/`. Use the `june2017_re/` tools only to extract files missing there ([[june-lua-from-june-src-fixed]]). June C++ behaviour comes from the binary in Ghidra and cites the function address. Never port raw offsets.
 - **No partial June updates** ([[no-partial-june-updates]]). If June changed a function March already has, port June's whole version in the same pass.
   This covers the function's own body. Its callees are separate functions, and the scope rule below decides each one.
