@@ -6,6 +6,8 @@ offset	kind	name	note
 0x31c	field	m_PhysicParam.fGAccel
 0x320	field	m_PhysicParam.fMaxGSpeed
 0x3e59	field	m_bAbsoluteInvisibility	GetAbsoluteInvisibility()
+0x3eb0	field	m_vecEffectSetToDeleteOnDamageReact	CX2GameUnit; the CH1g Specter / Asura effect FrameMoves push their handles here ( 32bbbc70 ... 32bc08d0; funcmap 32007570 C9h-4 ) ( CH1g review )
+0x3ec0	field	m_vecEffectSetToDeleteOnStateEnd	CX2GameUnit; the ZZZX charge FrameMove 32bb4630 @32bb47f3 pushes here ( CH1g review )
 0x423c	field	m_fRunJumpSpeedRate	GetWalkSpeed / GetDashSpeed multiply it
 0x4910	field	walk speed triple ( +0x4910 ^ +0x4914 ^ &+0x4918 )	GetWalkSpeed()
 0x49c4	field	dash speed triple	GetDashSpeed() ( also called as 32071a80 )

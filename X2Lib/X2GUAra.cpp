@@ -15166,7 +15166,7 @@ void CX2GUAra::ASI_DASH_COMBO_ALS_XX_FrameMove()
 		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ALS_Dash_Combo_XX_Damage", this, NULL,
 			IsHyperState(), fPowerRate );
 		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
-			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hEffectSet );	// char-ara CH1g review: June pushes into +0x3eb0, the damage-react list
 	}
 
 	CommonFrameMove();
@@ -15184,7 +15184,7 @@ void CX2GUAra::ASI_COMBO_ALS_XXXLoopZ_FrameMove()
 		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ALS_ComboXXXloopZ", this, NULL,
 			IsHyperState(), fPowerRate );
 		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
-			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hEffectSet );	// char-ara CH1g review: June pushes into +0x3eb0, the damage-react list
 	}
 
 	CommonFrameMove();
@@ -15202,7 +15202,7 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_ALS_ZX_FrameMove()
 		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ALS_ComboXXXloopZ", this, NULL,
 			IsHyperState(), fPowerRate );
 		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
-			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hEffectSet );	// char-ara CH1g review: June pushes into +0x3eb0, the damage-react list
 	}
 
 	CommonFrameMove();
@@ -15220,7 +15220,7 @@ void CX2GUAra::ASI_COMBO_AA_XXDownXZStart_FrameMove()
 		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AA_ComboXXdownXZ", this, NULL,
 			IsHyperState(), fPowerRate );
 		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
-			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hEffectSet );	// char-ara CH1g review: June pushes into +0x3eb0, the damage-react list
 	}
 
 	if ( m_pXSkinAnim->EventTimerOneshot( 0.4f ) )
@@ -15247,7 +15247,7 @@ void CX2GUAra::ASI_COMBO_AA_XXDownXZLoop_FrameMove()
 		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AA_ComboXXdownXZloop_Attack1", this, NULL,
 			IsHyperState(), fPowerRate );
 		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
-			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hEffectSet );	// char-ara CH1g review: June pushes into +0x3eb0, the damage-react list
 	}
 
 	if ( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
@@ -15259,7 +15259,7 @@ void CX2GUAra::ASI_COMBO_AA_XXDownXZLoop_FrameMove()
 		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AA_ComboXXdownXZloop_Attack2", this, NULL,
 			IsHyperState(), fPowerRate );
 		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
-			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hEffectSet );	// char-ara CH1g review: June pushes into +0x3eb0, the damage-react list
 	}
 
 	CommonFrameMove();
@@ -15277,7 +15277,7 @@ void CX2GUAra::ASI_COMBO_AA_XXDownXZLoopX_FrameMove()
 		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AA_ComboXXdownXZX_Attack", this, NULL,
 			IsHyperState(), fPowerRate );
 		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
-			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hEffectSet );	// char-ara CH1g review: June pushes into +0x3eb0, the damage-react list
 	}
 
 	if ( m_pXSkinAnim->EventTimerOneshot( 0.15f ) )
@@ -15301,7 +15301,7 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_AA_ZXX_FrameMove()
 		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AA_Dash_Jump_Combo_ZXX_Damage", this, NULL,
 			IsHyperState(), fPowerRate );
 		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
-			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hEffectSet );	// char-ara CH1g review: June pushes into +0x3eb0, the damage-react list
 	}
 
 	CommonFrameMove();
@@ -15319,7 +15319,7 @@ void CX2GUAra::ASI_COMBO_ASR_ZZZX_FrameMove()
 		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ALS_Dash_Combo_XX_Damage", this, NULL,
 			IsHyperState(), fPowerRate );
 		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
-			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hEffectSet );	// char-ara CH1g review: June pushes into +0x3eb0, the damage-react list
 	}
 
 	CommonFrameMove();

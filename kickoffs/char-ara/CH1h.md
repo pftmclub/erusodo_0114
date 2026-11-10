@@ -63,3 +63,8 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - InitComponent `32bb0da0` reads the 7 June-only `INIT_COMPONENT` keys into: `+0x9610` / `+0x9611` (FP count at dungeon / PvP start, bytes), `+0x96fc` (default 9), `+0x9704`, `+0x9808` (vector<float>), `+0x9720` (vector<int>), `+0x9730` (`ch0_fp.tsv`): the reads are written here under `_FP`; their readers are CH1q's. Max FP is the constant 10 in Init `32bc7e90` / ReInit `32bc8030` (March: `min(level/10, 6) + 4`): under `_FP`.
 - `AppendMajorParticleToDeviceList` `32b96640` (March has it) is here. `AppendDeviceToDeviceList` `32bd86b0` / `AppendComponentToDeviceList` `32bd86e0` are empty in June and March: nothing to port. `32bd86c0` is unreferenced (dead).
 - June-only record vector at Ara `+0x9858` (`{USHORT, int, vector<12-byte T>}`; STL helpers `321f3fe0` / `32ed3950` / `32a79680`): declare the member and record type here.
+
+## Amended by the CH1g review (2026-11-10)
+
+- CH1g added three `_CORE` members to `X2GUAra.h` with ctor values in the initializer list: `m_hComboXXdownXZBlackHole` (`+0x9734`, `INVALID_EFFECTSET_HANDLE`), `m_iComboXXdownXZLoopCount` (`+0x9738`, 0), `m_fBuffHyperModeDamageRate` (`+0x9744`, 0). The ctor `32bc6bf0` transcription places them in the offset map and confirms June's ctor values; `+0x9744` is the buff hyper rate CH1q writes (L237).
+- Effect-set handle lists are `CX2GameUnit` members: June `+0x3eb0` = `m_vecEffectSetToDeleteOnDamageReact`, `+0x3ec0` = `m_vecEffectSetToDeleteOnStateEnd` (now named in `ch1_offsets.tsv`, so `charport_adis.py` labels them). The CH1g review fixed nine pushes that had the wrong list; read the `lea ecx, [esi + 0x3e?0]` before each push.
