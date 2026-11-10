@@ -2399,6 +2399,8 @@ Read from the raw listings (`charport_adis.py rena`: `32ca78b0` uncarved, its ca
 **How to see it in game:** one `[JUNE_CHAR] RENA PASSIVE init` line per load with the values above; `open mind effect`, `predator lucky effect`, `rage fungus lock`,
 `eradication debuff explosion`, `friendship of nature buff`, `vital point piercing` lines when each fires.
 
+**Logs ( 2026-11-10, run 14:12-14:18, after deploy md5 3534a8a0; 0 EXCEPTION, 0 KEM_ERROR / Motion Error; known `E_DISABLE_HB_CHECK_REQ` x5 and one `AddGroupChainQuest` ).** `init` ( two per load, equal ): unit 89 range x1.400 ( Powerful Shot ), arrow power x1.200, back speed 500, friendship 1 rate 0.100, agile 1, Open Mind 23412 mp 3.0 rate 0.200, list 1; unit 92 range x1.550, siege x1.100 ( Hawk Eye ), arrow power x1.100 ( Bowstring 23405 ), charge mp 7.0, vibration 0.150 / 1.225, Open Mind 23414 rate 0.200, list 1; unit 90 range x1.400 ( Sharpen Arrow ), vital point 1, prior blow 1, Open Mind 23416 rate 0.300, list 4. Seen: `open mind effect` 11 / 9 / 39 ( triggers 20 / 21 / 22, natural force >= 1 each ), `friendship of nature buff` x1, `vital point piercing` x15 ( +20 MP; same roll in consecutive frames: the per-frame count restarts, June's ), `rage fungus lock` x50, `predator lucky effect` x37 ( up to three per hit, one per target ), `eradication debuff explosion` x8 ( buff 944 ). User owes nothing; the CH4b review covers CH4a.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_UI`. Sub-tag `UI`.
