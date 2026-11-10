@@ -2391,7 +2391,7 @@ Read from the raw listings (`charport_adis.py rena`: `32ca78b0` uncarved, its ca
 `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
 (OTHER = the names under `JUNE_ENUM_NAMES`). `junediverge.py --check` (7 files): `RESULT: PASS`; `--check-all`: `allow-listed: 202`, `RESULT: PASS`. `enumscan.py --check X2GULire_ElvenRanger.cpp X2GUNPC.cpp`: `0 A/B row(s)`.
 `skillicons.py check 23400-23417`: `skills 18, misses 0`, `RESULT: PASS`.
-**Range:** RANGE_LINE
+**Range (commit `dd5435d3`):** `--range dd5435d3^..dd5435d3`, same 7 files: `files: 3 PASS, 1 PASS~, 1 DEFINE, 2 OTHER, 0 FAIL, 0 ERROR`; 0 deleted (in the flag's files); `RESULT: PASS`.
 **Deploy:** `DEPLOY OK: X2_offline.exe is 26,191,360 B, dated 2026-11-10 14:09:44, md5 3534a8a0f7694338219db9b3f3fdccdd, equal to X2/US_SERVICE/x2.exe (2026-11-10 14:09:37); built at main bc7f513b + 7 uncommitted code file(s).`
 `EXESTR OK: 6 of 6 found in X2_offline.exe, 26191360 B, dated 2026-11-10 14:09:44, md5 3534a8a0f7694338219db9b3f3fdccdd` (wide: 3 log lines, 3 effect-set names).
 **Save:** backup `db_backup/els_db_20261110_140036_pre_sql.sql`; added 23402 (unit 89), 23406 (92), 23410 + 23417 (90), slot -1.
