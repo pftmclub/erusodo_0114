@@ -133,6 +133,9 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	, m_bFPCancelProbe( false )	// char-ara CH1d
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+	, m_hComboXXdownXZBlackHole( INVALID_EFFECTSET_HANDLE ), m_iComboXXdownXZLoopCount( 0 ), m_fBuffHyperModeDamageRate( 0.f )	// char-ara CH1g
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	, m_usForceGainCount( 0 ), m_usBeforeForceGainCount( 0 ), m_pSkillTemplet( NULL ), m_iPressedSkillSlotIndex( -1 )
 	, m_fMPConsume( 0.f )	
 
@@ -14787,6 +14790,584 @@ void CX2GUAra::ASI_COMBO_ALD_XXdownXXXX_FrameMove()
 {
 	if ( m_pXSkinAnim->EventTimerOneshot( 0.11f ) )
 		CreateEnergeBullet( 0.f, true );
+
+	CommonFrameMove();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+// char-ara CH1g: Little Specter / Asura line states ( June 32b93fa0 - 32bc6720; CH1m registers them )
+namespace _CONST_ARA_CH1G_
+{
+	const float DASH_JUMP_XZ_BULLET_MP_CONSUMPTION = 4.f;	// June 32bc0bb0: Asura's dash-jump X-Z bullet MP
+}
+using namespace _CONST_ARA_CH1G_;
+
+// char-ara CH1g: June 32b93fa0 ( ASI_DASH_COMBO_ALS_XX )
+void CX2GUAra::ASI_DASH_COMBO_ALS_XX_StateEndFuture()
+{
+	CommonStateEndFuture();
+
+	m_FrameDataFuture.syncData.bIsRight	= !m_FrameDataFuture.syncData.bIsRight;
+	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+}
+
+// char-ara CH1g: June 32b93fe0 ( ASI_DASH_JUMP_COMBO_ALS_ZX; the landing point comes from the user's landing prediction )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_ALS_ZX_StateStartFuture()
+{
+	D3DXVECTOR3 vPos = m_FrameDataFuture.syncData.position;
+	LandingPrediction( 1000.f, -600.f, &vPos, 5 );
+	m_FrameDataFuture.syncData.position = vPos;
+
+	CommonStateStartFuture();
+}
+
+// char-ara CH1g: June 32b94070 ( ASI_COMBO_AA_XXDownXZStart )
+void CX2GUAra::ASI_COMBO_AA_XXDownXZStart_StateStart()
+{
+	m_iComboXXdownXZLoopCount = 0;
+
+	CommonStateStart();
+}
+
+// char-ara CH1g: June 32b94090 ( ASI_DASH_JUMP_COMBO_AA_ZXX )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_AA_ZXX_StateEndFuture()
+{
+	CommonStateEndFuture();
+
+	m_FrameDataFuture.syncData.bIsRight	= !m_FrameDataFuture.syncData.bIsRight;
+	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+}
+
+// char-ara CH1g: June 32b9edd0 ( ASI_DASH_COMBO_ALS_X; the FP-cancel lines are CH1q's )
+void CX2GUAra::ASI_DASH_COMBO_ALS_X_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneX == true && true == IsInJobLine( 3 ), ASI_DASH_COMBO_ALS_XX )
+	else if ( true == m_bFPCancel && 0 != m_iChosenSkillID &&
+		false == ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( m_iChosenSkillID, CX2SkillTree::RNSI_A_AYR_REFLECTION ) ) )
+	{
+		StateChangeSpecialAttack( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );	// stand-in: June vslot 0x7fc ( skill, true ) is CH1k's
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )	// stand-in: June vslot 0x7f8 takes ( true ), CH1k's
+	{
+		m_bFPCancel = true;
+	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	m_bFPCancelProbe = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32b9ef70 ( ASI_DASH_COMBO_ALS_XX; ASI_COMBO_ALS_XXXLoopZ below is the same listing )
+void CX2GUAra::ASI_DASH_COMBO_ALS_XX_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+		true == IsOnSomethingFuture() && true == m_InputData.oneZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+		true == IsOnSomethingFuture() && true == m_InputData.oneX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32b9f290 ( ASI_COMBO_ALS_XXXLoopZ )
+void CX2GUAra::ASI_COMBO_ALS_XXXLoopZ_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+		true == IsOnSomethingFuture() && true == m_InputData.oneZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+		true == IsOnSomethingFuture() && true == m_InputData.oneX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32b9f5b0 ( ASI_DASH_JUMP_COMBO_ALS_ZX )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_ALS_ZX_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneX == true && CX2Unit::UC_ARA_ASURA == GetUnitClass(), ASI_DASH_JUMP_COMBO_AA_ZXX )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+		true == IsOnSomethingFuture() && true == m_InputData.oneZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+		true == IsOnSomethingFuture() && true == m_InputData.oneX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32b9f9b0 ( ASI_COMBO_AA_XXDownXZStart )
+void CX2GUAra::ASI_COMBO_AA_XXDownXZStart_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( ASI_COMBO_AA_XXDownXZLoop );
+	}
+	else if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+		true == IsOnSomethingFuture() && true == m_InputData.oneZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+		true == IsOnSomethingFuture() && true == m_InputData.oneX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32b9fce0 ( ASI_COMBO_AA_XXDownXZLoop; Z held keeps looping up to 5 times, then it ends in the Loop-X state )
+void CX2GUAra::ASI_COMBO_AA_XXDownXZLoop_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] && m_iComboXXdownXZLoopCount < 5 )
+		{
+			++m_iComboXXdownXZLoopCount;
+			StateChange( ASI_COMBO_AA_XXDownXZLoop );
+		}
+		else
+		{
+			StateChange( ASI_COMBO_AA_XXDownXZLoopX );
+		}
+	}
+	else if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, m_fEventTime[1].stateChange,
+		m_InputData.oneX == true && CX2Unit::UC_ARA_ASURA == GetUnitClass(), ASI_COMBO_AA_XXDownXZLoopX )
+	else if ( true == m_InputData.oneZ )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32ba0040 ( ASI_COMBO_AA_XXDownXZLoopX )
+void CX2GUAra::ASI_COMBO_AA_XXDownXZLoopX_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+		true == IsOnSomethingFuture() && true == m_InputData.oneZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+		true == IsOnSomethingFuture() && true == m_InputData.oneX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32ba0360 ( ASI_DASH_JUMP_COMBO_AA_ZXX; the same listing as the Loop-X EP )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_AA_ZXX_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+		true == IsOnSomethingFuture() && true == m_InputData.oneZ )
+	{
+		StateChange( GetComboZStateID() );
+	}
+	else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+		true == IsOnSomethingFuture() && true == m_InputData.oneX )
+	{
+		StateChange( GetComboXStateID() );
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32ba4ec0 ( ASI_DASH_COMBO_ALS_ZX; ASI_COMBO_ASR_ZZZX below is the same listing )
+void CX2GUAra::ASI_DASH_COMBO_ALS_ZX_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32ba5210 ( ASI_COMBO_ASR_ZZZX )
+void CX2GUAra::ASI_COMBO_ASR_ZZZX_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32ba53a0 ( ASI_DASH_JUMP_COMBO_ASR_XZ; the walk / dash cancels sit behind the on-line test of the airborne branch: dead, JUNE_BUGS 590 )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_ASR_XZ_EventProcess()
+{
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneZ == true && CX2Unit::UC_ARA_ASURA == GetUnitClass(), ASI_DASH_JUMP_COMBO_ASR_XZZ )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32ba54d0 ( ASI_DASH_JUMP_COMBO_ASR_XZZ; JUNE_BUGS 590 )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_ASR_XZZ_EventProcess()
+{
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneZ == true && CX2Unit::UC_ARA_ASURA == GetUnitClass(), ASI_DASH_JUMP_COMBO_ASR_XZZZ )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32ba5600 ( ASI_DASH_JUMP_COMBO_ASR_XZZZ; JUNE_BUGS 590 )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_ASR_XZZZ_EventProcess()
+{
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+
+// char-ara CH1g: June 32bbbc70 ( ASI_DASH_COMBO_ALS_XX; the power rate takes the +0x9744 scale while it is above 0 )
+void CX2GUAra::ASI_DASH_COMBO_ALS_XX_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.26f ) )
+	{
+		float fPowerRate = GetPowerRate();
+		if ( 0.f < m_fBuffHyperModeDamageRate )
+			fPowerRate *= m_fBuffHyperModeDamageRate;
+
+		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ALS_Dash_Combo_XX_Damage", this, NULL,
+			IsHyperState(), fPowerRate );
+		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
+			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH1g: June 32bbbe60 ( ASI_COMBO_ALS_XXXLoopZ )
+void CX2GUAra::ASI_COMBO_ALS_XXXLoopZ_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		float fPowerRate = GetPowerRate();
+		if ( 0.f < m_fBuffHyperModeDamageRate )
+			fPowerRate *= m_fBuffHyperModeDamageRate;
+
+		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ALS_ComboXXXloopZ", this, NULL,
+			IsHyperState(), fPowerRate );
+		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
+			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH1g: June 32bbc050 ( ASI_DASH_JUMP_COMBO_ALS_ZX; June plays the XXX-loop-Z set here too )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_ALS_ZX_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		float fPowerRate = GetPowerRate();
+		if ( 0.f < m_fBuffHyperModeDamageRate )
+			fPowerRate *= m_fBuffHyperModeDamageRate;
+
+		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ALS_ComboXXXloopZ", this, NULL,
+			IsHyperState(), fPowerRate );
+		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
+			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH1g: June 32bbc240 ( ASI_COMBO_AA_XXDownXZStart; the black hole set is kept for the Loop-X state to stop )
+void CX2GUAra::ASI_COMBO_AA_XXDownXZStart_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
+	{
+		float fPowerRate = GetPowerRate();
+		if ( 0.f < m_fBuffHyperModeDamageRate )
+			fPowerRate *= m_fBuffHyperModeDamageRate;
+
+		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AA_ComboXXdownXZ", this, NULL,
+			IsHyperState(), fPowerRate );
+		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
+			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+	}
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.4f ) )
+	{
+		if ( NULL != g_pX2Game->GetEffectSet() )
+		{
+			m_hComboXXdownXZBlackHole = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AA_ComboXXdownXZ_BlackHole", this, NULL,
+				IsHyperState(), GetPowerRate() );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH1g: June 32bbc600 ( ASI_COMBO_AA_XXDownXZLoop )
+void CX2GUAra::ASI_COMBO_AA_XXDownXZLoop_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+	{
+		float fPowerRate = GetPowerRate();
+		if ( 0.f < m_fBuffHyperModeDamageRate )
+			fPowerRate *= m_fBuffHyperModeDamageRate;
+
+		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AA_ComboXXdownXZloop_Attack1", this, NULL,
+			IsHyperState(), fPowerRate );
+		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
+			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+	}
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.3f ) )
+	{
+		float fPowerRate = GetPowerRate();
+		if ( 0.f < m_fBuffHyperModeDamageRate )
+			fPowerRate *= m_fBuffHyperModeDamageRate;
+
+		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AA_ComboXXdownXZloop_Attack2", this, NULL,
+			IsHyperState(), fPowerRate );
+		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
+			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH1g: June 32bbc980 ( ASI_COMBO_AA_XXDownXZLoopX; at 0.15 s it stops the black hole set the start state played )
+void CX2GUAra::ASI_COMBO_AA_XXDownXZLoopX_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.33f ) )
+	{
+		float fPowerRate = GetPowerRate();
+		if ( 0.f < m_fBuffHyperModeDamageRate )
+			fPowerRate *= m_fBuffHyperModeDamageRate;
+
+		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AA_ComboXXdownXZX_Attack", this, NULL,
+			IsHyperState(), fPowerRate );
+		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
+			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+	}
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.15f ) )
+	{
+		if ( INVALID_EFFECTSET_HANDLE != m_hComboXXdownXZBlackHole )
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_hComboXXdownXZBlackHole );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH1g: June 32bbcbd0 ( ASI_DASH_JUMP_COMBO_AA_ZXX )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_AA_ZXX_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.01f ) )
+	{
+		float fPowerRate = GetPowerRate();
+		if ( 0.f < m_fBuffHyperModeDamageRate )
+			fPowerRate *= m_fBuffHyperModeDamageRate;
+
+		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AA_Dash_Jump_Combo_ZXX_Damage", this, NULL,
+			IsHyperState(), fPowerRate );
+		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
+			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH1g: June 32bc08d0 ( ASI_COMBO_ASR_ZZZX; June plays the Specter dash X-X set here )
+void CX2GUAra::ASI_COMBO_ASR_ZZZX_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.285f ) )
+	{
+		float fPowerRate = GetPowerRate();
+		if ( 0.f < m_fBuffHyperModeDamageRate )
+			fPowerRate *= m_fBuffHyperModeDamageRate;
+
+		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ALS_Dash_Combo_XX_Damage", this, NULL,
+			IsHyperState(), fPowerRate );
+		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
+			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH1g: June 32bc0bb0 ( the dash-jump X-Z bullet of the Asura states; June's body has no passive scaling )
+void CX2GUAra::CreateDashJumpXZBullet( IN const float fRotZOffSet_, IN const bool bFireRightHand_ )
+{
+	if ( FlushMp( DASH_JUMP_XZ_BULLET_MP_CONSUMPTION ) == true )
+	{
+		D3DXVECTOR3 vPos = bFireRightHand_ ? GetBonePos( L"Bip01_R_Finger2" ) : GetBonePos( L"Bip01_L_Finger2" );
+
+		D3DXVECTOR3 vRot = GetRotateDegree();
+		vRot.z = fRotZOffSet_;
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_ASR_Dash_Jump_XZ_projectile", GetPowerRate(), vPos, vRot, vRot,
+			m_FrameDataNow.unitCondition.landPosition.y );
+	}
+	else
+	{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+		if( true == GetIsRight() )
+		{
+			pos += GetDirVector() * 100.f;
+		}
+		else
+		{
+			pos -= GetDirVector() * 100.f;
+		}
+
+		CreateNotEnoughMPEffect( pos, 0.f, 0.f, fRotZOffSet_ );
+	}
+}
+
+// char-ara CH1g: June 32bc66d0 ( ASI_DASH_JUMP_COMBO_ASR_XZ )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_ASR_XZ_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.317f ) )
+		CreateDashJumpXZBullet( -135.f, true );
+
+	CommonFrameMove();
+}
+
+// char-ara CH1g: June 32bc6720 ( ASI_DASH_JUMP_COMBO_ASR_XZZ and _XZZZ share it )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_ASR_XZZ_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.1f ) )
+		CreateDashJumpXZBullet( -135.f, true );
 
 	CommonFrameMove();
 }

@@ -6353,3 +6353,11 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` (still `//#define`) and `_CORE` (define
 **Damage numbers.** None changed by this phase. Behaviour once `_LIVE` is on: the airborne Little Devil combos (ZZXX, dash-jump ZX / ZXX, Yama XZ) lose their walk / dash cancel in the air (JUNE_BUGS 589); the ground combos (Z-Z-Z front-Z, Yama dash ZZ) cancel to walk / dash only on the line; the passive force-down value of an energy bullet is assigned, not multiplied into 1 (same number).
 
 **Revert.** Leave `_LIVE` commented out; to drop the new functions and state names, undefine `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE`.
+
+## Stage 7 Ara, CH1g: Little Specter / Asura line states under `_CORE` (inert, 2026-11-10)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE` (defined: 28 new functions of `CX2GUAra`, six state names, three members) and `SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION` (defined: June's landing prediction `32021390` moves from `CX2GUArme_VioletMage` to `CX2GUUser`, same body; Arme's copy is guarded off). `_LIVE` stays `//#define`, so nothing registers the new states yet (CH1m): no effect.
+
+**Damage numbers.** None changed by this phase. Behaviour once `_LIVE` is on and CH1m registers the states: Little Specter / Asura combo effect sets use the plain power rate until CH1q writes the buff hyper rate; Asura's airborne X-Z states lose their walk / dash cancel in the air (JUNE_BUGS 590).
+
+**Revert.** Leave `_LIVE` commented out; to drop the new functions, names and members, undefine `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE` (then undefine `SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION` last: nothing but Arme's own calls remain).

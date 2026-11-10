@@ -657,6 +657,38 @@ All 20 class-map rows of phase CH1f are written: 14 `inside` (June's body in Mar
 
 **Nothing to play-test.** Phase tag in every block: `// char-ara CH1f`. No `_DEBUG` define exists; no review of its own (the CH1g review covers CH1e-CH1g). Next: `/x2-phase char-ara CH1g` on Sonnet 5.5 high.
 
+### CH1g - Done (2026-11-10)
+
+All 28 class-map rows of phase CH1g are written: every one is `new` (March has no Little Specter / Asura line), so they sit under `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE`, compiled in every build and referenced by nothing until CH1m. Six state names join `ARA_STATE_ID` under `_CORE` (June script ids 281 / 285 / 286 / 287 / 328 / 329, listed in `X2GUAra.h`). No new `_LIVE` / `_FP` / `_SPECTER` define was needed. 28 funcmap rows `Char Ara CH1g`; checklist L178 and L781 carry `(Ara: CH1g ...)`; `JUNE_BUGS.md` rows 590 / 591; `MODS.md` section "Stage 7 Ara, CH1g"; `ch1_offsets.tsv` rows `0x9734` / `0x9738` / `0x9744`. The other 10 of the 23 states (ALS / AA START, WIN, WIN2, LOSE, LOSE2) have no function of their own: shared engine callbacks that CH1m registers.
+
+| June | `CX2GUAra::` (all `new`) | June | `CX2GUAra::` (all `new`) |
+|---|---|---|---|
+| `32b93fa0` `32b94090` | `ASI_DASH_COMBO_ALS_XX` / `ASI_DASH_JUMP_COMBO_AA_ZXX` `_StateEndFuture` | `32b93fe0` | `ASI_DASH_JUMP_COMBO_ALS_ZX_StateStartFuture` |
+| `32b94070` | `ASI_COMBO_AA_XXDownXZStart_StateStart` | `32b9edd0` `32b9ef70` `32b9f290` | `ASI_DASH_COMBO_ALS_X` / `_ALS_XX` / `ASI_COMBO_ALS_XXXLoopZ` `_EventProcess` |
+| `32b9f5b0` `32b9f9b0` | `ASI_DASH_JUMP_COMBO_ALS_ZX` / `ASI_COMBO_AA_XXDownXZStart` `_EventProcess` | `32b9fce0` `32ba0040` `32ba0360` | `ASI_COMBO_AA_XXDownXZLoop` / `LoopX` / `ASI_DASH_JUMP_COMBO_AA_ZXX` `_EventProcess` |
+| `32ba4ec0` `32ba5210` | `ASI_DASH_COMBO_ALS_ZX` / `ASI_COMBO_ASR_ZZZX` `_EventProcess` | `32ba53a0` `32ba54d0` `32ba5600` | `ASI_DASH_JUMP_COMBO_ASR_XZ` / `XZZ` / `XZZZ` `_EventProcess` |
+| `32bbbc70` `32bbbe60` `32bbc050` | `ASI_DASH_COMBO_ALS_XX` / `ASI_COMBO_ALS_XXXLoopZ` / `ASI_DASH_JUMP_COMBO_ALS_ZX` `_FrameMove` | `32bbc240` `32bbc600` `32bbc980` | `ASI_COMBO_AA_XXDownXZStart` / `Loop` / `LoopX` `_FrameMove` |
+| `32bbcbd0` `32bc08d0` | `ASI_DASH_JUMP_COMBO_AA_ZXX` / `ASI_COMBO_ASR_ZZZX` `_FrameMove` | `32bc66d0` `32bc6720` | `ASI_DASH_JUMP_COMBO_ASR_XZ` / `_XZZ` `_FrameMove` (`_XZZ` serves XZZZ too) |
+| `32bc0bb0` | `CreateDashJumpXZBullet` | | |
+
+**Where June differs from March / what the shapes are** (read from `charport_adis.py ara --phase CH1g`):
+- **Clones** (listings equal modulo branch addresses): ALS_XXXLoopZ EP = ALS_XX EP; AA_ZXX EP = AA Loop-X EP; ASR_ZZZX EP = ALS_ZX EP; ASR_XZZ EP = ASR_XZ EP with XZZZ as target; AA_ZXX `EndFuture` = ALS_XX `EndFuture` (turn round: `bIsRight` flipped, `dirDegree.y += 180`). The five 0.01 / 0.26 / 0.285 effect FrameMoves share one body.
+- **Ground EPs** (ALS_XX, XXXLoopZ, ALS_ZX dash-jump, the three AA ones) use CH1e's cancel set: `SKILL_CANCEL_AFTER`, walk / back-walk / dash with the on-line test, then the `m_fAttackCancelAfterEx` Z / X cancels (`GetComboZStateID()` / `GetComboXStateID()`). ALS_ZX dash and ASR_ZZZX have only the dash cancel then the skill cancel. ALS_X carries the FP-cancel lines as CH1d (stand-ins for vslot `0x7f8` / `0x7fc`, probe byte under `_FP`).
+- **Asura line** (the key tests read the class, `UC_ARA_ASURA` = 0x7c): ALS_ZX + X -> AA_ZXX; AA start -> Loop at animation end; the Loop repeats while Z was pressed and `+0x9738` < 5, else ends in LoopX (X as Asura at flag 1 does the same); ASR_XZ / XZZ + Z -> the next XZ state. **Airborne ASR states:** the walk / dash cancels are dead behind the on-line test (**JUNE_BUGS 590**, as row 589).
+- **Effect FrameMoves:** `EventTimerOneshot( t )` -> `PlayEffectSet( name, this, NULL, IsHyperState(), rate )` where the rate is `GetPowerRate()` times `+0x9744` while that float is above 0 (the same test `IsFullHyperMode` `32ba6cc0` reads); the handle goes to `m_vecEffectSetToDeleteOnStateEnd`. Names and times: ALS_XX 0.26 `EffectSet_ALS_Dash_Combo_XX_Damage`; XXXLoopZ and dash-jump ALS_ZX 0.01 `EffectSet_ALS_ComboXXXloopZ`; AA start 0.2 `EffectSet_AA_ComboXXdownXZ` and 0.4 `..._BlackHole` (handle kept in `+0x9734`); Loop 0.1 / 0.3 `..._loop_Attack1` / `_Attack2`; LoopX 0.33 `EffectSet_AA_ComboXXdownXZX_Attack`, then at 0.15 stops the black hole handle; AA_ZXX 0.01 `EffectSet_AA_Dash_Jump_Combo_ZXX_Damage`; ASR_ZZZX 0.285 `EffectSet_ALS_Dash_Combo_XX_Damage`. Two states play another state's set (**JUNE_BUGS 591**, kept).
+- **`CreateDashJumpXZBullet`** is `CreateEnergeBullet`'s shape (MP 4, finger bone, same not-enough-MP effect) with `DamageEffect_ASR_Dash_Jump_XZ_projectile`, power rate `GetPowerRate()` only and no passive scaling; its callers fire it at -135 from the right hand (0.317 s in XZ, 0.1 s in XZZ / XZZZ).
+- **Landing prediction hoisted.** The Little Specter dash-jump ZX start calls `32021390`, which Aisha's port had put in `CX2GUArme_VioletMage` with a "moves to `CX2GUUser`" note. It now lives in `CX2GUUser::LandingPrediction` under the new `SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION` (same body); Arme's declaration and definition are wrapped in `#ifndef` of it, so Arme calls the base (flag off = Arme's own copy). The flag needs `SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE` (guard in `Always.h`).
+- **Three `_CORE` members** (`X2GUAra.h`, ctor in the initializer list): `m_hComboXXdownXZBlackHole` (`+0x9734`, ctor `INVALID_EFFECTSET_HANDLE`), `m_iComboXXdownXZLoopCount` (`+0x9738`, 0), `m_fBuffHyperModeDamageRate` (`+0x9744`, 0). June's ctor values and the offset placement are CH1h's (`ctor 32bc6bf0`); `+0x9744` is written by CH1q (buff hyper count), so every effect keeps March's plain rate until then.
+- A constant `_CONST_ARA_CH1G_::DASH_JUMP_XZ_BULLET_MP_CONSUMPTION` (4) holds the bullet MP.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_CORE --with ..._LIVE ..._FP --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. cpp +581, `.h` +39, 0 deletions. `flagcheck SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION --worktree` over `Always.h`, `X2GUUser.*`, `X2GUArme_VioletMage.*`: `4 PASS, 1 DEFINE, 0 FAIL, 0 ERROR`, `RESULT: PASS` (+12 / +50 / +3 / +2 / +2, 0 deletions).
+- One-file `/c /Zs /EHsc` probes (`census.cl_cmd`, no PCH, `X2GUAra.cpp`): exit 0, 0 errors with `_LIVE` off, with `/D ..._LIVE`, and with `_LIVE` + `_FP`; `X2GUUser.cpp` and `X2GUArme_VioletMage.cpp`: exit 0, 0 errors. `cl /P` of `X2GUAra.cpp` off and with `_LIVE`: every new function and `m_fBuffHyperModeDamageRate` appear the same number of times in both.
+- `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `allow-listed: 0`, `RESULT: PASS` (with `X2GUUser.*` added: 7 allow-listed, all older rows, `RESULT: PASS`). `enumscan.py --check X2Lib/X2GUAra.cpp`: 0 A/B rows.
+- Full build skipped: no play-test (`_LIVE` is off), so no `DEPLOY OK` / `exestr` line.
+
+**Nothing to play-test.** Phase tag in every block: `// char-ara CH1g`. No `_DEBUG` define exists. Review: `kickoffs/char-ara/CH1g-review.md` (Opus 5.5 high, covers CH1e-CH1g). Next: `/x2-phase char-ara CH1g review`.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

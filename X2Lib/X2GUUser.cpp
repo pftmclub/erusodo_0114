@@ -25092,6 +25092,56 @@ bool CX2GUUser::CanDownUnderNeverMove() const
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 
+#ifdef SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION
+// char-ara CH1g: June 32021390 ( moved up from CX2GUArme_VioletMage; Arme's and Ara's dash-jump ZX starts call it )
+void CX2GUUser::LandingPrediction( float fSpeedXAdd_, float fMinYOffset_, D3DXVECTOR3* pOutPos_, int iStep_ )
+{
+	const D3DXVECTOR3 vStartPos = m_FrameDataFuture.syncData.position;
+	for( int i = 0; i < iStep_; ++i )
+	{
+		m_PhysicParam.nowSpeed.x += fSpeedXAdd_;
+		CX2GUUser::PhysicProcess();
+	}
+
+	int iLineIndex = 0;
+	D3DXVECTOR3 vLandPos( 0.f, 0.f, 0.f );
+	bool bLanded = false;
+	if( NULL != g_pX2Game->GetWorld() && NULL != g_pX2Game->GetWorld()->GetLineMap() )
+	{
+		CKTDGLineMap* pLineMap = g_pX2Game->GetWorld()->GetLineMap();
+		if( true == pLineMap->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS, &vLandPos, NULL, &iLineIndex, false, false, true, false ) )
+		{
+			const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( iLineIndex );
+			if( NULL != pLineData && CKTDGLineMap::LT_NORMAL == pLineData->lineType && true == pLineData->bEnable )
+			{
+				if( vLandPos.y < vStartPos.y + fMinYOffset_ )
+					vLandPos.y = vStartPos.y + fMinYOffset_;
+				*pOutPos_ = vLandPos;
+				bLanded = true;
+			}
+		}
+	}
+
+	if( false == bLanded )
+	{
+		// June queries the line map here without the world / line-map NULL test above ( JUNE_BUGS 375 )
+		if( true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( vStartPos, LINE_RADIUS, &vLandPos, NULL, NULL, false, false, true, false ) )
+		{
+			if( vLandPos.y < vStartPos.y + fMinYOffset_ )
+				vLandPos.y = vStartPos.y + fMinYOffset_;
+			*pOutPos_ = vLandPos;
+		}
+		else
+		{
+			*pOutPos_ = vStartPos;
+			pOutPos_->y = m_FrameDataFuture.unitCondition.landPosition.y;
+		}
+	}
+
+	m_FrameDataFuture.syncData.position = vStartPos;
+	m_PhysicParam.nowSpeed.x = 0.f;
+}
+#endif SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION
 void CX2GUUser::PhysicProcess()
 {
 	KTDXPROFILE();

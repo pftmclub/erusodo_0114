@@ -105,7 +105,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH1g | **ready** (CH1f done 2026-11-10): Little Specter / Asura lines; review covers CH1e-CH1g | Sonnet 5.5 / high, Opus review | CH1f | `X2GUAra.*` | `CH1g.md` |
+| CH1g-review | **ready** (CH1g done 2026-11-10): reviews CH1e-CH1g (61 functions, the `LandingPrediction` hoist) | Opus 5.5 / high | CH1g | `X2GUAra.*`, `X2GUUser.*` | `CH1g-review.md` |
 | CH1h | blocked (CH1g review): overrides below 0x600, InitComponent | Sonnet 5.5 / high | CH1g review | `X2GUAra.*` | `CH1h.md` |
 | CH1i | blocked (CH1h): overrides 0x600-0x7bc | Sonnet 5.5 / high | CH1h | `X2GUAra.*` | `CH1i.md` |
 | CH1j | blocked (CH1i): Common* overrides | Sonnet 5.5 / high | CH1i | `X2GUAra.*` | `CH1j.md` |
@@ -141,7 +141,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | CH6 | blocked (CH4b review, CH5 review, CHNb review): scans rerun + user walk incl. both job changes and the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH4b, CH5, CHNb reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template + CH-N rewrite, `stage7-plan` -> `char-elesis` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0 (2026-11-10), CH0b (2026-11-10), CH1a (2026-11-10; no play-test, full build skipped, `_LIVE` stays off), CH1b + CH1a-CH1b review (2026-11-10; pass, no code change). CH1c + CH1d + CH1d2 + CH1c-CH1d2 review (2026-11-10; no play-test, full build skipped, `_LIVE` stays off; review pass, no code change). CH1e (2026-11-10; 13 functions, no play-test, full build skipped, `_LIVE` stays off). CH1f (2026-11-10; 20 functions, no play-test, full build skipped, `_LIVE` stays off).
+Done: CH0 (2026-11-10), CH0b (2026-11-10), CH1a (2026-11-10; no play-test, full build skipped, `_LIVE` stays off), CH1b + CH1a-CH1b review (2026-11-10; pass, no code change). CH1c + CH1d + CH1d2 + CH1c-CH1d2 review (2026-11-10; no play-test, full build skipped, `_LIVE` stays off; review pass, no code change). CH1e (2026-11-10; 13 functions, no play-test, full build skipped, `_LIVE` stays off). CH1f (2026-11-10; 20 functions, no play-test, full build skipped, `_LIVE` stays off). CH1g (2026-11-10; 28 functions + the landing-prediction hoist, no play-test, full build skipped, `_LIVE` stays off).
 
 Decisions answered 2026-11-10 (plan "Open decisions"): 1 stat rows for 34 / 124 follow Ara's own rule (CHNa writes, user packs); 2 the lobby orb handles are retired (CH5).
 

@@ -32769,6 +32769,7 @@ void CX2GUArme_VioletMage::AVSI_ADM_DASH_JUMP_ZX_EventProcess()
 	CommonEventProcess();
 }
 
+#ifndef SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION	// char-ara CH1g: the method lives in CX2GUUser now
 void CX2GUArme_VioletMage::LandingPrediction( float fSpeedXAdd_, float fMinYOffset_, D3DXVECTOR3* pOutPos_, int iStep_ )
 {
 	const D3DXVECTOR3 vStartPos = m_FrameDataFuture.syncData.position;
@@ -32816,6 +32817,7 @@ void CX2GUArme_VioletMage::LandingPrediction( float fSpeedXAdd_, float fMinYOffs
 	m_FrameDataFuture.syncData.position = vStartPos;
 	m_PhysicParam.nowSpeed.x = 0.f;
 }
+#endif SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION
 
 // June 32cb8bf0: teleports to the predicted landing point ( 1000, -600, 5 steps )
 void CX2GUArme_VioletMage::AVSI_ABM_DASH_JUMP_ZX_StartFuture()

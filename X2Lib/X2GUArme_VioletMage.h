@@ -927,7 +927,9 @@ class CX2GUArme_VioletMage : public CX2GUUser
 		void AVSI_ADW_ZZZBackZ_FrameMove();							/// June 32ce72f0
 		void AVSI_ADW_ZZZBackZ_EventProcess();							/// June 32cc5260
 		void AVSI_ADW_ZZZBackZ_EndFuture();							/// June 32cb8d10
+#ifndef SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION
 		void LandingPrediction( float fSpeedXAdd_, float fMinYOffset_, D3DXVECTOR3* pOutPos_, int iStep_ );	/// June 32021390 ( a CX2GUUser method in June )
+#endif SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION	// char-ara CH1g: the method lives in CX2GUUser now
 		void AVSI_ABM_DASH_JUMP_ZX_StartFuture();							/// June 32cb8bf0
 		void AVSI_ADW_DASH_JUMP_X2_StartFuture();							/// June 32cb8c80
 		//}} Iruha : 2026-10-20 // June character pilot Phase CH1g

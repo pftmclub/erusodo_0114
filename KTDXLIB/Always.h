@@ -12221,3 +12221,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_CHAR_ARA_CORE, SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS ( m_iChosenSkillID ) and SERV_IRUHADEV_JUNE_ENUM_NAMES ( UC_ARA_ASURA, RNSI_A_AYR_REFLECTION )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-10
+// Description: June character port ( Ara ) Phase CH1g - June's CX2GUUser landing prediction ( 32021390 ) moves from CX2GUArme_VioletMage to CX2GUUser,
+//              as its funcmap row says: Arme's dash-jump ZX and Ara's Little Specter dash-jump ZX start both call it. Same body, same behaviour.
+//              Revert: undefine the flag ( JUNE_USER_LANDING_PREDICTION ); Arme's own copy compiles again ( JUNE_CHAR_ARA_CORE then fails to compile: it calls LandingPrediction ).
+#define SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION
+#if defined( SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION ) && !defined( SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE )
+#error SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION needs SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE ( CanDown with the line index )
+#endif SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION
+//////////////////////////////////////////////////////////////////////////

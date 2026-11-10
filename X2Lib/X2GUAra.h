@@ -265,6 +265,12 @@ public:
 		ASI_P_ASD_BRUTAL_PIERCING_SMALL,	/// char-ara CH1e: June script id 332 ( Sakra Devanam brutal piercing, small damage; CH1m maps )
 		ASI_COMBO_ALD_XXdownXXX,			/// char-ara CH1f: June script id 323 ( Little Devil X-X-down-X-X-X; CH1m maps )
 		ASI_COMBO_ALD_XXdownXXXX,			/// char-ara CH1f: June script id 324 ( Little Devil X-X-down-X-X-X-X; CH1m maps )
+		ASI_DASH_COMBO_ALS_XX,				/// char-ara CH1g: June script id 281 ( Little Specter dash X-X; CH1m maps )
+		ASI_COMBO_AA_XXDownXZLoop,			/// char-ara CH1g: June script id 285 ( Asura X-X-down-X-Z loop; CH1m maps )
+		ASI_COMBO_AA_XXDownXZLoopX,			/// char-ara CH1g: June script id 286 ( Asura X-X-down-X-Z loop end; CH1m maps )
+		ASI_DASH_JUMP_COMBO_AA_ZXX,			/// char-ara CH1g: June script id 287 ( Asura dash-jump Z-X-X; CH1m maps )
+		ASI_DASH_JUMP_COMBO_ASR_XZZ,		/// char-ara CH1g: June script id 328 ( Asura dash-jump X-Z-Z; CH1m maps )
+		ASI_DASH_JUMP_COMBO_ASR_XZZZ,		/// char-ara CH1g: June script id 329 ( Asura dash-jump X-Z-Z-Z; CH1m maps )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	#pragma endregion 2-1, 2-2차 전직
 
@@ -1084,6 +1090,34 @@ protected:
 	void ASI_COMBO_ALD_XXdownXX_FrameMove();						/// char-ara CH1f: June 32bc0ac0
 	void ASI_COMBO_ALD_XXdownXXX_FrameMove();						/// char-ara CH1f: June 32bc0b10
 	void ASI_COMBO_ALD_XXdownXXXX_FrameMove();						/// char-ara CH1f: June 32bc0b60
+	void ASI_DASH_COMBO_ALS_XX_StateEndFuture();					/// char-ara CH1g: June 32b93fa0
+	void ASI_DASH_JUMP_COMBO_ALS_ZX_StateStartFuture();				/// char-ara CH1g: June 32b93fe0
+	void ASI_COMBO_AA_XXDownXZStart_StateStart();					/// char-ara CH1g: June 32b94070
+	void ASI_DASH_JUMP_COMBO_AA_ZXX_StateEndFuture();				/// char-ara CH1g: June 32b94090
+	void ASI_DASH_COMBO_ALS_X_EventProcess();						/// char-ara CH1g: June 32b9edd0
+	void ASI_DASH_COMBO_ALS_XX_EventProcess();						/// char-ara CH1g: June 32b9ef70
+	void ASI_COMBO_ALS_XXXLoopZ_EventProcess();						/// char-ara CH1g: June 32b9f290
+	void ASI_DASH_JUMP_COMBO_ALS_ZX_EventProcess();					/// char-ara CH1g: June 32b9f5b0
+	void ASI_COMBO_AA_XXDownXZStart_EventProcess();					/// char-ara CH1g: June 32b9f9b0
+	void ASI_COMBO_AA_XXDownXZLoop_EventProcess();					/// char-ara CH1g: June 32b9fce0
+	void ASI_COMBO_AA_XXDownXZLoopX_EventProcess();					/// char-ara CH1g: June 32ba0040
+	void ASI_DASH_JUMP_COMBO_AA_ZXX_EventProcess();					/// char-ara CH1g: June 32ba0360
+	void ASI_DASH_COMBO_ALS_ZX_EventProcess();						/// char-ara CH1g: June 32ba4ec0
+	void ASI_COMBO_ASR_ZZZX_EventProcess();							/// char-ara CH1g: June 32ba5210
+	void ASI_DASH_JUMP_COMBO_ASR_XZ_EventProcess();					/// char-ara CH1g: June 32ba53a0
+	void ASI_DASH_JUMP_COMBO_ASR_XZZ_EventProcess();				/// char-ara CH1g: June 32ba54d0
+	void ASI_DASH_JUMP_COMBO_ASR_XZZZ_EventProcess();				/// char-ara CH1g: June 32ba5600
+	void ASI_DASH_COMBO_ALS_XX_FrameMove();							/// char-ara CH1g: June 32bbbc70
+	void ASI_COMBO_ALS_XXXLoopZ_FrameMove();						/// char-ara CH1g: June 32bbbe60
+	void ASI_DASH_JUMP_COMBO_ALS_ZX_FrameMove();					/// char-ara CH1g: June 32bbc050
+	void ASI_COMBO_AA_XXDownXZStart_FrameMove();					/// char-ara CH1g: June 32bbc240
+	void ASI_COMBO_AA_XXDownXZLoop_FrameMove();						/// char-ara CH1g: June 32bbc600
+	void ASI_COMBO_AA_XXDownXZLoopX_FrameMove();					/// char-ara CH1g: June 32bbc980
+	void ASI_DASH_JUMP_COMBO_AA_ZXX_FrameMove();					/// char-ara CH1g: June 32bbcbd0
+	void ASI_COMBO_ASR_ZZZX_FrameMove();							/// char-ara CH1g: June 32bc08d0
+	void ASI_DASH_JUMP_COMBO_ASR_XZ_FrameMove();					/// char-ara CH1g: June 32bc66d0
+	void ASI_DASH_JUMP_COMBO_ASR_XZZ_FrameMove();					/// char-ara CH1g: June 32bc6720 ( XZZ and XZZZ share it )
+	void CreateDashJumpXZBullet( IN const float fRotZOffSet_, IN const bool bFireRightHand_ );	/// char-ara CH1g: June 32bc0bb0
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 	void ASI_A_ALH_BREAKING_Init();							//이화접목 대기
@@ -1352,6 +1386,11 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	bool		m_bFPCancelProbe;			/// char-ara CH1d: June +0x9621, set while the FP-cancel test in the combo states runs ( CH1q )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+	CX2EffectSet::Handle	m_hComboXXdownXZBlackHole;	/// char-ara CH1g: June +0x9734, the black hole set Asura's X-X-down-X-Z start plays ( its loop end stops it ); CH1h confirms the ctor value
+	int			m_iComboXXdownXZLoopCount;	/// char-ara CH1g: June +0x9738, loops of Asura's X-X-down-X-Z so far ( 5 at most ), cleared by its start state
+	float		m_fBuffHyperModeDamageRate;	/// char-ara CH1g: June +0x9744, scales the power rate of the Specter / Asura combo sets while above 0 ( CH1h places it, CH1q writes it )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 	UCHAR		m_ucBasicForcePower;		/// 기본 기력치
 	CForcePowerSystem	m_ForcePowerSystem;	/// 기력 시스템

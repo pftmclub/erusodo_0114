@@ -3750,6 +3750,9 @@ public:
 #endif GRAPPLING_TEST
 
 		virtual void				PhysicProcess();
+#ifdef SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION
+		void						LandingPrediction( float fSpeedXAdd_, float fMinYOffset_, D3DXVECTOR3* pOutPos_, int iStep_ );	/// char-ara CH1g: June 32021390 ( moved up from CX2GUArme_VioletMage )
+#endif SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION
 
 
 		//void PhysicProcess_FastUpwardWind( CKTDGLineMap* pLineMap );

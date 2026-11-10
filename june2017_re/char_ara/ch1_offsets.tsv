@@ -135,3 +135,6 @@ offset	kind	name	note
 0x9621	field	m_bFPCancelProbe	Ara; set before the FP-cancel test, cleared on both exits; under _FP ( CH1q ) ( CH1d2 review )
 0x6890	field	(byte, no-detonation by state)	CX2GameUnit; ZpushX Charge Start 32b99df0 = 1, ported as SetNoDetonation( true ); NPC CommonEventProcessNonHost reads +0x6890 / +0x6892 ( funcmap 3276cb20 ) ( CH1d2 review )
 0x7eb4	field	m_FrameDataFuture.syncData.m_HyperModeCount	KProtectedType ( &+0x7eb4 ^ +0x7eb8 ^ +0x7ebc ); the hyper entries test > 0 ( CH1d2 review )
+0x9734	field	m_hComboXXdownXZBlackHole	Ara; CX2EffectSet::Handle: ComboXXdownXZStart FrameMove 32bbc240 @32bbc590 stores the black hole set played at 0.4; ComboXXdownXZLoopX FrameMove 32bbc980 stops it at 0.15 ( CH1g )
+0x9738	field	m_iComboXXdownXZLoopCount	Ara; int: ComboXXdownXZStart Start 32b94070 = 0; ComboXXdownXZLoop EventProcess 32b9fce0 adds 1 per loop while < 5 ( CH1g )
+0x9744	field	m_fBuffHyperModeDamageRate	Ara; float: the Specter / Asura combo FrameMoves multiply the power rate by it while > 0; IsFullHyperMode 32ba6cc0 reads the same > 0 test; CH1h places it, CH1q writes it ( CH1g )
