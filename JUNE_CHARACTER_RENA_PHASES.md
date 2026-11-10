@@ -1973,6 +1973,21 @@ Jump-table targets read from the exe (`0x823 -> 3230cbdf`, `0x3fc / 0x401 -> 323
 - One-file `/Zs` probes (`census.cl_cmd`, no PCH): `X2GULire_ElvenRanger.cpp`, `X2Game.cpp`, `X2GUUser.cpp` 0 errors (the first run's two C2248 on the protected helper fixed); `/EP`: 4 `RENA TRAP` lines in the Rena `.cpp`.
 - Full build skipped: no play-test.
 
+### CH2d0 - Review (2026-11-10)
+
+Opus 5.5. **Passed, no code change.** Commit `d98d771d` checked against June (`charport_adis.py rena 32c99690 32c9e250 32c95790 32c86340`; Ghidra read-only `3230c1a0`, `322ece70`; jump tables read from `unpacked_x2.exe`).
+
+- **Evoke `32c99690`.** Count loop = June (`while size >= MAX_COUNT`: first trap `SetNowHp( 0 )` via vslot 0xf4, `erase( begin )`). Memo choice: `31fca8e0( vslot 0x524, 1 )->+0x178` = `m_iDeleteSkillIDByUpgrade` (`X2SkillTree.h:3285`), so `IsEquippedSkillUpgraded( GetNowStateSkillID() )` (`X2GUUser.cpp:7032`) is exact -> 0x401 / 0x3fc. Level: `fldz; fcomp [gage +0xe8]; test ah, 5; jp` = 1 only when the hyper time > 0 (= March's `REGULATE_EVOKE_HYPER_MODE` test). Pushes (both branches): arg 9 team `-1` = `TN_NONE`, arg 10 AI 1 = `NAT_ALLY`, arg 13 ally team = team, arg 15 = vslot 0x198 (`IsMyUnit`, not in March's `CreateNPCReq`).
+- **Anger of Elf `32c9e250`.** Key = `_ftol2( 32007b10( 1, vslot 0x524 ) )`, `SA_EFFECTIVE_TIME` = 1 (`X2SkillTree.h:2656`), the cast = truncation. `+0x9700` -> 0x58d else 0x58c. Level = byte `+0x10` of the now-state pointer `+0x7cbc` = `m_bHyperState` = `IsHyperState()` (= March). `KNPCUnitReq::m_KeyCode` is a `char` (`CommonPacket.h:3816`): June's `SA_EFFECTIVE_TIME` is 7 (23216) and 10 (23239), well under 128.
+- **Entangle `32c95790` / `32c86340`.** Level 0, key -1, team, `IsMyUnit` gate; `GetSkillLevel( 0x5aad = 23213, 0, 0, 1 )` -> NPC `+0x8e74`. = port.
+- **`3230c1a0` cases.** Jump tables read from the exe: `0x1c9 -> 3230c3ff` (range base 0x180), `0x3fc / 0x401 -> 3230c6c4` (0x35f), `0x58c / 0x58d -> 3230c868` (0x58c), `0x823 -> 3230cbdf` (0x823). Flags 0 / 1 / 1 / 0. The rate = 1.0, or `32007b10( 0xf, 0x5b70 )` when `31fceab0( 0x5b70 ) > 0`; `SA_DAMAGE_REL` = 15, and `GetSkillLevelValue` under `JUNE_DIVERGE_SKILL_LEVEL_VALUE` is June's `31fceab0` (March's `SKILL_ID` overload is in `#else`, so no overload trap). Owner gate `31e4d0e0 == 3` = `UT_LIRE`; then `32c86340` + hold time `+0x95d0 -> +0x8cd0`, `32c878f0` (`InsertEvokeNpc`), `32c863a0` (`AddAngerOfElfTrap`), `+0x97b8 = npc +0x270` (`m_iGungnirTargetNPCUID`, `X2GULire_ElvenRanger.h:1912`, read at `.cpp:26446`-`26590`). The skill ids passed match June's `31fcf520` map (`summon_npc_skill_map.tsv`: 457 -> 23213, 1020 / 1025 -> 23218, 1420 / 1421 -> 23216, 2083 -> 23015).
+- **`322ece70` rate.** funcmap row "@322ed2ae..322ed3ae": `(1 + socket) x rate x (3201ad10 + 1) x 31fd7cc0 x 31fea430 x GAA`; the port's `GetSummonPowerRateBySocket * fRate_ * GetSummonPowerRateByBuff * GAA` puts the rate in the same product.
+- **Access change.** `GetLearnedSkillAbilityValue` is declared once under `_TRAP` (public) and once under `#ifndef _TRAP` (protected); Aisha's and Eve's copies are compiled out under `USER_SKILL_LEVEL_HELPERS`. Access alone changes no lookup, so no caller's meaning changes.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP --range d98d771d^..d98d771d --with ..._TRAP_DEBUG`: `files: 5 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `git log -S` after `d98d771d`: none. `junediverge.py --check-all`: `allow-listed: 202`, `RESULT: PASS`. `enumscan.py --check` (6 files): 2 rows, both pre-existing `X2GUUser.h:2555-2556` (`NUI_NEIL_THE_SNIPER_EVENT` / `NUI_PROTON_BOMB_EVENT`, blame `09107672`), not CH2d0's.
+
+`_TRAP_DEBUG` stays defined: CH2d's play-test reads its lines, CH2d's review retires it. Full build skipped: no play-test (no code change, no probe needed). CH2d is ready; its kickoff's "Amended by CH2d0" section is accurate as written.
+
 ## Phase CH3 - Skills: second jobs (102, 103, 114), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.
