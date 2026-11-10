@@ -120,6 +120,11 @@ class CX2DamageManager
 			DTT_TRAPPING_ARROW_FUNGUS_SUB         = 35,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH1h2
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			DTT_DECENT_DRAGON                     = 68,	// June's Enum.lua; Valor Devotion's trigger ( AttackResultByType )
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 		};
 #endif
 

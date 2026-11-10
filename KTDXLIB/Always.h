@@ -12242,3 +12242,36 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY ( GetHyperModeCountByBuff ) and SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE ( GetUpgradeSwappedSkillID )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH1h2 - the skill-passive blocks of June's AttackResultByType 32bceca0: Get Blood ( 27026 ), Raid ( 27218 )
+//              and Mana Drain ( 27216 ) read members, memo rows and effect sets that CH2-CH4 fill. Stays commented out until the Ara skill phases.
+//              Revert: comment out the #define ( JUNE_CHAR_ARA_SKILL ).
+//#define SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ) || !defined( SERV_IRUHADEV_JUNE_ENCHANT_PARITY ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL needs SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE and SERV_IRUHADEV_JUNE_ENCHANT_PARITY ( DrawMpLossText )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH1h2 - the Specter of Thunder block of June's AttackResultByType 32bceca0 ( reads the state's IS_SPECTER_STATE
+//              byte, CH1q2 writes it ). Stays commented out until CH1q2.
+//              Revert: comment out the #define ( JUNE_CHAR_ARA_SPECTER ).
+//#define SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER ) && !defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER needs SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH1h2 - guard only ( no new flag ): AttackResultByType calls HaveSkillBuff and SetSkillBuffFactors ( CX2GUUser, Eve's passive phase ).
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ) && !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ( HaveSkillBuff, SetSkillBuffFactors )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+//////////////////////////////////////////////////////////////////////////

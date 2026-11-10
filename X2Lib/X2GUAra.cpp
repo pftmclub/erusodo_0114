@@ -164,6 +164,8 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	, m_fFullHyperModeAdvantageIntervalTime( 0.f ), m_fFullHyperModeAdvantageTimer( 0.f ), m_fGainMpByForcePowerConversionHyperMode( 0.f )
 	, m_fNecromancyRate( -1.f ), m_fSpecterOfThunderRate( -1.f ), m_iCustomRenderState( 0 ), m_fRenderAlphaSpecterOfThunder( 1.f ), m_fRenderAlphaVeritablePandemonium( 1.f )
 	, m_bSkillFPGainLocked( false ), m_iSkillFPGainSerial( -1 ), m_iSkillFPGainCount( 0 )
+	, m_fSpecterOfThunderCoolTime( 0.f ), m_fSpecterOfThunderPowerRate( 1.f ), m_hGetBloodEffect( INVALID_DAMAGE_EFFECT_HANDLE ), m_iGetBloodHitUnitCount( 0 ), m_bRaidHit( false )	// char-ara CH1h2: June 32bc6bf0
+	, m_hManaDrainEffect( INVALID_DAMAGE_EFFECT_HANDLE ), m_fManaDrainRetakeMp( -1.f ), m_usManaDrainHitCount( 0 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	, m_usForceGainCount( 0 ), m_usBeforeForceGainCount( 0 ), m_pSkillTemplet( NULL ), m_iPressedSkillSlotIndex( -1 )
 	, m_fMPConsume( 0.f )	
@@ -21073,10 +21075,102 @@ void CX2GUAra::MarkSkillFPGainHitByDamage( const CX2DamageManager::DamageData* p
 	if ( NULL != pDamageData_ && true == IsMyUnit() )
 		MarkSkillFPGainHit( pDamageData_->m_iAppliedSkillID, pDamageData_->m_iAttackSerial );
 }
+
+// char-ara CH1h2: June 31edf580 ( the skill-tree test 322074e0 on the running state's skill; no skill tree reads false )
+bool CX2GUAra::IsNowStateSameOrUpgradeSkill( const int iSkillID_ ) const
+{
+	return ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( GetNowStateSkillID(), iSkillID_ ) );
+}
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 //#ifdef FIX_GAIN_FORCE_BUG
 /*virtual*/void CX2GUAra::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h2: June 32bceca0, blocks in June's order ( a block that needs a later phase's piece sits under that phase's flag )
+	CX2GUUser::AttackResultByType( pDamageData );
+
+	if ( true == pDamageData.IsAttackTrigger( CX2DamageManager::DTT_DECENT_DRAGON ) && true == HaveSkillBuff( CX2SkillTree::RNSI_P_ASD_VALOR_DEVOTION, 0, true ) )
+	{
+		// June 32bced22: the gain is the passive's SA_FP_UP_ABS truncated; the overflow past the gauge turns into MP inside UpForcePower ( June inlines it )
+		UpForcePower( static_cast<int>( GetLearnedSkillAbilityValue( CX2SkillTree::SA_FP_UP_ABS, CX2SkillTree::RNSI_P_ASD_VALOR_DEVOTION ) ) );
+
+		if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+			SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+	}
+
+	// June 32bceddb: Gain Force's intake effect counts its hits
+	if ( CX2SkillTree::RNSI_A_ARA_GAIN_FORCE == GetNowStateSkillID() || CX2SkillTree::RNSI_A_ARA_GAIN_FORCE_UPGRADE == GetNowStateSkillID() )
+	{
+		if ( m_hGainForceIntakeEffect == pDamageData.hAttackerEffect )
+			++m_iGainForceDamageTimeNow;
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	ProcessFullHyperHitReward( pDamageData );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
+	// June 32bcee1c: Specter of Thunder, an effect set behind the hit point
+	if ( true == IsSpecterState() && m_fSpecterOfThunderCoolTime <= 0.f && GetRandomFloat( 0 ) < m_fSpecterOfThunderRate )
+	{
+		const D3DXVECTOR3 vDir = GetDirVector();
+		const float fBehindOffset = ( true == GetIsRight() ? -80.f : 80.f );
+		const D3DXVECTOR3 vEffectPos( pDamageData.impactPoint.x + vDir.x * fBehindOffset, GetLandPos( false ).y, pDamageData.impactPoint.z + vDir.z * fBehindOffset );
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SpecterOfThunder_Buff_Damage", this, NULL, IsHyperState(), m_fSpecterOfThunderPowerRate, -1.f, D3DXVECTOR3( 1.f, 1.f, 1.f ), true, vEffectPos );
+		m_fSpecterOfThunderCoolTime = 0.5f;
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// June 32bcf02b: Get Blood counts the units its attack hit ( up to 2 )
+	if ( true == IsNowStateSameOrUpgradeSkill( CX2SkillTree::RNSI_SA_ASR_GET_BLOOD ) && m_hGetBloodEffect == pDamageData.hAttackerEffect && m_iGetBloodHitUnitCount < 2 )
+		m_iGetBloodHitUnitCount = static_cast<int>( pDamageData.hitUnitList.size() );
+
+	// June 32bcf082: a Raid hit
+	if ( true == IsNowStateSameOrUpgradeSkill( CX2SkillTree::RNSI_A_ASR_RAID ) )
+		m_bRaidHit = true;
+
+	// June 32bcf0a9: Mana Drain takes MP from the unit its attack hit and gives some back to Ara through m_fManaDrainRetakeMp
+	if ( true == IsNowStateSameOrUpgradeSkill( CX2SkillTree::RNSI_A_ALS_MANA_DRAIN ) && INVALID_DAMAGE_EFFECT_HANDLE != m_hManaDrainEffect && null != pDamageData.optrDefenderGameUnit )
+	{
+		CX2GameUnit* pDefender = pDamageData.optrDefenderGameUnit.GetObservable();
+		if ( NULL != pDefender && m_hManaDrainEffect == pDamageData.hAttackerEffect )
+		{
+			float fMemoRate = 1.f;
+			const SkillMemoEntry* pMemoEntry = GetSkillMemoEntry( CX2SkillTree::RNSI_A_ALS_MANA_DRAIN );
+			if ( NULL != pMemoEntry && CX2SkillTree::MI_CHECK_AND_KILL_2 == pMemoEntry->m_iType )
+				fMemoRate = ( true == pMemoEntry->m_vecValue.empty() ? 0.f : pMemoEntry->m_vecValue[0] );
+
+			float fIntakeMp = 0.f;
+			if ( true == TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_MP_INTAKE_ABS, CX2SkillTree::RNSI_A_ALS_MANA_DRAIN, true, fIntakeMp ) )
+				fIntakeMp = fMemoRate * fIntakeMp;
+
+			float fRetakeMp = 0.f;
+			if ( true == TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, CX2SkillTree::RNSI_A_ALS_MANA_DRAIN, true, fRetakeMp ) )
+				fRetakeMp = fRetakeMp * fMemoRate;
+
+			pDefender->UpNowMp( fIntakeMp * -1.f );
+
+			const D3DXVECTOR3 vDefenderBonePos = pDefender->GetBonePos( L"Bip01" );
+			DrawMpLossText( fIntakeMp, vDefenderBonePos, pDefender->GetDirVector(), false );
+
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SI_A_ALS_MANA_DRAIN_HIT", this, NULL, IsHyperState(), -1.f, -1.f, D3DXVECTOR3( 1.f, 1.f, 1.f ), true, vDefenderBonePos );
+
+			CKTDGParticleSystem::CParticleEventSequence* pDrainSequence = g_pX2Game->GetMajorParticle()->CreateSequence( (CKTDGObject*) this, L"SI_A_ALS_MANA_DRAIN_10", vDefenderBonePos );
+			if ( NULL != pDrainSequence )
+				pDrainSequence->SetBlackHolePosition( GetBonePos( L"Bip01_Ponytail1" ) );
+
+			m_fManaDrainRetakeMp += fRetakeMp;
+			++m_usManaDrainHitCount;
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	UpForcePowerBySkillHit( pDamageData );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
 	CX2GUUser::AttackResultByType( pDamageData );	/// June 32bceca0 @32bcece3 calls the base first, as Add, Eve, Raven and Lire do in March
 #endif SERV_IRUHADEV_JUNE_BUFF_CUSTOM_FUNCTION
@@ -21097,6 +21191,7 @@ void CX2GUAra::MarkSkillFPGainHitByDamage( const CX2DamageManager::DamageData* p
 		}
 #endif  X2OPTIMIZE_PARTICLE_AND_ETC_HANDLE
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 //#endif // FIX_GAIN_FORCE_BUG
 

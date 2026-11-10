@@ -735,6 +735,31 @@ Next: `/x2-phase char-ara CH1h` (Sonnet 5.5 high). Its kickoff was checked and a
 
 **Nothing to play-test.** Next: `/x2-phase char-ara CH1h2` (Sonnet 5.5 high), then CH1i. The CH1k review covers CH1h, CH1h2, CH1i, CH1j and CH1k.
 
+### CH1h2 - Done (2026-11-11)
+
+**`AttackResultByType` `32bceca0` written whole** (X2GUAra.cpp, inside March's function: June's body under `_LIVE`, March's in `#else`). Blocks in June's order: base; `DTT_DECENT_DRAGON` (68) + `HaveSkillBuff( RNSI_P_ASD_VALOR_DEVOTION )` -> `UpForcePower( SA_FP_UP_ABS )` and Open Mind `SetSkillBuffFactors`; Gain Force 27200 / 27220 hit count; `ProcessFullHyperHitReward` (`_FP`); Specter of Thunder (`_SPECTER`); Get Blood / Raid / Mana Drain (`_SKILL`); `UpForcePowerBySkillHit` (`_FP`). funcmap row `32bceca0 PORTED`.
+
+**New flags** (`Always.h`, both `//#define`, each `#error`s without `_LIVE`): `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (also needs `JUNE_ENCHANT_PARITY` for `DrawMpLossText`) and `SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER`. Guard only: `_LIVE` needs `JUNE_CHAR_EVE_PASSIVE` (`HaveSkillBuff`, `SetSkillBuffFactors`); both flags are defined at that line (probes below).
+
+**Enum names registered** under `JUNE_ENUM_NAMES`: `DTT_DECENT_DRAGON` 68 (`X2DamageManager.h`); `RNSI_SA_ASR_GET_BLOOD` 27026, `RNSI_A_ALS_MANA_DRAIN` 27216, `RNSI_A_ASR_RAID` 27218, `RNSI_A_ARA_GAIN_FORCE` 27200, `_UPGRADE` 27220, `RNSI_P_ASD_VALOR_DEVOTION` 27416, `RNSI_P_AYR_OPEN_MIND` 27417 (`X2SkillTree.h`). Values checked against `Enum.src.lua`. `SA_FP_UP_ABS` 191 (the kickoff's 0xbf), `SA_MP_INTAKE_ABS` 44, `SA_MP_RETAKE_ABS` 66 and `MI_CHECK_AND_KILL_2` 16 were already in C++.
+
+**Members** (`_CORE`, ctor values from `32bc6bf0`; `ch1_offsets.tsv` rows renamed): `m_fSpecterOfThunderCoolTime` +0x979c 0.0, `m_fSpecterOfThunderPowerRate` +0x97a0 1.0, `m_bRaidHit` +0x97bc, `m_hManaDrainEffect` +0x97c8 / `m_fManaDrainRetakeMp` +0x97cc -1.0 / `m_usManaDrainHitCount` +0x97d0, `m_iGetBloodHitUnitCount` +0x97d4, `m_hGetBloodEffect` +0x97d8. **+0x96e8 / +0x96ec are March's own `m_hGainForceIntakeEffect` / `m_iGainForceDamageTimeNow`** (same ctor values), so no new member. New helper `IsNowStateSameOrUpgradeSkill` (June `31edf580` on the running state's skill, null skill tree = false; three call sites).
+
+**Decisions to know**
+- **The FP gain is not gated on `_FP`** (kickoff said "under `_FP`"): June's inline is exactly March's `UpForcePower` (sum, overflow x `m_iGainMpByFpConversion` into `UpNowMp`, `SetForcePower`), already defined above, so it is called as is; CH1q's `SetForcePower` rework then flows through it. `_FP` guards only `ProcessFullHyperHitReward` / `UpForcePowerBySkillHit`, declared in `X2GUAra.h` with the body in CH1q.
+- **`IsSpecterState()` is declared only** (`_SPECTER`, body in CH1q2): June reads `StateParam` byte +0x95; the field, its `operator=` / `Init` and the loader are CH1q2's (`ch0_specter.tsv`), so no shared-header edit here.
+- **No divergence row for `322d39e0`:** `CX2GameUnit::DrawMpLossText` (ENCHANT_PARITY, same strings) is that function; the defender's draw call is `DrawMpLossText( intake, defender Bip01, defender dir, false )`.
+- Specter effect position = impact point + facing vector x ( right ? -80 : 80 ), y = `GetLandPos( false ).y`, cool 0.5 (June constants). Mana Drain particle `SI_A_ALS_MANA_DRAIN_10` gets `SetBlackHolePosition( Bip01_Ponytail1 )` (June writes seq +0x310; Arme's `SetBlackHolePosition` store is the same offset, `32cd1a1d`). Get Blood counts `hitUnitList.size()` (June divides the vector's bytes by 12).
+- **JUNE_BUGS 594** (Mana Drain text and retake use the full amounts whatever MP the target had).
+
+**Gates**
+- `flagcheck CHAR_ARA_CORE --with _LIVE _FP _SKILL _SPECTER JUNE_ENUM_NAMES --worktree --files X2GUAra.cpp X2GUAra.h`: `.cpp` PASS +95, `.h` PASS +17; `files: 2 PASS, 0 FAIL, 0 ERROR`, `0 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`. `Always.h` +33: `DEFINE`, `RESULT: PASS`. `flagcheck JUNE_ENUM_NAMES --files X2SkillTree.h X2DamageManager.h`: `2 PASS~`, `RESULT: PASS`.
+- One-file `/Zs /EHsc` probes (`census.cl_cmd`, no PCH, `X2GUAra.cpp`): exit 0, 0 errors with `_LIVE` off, `_LIVE`, and `_LIVE` + `_FP` + `_SKILL` + `_SPECTER` (first `_LIVE` run caught the 7 missing `RNSI_` names: registered). `cl /P`: `EffectSet_SpecterOfThunder_Buff_Damage` 0 / 0 / 1 (off / `_LIVE` / all four), `EffectSet_SI_A_ALS_MANA_DRAIN_HIT` 0 / 0 / 1 (1 with `_LIVE` + `_SKILL`), `ProcessFullHyperHitReward( pDamageData )` and `UpForcePowerBySkillHit( pDamageData )` 0 / 0 / 1, `m_bRaidHit = true` 0 / 0 / 1.
+- `junediverge.py --check X2GUAra.cpp X2GUAra.h X2SkillTree.h X2DamageManager.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2GUAra.cpp X2GUAra.h`: 0 A/B rows.
+- Full build skipped: no play-test (`_LIVE` is off), so no `DEPLOY OK` / `exestr` line. No `_DEBUG` define exists; every new block carries `// char-ara CH1h2`.
+
+**Nothing to play-test.** Next: `/x2-phase char-ara CH1i` (Sonnet 5.5 high). The CH1k review covers CH1h-CH1k.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

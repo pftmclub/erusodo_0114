@@ -1816,6 +1816,17 @@ public:
 		RNSI_SA_ALS_SPECTER_OF_THUNDER                        = 27023,	// June's Enum.lua; BTI_BUFF_SPECTEROFTHUNDER reads its effective rate
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH1h2
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_ASR_GET_BLOOD                                 = 27026,	// June's Enum.lua; AttackResultByType counts the Get Blood attack's hits
+		RNSI_A_ALS_MANA_DRAIN                                 = 27216,	// June's Enum.lua; AttackResultByType takes MP from the unit the attack hit
+		RNSI_A_ASR_RAID                                       = 27218,	// June's Enum.lua; AttackResultByType flags a Raid hit
+		RNSI_A_ARA_GAIN_FORCE                                 = 27200,	// June's Enum.lua; AttackResultByType counts the intake effect's hits
+		RNSI_A_ARA_GAIN_FORCE_UPGRADE                         = 27220,
+		RNSI_P_ASD_VALOR_DEVOTION                             = 27416,	// June's Enum.lua; its hits give force power
+		RNSI_P_AYR_OPEN_MIND                                  = 27417,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-09 // char-rena CH1i
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_SA_RWS_VIOLENT_ATTACK                            = 23008,	// June's Enum.lua; SetEquippedSkillLevel sets its landing states

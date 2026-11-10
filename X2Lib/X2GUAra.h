@@ -513,6 +513,14 @@ protected:
 	bool			IsBuffHyperModeActive() const;	// char-ara CH1h: June 32bd5e60
 	void			MarkSkillFPGainHit( const int iSkillID_, const int iAttackSerial_ );	// char-ara CH1h: June 32bab160
 	void			MarkSkillFPGainHitByDamage( const CX2DamageManager::DamageData* pDamageData_ );	// char-ara CH1h: June 32bab1d0 ( user vslot 0x2fc, CH1o wires it )
+	bool			IsNowStateSameOrUpgradeSkill( const int iSkillID_ ) const;	// char-ara CH1h2: June 31edf580 on the running state's skill ( no skill tree reads false )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	void			ProcessFullHyperHitReward( CX2DamageManager::DamageData& pDamageData_ );	// char-ara CH1h2: June 32bc9a60, body in CH1q
+	void			UpForcePowerBySkillHit( CX2DamageManager::DamageData& pDamageData_ );	// char-ara CH1h2: June 32bab780, body in CH1q
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
+	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 	void			ShowActiveSkillCutInAndLightByBerserkMode( float fTimeToShow_, bool bOnlyLight_ = false );
@@ -1431,6 +1439,15 @@ protected:
 	int			m_iSkillFPGainSerial;				/// June +0x9840: -1 after Init / ReInit
 	int			m_iSkillFPGainCount;				/// June +0x9844: 0 after Init / ReInit
 	std::vector<int>		m_vecSkillFPGainSerial;	/// June +0x9848: cleared by Init / ReInit
+	// char-ara CH1h2: members of AttackResultByType ( June offsets in june2017_re/char_ara/ch1_offsets.tsv )
+	float		m_fSpecterOfThunderCoolTime;		/// June +0x979c: wait before Specter of Thunder plays its effect set again ( CH1j counts it down )
+	float		m_fSpecterOfThunderPowerRate;		/// June +0x97a0: power rate that effect set plays with
+	CX2DamageEffect::CEffectHandle	m_hGetBloodEffect;	/// June +0x97d8: damage effect of the Get Blood attack ( its hits are counted )
+	int			m_iGetBloodHitUnitCount;			/// June +0x97d4: units the Get Blood attack hit, counted while below 2
+	bool		m_bRaidHit;							/// June +0x97bc: set by a hit of the Raid state
+	CX2DamageEffect::CEffectHandle	m_hManaDrainEffect;	/// June +0x97c8: damage effect of the Mana Drain attack
+	float		m_fManaDrainRetakeMp;				/// June +0x97cc: MP the Mana Drain hits have given back so far
+	USHORT		m_usManaDrainHitCount;				/// June +0x97d0: Mana Drain hits so far
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 	UCHAR		m_ucBasicForcePower;		/// 기본 기력치
