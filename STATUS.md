@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0b | **staged, packed, copied** (35 koms; data101 held): 5,886 June assets, 9 Lua, units 96-99, icon gate PASS; user play-test owed (one Ara per job tier, village + dungeon), then `check logs` | Sonnet 5.5 / high, user play-test | CH0, char-rena CH6 | koms, save | `CH0b.md` |
+| CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
 | CH1a | **ready** (char-rena Z done 2026-11-10): movement and slot-head states | Sonnet 5.5 / high | CH0, char-rena Z | `X2GUAra.*`, Always.h | `CH1a.md` |
 | CH1b | blocked (CH1a): reactions; review covers CH1a-CH1b | Sonnet 5.5 / high, Opus review | CH1a | `X2GUAra.*` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding, pepper run, dance | Sonnet 5.5 / high | CH1b review | `X2GUAra.*` | `CH1c.md` |
@@ -148,7 +148,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | CH6 | blocked (CH4b review, CH5 review, CHNb review): scans rerun + user walk incl. both job changes and the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH4b, CH5, CHNb reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template + CH-N rewrite, `stage7-plan` -> `char-elesis` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0 (2026-11-10).
+Done: CH0 (2026-11-10), CH0b (2026-11-10).
 
 Decisions answered 2026-11-10 (plan "Open decisions"): 1 stat rows for 34 / 124 follow Ara's own rule (CHNa writes, user packs); 2 the lobby orb handles are retired (CH5).
 

@@ -374,7 +374,11 @@ Sonnet 5.5. No C++, no flag. Assets, 9 adopted guide / class-change Lua and the 
 - **Save:** backup `db_backup\els_db_20261110_164859_pre_manual.sql`; `createchar.py` (lv 99, class costume + top gear +10, skills in slots 0-3 only, none in slot 4 / 9): unit 96 MartialArtistT (7), 97 LittleHsienT (28), 98 SakraDevanamT (118), 99 LittleDevil99 (31). Existing: 24 arasss (119 lv47), 38 LittleDevilT (31 lv70), 48 Ara99 (119 lv99). 34 / 124 wait for CHNa.
 - **MODS.md:** "Stage 7 Ara, CH0b" section with the backups and the revert.
 - **Play-test (user) is the gate** (below). Log tag `[JUNE_CHAR]` has no lines (no code); the check is `ErrorLog.txt` against `ErrorLog_pre_CH0b_ara.txt` (`KEM_ERROR`, `Motion Error`, missing texture / mesh). Class script and motions are still March's, so Ara plays as before; her June meshes / textures / sounds / icons load.
-- **Drift:** none new.
+- **Logs checked (user play-test passed, run 16:55-16:59, after the deploy):** `ErrorLog.txt` (1,464 lines) against `ErrorLog_pre_CH0b_ara.txt`: **0** `KEM_ERROR`, **0** `Motion Error`, 0 `EXCEPTION`; the 5 `UNHANDLED` are `E_DISABLE_HB_CHECK_REQ` (known). New lines, none a missing asset the list should have carried:
+  - `OpenXET` sidecars (every class logs them); Ruben-village textures, `PerturbationMap.png`, `HQ_WhiteBack`, `Raven_Out.lua`, `AddGroupChainQuest`, the `ClassChange*Class` control misses (Elesis logs them too): not Ara's, existing backlog.
+  - Ara's dangling face-texture names and `Movie_Create_Ara_*.lua`: June's own, `JUNE_BUGS.md` row 583.
+  - **Open, routed to CH1 final:** ~21 `ErrorEnum(433)` `Anim Frame : 80, Mesh Frame : 81` on `Mesh_Ara_Basic_Face_Sorted.X` / `Mesh_Ara_Cash_Face_Berserk_Sorted.X` (the pre-log never loaded Ara's body, so it is not a regression against it). June's face mesh (15,918 B) replaced March's (12,718 B) while the face animation is still a March / lobby 80-frame one; CH1 final (June's motions and script) re-runs the check, and a still-present line there becomes a `JUNE_BUGS.md` row. `ARA_COMBOSHOT.OGG` / `EXPLOSION3.OGG` `Update3DPosition result 47` (June bytes / existing sound).
+- **Drift:** none new. (Creation-screen buttons, `DLG_Unit_Create_ClassChange_Button_Ara.lua`, are Stage 9's: `ch0_assets.tsv` owner `stage9-ui`.)
 
 ## Phase CH1 - Deploy unit: June script, motions and the class core
 
