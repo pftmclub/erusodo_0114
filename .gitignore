@@ -138,3 +138,5 @@ __pycache__/
 # ---- 8. Re-admitted binaries the workflow cannot run without ---------------
 # (must stay below the *.exe rule above)
 !/elstools/elstools.exe
+/runphases_logs/
+/runphases.lock
