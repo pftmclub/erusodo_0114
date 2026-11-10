@@ -113,6 +113,13 @@ class CX2DamageManager
 			DTT_RNW_PREDATOR_PLAY_EFFECT          = 24,	// June's Enum.lua; Predator's lucky effect set ( PlayPredatorLuckyEffect )
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-10 // char-rena CH4b
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			DTT_RGA_GUNGNIR_OUR_TEAM_DAMAGE       = 23,	// June's Enum.lua; Rena's SetDamageExceptionProcess triggers
+			DTT_GUNGNIR_SPEAR                     = 34,
+			DTT_TRAPPING_ARROW_FUNGUS_SUB         = 35,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 		};
 #endif
 

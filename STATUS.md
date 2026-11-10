@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH4b | **ready** (`/x2-phase char-rena CH4b`, Opus 5.5 high): `SetDamageExceptionProcess` `32cad510`, GetActualCoolTime / MPConsume, `MemoConditionRena`; its review also covers CH4a | Opus 5.5 / high, Opus review, user play-test | CH4a, CH3c | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH4b.md` |
+| CH4b | **play-test owed** (units 92 / 88 / 90 / 87, then "check logs"): `32cad510` whole, `GetActualMPConsume` / `GetActualCoolTime` June's, MemoConditionRena n/a; review covers CH4a | Opus 5.5 / high, Opus review, user play-test | CH4a, CH3c | `X2GULire_ElvenRanger.*`, `X2GUUser.*` | `CH4b.md`, `CH4b-review.md` |
 | CH6 | blocked (CH4b review): scans rerun + user walk incl. the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH4b review | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template row, `stage7-plan` -> `char-ara` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 

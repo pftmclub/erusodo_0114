@@ -12164,6 +12164,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST ) )
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ( CX2GUNPC::InitDelegateProcess, GetSkillBuffTempletID ) and SERV_IRUHADEV_JUNE_UNIT_DELEGATE_LIST ( the summons' attack-result run )
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+// char-rena CH4b: SetDamageExceptionProcess 32cad510 whole, GetActualMPConsume 32c85690 and GetActualCoolTime 32c7be00 under the same flag
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_DAMAGEDATA ) || !defined( SERV_IRUHADEV_JUNE_SKILL_TEMPLET ) || !defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE needs SERV_IRUHADEV_JUNE_DAMAGEDATA, SERV_IRUHADEV_JUNE_SKILL_TEMPLET and SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ( char-rena CH4b: SetDamageExceptionProcess )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////

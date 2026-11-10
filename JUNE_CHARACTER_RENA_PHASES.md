@@ -2401,6 +2401,52 @@ Read from the raw listings (`charport_adis.py rena`: `32ca78b0` uncarved, its ca
 
 **Logs ( 2026-11-10, run 14:12-14:18, after deploy md5 3534a8a0; 0 EXCEPTION, 0 KEM_ERROR / Motion Error; known `E_DISABLE_HB_CHECK_REQ` x5 and one `AddGroupChainQuest` ).** `init` ( two per load, equal ): unit 89 range x1.400 ( Powerful Shot ), arrow power x1.200, back speed 500, friendship 1 rate 0.100, agile 1, Open Mind 23412 mp 3.0 rate 0.200, list 1; unit 92 range x1.550, siege x1.100 ( Hawk Eye ), arrow power x1.100 ( Bowstring 23405 ), charge mp 7.0, vibration 0.150 / 1.225, Open Mind 23414 rate 0.200, list 1; unit 90 range x1.400 ( Sharpen Arrow ), vital point 1, prior blow 1, Open Mind 23416 rate 0.300, list 4. Seen: `open mind effect` 11 / 9 / 39 ( triggers 20 / 21 / 22, natural force >= 1 each ), `friendship of nature buff` x1, `vital point piercing` x15 ( +20 MP; same roll in consecutive frames: the per-frame count restarts, June's ), `rage fungus lock` x50, `predator lucky effect` x37 ( up to three per hit, one per target ), `eradication debuff explosion` x8 ( buff 944 ). User owes nothing; the CH4b review covers CH4a.
 
+### CH4b - Done (2026-11-10)
+
+**Landed.** Commit: see `git log`, "char-rena Phase CH4b". Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE` (+ `_PASSIVE_DEBUG`, on until the CH4b review); new guard line: needs
+`JUNE_DAMAGEDATA`, `JUNE_SKILL_TEMPLET`, `JUNE_BUFF_NEW_STAT` (all ON, `flagprobe.py`). Files: `X2GULire_ElvenRanger.cpp` / `.h`, `X2DamageManager.h` (3 trigger names under
+`JUNE_ENUM_NAMES`), `Always.h`. Read from `charport_adis.py rena 32cad510 32c85690 32c7be00 32c6d4d0`; funcmap rows `(CH4b)` at the end of `june2017_re/funcmap.tsv`.
+- **`SetDamageExceptionProcess` `32cad510` whole** inside March's (March's 3405 / 3400 pair in `#else`), base first, June's order: Furious Engage upgrade (applied id 23025) turns
+  RT_UP into RT_BIG_DAMAGE; trigger 35 + Trapping Arrow Fungus upgraded -> fixed mana-burn extra damage ( `EDT_MANA_DAMAGE`, `SA_MP_BURN_ABS` of 23056, ignore resist, fixed,
+  rate 1 ); trigger 34 + Gungnir upgraded -> fMagic x `SA_DAMAGE_REL` of 23049 ( magic only; June's spear DE is `DT_MAGIC`, so no bug row ); Shooting Magnum upgrade (applied 23209)
+  -> the same mana burn of 23233 and `m_bManaDamageWithNoDisplay = false`; Crazy Shot upgrade (applied 23014) RT_FLY -> RT_BIG_DAMAGE; **D8: Powerful Bowstring 23405** on arrow hits
+  that are also `AT_COMMAND` ( June's extra test; March took every arrow hit ), roll <= `SA_EFFECTIVE_RATE`, both ignore-defence bytes, `EFFECTSET_DEBUFF_POWERFUL_BOWSTRING`;
+  **Sharp Kick 23400** on trigger 4 ( `IsAttackTrigger`, March compared the one field ) -> fHitAddMP x `SA_MP_GAIN_ON_HIT_REL`; Random Shot Pleasure 23415 learned and the attack
+  trigger field == 23 ( read directly, as June ) -> its buff factor 0 pushed ( the Gungnir spear DE spawns `DamageEffect_P_RGA_RANDOM_SHOT_PLEASURE`, which carries trigger 23 ).
+  Upgraded = `IsEquippedSkillUpgraded` ( June `31fca8e0( id, 1 ) +0x178` ). Stand-in: a null damage data returns.
+- **`GetActualMPConsume` `32c85690`** whole inside March's: switch on the upgrade base id: Eradication 23060 costs 0 once its hit count reaches `SA_EFFECTIVE_COUNT`
+  ( `limit <= count`, June's `test ah,0x41`; NaN keeps the cost ), Delayed Fire 23217 costs 0 while armed; June's memo cases ( 3001 / 3214 / 3224 / 3225 ) go through
+  `GetEqippedSkillMemo` `31fca9e0` = 0 and are not transcribed (one comment line); clamp < 0; **natural force discount** x ( 1 - min( NF, base templet `m_usFPConsumtion` ( +0x10 ), 3 ) / 3
+  x `GetCharacterSpecializationB()` ) ( checklist l.278 / l.943 spec B reader `32c85838` ); then the finality-event rate on the original id.
+- **`GetActualCoolTime` `32c7be00`** (new override, vslot 0x6a4): null -> 0; base; Eradication -> -1.0 once its count is reached; while a `BOW_SKILL_STATE` state runs and
+  Random Shot Pleasure's buff 1 is up -> x `SA_COOLTIME_1` of 23415; no clamp. June's third argument is true only from `31fd8ff0` (the 4-arg ChangeEquippedSkillState, known as
+  funcmap Skill S0b, not in March), so it is false here (one comment line).
+- **Buff-templet set / unset 0x24c / 0x250:** CH1q (natural force). **`MemoConditionRena` `32c6d4d0`:** n/a, always false like Chung's / Elsword's / Raven's; `m_bApplyMemo = false`
+  already answers its readers. **§7 l.283 power-rate socket `3201ad10`:** no call in Rena's range (byte scan), n/a. Checklist rows l.278, l.283, l.330 (§7b), l.331 (D8), l.943 marked `(Rena: CH4b)`.
+- **Names / values:** `DTT_RGA_GUNGNIR_OUR_TEAM_DAMAGE` 23, `DTT_GUNGNIR_SPEAR` 34, `DTT_TRAPPING_ARROW_FUNGUS_SUB` 35 (`Enum.src.lua` l.7300 / 7298 / 7260; all three in the live
+  `Enum.lua` and `DamageEffect.lua`); March's `DTT_SHARP_KICK_RELATE_ACTIVE_SKILL_INCREASE_MP_RATE` = 4 = June's. `enumprobe`: `SA_MP_BURN_ABS` 114, `SA_EFFECTIVE_RATE` 5,
+  `SA_DAMAGE_REL` 15, `SA_MP_GAIN_ON_HIT_REL` 28, `SA_EFFECTIVE_COUNT` 2, `RT_BIG_DAMAGE` 2 / `RT_UP` 4 / `RT_FLY` 5, `HT_ARROW_HIT` 16, `AT_COMMAND` 2, `EDT_MANA_DAMAGE` 16,
+  `MAX_LIMITED_SKILL_LEVEL` 30. `offsetprobe`: templet `m_usFPConsumtion` 0x10, DD `attackType` 0x8 / `hitType` 0x20 / `reActType` 0x24 = June's.
+- **Divergence rows:** `CX2GULire_ElvenRanger::SetDamageExceptionProcess`, `::GetActualMPConsume` (ported). No new JUNE_BUGS row.
+- **Not found here (CH1k / CH4a amendment):** the writer of user action 0x28 (Soft Body) is in none of the three functions; the CH4b review says whether June has one.
+- **`no_state` gate:** `s3_no_state.py --family X2GULire_ElvenRanger.cpp --preprocess`: `rows=267 no_state=61 has_state=206` (CH0: 260 / 7). The 61 = 24 passive / aura rows
+  (types 8 / 1, no state in June) + 37 rows of 14 active ids (Rail Stinger 23000, Crescent / Spinning Kick, Violent Attack, Airelinna, Guided Arrow, Wind Blast, Fatality, Call of Ruin,
+  Gliding Strike, Eradication, Siege Mode 23201, Hunter's Steadiness 23210, Heavenly Love 900) whose states the census's `case` match misses; all were cast in CH2 / CH3 play-tests. CH6 explains them.
+
+**Hygiene.** One-file probe (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GULire_ElvenRanger.cpp` exit 0, 0 errors.
+`flagcheck.py JUNE_CHAR_RENA_PASSIVE --with JUNE_CHAR_RENA_PASSIVE_DEBUG --worktree --files` (4): `files: 1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 1 OTHER (other flags), 0 FAIL, 0 ERROR`;
+`in this flag's files: 0 deleted line(s), 0 non-ASCII inserted line(s), 19 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`
+(OTHER = the trigger names under `JUNE_ENUM_NAMES`; the 19 took CRLF from their anchor in this mixed-ending file: the namespace block before a CRLF comment, one `#endif` before a CRLF `}`).
+`junediverge.py --check` (4 files): `allow-listed: 5`, `RESULT: PASS`. `enumscan.py --check X2GULire_ElvenRanger.cpp`: `0 A/B row(s)`. No skill added: no icon gate.
+**Deploy:** `DEPLOY OK: X2_offline.exe is 26,193,920 B, dated 2026-11-10 14:52:45, md5 82ae5d0d9e5b51d0b73964a90c373173, equal to X2/US_SERVICE/x2.exe (2026-11-10 14:52:34); built at main 643e4515 + 4 uncommitted code file(s).`
+`EXESTR OK: 7 of 7 found in X2_offline.exe, 26193920 B, dated 2026-11-10 14:52:45, md5 82ae5d0d9e5b51d0b73964a90c373173` (wide: the bowstring, sharp kick, gungnir, mp, cool time, random shot and shooting magnum lines).
+**Save:** backup `db_backup/els_db_20261110_144145_pre_sql.sql`; unit 92 learns Random Shot Pleasure 23415 (born sealed: unsealed row too), slot -1.
+
+**How to see it in game** ( `[JUNE_CHAR] RENA PASSIVE ...`, each at most once a second ): unit 92 `powerful bowstring: ignore defence`, `gungnir upgrade spear: magic x`,
+`random shot pleasure: gungnir team hit`, `cool time: skill ... -> ...` after a bow skill; unit 88 `shooting magnum upgrade: mana damage`, `crazy shot upgrade: react fly -> big damage`;
+unit 90 `trapping arrow fungus upgrade: mana damage`, `furious engage upgrade: react up -> big damage`, `mp: skill 23240 ... -> 0.00` while Delayed Fire is armed, Eradication `mp:` / `cool time: ... -> -1.00`
+once its count is reached; unit 87 `sharp kick: hit mp x`.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_UI`. Sub-tag `UI`.

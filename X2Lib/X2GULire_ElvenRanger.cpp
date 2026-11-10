@@ -34792,6 +34792,24 @@ void CX2GULire_ElvenRanger::UpNowMpPerHitOthers( const float fHitAddMp_, const i
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 }
 
+//{{ Iruha : 2026-11-10 // char-rena CH4b
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+namespace _CONST_RENA_CH4B_
+{
+	// char-rena CH4b: the passive log lines fire at most once a second each
+	bool IsPassiveLogDue( DWORD& dwLastLogTime_ )
+	{
+		const DWORD dwNow = timeGetTime();
+		if( dwNow - dwLastLogTime_ <= 1000 )
+			return false;
+
+		dwLastLogTime_ = dwNow;
+		return true;
+	}
+}
+using namespace _CONST_RENA_CH4B_;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+//}}
 /** @function : CX2GetActualMPConsume
 	@brief : 스킬의 MP 소모량을 얻어옴
 	@param : 스킬의 ID, 사용한 스킬의 레벨
@@ -34799,6 +34817,60 @@ void CX2GULire_ElvenRanger::UpNowMpPerHitOthers( const float fHitAddMp_, const i
 */
 /*virtual*/ float CX2GULire_ElvenRanger::GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+	// char-rena CH4b: June 32c85690; its memo cases ( 3001 / 3214 / 3224 / 3225 ) call GetEqippedSkillMemo 31fca9e0, which returns 0 in June, so they never apply
+	CX2GULire_ElvenRanger* pThis = const_cast<CX2GULire_ElvenRanger*>( this );
+	const float fBaseMpConsumption = CX2GUUser::GetActualMPConsume( eSkillID_, iSkillLevel_ );
+	float fMpConsumption = fBaseMpConsumption;
+	const CX2SkillTree::SKILL_ID eBaseSkillID = g_pData->GetSkillTree()->GetUpgradeBaseSkillID( eSkillID_ );
+
+	switch ( eBaseSkillID )
+	{
+	case CX2SkillTree::RNSI_SA_RNW_ERADICATION:
+		{
+			float fHitCountLimit = 0.f;
+			if ( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_COUNT, CX2SkillTree::RNSI_SA_RNW_ERADICATION, true, fHitCountLimit ) &&
+				fHitCountLimit <= static_cast<float>( m_usEradicationHitCount ) )
+				fMpConsumption = 0.f;
+		} break;
+
+	case CX2SkillTree::RNSI_A_RNW_DELAYED_FIRE:
+		if ( true == m_bActiveStartOfDelayedFiring )
+			fMpConsumption = 0.f;
+		break;
+
+	default:
+		break;
+	}
+
+	if ( fMpConsumption < 0.f )
+		fMpConsumption = 0.f;
+
+	int iNaturalForceUsed = 0;
+	const CX2SkillTree::SkillTemplet* pBaseSkillTemplet = GetEquippedActiveSkillTemplet( eBaseSkillID, true );
+	if ( NULL != pBaseSkillTemplet )
+	{
+		const int iNaturalForceCount = pThis->GetNaturalForceCount();
+		if ( 0 < iNaturalForceCount && 0 != pBaseSkillTemplet->m_usFPConsumtion )
+		{
+			iNaturalForceUsed = min( min( iNaturalForceCount, static_cast<int>( pBaseSkillTemplet->m_usFPConsumtion ) ), 3 );	// June caps it at 3
+			fMpConsumption = static_cast<float>( ( 1.0 - iNaturalForceUsed / 3.0 * GetCharacterSpecializationB() ) * fMpConsumption );
+		}
+	}
+
+	float fMpDecreaseRate = 1.0f;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillID_, true );
+	if ( NULL != pSkillTemplet )
+		fMpDecreaseRate = g_pData->GetMyUser()->GetSelectUnit()->GetSkillMpDecreaseRate( eSkillID_, pSkillTemplet->m_eType );	// June 3234d840 on my unit
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	static DWORD s_dwMpConsumeLogTime = 0;
+	if ( fMpConsumption != fBaseMpConsumption && true == IsPassiveLogDue( s_dwMpConsumeLogTime ) )
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE mp: skill %d base %.2f -> %.2f ( natural force used %d, spec B %.3f, event rate %.3f )", static_cast<int>( eSkillID_ ),
+			fBaseMpConsumption, fMpConsumption, iNaturalForceUsed, GetCharacterSpecializationB(), fMpDecreaseRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	return fMpConsumption * fMpDecreaseRate;
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 	float fMpConsumption = CX2GUUser::GetActualMPConsume( eSkillID_, iSkillLevel_ );
 
 	switch ( eSkillID_ )
@@ -34866,8 +34938,42 @@ void CX2GULire_ElvenRanger::UpNowMpPerHitOthers( const float fHitAddMp_, const i
 #else SERV_BALANCE_FINALITY_SKILL_EVENT
 	return fMpConsumption;
 #endif //SERV_BALANCE_FINALITY_SKILL_EVENT
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 }
 
+//{{ Iruha : 2026-11-10 // char-rena CH4b
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+// char-rena CH4b: June 32c7be00 ( vslot 0x6a4 ); June's third argument is true only from 31fd8ff0, which March lacks, so it is false here
+/*virtual*/ float CX2GULire_ElvenRanger::GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const
+{
+	if ( NULL == pSkillTemplet_ )
+		return 0.f;
+
+	const float fBaseCoolTime = CX2GUUser::GetActualCoolTime( pSkillTemplet_, iSkillLevel );
+	float fSkillCoolTime = fBaseCoolTime;
+
+	if ( CX2SkillTree::RNSI_SA_RNW_ERADICATION == g_pData->GetSkillTree()->GetUpgradeBaseSkillID( pSkillTemplet_->m_eID ) )
+	{
+		float fHitCountLimit = 0.f;
+		if ( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_COUNT, CX2SkillTree::RNSI_SA_RNW_ERADICATION, true, fHitCountLimit ) &&
+			fHitCountLimit <= static_cast<float>( m_usEradicationHitCount ) )
+			fSkillCoolTime = -1.f;	// June 334380f0
+	}
+
+	if ( true == m_bBowSkillState && GetSkillLevelValue( CX2SkillTree::RNSI_P_RGA_RANDOM_SHOT_PLEASURE ) > 0 &&
+		true == const_cast<CX2GULire_ElvenRanger*>( this )->HaveSkillBuff( CX2SkillTree::RNSI_P_RGA_RANDOM_SHOT_PLEASURE, 1, true ) )
+		fSkillCoolTime = GetLearnedSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, CX2SkillTree::RNSI_P_RGA_RANDOM_SHOT_PLEASURE ) * fSkillCoolTime;
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	static DWORD s_dwCoolTimeLogTime = 0;
+	if ( fSkillCoolTime != fBaseCoolTime && true == IsPassiveLogDue( s_dwCoolTimeLogTime ) )
+		CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE cool time: skill %d base %.2f -> %.2f", static_cast<int>( pSkillTemplet_->m_eID ), fBaseCoolTime, fSkillCoolTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	return fSkillCoolTime;
+}
+
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+//}}
 /** @function : AddUnitSlashData
 	@brief : 유닛에 트레이스 붙이기 (실행은 아님)
 	@param : 트레이스 종류(eSlashTraceCondition_)
@@ -34959,6 +35065,124 @@ void CX2GULire_ElvenRanger::UpNowMpPerHitOthers( const float fHitAddMp_, const i
 #ifdef MODIFY_SET_DAMAGE_DATA
 void CX2GULire_ElvenRanger::SetDamageExceptionProcess( CX2DamageManager::DamageData* pDamageData_,OUT float& fPowerRate)
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+	// char-rena CH4b: June 32cad510 whole ( vslot 0x2b8 ); D8: Powerful Bowstring 23405 and Sharp Kick 23400 in place of March's 3405 / 3400
+	CX2GUUser::SetDamageExceptionProcess( pDamageData_, fPowerRate );
+	if ( NULL == pDamageData_ )	// stand-in: June reads it unchecked
+		return;
+
+	if ( CX2SkillTree::RNSI_SA_RNW_FURIOUS_ENGAGE == pDamageData_->m_iAppliedSkillID && true == IsEquippedSkillUpgraded( CX2SkillTree::RNSI_SA_RNW_FURIOUS_ENGAGE ) &&
+		CX2DamageManager::RT_UP == pDamageData_->reActType )
+	{
+		pDamageData_->reActType = CX2DamageManager::RT_BIG_DAMAGE;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+		static DWORD s_dwFuriousEngageLogTime = 0;
+		if ( true == IsPassiveLogDue( s_dwFuriousEngageLogTime ) )
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE furious engage upgrade: react up -> big damage" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	}
+
+	if ( true == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_TRAPPING_ARROW_FUNGUS_SUB ) && true == IsEquippedSkillUpgraded( CX2SkillTree::RNSI_SA_RNW_TRAPPING_ARROW_FUNGUS ) )
+	{
+		pDamageData_->m_ExtraDamage.m_ExtraDamageType	= CX2DamageManager::EDT_MANA_DAMAGE;
+		pDamageData_->m_ExtraDamage.m_Damage			= GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_BURN_ABS, CX2SkillTree::RNSI_SA_RNW_TRAPPING_ARROW_FUNGUS_UPGRADE );
+		pDamageData_->m_ExtraDamage.m_bIgnoreResist		= true;
+		pDamageData_->m_ExtraDamage.m_bFixedDamage		= true;
+		pDamageData_->m_ExtraDamage.m_fRate				= 1.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+		static DWORD s_dwFungusLogTime = 0;
+		if ( true == IsPassiveLogDue( s_dwFungusLogTime ) )
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE trapping arrow fungus upgrade: mana damage %.1f", static_cast<float>( pDamageData_->m_ExtraDamage.m_Damage ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	}
+
+	if ( true == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_GUNGNIR_SPEAR ) && true == IsEquippedSkillUpgraded( CX2SkillTree::RNSI_SA_RGA_GUNGNIR ) )
+	{
+		pDamageData_->damage.fMagic = GetLearnedSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, CX2SkillTree::RNSI_SA_RGA_GUNGNIR_UPGRADE ) * pDamageData_->damage.fMagic;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+		static DWORD s_dwGungnirLogTime = 0;
+		if ( true == IsPassiveLogDue( s_dwGungnirLogTime ) )
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE gungnir upgrade spear: magic x %.3f -> %.2f ( physic %.2f )",
+				GetLearnedSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, CX2SkillTree::RNSI_SA_RGA_GUNGNIR_UPGRADE ), pDamageData_->damage.fMagic, pDamageData_->damage.fPhysic );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	}
+
+	if ( CX2SkillTree::RNSI_A_RSR_SHOOTING_MAGNUM == pDamageData_->m_iAppliedSkillID && true == IsEquippedSkillUpgraded( CX2SkillTree::RNSI_A_RSR_SHOOTING_MAGNUM ) )
+	{
+		pDamageData_->m_ExtraDamage.m_ExtraDamageType	= CX2DamageManager::EDT_MANA_DAMAGE;
+		pDamageData_->m_ExtraDamage.m_Damage			= GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_BURN_ABS, CX2SkillTree::RNSI_A_RSR_SHOOTING_MAGNUM_UPGRADE );
+		pDamageData_->m_ExtraDamage.m_bIgnoreResist		= true;
+		pDamageData_->m_ExtraDamage.m_bFixedDamage		= true;
+		pDamageData_->m_ExtraDamage.m_bManaDamageWithNoDisplay	= false;
+		pDamageData_->m_ExtraDamage.m_fRate				= 1.f;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+		static DWORD s_dwShootingMagnumLogTime = 0;
+		if ( true == IsPassiveLogDue( s_dwShootingMagnumLogTime ) )
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE shooting magnum upgrade: mana damage %.1f", static_cast<float>( pDamageData_->m_ExtraDamage.m_Damage ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	}
+
+	if ( CX2SkillTree::RNSI_SA_RSR_CRAZY_SHOT == pDamageData_->m_iAppliedSkillID && true == IsEquippedSkillUpgraded( CX2SkillTree::RNSI_SA_RSR_CRAZY_SHOT ) &&
+		CX2DamageManager::RT_FLY == pDamageData_->reActType )
+	{
+		pDamageData_->reActType = CX2DamageManager::RT_BIG_DAMAGE;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+		static DWORD s_dwCrazyShotLogTime = 0;
+		if ( true == IsPassiveLogDue( s_dwCrazyShotLogTime ) )
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE crazy shot upgrade: react fly -> big damage" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	}
+
+	if ( CX2DamageManager::HT_ARROW_HIT == pDamageData_->hitType && CX2DamageManager::AT_COMMAND == pDamageData_->attackType )
+	{
+		int iBowstringLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RGA_POWERFUL_BOWSTRING, true, 0, true );
+		const CX2SkillTree::SkillTemplet* pBowstringTemplet = ( 0 < iBowstringLevel ) ? g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RGA_POWERFUL_BOWSTRING ) : NULL;
+		if ( NULL != pBowstringTemplet )
+		{
+			iBowstringLevel = min( iBowstringLevel, MAX_LIMITED_SKILL_LEVEL );
+			const float fRoll = GetRandomFloat();
+			const float fIgnoreDefenceRate = pBowstringTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iBowstringLevel, false );
+			if ( fRoll <= fIgnoreDefenceRate )
+			{
+				pDamageData_->m_bIgnoreDefence = true;
+				pDamageData_->m_bIgnoreDefenceOnPvp = true;	// June @32cada25 writes both bytes
+				g_pData->GetGameEffectSet()->PlayEffectSet( L"EFFECTSET_DEBUFF_POWERFUL_BOWSTRING", this );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+				static DWORD s_dwBowstringLogTime = 0;
+				if ( true == IsPassiveLogDue( s_dwBowstringLogTime ) )
+					CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE powerful bowstring: ignore defence ( roll %.3f <= %.3f, level %d )", fRoll, fIgnoreDefenceRate, iBowstringLevel );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+			}
+		}
+	}
+
+	if ( true == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_SHARP_KICK_RELATE_ACTIVE_SKILL_INCREASE_MP_RATE ) )
+	{
+		const int iSharpKickLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_RCR_SHARP_KICK, false, 0, true );
+		const CX2SkillTree::SkillTemplet* pSharpKickTemplet = ( 0 < iSharpKickLevel ) ? g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_RCR_SHARP_KICK ) : NULL;
+		if ( NULL != pSharpKickTemplet )
+		{
+			const float fHitAddMpRate = pSharpKickTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_GAIN_ON_HIT_REL, iSharpKickLevel, false );
+			pDamageData_->fHitAddMP = pDamageData_->fHitAddMP * fHitAddMpRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+			static DWORD s_dwSharpKickLogTime = 0;
+			if ( true == IsPassiveLogDue( s_dwSharpKickLogTime ) )
+				CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE sharp kick: hit mp x %.3f -> %.2f", fHitAddMpRate, static_cast<float>( pDamageData_->fHitAddMP ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+		}
+	}
+
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_RGA_RANDOM_SHOT_PLEASURE ) > 0 && CX2DamageManager::DTT_RGA_GUNGNIR_OUR_TEAM_DAMAGE == pDamageData_->m_eDamageTrigger )
+	{
+		CX2BuffFactorPtr ptrBuffFactor = GetSkillBuffFactorPtr( CX2SkillTree::RNSI_P_RGA_RANDOM_SHOT_PLEASURE, 0, true );
+		pDamageData_->PushBuffFactor( ptrBuffFactor, true );	// June 329cf6d0
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+		static DWORD s_dwRandomShotLogTime = 0;
+		if ( true == IsPassiveLogDue( s_dwRandomShotLogTime ) )
+			CX2OfflineLog::Server( L"[JUNE_CHAR] RENA PASSIVE random shot pleasure: gungnir team hit, factor %s", ( NULL != ptrBuffFactor ) ? L"found" : L"missing" );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 	CX2GUUser::SetDamageExceptionProcess(pDamageData_, fPowerRate);
 	int iSkillLevel = 0;
 #ifdef BALANCE_GRAND_ARCHER_20121213	
@@ -35031,6 +35255,7 @@ void CX2GULire_ElvenRanger::SetDamageExceptionProcess( CX2DamageManager::DamageD
 		}
 	}
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 }
 #endif //MODIFY_SET_DAMAGE_DATA
 

@@ -549,6 +549,9 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 
 		virtual bool		SpecialAttackNoStageChange( const CX2SkillTree::SkillTemplet* pSkillTemplet );
 		virtual float		GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
+		virtual float		GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;	// char-rena CH4b: June 32c7be00 ( vslot 0x6a4, base 31fd1920 )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 
 #ifdef ADD_MEMO_1ST_CLASS //±Ë√¢«—
 		const CX2SkillTree::ACTIVE_SKILL_USE_CONDITION GetSkillUseCondition(const CX2SkillTree::SkillTemplet* pSkillTemplet_);
