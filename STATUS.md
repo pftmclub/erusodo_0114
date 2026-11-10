@@ -105,7 +105,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH1b | **ready** (CH1a done 2026-11-10): reactions; review covers CH1a-CH1b | Sonnet 5.5 / high, Opus review | CH1a | `X2GUAra.*` | `CH1b.md` |
+| CH1b | done 2026-11-10 (17 reaction functions under `_LIVE`, probes 0 errors, no play-test); **owes** the CH1a-CH1b review | Sonnet 5.5 / high, Opus review | CH1a | `X2GUAra.*` | `CH1b.md`, `CH1b-review.md` |
 | CH1c | blocked (CH1b review): riding, pepper run, dance | Sonnet 5.5 / high | CH1b review | `X2GUAra.*` | `CH1c.md` |
 | CH1d | blocked (CH1c): ground combos | Sonnet 5.5 / high | CH1c | `X2GUAra.*` | `CH1d.md` |
 | CH1d2 | blocked (CH1d): dash combos; review covers CH1c-CH1d2 | Sonnet 5.5 / high, Opus review | CH1d | `X2GUAra.*` | `CH1d2.md` |

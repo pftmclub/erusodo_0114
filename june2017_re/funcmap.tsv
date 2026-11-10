@@ -9580,3 +9580,20 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32ba7a40	CX2GUAra::JumpAttackXFrameMoveFuture	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March
 32b9a240	CX2GUAra::JumpAttackXEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March
 32b90f20	CX2GUUser::HyperModeStart ( Ara-range thunk )	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; jmp 31ffd490 = CX2GUUser::HyperModeStart; March registers it already, nothing to write
+32b90dd0	CX2GUAra::DieFrontFrameMove	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; DieFrameMove( 0.19, 1.12 ); = March (also ASI_RIDING_DIE)
+32b90df0	CX2GUAra::DieBackFrameMove	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; DieFrameMove( 0.19, 1.12 ); = March
+32b90f40	CX2GUAra::StandUpAttackEnd	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; CommonStateEnd + SetForceInvincible( 0.3 ) + SetShowInvincible( 0.3 ) (vslots 0x11c / 0x120); = March (4 states)
+32b96b30	CX2GUAra::DieFrontStartFuture	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; riding pet StateChangeFuture( dying state ) then CommonStateStartFuture + play speed 0.5; dying state id 32d278f0 read as March m_DyingState (transform not ported, stand-in comment); = March
+32b96bc0	CX2GUAra::DieFrontStart	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; CommonStateStart + DyingStart ( vslot 0x338 ) + play speed 0.5; = March
+32b96c30	CX2GUAra::DieFrontEventProcess	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; hidden and animation end -> StateChange( GUSI_DIE ) (GetShowObject inlined); = March
+32b96c70	CX2GUAra::DieBackStartFuture	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; = March
+32b96cd0	CX2GUAra::DieBackStart	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; = March
+32b96d40	CX2GUAra::DieBackEventProcess	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; = March
+32b96f20	CX2GUAra::DamageDownFrontFrameMove	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; EventTimerOneshot( 0.19 ) ( the inlined guard m_fAnimOneshotTimer < t ) -> CreateStepDust; = March's X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE branch
+32b96f70	CX2GUAra::DamageDownFrontEventProcess	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; stand-up flags 5 / 6 / 7 also fire on animation end ( ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_ ), rest = March; future animation accessor 32070cf0 read as m_pXSkinAnimFuture
+32b97350	CX2GUAra::DamageDownBackFrameMove	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; EventTimer( 0.32 ) -> CreateStepDust; = March
+32b97390	CX2GUAra::DamageDownBackEventProcess	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; as the Front one with the Back ids ( quick stand BACK_FRONT / BACK_BACK ), the same animation-end firing; = March otherwise
+32b97770	CX2GUAra::DamageAirDownLandingEventProcess	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; a jump to 32b96f70 ( DamageDownFrontEventProcess ); = March
+32b97780	CX2GUAra::StandUpRollingEventProcess	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; = March (9 states)
+32b97800	CX2GUAra::StandUpAttackEventProcess	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; = March (4 states)
+32bab2d0	CX2GUAra::StandUpRollingEnd	PORTED	Char Ara CH1b: inside, June body under JUNE_CHAR_ARA_LIVE; as March plus the memo block unconditional: ASI_A_ALH_BREAKING_AVOIDANCE and GetEqippedSkillMemo( SMI_ARA_MEMO7 ) -> SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_BREAKING_MEMO, 1, NULL, 0, false ) ( June's 5 arguments, 7ai ); June's memo query returns false ( 31fca9e0 ) so it never fires

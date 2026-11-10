@@ -449,6 +449,34 @@ All 30 class-map rows of phase CH1a are written, all `inside`: June's body in Ma
 
 **Nothing to play-test.** Phase tag in every block: `// char-ara CH1a`. Review: none of its own, the CH1b review covers CH1a-CH1b (the `_DEBUG` define stays on: there is none yet). Next: `/x2-phase char-ara CH1b` (Sonnet 5.5 high).
 
+### CH1b - Done (2026-11-10)
+
+All 17 class-map rows of phase CH1b are written, all `inside`: June's body in March's own `CX2GUAra` function under `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE`, March's in `#else`. No `new` row, so no `_CORE`; no `_FP` / `_SPECTER` line was needed. `_LIVE` stays `//#define` (CH1a defined it with its guard). 17 funcmap rows `Char Ara CH1b`; no `ch1_offsets.tsv` row was missing (the CH1b rows were there since CH1a); checklist rows L178 and 7ai carry `(Ara: CH1b)`.
+
+| June | `CX2GUAra::` | June | `CX2GUAra::` |
+|---|---|---|---|
+| `32b96b30` `32b96bc0` `32b90dd0` `32b96c30` | DieFront StartFuture / Start / FrameMove / EventProcess (also `ASI_RIDING_DIE`) | `32b96c70` `32b96cd0` `32b90df0` `32b96d40` | DieBack StartFuture / Start / FrameMove / EventProcess |
+| `32b96f20` `32b96f70` | DamageDownFront FrameMove / EventProcess | `32b97350` `32b97390` | DamageDownBack FrameMove / EventProcess |
+| `32b97770` | DamageAirDownLanding EventProcess (a jump to `32b96f70`) | `32b97780` `32bab2d0` | StandUpRolling EventProcess / End (9 states) |
+| `32b97800` `32b90f40` | StandUpAttack EventProcess / End (4 states) | | |
+
+**Where June differs from March** (everything else is March's logic written out whole, read from `charport_adis.py ara --phase CH1b`):
+- **Stand-up flags also fire on animation end** (DamageDownFront / Back flags 5 / 6 / 7: quick stand front-front / front-back / attack, and back-front / back-back / attack): June tests `stateChange < now || IsAnimationEnd()` and runs the time tests before the key test; this is the file-local `ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_` CH1a defined. The animation-end branch above it catches the same condition first, so the extra clause never decides (kept as June has it). The key arms, the no-down roll (`GetRandomInt() < +0x4060`, the same attack state either way) and Back's id swap are March's; the future animation accessor `32070cf0` is read as `m_pXSkinAnimFuture` (precedent: Rena / Aisha, funcmap `32070cf0`).
+- **StandUpRolling End `32bab2d0`:** the Breaking Avoidance memo block (`ASI_A_ALH_BREAKING_AVOIDANCE` and memo `0x94323` = `SMI_ARA_MEMO7` 607011) is unconditional (March: `ADD_ARA_MEMO`) and calls the buff factor with June's five arguments `( BFI_BUFF_BREAKING_MEMO 0xb5, 1, NULL, 0, false )` (7ai; `s3e_bybfi_callers.tsv` row `32bab361`: skip 0, adjust 0, level 1, creator 0). June's memo query `31fca9e0` returns false (March replaces it under `SERV_IRUHADEV_JUNE_DIVERGE_SKILL_MEMO`), so the block is dead in June; no `JUNE_BUGS` row (memos are gone for every class).
+- **Die StartFuture `32b96b30`:** the riding pet's dying state comes from `32d278f0` (`transformed ? +0x578 : m_DyingState`); the transform flag `+0x5a0` has no March member (Stage 17, offline it never starts), so it reads `m_ptrRidingPet->m_DyingState` with a one-line stand-in comment. June has no `RIDING_SYSTEM` test.
+- **DamageDownFront FrameMove `32b96f20`:** `EventTimerOneshot( 0.19 )` (the inlined `m_fAnimOneshotTimer < t` guard) = March's `X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` branch; Back is plain `EventTimer( 0.32 )`, as March.
+- **= March:** Die Start (`DyingStart` vslot 0x338, play speed 0.5), Die FrameMove (`DieFrameMove( 0.19, 1.12 )`), Die EventProcess (`GetShowObject` inlined; `StateChange( GUSI_DIE )`), AirDownLanding, the Rolling / Attack EventProcess (`USI_JUMP_DOWN` and `y -= LINE_RADIUS x 1.5`, then dash on a pure key else `USI_WAIT`), the Attack / Rolling End invincibility (0.3 / 0.3, vslots 0x11c / 0x120).
+- **Ids:** by March's names (`USI_*`, `ASI_*`); the June numbers differ (ch0 `DIFF` rows) and registration is CH1m. **Not in this phase though the state list names them:** the Start / FrameMove of the damage, win / lose, start and wall states are base callbacks (nothing in Ara's range; CH1m registers them). `ASI_WALL_LANDING` has no script table (state_skill note) and no Ara function.
+- **Identified callee:** `32d278f0` (riding pet dying id) as above; `32d2f480` = March `CX2RidingPet::StateChangeFuture( int )`.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --worktree --files X2Lib/X2GUAra.cpp`: `files: 1 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). `git diff --patience --numstat`: 352 / 0.
+- One-file `/Zs` probe of `X2GUAra.cpp` (`census.cl_cmd`, no PCH): 0 errors with `_LIVE` off and with `/D SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE`; the `/P` output carries June's `( BFI_BUFF_BREAKING_MEMO ), 1, 0, 0, false )` call with the flag on only.
+- `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: 0 A/B rows.
+- Full build skipped: no play-test (`_LIVE` is off; nothing registers a June body), so no `DEPLOY OK` / `exestr` line.
+
+**Nothing to play-test.** Phase tag in every block: `// char-ara CH1b`. Review: `kickoffs/char-ara/CH1b-review.md` (Opus 5.5 high, covers CH1a-CH1b; the `_DEBUG` define stays on: there is none yet). Next: `/x2-phase char-ara CH1b review`, then CH1c.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

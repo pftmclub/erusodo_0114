@@ -6245,6 +6245,16 @@ void CX2GUAra::ChangeAnimTail()
 */
 void CX2GUAra::DieFrontStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b96b30; dying state id 32d278f0 stand-in: riding-pet transform not ported
+	if( true == GetRidingOn() && NULL != m_ptrRidingPet )
+		m_ptrRidingPet->StateChangeFuture( m_ptrRidingPet->m_DyingState );
+
+	CommonStateStartFuture();
+
+	const float PLAY_SPEED = 0.5f;
+	m_pXSkinAnimFuture->SetPlaySpeed( PLAY_SPEED );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef RIDING_SYSTEM
 	if ( true == GetRidingOn() && NULL != m_ptrRidingPet )
 		m_ptrRidingPet->StateChangeFuture( m_ptrRidingPet->m_DyingState );
@@ -6254,6 +6264,7 @@ void CX2GUAra::DieFrontStartFuture()
 
 	const float PLAY_SPEED = 0.5f; 
 	m_pXSkinAnimFuture->SetPlaySpeed( PLAY_SPEED );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: DieFrontStart
@@ -6261,11 +6272,20 @@ void CX2GUAra::DieFrontStartFuture()
 */
 void CX2GUAra::DieFrontStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b96bc0
+	CommonStateStart();
+	DyingStart();
+
+	const float PLAY_SPEED = 0.5f;
+	m_pXSkinAnim->SetPlaySpeed( PLAY_SPEED );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CommonStateStart();
 	DyingStart();
 
 	const float PLAY_SPEED = 0.5f; 
 	m_pXSkinAnim->SetPlaySpeed( PLAY_SPEED );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: DieFrontFrameMove
@@ -6273,10 +6293,18 @@ void CX2GUAra::DieFrontStart()
 */
 void CX2GUAra::DieFrontFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b90dd0
+	const float TIME_CREATE_STEP_DUST = 0.19f;
+	const float TIME_SACRIFICE_OF_HERO = 1.12f;
+
+	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	const float TIME_CREATE_STEP_DUST = 0.19f;		// 연기가 발생되야하는 애니메이션 시간
 	const float TIME_SACRIFICE_OF_HERO = 1.12f;		// 영웅의 희생이 실행되어야 하는 애니메이션 시간
 
 	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: DieFrontEventProcess
@@ -6284,8 +6312,14 @@ void CX2GUAra::DieFrontFrameMove()
 */
 void CX2GUAra::DieFrontEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b96c30
+	if( false == GetShowObject() && true == m_pXSkinAnim->IsAnimationEnd() )
+		StateChange( GUSI_DIE );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( false == GetShowObject() && true == m_pXSkinAnim->IsAnimationEnd() )
 		StateChange( GUSI_DIE );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -6295,10 +6329,18 @@ void CX2GUAra::DieFrontEventProcess()
 */
 void CX2GUAra::DieBackStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b96c70
+	CommonStateStartFuture();
+
+	const float PLAY_SPEED = 0.5f;
+	m_pXSkinAnimFuture->SetPlaySpeed( PLAY_SPEED );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CommonStateStartFuture();
 
 	const float PLAY_SPEED = 0.5f; 
 	m_pXSkinAnimFuture->SetPlaySpeed( PLAY_SPEED );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: DieBackStart
@@ -6306,11 +6348,20 @@ void CX2GUAra::DieBackStartFuture()
 */
 void CX2GUAra::DieBackStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b96cd0
+	CommonStateStart();
+	DyingStart();
+
+	const float PLAY_SPEED = 0.5f;
+	m_pXSkinAnim->SetPlaySpeed( PLAY_SPEED );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CommonStateStart();
 	DyingStart();
 
 	const float PLAY_SPEED = 0.5f; 
 	m_pXSkinAnim->SetPlaySpeed( PLAY_SPEED );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: DieBackFrameMove
@@ -6318,10 +6369,18 @@ void CX2GUAra::DieBackStart()
 */
 void CX2GUAra::DieBackFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b90df0
+	const float TIME_CREATE_STEP_DUST = 0.19f;
+	const float TIME_SACRIFICE_OF_HERO = 1.12f;
+
+	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	const float TIME_CREATE_STEP_DUST = 0.19f;		// 연기가 발생되야하는 애니메이션 시간
 	const float TIME_SACRIFICE_OF_HERO = 1.12f;		// 영웅의 희생이 실행되어야 하는 애니메이션 시간
 
 	DieFrameMove( TIME_CREATE_STEP_DUST, TIME_SACRIFICE_OF_HERO );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function : DieBackEventProcess
@@ -6329,8 +6388,14 @@ void CX2GUAra::DieBackFrameMove()
 */
 void CX2GUAra::DieBackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b96d40
+	if( false == GetShowObject() && true == m_pXSkinAnim->IsAnimationEnd() )
+		StateChange( GUSI_DIE );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( false == GetShowObject() && true == m_pXSkinAnim->IsAnimationEnd() )
 		StateChange( GUSI_DIE );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -7959,6 +8024,15 @@ void CX2GUAra::DamageBigEventProcess()
 */
 void CX2GUAra::DamageDownFrontFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b96f20 ( EventTimerOneshot as March's X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE branch )
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.19f ) )
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 if( true == m_pXSkinAnim->EventTimerOneshot( 0.19f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -7969,6 +8043,7 @@ if( true == m_pXSkinAnim->EventTimerOneshot( 0.19f ) )
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function : DamageDownFrontEventProcess
@@ -7976,6 +8051,104 @@ if( true == m_pXSkinAnim->EventTimerOneshot( 0.19f ) )
 */
 void CX2GUAra::DamageDownFrontEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b96f70
+	bool& bChangeStandUpAttackFront			= m_FrameDataFuture.stateParam.bEventFlagList[1];
+	bool& bChangeStandUpRollingFrontFront	= m_FrameDataFuture.stateParam.bEventFlagList[2];
+	bool& bChangeStandUpRollingFrontBack	= m_FrameDataFuture.stateParam.bEventFlagList[3];
+	bool& bChangeStandUpBigAttackFront		= m_FrameDataFuture.stateParam.bEventFlagList[4];
+	const float fInputStartTime = ( true == m_bAbleQuickStand ) ? m_fEventTime[0].keyInputStart : 0.66f;
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( true == bChangeStandUpAttackFront )
+		{
+			StateChange( ASI_STANDUP_ATTACK_FRONT );
+		}
+		else if( true == bChangeStandUpBigAttackFront )
+		{
+			if( GetRandomInt() < m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent )
+			{
+				StateChange( ASI_STANDUP_ATTACK_FRONT_NO_DOWN );
+			}
+			else
+			{
+				StateChange( ASI_STANDUP_ATTACK_FRONT );
+			}
+		}
+		else if( true == bChangeStandUpRollingFrontFront )
+			StateChange( ASI_STANDUP_ROLLING_FRONT_FRONT );
+		else if( true == bChangeStandUpRollingFrontBack )
+			StateChange( ASI_STANDUP_ROLLING_FRONT_BACK );
+		else
+			StateChange( USI_DAMAGE_STANDUP_FRONT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 5, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		true == m_bAbleQuickStand && true == bChangeStandUpRollingFrontFront, ASI_P_ALH_QUICK_STAND_FRONT_FRONT )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 6, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		true == m_bAbleQuickStand && true == bChangeStandUpRollingFrontBack, ASI_STANDUP_ROLLING_FRONT_BACK )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 7, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		true == m_bAbleQuickStand && true == bChangeStandUpAttackFront, ASI_STANDUP_ATTACK_FRONT )
+	else if( fInputStartTime < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if( true == m_InputData.oneZ )
+		{
+			bChangeStandUpAttackFront		= true;
+			bChangeStandUpRollingFrontFront	= false;
+			bChangeStandUpRollingFrontBack	= false;
+			bChangeStandUpBigAttackFront	= false;
+		}
+		else if( true == m_InputData.oneX )
+		{
+			bChangeStandUpAttackFront		= false;
+			bChangeStandUpRollingFrontFront	= false;
+			bChangeStandUpRollingFrontBack	= false;
+			bChangeStandUpBigAttackFront	= true;
+		}
+		else if( true == m_FrameDataFuture.syncData.bIsRight )
+		{
+			if( true == m_InputData.pureRight )
+			{
+				bChangeStandUpAttackFront		= false;
+				bChangeStandUpRollingFrontBack	= false;
+				bChangeStandUpRollingFrontFront	= true;
+				bChangeStandUpBigAttackFront	= false;
+			}
+			else if( true == m_InputData.pureLeft )
+			{
+				bChangeStandUpAttackFront		= false;
+				bChangeStandUpRollingFrontFront	= false;
+				bChangeStandUpRollingFrontBack	= true;
+				bChangeStandUpBigAttackFront	= false;
+			}
+		}
+		else
+		{
+			if( true == m_InputData.pureRight )
+			{
+				bChangeStandUpAttackFront		= false;
+				bChangeStandUpRollingFrontFront	= false;
+				bChangeStandUpRollingFrontBack	= true;
+				bChangeStandUpBigAttackFront	= false;
+			}
+			else if( true == m_InputData.pureLeft )
+			{
+				bChangeStandUpAttackFront		= false;
+				bChangeStandUpRollingFrontBack	= false;
+				bChangeStandUpRollingFrontFront	= true;
+				bChangeStandUpBigAttackFront	= false;
+			}
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	bool& bChangeStandUpAttackFront			= m_FrameDataFuture.stateParam.bEventFlagList[1];
 	bool& bChangeStandUpRollingFrontFront	= m_FrameDataFuture.stateParam.bEventFlagList[2];
 	bool& bChangeStandUpRollingFrontBack	= m_FrameDataFuture.stateParam.bEventFlagList[3];
@@ -8095,6 +8268,7 @@ void CX2GUAra::DamageDownFrontEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function : DamageDownBackFrameMove
@@ -8102,12 +8276,22 @@ void CX2GUAra::DamageDownFrontEventProcess()
 */
 void CX2GUAra::DamageDownBackFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b97350
 	if( true == m_pXSkinAnim->EventTimer( 0.32f ) )
 	{
 		CreateStepDust();
 	}
 
 	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	if( true == m_pXSkinAnim->EventTimer( 0.32f ) )
+	{
+		CreateStepDust();
+	}
+
+	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function : DamageDownBackEventProcess
@@ -8115,6 +8299,104 @@ void CX2GUAra::DamageDownBackFrameMove()
 */
 void CX2GUAra::DamageDownBackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b97390
+	bool& bChangeStandUpAttackBack			= m_FrameDataFuture.stateParam.bEventFlagList[1];
+	bool& bChangeStandUpRollingBackFront	= m_FrameDataFuture.stateParam.bEventFlagList[2];
+	bool& bChangeStandUpRollingBackBack		= m_FrameDataFuture.stateParam.bEventFlagList[3];
+	bool& bChangeStandUpBigAttackBack		= m_FrameDataFuture.stateParam.bEventFlagList[4];
+	const float fInputStartTime = ( true == m_bAbleQuickStand ) ? m_fEventTime[0].keyInputStart : 0.66f;
+
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DAMAGE_AIR_FALL );
+
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( true == bChangeStandUpAttackBack )
+		{
+			StateChange( ASI_STANDUP_ATTACK_BACK );
+		}
+		else if( true == bChangeStandUpBigAttackBack )
+		{
+			if( GetRandomInt() < m_SkillRelatedData.m_iNoDownDamageAtStandUpAttackPercent )
+			{
+				StateChange( ASI_STANDUP_ATTACK_BACK_NO_DOWN );
+			}
+			else
+			{
+				StateChange( ASI_STANDUP_ATTACK_BACK );
+			}
+		}
+		else if( true == bChangeStandUpRollingBackFront )
+			StateChange( ASI_STANDUP_ROLLING_BACK_FRONT );
+		else if( true == bChangeStandUpRollingBackBack )
+			StateChange( ASI_STANDUP_ROLLING_BACK_BACK );
+		else
+			StateChange( USI_DAMAGE_STANDUP_BACK );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 5, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		true == m_bAbleQuickStand && true == bChangeStandUpRollingBackFront, ASI_P_ALH_QUICK_STAND_BACK_FRONT )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 6, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		true == m_bAbleQuickStand && true == bChangeStandUpRollingBackBack, ASI_P_ALH_QUICK_STAND_BACK_BACK )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 7, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		true == m_bAbleQuickStand && true == bChangeStandUpAttackBack, ASI_STANDUP_ATTACK_BACK )
+	else if( fInputStartTime < m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if( true == m_InputData.oneZ )
+		{
+			bChangeStandUpAttackBack		= true;
+			bChangeStandUpRollingBackFront	= false;
+			bChangeStandUpRollingBackBack	= false;
+			bChangeStandUpBigAttackBack		= false;
+		}
+		else if( true == m_InputData.oneX )
+		{
+			bChangeStandUpAttackBack		= false;
+			bChangeStandUpRollingBackFront	= false;
+			bChangeStandUpRollingBackBack	= false;
+			bChangeStandUpBigAttackBack		= true;
+		}
+		else if( true == m_FrameDataFuture.syncData.bIsRight )
+		{
+			if( true == m_InputData.pureRight )
+			{
+				bChangeStandUpAttackBack		= false;
+				bChangeStandUpRollingBackBack	= false;
+				bChangeStandUpRollingBackFront	= true;
+				bChangeStandUpBigAttackBack		= false;
+			}
+			else if( true == m_InputData.pureLeft )
+			{
+				bChangeStandUpAttackBack		= false;
+				bChangeStandUpRollingBackFront	= false;
+				bChangeStandUpRollingBackBack	= true;
+				bChangeStandUpBigAttackBack		= false;
+			}
+		}
+		else
+		{
+			if( true == m_InputData.pureRight )
+			{
+				bChangeStandUpAttackBack		= false;
+				bChangeStandUpRollingBackFront	= false;
+				bChangeStandUpRollingBackBack	= true;
+				bChangeStandUpBigAttackBack		= false;
+			}
+			else if( true == m_InputData.pureLeft )
+			{
+				bChangeStandUpAttackBack		= false;
+				bChangeStandUpRollingBackBack	= false;
+				bChangeStandUpRollingBackFront	= true;
+				bChangeStandUpBigAttackBack		= false;
+			}
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	bool& bChangeStandUpAttackBack			= m_FrameDataFuture.stateParam.bEventFlagList[1];
 	bool& bChangeStandUpRollingBackFront	= m_FrameDataFuture.stateParam.bEventFlagList[2];
 	bool& bChangeStandUpRollingBackBack		= m_FrameDataFuture.stateParam.bEventFlagList[3];
@@ -8236,6 +8518,7 @@ void CX2GUAra::DamageDownBackEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: DamageAirDownLandingEventProcess
@@ -8243,7 +8526,12 @@ void CX2GUAra::DamageDownBackEventProcess()
 */
 void CX2GUAra::DamageAirDownLandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b97770 ( a jump to DamageDownFrontEventProcess 32b96f70 )
 	DamageDownFrontEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	DamageDownFrontEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -8253,6 +8541,8 @@ void CX2GUAra::DamageAirDownLandingEventProcess()
 */
 void CX2GUAra::StandUpRollingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b97780
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -8270,6 +8560,25 @@ void CX2GUAra::StandUpRollingEventProcess()
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: StandUpRollingEnd
@@ -8277,6 +8586,19 @@ void CX2GUAra::StandUpRollingEventProcess()
 */
 void CX2GUAra::StandUpRollingEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32bab2d0 ( the memo block is unconditional; June's memo query returns false: 31fca9e0 )
+	CommonStateEnd();
+
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+
+	if( ASI_A_ALH_BREAKING_AVOIDANCE == GetNowStateID() &&
+		true == GetEqippedSkillMemo( CX2SkillTree::SMI_ARA_MEMO7 ) )
+	{
+		SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_BUFF_BREAKING_MEMO ), 1, NULL, 0, false );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CommonStateEnd();
 
 	SetForceInvincible( 0.3f );
@@ -8290,6 +8612,7 @@ void CX2GUAra::StandUpRollingEnd()
 		SetBuffFactorToGameUnitByBuffFactorID( static_cast<UINT>( BFI_BUFF_BREAKING_MEMO ) );
 	}
 #endif // ADD_ARA_MEMO
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: StandUpAttackEventProcess
@@ -8297,6 +8620,26 @@ void CX2GUAra::StandUpRollingEnd()
 */
 void CX2GUAra::StandUpAttackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b97800
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else if( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+		{
+			StateChangeDashIfPossible();
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -8317,6 +8660,7 @@ void CX2GUAra::StandUpAttackEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: StandUpAttackEnd
@@ -8324,10 +8668,18 @@ void CX2GUAra::StandUpAttackEventProcess()
 */
 void CX2GUAra::StandUpAttackEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1b: June 32b90f40
 	CommonStateEnd();
 
 	SetForceInvincible( 0.3f );
 	SetShowInvincible( 0.3f );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	CommonStateEnd();
+
+	SetForceInvincible( 0.3f );
+	SetShowInvincible( 0.3f );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
