@@ -6216,3 +6216,23 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (same flag; `_SKILL_DEBUG` and CH2d0's
 | Evoke (23218 / 23241) | Evoke trap NPC | 3.56 ( `EVOKE_EXPLOSION` ) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every class-24 skill falls back to the Power Attack default, and CH2a's / CH2b's / CH2c's too), `python tools/build.py --deploy`.
+
+## Stage 7 Rena, CH3a: Wind Sneaker (class 102) skills (2026-11-10)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (same flag; `_SKILL_DEBUG` is defined again for the play-test, CH3b's review retires it). Plan `JUNE_CHARACTER_RENA_PHASES.md` "CH3a - Done". Client only, no data change; `X2SkillTree.h` gains eleven `RNSI_*` names.
+- **What changes in game.** The ten Wind Sneaker skills run June's registrations in the id switch of `SetEquippedSkillFuncBySkillSlotIndex` (before this they fell into the Power Attack default): Reflex Magic (23207 / 23232), Sharpfall (23009 / 23045), Violent Attack (23008 / 23044), Slide Kick (23011 / 23047), Nature Force (23205 / 23230), Airelinna (23010 / 23046), Spinning Crescent (23037), Gyro Kick (23038), Tempest (23058) and Maximum Pain (23225).
+- **Differs from March.** Sharpfall's hyper form lands in its own hyper landing state, and an Enhanced Sharpfall hits harder the farther it fell (damage x ( 1 + SA_DAMAGE_REL x fall height share, up to SA_SCOPE_ABS )). Slide Kick passes through only for a living hit unit and refunds the MP cost times SA_MP_RETAKE_ABS at its end ( March: any hit, half the slot's MP ), and it does not clear its effect handle. Airelinna's FrameMove plays no effect set ( the script's carries it ) and sizes the bolt by SA_PROJECTILE_SIZE when Enhanced ( March set the bolt's life time ). Reflex Magic's walk / dash / skill cancels need the foot on a line. Nature Force reads the upgrade-swapped templet. Spinning Crescent, Gyro Kick and Maximum Pain are new states ( end, ground-only cancels ); Tempest is a new state with the shared generic skill event process. Every Init has June's preload list.
+- **Damage (level-1 multiplier; June = the damage effects' NUMERICAL_DATA through the engine, x0.01; March = the Power Attack default these ids fell into before, with no skill-specific damage effect).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Violent Attack (23008 / 23044) | Power Attack default | 9.81 / 13.87 / 1.74 ( `DamageEffect_SA_RWS_ViolentAttack_Damage1-4` ) |
+| Slide Kick (23011 / 23047) | Power Attack default | 2.54 ( `RENA_SLIDE_KICK_SLIDING` ), 9.32 ( `_HEEL` ), 10.49 ( `_FINISH` ) |
+| Reflex Magic (23207 / 23232) | Power Attack default | 6.95 ( `DamageEffect_A_RWS_ReflexKick_Impact` ) |
+| Spinning Crescent (23037) | Power Attack default | 2.63 |
+| Gyro Kick (23038) | Power Attack default | 57.75 |
+| Tempest (23058) | Power Attack default | 1.61 / 16.48 / 29.51 ( `..._TempestFX`, `_Kick_ImpactFX1-2`, `_Landing` ) |
+| Maximum Pain (23225) | Power Attack default | 17.71 |
+| Sharpfall / Airelinna / Nature Force | Power Attack default | state and effect-set driven ( Sharpfall: x ( 1 + fall term ) when Enhanced ) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every class-102 skill falls back to the Power Attack default, and CH2a's - CH2d's too), `python tools/build.py --deploy`.

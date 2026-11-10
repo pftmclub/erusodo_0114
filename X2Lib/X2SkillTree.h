@@ -1909,6 +1909,21 @@ public:
 		RNSI_A_RTR_EVOKE_UPGRADE                              = 23241,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-10 // char-rena CH3a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RWS_AIRELINNA                                 = 23010,	// June's Enum.lua; the Wind Sneaker skill switch cases
+		RNSI_SA_RWS_SPINNING_CRESCENT                         = 23037,
+		RNSI_SA_RWS_GYRO_KICK                                 = 23038,
+		RNSI_SA_RWS_VIOLENT_ATTACK_UPGRADE                    = 23044,
+		RNSI_SA_RWS_SHARPFALL_UPGRADE                         = 23045,
+		RNSI_SA_RWS_AIRELINNA_UPGRADE                         = 23046,
+		RNSI_SA_RWS_SLIDE_KICK_UPGRADE                        = 23047,
+		RNSI_SA_RWS_TEMPEST                                   = 23058,
+		RNSI_A_RWS_PAIN                                       = 23225,
+		RNSI_A_RWS_NATURE_FORCE_UPGRADE                       = 23230,
+		RNSI_A_RWS_REFLEX_MAGIC_UPGRADE                       = 23232,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)

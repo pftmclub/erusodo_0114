@@ -1916,6 +1916,7 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		float m_fPersistentMindCoolTime;	/// June +0x97e8 ( constructor 0 ): the lock Persistent Mind sets, CommonFrameMove ( CH1j ) counts it down
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 		float m_fRapidShotAimAngle;	/// char-rena CH2c: June +0x97ec ( constructor 0 ): the Rapid Shot aim angle in degrees, within +-40
+		float m_fSharpfallStartPosY;	/// char-rena CH3a: June +0x9804 ( constructor 0 ): the height Sharpfall starts from ( its landing start reads the fall )
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 		unsigned short m_usEradicationHitCount;	/// June +0x9810 ( constructor 0 ): Eradication's hit count
 		float m_fEradicationLoopEffectTime;	/// June +0x9814 ( constructor 0 ): Eradication's SA_EFFECTIVE_TIME
@@ -2028,6 +2029,15 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void LESI_A_LGA_RAPID_SHOT_FINISH_FrameMove();
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 		void LESI_A_LGA_RAPID_SHOT_READY_StateStart();	/// char-rena CH2c: June 32c6cae0
+		void LESI_SA_LCR_SHARPFALL_StateStart();	/// char-rena CH3a: June 32c6bdf0 ( Sharpfall and its hyper form )
+		void LESI_SA_LCR_SHARPFALL_LANDING_StateStart();	/// June 32c87ec0 ( both landing states )
+		void LESI_SA_RWS_SPINNING_CRESCENT_Init();	/// June 32c6d020
+		void LESI_SA_RWS_SPINNING_CRESCENT_EventProcess();	/// June 32c7d790
+		void LESI_SA_RWS_GYRO_KICK_Init();	/// June 32c6d030
+		void LESI_SA_RWS_GYRO_KICK_EventProcess();	/// June 32c7daa0
+		void LESI_A_RWS_PAIN_Init();	/// June 32c6d080
+		void LESI_A_RWS_PAIN_EventProcess();	/// June 32c7e9f0
+		void LESI_SA_RWS_TEMPEST_Init();	/// June 32c6d880
 		void LESI_A_LGA_RAPID_SHOT_READY_FrameMoveFuture();	/// June 32c88050: shared by the ready, attack and finish states
 		void LESI_A_LGA_RAPID_SHOT_READY_FrameMove();	/// June 32c86720
 		void UpdateRapidShotAimRotation();	/// June 32c86620
