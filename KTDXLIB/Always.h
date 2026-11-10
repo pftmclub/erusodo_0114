@@ -12183,3 +12183,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-10
+// Description: June character port ( Ara ) Phase CH1a - Ara runs on June's class core: June's bodies inside March's own CX2GUAra functions.
+//              Stays commented out until CH1's final sub-phase ships it with June's Ara_Martial_Artist.lua and motions ( one deploy unit ).
+//              Revert: comment out the #define ( JUNE_CHAR_ARA_LIVE ).
+//#define SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+#ifndef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK ( IsAwakeImpossible, IsQuickSlotSpecialItemWaiting )
+#endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+//////////////////////////////////////////////////////////////////////////

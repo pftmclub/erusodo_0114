@@ -9550,3 +9550,33 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 33048830	std::tr1::weak_ptr<T>::lock() (returns shared_ptr<T>)	confirmed	Char Ara CH0: STALE: no live caller in the 2026-11-10 16:06 class map (callers now dead / n/a / removed); decompile: out = 0; construct from the weak count (32bd5250); when the use count is non-zero out = stored pointer; March CX2ComboAndSkillChainInfo::ResetChainingFromNext / GetNotYetChainedInfo call m_weakPtrNextComboAndSkillChainInfo.lock(); used by (none live; old: CH1j CH1k)
 33086a38	D3DXMatrixTranslation (d3dx9 import thunk, jmp [333bcda0])	confirmed	Char Ara CH0: IAT slot 333bcda0 holds 612319df = d3dx9_43.dll export D3DXMatrixTranslation (control: 333bcdd8 holds 61231952 = D3DXMatrixScaling, funcmap 33086a8c); funcmap row 31d0cf80 lists the same three thunks; used by CH2d CH2d2
 32282190	unidentified callee (see evidence)	candidate	Char Ara CH0: added by CH0 Opus after the not-Ara reclassification: only caller is the resurrection test 32bc5a50 (l.258, CH4a); CH4a (an Opus phase) reads it; used by CH4a
+32b90e10	CX2GUAra::WaitStartFuture	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; CommonStateStartFuture + PlayAnimationWaitStart( future ); = March
+32b96d80	CX2GUAra::WaitStart	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; CommonStateStart + PlayAnimationWaitStart( now ), arial / double-jump counts cleared by one dword store; = March
+32bb2d40	CX2GUAra::WaitEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March's chain; hyper entry is StateChange( GetHypetMpdeStateID() ) ( vslot 0x6b8, 32ba46c0 = March's override: 3 <= count ? BERSERK : HYPER ); the push 0 before it is StateChange's bool
+32baa1c0	CX2GUAra::HyperWaitStartFuture	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March
+32baa1f0	CX2GUAra::HyperWaitStart	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March ( m_CommonState.m_Wait = ASI_HYPER_WAIT )
+32bb2ff0	CX2GUAra::HyperWaitEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = Wait's chain; IsFullHyperMode false -> WAIT; hyper entry as Wait
+32b90e40	CX2GUAra::HyperWaitStateEnd	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; m_CommonState.m_Wait = USI_WAIT then CommonStateEnd; = March
+32ba6fd0	CX2GUAra::PlayAnimationHyperWaitStart	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; June reads PLAY_TYPE and TRANSITION ( two XOR-built keys ); Fatal at max HP x 0.25, BoostPowerWait by IsFullHyperMode ( vslot 0x9c ); = March
+32bb3290	CX2GUAra::WalkEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; SpecialAttackEventProcess( ASUT_GROUND ) before Z / X, hyper entry as Wait; = March
+32ba73c0	CX2GUAra::JumpReadyEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March ( position.y -= 45 = LINE_RADIUS x 1.5, += 30 = LINE_RADIUS )
+32b96db0	CX2GUAra::JumpUpEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; June inlines StateChangeAirialDashIfPossible; = March
+32babee0	CX2GUAra::JumpDownEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; calls 32b91160 for the double key; ShowComboCommand( J, D / A, AXZ / A, AXX ) as March; = March
+32b90e60	CX2GUAra::JumpLandingStart	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; CommonStateStart, CreateStepDust, both jump counts cleared; = March ( also ASI_DASH_JUMP_LANDING )
+32bb34d0	CX2GUAra::JumpLandingEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March ( skip-point key set = ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS, 15 keys ); hyper entry as Wait
+32b90f80	CX2GUAra::AirialDashStartFuture	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March
+32b97880	CX2GUAra::AirialDashStart	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; June-only tail: m_bAirialDashFromCombo && m_bAirialDashTurnAround -> dirDegree.y += 180, TurnAround cleared, Future bIsRight toggled
+32b97900	CX2GUAra::AirialDashFrameMoveFuture	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; June-only: key logic runs only after m_fEventTime[0].stateChange < future anim time; +0x9628 lets either direction key hold the dash
+32bb4200	CX2GUAra::AirialDashFrameMove	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; EventTimerOneshot( 0.001 ) plays EffectSet_Ara_Airial_Dash; = March
+32bb43a0	CX2GUAra::AirialDashEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March ( oneDown sets speed.y = fMaxGSpeed, not x2 )
+32b90fb0	CX2GUAra::AirialDashEndFuture	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March
+32b90fd0	CX2GUAra::DoubleJumpStartFuture	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March
+32ba7820	CX2GUAra::DoubleJumpFrontEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March ( Sakra Devanam back-Z test, ARA_CHANGE_CLASS_FIRST unconditional )
+32b979f0	CX2GUAra::DoubleJumpUpEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March
+32b91160	CX2GUAra::StateChangeAirialDashIfPossible	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; GetEnableDash( EDS_END ) and count < 1 -> ASI_AIRIAL_DASH else JUMP_DOWN; = March
+32b9a0b0	CX2GUAra::JumpAttackZEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March ( ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_: flag 1, classes 28 / 118 -> ASI_JUMP_ATTACK_ALH_ZZ ); the ARA_CHANGE_CLASS_FIRST arm is unconditional
+32ba79b0	CX2GUAra::JumpAttackZFrameMoveFuture	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March
+32b9a1e0	CX2GUAra::JumpAttackXFrameMove	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March ( EventTimerOneshot 0.396, RT_DOWN, backSpeed.y -2000 )
+32ba7a40	CX2GUAra::JumpAttackXFrameMoveFuture	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March
+32b9a240	CX2GUAra::JumpAttackXEventProcess	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; = March
+32b90f20	CX2GUUser::HyperModeStart ( Ara-range thunk )	PORTED	Char Ara CH1a: inside, June body under JUNE_CHAR_ARA_LIVE; jmp 31ffd490 = CX2GUUser::HyperModeStart; March registers it already, nothing to write

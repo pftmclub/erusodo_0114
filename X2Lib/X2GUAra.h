@@ -1306,6 +1306,10 @@ protected:
 	float		m_fAirialDashTime;			/// 능공허도 시간( 이후 패시브로 증가될 수 있음 )
 	USHORT		m_usArialCount;				/// 능공허도 횟수
 	USHORT		m_usDoubleJumpCount;		/// 이단점프 횟수
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	bool		m_bAirialDashFromCombo;		/// char-ara CH1a: June +0x9628, set by the combo states' double-key airial dash, cleared when the dash ends in a dash jump
+	bool		m_bAirialDashTurnAround;	/// char-ara CH1a: June +0x9629, the airial dash key points against the facing ( AirialDashStart turns the unit round )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 
 	UCHAR		m_ucBasicForcePower;		/// 기본 기력치
 	CForcePowerSystem	m_ForcePowerSystem;	/// 기력 시스템

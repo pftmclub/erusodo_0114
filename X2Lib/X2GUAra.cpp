@@ -31,6 +31,15 @@ namespace _CONST_ARA_
 #endif // ADD_ARA_MEMO
 }
 #pragma endregion namespace
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+// char-ara CH1a: June's expansion of ELSE_IF_STATE_CHANGE_ON_EX_ ( the flag also fires when the future animation ends, the time tests run before the key test )
+#define ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( iEventFlagIndex, fInputTimingStart, fInputTiming, fChangeTiming, bCondition, iStateID ) \
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] == true && \
+		( (float)(fChangeTiming) < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) ) \
+	{ StateChange( (iStateID) ); m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = false; } \
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() < (float)(fInputTiming) && (float)(fInputTimingStart) <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == (bCondition) ) \
+	{ m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = true; }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 
 #pragma region 필살기 사용 시 Cut in image
 static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
@@ -79,6 +88,9 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	, m_bBerserkMode( false ), MAX_ANIMATION_LOOP_COUNT_AT_THIS_STATE(5)
 	, m_fDamageDataChangeTime( 0.f ), m_fDamageDataChangeTime2( 0.f ), m_uiComboXXXLoopCount( 0 ), m_fZpushXChargeTime( 0.f )
 	, m_fAirialDashTime( 0.f ), m_usArialCount( 0 ), m_usDoubleJumpCount( 0 ), m_bFPCancel( false )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	, m_bAirialDashFromCombo( false ), m_bAirialDashTurnAround( false )	// char-ara CH1a
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	, m_usForceGainCount( 0 ), m_usBeforeForceGainCount( 0 ), m_pSkillTemplet( NULL ), m_iPressedSkillSlotIndex( -1 )
 	, m_fMPConsume( 0.f )	
 
@@ -6328,8 +6340,14 @@ void CX2GUAra::DieBackEventProcess()
 */
 void CX2GUAra::WaitStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b90e10
 	CommonStateStartFuture();
 	PlayAnimationWaitStart( m_pXSkinAnimFuture, m_FrameDataFuture );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	CommonStateStartFuture();
+	PlayAnimationWaitStart( m_pXSkinAnimFuture, m_FrameDataFuture );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: Wait 상태의 StartFuture() 함수
@@ -6337,11 +6355,19 @@ void CX2GUAra::WaitStartFuture()
 */
 void CX2GUAra::WaitStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b96d80
+	CommonStateStart();
+	PlayAnimationWaitStart( m_pXSkinAnim.get(), m_FrameDataNow );
+	m_usArialCount = 0;
+	m_usDoubleJumpCount = 0;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CommonStateStart();
 	PlayAnimationWaitStart( m_pXSkinAnim.get(), m_FrameDataNow );
 	
 	m_usArialCount = 0;
 	m_usDoubleJumpCount = 0;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: WaitEventProcess
@@ -6349,6 +6375,63 @@ void CX2GUAra::WaitStart()
 */
 void CX2GUAra::WaitEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32bb2d40
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( true == m_InputData.oneZ )
+	{
+		StateChange( ASI_COMBO_Z );
+	}
+	else if( true == m_InputData.oneX )
+	{
+		StateChange( ASI_COMBO_X );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && true == m_InputData.oneLCtr && m_FrameDataFuture.syncData.m_HyperModeCount > 0 &&
+			 ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) &&
+			 false == IsQuickSlotSpecialItemWaiting() && false == IsAwakeImpossible() )
+	{
+		StateChange( GetHypetMpdeStateID() );
+	}
+	else if( true == m_InputData.oneDown &&
+			 true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS,
+																   &m_FrameDataFuture.unitCondition.landPosition,
+																   &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( true == IsFullHyperMode() && m_FrameDataNow.unitCondition.fStateTime >= 0.1f )
+	{
+		StateChange( ASI_HYPER_WAIT );
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -6417,6 +6500,7 @@ void CX2GUAra::WaitEventProcess()
 	}
 #endif //RIDING_SYSTEM
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -6426,8 +6510,14 @@ void CX2GUAra::WaitEventProcess()
 */
 void CX2GUAra::HyperWaitStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32baa1c0
 	CommonStateStartFuture();
 	PlayAnimationHyperWaitStart( m_pXSkinAnimFuture, m_FrameDataFuture );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	CommonStateStartFuture();
+	PlayAnimationHyperWaitStart( m_pXSkinAnimFuture, m_FrameDataFuture );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: HyperWaitStart
@@ -6435,6 +6525,14 @@ void CX2GUAra::HyperWaitStartFuture()
 */
 void CX2GUAra::HyperWaitStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32baa1f0
+	CommonStateStart();
+	PlayAnimationHyperWaitStart( m_pXSkinAnim.get(), m_FrameDataNow );
+	m_usArialCount = 0;
+	m_usDoubleJumpCount = 0;
+	m_CommonState.m_Wait = ASI_HYPER_WAIT;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CommonStateStart();
 	PlayAnimationHyperWaitStart( m_pXSkinAnim.get(), m_FrameDataNow );
 
@@ -6442,6 +6540,7 @@ void CX2GUAra::HyperWaitStart()
 	m_usDoubleJumpCount = 0;
 
 	m_CommonState.m_Wait = ASI_HYPER_WAIT;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: HyperWaitEventProcess
@@ -6449,6 +6548,63 @@ void CX2GUAra::HyperWaitStart()
 */
 void CX2GUAra::HyperWaitEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32bb2ff0
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( true == m_InputData.oneZ )
+	{
+		StateChange( ASI_COMBO_Z );
+	}
+	else if( true == m_InputData.oneX )
+	{
+		StateChange( ASI_COMBO_X );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && true == m_InputData.oneLCtr && m_FrameDataFuture.syncData.m_HyperModeCount > 0 &&
+			 ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) &&
+			 false == IsQuickSlotSpecialItemWaiting() && false == IsAwakeImpossible() )
+	{
+		StateChange( GetHypetMpdeStateID() );
+	}
+	else if( true == m_InputData.oneDown &&
+			 true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS,
+																   &m_FrameDataFuture.unitCondition.landPosition,
+																   &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( false == IsFullHyperMode() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -6517,6 +6673,7 @@ void CX2GUAra::HyperWaitEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: HyperWaitStateEnd
@@ -6524,9 +6681,15 @@ void CX2GUAra::HyperWaitEventProcess()
 */
 void CX2GUAra::HyperWaitStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b90e40
+	m_CommonState.m_Wait = USI_WAIT;
+	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	m_CommonState.m_Wait = USI_WAIT;
 
 	CommonStateEnd();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: PlayAnimationHyperWaitStart
@@ -6534,6 +6697,46 @@ void CX2GUAra::HyperWaitStateEnd()
 */
 void CX2GUAra::PlayAnimationHyperWaitStart( CKTDGXSkinAnim* pXSkinAnim_, const FrameData& refFrameData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32ba6fd0
+	CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE playType;
+	LUA_GET_VALUE_ENUM( m_LuaManager, "PLAY_TYPE", playType, CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE, CKTDGXSkinAnim::XAP_ONE_WAIT );
+
+	const float FATAL_HP_PERCENT = 0.25f;
+
+	if( GetMaxHp() * FATAL_HP_PERCENT >= refFrameData_.syncData.fNowHP )
+	{
+		bool bTransition = true;
+		LUA_GET_VALUE( m_LuaManager, "TRANSITION", bTransition, true );
+
+		if( true == refFrameData_.unitCondition.bTransitionChange && true == bTransition )
+			pXSkinAnim_->ChangeAnim( L"Fatal", true );
+		else
+			pXSkinAnim_->ChangeAnim( L"Fatal", false );
+	}
+	else
+	{
+		bool bTransition = true;
+		LUA_GET_VALUE( m_LuaManager, "TRANSITION", bTransition, true );
+
+		if( true == refFrameData_.unitCondition.bTransitionChange && true == bTransition )
+		{
+			if( true == IsFullHyperMode() )
+				pXSkinAnim_->ChangeAnim( L"BoostPowerWait", true );
+			else
+				pXSkinAnim_->ChangeAnim( L"Wait", true );
+		}
+		else
+		{
+			if( true == IsFullHyperMode() )
+				pXSkinAnim_->ChangeAnim( L"BoostPowerWait", false );
+			else
+				pXSkinAnim_->ChangeAnim( L"Wait", false );
+		}
+	}
+
+	pXSkinAnim_->Play( playType );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE playType;
 	LUA_GET_VALUE_ENUM ( m_LuaManager, "PLAY_TYPE", playType, CKTDGXSkinAnim::XSKIN_ANIM_PLAYTYPE, CKTDGXSkinAnim::XAP_ONE_WAIT );
 
@@ -6572,6 +6775,7 @@ void CX2GUAra::PlayAnimationHyperWaitStart( CKTDGXSkinAnim* pXSkinAnim_, const F
 	}
 
 	pXSkinAnim_->Play( playType );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 
 
@@ -6581,6 +6785,55 @@ void CX2GUAra::PlayAnimationHyperWaitStart( CKTDGXSkinAnim* pXSkinAnim_, const F
 */
 void CX2GUAra::WalkEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32bb3290
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if( true == m_InputData.oneZ )
+	{
+		StateChange( ASI_COMBO_Z );
+	}
+	else if( true == m_InputData.oneX )
+	{
+		StateChange( ASI_COMBO_X );
+	}
+	else if( false == m_InputData.pureRight && false == m_InputData.pureLeft )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && true == m_InputData.oneLCtr && m_FrameDataFuture.syncData.m_HyperModeCount > 0 &&
+			 ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) &&
+			 false == IsQuickSlotSpecialItemWaiting() && false == IsAwakeImpossible() )
+	{
+		StateChange( GetHypetMpdeStateID() );
+	}
+	else if( true == m_InputData.oneDown &&
+			 true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS,
+																   &m_FrameDataFuture.unitCondition.landPosition,
+																   &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -6641,6 +6894,7 @@ void CX2GUAra::WalkEventProcess()
 #endif //RIDING_SYSTEM
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -6650,6 +6904,25 @@ void CX2GUAra::WalkEventProcess()
 */
 void CX2GUAra::JumpReadyEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32ba73c0
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if( true == m_pXSkinAnimFuture->IsAnimationEnd() || true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -6666,6 +6939,7 @@ void CX2GUAra::JumpReadyEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: JumpUpEventProcess
@@ -6673,6 +6947,45 @@ void CX2GUAra::JumpReadyEventProcess()
 */
 void CX2GUAra::JumpUpEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b96db0
+	if( true == m_InputData.pureDoubleLeft || true == m_InputData.pureDoubleRight )
+	{
+		StateChangeAirialDashIfPossible();
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( true == m_InputData.oneZ )
+	{
+		StateChange( ASI_JUMP_ATTACK_Z );
+	}
+	else if( true == m_InputData.oneX )
+	{
+		StateChange( ASI_JUMP_ATTACK_X );
+	}
+	else if( 0.0f >= m_PhysicParam.nowSpeed.y )
+	{
+		StateChange( USI_JUMP_DOWN );
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	if( true == m_InputData.oneUp )
+	{
+		StateChange( ASI_DOUBLE_JUMP_UP );
+	}
+
+	if( true == m_InputData.oneDown )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * 2;
+		m_bDownForce = true;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if( true == m_InputData.pureDoubleLeft || true == m_InputData.pureDoubleRight )
 	{
 		StateChangeAirialDashIfPossible();
@@ -6711,6 +7024,7 @@ void CX2GUAra::JumpUpEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: JumpDownEventProcess
@@ -6718,6 +7032,66 @@ void CX2GUAra::JumpUpEventProcess()
 */
 void CX2GUAra::JumpDownEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32babee0
+	if( true == IsOnSomethingFuture() )
+	{
+		if( true == m_bDownForce )
+		{
+			StateChange( ASI_DASH_JUMP_POWER_LANDING );
+			m_bDownForce = false;
+			m_pComboGuide->ShowComboCommand( L"J", L"D" );
+		}
+		else
+		{
+			StateChange( USI_JUMP_LANDING );
+			m_bDownForce = false;
+		}
+	}
+	else if( true == m_FrameDataFuture.unitCondition.bFootOnWall && ( true == m_InputData.oneUp || true == m_InputData.oneDoubleUp ) )
+	{
+		m_bDisableGravity = true;
+		StateChange( ASI_WALL_LANDING );
+	}
+	else if( true == m_InputData.pureDoubleLeft || true == m_InputData.pureDoubleRight )
+	{
+		StateChangeAirialDashIfPossible();
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( true == m_InputData.oneZ )
+	{
+		StateChange( ASI_JUMP_ATTACK_Z );
+		m_pComboGuide->ShowComboCommand( L"A", L"AXZ" );
+	}
+	else if( true == m_InputData.oneX )
+	{
+		StateChange( ASI_JUMP_ATTACK_X );
+		m_pComboGuide->ShowComboCommand( L"A", L"AXX" );
+	}
+	else if( 0.0f <= m_PhysicParam.nowSpeed.y )
+	{
+		StateChange( USI_JUMP_UP );
+	}
+	else if( true == GetRidingOn() )
+	{
+		StateChange( USI_RIDING_ON );
+	}
+
+	if( true == m_InputData.oneUp )
+	{
+		StateChange( ASI_DOUBLE_JUMP_UP );
+	}
+
+	if( true == m_InputData.oneDown )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * 2;
+		m_bDownForce = true;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == IsOnSomethingFuture() )
 	{
 		if( true == m_bDownForce )
@@ -6777,6 +7151,7 @@ void CX2GUAra::JumpDownEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: JumpLandingStart
@@ -6784,11 +7159,19 @@ void CX2GUAra::JumpDownEventProcess()
 */
 void CX2GUAra::JumpLandingStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b90e60
+	CommonStateStart();
+	CreateStepDust();
+	m_usArialCount = 0;
+	m_usDoubleJumpCount = 0;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CommonStateStart();
 	CreateStepDust();
 
 	m_usArialCount = 0;
 	m_usDoubleJumpCount = 0;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: JumpLandingEventProcess
@@ -6796,6 +7179,63 @@ void CX2GUAra::JumpLandingStart()
 */
 void CX2GUAra::JumpLandingEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32bb34d0
+	if( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_GROUND ) )
+	{
+	}
+	else if( true == m_InputData.oneZ )
+	{
+		StateChange( ASI_COMBO_Z );
+	}
+	else if( true == m_InputData.oneX )
+	{
+		StateChange( ASI_COMBO_X );
+	}
+	else if( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft )
+	{
+		StateChangeDashIfPossible();
+	}
+	else if( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+	{
+		StateChange( USI_WALK );
+	}
+	else if( true == m_InputData.pureUp )
+	{
+		StateChange( USI_JUMP_UP );
+		m_PhysicParam.nowSpeed.y = GetJumpSpeed();
+		m_FrameDataFuture.syncData.position.y += LINE_RADIUS;
+	}
+	else if( false == IsThereEffectiveBlackHoleDamageEffect() && true == m_InputData.oneLCtr && m_FrameDataFuture.syncData.m_HyperModeCount > 0 &&
+			 ( GetRemainHyperModeTime() <= 0.0f || true == GetCanChangeHyperModeInHyperModeState() ) &&
+			 false == IsQuickSlotSpecialItemWaiting() && false == IsAwakeImpossible() )
+	{
+		StateChange( GetHypetMpdeStateID() );
+	}
+	else if( true == m_InputData.oneDown &&
+			 true == g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_FrameDataFuture.syncData.position, LINE_RADIUS,
+																   &m_FrameDataFuture.unitCondition.landPosition,
+																   &m_FrameDataFuture.syncData.lastTouchLineIndex ) )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS
+	{
+		StateChange( USI_WAIT, false );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -6862,6 +7302,7 @@ void CX2GUAra::JumpLandingEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -7896,6 +8337,14 @@ void CX2GUAra::StandUpAttackEnd()
 */
 void CX2GUAra::AirialDashStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b90f80
+	CommonStateStartFuture();
+	m_fAirialDashTime = 0.f;
+	++m_usArialCount;
+	m_bDownForce = false;
+	m_bDisableGravity = true;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CommonStateStartFuture();
 
 	m_bDownForce = false;
@@ -7903,6 +8352,7 @@ void CX2GUAra::AirialDashStartFuture()
 	// 패시브에 의해서 시간이 바꿜 수 있음
 	m_fAirialDashTime = 0.f;
 	++m_usArialCount;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: AirialDashStart
@@ -7910,10 +8360,26 @@ void CX2GUAra::AirialDashStartFuture()
 */
 void CX2GUAra::AirialDashStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b97880
 	CommonStateStart();
 
 	if( GetMatrix().GetYPos() == m_FrameDataNow.unitCondition.landPosition.y )
 		CreateStepDust();
+
+	// char-ara CH1a: a dash against the facing turns the unit round ( the flags come from the combo states )
+	if( true == m_bAirialDashFromCombo && true == m_bAirialDashTurnAround )
+	{
+		m_FrameDataFuture.unitCondition.dirDegree.y += 180.f;
+		m_bAirialDashTurnAround = false;
+		m_FrameDataFuture.syncData.bIsRight = !m_FrameDataFuture.syncData.bIsRight;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	CommonStateStart();
+
+	if( GetMatrix().GetYPos() == m_FrameDataNow.unitCondition.landPosition.y )
+		CreateStepDust();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: AirialDashFrameMoveFuture
@@ -7921,6 +8387,26 @@ void CX2GUAra::AirialDashStart()
 */
 void CX2GUAra::AirialDashFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b97900
+	m_fAirialDashTime += m_fElapsedTime;
+
+	if( m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime() &&
+		( true == m_InputData.pureDown ||
+		  false == ( ( true == m_InputData.pureRight && ( true == m_FrameDataNow.syncData.bIsRight || true == m_bAirialDashFromCombo ) ) ||
+					 ( true == m_InputData.pureLeft && ( false == m_FrameDataNow.syncData.bIsRight || true == m_bAirialDashFromCombo ) ) ) ) )
+	{
+		m_bAirialDashFromCombo = false;
+		StateChange( USI_DASH_JUMP );
+	}
+	else
+	{
+		m_PhysicParam.nowSpeed.x = m_PhysicParam.passiveSpeed.x;
+		m_PhysicParam.nowSpeed.y = max( 200.f - ( m_fAirialDashTime * 500), -1200.f );
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	m_fAirialDashTime += m_fElapsedTime;
 
 	if( false == m_InputData.pureDown && true == m_InputData.pureRight && true == m_FrameDataNow.syncData.bIsRight )
@@ -7939,6 +8425,7 @@ void CX2GUAra::AirialDashFrameMoveFuture()
 	}
 	
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: AirialDashFrameMove
@@ -7946,6 +8433,15 @@ void CX2GUAra::AirialDashFrameMoveFuture()
 */
 void CX2GUAra::AirialDashFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32bb4200
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Ara_Airial_Dash", this );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -7956,6 +8452,7 @@ if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: AirialDashEventProcess
@@ -7963,6 +8460,61 @@ if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
 */
 void CX2GUAra::AirialDashEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32bb43a0
+	if( true == IsOnSomethingFuture() )
+	{
+		if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] )
+		{
+			StateChange( USI_DASH_JUMP );
+			m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+			m_bDownForce = false;
+		}
+		else
+		{
+			StateChange( USI_DASH );
+			m_bDownForce = false;
+		}
+	}
+	else if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( true == m_InputData.oneZ )
+	{
+		StateChange( ASI_DASH_JUMP_COMBO_Z );
+	}
+	else if( true == m_InputData.oneX )
+	{
+		StateChange( ASI_DASH_JUMP_COMBO_X );
+	}
+
+	if( true == m_InputData.pureLeft )
+	{
+		if( true == m_InputData.oneUp && false == m_FrameDataFuture.syncData.bIsRight )
+			StateChange( ASI_DOUBLE_JUMP_FRONT );
+	}
+	else if( true == m_InputData.pureRight )
+	{
+		if( true == m_InputData.oneUp && true == m_FrameDataFuture.syncData.bIsRight )
+			StateChange( ASI_DOUBLE_JUMP_FRONT );
+	}
+
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Ara_Airial_Dash", this );
+
+	if( true == m_InputData.oneUp && 0.0f >= m_PhysicParam.nowSpeed.y )
+	{
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+	if( true == m_InputData.oneDown )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed;
+		m_bDownForce = true;
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if( true == IsOnSomethingFuture() )
 	{
 		if( m_FrameDataFuture.stateParam.bEventFlagList[0] == true )
@@ -8022,6 +8574,7 @@ void CX2GUAra::AirialDashEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: AirialDashEndFuture
@@ -8029,12 +8582,18 @@ void CX2GUAra::AirialDashEventProcess()
 */
 void CX2GUAra::AirialDashEndFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b90fb0
+	CommonStateEndFuture();
+	m_bDisableGravity = false;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CommonStateEndFuture();
 
 	//if( m_PhysicParam.nowSpeed.x > GetDashSpeed() )
 		//m_PhysicParam.nowSpeed.x = GetDashSpeed();
 
 	m_bDisableGravity = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -8044,10 +8603,17 @@ void CX2GUAra::AirialDashEndFuture()
 */
 void CX2GUAra::DoubleJumpStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b90fd0
+	CommonStateStartFuture();
+	++m_usDoubleJumpCount;
+	m_bDownForce = false;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CommonStateStartFuture();
 
 	m_bDownForce = false;
 	++m_usDoubleJumpCount;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: DoubleJumpFrontEventProcess
@@ -8055,6 +8621,69 @@ void CX2GUAra::DoubleJumpStartFuture()
 */
 void CX2GUAra::DoubleJumpFrontEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32ba7820
+	bool &bCanDashJump = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+	if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( true == m_InputData.oneZ )
+	{
+		if( CX2Unit::UC_ARA_SAKRA_DEVANAM == GetUnitClass() )
+		{
+			if( ( true == GetIsRight() && true == m_InputData.pureLeft ) ||
+				( false == GetIsRight() && true == m_InputData.pureRight ) )
+			{
+				StateChange( ASI_DOUBLE_JUMP_FRONT_COMBO_ASD_Z_BACK );
+			}
+			else
+			{
+				StateChange( ASI_DASH_JUMP_COMBO_Z );
+			}
+		}
+		else
+		{
+			StateChange( ASI_DASH_JUMP_COMBO_Z );
+		}
+	}
+	else if( true == m_InputData.oneX )
+	{
+		StateChange( ASI_DASH_JUMP_COMBO_X );
+	}
+	else if( true == IsOnSomethingFuture() )
+	{
+		if( true == bCanDashJump )
+		{
+			StateChange( USI_DASH_JUMP );
+			m_PhysicParam.nowSpeed.y = GetDashJumpSpeed();
+		}
+		else if( true == m_bDownForce )
+		{
+			StateChange( ASI_DASH_JUMP_POWER_LANDING );
+		}
+		else
+		{
+			if( true == m_InputData.pureRight || true == m_InputData.pureLeft )
+				StateChangeDashIfPossible();
+			else
+				StateChange( USI_DASH_JUMP_LANDING );
+		}
+
+		m_bDownForce = false;
+	}
+
+	if( true == m_InputData.oneUp && 0.0f >= m_PhysicParam.nowSpeed.y )
+	{
+		bCanDashJump = true;
+	}
+	if( true == m_InputData.oneDown )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * 2;
+		m_bDownForce = true;
+		bCanDashJump = false;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	bool &bCanDashJump = m_FrameDataFuture.stateParam.bEventFlagList[0];
 
 	if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
@@ -8122,6 +8751,7 @@ void CX2GUAra::DoubleJumpFrontEventProcess()
 		m_bDownForce = true;
 		bCanDashJump = false;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: DoubleJumpUpEventProcess
@@ -8129,6 +8759,32 @@ void CX2GUAra::DoubleJumpFrontEventProcess()
 */
 void CX2GUAra::DoubleJumpUpEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b979f0
+	if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
+	{
+	}
+	else if( true == m_InputData.oneZ )
+	{
+		StateChange( ASI_JUMP_ATTACK_Z );
+	}
+	else if( true == m_InputData.oneX )
+	{
+		StateChange( ASI_JUMP_ATTACK_X );
+	}
+	else if( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+
+	if( true == m_InputData.oneDown )
+	{
+		m_PhysicParam.nowSpeed.y = m_PhysicParam.fMaxGSpeed * 2;
+		m_bDownForce = true;
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if( true == SpecialAttackEventProcess( CX2SkillTree::ASUT_AIR ) )
 	{
 	}
@@ -8152,6 +8808,7 @@ void CX2GUAra::DoubleJumpUpEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: DoubleJumpBackEventProcess
@@ -9059,6 +9716,22 @@ void CX2GUAra::ComboDashXEventProcess()
 */
 void CX2GUAra::JumpAttackZFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32ba79b0
+	if( ( true == m_InputData.pureRight && true == m_FrameDataFuture.syncData.bIsRight ) ||
+		( true == m_InputData.pureLeft && false == m_FrameDataFuture.syncData.bIsRight ) )
+	{
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+	}
+
+	if( true == m_InputData.pureDown && false == m_InputData.pureUp )
+	{
+		m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime;
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	// 현재 진행 방향 쪽으로 키보드를 누르면 앞으로 좀 더 나아감
 	if( ( true == m_InputData.pureRight && true == m_FrameDataFuture.syncData.bIsRight ) ||
 		( true == m_InputData.pureLeft && false == m_FrameDataFuture.syncData.bIsRight ) )
@@ -9073,6 +9746,7 @@ void CX2GUAra::JumpAttackZFrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: JumpAttackZEventProecss
@@ -9080,6 +9754,21 @@ void CX2GUAra::JumpAttackZFrameMoveFuture()
 */
 void CX2GUAra::JumpAttackZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b9a0b0
+	if( true == IsOnSomethingFuture() )
+	{
+		if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] )
+			m_fCanNotJumpTime = 0.2f;
+
+		StateChange( USI_JUMP_LANDING );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 1, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneZ == true && ( CX2Unit::UC_ARA_LITTLE_HSIEN == GetUnitClass() || CX2Unit::UC_ARA_SAKRA_DEVANAM == GetUnitClass() ),
+		ASI_JUMP_ATTACK_ALH_ZZ )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == IsOnSomethingFuture() )
 	{
 		bool &bPureDown = m_FrameDataFuture.stateParam.bEventFlagList[0];
@@ -9098,6 +9787,7 @@ void CX2GUAra::JumpAttackZEventProcess()
 #endif //ARA_CHANGE_CLASS_FIRST 
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 98
 
@@ -9107,6 +9797,22 @@ void CX2GUAra::JumpAttackZEventProcess()
 */
 void CX2GUAra::JumpAttackXFrameMoveFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32ba7a40
+	if( ( true == m_InputData.pureRight && true == m_FrameDataFuture.syncData.bIsRight ) ||
+		( true == m_InputData.pureLeft && false == m_FrameDataFuture.syncData.bIsRight ) )
+	{
+		m_PhysicParam.nowSpeed.x = GetWalkSpeed();
+	}
+
+	if( true == m_InputData.pureDown && false == m_InputData.pureUp )
+	{
+		m_PhysicParam.nowSpeed.y -= m_PhysicParam.fGAccel * m_fElapsedTime;
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+	}
+
+	CommonFrameMoveFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	// 현재 진행 방향 쪽으로 키보드를 누르면 앞으로 좀 더 나아감
 	if( ( true == m_InputData.pureRight && true == m_FrameDataFuture.syncData.bIsRight ) ||
 		( true == m_InputData.pureLeft && false == m_FrameDataFuture.syncData.bIsRight ) )
@@ -9121,6 +9827,7 @@ void CX2GUAra::JumpAttackXFrameMoveFuture()
 	}
 
 	CommonFrameMoveFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: JumpAttackXFrameMove
@@ -9128,6 +9835,16 @@ void CX2GUAra::JumpAttackXFrameMoveFuture()
 */
 void CX2GUAra::JumpAttackXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b9a1e0
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.396f ) )
+	{
+		m_DamageData.reActType = CX2DamageManager::RT_DOWN;
+		m_DamageData.backSpeed.y = -2000.f;
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 if( true == m_pXSkinAnim->EventTimerOneshot( 0.396f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -9139,6 +9856,7 @@ if( true == m_pXSkinAnim->EventTimerOneshot( 0.396f ) )
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: JumpAttackXEventProecss
@@ -9146,6 +9864,18 @@ if( true == m_pXSkinAnim->EventTimerOneshot( 0.396f ) )
 */
 void CX2GUAra::JumpAttackXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b9a240
+	if( true == IsOnSomethingFuture() )
+	{
+		if( true == m_FrameDataFuture.stateParam.bEventFlagList[0] )
+			m_fCanNotJumpTime = 0.2f;
+
+		StateChange( USI_JUMP_LANDING );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == IsOnSomethingFuture() )
 	{
 		bool &bPureDown = m_FrameDataFuture.stateParam.bEventFlagList[0];
@@ -9158,6 +9888,7 @@ void CX2GUAra::JumpAttackXEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 99
 
@@ -9259,10 +9990,18 @@ void CX2GUAra::DashJumpComboXEventProcess()
 #pragma region StateChangeAirialDashIfPossible
 void CX2GUAra::StateChangeAirialDashIfPossible()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1a: June 32b91160
+	if( true == GetEnableDash( EDS_END ) && _CONST_ARA_::MAGIC_MAX_AIRIAL_DASH_COUNT > m_usArialCount )
+		StateChange( ASI_AIRIAL_DASH );
+	else
+		StateChange( USI_JUMP_DOWN );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if( true == GetEnableDash() && _CONST_ARA_::MAGIC_MAX_AIRIAL_DASH_COUNT > m_usArialCount )
 		StateChange( ASI_AIRIAL_DASH );
 	else
 		StateChange( USI_JUMP_DOWN );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 
 

@@ -418,6 +418,37 @@ June piece CH1q / CH1q2 has not written yet; March's live force-power calls stay
 animations; force power fills, spends and shows on the gauge as June; berserk enters at June's count; each skill cast twice shows its cool time and
 spends MP; `charport_scan.py` / `charport_keys.py Ara_Martial_Artist` show nothing new.
 
+### CH1a - Done (2026-11-10)
+
+All 30 class-map rows of phase CH1a are written, all `inside`: June's body in March's own `CX2GUAra` function under `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE`, March's in `#else`. No `new` row, so no `_CORE`; no `_FP` / `_SPECTER` line was needed (no FP helper `32babba0`, `+0x9621`, `+0x6d04` or Specter key in these 30 functions).
+`Always.h` gets `_LIVE` as `//#define` with one guard (needs `SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK`: `IsAwakeImpossible`, `IsQuickSlotSpecialItemWaiting`). `X2GUAra.cpp` gets the macro `ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_` (June's expansion, copied from Rena's: flag fires on `stateChange < now || IsAnimationEnd`) under `_LIVE`. `X2GUAra.h` gets two members under `_LIVE`, with their constructor init (CH1h need not repeat them).
+`june2017_re/char_ara/ch1_offsets.tsv` is new (Rena's class-agnostic rows + the Ara rows); 30 funcmap rows `Char Ara CH1a`; checklist rows L178 / L428 / L516-L521 carry `(Ara: CH1a)`.
+
+| June | `CX2GUAra::` | June | `CX2GUAra::` |
+|---|---|---|---|
+| `32b90e10` `32b96d80` `32bb2d40` | Wait StartFuture / Start / EventProcess | `32baa1c0` `32baa1f0` `32bb2ff0` `32b90e40` | HyperWait StartFuture / Start / EventProcess / StateEnd |
+| `32ba6fd0` | PlayAnimationHyperWaitStart | `32bb3290` | Walk EventProcess |
+| `32ba73c0` `32b96db0` `32babee0` | JumpReady / JumpUp / JumpDown EventProcess | `32b90e60` `32bb34d0` | JumpLanding Start / EventProcess |
+| `32b90f80` `32b97880` `32b97900` `32bb4200` `32bb43a0` `32b90fb0` | AirialDash StartFuture / Start / FrameMoveFuture / FrameMove / EventProcess / EndFuture | `32b91160` | StateChangeAirialDashIfPossible |
+| `32b90fd0` `32ba7820` `32b979f0` | DoubleJump StartFuture / Front EventProcess / Up EventProcess | `32b9a0b0` `32ba79b0` | JumpAttackZ EventProcess / FrameMoveFuture |
+| `32b9a1e0` `32ba7a40` `32b9a240` | JumpAttackX FrameMove / FrameMoveFuture / EventProcess | `32b90f20` | HyperModeStart: a thunk to `CX2GUUser::HyperModeStart` `31ffd490`, March registers it already: nothing to write |
+
+**Where June differs from March** (everything else is March's logic written out whole, read from `charport_adis.py ara` listings and the Ghidra decompile):
+- **AirialDash FrameMoveFuture `32b97900`:** the key logic runs only after `m_fEventTime[0].stateChange < m_pXSkinAnimFuture->GetNowAnimationTime()`; before that the dash keeps moving. The dash ends in `USI_DASH_JUMP` on pure-down, or when no direction key agrees with the facing (`m_FrameDataNow.syncData.bIsRight`); a new byte `+0x9628` (`m_bAirialDashFromCombo`) lets either direction key hold the dash, and it is cleared when the dash becomes a dash jump.
+- **AirialDash Start `32b97880`:** with `+0x9628` and `+0x9629` (`m_bAirialDashTurnAround`) set it adds 180 to the Future `dirDegree.y`, clears `+0x9629` and toggles the Future `bIsRight` (the unit turns round for a backward dash). Both bytes are written by the combo states ComboZZX `32b987f0`, ComboZZZXAttack `32b986a0` and ALH_XXXZ `32ba4870` (CH1d / CH1e); until then they stay false. Constructor zeroes them (June `32bc6bf0` clears the word).
+- **Hyper entry in Wait / HyperWait / Walk / JumpLanding:** June calls the virtual `GetHypetMpdeStateID()` (vslot 0x6b8; the `push 0` before the call is `StateChange`'s bool) where March writes `3 <= count ? ASI_BERSERK_MODE : USI_HYPER_MODE`. June's Ara override `32ba46c0` is `count < 3 ? 0x17 : 0x9b` = March's override line for line, so the call is exact today; CH1q still owns that function and the count readers.
+- **JumpAttackZ `32b9a0b0`:** the `ARA_CHANGE_CLASS_FIRST` arm runs unconditionally with June's macro form (animation-end clause, classes 28 / 118 -> `ASI_JUMP_ATTACK_ALH_ZZ`). **DoubleJumpFront `32ba7820`:** the Sakra Devanam back-Z arm is likewise unconditional. **Riding arms** (`GetRidingOn()`) run with no `RIDING_SYSTEM` test.
+- **= March after the macros:** the rest. Skip-point set of JumpLanding = `ELSE_IF_KEY_PRESSED_AT_SKIP_POINT_ZXCAS` (15 keys checked); `+= 30` / `-= 45` = `LINE_RADIUS` x 1 / 1.5; `GetEnableDash( 2 )` = `EDS_END`; `GetWalkSpeed()` inline = triple x `m_fRunJumpSpeedRate`; `CanDown`'s five extra June arguments are March's defaults (funcmap `31c6c310`). The June `PlayAnimationHyperWaitStart` reads `PLAY_TYPE` and `TRANSITION` through two XOR-built key names (decoded by hand).
+- **Not Ara-range code:** `ASI_WAIT_STATE_CHANGE`, `ASI_COMMON_BUFF`, `ASI_THROW_ITEM` and the hyper / berserk / jump-landing registrations use base callbacks (nothing to write; registration is CH1m). Skill 900 `SI_ETC_WS_COMMON_LOVE` (the class-level skill of this phase): March's `ST_RELATIONSHIP_SKILL` case in the skill switch already binds `ASI_THROW_ITEM` with `COMMON_RELATIONSHIP_SKILL_FrameMove` / `_EventProcess`, as June; June's switch body arrives with CH1n. March's `ARA_STATE_ID` numbers differ from June's (ch0 `DIFF` rows): every state is written by name. No `JUNE_BUGS` row: nothing here is a June defect.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h KTDXLIB/Always.h`: `files: 2 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is commented out (by design). `git diff --patience --numstat`: 739 / 0 in the `.cpp`, 4 / 0 in the `.h`, 14 / 0 in `Always.h`.
+- One-file `/Zs` probe of `X2GUAra.cpp` (`census.cl_cmd`, no PCH): 0 errors with `_LIVE` off and with `/D SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` (the `/P` output carries the June branch: `m_bAirialDashFromCombo` 6 hits, 0 with the flag off).
+- `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: 0 A/B rows.
+- Full build skipped: no play-test (`_LIVE` is off; nothing registers a June body), so no `DEPLOY OK` / `exestr` line.
+
+**Nothing to play-test.** Phase tag in every block: `// char-ara CH1a`. Review: none of its own, the CH1b review covers CH1a-CH1b (the `_DEBUG` define stays on: there is none yet). Next: `/x2-phase char-ara CH1b` (Sonnet 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.
