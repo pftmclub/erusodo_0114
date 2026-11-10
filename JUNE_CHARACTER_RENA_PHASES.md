@@ -2157,6 +2157,11 @@ Opus 5.5 high. Fixes the two CH3b play-test failures. Kickoff `kickoffs/char-ren
 
 **How to see it in game.** Wind Blast's arrow explodes on the enemy it chases. Gungnir: hold the skill key, the aim mark appears and the arrow keys move it, release fires.
 
+**Play-test (2026-11-10 11:18-11:19, unit 92 set 1, deployed md5 60d22c2c; logs read).** Pass.
+- Wind Blast: 5 casts, `wind blast lock on npc uid` 1000011 / 1000000 / 1000011 / 1000001 ( one -1: no target in range at the cast, the in-range retarget found one ); 6 `CE_HIT DamageEffect_SA_RSR_WindBlast_Arrow SPAWN_INHERIT child=..._Arrow_Explosion` and each `HIT ..._Arrow_Explosion COLLIDE defender=1`.
+- Gungnir: 2 casts, `spawning 1 NPC(s)` 1000026 / 1000027 each followed by `[JUNE_CHAR] SUMMON npc 2083 uid ... skill 23049` and `ES_CREATE EffectSet_SA_RGA_Gungnir_Loop ... ownerState=232` ( control idle reached ); the spear summoner's `DamageEffect_SA_RSR_Gungnir_Spear` / `_Explosion` / `_FX` hit NPCs 1000021, 1000013, 1000002.
+- `ErrorLog.txt`: 0 Motion Error / KEM_ERROR; packets 0 EXCEPTION ( 2 known `E_DISABLE_HB_CHECK_REQ` UNHANDLED ).
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as two from the start; CH0 adds CH4c if the
