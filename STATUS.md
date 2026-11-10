@@ -104,7 +104,7 @@ Plan `JUNE_CHARACTER_RENA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH2d | **built, play-test owed** (unit 91 TrapRanger99, set 1 slotted; then "check logs"): Trapping Ranger (24) skills, 21 fn + 7 cases; its review (`CH2d-review.md`, Opus) also covers CH2c and retires `_SKILL_DEBUG` + `_TRAP_DEBUG` | Sonnet 5.5 / high, Opus review, user play-test | CH2d0 review | `X2GULire_ElvenRanger.*` | `CH2d.md` |
+| CH2d | **play-test logs checked, review next** (`/x2-phase char-rena CH2d review`, Opus 5.5 high): Trapping Ranger (24) skills, 21 fn + 7 cases; the review (`CH2d-review.md`) also covers CH2c and retires `_SKILL_DEBUG` + `_TRAP_DEBUG` | Sonnet 5.5 / high, Opus review, user play-test | CH2d0 review | `X2GULire_ElvenRanger.*` | `CH2d.md` |
 | CH3a | blocked (CH2d review): Wind Sneaker (102) skills | Sonnet 5.5 / high, no review of its own (CH3b review covers it), user play-test | CH2d review | `X2GULire_ElvenRanger.*` | `CH3a.md` |
 | CH3b | blocked (CH3a): Grand Archer (103) skills; its review also covers CH3a | Sonnet 5.5 / high, Opus review, user play-test | CH3a | `X2GULire_ElvenRanger.*` | `CH3b.md` |
 | CH3c0 | blocked (CH3b review): Night Watcher engine hook (base `31fcd700` -> `32ca6cd0`, 14 fn; CH0 found it unmapped) | Opus 5.5 / high, Opus review | CH3b review | `X2GULire_ElvenRanger.*`, `X2GUUser.*`, `X2GUNPC.*`, `X2DamageManager.*` | `CH3c0.md` |
