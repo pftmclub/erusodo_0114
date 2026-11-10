@@ -477,6 +477,24 @@ All 17 class-map rows of phase CH1b are written, all `inside`: June's body in Ma
 
 **Nothing to play-test.** Phase tag in every block: `// char-ara CH1b`. Review: `kickoffs/char-ara/CH1b-review.md` (Opus 5.5 high, covers CH1a-CH1b; the `_DEBUG` define stays on: there is none yet). Next: `/x2-phase char-ara CH1b review`, then CH1c.
 
+### CH1b - Review (2026-11-10, covers CH1a-CH1b)
+
+**Verdict: pass, no code change.** The 47 functions of CH1a (`812d7465`) and CH1b (`b0b65a46`) were read against `charport_adis.py ara` listings (StateChange pushes, `fcomp` / `test ah` direction); no transcription error was found.
+- **DamageDown Front / Back EventProcess `32b96f70` / `32b97390`:** exact. Flags 5 / 6 / 7 fire on `stateChange < now || IsAnimationEnd()` before the key test (`test ah,5` / `jnp`, then the `+0x2ac` byte); the key window is `keyInputStart <= now < keyInputEnd` (`test ah,0x41` `jne` / `jp`). States: Front `ASI_P_ALH_QUICK_STAND_FRONT_FRONT` 0xd8 / `ASI_STANDUP_ROLLING_FRONT_BACK` 0x9e (June, like March, uses the plain rolling state for Front's flag 6) / `ASI_STANDUP_ATTACK_FRONT` 0xa1; Back 0xda / 0xdb / 0xa2. No-down roll `GetRandomInt() < +0x4060` -> `_NO_DOWN` (0xd6 / 0xd7), the key arms and the facing swap are exact.
+- **StandUpRolling End `32bab2d0`:** the state test is June's 0xde = `ASI_A_ALH_BREAKING_AVOIDANCE` 222 (`ch0_state_enum_names`), memo `0x94323` = `SMI_ARA_MEMO7`, and June's pushes `( 0xb5, NULL, 1, 0, 0 )` map onto March's `( BFI, level 1, creator NULL, adjust 0, skip false )` order (`X2GameUnit.h:3214`). The memo query is the June-false one.
+- **Die StartFuture `32b96b30`:** the `32d278f0` stand-in reads `m_DyingState`; the inlined `SetPlaySpeed( 0.5 )` matches. StandUpRolling EventProcess `32b97780` is exact.
+- **CH1a:** AirialDash Start `32b97880` (180 deg turn + `sete` toggle of the Future `bIsRight` only when both bytes are set) and FrameMoveFuture `32b97900` are exact. The dash keeps going while `(pureRight && (isRight || +0x9628)) || (pureLeft && (!isRight || +0x9628))`, and it becomes `USI_DASH_JUMP` on pureDown, clearing `+0x9628`. `GetHypetMpdeStateID()` at the four hyper sites is the virtual vslot 0x6b8; June's override `32ba46c0` is `count < 3 ? 0x17 : 0x9b` = March's. Wait EventProcess order and `SpecialAttackEventProcess( ASUT_GROUND = 1 )` (air sites push 2 = `ASUT_AIR`) are exact. JumpAttackZ `32b9a0b0` (classes 0x1c / 0x76 = 28 / 118) and DoubleJumpFront `32ba7820` (the Sakra back-Z arm via two `GetIsRight` calls, the oneUp test `nowSpeed.y <= 0`) are exact.
+- **`ch1_offsets.tsv`:** the CH1a / CH1b rows agree with the listings. The review added 7 offsets that the listings used without a name: `+0x9640` `m_bAbleQuickStand`, `+0x7e40` position.y, `+0x30c` `passiveSpeed.x`, and the vslots 0x1c8 `GetRandomInt`, 0x11c / 0x120 invincibility, 0x21c buff factor.
+- **Found, routed to CH4a:** June writes `+0x9640` only in the constructor `32bc6bf0` (zero), and no Ara function queries skill 7400 `SI_P_ALH_QUICK_STAND`, so June's quick-stand flag is always false. June's `InitPassiveSkillState` `32bcd9c0` (CH4a, whole body) therefore has no quick-stand setter. Until then, March's setter (`X2GUAra.cpp:1874-1886`) stays live under `_LIVE`. One line was added to `kickoffs/char-ara/CH4a.md`.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --range 812d7465^..b0b65a46`: `files: 3 PASS, 0 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is `//#define` (by design).
+- `junediverge.py --check-all`: `allow-listed: 202`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: 0 A/B rows.
+- One-file `/Zs` probe of `X2GUAra.cpp` (`census.cl_cmd`): 0 errors with `_LIVE` off and with `/D SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` (the `/P` output carries `m_bAirialDashFromCombo` 6 times).
+- Full build skipped: no play-test. There is no `_DEBUG` define to retire.
+
+Next: `/x2-phase char-ara CH1c` (Sonnet 5.5 high); its kickoff was checked and is current.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.
