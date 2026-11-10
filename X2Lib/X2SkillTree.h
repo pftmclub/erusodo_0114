@@ -1894,6 +1894,21 @@ public:
 		RNSI_A_RSR_RAPID_SHOT_UPGRADE                         = 23236,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-10 // char-rena CH2d
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RTR_FATALITY                                  = 23019,	// June's Enum.lua; the Trapping Ranger skill switch cases
+		RNSI_SA_RTR_HUMMING_WIND                              = 23020,
+		RNSI_SA_RTR_KARMA                                     = 23021,
+		RNSI_SA_RTR_FATALITY_UPGRADE                          = 23033,
+		RNSI_SA_RTR_HUMMING_WIND_UPGRADE                      = 23036,
+		RNSI_SA_RTR_KARMA_UPGRADE                             = 23053,
+		RNSI_A_RTR_EXPLOSION_TRAP                             = 23214,
+		RNSI_A_RTR_EXPLOSION_TRAP_UPGRADE                     = 23224,
+		RNSI_A_RTR_ROSEBUSH_TRAP_UPGRADE                      = 23238,
+		RNSI_A_RTR_ANGER_OF_ELF_UPGRADE                       = 23239,
+		RNSI_A_RTR_EVOKE_UPGRADE                              = 23241,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)

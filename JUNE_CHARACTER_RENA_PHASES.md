@@ -1988,6 +1988,40 @@ Opus 5.5. **Passed, no code change.** Commit `d98d771d` checked against June (`c
 
 `_TRAP_DEBUG` stays defined: CH2d's play-test reads its lines, CH2d's review retires it. Full build skipped: no play-test (no code change, no probe needed). CH2d is ready; its kickoff's "Amended by CH2d0" section is accurate as written.
 
+### CH2d - Done (2026-11-10)
+
+Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (no new define; `_SKILL_DEBUG` and CH2d0's `_TRAP_DEBUG` stay on for the play-test). All 47 class-map rows read from `charport_adis.py rena --phase CH2d` listings (each listing runs on into the next function: read to the `int3`). **21 function bodies written inside March's** (June under the flag, March in `#else`), **26 are June = March** (no code). 7 cases (both ids each) added to the id-switch block; `X2SkillTree.h` gains 11 `RNSI_*` names (23019 / 23020 / 23021 / 23033 / 23036 / 23053 / 23214 / 23224 / 23238 / 23239 / 23241; 23215 / 23216 / 23218 existed). Every block carries `// char-rena CH2d`. `funcmap.tsv` rows `Char Rena CH2d` (48); `MODS.md` "Stage 7 Rena, CH2d" has the damage table.
+
+| June | `CX2GULire_ElvenRanger::` | June differs from March |
+|---|---|---|
+| `32c6b6a0` `32c6b6e0` `32c6b700` `32c86d00` `32c86d30` `32c75e50` `32c75e90` | Humming Wind `Init`, `FrameMoveFuture`, `FrameMove`, `EventProcess` ( normal, hyper ) | June's 4-name preload; FMF = `CommonFrameMoveFuture` only ( March sets the dash speed / stops the fall ); FM = world colour, cut-in 0.06 / 0, `CommonFrameMove` ( particles and damage effects moved to the effect set ); EP = end -> `JUMP_DOWN` / `WAIT`, no skip-key cancel |
+| `32ca6810` `32ca6860` | Evoke `FrameMove` ( normal, hyper ) | `CreateEvoke( 1 )` at 0.25 s ( CH2d0 ); no cut-in, no world colour |
+| `32c97210` | Explosive Trap `FrameMove` | Hunter's Ability ( 23408 ) `SA_DAMAGE_REL` through `GetSkillLevel( id, 0, 0, 1 )`; no fake traps; Enhanced skill: `SA_EFFECTIVE_RATE` ( `32007c40`, swap ) `>= GetRandomFloat( 0 )` throws a second trap, `rotate.z += 15`; delay mode keeps the index / type 5 |
+| `32c6c690` `32c7aae0` | Karma `StateStart`, `EventProcess` | no memo animation speed; end test + `SKILL_CANCEL_AFTER` + `RENA_GROUND_WALK / BWALK / DASH_CANCEL` |
+| `32c98360` `32c987f0` `32c7b060` | Fatality `FrameMove` ( normal, hyper ), `SetFatalityData` | damage effect set always `_MEMO`; rating / power from 23019 at the swapped level and the swapped templet ( March read the old ids: level 0 = FAIL, power 0 ) |
+| `32c7d160` | Eldrasil's Fury `EventProcess` | dash / walk cancels need the foot ( `RENA_GROUND_*` ), then `SKILL_CANCEL_AFTER` |
+| `32c6cf50` `32c6cf60` `32c6cf70` `32c7d360` `32c9e440` | Briar Trap `StartFuture`, `FrameMoveFuture`, `EndFuture`, `EventProcess`, `FrameMove` | no gravity switches or 0.36 s timer; `FrameMove`: Hunter's Ability, `ROSEBUSH_TRAP_FLY_MEMO` ( + `_Upgrade` when Enhanced ), a 20 % second one at `pos.x += 100`, no memo test |
+| = March | 26 functions | Init / Start / End / thunks of every state, Explosive Trap FMF / EP, Fatality Start / EP / End / futures ( `32ca68b0` keeps March's `m_fNowStatePowerRate *=` ), Eldrasil's Fury Init / Start / FM / End, Evoke Init / Start / End, Karma FM ( March's empty 1.0 s timer ): the funcmap rows say which |
+
+**Registration** ( `32cb06d0`, rows `@32cb1328` Humming Wind, `@32cb2269` Fatality, `@32cb21d5` Karma, `@32cb2108` Explosive Trap, `@32cb10e7` Briar Trap, `@32cb107b` Eldrasil's Fury, `@32cb2076` Evoke, each with its hyper row ): Karma's hyper uses the normal FrameMove ( one June function ), Fatality's hyper FM is `_HYPER_FrameMove`, Evoke's EventProcess is `GenericActiveSkillEventProcess` ( June `31fcc9d0`, already shared ), Humming Wind's hyper has no Init. `m_bHyperState` is set centrally, so Eldrasil's Fury's March `m_bHyperState = true` line is not copied.
+
+**Divergence row.** `SetFatalityData` ( `32c7b060`; the class map listed it new ) gets its `june_march_divergent.tsv` row, `replace`, ported in this commit.
+
+**Checklist** `(Rena: CH2d ...)`: §1 l.116 / 117 ( none: damage effects run through the engine ), §4 l.178 ( 11 names ), §7 l.256 / l.440 ( only Fatality's Start multiplies the rate = March ), §7h l.427 ( no USEFUL_VALUE read ), §7u l.638 ( dropped March names ), §7ae l.729 ( 14 ids ). §7ai: no BFI call in the 47 functions ( the listings' callee census has none ). NF rows: none for CH2d ( `ch0_nf.tsv` has no class-24 row ). §7 l.423: Humming Wind's `EFFECT_SET_LIST_FINAL` rows come with the adopted script ( CH1 ); no class code.
+
+**Answered from CH2d0.** `EntireExplosion` ( `32c9af70` ) = March ( CH1k's funcmap row: counts NPC 1421, cap 6 ). Trap Blade: `CreateTrapBlade` / `DeleteTrapBlade` = March ( CH1g ); its reader `32ca81b0` is CH1j's. Entangle is damage effects in June: CH3b.
+
+**Found, not ported.** Nothing new. Fatality's always-`_MEMO` damage set is June's own ( its `EffectSet.lua` has the `_MEMO` sets ): kept, no JUNE_BUGS row ( a change, not a bug ).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RENA_SKILL --with ..._SKILL_DEBUG --worktree --files` ( `X2GULire_ElvenRanger.cpp`, `X2SkillTree.h` ): `1 PASS, 0 PASS~, 0 DEFINE, 1 OTHER ( X2SkillTree.h = JUNE_ENUM_NAMES ), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` ( both files ): `allow-listed: 5`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s) remain`. `skillicons.py check` ( the 16 class-24 ids ): `misses 0, known June gaps 0`, PASS. `luabind` not run: no new `.lua`.
+- `/Zs` probe of the cpp ( `census.cl_cmd`, no PCH ): 0 errors; `/P` shows the new bodies live.
+- `DEPLOY OK: X2_offline.exe is 26,157,568 B, dated 2026-11-10 07:49:56, md5 46081fb61e162d5a29307244fdeb871c, equal to X2/US_SERVICE/x2.exe ( 2026-11-10 07:49:49 ); built at main 921d7587 + 2 uncommitted code file(s).`
+- `EXESTR OK: 5 of 5 found in X2_offline.exe, 26157568 B, md5 46081fb6` ( wide `VERITABLE_PANDEMONIUM_T02.dds`, `SCA_CRIMSON_BREAK_P01.Y`, `ROSEBUSH_TRAP_FLY_MEMO`, `_Upgrade`, `RENA SKILL equip skill` ).
+
+**Play-test hand-off.** Save set up ( backup `db_backup/els_db_20261110_073856_pre_sql.sql` ): unit 91 `TrapRanger99` ( Rena, class 24, lv 99 ). Set 1 slotted ( bank A ): A Evoke Enhanced ( 23241 ), S Eldrasil's Fury Enhanced ( 23239 ), D Explosive Trap Enhanced ( 23224 ), C Briar Trap Enhanced ( 23238 ). Set 2 ( say "swap" ): bank B A Humming Wind ( 23036 ), S Fatality ( 23033 ), D Karma ( 23053 ). Dev console ( END key ): `/invin 0`, then `/stage 1`. Each skill twice with enemies near: motion and effects, a cool time on the slot after the first cast, MP drops, a cast during the cool time is refused. **Evoke / Eldrasil's Fury:** the trap stays for its time and hits ( Eldrasil's Fury about 10 s ), it does not vanish at once. **Explosive Trap:** one fan of flying bombs, sometimes a second one turned 15 degrees. **Briar Trap:** thorn shots, sometimes a second one to the side. **Humming Wind:** the wind effect set around you, no dash. **Fatality:** a rated spark ( damage is not 0 ). **Karma:** the spark, walk / dash cancel on the ground. Then `python tools/logs.py --grep "RENA SKILL"` ( four `equip` lines in set 1, three in set 2 ) and `--grep "RENA TRAP"` ( per trap cast `spawn npc 1025` / `1420` or `1421`, `linked npc ... owner`, the `SUMMON` line, `removed ... uid` when it ends ) and say "check logs".
+
 ## Phase CH3 - Skills: second jobs (102, 103, 114), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows). Sub-tag `SKILL`.

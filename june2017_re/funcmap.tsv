@@ -9170,3 +9170,51 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 3230c1a0 case 0x823 (CH2d0)	CX2Game::SetUserSummonedNPCInfo: Gungnir targeting NPC	PORTED	Char Rena CH2d0: 322ece70( npc, user, 0, 1.0 ) skill 23015; owner type 3 -> owner +0x97b8 = NPC uid ( m_iGungnirTargetNPCUID, SetGungnirTargetNPCUID; March had no writer )
 322ece70 (CH2d0)	CX2GUUser::SetSummonHelperInfo: rate argument	PORTED	Char Rena CH2d0: fRate_ ( default 1.0 ) multiplies the power rate after the socket term ( @322ed2ae-322ed332 ); only Rena's 1020 / 1025 / 1420 / 1421 pass another value
 3230b7b0 @3230bb7c-3230bc08 (CH2d0)	CX2Game NPC-die hook: Rena trap list erase	confirmed	Char Rena CH2d0: = March X2Game.cpp:9462-9488 ( 0x3fc / 0x401 -> 32c87860, 0x58d / 0x58c -> 32c85900, owner UT_LIRE )
+32c6b6a0	CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_Init	PORTED	Char Rena CH2d: inside, _SKILL: 2 textures, 1 Y mesh, 1 skin mesh ( March: HummingWind04.dds / HummingWind_AttackBox.X ); the hyper state registers no Init
+32c6b6e0	CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_FrameMoveFuture	PORTED	Char Rena CH2d: inside, _SKILL: thunk to CommonFrameMoveFuture ( vslot 0x7c8 ); March also sets the dash speed at 0.15 s and zeroes the fall before 0.88 s
+32c6b6f0	CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_CameraMove	confirmed	Char Rena CH2d: thunk to CommonCameraMove ( vslot 0x7d0 ) = March; 32c6b710 is the hyper twin
+32c6b700	CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_FrameMoveFuture	PORTED	Char Rena CH2d: inside, _SKILL: = 32c6b6e0, the hyper function
+32c6b710	CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_CameraMove	confirmed	Char Rena CH2d: = 32c6b6f0 = March, the hyper function
+32c6c5b0	CX2GULire_ElvenRanger::LESI_SA_RTR_EVOKE_Init	confirmed	Char Rena CH2d: = March: the same 5 preload names ( background-ready branch )
+32c6c600	CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_Init	confirmed	Char Rena CH2d: = March: empty
+32c6c610	CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_StartFuture	confirmed	Char Rena CH2d: = March: CommonStateStartFuture, no gravity, speed 0
+32c6c640	CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_Start	confirmed	Char Rena CH2d: = March: thunk to CommonStateStart
+32c6c650	CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_EndFuture	confirmed	Char Rena CH2d: = March: gravity on, CommonStateEndFuture
+32c6c680	CX2GULire_ElvenRanger::LESI_SA_RTR_KARMA_Init	confirmed	Char Rena CH2d: = March: empty
+32c6c690	CX2GULire_ElvenRanger::LESI_SA_RTR_KARMA_StateStart	PORTED	Char Rena CH2d: inside, _SKILL: CommonStateStart only; March adds the skill-memo 27 animation speed x 1.5
+32c6c6a0	CX2GULire_ElvenRanger::LESI_SA_RTR_KARMA_StateEnd	confirmed	Char Rena CH2d: = March: CommonStateEnd
+32c6c6b0	CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_Init	confirmed	Char Rena CH2d: = March: empty
+32c6c6c0	CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_StateStartFuture	confirmed	Char Rena CH2d: = March: CommonStateStartFuture, m_bApplyMotionOffset = false
+32c6c6e0	CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_FrameMoveFuture	confirmed	Char Rena CH2d: = March: thunk to CommonFrameMoveFuture
+32c6c6f0	CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_StateEndFuture	confirmed	Char Rena CH2d: = March: CommonStateEndFuture, m_bApplyMotionOffset = true
+32c6cf10	CX2GULire_ElvenRanger::LESI_A_RNW_ANGER_OF_ELF_Init	confirmed	Char Rena CH2d: = March: SI_A_LSR_ENTANGLE_Effect_Seed.x preload
+32c6cf30	CX2GULire_ElvenRanger::LESI_A_RNW_ROSEBUSH_TRAP_Init	confirmed	Char Rena CH2d: = March: A_RNW_THORNS_TRAP.X preload
+32c6cf50	CX2GULire_ElvenRanger::LESI_A_RNW_ROSEBUSH_TRAP_StartFuture	PORTED	Char Rena CH2d: inside, _SKILL: CommonStateStartFuture only ( March also switches gravity off and zeroes the speed )
+32c6cf60	CX2GULire_ElvenRanger::LESI_A_RNW_ROSEBUSH_TRAP_FrameMoveFuture	PORTED	Char Rena CH2d: inside, _SKILL: CommonFrameMoveFuture only ( March switches gravity back on at 0.66 s )
+32c6cf70	CX2GULire_ElvenRanger::LESI_A_RNW_ROSEBUSH_TRAP_EndFuture	PORTED	Char Rena CH2d: inside, _SKILL: CommonStateEndFuture only ( March first switches gravity on )
+32c75e50	CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_EventProcess	PORTED	Char Rena CH2d: inside, _SKILL: end -> JUMP_DOWN / WAIT by the foot, no skip-key cancel ( March has ZXC skip at 1.7 s ), CommonEventProcess
+32c75e90	CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_EventProcess	PORTED	Char Rena CH2d: inside, _SKILL: = 32c75e50, the hyper function
+32c7a9c0	CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_FrameMoveFuture	confirmed	Char Rena CH2d: = March: gravity on from 0.66 s, CommonFrameMoveFuture
+32c7a9f0	CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_EventProcess	confirmed	Char Rena CH2d: = March: gravity on at 0.36 s, end on the ground -> JUMP_LANDING, CommonEventProcess
+32c7aae0	CX2GULire_ElvenRanger::LESI_SA_RTR_KARMA_EventProcess	PORTED	Char Rena CH2d: inside, _SKILL: end -> JUMP_DOWN / WAIT, then SKILL_CANCEL_AFTER, RENA_GROUND_WALK / BWALK / DASH_CANCEL ( the foot test ); March has only the end test
+32c7ad50	CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_EventProcess	confirmed	Char Rena CH2d: = March: end -> m_PhysicParam.passiveSpeed.x = 0, rating FAIL ? the fail state : the success state
+32c7b060	CX2GULire_ElvenRanger::SetFatalityData	PORTED	Char Rena CH2d: inside, _SKILL: March SetFatalityData ( the class map listed it new ): level of 23019 through the upgrade swap, templet of the swapped id, 4 rates SA_SKILLDAMAGE_MULTIPLE_01_RATE.., rating by the cumulative sum, power SA_SKILLDAMAGE_MULTIPLE_01 + rating
+32c7d160	CX2GULire_ElvenRanger::LESI_A_RNW_ANGER_OF_ELF_EventProcess	PORTED	Char Rena CH2d: inside, _SKILL: end test, RENA_GROUND_DASH_CANCEL, RENA_GROUND_WALK_CANCEL, SKILL_CANCEL_AFTER ( the foot test in the dash / walk cancels )
+32c7d360	CX2GULire_ElvenRanger::LESI_A_RNW_ROSEBUSH_TRAP_EventProcess	PORTED	Char Rena CH2d: inside, _SKILL: end on the ground -> JUMP_LANDING; March first switches gravity on at 0.36 s
+32c86d00	CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_FrameMove	PORTED	Char Rena CH2d: inside, _SKILL: world colour, cut-in ( Dummy1_Rhand 0.06 / 0 ), CommonFrameMove; no particles or damage effects ( the state effect set carries them )
+32c86d30	CX2GULire_ElvenRanger::LESI_SI1_LE_HUMMING_WIND_FrameMove	PORTED	Char Rena CH2d: inside, _SKILL: = 32c86d00, the hyper function
+32c87090	CX2GULire_ElvenRanger::LESI_SA_RTR_KARMA_FrameMove	confirmed	Char Rena CH2d: = March: world colour, cut-in ( 0.01 / 0 ), CommonFrameMove ( March keeps an empty 1.0 s timer ); both states
+32c971b0	CX2GULire_ElvenRanger::LESI_SA_RTR_EVOKE_StateEnd	confirmed	Char Rena CH2d: = March: CommonStateEnd, the sub-attack set clear + trap blade destroy ( DeleteTrapBlade inlined )
+32c97210	CX2GULire_ElvenRanger::LESI_A_RTR_EXPLOSION_TRAP_FrameMove	PORTED	Char Rena CH2d: inside, _SKILL: Hunters Ability ( 23408 ) power rate, EXPLOSION_TRAP_FLY / _DELAY only ( no fake traps ); the Enhanced skill adds a second trap 15 degrees on at SA_EFFECTIVE_RATE
+32c98360	CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_FrameMove	PORTED	Char Rena CH2d: inside, _SKILL: the rated effect sets; the damage set always takes the _MEMO suffix ( March: only with skill memo 22 )
+32c987f0	CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_FrameMove	PORTED	Char Rena CH2d: inside, _SKILL: = 32c98360, the hyper function
+32c98c80	CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_StateEnd	confirmed	Char Rena CH2d: = March: CommonStateEnd, DeleteTrapBlade inlined
+32c9e0d0	CX2GULire_ElvenRanger::LESI_A_RNW_ANGER_OF_ELF_StateEnd	confirmed	Char Rena CH2d: = March: DeleteTrapBlade, CommonStateEnd
+32c9e440	CX2GULire_ElvenRanger::LESI_A_RNW_ROSEBUSH_TRAP_FrameMove	PORTED	Char Rena CH2d: inside, _SKILL: Hunters Ability power rate; ROSEBUSH_TRAP_FLY_MEMO ( + _Upgrade when the equipped skill is upgraded ), a second one 100 to the side at 20 %; no memo test
+32ca67f0	CX2GULire_ElvenRanger::LESI_SA_RTR_EVOKE_StateStart	confirmed	Char Rena CH2d: = March: CreateTrapBlade, CommonStateStart
+32ca6810	CX2GULire_ElvenRanger::LESI_SA_RTR_EVOKE_FrameMove	PORTED	Char Rena CH2d: inside, _SKILL: at 0.25 s CreateEvoke( 1 ) ( CH2d0 ), CommonFrameMove; no world colour or cut-in
+32ca6860	CX2GULire_ElvenRanger::LESI_SA_RTR_EVOKE_FrameMove	PORTED	Char Rena CH2d: inside, _SKILL: = 32ca6810, the hyper function ( March: six inline CreateNPCReq calls )
+32ca68b0	CX2GULire_ElvenRanger::LESI_SA_RTR_FATALITY_StateStart	confirmed	Char Rena CH2d: = March: CreateTrapBlade, CommonStateStart, SetFatalityData ( 32c7b060 ), m_fNowStatePowerRate *= the rating power ( checklist 7 l.256 )
+32ca6f90	CX2GULire_ElvenRanger::LESI_A_RNW_ANGER_OF_ELF_StateStart	confirmed	Char Rena CH2d: = March: CreateTrapBlade, CommonStateStart
+32ca6fb0	CX2GULire_ElvenRanger::LESI_A_RNW_ANGER_OF_ELF_FrameMove	confirmed	Char Rena CH2d: = March: at 0.25 s CreateAngerOfElfTrap ( CH2d0 ), CommonFrameMove
+32cb06d0 (CH2d)	CX2GULire_ElvenRanger::SetEquippedSkillFuncBySkillSlotIndex Trapping Ranger cases	PORTED	Char Rena CH2d: 7 cases ( both ids each ) added to the id-switch block: Humming Wind 23020 / 23036 ( @32cb1328 / @32cb1372 ), Fatality 23019 / 23033 ( @32cb2269 / @32cb22d4 ), Karma 23021 / 23053 ( @32cb21d5 / @32cb221d, one FrameMove ), Explosion Trap 23214 / 23224 ( @32cb2108 / @32cb2168 ), Briar Trap 23215 / 23238 ( @32cb10e7 / @32cb113a ), Eldrasil Fury 23216 / 23239 ( @32cb107b / @32cb10c3 ), Evoke 23218 / 23241 ( @32cb2076 / @32cb20c0, EventProcess = the shared generic skill one ); RNSI_* x11 in X2SkillTree.h

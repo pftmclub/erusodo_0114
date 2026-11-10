@@ -6197,3 +6197,22 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (same flag; `Always.h` gains a third `
 | Rapid Shot (23212 / 23236) | `DamageEffect_LGA_Rapid_Shot` | 1.94 per arrow |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every class-13 skill falls back to the Power Attack default, and CH2a's / CH2b's too), `python tools/build.py --deploy`.
+
+## Stage 7 Rena, CH2d: Trapping Ranger (class 24) skills (2026-11-10)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (same flag; `_SKILL_DEBUG` and CH2d0's `_TRAP_DEBUG` stay defined for the play-test). Plan `JUNE_CHARACTER_RENA_PHASES.md` "CH2d - Done". Client only, no data change; `X2SkillTree.h` gains eleven `RNSI_*` names.
+- **What changes in game.** The seven class-24 skills run June's registrations in the id switch of `SetEquippedSkillFuncBySkillSlotIndex` (before this they fell into the Power Attack default): Humming Wind (23020 / 23036), Fatality (23019 / 23033), Karma (23021 / 23053), Explosive Trap (23214 / 23224), Briar Trap (23215 / 23238), Eldrasil's Fury (23216 / 23239) and Evoke (23218 / 23241). The traps spawn through CH2d0's rules (`CreateEvoke`, `CreateAngerOfElfTrap`).
+- **Differs from March.** Humming Wind loses its FrameMove particles and damage effects (the state's effect set carries them), the dash speed / fall stop of its FrameMoveFuture and the skip-key cancel. Evoke's FrameMove drops the cut-in and world colour and only calls `CreateEvoke( 1 )`. Explosive Trap throws no fake traps: one `EXPLOSION_TRAP_FLY` (`_DELAY` with the delayed-firing mode), and the Enhanced skill's `SA_EFFECTIVE_RATE` adds a second one turned 15 degrees; Briar Trap's gravity switches are gone, its damage effect is `ROSEBUSH_TRAP_FLY_MEMO` (+ `_Upgrade` when Enhanced) with a 20 % second one 100 to the side. Karma loses the memo animation speed and gains the ground-only walk / dash cancels. Fatality's rating and power come from the skill's level and templet through the upgrade swap, and its damage effect set is always the `_MEMO` one. Eldrasil's Fury gets the ground-only walk / dash cancels.
+- **Damage (level-1 multiplier; June = the damage effects' NUMERICAL_DATA through the engine, x0.01; March = the C++-spawned damage effects, now replaced by June's).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Humming Wind (23020 / 23036) | `HUMMING_WIND` / `_MEMO` spawned by the state | 1.51 ( hyper 1.10 ) |
+| Fatality (23019 / 23033) | `EffectSet_FATALITY_SPARK*_DAMAGE` ( memo: `_MEMO` ) x the rating power | 30.06 ( the `_MEMO` damage effects, x the rating power ) |
+| Karma (23021 / 23053) | `SI_SA_RTR_KARMA_SPARK` | 10.08 |
+| Explosive Trap (23214 / 23224) | `EXPLOSION_TRAP_FLY` / `_FAKE` ( 20 % fake ) | 1.47 per trap, 1 trap ( Enhanced: a second at `SA_EFFECTIVE_RATE` ) |
+| Briar Trap (23215 / 23238) | `ROSEBUSH_TRAP_FLY` ( memo: `_MEMO` ) | 8.66 ( `ROSEBUSH_TRAP_ATTACH_MEMO` ), 20 % a second trap |
+| Eldrasil's Fury (23216 / 23239) | `ANGER_OF_ELF_SPARK`, trap life -1 ( ended at once ) | 2.73, the trap lives `SA_EFFECTIVE_TIME` seconds ( CH2d0 ) |
+| Evoke (23218 / 23241) | Evoke trap NPC | 3.56 ( `EVOKE_EXPLOSION` ) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every class-24 skill falls back to the Power Attack default, and CH2a's / CH2b's / CH2c's too), `python tools/build.py --deploy`.
