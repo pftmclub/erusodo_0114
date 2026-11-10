@@ -6321,3 +6321,11 @@ No `SERV_IRUHADEV_JUNE_CHAR_RENA_*_DEBUG` flag is defined (`_NF_DEBUG`, `_SKILL_
 No flag, no exe change. `kom.py stage-june june2017_re/char_ara/ch0b_stage_list.tsv`: 5,886 June files byte-exact in 34 koms (5,562 new, 324 replaced; the 324 March copies are backed up under `kom_backup_stage_june/20261110_164654`). `adopt-june` (bytecode): `DLG_1ST_Class_Change_Guide_Ara` / `DLG_2ND_Class_Change_Guide_Ara` (new, data034), `DLG_Class_Change_Guide_Ara` (data034, replaced), `DLG_Class_Change_Ara_LD` / `_LH` / `_SD` / `_YR` (data034, replaced), `DLG_Class_Change_Ara_AS` / `_LS` (new, data217); backups `kom_backup_stage_june/20261110_164706` and `20261110_164724`. `data205` is a new archive (56 June-only motions, 53 emotions). 35 koms copied to the game dir; `data101` (one file, `Velder_Gate_Stage2_Sky.dds`) stays packed in `kom_contents` only (its directory is out of step with the live kom: the copy would drop 1,070 entries). `Motion_Ara_LD.x` / `Motion_Ara_SD.x` are held for CH1 final (March's copies untouched). Save: units 96 MartialArtistT (7), 97 LittleHsienT (28), 98 SakraDevanamT (118), 99 LittleDevil99 (31), all level 99.
 
 **Revert.** Restore the replaced files from the three backup folders, `kom.py pack` / `copy` the koms; `data205.kom` and `data217.kom` can be deleted from the game dir if they were not there before.
+
+## Stage 7 Ara, CH1d: ground combo states under `_LIVE` (inert, 2026-11-10)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` (still `//#define`), `_CORE` (defined: one new function, five state names, the `IsInJobLine` declaration) and `_FP` (`//#define`, the +0x9621 probe byte). 29 June functions of `CX2GUAra` (Z, ZZ, ZZZ, ZZZZ, ZZZX start / charge / attack, ZZX, X, XX, XXX, XXX-loop, XXX-loop-X, XX-down-X, XX-down-XX); `RNSI_A_AYR_REFLECTION` = 27213 joins `X2SkillTree.h` under `SERV_IRUHADEV_JUNE_ENUM_NAMES`. No effect until `_LIVE` ships with CH1.
+
+**Damage numbers (once `_LIVE` is on).** ZZZX attack: March multiplies `fPhysic` by `1 + min( charge, 2 )` at 0.331 s (x1 .. x3); June multiplies it by `1 + 0.25 x charge` at state start (x1 .. x1.5). The ZZZ / XXX-loop / XXX-loop-X / XX-down-X states no longer swap `DAMAGE_DATA_NEXT` in FrameMove (June's FrameMove is `CommonFrameMove`).
+
+**Revert.** Leave `_LIVE` commented out; to drop the state names and the new function, undefine `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE`.

@@ -106,8 +106,8 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
 | CH1c | done 2026-11-10 (riding hyper-mode FrameMove + shared helper under `_LIVE`, 34 states are base callbacks, probes 0 errors, no play-test); CH1d2 review covers it | Sonnet 5.5 / high | CH1b review (done) | `X2GUAra.*` | `CH1c.md` |
-| CH1d | **ready** (CH1c done): ground combos | Sonnet 5.5 / high | CH1c | `X2GUAra.*` | `CH1d.md` |
-| CH1d2 | blocked (CH1d): dash combos; review covers CH1c-CH1d2 | Sonnet 5.5 / high, Opus review | CH1d | `X2GUAra.*` | `CH1d2.md` |
+| CH1d | done 2026-11-10 (29 ground-combo functions under `_LIVE` / `_CORE`, probes 0 errors, no play-test); CH1d2 review covers it | Sonnet 5.5 / high | CH1c | `X2GUAra.*` | `CH1d.md` |
+| CH1d2 | **ready** (CH1d done): dash combos; review covers CH1c-CH1d2 | Sonnet 5.5 / high, Opus review | CH1d | `X2GUAra.*` | `CH1d2.md` |
 | CH1e | blocked (CH1d2 review): Little Hsien / Sakra Devanam lines | Sonnet 5.5 / high | CH1d2 review | `X2GUAra.*` | `CH1e.md` |
 | CH1f | blocked (CH1e): Little Devil / Yama Raja lines | Sonnet 5.5 / high | CH1e | `X2GUAra.*` | `CH1f.md` |
 | CH1g | blocked (CH1f): Little Specter / Asura lines; review covers CH1e-CH1g | Sonnet 5.5 / high, Opus review | CH1f | `X2GUAra.*` | `CH1g.md` |

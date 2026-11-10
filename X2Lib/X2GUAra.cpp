@@ -39,6 +39,16 @@ namespace _CONST_ARA_
 	{ StateChange( (iStateID) ); m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = false; } \
 	else if( m_pXSkinAnimFuture->GetNowAnimationTime() < (float)(fInputTiming) && (float)(fInputTimingStart) <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == (bCondition) ) \
 	{ m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = true; }
+// char-ara CH1d: June's expansion of BWALK_CANCEL_AFTER / DASH_CANCEL_AFTER ( the on-line test June added, as Eve's EVE_ versions )
+#define BWALK_CANCEL_AFTER_ON_LINE_( time ) \
+	else if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && true == IsOnSomethingFuture() && \
+	( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true) || \
+	( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false) ) ) \
+	{ StateChange( USI_WAIT ); }
+#define DASH_CANCEL_AFTER_ON_LINE_( time ) \
+	else if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && true == IsOnSomethingFuture() && \
+	( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) ) \
+	{ StateChangeDashIfPossible(); }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 
 #pragma region 필살기 사용 시 Cut in image
@@ -91,6 +101,9 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	, m_bAirialDashFromCombo( false ), m_bAirialDashTurnAround( false )	// char-ara CH1a
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	, m_bFPCancelProbe( false )	// char-ara CH1d
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	, m_usForceGainCount( 0 ), m_usBeforeForceGainCount( 0 ), m_pSkillTemplet( NULL ), m_iPressedSkillSlotIndex( -1 )
 	, m_fMPConsume( 0.f )	
 
@@ -9198,6 +9211,23 @@ void CX2GUAra::DoubleJumpBackEventProcess()
 */
 void CX2GUAra::ComboZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b97ae0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneZ == true, ASI_COMBO_ZZ )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -9213,6 +9243,7 @@ void CX2GUAra::ComboZEventProcess()
 								 m_InputData.oneZ == true, ASI_COMBO_ZZ )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 81
 
@@ -9222,6 +9253,24 @@ void CX2GUAra::ComboZEventProcess()
 */
 void CX2GUAra::ComboZZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b97d10
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneZ == true, ASI_COMBO_ZZZ )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, m_fEventTime[1].stateChange,
+		m_InputData.oneX == true, ASI_COMBO_ZZX )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -9238,6 +9287,7 @@ void CX2GUAra::ComboZZEventProcess()
 		m_InputData.oneX == true, ASI_COMBO_ZZX )
 
 		CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 82
 
@@ -9247,6 +9297,11 @@ void CX2GUAra::ComboZZEventProcess()
 */
 void CX2GUAra::ComboZZZFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b90ff0
+	// June has no DAMAGE_DATA_NEXT swap here ( thunk to CommonFrameMove )
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -9273,6 +9328,7 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: ComboZZZEventProecss
@@ -9280,6 +9336,34 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 */
 void CX2GUAra::ComboZZZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b97f00
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 3, m_fEventTime[3].keyInputStart, m_fEventTime[3].keyInputEnd, m_fEventTime[3].stateChange,
+		m_InputData.oneX == true && CX2Unit::UC_ARA_ASURA == GetUnitClass(), ASI_COMBO_ASR_ZZZX )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 2, m_fEventTime[2].keyInputStart, m_fEventTime[2].keyInputEnd, m_fEventTime[2].stateChange,
+		m_InputData.oneZ == true && ( CX2Unit::UC_ARA_LITTLE_DEVIL == GetUnitClass() || CX2Unit::UC_ARA_YAMA_RAJA == GetUnitClass() ) &&
+		( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == false ) ||
+		( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == true ) ), ASI_COMBO_ALD_ZZZFrontZ )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneZ == true, ASI_COMBO_ZZZZ )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, m_fEventTime[1].stateChange,
+		m_InputData.oneX == true, ASI_COMBO_ZZZXStart )
+
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -9307,6 +9391,7 @@ void CX2GUAra::ComboZZZEventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 83
 
@@ -9316,6 +9401,21 @@ void CX2GUAra::ComboZZZEventProcess()
 */
 void CX2GUAra::ComboZZZZEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b98460
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -9329,6 +9429,7 @@ void CX2GUAra::ComboZZZZEventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 84
 
@@ -9338,6 +9439,8 @@ void CX2GUAra::ComboZZZZEventProcess()
 */
 void CX2GUAra::ComboZZZXStartEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b985b0
 	if ( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -9347,6 +9450,17 @@ void CX2GUAra::ComboZZZXStartEventProcess()
 	{
 		StateChange( ASI_COMBO_ZZZXCharge );
 	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( ASI_COMBO_ZZZXCharge );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: ComboZZZXChargeStateStart
@@ -9354,10 +9468,18 @@ void CX2GUAra::ComboZZZXStartEventProcess()
 */
 void CX2GUAra::ComboZZZXChargeStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b98600
 	CommonStateStart();
 
 	m_fZZZXChargeTime = 0.f;
 	SetNoDetonation( true );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	CommonStateStart();
+
+	m_fZZZXChargeTime = 0.f;
+	SetNoDetonation( true );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: ComboZZZXFrameMove
@@ -9365,6 +9487,24 @@ void CX2GUAra::ComboZZZXChargeStateStart()
 */
 void CX2GUAra::ComboZZZXChargeFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32bb4630
+	CommonFrameMove();
+
+	if ( 2.f >= m_fZZZXChargeTime )
+		m_fZZZXChargeTime += m_fElapsedTime;
+
+	if ( 2.f <= m_fZZZXChargeTime )
+		m_fZZZXChargeTime = 2.f;
+
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.495f ) )
+	{
+		CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Ara_ZpushX_Charge", this, NULL,
+			false, GetPowerRate() );
+		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
+			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CommonFrameMove();
 
 	if ( 2.f >= m_fZZZXChargeTime )
@@ -9384,6 +9524,7 @@ if( true == m_pXSkinAnim->EventTimerOneshot( 0.495f ) )
 		if ( INVALID_EFFECTSET_HANDLE != hEffectSet )
 			m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: ComboZZZXEventProecss
@@ -9391,6 +9532,8 @@ if( true == m_pXSkinAnim->EventTimerOneshot( 0.495f ) )
 */
 void CX2GUAra::ComboZZZXChargeEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b98620
 	if ( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -9402,6 +9545,19 @@ void CX2GUAra::ComboZZZXChargeEventProcess()
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( false == m_InputData.pureX || true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( ASI_COMBO_ZZZXAttack );
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: ComboZZZXChargeStateEnd
@@ -9409,9 +9565,16 @@ void CX2GUAra::ComboZZZXChargeEventProcess()
 */
 void CX2GUAra::ComboZZZXChargeStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b98680
 	CommonStateEnd();
 
 	SetNoDetonation( false );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	CommonStateEnd();
+
+	SetNoDetonation( false );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: ComboZZZXAttackFrameMove
@@ -9419,6 +9582,22 @@ void CX2GUAra::ComboZZZXChargeStateEnd()
 */
 void CX2GUAra::ComboZZZXAttackFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32bb4820
+	// the damage scaling by the charge moved to ASI_COMBO_ZZZXAttack_StateStart
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.331f ) )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Ara_ZpushX_Attack", this, NULL, false, GetPowerRate() );
+	}
+
+	CommonFrameMove();
+
+	if ( 2.f <= m_fZZZXChargeTime )
+	{
+		m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+		m_FrameDataNow.stateParam.bSuperArmor = true;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 if( m_pXSkinAnim->EventTimerOneshot( 0.331f ) == true )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -9437,13 +9616,40 @@ if( m_pXSkinAnim->EventTimerOneshot( 0.331f ) == true )
 		m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
 		m_FrameDataNow.stateParam.bSuperArmor = true;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
+
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+// char-ara CH1d: June 32b91000 ( ASI_COMBO_ZZZXAttack StateStart; CH1m registers it ): June scales the damage by the charge here, March at 0.331 s in FrameMove
+void CX2GUAra::ASI_COMBO_ZZZXAttack_StateStart()
+{
+	CommonStateStart();
+
+	m_DamageData.damage.fPhysic = static_cast<float>( ( 1.0 + m_fZZZXChargeTime * 0.5 * 0.5 ) * m_DamageData.damage.fPhysic );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 /** @function	: ComboZZZXAttackEventProcess
 	@brief		: 상태변경 여부를 판단, 수행
 */
 void CX2GUAra::ComboZZZXAttackEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b986a0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -9457,6 +9663,7 @@ void CX2GUAra::ComboZZZXAttackEventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: ComboZZZXAttackStateEnd
@@ -9464,10 +9671,18 @@ void CX2GUAra::ComboZZZXAttackEventProcess()
 */
 void CX2GUAra::ComboZZZXAttackStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32bb0080
 	CommonStateEnd();
 
 	m_FrameDataNow.stateParam.bSuperArmorNotRed = true;
 	m_FrameDataNow.stateParam.bSuperArmor = false;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	CommonStateEnd();
+
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = true;
+	m_FrameDataNow.stateParam.bSuperArmor = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 
 
@@ -9477,6 +9692,29 @@ void CX2GUAra::ComboZZZXAttackStateEnd()
 */
 void CX2GUAra::ComboZZXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b987f0
+	if ( false == IsOnSomethingFuture() && m_fEventTime[2].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[2].keyInputEnd &&
+		( true == m_InputData.pureDoubleLeft || true == m_InputData.pureDoubleRight ) )
+	{
+		m_bAirialDashFromCombo = true;
+		m_bAirialDashTurnAround = ( false == m_FrameDataNow.syncData.bIsRight && true == m_InputData.pureDoubleRight ) ||
+			( true == m_FrameDataNow.syncData.bIsRight && true == m_InputData.pureDoubleLeft );
+		StateChangeAirialDashIfPossible();
+	}
+
+	if ( 0.462f < m_pXSkinAnim->GetNowAnimationTime() && true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		true == m_InputData.oneX && ( CX2Unit::UC_ARA_LITTLE_HSIEN == GetUnitClass() || CX2Unit::UC_ARA_SAKRA_DEVANAM == GetUnitClass() ), ASI_COMBO_ALH_ZZXX )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, m_fEventTime[1].stateChange,
+		true == m_InputData.oneX && ( CX2Unit::UC_ARA_LITTLE_DEVIL == GetUnitClass() || CX2Unit::UC_ARA_YAMA_RAJA == GetUnitClass() ), ASI_COMBO_ALD_ZZXX )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( 0.462f < m_pXSkinAnim->GetNowAnimationTime() && true == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_LANDING );
@@ -9496,6 +9734,7 @@ void CX2GUAra::ComboZZXEventProcess()
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 	
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 86
 
@@ -9505,6 +9744,42 @@ void CX2GUAra::ComboZZXEventProcess()
 */
 void CX2GUAra::ComboXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b98a90
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_FrameDataFuture.stateParam.bEventFlagList[1] &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() > m_fEventTime[0].stateChange && true == IsInJobLine( 2 ) )
+	{
+		StateChange( ASI_COMBO_XXdownX );
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+	}
+	else if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0] &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() > m_fEventTime[0].stateChange )
+	{
+		StateChange( ASI_COMBO_XX );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd &&
+		m_pXSkinAnimFuture->GetNowAnimationTime() >= m_fEventTime[0].keyInputStart )
+	{
+		if ( true == m_InputData.oneX )
+		{
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = true;
+			if ( true == m_InputData.pureDown )
+				m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -9519,6 +9794,7 @@ void CX2GUAra::ComboXEventProcess()
 		m_InputData.oneX == true, ASI_COMBO_XX )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 87
 
@@ -9528,6 +9804,42 @@ void CX2GUAra::ComboXEventProcess()
 */
 void CX2GUAra::ComboXXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b98bd0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_FrameDataFuture.stateParam.bEventFlagList[0]
+		&& m_pXSkinAnimFuture->GetNowAnimationTime() > m_fEventTime[0].stateChange )
+	{
+		StateChange( ASI_COMBO_XXX );
+		m_FrameDataFuture.stateParam.bEventFlagList[0] = false;
+	}
+	else if ( true == m_FrameDataFuture.stateParam.bEventFlagList[1]
+		&& m_pXSkinAnimFuture->GetNowAnimationTime() > m_fEventTime[0].stateChange )
+	{
+		StateChange( ASI_COMBO_XXdownX );
+		m_FrameDataFuture.stateParam.bEventFlagList[1] = false;
+	}
+	else if ( m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[0].keyInputEnd
+		&& m_pXSkinAnimFuture->GetNowAnimationTime() >= m_fEventTime[0].keyInputStart )
+	{
+		if ( true == m_InputData.oneX )
+		{
+			if ( true == m_InputData.pureDown )
+				m_FrameDataFuture.stateParam.bEventFlagList[1] = true;
+			m_FrameDataFuture.stateParam.bEventFlagList[0] = true;	// June sets this one for down + X too ( JUNE_BUGS )
+		}
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -9563,6 +9875,7 @@ void CX2GUAra::ComboXXEventProcess()
 	}
 	
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 88
 
@@ -9573,15 +9886,40 @@ void CX2GUAra::ComboXXEventProcess()
 
 void CX2GUAra::ComboXXXStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32bb0120
 	m_uiComboXXXLoopCount = 0;
 	CommonStateStart();
 	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	m_uiComboXXXLoopCount = 0;
+	CommonStateStart();
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 /** @function	: ComboXXXEventProecss
 	@brief		: 상태변경 여부를 판단, 수행( ComboXXXloop )
 */
 void CX2GUAra::ComboXXXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b98d00
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneDoubleX == true, ASI_COMBO_XXXloop )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, m_fEventTime[1].stateChange,
+		m_InputData.oneZ == true && true == IsInJobLine( 1 ), ASI_COMBO_ALH_XXXZ )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -9596,6 +9934,7 @@ void CX2GUAra::ComboXXXEventProcess()
 		m_InputData.oneDoubleX == true, ASI_COMBO_XXXloop )
 		
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 89
 
@@ -9605,9 +9944,16 @@ void CX2GUAra::ComboXXXEventProcess()
 */
 void CX2GUAra::ComboXXXloopStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32bb01c0
 	++m_uiComboXXXLoopCount;
 	CommonStateStart();
 	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	++m_uiComboXXXLoopCount;
+	CommonStateStart();
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: ComboXXXloopFrameMove
@@ -9615,6 +9961,11 @@ void CX2GUAra::ComboXXXloopStateStart()
 */
 void CX2GUAra::ComboXXXloopFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b91040
+	// June has no DAMAGE_DATA_NEXT swap here ( thunk to CommonFrameMove )
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -9641,6 +9992,7 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: ComboXXXloopEventProecss
@@ -9648,6 +10000,29 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 */
 void CX2GUAra::ComboXXXloopEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b98f00
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	else if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( ASI_COMBO_XXXloopX );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, m_fEventTime[1].stateChange,
+		m_InputData.oneZ == true && true == IsInJobLine( 3 ), ASI_COMBO_ALS_XXXLoopZ )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 2, m_fEventTime[2].keyInputStart, m_fEventTime[2].keyInputEnd, m_fEventTime[2].stateChange,
+		m_InputData.oneZ == true && true == IsInJobLine( 1 ), ASI_COMBO_ALH_XXXZ )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 3, m_fEventTime[3].keyInputStart, m_fEventTime[3].keyInputEnd, m_fEventTime[3].stateChange,
+		m_InputData.pureDown == true && m_InputData.oneX == true && true == IsInJobLine( 2 ), ASI_COMBO_XXdownX )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneX == true && m_uiComboXXXLoopCount < 2, ASI_COMBO_XXXloop )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( false == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_DOWN );
@@ -9662,6 +10037,7 @@ void CX2GUAra::ComboXXXloopEventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 90
 
@@ -9671,8 +10047,14 @@ void CX2GUAra::ComboXXXloopEventProcess()
 */
 void CX2GUAra::ComboXXXloopXStateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b91050
 	CommonStateStart();
 	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	CommonStateStart();
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: ComboXXXloopXFrameMove
@@ -9680,6 +10062,11 @@ void CX2GUAra::ComboXXXloopXStateStart()
 */
 void CX2GUAra::ComboXXXloopXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b91070
+	// June has no DAMAGE_DATA_NEXT swap here ( thunk to CommonFrameMove )
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -9706,6 +10093,7 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: ComboXXXloopXEventProecss
@@ -9713,6 +10101,23 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 */
 void CX2GUAra::ComboXXXloopXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b99370
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneZ == true && true == IsInJobLine( 3 ), ASI_COMBO_ALS_XXXLoopZ )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -9726,6 +10131,7 @@ void CX2GUAra::ComboXXXloopXEventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 	
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function 	: ComboXXXloopXStateEnd
@@ -9733,8 +10139,14 @@ void CX2GUAra::ComboXXXloopXEventProcess()
 */
 void CX2GUAra::ComboXXXloopXStateEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b91080
 	CommonStateEnd();
 	m_FrameDataNow.stateParam.bSuperArmorNotRed = true;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	CommonStateEnd();
+	m_FrameDataNow.stateParam.bSuperArmorNotRed = true;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 91
 
@@ -9744,6 +10156,11 @@ void CX2GUAra::ComboXXXloopXStateEnd()
 */
 void CX2GUAra::ComboXXdownXFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b910a0
+	// June has no DAMAGE_DATA_NEXT swap here ( thunk to CommonFrameMove )
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -9770,6 +10187,7 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: ComboEventProecss
@@ -9777,6 +10195,26 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 */
 void CX2GUAra::ComboXXdownXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b995b0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 1, m_fEventTime[1].keyInputStart, m_fEventTime[1].keyInputEnd, m_fEventTime[1].stateChange,
+		m_InputData.oneZ == true && CX2Unit::UC_ARA_ASURA == GetUnitClass(), ASI_COMBO_AA_XXDownXZStart )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 2, m_fEventTime[2].keyInputStart, m_fEventTime[2].keyInputEnd, m_fEventTime[2].stateChange,
+		m_InputData.oneX == true && true == IsInJobLine( 2 ), ASI_COMBO_ALD_XXdownXX )
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneX == true, ASI_COMBO_XXdownXX )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -9791,6 +10229,7 @@ void CX2GUAra::ComboXXdownXEventProcess()
 		m_InputData.oneX == true, ASI_COMBO_XXdownXX )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 92
 
@@ -9800,6 +10239,32 @@ void CX2GUAra::ComboXXdownXEventProcess()
 */
 void CX2GUAra::ComboXXdownXXEventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1d: June 32b99890
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( true == m_bFPCancel && 0 != m_iChosenSkillID &&
+		false == ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( m_iChosenSkillID, CX2SkillTree::RNSI_A_AYR_REFLECTION ) ) )
+	{
+		StateChangeSpecialAttack( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );	// stand-in: June vslot 0x7fc ( skill, true ) is CH1k's
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )	// stand-in: June vslot 0x7f8 takes ( true ), CH1k's
+	{
+		m_bFPCancel = true;
+	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	m_bFPCancelProbe = false;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -9828,6 +10293,7 @@ void CX2GUAra::ComboXXdownXXEventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 93
 

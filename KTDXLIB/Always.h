@@ -12197,3 +12197,27 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-10
+// Description: June character port ( Ara ) Phase CH1d - June-only class-core pieces March's CX2GUAra lacks ( ASI_COMBO_ZZZXAttack_StateStart,
+//              IsInJobLine declared, five June state names in ARA_STATE_ID ), compiled in every build and referenced by nothing until CH1i / CH1m.
+//              Revert: undefine the flag ( JUNE_CHAR_ARA_CORE ).
+#define SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-10
+// Description: June character port ( Ara ) Phase CH1d - the force-power lines inside June's combo states that call a piece CH1q has not written
+//              ( the +0x9621 FP-cancel probe byte ). Stays commented out until CH1q.
+//              Revert: comment out the #define ( JUNE_CHAR_ARA_FP ).
+//#define SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_FP ) && !defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_FP needs SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARA_CORE ) || !defined( SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_CHAR_ARA_CORE, SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS ( m_iChosenSkillID ) and SERV_IRUHADEV_JUNE_ENUM_NAMES ( UC_ARA_ASURA, RNSI_A_AYR_REFLECTION )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+//////////////////////////////////////////////////////////////////////////

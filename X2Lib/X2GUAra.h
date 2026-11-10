@@ -247,6 +247,13 @@ public:
 		//////////////////////////////////////////////////////////////////////120
 		ASI_SA_AYR_SUPPRESSION_ENERGY,		/// 아라 2차 전직 명왕 - 제압 - 기
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+		ASI_COMBO_ALH_XXXZ,					/// char-ara CH1d: June script id 317 ( Little Hsien XXX-Z; CH1m maps, CH1e owns the state )
+		ASI_COMBO_ALD_XXdownXX,				/// char-ara CH1d: June script id 322 ( Little Devil X-X-down-X-X; CH1m maps, CH1f owns the state )
+		ASI_COMBO_ALS_XXXLoopZ,				/// char-ara CH1d: June script id 282 ( Little Specter XXX-loop-Z; CH1m maps, CH1g owns the state )
+		ASI_COMBO_AA_XXDownXZStart,			/// char-ara CH1d: June script id 284 ( Asura X-X-down-X-Z start; CH1m maps, CH1g owns the state )
+		ASI_COMBO_ASR_ZZZX,					/// char-ara CH1d: June script id 326 ( Asura Z-Z-Z-X; CH1m maps, CH1g owns the state )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	#pragma endregion 2-1, 2-2차 전직
 
 	};
@@ -792,6 +799,10 @@ protected:
 	void ComboZZZXAttackFrameMove();
 	void ComboZZZXAttackEventProcess();
 	void ComboZZZXAttackStateEnd();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+	void ASI_COMBO_ZZZXAttack_StateStart();	/// char-ara CH1d: June 32b91000
+	bool IsInJobLine( int iJobLine_ );		/// char-ara CH1d: June 32ba4710 ( vslot 0x670 ): body in CH1i
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	void ComboZZXEventProcess();
 	#pragma endregion COMBO_Z
 
@@ -1310,6 +1321,9 @@ protected:
 	bool		m_bAirialDashFromCombo;		/// char-ara CH1a: June +0x9628, set by the combo states' double-key airial dash, cleared when the dash ends in a dash jump
 	bool		m_bAirialDashTurnAround;	/// char-ara CH1a: June +0x9629, the airial dash key points against the facing ( AirialDashStart turns the unit round )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	bool		m_bFPCancelProbe;			/// char-ara CH1d: June +0x9621, set while the FP-cancel test in the combo states runs ( CH1q )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 
 	UCHAR		m_ucBasicForcePower;		/// 기본 기력치
 	CForcePowerSystem	m_ForcePowerSystem;	/// 기력 시스템

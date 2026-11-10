@@ -1923,6 +1923,11 @@ public:
 		RNSI_A_RTR_EVOKE_UPGRADE                              = 23241,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-10 // char-ara CH1d
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_A_AYR_REFLECTION                                 = 27213,	// June's Enum.lua; the Yama Raja Reflection the FP-cancel test of Ara's combo states skips
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-10 // char-rena CH3a
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_SA_RWS_AIRELINNA                                 = 23010,	// June's Enum.lua; the Wind Sneaker skill switch cases

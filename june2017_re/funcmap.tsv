@@ -9600,3 +9600,32 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32b90f30	CX2GUAra::RidingHyperModeStart (a thunk, jmp 31fe96c0 = CX2GUUser::RidingHyperModeStart)	confirmed	Char Ara CH1c: March registers CX2GUUser::RidingHyperModeStart for ASI_RIDING_HYPER_MODE already: nothing to write
 32bc0140	CX2GUAra::CommonHyperModeFrameMove	PORTED	Char Ara CH1c: inside, June body under JUNE_CHAR_ARA_LIVE; ( t1, t2, t3, bSound ): three EventTimerOneshot timers in an else-if chain; the second adds the awakening stand-ins ( AraAwakeningEffectBegin / SetPresent / Play = 32011d20 / 31fd66b0 / 32011f50 ), UpDownCrashCamera( 30, 0.4 ), ClearScreen, the trace only without the awakening set, ApplyHyperModeBuff ( vslot 0xc0 ), Energy / Break / Change when bSound; the third timer has no body ( no BoostPower voice, JUNE_BUGS 584 ); ends in vslot 0x7cc CommonFrameMove
 32bc5ba0	CX2GUAra::RidingHyperModeFrameMove	PORTED	Char Ara CH1c: inside, June body under JUNE_CHAR_ARA_LIVE; CommonHyperModeFrameMove( 0, 0.1, 0.1, true ) = March
+32b97ae0	CX2GUAra::ComboZEventProcess	PORTED	Char Ara CH1d: inside; SKILL_CANCEL_AFTER then the OR-animation-end flag macro = March plus the animation-end clause
+32b97d10	CX2GUAra::ComboZZEventProcess	PORTED	Char Ara CH1d: inside; two OR-animation-end flags (ZZZ, ZZX)
+32b90ff0	CX2GUAra::ComboZZZFrameMove	PORTED	Char Ara CH1d: inside; thunk to CommonFrameMove: no DAMAGE_DATA_NEXT swap (March has one)
+32b97f00	CX2GUAra::ComboZZZEventProcess	PORTED	Char Ara CH1d: inside; adds flag 3 (Asura Z-Z-Z-X, ASI_COMBO_ASR_ZZZX) first; BWALK / DASH cancel with the on-line test
+32b98460	CX2GUAra::ComboZZZZEventProcess	PORTED	Char Ara CH1d: inside; = March
+32b985b0	CX2GUAra::ComboZZZXStartEventProcess	PORTED	Char Ara CH1d: inside; = March
+32b98600	CX2GUAra::ComboZZZXChargeStateStart	PORTED	Char Ara CH1d: inside; = March
+32bb4630	CX2GUAra::ComboZZZXChargeFrameMove	PORTED	Char Ara CH1d: inside; = March (EventTimerOneshot 0.495)
+32b98620	CX2GUAra::ComboZZZXChargeEventProcess	PORTED	Char Ara CH1d: inside; = March
+32b98680	CX2GUAra::ComboZZZXChargeStateEnd	PORTED	Char Ara CH1d: inside; = March
+32b91000	CX2GUAra::ASI_COMBO_ZZZXAttack_StateStart	PORTED	Char Ara CH1d: new under JUNE_CHAR_ARA_CORE; fPhysic *= ( 1 + 0.25 x charge )
+32bb4820	CX2GUAra::ComboZZZXAttackFrameMove	PORTED	Char Ara CH1d: inside; no damage scaling here (moved to StateStart)
+32b986a0	CX2GUAra::ComboZZZXAttackEventProcess	PORTED	Char Ara CH1d: inside; = March
+32bb0080	CX2GUAra::ComboZZZXAttackStateEnd	PORTED	Char Ara CH1d: inside; = March
+32b987f0	CX2GUAra::ComboZZXEventProcess	PORTED	Char Ara CH1d: inside; adds the double-key airial dash from the combo (m_bAirialDashFromCombo / m_bAirialDashTurnAround) before the landing test
+32b98a90	CX2GUAra::ComboXEventProcess	PORTED	Char Ara CH1d: inside; adds X-down-X flag 1 gated by IsInJobLine( 2 )
+32b98bd0	CX2GUAra::ComboXXEventProcess	PORTED	Char Ara CH1d: inside; down + X sets flag 0 as well as flag 1 (JUNE_BUGS 586)
+32bb0120	CX2GUAra::ComboXXXStateStart	PORTED	Char Ara CH1d: inside; = March
+32b98d00	CX2GUAra::ComboXXXEventProcess	PORTED	Char Ara CH1d: inside; adds Little Hsien XXX-Z flag 1 (IsInJobLine( 1 ))
+32bb01c0	CX2GUAra::ComboXXXloopStateStart	PORTED	Char Ara CH1d: inside; = March
+32b91040	CX2GUAra::ComboXXXloopFrameMove	PORTED	Char Ara CH1d: inside; thunk to CommonFrameMove
+32b98f00	CX2GUAra::ComboXXXloopEventProcess	PORTED	Char Ara CH1d: inside; adds flags 1 (ALS_XXXLoopZ), 2 (ALH_XXXZ), 3 (XXdownX) by job line
+32b91050	CX2GUAra::ComboXXXloopXStateStart	PORTED	Char Ara CH1d: inside; = March
+32b91070	CX2GUAra::ComboXXXloopXFrameMove	PORTED	Char Ara CH1d: inside; thunk to CommonFrameMove
+32b99370	CX2GUAra::ComboXXXloopXEventProcess	PORTED	Char Ara CH1d: inside; adds flag 0 -> ALS_XXXLoopZ (IsInJobLine( 3 ))
+32b91080	CX2GUAra::ComboXXXloopXStateEnd	PORTED	Char Ara CH1d: inside; = March
+32b910a0	CX2GUAra::ComboXXdownXFrameMove	PORTED	Char Ara CH1d: inside; thunk to CommonFrameMove
+32b995b0	CX2GUAra::ComboXXdownXEventProcess	PORTED	Char Ara CH1d: inside; adds Asura Z flag 1 (AA_XXDownXZStart) and Little Devil X flag 2 (ALD_XXdownXX)
+32b99890	CX2GUAra::ComboXXdownXXEventProcess	PORTED	Char Ara CH1d: inside; FP-cancel shape: Reflection id test, +0x9621 probe byte under _FP; CanUseSpecialAttack / StateChangeSpecialAttack stand-ins for CH1k

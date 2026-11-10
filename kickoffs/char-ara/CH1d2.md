@@ -59,3 +59,7 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - **Checklist rows: 2** (`awk -F'\t' '$5 ~ /(^| )CH1d2( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S; L669 combo hits carry June's AT_COMMAND tag; adopt the script wit.
 - **Force-power rows: 4** (`awk -F'\t' '$7 ~ /(^| )CH1d2( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: differs 1, unchecked 3).
 - All `ASI_DASH*` without a line token are here.
+
+## Amended by CH1d (2026-11-10)
+
+- File-local `BWALK_CANCEL_AFTER_ON_LINE_` / `DASH_CANCEL_AFTER_ON_LINE_` (June's on-line test) sit beside `ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_` in `X2GUAra.cpp`: reuse them. `IsInJobLine( n )` is declared under `_CORE` (body CH1i); `m_iChosenSkillID` is the base member; `ComboXXdownXXEventProcess` is the FP-cancel precedent (`_FP` probe byte `m_bFPCancelProbe`, stand-ins for vslots 0x7f8 / 0x7fc until CH1k). June-only state names go into `ARA_STATE_ID` under `_CORE` with a "June script id N" comment.

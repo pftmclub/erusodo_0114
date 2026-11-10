@@ -522,6 +522,34 @@ All 3 class-map rows of phase CH1c are accounted for: 2 written (both `inside`),
 
 **Nothing to play-test.** Phase tag in every block: `// char-ara CH1c`. Review: none of its own, the CH1d2 review covers CH1c-CH1d2 (the `_DEBUG` define stays on: there is none yet). Next: `/x2-phase char-ara CH1d` (Sonnet 5.5 high).
 
+### CH1d - Done (2026-11-10)
+
+All 29 class-map rows of phase CH1d are written: 28 `inside` (June's body in March's own `CX2GUAra` function under `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE`, March's in `#else`) and 1 `new` (`ASI_COMBO_ZZZXAttack_StateStart` `32b91000`, under `_CORE`, referenced by nothing until CH1m). `Always.h` gets `_CORE` (defined) and `_FP` (`//#define`; needs `_LIVE`); `_LIVE` stays `//#define` and now also needs `_CORE`, `SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS` and `SERV_IRUHADEV_JUNE_ENUM_NAMES` (checked defined before it). 29 funcmap rows `Char Ara CH1d`; checklist L178 carries `(Ara: CH1d ...)`; `JUNE_BUGS.md` row 586; `MODS.md` section "Stage 7 Ara, CH1d".
+
+| June | `CX2GUAra::` | June | `CX2GUAra::` |
+|---|---|---|---|
+| `32b97ae0` `32b97d10` `32b90ff0` `32b97f00` `32b98460` | ComboZ / ZZ / ZZZ(FrameMove) / ZZZ(EventProcess) / ZZZZ | `32b985b0` `32b98600` `32bb4630` `32b98620` `32b98680` | ZZZXStart EP / ZZZXCharge Start / FrameMove / EP / End |
+| `32b91000` (new) `32bb4820` `32b986a0` `32bb0080` | ZZZXAttack StateStart / FrameMove / EP / End | `32b987f0` `32b98a90` `32b98bd0` | ZZX / X / XX EP |
+| `32bb0120` `32b98d00` `32bb01c0` `32b91040` `32b98f00` | XXX Start / EP, XXXloop Start / FrameMove / EP | `32b91050` `32b91070` `32b99370` `32b91080` | XXXloopX Start / FrameMove / EP / End |
+| `32b910a0` `32b995b0` `32b99890` | XXdownX FrameMove / EP, XXdownXX EP | | |
+
+**Where June differs from March** (read from `charport_adis.py ara --phase CH1d`; the rest is March's logic written out whole):
+- **Flag macro:** every `ELSE_IF_STATE_CHANGE_ON_EX_` of June's combos is CH1a's `_OR_ANIMATION_END_` form (ComboX / XX use March's plain tests, written out). `SKILL_CANCEL_AFTER` is the shared June macro (on-line test, awakening cancel). New file-local `BWALK_CANCEL_AFTER_ON_LINE_` / `DASH_CANCEL_AFTER_ON_LINE_` (June adds the on-line test; Eve has the same pair).
+- **Job-line branches June adds** (March had Little Hsien / Devil only for ZZXX / ZZZ-front-Z): ZZZ flag 3 -> `ASI_COMBO_ASR_ZZZX` (Asura, X); X flag 1 -> `XXdownX` (`IsInJobLine( 2 )`); XXX flag 1 -> `ALH_XXXZ` (line 1); XXX-loop flags 1 / 2 / 3 -> `ALS_XXXLoopZ` (line 3), `ALH_XXXZ` (line 1), `XXdownX` (line 2, down + X); XXX-loopX flag 0 -> `ALS_XXXLoopZ`; XXdownX flag 1 -> `AA_XXDownXZStart` (Asura, Z), flag 2 -> `ALD_XXdownXX` (line 2, X). `IsInJobLine` (vslot 0x670, `32ba4710`: 1 = classes 28 / 118, 2 = 31 / 119, 3 = 34 / 124) is declared under `_CORE`, body in CH1i (Chung / Elsword precedent). Five state names `ASI_COMBO_ALH_XXXZ` (317) / `ALD_XXdownXX` (322) / `ALS_XXXLoopZ` (282) / `AA_XXDownXZStart` (284) / `ASR_ZZZX` (326) join `ARA_STATE_ID` under `_CORE` (CH1m maps, CH1e / CH1f / CH1g own the states).
+- **ZZX:** a double key (`pureDoubleLeft` / `Right`) inside `m_fEventTime[2]` while airborne starts the airial dash and sets `m_bAirialDashFromCombo` / `m_bAirialDashTurnAround` (the two CH1a members that nothing set until now).
+- **FrameMoves:** ZZZ / XXX-loop / XXX-loopX / XX-down-X are `CommonFrameMove` only (June has no `DAMAGE_DATA_NEXT` swap); ZZZXAttack no longer scales damage at 0.331 s: `ASI_COMBO_ZZZXAttack_StateStart` does it, `fPhysic *= 1 + 0.25 x charge` (March x1..x3, June x1..x1.5; in `MODS.md`).
+- **XX-down-XX (FP cancel):** June's `m_iChosenSkillID` + the Reflection test (`31edf580` = `CX2UISkillTreeNew::IsSameOrUpgradeSkill( id, RNSI_A_AYR_REFLECTION 27213 )`, registered in `X2SkillTree.h`; March tests `SI_A_ALD_REFLECTION`). `StateChangeSpecialAttack` / `CanUseSpecialAttack()` stand in for June's vslots 0x7fc / 0x7f8 (CH1k). The +0x9621 probe byte is `m_bFPCancelProbe` under `_FP` (set before the test, clear after; CH1q).
+- **JUNE_BUGS 586:** XX with down + X sets flag 0 as well as flag 1, flag 0 fires first: XX-down-X is unreachable from XX.
+- **Not found to differ:** ZZZZ, ZZZXStart / Charge / Attack EP and End, XXX / XXX-loop Start, XXX-loopX Start / End. No branch drifted out of scope.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --with ..._CORE ..._FP --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h KTDXLIB/Always.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is `//#define` (by design). Same with `_CORE` as the flag: `define: KTDXLIB/Always.h:12207`, `RESULT: PASS`. `X2SkillTree.h` under `SERV_IRUHADEV_JUNE_ENUM_NAMES`: `RESULT: PASS`. `git diff --numstat`: cpp 466 / 0, `.h` 14 / 0, `Always.h` 24 / 0, `X2SkillTree.h` 5 / 0.
+- One-file `/Zs` probe of `X2GUAra.cpp` (`census.cl_cmd`, no PCH): 0 errors with `_LIVE` off, with `/D ..._LIVE`, and with `_LIVE` + `_FP`; the `/P` output carries `ASI_COMBO_ASR_ZZZX` 1 time with `_LIVE` off (the enum) and 2 with it on.
+- `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: 0 A/B rows.
+- Full build skipped: no play-test (`_LIVE` is off), so no `DEPLOY OK` / `exestr` line.
+
+**Nothing to play-test.** Phase tag in every block: `// char-ara CH1d`. Review: none of its own, the CH1d2 review covers CH1c-CH1d2 (no `_DEBUG` define exists yet). Next: `/x2-phase char-ara CH1d2` (Sonnet 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.
