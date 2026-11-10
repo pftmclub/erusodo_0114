@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-ara CH1i` |
 | Plan doc | `JUNE_CHARACTER_ARA_PHASES.md` (branch `main`) |
-| Depends on | CH0 (and its amendments), char-rena Z, the previous CH1 sub-phase. One at a time with CH1-CH4: they all edit `X2GUAra.*` |
+| Depends on | CH0 (and its amendments), char-rena Z, the previous CH1 sub-phase (CH1h2 first: it routed CH1h's AttackResultByType). One at a time with CH1-CH4: they all edit `X2GUAra.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
 | Review | none of its own: the CH1k review covers it (its `_DEBUG` define stays on) |

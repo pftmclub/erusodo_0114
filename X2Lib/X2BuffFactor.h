@@ -540,6 +540,12 @@ enum BUFF_TEMPLET_ID
 	BTI_DEBUFF_SELF_SOFTBODY              = 395,	// June's Enum.lua
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH1h
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	BTI_BUFF_NECROMANCY                   = 423,	// June's Enum.lua; Ara's Necromancy rate buff
+	BTI_BUFF_SPECTEROFTHUNDER             = 424,	// June's Enum.lua; Ara's Specter of Thunder chance buff
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-26 // June character port Phase CH1l3 (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 	// June BTI names the Eve skill use spells
@@ -764,6 +770,12 @@ enum BUFF_FACTOR_ID
 //{{ Iruha : 2026-11-09 // char-rena CH1h
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 	BFI_DEBUFF_SELF_SOFTBODY              = 424,	// June's Enum.lua
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
+//{{ Iruha : 2026-11-11 // char-ara CH1h
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+	BFI_ARA_FIRST_HYPER_MODE              = 660,	// June's Enum.lua; hyper mode count 1 of the CHANGE_HYPER_MODE buff
+	BFI_ARA_SECOND_HYPER_MODE             = 661,	// June's Enum.lua; hyper mode count 2
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 //{{ Iruha : 2026-10-26 // June character port Phase CH1l3 (JUNE_CHARACTER_EVE_PHASES.md)

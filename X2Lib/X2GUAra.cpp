@@ -111,6 +111,31 @@ static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
 static const CX2GUUser::SkillCutIn s_SkillCutInSetFoolsDay = CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_Gura.dds");
 #endif //APRIL_FOOLS_DAY
 #pragma endregion 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+namespace _CONST_ARA_CH1H_
+{
+	const int MAX_FORCE_POWER = 10;	// June 32bc7e90 / 32bc8030: push 0xa ( no Enum entry )
+
+	// June 32007c40: the acquired skill's ability value ( char-ara CH1h; Rena's CH1h copy )
+	bool TryGetAcquiredSkillAbilityValue( CX2Unit* pUnit_, const CX2SkillTree::SKILL_ABILITY_TYPE eType_, const CX2SkillTree::SKILL_ID eSkillID_, const bool bMemoSwap_, float& fOut_ )
+	{
+		if( NULL == pUnit_ )
+			return false;
+
+		const int iSkillLevel = pUnit_->GetUnitData().m_UserSkillTree.GetSkillLevel( eSkillID_, false, 0, true );
+		if( iSkillLevel <= 0 )
+			return false;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = pUnit_->GetUnitData().m_UserSkillTree.GetUserSkillTemplet( eSkillID_, bMemoSwap_ );
+		if( NULL == pSkillTemplet )
+			return false;
+
+		const bool bPvpOrPve = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );	// June 322cc1a0: PVP or PVE
+		return pSkillTemplet->TryGetSkillAbilityValue( eType_, iSkillLevel, bPvpOrPve, fOut_ );
+	}
+}
+using namespace _CONST_ARA_CH1H_;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 #pragma region 생성자
 /** @function 	: CX2GUAra
@@ -134,7 +159,11 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	, m_bFPCancelProbe( false )	// char-ara CH1d
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
-	, m_hComboXXdownXZBlackHole( INVALID_EFFECTSET_HANDLE ), m_iComboXXdownXZLoopCount( 0 ), m_fBuffHyperModeDamageRate( 0.f )	// char-ara CH1g
+	, m_hComboXXdownXZBlackHole( INVALID_EFFECTSET_HANDLE ), m_iComboXXdownXZLoopCount( 0 ), m_fBuffHyperModeDamageRate( -1.f )	// char-ara CH1h: June 32bc6bf0 stores -1.0 ( CH1g wrote 0 )
+	, m_ucForcePowerCountAtDungeonStart( 0 ), m_ucForcePowerCountAtPvpStart( 0 ), m_iFullHyperModeAdvantageCount( 0 ), m_iFullHyperModeAdvantageHitCount( 0 )	// char-ara CH1h: June 32bc6bf0
+	, m_fFullHyperModeAdvantageIntervalTime( 0.f ), m_fFullHyperModeAdvantageTimer( 0.f ), m_fGainMpByForcePowerConversionHyperMode( 0.f )
+	, m_fNecromancyRate( -1.f ), m_fSpecterOfThunderRate( -1.f ), m_iCustomRenderState( 0 ), m_fRenderAlphaSpecterOfThunder( 1.f ), m_fRenderAlphaVeritablePandemonium( 1.f )
+	, m_bSkillFPGainLocked( false ), m_iSkillFPGainSerial( -1 ), m_iSkillFPGainCount( 0 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	, m_usForceGainCount( 0 ), m_usBeforeForceGainCount( 0 ), m_pSkillTemplet( NULL ), m_iPressedSkillSlotIndex( -1 )
 	, m_fMPConsume( 0.f )	
@@ -238,6 +267,35 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 */
 /*virtual*/ void CX2GUAra::Init( bool bUseTeamPos_, int iStartPosIndex_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h: June 32bc7e90
+	CX2GUUser::Init( bUseTeamPos_, iStartPosIndex_ );
+	SetHyperModeCountByBuff( 0 );
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	SetBasicForcePower( 2 );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	LoadPromotionItemID( m_LuaManager );
+	InitPromotionEquipList();
+	SetFullHyperMode( false );
+	SetShowViewList( true );
+	SetNeedToUpdateWeaponEffect( true );
+	UpdateEquipCollisionData();
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	SetMaxForcePower( MAX_FORCE_POWER );	// char-ara CH1h: June pushes 10, not the level formula
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	SetMaxForcePower( min( GetUnitLevel() / 10, 6 ) + 4 );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+
+	if ( true == IsMyUnit() )
+		m_FrameDataFuture.syncData.m_CannonBallCount = GetForcePower();
+
+	m_vecSkillFPGainRecord.clear();	// char-ara CH1h: June 32bc7e90 tail
+	m_bSkillFPGainLocked = false;
+	m_iSkillFPGainSerial = -1;
+	m_iSkillFPGainCount = 0;
+	m_vecSkillFPGainSerial.clear();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CX2GUUser::Init( bUseTeamPos_, iStartPosIndex_ );
 
 	SetBasicForcePower( 2 );
@@ -253,6 +311,7 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 
 	if ( true == IsMyUnit() )
 		m_FrameDataFuture.syncData.m_CannonBallCount = GetForcePower();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -265,6 +324,82 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 */
 /*virtual*/ void CX2GUAra::ReInit( bool bTeamPos_ /* = false */, int iStartPosIndex_ /* = -1 */ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h: June 32bc8030
+	SetFullHyperMode( false );
+	SetHyperModeCountByBuff( 0 );
+	CX2GUUser::ReInit( bTeamPos_, iStartPosIndex_ );
+
+	if ( CX2Game::GT_PVP == g_pX2Game->GetGameType() )
+	{
+		switch ( GetTeam() )
+		{
+		case CX2Room::TN_RED:
+			{
+				ResetForcePowerWhenRebirthInPVPGame( g_pX2Game->GetRedTeamKill(), g_pX2Game->GetBlueTeamKill() );
+			} break;
+
+		case CX2Room::TN_BLUE:
+			{
+				ResetForcePowerWhenRebirthInPVPGame( g_pX2Game->GetBlueTeamKill(), g_pX2Game->GetRedTeamKill() );
+			} break;
+
+		default:
+			{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+				SetForcePower( m_ucForcePowerCountAtPvpStart );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+				SetForcePower( GetBasicForcePower() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+			} break;
+		}
+	}
+	else
+	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+		if ( GetForcePower() < m_ucForcePowerCountAtDungeonStart )
+			SetForcePower( m_ucForcePowerCountAtDungeonStart );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+		if ( GetForcePower() < GetBasicForcePower() )
+			SetForcePower( GetBasicForcePower() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	}
+
+	if ( IsMyUnit() )
+	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+		SetMaxForcePower( MAX_FORCE_POWER );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+		SetMaxForcePower( min( GetUnitLevel() / 10, 6 ) + 4 );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+		m_FrameDataFuture.syncData.m_CannonBallCount = GetForcePower();
+	}
+
+#ifdef SERV_ARA_CHANGE_CLASS_SECOND
+	if ( 0.f < m_fResurrectionCoolTime )
+	{
+		SetBuffFactorToGameUnitByBuffFactorID( BFI_DEBUFF_SELF_PROTECTION_FORTITUDE, 1, NULL, 0, false );	// June 32bc825b: 7ai arguments
+
+		vector<CX2BuffFinalizerTempletPtr> vecFinalizerPtr;
+		GetBuffFinalizerTempletPtrList( BTI_DEBUFF_SELF_PROTECTION_FORTITUDE, vecFinalizerPtr );
+		if ( false == vecFinalizerPtr.empty() )
+		{
+			CX2BuffTimeFinalizerTemplet* pTimeFinalizer = dynamic_cast<CX2BuffTimeFinalizerTemplet*>( vecFinalizerPtr[0].get() );
+			if ( NULL != pTimeFinalizer )
+				pTimeFinalizer->SetDurationTime( m_fResurrectionCoolTime );
+		}
+		ChangeBuffFinalizerTempletPtrList( BTI_DEBUFF_SELF_PROTECTION_FORTITUDE, vecFinalizerPtr );
+	}
+#endif // SERV_ARA_CHANGE_CLASS_SECOND
+
+	m_iFullHyperModeAdvantageHitCount = 0;
+	m_fNecromancyRate = -1.f;
+	m_vecSkillFPGainRecord.clear();
+	m_bSkillFPGainLocked = false;
+	m_iSkillFPGainSerial = -1;
+	m_iSkillFPGainCount = 0;
+	m_vecSkillFPGainSerial.clear();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	SetFullHyperMode( false );
 	CX2GUUser::ReInit( bTeamPos_, iStartPosIndex_ );
 
@@ -315,6 +450,7 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 		SetBuffFactorToGameUnitByBuffFactorID( BFI_DEBUFF_SELF_PROTECTION_FORTITUDE );
 
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -3073,6 +3209,86 @@ void CX2GUAra::SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillT
 */
 /*virtual*/ void CX2GUAra::InitComponent()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h: June 32bb0da0 ( no alpha-tag sites in Ara's InitComponent )
+	CX2GUUser::InitComponent();
+
+	if ( IsMyUnit() )
+	{
+		ASSERT( NULL != g_pX2Game );
+
+		if ( true == g_pX2Game->GetIsNowPVPCorrectionGame() )	// June inlines game type 1 / 4
+		{
+			static_cast<CX2AraGageData*>(m_pGageData)->SetBerserkMode( false );
+			static_cast<CX2AraGageData*>(m_pGageData)->SetBerserkModeChanged( false );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+			static_cast<CX2AraGageData*>(m_pGageData)->SetNowForcePower( m_ucForcePowerCountAtPvpStart );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+			static_cast<CX2AraGageData*>(m_pGageData)->SetNowForcePower( 2 );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+			static_cast<CX2AraGageData*>(m_pGageData)->SetForcePowerChanged( true );
+		}
+		else if ( g_pMain->GetNowStateID() == CX2Main::XS_TRAINING_GAME )
+		{
+			static_cast<CX2AraGageData*>(m_pGageData)->SetBerserkMode( false );
+			static_cast<CX2AraGageData*>(m_pGageData)->SetBerserkModeChanged( false );
+			static_cast<CX2AraGageData*>(m_pGageData)->SetNowForcePower( 2 );
+			static_cast<CX2AraGageData*>(m_pGageData)->SetForcePowerChanged( true );
+		}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+		else if ( true == g_pMain->GetIsPlayingTutorial() )	// checklist l.293
+		{
+			static_cast<CX2AraGageData*>(m_pGageData)->SetNowForcePower( 3 );
+			static_cast<CX2AraGageData*>(m_pGageData)->SetForcePowerChanged( true );
+		}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	}
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	if ( true == m_LuaManager.BeginTable( "INIT_COMPONENT" ) )
+	{
+		LUA_GET_VALUE( m_LuaManager, "FULL_HYPER_MODE_ADVANTAGE_COUNT", m_iFullHyperModeAdvantageCount, 9 );
+		LUA_GET_VALUE( m_LuaManager, "FULL_HYPER_MODE_ADVANTAGE_INTERVAL_TIME", m_fFullHyperModeAdvantageIntervalTime, 0.2f );
+
+		m_vecFullHyperModeAdvantageSocketRate.clear();
+		if ( true == m_LuaManager.BeginTable( "FULL_HYPER_MODE_ADVANTAGE_SOCKET_RATE" ) )
+		{
+			float fRate = 0.f;
+			int iIndex = 1;
+			while ( true == m_LuaManager.GetValue( iIndex++, fRate ) )
+			{
+				m_vecFullHyperModeAdvantageSocketRate.push_back( fRate );
+				fRate = 0.f;
+			}
+			m_LuaManager.EndTable();
+		}
+
+		LUA_GET_VALUE( m_LuaManager, "GAIN_MP_BY_FPCONVERSION_HYPERMODE", m_fGainMpByForcePowerConversionHyperMode, 0.f );
+
+		m_vecGainForcePowerByUsedHyperCount.clear();
+		if ( true == m_LuaManager.BeginTable( "GAIN_FORCEPOWER_USEDHYPERCOUNT" ) )
+		{
+			for ( int iIndex = 1; iIndex <= 3; ++iIndex )
+			{
+				int iGainCount = 0;
+				if ( true == m_LuaManager.GetValue( iIndex, iGainCount ) )
+					m_vecGainForcePowerByUsedHyperCount.push_back( iGainCount );
+			}
+			m_LuaManager.EndTable();
+		}
+
+		int iForcePowerCount = 0;
+		LUA_GET_VALUE( m_LuaManager, "FORCE_POWER_COUNT_AT_DUNGEON_START", iForcePowerCount, 0 );
+		m_ucForcePowerCountAtDungeonStart = static_cast<UCHAR>( iForcePowerCount );
+
+		iForcePowerCount = 0;
+		LUA_GET_VALUE( m_LuaManager, "FORCE_POWER_COUNT_AT_PVP_START", iForcePowerCount, 0 );
+		m_ucForcePowerCountAtPvpStart = static_cast<UCHAR>( iForcePowerCount );
+
+		m_LuaManager.EndTable();
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CX2GUUser::InitComponent();
 
 	if ( IsMyUnit() )
@@ -3100,6 +3316,7 @@ void CX2GUAra::SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillT
 			} break;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -4215,6 +4432,69 @@ void CX2GUAra::StateChangeSpecialAttack( IN const CX2SkillTree::SkillTemplet* pS
 */
 void CX2GUAra::InitPromotionEquipList()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h: June 32baec10 ( no AC_LEG tail pick in the first loop; the tails come from TAIL_TYPE and the last one is the active tail )
+	BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_ViewEqipList )
+	{
+		if ( pEquipPtr != NULL )
+		{
+			switch ( pEquipPtr->GetEqipPos() )
+			{
+			case CX2Unit::EP_WEAPON_HAND:
+			case CX2Unit::EP_DEFENCE_BODY:
+			case CX2Unit::EP_DEFENCE_LEG:
+			case CX2Unit::EP_DEFENCE_HAND:
+			case CX2Unit::EP_DEFENCE_FOOT:
+				m_vecPromotionItemIDList2.push_back( pEquipPtr->GetItemID() );
+				break;
+			}
+		}
+	}
+
+	m_vecPromotionEquipList.reserve( m_vecPromotionItemIDList.size() + m_vecPromotionItemIDList2.size() );
+
+	BOOST_TEST_FOREACH( int, iItemID, m_vecPromotionItemIDList )
+	{
+		CX2EqipPtr pEquipPtr = CX2ItemManager::CreateDummyEquip( iItemID, GetUnit(), m_pXSkinAnim );
+		pEquipPtr->SetShowObject( false );
+
+		if ( pEquipPtr != NULL )
+		{
+			pEquipPtr->SetManagerObject( this );
+			m_vecPromotionEquipList.push_back( pEquipPtr );
+		}
+	}
+
+	BOOST_TEST_FOREACH( int, iItemID, m_vecPromotionItemIDList2 )
+	{
+		CX2EqipPtr pEquipPtr = CX2ItemManager::CreateDummyEquip( iItemID, GetUnit(), m_pXSkinAnim );
+		pEquipPtr->SetShowObject( false );
+
+		if ( pEquipPtr != NULL )
+		{
+			pEquipPtr->SetManagerObject( this );
+			m_vecPromotionEquipList.push_back( pEquipPtr );
+		}
+	}
+
+	BOOST_TEST_FOREACH( int, iItemID, m_vecPromotionTailItemIDList )
+	{
+		CX2EqipPtr pEquipPtr = CX2ItemManager::CreateDummyEquip( iItemID, GetUnit(), m_pXSkinAnim );
+		pEquipPtr->SetShowObject( false );
+
+		if ( pEquipPtr != NULL )
+		{
+			pEquipPtr->SetManagerObject( this );
+			m_vecPromotionEquipTailList.push_back( pEquipPtr );
+		}
+	}
+
+	if ( false == m_vecPromotionEquipTailList.empty() )	// stand-in: June reads the vector's last element without this test
+		m_ptrPromotionEquipTail = m_vecPromotionEquipTailList.back();
+
+	SetShowOriginalViewList( false );
+	SetShowPromotionEquips( true );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	// 장비된 아이템 ID를 얻어온다.
 	BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_ViewEqipList )
 	{
@@ -4264,6 +4544,7 @@ void CX2GUAra::InitPromotionEquipList()
 
 	SetShowOriginalViewList( false );
 	SetShowPromotionEquips( true );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -4409,6 +4690,59 @@ if( m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) == true )
 */
 void CX2GUAra::LoadPromotionItemID( IN KLuaManager& luaManager_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h: June 32bab890 ( the class table is opened inside PROMOTION_ITEM_ID_LIST; TAIL_TYPE follows it )
+	if ( true == luaManager_.BeginTable( "PROMOTION_ITEM_ID_LIST" ) )
+	{
+		const char* pszClassTable = "ARA_MARTIAL_ARTIST";
+		switch ( GetUnit()->GetClass() )
+		{
+		case CX2Unit::UC_ARA_LITTLE_HSIEN:		pszClassTable = "ARA_LITTLE_HSIEN";		break;
+		case CX2Unit::UC_ARA_LITTLE_DEVIL:		pszClassTable = "ARA_LITTLE_DEVIL";		break;
+		case CX2Unit::UC_ARA_LITTLE_SPECTER:	pszClassTable = "ARA_LITTLE_SPECTER";	break;
+		case CX2Unit::UC_ARA_SAKRA_DEVANAM:		pszClassTable = "ARA_SAKRA_DEVANAM";	break;
+		case CX2Unit::UC_ARA_YAMA_RAJA:			pszClassTable = "ARA_YAMA_RAJA";		break;
+		case CX2Unit::UC_ARA_ASURA:				pszClassTable = "ARA_ASURA";			break;
+		default:								break;
+		}
+
+		if ( true == luaManager_.BeginTable( pszClassTable ) )
+		{
+			int iIndex = 1;
+			int iItemID = 0;
+
+			do
+			{
+				LUA_GET_VALUE( luaManager_, iIndex++, iItemID, 0 );
+
+				if ( 0 != iItemID )
+					m_vecPromotionItemIDList.push_back( iItemID );
+
+			} while ( iItemID != 0 );
+
+			luaManager_.EndTable();
+		}
+
+		if ( true == luaManager_.BeginTable( "TAIL_TYPE" ) )
+		{
+			int iIndex = 1;
+			int iItemID = 0;
+
+			do
+			{
+				LUA_GET_VALUE( luaManager_, iIndex++, iItemID, 0 );
+
+				if ( 0 != iItemID )
+					m_vecPromotionTailItemIDList.push_back( iItemID );
+
+			} while ( iItemID != 0 );
+
+			luaManager_.EndTable();
+		}
+
+		luaManager_.EndTable();
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == luaManager_.BeginTable( "PROMOTION_ITEM_ID_LIST" ) )
 	{
 		bool bOpenTable = false;
@@ -4464,6 +4798,7 @@ void CX2GUAra::LoadPromotionItemID( IN KLuaManager& luaManager_ )
 
 		luaManager_.EndTable();
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -4488,6 +4823,39 @@ void CX2GUAra::LoadPromotionItemID( IN KLuaManager& luaManager_ )
 */
 /*virtual*/ void CX2GUAra::NotifyDGManagerChanged( CKTDGManager& refInManager_ )		// DGManager에 등록
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h: June 32ba8180 ( the tail equips follow the promotion list in both directions )
+	CX2GUUser::NotifyDGManagerChanged( refInManager_ );
+
+	if ( IsRecursivelyManagedByDGManager() )
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+		{
+			if ( pEquipPtr != NULL )
+				refInManager_.AddObjectChain( pEquipPtr.get() );
+		}
+
+		BOOST_TEST_FOREACH( CX2EqipPtr, pTailPtr, m_vecPromotionEquipTailList )
+		{
+			if ( pTailPtr != NULL )
+				refInManager_.AddObjectChain( pTailPtr.get() );
+		}
+	}
+	else
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+		{
+			if ( pEquipPtr != NULL )
+				refInManager_.RemoveObjectChain( pEquipPtr.get() );
+		}
+
+		BOOST_TEST_FOREACH( CX2EqipPtr, pTailPtr, m_vecPromotionEquipTailList )
+		{
+			if ( pTailPtr != NULL )
+				refInManager_.RemoveObjectChain( pTailPtr.get() );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CX2GUUser::NotifyDGManagerChanged( refInManager_ );
 
 	if ( IsRecursivelyManagedByDGManager() )
@@ -4506,6 +4874,7 @@ void CX2GUAra::LoadPromotionItemID( IN KLuaManager& luaManager_ )
 				refInManager_.RemoveObjectChain( pEquipPtr.get() );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -4516,6 +4885,47 @@ void CX2GUAra::LoadPromotionItemID( IN KLuaManager& luaManager_ )
 */
 void CX2GUAra::SetShowPromotionEquips( bool bShow_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h: June 32badd50 ( the unsigned tail index wraps for a buff hyper count of 0, so every promotion equip is shown )
+	if ( true == bShow_ )
+	{
+		const UINT uiTailIndex = static_cast<UINT>( min( GetHyperModeCountByBuff(), 3 ) - 1 );
+
+		if ( m_vecPromotionEquipTailList.size() > uiTailIndex )
+		{
+			CX2EqipPtr pTailPtr = m_vecPromotionEquipTailList[uiTailIndex];
+			pTailPtr->SetShowObject( true );
+			m_ptrPromotionEquipTail = pTailPtr;
+		}
+
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+		{
+			if ( pEquipPtr != NULL )
+			{
+				if ( 1 < uiTailIndex || CX2Unit::EP_WEAPON_HAND == pEquipPtr->GetEqipPos() )
+				{
+					pEquipPtr->SetShowObject( true );
+
+					if ( CX2Unit::EP_WEAPON_HAND == pEquipPtr->GetEqipPos() )
+						ReplaceWeapon( pEquipPtr );
+				}
+			}
+		}
+	}
+	else
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pTailPtr, m_vecPromotionEquipTailList )
+		{
+			pTailPtr->SetShowObject( false );
+		}
+
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+		{
+			if ( pEquipPtr != NULL )
+				pEquipPtr->SetShowObject( false );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	// 프로모션 장비만 보여야 함
 	BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
 	{
@@ -4529,6 +4939,7 @@ void CX2GUAra::SetShowPromotionEquips( bool bShow_ )
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -4561,6 +4972,38 @@ void CX2GUAra::SetShowPromotionEquips( bool bShow_ )
 */
 void CX2GUAra::SetShowOriginalViewList( bool bShow_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h: June 32bae120 ( stand-in: the riding byte +0x93da that keeps the tail hidden is not ported, Stage 17, so it reads as 0 )
+	BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquipPtr, m_ViewEqipList )
+	{
+		if ( pViewEquipPtr != NULL )
+		{
+			if ( true == IsBuffHyperModeActive() && false == bShow_ )
+			{
+				const int iHyperModeCountByBuff = GetHyperModeCountByBuff();
+
+				if ( 3 <= iHyperModeCountByBuff || 0 == iHyperModeCountByBuff || 3 <= static_cast<UINT>( iHyperModeCountByBuff ) )
+					pViewEquipPtr->SetShowObject( false );
+				else if ( CX2Unit::EP_AC_LEG == pViewEquipPtr->GetEqipPos() )
+					pViewEquipPtr->SetShowObject( false );
+				else
+					pViewEquipPtr->SetShowObject( true );
+			}
+			else
+			{
+				pViewEquipPtr->SetShowObject( bShow_ );
+
+				if ( true == bShow_ )
+				{
+					if ( CX2Unit::EP_WEAPON_HAND == pViewEquipPtr->GetEqipPos() )
+						ReplaceWeapon( pViewEquipPtr );
+				}
+				else if ( CX2Unit::EP_ONEPIECE_FASHION == pViewEquipPtr->GetEqipPos() )
+					pViewEquipPtr->SetShowObject( true );
+			}
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	BOOST_TEST_FOREACH( CX2EqipPtr, pViewEquipPtr, m_ViewEqipList )
 	{
 		if ( pViewEquipPtr != NULL )
@@ -4576,6 +5019,7 @@ void CX2GUAra::SetShowOriginalViewList( bool bShow_ )
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -5610,6 +6054,40 @@ void CX2GUAra::SLockOnSystem::ProcessLockOn( CX2GUAra* myUnit )
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_PIERCING:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SHOCK:
 	case CX2DamageManager::EDT_ENCHANT_POISON_DOUBLE_SNATCH:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h: June 32bafa30 also takes the Quadra / Tripple / double-double enchants
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_BLAZE_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_FROZEN_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_POISON_MASTER:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_BLAZE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_FROZEN_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_POISON_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_PIERCING:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SHOCK:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_BLAZE_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_FROZEN_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_PIERCING_POISON:
+	case CX2DamageManager::EDT_ENCHANT_DOUBLE_POISON_DOUBLE_SNATCH:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SHOCK_POISON:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_BLAZE:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_FROZEN:
+	case CX2DamageManager::EDT_ENCHANT_TRIPPLE_SNATCH_POISON:
+	case CX2DamageManager::EDT_ENCHANT_QUADRA_SHOCK_MASTER:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 		{
 			pDamageData_->m_ExtraDamage.m_fTime *= m_fReduceEDTDurationRate;
 		} break;
@@ -5639,6 +6117,9 @@ void CX2GUAra::SLockOnSystem::ProcessLockOn( CX2GUAra* myUnit )
 	CX2GUUser::DamageReact( pDamageData_ );
 
 #ifdef ARA_CHANGE_CLASS_FIRST
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	if ( false == pDamageData_->m_bIgnoreAttackSuccess )	// char-ara CH1h: June 32bafa30 skips the state change for IGNORE_ATTACK_SUCCESS damage
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CX2GUUser::DamageReactStateChange( pDamageData_, ASI_A_ALH_BREAKING_ATTACK, ASI_A_ALH_BREAKING_AVOIDANCE );
 #else
 	CX2GUUser::DamageReactStateChange( pDamageData_ );
@@ -5840,6 +6321,44 @@ void CX2GUAra::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUAra::SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h: June 32ba6d00
+	CX2GUUser::SetSpecificValueByBuffTempletID( eBuffTempletId_ );
+
+	switch ( eBuffTempletId_ )
+	{
+	case BTI_BUFF_NECROMANCY:
+		{
+			TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_SA_ASR_NECROMANCY, true, m_fNecromancyRate );
+		} break;
+
+	case BTI_BUFF_SPECTEROFTHUNDER:
+		{
+			const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_THUNDER, false, 0, true );
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( GetUpgradeSwappedSkillID( CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_THUNDER ) );	// June passes the level 1 argument March's templet lookup no longer takes
+				if ( NULL != pSkillTemplet )
+					m_fSpecterOfThunderRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel, false );
+			}
+		} break;
+
+	case BTI_HYPER_MODE:
+	case BTI_TRANSCENDENTAL_HYPER_MODE:
+		{
+			const int iHyperModeCountByBuff = GetHyperModeCountByBuff();	// June +0x6844
+			if ( 1 == iHyperModeCountByBuff )
+				SetBuffFactorToGameUnitByBuffFactorID( BFI_ARA_FIRST_HYPER_MODE, 1, NULL, 0, false );	// June 32ba6df1: 7ai arguments
+			else if ( 2 == iHyperModeCountByBuff )
+				SetBuffFactorToGameUnitByBuffFactorID( BFI_ARA_SECOND_HYPER_MODE, 1, NULL, 0, false );	// June 32ba6e16
+			else if ( IsFullHyperMode() )
+				SetBuffFactorToGameUnitByBuffFactorID( BFI_ARA_FULL_HYPER_MODE, 1, NULL, 0, false );	// June 32ba6e40
+		} break;
+
+	default:
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CX2GUUser::SetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
 	switch ( eBuffTempletId_ )
@@ -5853,6 +6372,7 @@ void CX2GUAra::DeleteMinorParticle()
 	default:
 		break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -5863,6 +6383,32 @@ void CX2GUAra::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUAra::UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h: June 32b90d20
+	CX2GUUser::UnSetSpecificValueByBuffTempletID( eBuffTempletId_ );
+
+	switch ( eBuffTempletId_ )
+	{
+	case BTI_BUFF_NECROMANCY:
+		m_fNecromancyRate = -1.f;
+		break;
+
+	case BTI_BUFF_SPECTEROFTHUNDER:
+		m_fSpecterOfThunderRate = -1.f;
+		break;
+
+	case BTI_HYPER_MODE:
+	case BTI_TRANSCENDENTAL_HYPER_MODE:
+		{
+			ReserveToFinishBuffTempletFromGameUnit( BTI_ARA_FIRST_HYPER_MODE );
+			ReserveToFinishBuffTempletFromGameUnit( BTI_ARA_SECOND_HYPER_MODE );
+			ReserveToFinishBuffTempletFromGameUnit( BTI_ARA_FULL_HYPER_MODE );
+		} break;
+
+	default:
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CX2GUUser::UnSetSpecificValueByBuffTempletID( eBuffTempletId_ );
 
 	switch ( eBuffTempletId_ )
@@ -5875,6 +6421,7 @@ void CX2GUAra::DeleteMinorParticle()
 	default:
 		break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 /** @function : ApplyRenderParam
@@ -5884,6 +6431,40 @@ void CX2GUAra::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUAra::ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1h: June 32b96a30 ( the else branch ends in CX2GUUser's 31fd4460, stand-in: CX2GameUnit's, as Rena's CH1h )
+	if ( m_bPassDash )
+		return;
+
+	if ( true == m_bInvisibility )
+	{
+		pRenderParam_->renderType		= CKTDGXRenderer::RT_CARTOON;
+		pRenderParam_->outLineColor.a	= m_fRenderParamColorA;
+		m_RenderParam.color.a			= m_fRenderParamColorA;
+		m_RenderParam.bAlphaBlend = true;
+	}
+	else if ( CRS_SPECTOR_OF_THUNDER == m_iCustomRenderState )
+	{
+		m_RenderParam.renderType		= CKTDGXRenderer::RT_CARTOON;
+		m_RenderParam.outLineColor.a	= m_fRenderAlphaSpecterOfThunder;
+		m_RenderParam.bAlphaBlend = true;
+		m_RenderParam.color.a			= m_fRenderAlphaSpecterOfThunder;
+	}
+	else if ( CRS_VERITABLE_PANDEMONIUM == m_iCustomRenderState )
+	{
+		m_RenderParam.renderType		= CKTDGXRenderer::RT_REAL_COLOR;
+		m_RenderParam.outLineColor.a	= m_fRenderAlphaVeritablePandemonium;
+		m_RenderParam.bAlphaBlend = true;
+		m_RenderParam.color.a			= m_fRenderAlphaVeritablePandemonium;
+	}
+	else
+	{
+		if ( false == IsAlphaObject() )
+			m_RenderParam.color.a = 1.f;
+
+		CX2GameUnit::ApplyRenderParam( pRenderParam_ );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef RIDING_SYSTEM
 	if ( m_bPassDash )
 		return;
@@ -5900,6 +6481,7 @@ void CX2GUAra::DeleteMinorParticle()
 	else 
 #endif //ARA_CHANGE_CLASS_FIRST
 		CX2GameUnit::ApplyRenderParam( pRenderParam_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 #pragma region ApplyRenderParamOnEmptyRenderParamByBuff
@@ -20462,6 +21044,36 @@ bool CX2GUAra::IsNoStageChangeSkill( IN const CX2SkillTree::SkillTemplet* pSkill
 #pragma endregion
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+// char-ara CH1h: June 32bd5e60 ( the same test IsFullHyperMode reads the buff hyper count by )
+bool CX2GUAra::IsBuffHyperModeActive() const
+{
+	return 0.f < m_fBuffHyperModeDamageRate;
+}
+
+// char-ara CH1h: June 32bab160 ( the records are CH4a's; a hit of the same skill marks the entries of this attack )
+void CX2GUAra::MarkSkillFPGainHit( const int iSkillID_, const int iAttackSerial_ )
+{
+	for ( vector<SkillFPGainRecord>::iterator itRecord = m_vecSkillFPGainRecord.begin(); itRecord != m_vecSkillFPGainRecord.end(); ++itRecord )
+	{
+		if ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( itRecord->m_iSkillID, iSkillID_ ) )
+		{
+			for ( vector<SkillFPGainEntry>::iterator itEntry = itRecord->m_vecEntry.begin(); itEntry != itRecord->m_vecEntry.end(); ++itEntry )
+			{
+				if ( itEntry->m_iAttackSerial == iAttackSerial_ )
+					itEntry->m_bHit = true;
+			}
+		}
+	}
+}
+
+// char-ara CH1h: June 32bab1d0 ( user vslot 0x2fc, my unit only )
+void CX2GUAra::MarkSkillFPGainHitByDamage( const CX2DamageManager::DamageData* pDamageData_ )
+{
+	if ( NULL != pDamageData_ && true == IsMyUnit() )
+		MarkSkillFPGainHit( pDamageData_->m_iAppliedSkillID, pDamageData_->m_iAttackSerial );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 //#ifdef FIX_GAIN_FORCE_BUG
 /*virtual*/void CX2GUAra::AttackResultByType( CX2DamageManager::DamageData &pDamageData )
 {

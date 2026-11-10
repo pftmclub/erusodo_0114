@@ -9716,3 +9716,39 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32bc0bb0	CX2GUAra::CreateDashJumpXZBullet	PORTED	Char Ara CH1g: new under _CORE; FlushMp 4 then DamageEffect_ASR_Dash_Jump_XZ_projectile at Bip01_R / L_Finger2, rate = GetPowerRate(), else not-enough-MP effect
 32bc66d0	CX2GUAra::ASI_DASH_JUMP_COMBO_ASR_XZ_FrameMove	PORTED	Char Ara CH1g: new under _CORE; 0.317 -> CreateDashJumpXZBullet( -135, right ); CH1m registers
 32bc6720	CX2GUAra::ASI_DASH_JUMP_COMBO_ASR_XZZ_FrameMove	PORTED	Char Ara CH1g: new under _CORE; 0.1 -> CreateDashJumpXZBullet( -135, right ); shared by ASR_XZZ and ASR_XZZZ; CH1m registers
+32b90b90	CX2GUAra::InitEffect	= March	Char Ara CH1h: = March ( base, CreateMajorParticleArray 0x540, CreateMinorParticleArray 0x548 ); no code
+32b90bc0	CX2GUAra::CreateMinorParticleArray	= March	Char Ara CH1h: jmp thunk to the base 32012920 = March; no code
+32b90d20	CX2GUAra::UnSetSpecificValueByBuffTempletID	PORTED	Char Ara CH1h: inside _LIVE; BTI_BUFF_NECROMANCY / _SPECTEROFTHUNDER reset their rates to -1.0; BTI_HYPER_MODE and BTI_TRANSCENDENTAL_HYPER_MODE reserve-finish BTI_ARA_FIRST / SECOND / FULL_HYPER_MODE ( March: FULL only )
+32b96640	CX2GUAra::AppendMajorParticleToDeviceList	= March	Char Ara CH1h: the same seven names as March; no code
+32b96b10	CX2GUAra::AppendToDeviceList ( static )	= March	Char Ara CH1h: AppendMajorParticleToDeviceList then Weapon::AppendEnchantParticleForSwordToDeviceList = March X2GUAra.cpp AppendToDeviceList; no code
+32b968f0	CX2GUAra::NotifyShowObjectChanged	= March	Char Ara CH1h: base, SetShowViewList( GetShowObject() ) ( the riding byte +0x172 read is GetShowObject ), UpdateEquipCollisionData; no code
+32b96940	CX2GUAra::OnFrameMove	= March	Char Ara CH1h: base, then the weapon-effect update flag +0x41f8 -> vslot 0x28c, cleared; no code
+32b96980	CX2GUAra::Win	= March	Char Ara CH1h: base; riding -> ASI_RIDING_WAIT_HABIT else ASI_WIN; no code
+32b969c0	CX2GUAra::Draw	= March	Char Ara CH1h: same as Win ( March keeps it too ); no code
+32b96a30	CX2GUAra::ApplyRenderParam	PORTED	Char Ara CH1h: inside _LIVE; m_bPassDash returns; invisibility as March; custom render state 1 / 2 ( m_iCustomRenderState, Ara stand-in ) set RT_CARTOON / RT_REAL_COLOR with m_fRenderAlpha*; else colour alpha 1 when not an alpha object, then CX2GameUnit::ApplyRenderParam ( stand-in for CX2GUUser 31fd4460 )
+32ba6830	CX2GUAra::COMMON_BUFF_FrameMove	= March	Char Ara CH1h: 0.2 s particle + camera, 0.25 s accelerater buff, CommonFrameMove; = March ( the UPGRADE_SKILL_SYSTEM_2013 build ); no code
+32ba6c20	CX2GUAra::Lose	= March	Char Ara CH1h: base; my unit with HP > 0: riding -> ASI_RIDING_WAIT else ASI_LOSE; no code
+32ba6d00	CX2GUAra::SetSpecificValueByBuffTempletID	PORTED	Char Ara CH1h: inside _LIVE; BTI_BUFF_NECROMANCY: acquired RNSI_SA_ASR_NECROMANCY effective rate -> m_fNecromancyRate; BTI_BUFF_SPECTEROFTHUNDER: RNSI_SA_ALS_SPECTER_OF_THUNDER rate via GetUpgradeSwappedSkillID; hyper mode buff: count 1 / 2 -> BFI_ARA_FIRST / SECOND_HYPER_MODE, else IsFullHyperMode -> BFI_ARA_FULL_HYPER_MODE ( 7ai args ( BFI, 1, NULL, 0, false ) )
+32ba6e50	CX2GUAra::ApplyRenderParamOnEmptyRenderParamByBuff	= March	Char Ara CH1h: RT_CARTOON_COLOR_EDGE while the hyper time remains, else RT_CARTOON_BLACK_EDGE, outline 0.8 / 0.6 / 0.2 / 1.0 = 0xffcc9933, SetUseWorldColor( true ); no code
+32ba8150	CX2GUAra::InitEnchantWeaponEffectUnitSpecific	= March	Char Ara CH1h: InitEnchantParticleForBow on every weapon; no code
+32ba8180	CX2GUAra::NotifyDGManagerChanged	PORTED	Char Ara CH1h: inside _LIVE; the promotion list as March, then the tail list +0x95e8 added to / removed from the manager the same way
+32bab160	CX2GUAra::MarkSkillFPGainHit	PORTED	Char Ara CH1h: new under _CORE; records of the same or upgraded skill set the hit byte of entries with the attack serial; unreferenced until CH1o
+32bab1d0	CX2GUAra::MarkSkillFPGainHitByDamage ( user vslot 0x2fc )	PORTED	Char Ara CH1h: new under _CORE; my unit only: MarkSkillFPGainHit( DD applied skill +0x5c4, DD attack serial +0x5e8 ); CH1o wires the virtual
+32bab890	CX2GUAra::LoadPromotionItemID	PORTED	Char Ara CH1h: inside _LIVE; class table ARA_* opened inside PROMOTION_ITEM_ID_LIST ( 7 classes, default MARTIAL_ARTIST ), then TAIL_TYPE into m_vecPromotionTailItemIDList
+32babc60	CX2GUAra::CreateMajorParticleArray	= March	Char Ara CH1h: common major particle enums 5..0xb, draw counts 2 2 2 2 1 1 1, trigger wait; no code
+32babdf0	CX2GUAra::ReplaceWeapon	= March	Char Ara CH1h: June reads the old weapon equip templet from the equip ( +0x198 ), March through GetItem(): same result; no code
+32badd50	CX2GUAra::SetShowPromotionEquips	PORTED	Char Ara CH1h: inside _LIVE; show: tail index min( buff hyper count, 3 ) - 1 ( unsigned, a count of 0 wraps, JUNE_BUGS 593 ), that tail shown and kept in m_ptrPromotionEquipTail, promotion equips shown ( weapon only below index 2 ) with ReplaceWeapon; hide: all tails then all promotion equips
+32bae120	CX2GUAra::SetShowOriginalViewList	PORTED	Char Ara CH1h: inside _LIVE; buff hyper mode active and hiding: count 0 / >= 3 hides, 1 / 2 shows all but EP_AC_LEG ( riding byte +0x93da stand-in 0, Stage 17 ); else SetShowObject( bShow_ ), ReplaceWeapon when shown, one-piece avatar kept shown
+32baec10	CX2GUAra::InitPromotionEquipList	PORTED	Char Ara CH1h: inside _LIVE; no AC_LEG tail pick; tail equips from TAIL_TYPE; the last tail is the active one ( empty-list guard is a stand-in, JUNE_BUGS 592 )
+32bafa30	CX2GUAra::DamageReact	PORTED	Char Ara CH1h: inside _LIVE; the duration-rate switch takes 69 enchant EDTs ( March 38 + 31 Quadra / Tripple / double-double ); the state change is skipped for IGNORE_ATTACK_SUCCESS damage
+32bb0da0	CX2GUAra::InitComponent	PORTED	Char Ara CH1h: inside _LIVE; PvP-or-PvE ( GetIsNowPVPCorrectionGame ) / training / tutorial ( _FP ) start force power; _FP: the 7 June-only INIT_COMPONENT keys ( count 9, interval 0.2, socket rate list, MP conversion, gain list x3, dungeon / PvP start bytes )
+32bb2280	CX2GUAra::DeleteMinorParticle	= March	Char Ara CH1h: base, DeleteGUUserMinorParticle, DestroyInstanceHandle of the Ara minor handle +0x959c = March; no code
+32bc6bf0	CX2GUAra::CX2GUAra	PORTED	Char Ara CH1h: ctor values of the CH1h / CH1g members in the initializer list ( CH1g m_fBuffHyperModeDamageRate corrected 0 -> -1.0 ); every other store is an unnamed_* row ( ctor value ) of ch1_offsets.tsv for the phase that declares it
+32bc79f0	CX2GUAra::~CX2GUAra	= March	Char Ara CH1h: DeleteAraMajorParticle / MinorParticle / MajorMesh = March; June frees the new vectors and protected members through compiler-emitted member destructors; no code
+32bc7e90	CX2GUAra::Init	PORTED	Char Ara CH1h: inside _LIVE; SetHyperModeCountByBuff( 0 ); _FP: no basic force power, max force power 10; the force-power gain records and serial cleared
+32bc8030	CX2GUAra::ReInit	PORTED	Char Ara CH1h: inside _LIVE; SetHyperModeCountByBuff( 0 ); PvP ( type 1 only ) team reset else _FP dungeon floor from INIT_COMPONENT; _FP max force power 10; Protection Fortitude buff duration set to the cool time left ( 7ai args ); hit count / necromancy rate / FP-gain records reset
+32bceca0	CX2GUAra::AttackResultByType	ROUTED	Char Ara CH1h: NOT written here ( March keeps its base call + Gain Force intake ); June body = FP conversion, berserk hit roll 32bc9a60, Specter of Thunder, Get Blood, Raid, Mana Drain blocks: routed to CH1h2
+32bd5e60	CX2GUAra::IsBuffHyperModeActive	PORTED	Char Ara CH1h: new under _CORE; 0 < m_fBuffHyperModeDamageRate
+32bd85d0	CX2GUAra::GetComboZStateID	= March	Char Ara CH1h: header inline ASI_COMBO_Z = March; no code
+32bd85e0	CX2GUAra::GetComboXStateID	= March	Char Ara CH1h: header inline ASI_COMBO_X = March; no code
+32bd8680	CX2GUAra::scalar deleting destructor	= March	Char Ara CH1h: compiler-emitted; no code

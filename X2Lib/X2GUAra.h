@@ -509,6 +509,11 @@ protected:
 	virtual float	GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;
 
 	void			LoadPromotionItemID( IN KLuaManager& luaManager_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+	bool			IsBuffHyperModeActive() const;	// char-ara CH1h: June 32bd5e60
+	void			MarkSkillFPGainHit( const int iSkillID_, const int iAttackSerial_ );	// char-ara CH1h: June 32bab160
+	void			MarkSkillFPGainHitByDamage( const CX2DamageManager::DamageData* pDamageData_ );	// char-ara CH1h: June 32bab1d0 ( user vslot 0x2fc, CH1o wires it )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 	void			ShowActiveSkillCutInAndLightByBerserkMode( float fTimeToShow_, bool bOnlyLight_ = false );
 
@@ -1390,6 +1395,42 @@ protected:
 	CX2EffectSet::Handle	m_hComboXXdownXZBlackHole;	/// char-ara CH1g: June +0x9734, the black hole set Asura's X-X-down-X-Z start plays ( its loop end stops it ); CH1h confirms the ctor value
 	int			m_iComboXXdownXZLoopCount;	/// char-ara CH1g: June +0x9738, loops of Asura's X-X-down-X-Z so far ( 5 at most ), cleared by its start state
 	float		m_fBuffHyperModeDamageRate;	/// char-ara CH1g: June +0x9744, scales the power rate of the Specter / Asura combo sets while above 0 ( CH1h places it, CH1q writes it )
+	// char-ara CH1h: members of the CH1h functions ( June offsets in june2017_re/char_ara/ch1_offsets.tsv )
+	UCHAR		m_ucForcePowerCountAtDungeonStart;	/// June +0x9610: INIT_COMPONENT FORCE_POWER_COUNT_AT_DUNGEON_START ( ReInit's dungeon floor )
+	UCHAR		m_ucForcePowerCountAtPvpStart;		/// June +0x9611: INIT_COMPONENT FORCE_POWER_COUNT_AT_PVP_START
+	int			m_iFullHyperModeAdvantageCount;		/// June +0x96fc: INIT_COMPONENT FULL_HYPER_MODE_ADVANTAGE_COUNT ( default 9 )
+	int			m_iFullHyperModeAdvantageHitCount;	/// June +0x9700: berserk hits counted against it ( CH1q )
+	float		m_fFullHyperModeAdvantageIntervalTime;	/// June +0x9704: INIT_COMPONENT FULL_HYPER_MODE_ADVANTAGE_INTERVAL_TIME ( default 0.2 )
+	float		m_fFullHyperModeAdvantageTimer;		/// June +0x9708: reloaded from the interval time by the berserk hit roll ( CH1q )
+	std::vector<int>	m_vecGainForcePowerByUsedHyperCount;	/// June +0x9720: INIT_COMPONENT GAIN_FORCEPOWER_USEDHYPERCOUNT
+	float		m_fGainMpByForcePowerConversionHyperMode;	/// June +0x9730: INIT_COMPONENT GAIN_MP_BY_FPCONVERSION_HYPERMODE
+	std::vector<float>	m_vecFullHyperModeAdvantageSocketRate;	/// June +0x9808: INIT_COMPONENT FULL_HYPER_MODE_ADVANTAGE_SOCKET_RATE
+	float		m_fNecromancyRate;					/// June +0x9764: effective rate of RNSI_SA_ASR_NECROMANCY while BTI_BUFF_NECROMANCY runs, -1 otherwise
+	float		m_fSpecterOfThunderRate;			/// June +0x9790: effective rate of RNSI_SA_ALS_SPECTER_OF_THUNDER while BTI_BUFF_SPECTEROFTHUNDER runs, -1 otherwise
+	enum ARA_CUSTOM_RENDER_STATE { CRS_SPECTOR_OF_THUNDER = 1, CRS_VERITABLE_PANDEMONIUM = 2 };	/// June Enum.lua CUSTOM_RENDER_STATE
+	int			m_iCustomRenderState;				/// June CX2GameUnit +0x8e64 ( CRS_*; stand-in: held by Ara until the engine renderer phase )
+	float		m_fRenderAlphaSpecterOfThunder;		/// June +0x9794: alpha ApplyRenderParam applies in CRS_SPECTOR_OF_THUNDER
+	float		m_fRenderAlphaVeritablePandemonium;	/// June +0x97c4: alpha ApplyRenderParam applies in CRS_VERITABLE_PANDEMONIUM
+	std::vector<int>		m_vecPromotionTailItemIDList;	/// June +0x95d8: PROMOTION_ITEM_ID_LIST TAIL_TYPE ids
+	std::vector<CX2EqipPtr>	m_vecPromotionEquipTailList;	/// June +0x95e8: the tail equips, one per buff hyper count
+	struct SkillFPGainEntry		/// June 12-byte entry of SkillFPGainRecord's list
+	{
+		USHORT	m_usGain;			/// +0
+		bool	m_bHit;				/// +2: set by MarkSkillFPGainHit
+		int		m_iAttackSerial;	/// +4
+		int		m_iUnread;			/// +8
+	};
+	struct SkillFPGainRecord	/// June 0x18-byte record of the vector at +0x9858
+	{
+		USHORT	m_usUnread;			/// +0
+		int		m_iSkillID;			/// +4
+		std::vector<SkillFPGainEntry>	m_vecEntry;	/// +8
+	};
+	std::vector<SkillFPGainRecord>	m_vecSkillFPGainRecord;	/// June +0x9858: skills whose hits give force power ( CH4a fills it )
+	bool		m_bSkillFPGainLocked;				/// June +0x983c: cleared by Init / ReInit ( CH1q reads it )
+	int			m_iSkillFPGainSerial;				/// June +0x9840: -1 after Init / ReInit
+	int			m_iSkillFPGainCount;				/// June +0x9844: 0 after Init / ReInit
+	std::vector<int>		m_vecSkillFPGainSerial;	/// June +0x9848: cleared by Init / ReInit
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 	UCHAR		m_ucBasicForcePower;		/// 기본 기력치

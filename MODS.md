@@ -6361,3 +6361,13 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE` (defined: 28 new functions of `CX2GUAra
 **Damage numbers.** None changed by this phase. Behaviour once `_LIVE` is on and CH1m registers the states: Little Specter / Asura combo effect sets use the plain power rate until CH1q writes the buff hyper rate; Asura's airborne X-Z states lose their walk / dash cancel in the air (JUNE_BUGS 590).
 
 **Revert.** Leave `_LIVE` commented out; to drop the new functions, names and members, undefine `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE` (then undefine `SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION` last: nothing but Arme's own calls remain).
+
+## Stage 7 Ara, CH1h: class-core overrides below vslot 0x600 under `_LIVE` / `_CORE` (inert, 2026-11-11)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE` (defined: `IsBuffHyperModeActive`, `MarkSkillFPGainHit`, `MarkSkillFPGainHitByDamage`, 28 members, the `_CONST_ARA_CH1H_` helpers) and `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` (commented out: June's bodies of `Init`, `ReInit`, `InitComponent`, `DamageReact`, `Set` / `UnSetSpecificValueByBuffTempletID`, `ApplyRenderParam`, `LoadPromotionItemID`, `InitPromotionEquipList`, `SetShowPromotionEquips`, `SetShowOriginalViewList`, `NotifyDGManagerChanged`); `_FP` lines (commented out) are the INIT_COMPONENT force-power keys, max force power 10 and the tutorial start. `JUNE_ENUM_NAMES` gains `BTI_BUFF_NECROMANCY` 423, `BTI_BUFF_SPECTEROFTHUNDER` 424, `BFI_ARA_FIRST_HYPER_MODE` 660, `BFI_ARA_SECOND_HYPER_MODE` 661, `RNSI_SA_ASR_NECROMANCY` 27028, `RNSI_SA_ALS_SPECTER_OF_THUNDER` 27023.
+
+**Damage numbers.** None changed (`_LIVE` is off). Once `_LIVE` is on: Ara's enchant-duration rate also applies to the 31 Quadra / Tripple / double-double enchants; hits flagged IGNORE_ATTACK_SUCCESS no longer trigger her damage state change; a PvE game start counts as PvP for her start force power.
+
+**Correction to CH1g.** `m_fBuffHyperModeDamageRate` starts at -1.0 (June's constructor), not 0; both mean "buff hyper rate off".
+
+**Revert.** Leave `_LIVE` commented out; to drop the new functions and members undefine `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE` (after `_LIVE`).

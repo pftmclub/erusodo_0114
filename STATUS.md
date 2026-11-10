@@ -105,8 +105,8 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH1h | **ready** (CH1g review done 2026-11-10): overrides below 0x600, InitComponent | Sonnet 5.5 / high | CH1g review | `X2GUAra.*` | `CH1h.md` |
-| CH1i | blocked (CH1h): overrides 0x600-0x7bc | Sonnet 5.5 / high | CH1h | `X2GUAra.*` | `CH1i.md` |
+| CH1h2 | **ready** (CH1h done 2026-11-11): `AttackResultByType` `32bceca0` whole body (CH1h routed it: FP / berserk roll / Specter / Get Blood / Raid / Mana Drain blocks) | Sonnet 5.5 / high | CH1h | `X2GUAra.*`, `X2DamageManager.*` | `CH1h2.md` |
+| CH1i | blocked (CH1h2): overrides 0x600-0x7bc | Sonnet 5.5 / high | CH1h2 | `X2GUAra.*` | `CH1i.md` |
 | CH1j | blocked (CH1i): Common* overrides | Sonnet 5.5 / high | CH1i | `X2GUAra.*` | `CH1j.md` |
 | CH1k | blocked (CH1j): skill-use overrides + `ReservedSkillStart`; review covers CH1h-CH1k | Sonnet 5.5 / high, Opus review | CH1j | `X2GUAra.*`, `X2GUUser.*` | `CH1k.md` |
 | CH1m | blocked (CH1k review): registration, berserk table `31fdd800` | Opus 5.5 / high, Opus review | CH1k review | `X2GUAra.*`, `X2GUUser.*` | `CH1m.md` |
@@ -140,7 +140,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | CH6 | blocked (CH4b review, CH5 review, CHNb review): scans rerun + user walk incl. both job changes and the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH4b, CH5, CHNb reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template + CH-N rewrite, `stage7-plan` -> `char-elesis` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0 (2026-11-10), CH0b (2026-11-10), CH1a (2026-11-10; no play-test, full build skipped, `_LIVE` stays off), CH1b + CH1a-CH1b review (2026-11-10; pass, no code change). CH1c + CH1d + CH1d2 + CH1c-CH1d2 review (2026-11-10; no play-test, full build skipped, `_LIVE` stays off; review pass, no code change). CH1e (2026-11-10; 13 functions, no play-test, full build skipped, `_LIVE` stays off). CH1f (2026-11-10; 20 functions, no play-test, full build skipped, `_LIVE` stays off). CH1g (2026-11-10; 28 functions + the landing-prediction hoist, no play-test, full build skipped, `_LIVE` stays off). CH1e-CH1g review (2026-11-10; one fix: nine CH1g effect pushes moved to the damage-react list; no play-test, full build skipped).
+Done: CH0 (2026-11-10), CH0b (2026-11-10), CH1a (2026-11-10; no play-test, full build skipped, `_LIVE` stays off), CH1b + CH1a-CH1b review (2026-11-10; pass, no code change). CH1c + CH1d + CH1d2 + CH1c-CH1d2 review (2026-11-10; no play-test, full build skipped, `_LIVE` stays off; review pass, no code change). CH1e (2026-11-10; 13 functions, no play-test, full build skipped, `_LIVE` stays off). CH1f (2026-11-10; 20 functions, no play-test, full build skipped, `_LIVE` stays off). CH1g (2026-11-10; 28 functions + the landing-prediction hoist, no play-test, full build skipped, `_LIVE` stays off). CH1e-CH1g review (2026-11-10; one fix: nine CH1g effect pushes moved to the damage-react list; no play-test, full build skipped). CH1h (2026-11-11; 35 of 36 functions: 16 written, 19 = March, `AttackResultByType` routed to CH1h2; no play-test, full build skipped, `_LIVE` stays off).
 
 Decisions answered 2026-11-10 (plan "Open decisions"): 1 stat rows for 34 / 124 follow Ara's own rule (CHNa writes, user packs); 2 the lobby orb handles are retired (CH5).
 

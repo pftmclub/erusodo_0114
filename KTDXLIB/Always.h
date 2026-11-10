@@ -12233,3 +12233,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION needs SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE ( CanDown with the line index )
 #endif SERV_IRUHADEV_JUNE_USER_LANDING_PREDICTION
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH1h - guard only ( no new flag ): CH1h's _LIVE bodies read GetHyperModeCountByBuff and GetUpgradeSwappedSkillID.
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ) && ( !defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY ) || !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY ( GetHyperModeCountByBuff ) and SERV_IRUHADEV_JUNE_CHAR_CHUNG_CORE ( GetUpgradeSwappedSkillID )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+//////////////////////////////////////////////////////////////////////////

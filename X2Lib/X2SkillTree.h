@@ -1810,6 +1810,12 @@ public:
 		RNSI_P_RWS_PERSISTENT_MIND                            = 23413,	// June's Enum.lua; the passive that shortens the cool times
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH1h
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_ASR_NECROMANCY                                = 27028,	// June's Enum.lua; BTI_BUFF_NECROMANCY reads its effective rate
+		RNSI_SA_ALS_SPECTER_OF_THUNDER                        = 27023,	// June's Enum.lua; BTI_BUFF_SPECTEROFTHUNDER reads its effective rate
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-09 // char-rena CH1i
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_SA_RWS_VIOLENT_ATTACK                            = 23008,	// June's Enum.lua; SetEquippedSkillLevel sets its landing states
