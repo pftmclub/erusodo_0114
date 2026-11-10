@@ -2297,6 +2297,59 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (+ `_SKILL_DEBUG`, still on; now also
 
 **Play-test logs (2026-11-10, run 13:02-13:05 on md5 8826d336, after the deploy; "check logs").** `[JUNE_TRANSCEND] UNIT 89 / 90 / 92 transcendence 1` ( select and room ); `IMAGE` rows: type 9 `list_TR_W_SNEAKER / G_ARCHER / N_WATCHER`, type 2 Texture98 `TR_W_SNEAKER / N_WATCHER / G_ARCHER_LARGE`, type 7 Texture97 `TR_W_SNEAKER_STATE`, `TR_N_ARCHER_STATE`, `TR_G_ARCHER_STATE`; cut-ins `HQ_Cutin_RWS / RNW / RGA_Transcendence.gfx` played. `equip skill 23600 / 23602 / 23601 slot 4 bank A state 57` and `23058 / 23060 / 23059 slot 4 bank B state 67`. Spiral Strike x2: `spin time x100 275`, `spin start invisibility 1 alpha x100 100` ( the colour alpha is saved, not changed; ApplyRenderParam fades it ), the black hole hits at t = 0 / 1.06 / 2.08, landing ~4 s after the spin start. Cryotron Bolt: `cryotron bolt guided arrow 1`, 20 `DamageEffect_Cryotron_Bolt_Guided_Arrow` templets, hits on uid 1000000 / 1000003, lock-on range rejects past 1000. Innocent: `EffectSet_LNW_Innocent_Cast_01 / _02` ( black hole, bomb ). Tempest, Ace in the Hole ( Fire1 / Fire2 / Final ), Eradication ( x2 ) ran. 0 Motion Error, 0 KEM_ERROR, 0 EXCEPTION; not CH3d's: `RENA_GA_ACEINTHEHOLE_EXPLOSION.OGG` 3D-sound update `result : 47` ( 34 lines, the engine-wide line CH2c saw for `ARROW.OGG` ), 4 UNHANDLED `E_DISABLE_HB_CHECK_REQ`, unbound `AddGroupChainQuest`, the `APPLIED_SKILL_ID` stand-in lines. User's visual verdict ( pictures, cut-in, the hide ) not given.
 
+### CH3d - Review (2026-11-10)
+
+Opus 5.5 high. Kickoff `kickoffs/char-rena/CH3d-review.md`: the CH3 skill review, covering CH3a, CH3b, CH3c0, CH3c and CH3d ( CH3b2 has its own review ). Listings from
+`charport_adis.py rena --phase CH3a / CH3b / CH3c / CH3d` and `charport_adis.py rena 32cb06d0`; table names read with `charport_consts.read_va`. **Verdict: pass, no code change; `_SKILL_DEBUG` retired.**
+
+**CH3a.** Pass. Sharpfall landing `32c87ec0`: CommonStateStart, then only when the swapped templet's `+0x178` ( the base id of an upgrade ) is set = `IsEquippedSkillUpgraded`; fall = start Y - pos.y,
+min `SA_SCOPE_ABS`, floored at 0, rate x ( 1 + `SA_DAMAGE_REL` x fall / limit ), all read by `GetNowStateSkillID()`. Slide Kick `32c96910`: `GetInstance( handle, true )`, a hit unit passes with HP > 0 and state
+!= 4; anim end -> cancel state, refund `GetActualMPConsume` ( vslot 0x6a0 ) x `SA_MP_RETAKE_ABS`. Airelinna `32c96aa0`: one bolt at 0.7333 s, pos + 200 x scale.y, +-120 x dir x scale.x, `SetScale( SA_PROJECTILE_SIZE )` when upgraded.
+June does not null-test the bolt before `SetScale`; the port does ( kept: copying it would crash, not a quirk ).
+
+**CH3b.** Pass.
+- Registration: the June table names at `@32cb1877`-`@32cb2b19` read back ( `LESI_RGA_GUNGNIR_READY` .. `_CONTROL_DOWN_RIGHT` on 0x11c-0x126, `LESI_A_LGA_WIND_BLAST` twice, `_FREEZING_ARROW` / `_HYPER`, `_STIGMA_ARROW` / `_HYPER`,
+  `_AERO_STRAFE` / `_HYPER`, `LESI_A_LTR_ENTANGLE` twice, `BLAST_ARROW`, `CUTLASS_WIND`, `ONE_TARGET_SHOT` ) = the code. Ace in the Hole 0x128-0x12d: 298 / 300 take 296's table; the wait and attack rows' thunks
+  ( `32cb52e0` -> `32c85430`, `32cb5010` -> `32c833e0`, `32cb69f0` -> `32ca2520`, `32cb61d0` -> `32c885a0` ) = the code's callbacks. Aero Strafe hyper keeps the normal EndFuture.
+- Wind Blast `32c9d7b0`: `CommonFrameMove` before the 1.0 s `EventTimerOneshot`; `CreateInstance` arguments after `fLandPos` are March's defaults ( reserve 0 / -1, rates 1 / 1, hit -1 / -1, mesh 0, add MP -1 );
+  `322d7670`( team, pos, ( 0, 1200 ), owner-is-user ( unused, funcmap 162 ), NULL, &bUser ), uid -> `+0x938` or `+0x940`, then `+0x948` = `GetRandomInt()`. JUNE_BUGS 580 stands.
+- Stigma Arrow `32cacda0` / `32cacff0`: byte-identical but for the `_Hyper` name; force-down `+0x4050`, `m_fArrowRangeRate`, hit count, gap, mesh index; templet 23211 through the swap; return without CommonFrameMove when `GetUnit()` is null;
+  level = max( 1, `GetSkillLevel`( id, 0, 0, 1 ) ), `PushBuffFactorWithMemoRate` ( `322b5320` + `31fdbfc0` ).
+- Entangle `32c9e7b0` / `32c7d5a0`: Hunter's Ability `0x5b70` x `SA_DAMAGE_REL` ( 15 ), no PvP test, memo `603023` picks `_MEMO`; cancels dash `0x8c9c`, walk `0x8c98`, then March's `SKILL_CANCEL_AFTER`
+  ( buff-port form: its foot test and awakening branch are June's ).
+- Aero Strafe `32c87060` / `32c6c530`: no damage effect; the hyper has no cut-in light. `= March` `32c84b50` = `32c84c70` ( 0.15 / 0.55 / 0.95 s steps ), `32c793f0` = `32c79430`: confirmed.
+- Ace in the Hole: start `32c6d8a0` ( angle 0, camera stand-ins 550 / 220 ), StartFuture zeroes the timer ( counted at `.cpp:8924` ), waits `32c85430` / `500` / `5d0` ( key -> next attack; side key or
+  timer >= `SA_EFFECTIVE_TIME` -> `SA_MP_RETAKE_ABS` x 3 / 2 / 1, `USI_WAIT` ), FrameMoveFuture `SA_DEGREE_Z` ( 199 ), FrameMove: clamp to +-`SA_DEGREE_MAX` ( 200, Now id ), `SetRotateBone( Bip01_Spine1, ( -1, 0, -1 ), ( 0, 0, angle ) )`,
+  effect set per state 297 / 299 / 301 at 0.2 s with `PlayEffectSet`'s defaults, local rotation ( 0, 0, angle ).
+- Templet swap: every 102 / 103 id is read through `GetEquippedActiveSkillTemplet( id, true )`, `GetNowStateSkillID()` or `GetFutureStateSkillID()`; Hunter's Ability ( a passive ) by its own id, as June.
+
+**CH3c0.** Confirmed: `32ca6cd0` = March `UpdateStartOfDelayedFiring` ( `.cpp:33571` now ), `BALANCE_PATCH_20131107` branch: 10.0, sort, size > 5, the two `DeleteStartOfDelayedFiring` paths, order numbers.
+
+**CH3c.** Pass. `32c7e3d0` = `32c7e6e0` = `32c7f010` = CH3a's `32c7d790` ( byte-identical ). Seed of Wrath `32c9dc40`: second seed when upgraded and `SA_EFFECTIVE_RATE` of 23242 > `GetRandomFloat( 0 )`, at +100 over the
+first ( +200 ); DELAY seeds get type `DET_SEED_OF_RUIN` and an index, each independently. Delayed Fire `32c7ae60`: `GetActualCoolTime` ( vslot 0x6a4 ) of 23217 swapped. Call of Ruin `32c7adc0`: air past
+`+0x8ef4` ( Future [0][0] ) -> `JUMP_DOWN`. Gliding Strike `32c99280`: effect set at 0.6 s, scale 1.2 via `31e4c4c0( v, true, false )`; the dropped bone / `ARROW_DEGREE_Z` reads are dead in June ( JUNE_BUGS 581 ).
+`= March` `32c7d0c0` ( 0.66 s gravity ) and `32c7d0f0` ( 0.36 s, landing ) confirmed; `32caca80` / `32c98d50` / `32c990d0` taken from their funcmap rows.
+
+**CH3d.** Pass. `32c88330`: CommonStateStart, then the protected `+0x9768` = `+0x8eb8` ( USEFUL_VALUE Now [0][0] ). Spin start `32c9eb20`: `3200a590( 1 )`, `+0x8e9c` = 0, the middle FX, stop the light FX,
+no CommonStateStart ( = the code ); end `32c6d1a0`: `3200a590( 0 )`, CommonStateEnd. `ApplyRenderParam` `32c7fa40`: invisible -> cartoon, outline and colour alpha = `+0x8e9c`, alpha blend, return. Cryotron
+`32c9efd0`: `DamageEffect_Cryotron_Bolt_Guided_Arrow` `@32c9f162`, count `[3373d78c]` = 20, lock-on at 2.73 via `322dea10`. `32c7f3a0` = `32c7f720` = `32c7fad0` ( byte-identical ).
+Shared files: `X2GUUser.h` accessors ( June writes `+0x8e9c` directly; the member is private ): pass. `X2Data.cpp`: prefixes and the `CIT_MyGage` override = the logged IMAGE rows: pass.
+`Handlers_Quest.cpp`: the brace-less `if` chains after Raven's, the error returns only when no class matches: pass. `Always.h`: the `_RAVEN_SKILL` guard and the `_TRANSCEND` block: pass.
+`june_march_divergent.tsv` row `SetInvisibility`: pass. `LevelUpEvent.lua` TYPE5 ( `LUEI_CHANGE_CLASS_GUIDE_TRANSCENDENTAL` ) = June TYPE2 ( `LevelUpEvent.src.lua:491-508` ): pass.
+
+**Logs** ( one run, 13:02-13:05, CH3d's; CH3a-CH3c's runs are in their Done notes ): `RENA SKILL` 43 lines ( equip x27, ace fire x9, spin time x2 `275`, invisibility x2, eradication x2, cryotron x1 ); `[JUNE_TRANSCEND]` 10 IMAGE rows
+for 102 / 103 / 114; 0 Motion Error, 0 KEM_ERROR, 0 EXCEPTION. Besides Ace's 35 lines, `LENA_SHOOTERDESTINY_SHOT.OGG` has 20 of the same engine-wide 3D-sound `result : 47` line ( not Rena's code ).
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL --with ..._SKILL_DEBUG --range 35f73de4^..ad8d4090`: `files: 9 PASS, 0 PASS~, 1 DEFINE, 8 OTHER, 0 FAIL, 0 ERROR`; `1 deleted line(s)` ( CH3a's
+`//#define` -> `#define` debug line ), `0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`; OTHER = `X2SkillTree.h` x3 ( `JUNE_ENUM_NAMES` ), CH3b2's
+`X2DamageManager.cpp` / `Always.h` ( own review ), CH3d's `Always.h` / `Handlers_Quest.cpp` / `X2Data.cpp` ( other flags ). `flagcheck SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND --range 7f2fd963^..7f2fd963 --files`
+the three: `2 PASS, 0 DEFINE, 1 OTHER, 0 FAIL`, `0 deleted line(s)`, `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 202`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`: `0 A/B row(s)`.
+`/Zs` probe of the cpp ( `census.cl_cmd`, no PCH ): 0 errors, 38 warnings, all in existing headers.
+
+**Debug retired.** `Always.h:12075` `//#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG` ( bytepatch, CRLF kept; `flagcheck ..._SKILL_DEBUG --worktree`: 1 DEFINE, 1 deleted line, its only FAIL "not #defined anywhere", which is the retirement itself ). The only code change: build started, not awaited.
+
+**CH6 amended** ( `kickoffs/char-rena/CH6.md` ): the five Night Watcher bases CH3c could not run as bases, CH3a's sets 2 / 3 in the logs, and CH3d's visual checks. **Next:** CH4a.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as two from the start; CH0 adds CH4c if the

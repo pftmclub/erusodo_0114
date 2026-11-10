@@ -56,3 +56,12 @@ slotted and cast: it must bind its own state, not fall into the Power Attack def
 CH2b's play-test casts only the Enhanced ids unawakened. The walk adds, on class 12 (`CombatRangerT`, unit 87): each of Spinning Kick, Crescent Kick, Dive Kick Bombing, Rising Falcon, Back Kick, Low Kick and Assault Impact
 cast once while awakened (the hyper state: Crescent Kick and Dive Kick use their own `_HYPER` table names with the normal functions), and one base id (23005-23007, 23202-23206, not the Enhanced one) slotted and cast: it must bind its own state,
 not fall into the Power Attack default. Back Kick's base id (23203) must **not** chain to Low Kick on a second press (June tests the Enhanced templet's `m_iDeleteSkillIDByUpgrade`).
+
+## Amended by CH3d review (2026-11-10)
+
+- **Night Watcher bases ( class 114 ).** CH3c's set 2 could not run five bases: at lv 99 the emulator's auto-learn ( `X2OfflineSkill.cpp` @930-965 ) swapped them for their Enhanced ids. Cast each base once on a 114 unit
+  below lv 99 ( or one whose save lacks the upgrades ): Furious Engage 23025, Delayed Fire 23217, Seed of Wrath 23219 ( never a `second seed 1` line ), Call of Ruin 23022 ( normal animation speed ), Trapping Arrow - Fungus 23024.
+- **Wind Sneaker sets 2 / 3 ( class 102 ).** CH3a's base ids and Spinning Crescent / Gyro Kick / Tempest passed by the user's eye only; one cast each with `python tools/logs.py --grep "RENA SKILL"` is not available any more
+  ( `_SKILL_DEBUG` retired ), so read `ES_CREATE` lines and `ErrorLog.txt` ( 0 Motion Error ) instead.
+- **CH3d's visual checks** ( the user's verdict was not given ): the transcended pictures on 102 / 103 / 114 ( character list, HUD portrait, gauge: Night Watcher's is `TR_N_ARCHER_STATE` ), the transcendence cut-ins,
+  and Spiral Strike's spin ( Rena invisible for its 2.75 s, visible again on landing ).
