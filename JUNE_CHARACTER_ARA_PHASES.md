@@ -359,6 +359,23 @@ with `createchar.py`, after a `db_backup` (34 / 124 wait for CHNa). Gate: `pytho
 **Done gate:** the stage list re-runs 0 `missing` / `march-copy`; in game one Ara per March job tier, village and dungeon, no new `KEM_ERROR` /
 `Motion Error` / missing texture or mesh against the pre-CH0b log; a costume, a weapon and three skills look right.
 
+### CH0b - Done (2026-11-10)
+
+Sonnet 5.5. No C++, no flag. Assets, 9 adopted guide / class-change Lua and the save only. Full build skipped: no code change (the play-test is on assets). **Copied (CLAUDE.md 2026-11-10, no ask):** 35 `COPY OK`; `kom.py status`: only `data101` left (see below).
+- **Reference:** `ErrorLog.txt` (451,995 B) saved as `data\ErrorLog_pre_CH0b_ara.txt` before staging.
+- **Staged:** `kom.py stage-june --jobs 8 june2017_re/char_ara/ch0b_stage_list.tsv`: `STAGE-JUNE OK: 34 kom(s), 5886 staged (5562 new, 324 replaced, 0 identical), 0 refused, 36s` (dry run matched CH0).
+  Replaced March files backed up under `kom_backup_stage_june61110_164654`. Held, not staged: `Motion_Ara_LD.x`, `Motion_Ara_SD.x` (`ch1_held_motions.tsv`; March's copies untouched, CH1 final stages them). New kom **data205** (56 June-only motions); differing class motions in data033, tails in data131.
+- **Lua:** `adopt-june data034` (3 guide dialogs: `DLG_1ST_` / `DLG_2ND_Class_Change_Guide_Ara` new, `DLG_Class_Change_Guide_Ara` replaced) and `adopt-june data217` (`DLG_Class_Change_Ara_LD` / `_LH` / `_SD` / `_YR` replace March's in data034; `_AS` / `_LS` new in data217; June's kom for the six is data217, not data034): both `ADOPT-JUNE OK (bytecode)`, 9 staged, 0 refused; backups `20261110_164706` / `_164724`.
+  `luabind.py check` over the 9: 0 unbound each; `luasrc.py ledger --check` PASS (0 FAIL, 0 WARN); `core --check` PASS.
+- **Packed:** `kom.py pack` x36 (34 + data034 + data217), 36 `PACK OK`, 0 removed entries except data101.
+- **data101 not copied:** its one Ara row (`Velder_Gate_Stage2_Sky.dds`, `march-copy`) is staged in `kom_contents\data101_kom`, but the directory is out of step with the live kom: `copy` refuses (`drops 1070 entries`). Same as Chung's CH0b (MODS.md "Stage 7 Chung, CH0b"); `--allow-removed` was not used. The file is a Velder Gate sky texture, not seen on Ara's character; routed to the data101 directory fix (existing backlog), nothing lost.
+- **Done-gate re-run:** `stage-june --dry-run` over the same list: `5886 staged (0 new, 0 replaced, 5886 identical), 0 refused`. 0 `missing` / `march-copy`.
+- **Skill icons:** `skillicons.py check 106 900 27000-27066 27200-27244 27400-27420 27600-27605`: 141 skills, 0 misses, 1 known June gap, `RESULT: PASS`. Gap: 27414 `SI_P_AA_SPIRITUAL_EYE` is absent from June's own `DLG_ARA_SKILL_ScreenShot_04.TET` (sheet files identical to June's): `JUNE_BUGS.md` row 582 + `skillicons_june_gaps.tsv` row.
+- **Save:** backup `db_backup\els_db_20261110_164859_pre_manual.sql`; `createchar.py` (lv 99, class costume + top gear +10, skills in slots 0-3 only, none in slot 4 / 9): unit 96 MartialArtistT (7), 97 LittleHsienT (28), 98 SakraDevanamT (118), 99 LittleDevil99 (31). Existing: 24 arasss (119 lv47), 38 LittleDevilT (31 lv70), 48 Ara99 (119 lv99). 34 / 124 wait for CHNa.
+- **MODS.md:** "Stage 7 Ara, CH0b" section with the backups and the revert.
+- **Play-test (user) is the gate** (below). Log tag `[JUNE_CHAR]` has no lines (no code); the check is `ErrorLog.txt` against `ErrorLog_pre_CH0b_ara.txt` (`KEM_ERROR`, `Motion Error`, missing texture / mesh). Class script and motions are still March's, so Ara plays as before; her June meshes / textures / sounds / icons load.
+- **Drift:** none new.
+
 ## Phase CH1 - Deploy unit: June script, motions and the class core
 
 **Groups** (CH0's map fills the counts and the exact function lists; the kickoffs carry the filters):
