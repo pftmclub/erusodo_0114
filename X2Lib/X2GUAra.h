@@ -263,6 +263,8 @@ public:
 		ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING,	/// char-ara CH1e: June script id 321 ( Sakra Devanam dash-jump X-Z landing; CH1m maps )
 		ASI_P_ASD_BRUTAL_PIERCING,			/// char-ara CH1e: June script id 331 ( Sakra Devanam brutal piercing; CH1m maps )
 		ASI_P_ASD_BRUTAL_PIERCING_SMALL,	/// char-ara CH1e: June script id 332 ( Sakra Devanam brutal piercing, small damage; CH1m maps )
+		ASI_COMBO_ALD_XXdownXXX,			/// char-ara CH1f: June script id 323 ( Little Devil X-X-down-X-X-X; CH1m maps )
+		ASI_COMBO_ALD_XXdownXXXX,			/// char-ara CH1f: June script id 324 ( Little Devil X-X-down-X-X-X-X; CH1m maps )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	#pragma endregion 2-1, 2-2차 전직
 
@@ -1076,6 +1078,12 @@ protected:
 	void ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING_EventProcess();			/// char-ara CH1e: June 32ba5080
 	void ASI_P_ASD_BRUTAL_PIERCING_EventProcess();					/// char-ara CH1e: June 32b9cf00
 	void ASI_P_ASD_BRUTAL_PIERCING_StateStart();					/// char-ara CH1e: June 32bbac50
+	void ASI_COMBO_ALD_XXdownXX_EventProcess();						/// char-ara CH1f: June 32ba5640
+	void ASI_COMBO_ALD_XXdownXXX_EventProcess();					/// char-ara CH1f: June 32ba5740
+	void ASI_COMBO_ALD_XXdownXXXX_EventProcess();					/// char-ara CH1f: June 32ba5840
+	void ASI_COMBO_ALD_XXdownXX_FrameMove();						/// char-ara CH1f: June 32bc0ac0
+	void ASI_COMBO_ALD_XXdownXXX_FrameMove();						/// char-ara CH1f: June 32bc0b10
+	void ASI_COMBO_ALD_XXdownXXXX_FrameMove();						/// char-ara CH1f: June 32bc0b60
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 	void ASI_A_ALH_BREAKING_Init();							//이화접목 대기

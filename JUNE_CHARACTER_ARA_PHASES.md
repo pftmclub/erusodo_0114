@@ -628,6 +628,35 @@ All 13 class-map rows of phase CH1e are written: 6 `inside` (June's body in Marc
 
 **Nothing to play-test.** Phase tag in every block: `// char-ara CH1e`. No `_DEBUG` define exists; no review of its own (the CH1g review covers CH1e-CH1g). Next: `/x2-phase char-ara CH1f` on Sonnet 5.5 high.
 
+### CH1f - Done (2026-11-10)
+
+All 20 class-map rows of phase CH1f are written: 14 `inside` (June's body in March's own `CX2GUAra` function under `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE`, March's in `#else`) and 6 new under `_CORE` (referenced by nothing until CH1m). Two state names join `ARA_STATE_ID` under `_CORE`: `ASI_COMBO_ALD_XXdownXXX` (June id 323) and `ASI_COMBO_ALD_XXdownXXXX` (324; `ASI_COMBO_ALD_XXdownXX` 322 came with CH1d). No new `Always.h` define. 20 funcmap rows `Char Ara CH1f`; checklist L178 carries `(Ara: CH1f ...)`; `JUNE_BUGS.md` row 589; `MODS.md` section "Stage 7 Ara, CH1f". The other 10 of the 19 states (ALD / AYR START, WIN, WIN2, LOSE, LOSE2) have no function of their own: shared engine callbacks that CH1m registers.
+
+| June | `CX2GUAra::` | June | `CX2GUAra::` |
+|---|---|---|---|
+| `32bc25a0` `32b9cfa0` | `ASI_COMBO_ALD_ZZXX` FrameMove / EP (inside) | `32bc2650` `32b9d0e0` | `ASI_COMBO_ALD_ZZZFrontZ` FrameMove / EP (inside) |
+| `32bc26a0` `32b9d300` | `ASI_DASH_JUMP_COMBO_ALD_ZX` FrameMove / EP (inside) | `32bc26f0` `32b9d430` | `ASI_DASH_JUMP_COMBO_ALD_ZXX` FrameMove / EP (inside) |
+| `32b93070` `32bc27a0` `32b9d470` | `ASI_DASH_JUMP_COMBO_AYR_XZ` StateStartFuture / FrameMove / EP (inside) | `32bc2850` `32b9d4b0` | `ASI_DASH_COMBO_AYR_ZZ` FrameMove / EP (inside) |
+| `32bbfde0` | `CreateEnergeBullet` (inside) | `32ba5640` `32ba5740` `32ba5840` | `ASI_COMBO_ALD_XXdownXX` / `XXX` / `XXXX` `_EventProcess` (new) |
+| `32bc0ac0` `32bc0b10` `32bc0b60` | `ASI_COMBO_ALD_XXdownXX` / `XXX` / `XXXX` `_FrameMove` (new) | | |
+
+**Where June differs from March** (read from `charport_adis.py ara --phase CH1f`; the rest is March's logic written out whole):
+- **Cancel macros.** The walk / dash cancels carry the `IsOnSomethingFuture()` test (CH1d / CH1e's `WALK_CANCEL_AFTER_ON_LINE_` / `DASH_CANCEL_AFTER_ON_LINE_`; the skill macro is the shared June one). In the airborne states (ZZXX, dash-jump ZX / ZXX, Yama XZ) this follows `if ( IsOnSomethingFuture() ) ... landing`, so the cancels can never run: the compiler folded them away and the listings keep only the loads of the two cancel times (**JUNE_BUGS 589**). In the ground states (ZZZFront-Z, Yama dash ZZ) the test is live.
+- **Dash-jump ZX EP:** the event macro is the animation-end form (`ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_`, CH1a): the flag also fires when the future animation ends; class test unchanged (Little Devil / Yama Raja -> ZXX).
+- **FrameMoves** are March's `EventTimerOneshot` branch (`X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE` is defined, probe-checked) with `CreateEnergeBullet( rot, right )` written out: ZZXX -37 (0.24 / 0.39 / 0.67), ZZZFront-Z 0 (0.34), ZX -45 (0.27), ZXX and Yama XZ -45 (0.24 / 0.39 / 0.67), Yama dash ZZ right hand at 0.186 / 0.326 and left hand at 0.263. March's non-oneshot `EventCheck( 0.349f )` quirk is not in June.
+- **Clones** (listings equal modulo branch addresses): Yama XZ EP = dash-jump ZXX EP; Yama dash ZZ EP = ZZZFront-Z EP; Yama XZ FrameMove = ZXX FrameMove.
+- **New XXdown states** (Little Devil X-X-down-X-X chain, `IsInJobLine( 2 )`): XX EP -> XXX at X, XXX EP -> XXXX at X, XXXX EP ends; each also goes to `USI_WAIT` at animation end. FrameMoves fire one energy bullet at 0.36 / 0.13 / 0.11 s.
+- **`CreateEnergeBullet`:** equals March (MP 4, `EffectSet_SA_AYR_ORB_KI_FX_DAMAGE`, size / damage / range / force-down passives, not-enough-MP effect) except the force-down passive is assigned to the rate (1 x value in March); `CreateInstance`'s 23 June arguments are March's defaults. The `+0x96a0..0x96ac` fields are March's `m_fIncreaseEnergeBullet*`; CH1h's offset map owns their placement.
+- **Not reached here:** no force-power or Specter line in these 20 functions, so no `_FP` / `_SPECTER` block.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --with ..._CORE ..._FP --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is `//#define` (by design). cpp +289, `.h` +8, 0 deletions.
+- One-file `/c /Zs /EHsc` probe of `X2GUAra.cpp` (`census.cl_cmd`, no PCH): exit 0, 0 errors with `_LIVE` off, with `/D ..._LIVE`, and with `_LIVE` + `_FP`; `cl /P`: `fEnergyBulletForcePower = m_fIncrease` 0 off / 1 on, `ASI_COMBO_ALD_XXdownXXX_EventProcess` and `ASI_COMBO_ALD_XXdownXXXX_FrameMove` 1 each in both.
+- `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: 0 A/B rows.
+- Full build skipped: no play-test (`_LIVE` is off), so no `DEPLOY OK` / `exestr` line.
+
+**Nothing to play-test.** Phase tag in every block: `// char-ara CH1f`. No `_DEBUG` define exists; no review of its own (the CH1g review covers CH1e-CH1g). Next: `/x2-phase char-ara CH1g` on Sonnet 5.5 high.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

@@ -6345,3 +6345,11 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` (still `//#define`) and `_CORE` (define
 **Damage numbers.** None changed by this phase. Behaviour once `_LIVE` is on: Sakra dash-jump Z-X and double-jump Z-back test their cancel time against the future animation; the Little Hsien dash ZZ and the landings cancel to walk / dash only on the line (June's cancel macros).
 
 **Revert.** Leave `_LIVE` commented out; to drop the new functions and state names, undefine `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE`.
+
+## Stage 7 Ara, CH1f: Little Devil / Yama Raja line states under `_LIVE` (inert, 2026-11-10)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` (still `//#define`) and `_CORE` (defined: six new functions, two state names). 14 June functions of `CX2GUAra` written inside March's (ZZXX, ZZZFront-Z, dash-jump ZX / ZXX, Yama dash-jump XZ with its StateStartFuture, Yama dash ZZ: FrameMove and EventProcess each, plus `CreateEnergeBullet`) and 6 new ones (XXdownXX / XXdownXXX / XXdownXXXX EventProcess and FrameMove). No effect until `_LIVE` ships with CH1.
+
+**Damage numbers.** None changed by this phase. Behaviour once `_LIVE` is on: the airborne Little Devil combos (ZZXX, dash-jump ZX / ZXX, Yama XZ) lose their walk / dash cancel in the air (JUNE_BUGS 589); the ground combos (Z-Z-Z front-Z, Yama dash ZZ) cancel to walk / dash only on the line; the passive force-down value of an energy bullet is assigned, not multiplied into 1 (same number).
+
+**Revert.** Leave `_LIVE` commented out; to drop the new functions and state names, undefine `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE`.

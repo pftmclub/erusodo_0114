@@ -9668,3 +9668,23 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32ba5050	CX2GUAra::ASI_DASH_JUMP_COMBO_ASD_XZ_EventProcess	PORTED	Char Ara CH1e: new under _CORE; landing -> ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING; CH1m registers
 32ba5080	CX2GUAra::ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING_EventProcess	PORTED	Char Ara CH1e: new under _CORE; same body as ZZXX_LANDING; CH1m registers
 32bbac50	CX2GUAra::ASI_P_ASD_BRUTAL_PIERCING_StateStart	PORTED	Char Ara CH1e: new under _CORE; EffectSet_CSI_CIP_IRON_WILL then CommonStateStart, shared with _SMALL; CH1m registers
+32b93070	CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_StateStartFuture	PORTED	Char Ara CH1f: inside; = March: CommonStateStartFuture, bIsRight flipped, dirDegree.y += 180
+32b9cfa0	CX2GUAra::ASI_COMBO_ALD_ZZXX_EventProcess	PORTED	Char Ara CH1f: inside; on line -> USI_DASH_JUMP_LANDING; SKILL_CANCEL_AFTER, DASH_CANCEL_AFTER_ON_LINE_ (dash cancel unreachable after the on-line test, JUNE_BUGS 589)
+32b9d0e0	CX2GUAra::ASI_COMBO_ALD_ZZZFrontZ_EventProcess	PORTED	Char Ara CH1f: inside; anim end -> WAIT, off line -> JUMP_DOWN y -= 45; skill / walk / dash cancels with the on-line test (March: no test)
+32b9d300	CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZX_EventProcess	PORTED	Char Ara CH1f: inside; X in job lines 31 / 119 -> ZXX through the animation-end form of the event macro; walk / dash cancels unreachable (JUNE_BUGS 589)
+32b9d430	CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZXX_EventProcess	PORTED	Char Ara CH1f: inside; landing; walk / dash cancels unreachable (JUNE_BUGS 589)
+32b9d470	CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_EventProcess	PORTED	Char Ara CH1f: inside; = ZXX EP (clone)
+32b9d4b0	CX2GUAra::ASI_DASH_COMBO_AYR_ZZ_EventProcess	PORTED	Char Ara CH1f: inside; = ZZZFrontZ EP (clone)
+32ba5640	CX2GUAra::ASI_COMBO_ALD_XXdownXX_EventProcess	PORTED	Char Ara CH1f: new under _CORE; anim end -> WAIT, X in job line 2 -> XXdownXXX; CH1m registers
+32ba5740	CX2GUAra::ASI_COMBO_ALD_XXdownXXX_EventProcess	PORTED	Char Ara CH1f: new under _CORE; as XXdownXX EP, X -> XXdownXXXX; CH1m registers
+32ba5840	CX2GUAra::ASI_COMBO_ALD_XXdownXXXX_EventProcess	PORTED	Char Ara CH1f: new under _CORE; anim end -> WAIT; CH1m registers
+32bbfde0	CX2GUAra::CreateEnergeBullet	PORTED	Char Ara CH1f: inside; = March except fEnergyBulletForcePower is assigned the passive value (March multiplies 1.f by it)
+32bc0ac0	CX2GUAra::ASI_COMBO_ALD_XXdownXX_FrameMove	PORTED	Char Ara CH1f: new under _CORE; EventTimerOneshot 0.36 -> CreateEnergeBullet( 0, right ); CH1m registers
+32bc0b10	CX2GUAra::ASI_COMBO_ALD_XXdownXXX_FrameMove	PORTED	Char Ara CH1f: new under _CORE; EventTimerOneshot 0.13 -> CreateEnergeBullet( 0, right ); CH1m registers
+32bc0b60	CX2GUAra::ASI_COMBO_ALD_XXdownXXXX_FrameMove	PORTED	Char Ara CH1f: new under _CORE; EventTimerOneshot 0.11 -> CreateEnergeBullet( 0, right ); CH1m registers
+32bc25a0	CX2GUAra::ASI_COMBO_ALD_ZZXX_FrameMove	PORTED	Char Ara CH1f: inside; = March: oneshot 0.24 / 0.39 / 0.67 -> CreateEnergeBullet( -37 )
+32bc2650	CX2GUAra::ASI_COMBO_ALD_ZZZFrontZ_FrameMove	PORTED	Char Ara CH1f: inside; = March: oneshot 0.34 -> CreateEnergeBullet( 0 )
+32bc26a0	CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZX_FrameMove	PORTED	Char Ara CH1f: inside; = March: oneshot 0.27 -> CreateEnergeBullet( -45 )
+32bc26f0	CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZXX_FrameMove	PORTED	Char Ara CH1f: inside; = March: oneshot 0.24 / 0.39 / 0.67 -> CreateEnergeBullet( -45 )
+32bc27a0	CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_FrameMove	PORTED	Char Ara CH1f: inside; = March: oneshot 0.24 / 0.39 / 0.67 -> CreateEnergeBullet( -45 )
+32bc2850	CX2GUAra::ASI_DASH_COMBO_AYR_ZZ_FrameMove	PORTED	Char Ara CH1f: inside; = March: oneshot 0.186 / 0.326 right hand, 0.263 left hand

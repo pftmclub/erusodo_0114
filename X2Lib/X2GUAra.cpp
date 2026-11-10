@@ -14726,6 +14726,71 @@ void CX2GUAra::ASI_P_ASD_BRUTAL_PIERCING_StateStart()
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+// char-ara CH1f: June 32ba5640 ( ASI_COMBO_ALD_XXdownXX; CH1m registers it )
+void CX2GUAra::ASI_COMBO_ALD_XXdownXX_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneX == true && true == IsInJobLine( 2 ), ASI_COMBO_ALD_XXdownXXX )
+
+	CommonEventProcess();
+}
+
+// char-ara CH1f: June 32ba5740 ( ASI_COMBO_ALD_XXdownXXX; CH1m registers it )
+void CX2GUAra::ASI_COMBO_ALD_XXdownXXX_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneX == true && true == IsInJobLine( 2 ), ASI_COMBO_ALD_XXdownXXXX )
+
+	CommonEventProcess();
+}
+
+// char-ara CH1f: June 32ba5840 ( ASI_COMBO_ALD_XXdownXXXX; CH1m registers it )
+void CX2GUAra::ASI_COMBO_ALD_XXdownXXXX_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH1f: June 32bc0ac0 ( ASI_COMBO_ALD_XXdownXX; CH1m registers it )
+void CX2GUAra::ASI_COMBO_ALD_XXdownXX_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.36f ) )
+		CreateEnergeBullet( 0.f, true );
+
+	CommonFrameMove();
+}
+
+// char-ara CH1f: June 32bc0b10 ( ASI_COMBO_ALD_XXdownXXX; CH1m registers it )
+void CX2GUAra::ASI_COMBO_ALD_XXdownXXX_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.13f ) )
+		CreateEnergeBullet( 0.f, true );
+
+	CommonFrameMove();
+}
+
+// char-ara CH1f: June 32bc0b60 ( ASI_COMBO_ALD_XXdownXXXX; CH1m registers it )
+void CX2GUAra::ASI_COMBO_ALD_XXdownXXXX_FrameMove()
+{
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.11f ) )
+		CreateEnergeBullet( 0.f, true );
+
+	CommonFrameMove();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 void CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
 {
 	stateData_.Init();
@@ -16489,6 +16554,17 @@ void CX2GUAra::ASI_HA_ASD_THOUSANDS_BLOSSOMS_EventProcess()
 */
 void CX2GUAra::ASI_COMBO_ALD_ZZXX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32bc25a0
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.24f ) == true ||
+		m_pXSkinAnim->EventTimerOneshot( 0.39f ) == true ||
+		m_pXSkinAnim->EventTimerOneshot( 0.67f ) == true )
+	{
+		CreateEnergeBullet( -37.f, true );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	if ( m_pXSkinAnim->EventTimerOneshot( 0.24f ) == true ||
 		m_pXSkinAnim->EventTimerOneshot( 0.39f ) == true ||
@@ -16503,6 +16579,7 @@ void CX2GUAra::ASI_COMBO_ALD_ZZXX_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: ASI_COMBO_ALD_ZZXX_EventProcess
@@ -16510,6 +16587,18 @@ void CX2GUAra::ASI_COMBO_ALD_ZZXX_FrameMove()
 */
 void CX2GUAra::ASI_COMBO_ALD_ZZXX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32b9cfa0
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DASH_JUMP_LANDING );
@@ -16519,6 +16608,7 @@ void CX2GUAra::ASI_COMBO_ALD_ZZXX_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 101
 
@@ -16528,6 +16618,13 @@ void CX2GUAra::ASI_COMBO_ALD_ZZXX_EventProcess()
 */
 void CX2GUAra::ASI_COMBO_ALD_ZZZFrontZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32bc2650
+	if( m_pXSkinAnim->EventTimerOneshot( 0.34f ) )
+		CreateEnergeBullet( 0.f, true );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.34f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -16536,6 +16633,7 @@ void CX2GUAra::ASI_COMBO_ALD_ZZZFrontZ_FrameMove()
 		CreateEnergeBullet();
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: ASI_COMBO_ALD_ZZZFrontZ_EventProcess
@@ -16543,6 +16641,24 @@ void CX2GUAra::ASI_COMBO_ALD_ZZZFrontZ_FrameMove()
 */
 void CX2GUAra::ASI_COMBO_ALD_ZZZFrontZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32b9d0e0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -16558,6 +16674,7 @@ void CX2GUAra::ASI_COMBO_ALD_ZZZFrontZ_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 102
 
@@ -16567,6 +16684,13 @@ void CX2GUAra::ASI_COMBO_ALD_ZZZFrontZ_EventProcess()
 */
 void CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32bc26a0
+	if( m_pXSkinAnim->EventTimerOneshot( 0.27f ) )
+		CreateEnergeBullet( -45.f, true );
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.27f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -16575,6 +16699,7 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZX_FrameMove()
 		CreateEnergeBullet( -45.f );
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: ASI_DASH_JUMP_COMBO_ALD_ZX_EventProcess
@@ -16582,6 +16707,21 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZX_FrameMove()
 */
 void CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32b9d300
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+	ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+		m_InputData.oneX == true && ( CX2Unit::UC_ARA_LITTLE_DEVIL == GetUnitClass() || CX2Unit::UC_ARA_YAMA_RAJA == GetUnitClass() ),
+		ASI_DASH_JUMP_COMBO_ALD_ZXX )
+
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DASH_JUMP_LANDING );
@@ -16594,6 +16734,7 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZX_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 103
 
@@ -16603,6 +16744,17 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZX_EventProcess()
 */
 void CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZXX_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32bc26f0
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.24f ) == true ||
+		m_pXSkinAnim->EventTimerOneshot( 0.39f ) == true ||
+		m_pXSkinAnim->EventTimerOneshot( 0.67f ) == true )
+	{
+		CreateEnergeBullet( -45.f, true );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	if ( m_pXSkinAnim->EventTimerOneshot( 0.24f ) == true ||
 		m_pXSkinAnim->EventTimerOneshot( 0.39f ) == true ||
@@ -16617,6 +16769,7 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZXX_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: ASI_DASH_JUMP_COMBO_ALD_ZXX_EventProcess
@@ -16624,6 +16777,18 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZXX_FrameMove()
 */
 void CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZXX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32b9d430
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DASH_JUMP_LANDING );
@@ -16633,6 +16798,7 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZXX_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 104
 
@@ -16642,10 +16808,18 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_ALD_ZXX_EventProcess()
 */
 void CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32b93070
 	CommonStateStartFuture();
 
 	m_FrameDataFuture.syncData.bIsRight	= !m_FrameDataFuture.syncData.bIsRight;
 	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	CommonStateStartFuture();
+
+	m_FrameDataFuture.syncData.bIsRight	= !m_FrameDataFuture.syncData.bIsRight;
+	m_FrameDataFuture.unitCondition.dirDegree.y += 180.0f;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: ASI_DASH_JUMP_COMBO_AYR_XZ_FrameMove
@@ -16653,6 +16827,17 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_StateStartFuture()
 */
 void CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32bc27a0
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.24f ) == true ||
+		m_pXSkinAnim->EventTimerOneshot( 0.39f ) == true ||
+		m_pXSkinAnim->EventTimerOneshot( 0.67f ) == true )
+	{
+		CreateEnergeBullet( -45.f, true );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	if ( m_pXSkinAnim->EventTimerOneshot( 0.24f ) == true ||
 		m_pXSkinAnim->EventTimerOneshot( 0.39f ) == true ||
@@ -16667,6 +16852,7 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: ASI_DASH_JUMP_COMBO_AYR_XZ_EventProcess
@@ -16674,6 +16860,18 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_FrameMove()
 */
 void CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32b9d470
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_DASH_JUMP_LANDING );
+	}
+
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == IsOnSomethingFuture() )
 	{
 		StateChange( USI_DASH_JUMP_LANDING );
@@ -16683,6 +16881,7 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 105
 
@@ -16692,6 +16891,20 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_AYR_XZ_EventProcess()
 */
 void CX2GUAra::ASI_DASH_COMBO_AYR_ZZ_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32bc2850
+	if( m_pXSkinAnim->EventTimerOneshot( 0.186f ) == true ||
+		m_pXSkinAnim->EventTimerOneshot( 0.326f ) == true )
+	{
+		CreateEnergeBullet( 0.f, true );
+	}
+	else if ( m_pXSkinAnim->EventTimerOneshot( 0.263f ) )
+	{
+		CreateEnergeBullet( 0.f, false );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	if( m_pXSkinAnim->EventTimerOneshot( 0.186f ) == true ||
 		m_pXSkinAnim->EventTimerOneshot( 0.326f ) == true )
@@ -16712,6 +16925,7 @@ void CX2GUAra::ASI_DASH_COMBO_AYR_ZZ_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: ASI_DASH_COMBO_AYR_ZZ_EventProcess
@@ -16719,6 +16933,24 @@ void CX2GUAra::ASI_DASH_COMBO_AYR_ZZ_FrameMove()
 */
 void CX2GUAra::ASI_DASH_COMBO_AYR_ZZ_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32b9d4b0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	else if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+	}
+
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -16734,6 +16966,7 @@ void CX2GUAra::ASI_DASH_COMBO_AYR_ZZ_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion 106
 
@@ -19137,6 +19370,61 @@ USHORT CX2GUAra::GetActualFPGainCount( const CX2SkillTree::SKILL_ID eSkillID_, c
 */
 void CX2GUAra::CreateEnergeBullet( IN const float vRotZOffSet_ /*= 0.f*/, IN const bool bFireRightHand_ /*= true*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1f: June 32bbfde0
+	if( FlushMp( _CONST_ARA_::ENERGY_BULLET_MP_CONSUMPTION ) == true )
+	{
+		D3DXVECTOR3 vPos = bFireRightHand_ ? GetBonePos( L"Bip01_R_Finger2" ) : GetBonePos( L"Bip01_L_Finger2" );
+
+		D3DXVECTOR3 vRot = GetRotateDegree();
+		vRot.z = vRotZOffSet_;
+
+		float fEnergyBulletPowerRate	= GetPowerRate();
+		float fEnergyBulletForcePower	= 1.f;
+
+		if ( 1.f < m_fIncreaseEnergeBulletDamage )
+			fEnergyBulletPowerRate *= m_fIncreaseEnergeBulletDamage;
+
+		if ( 0.f < m_fIncreaseEnergeBulletForceDownValue )
+			fEnergyBulletForcePower = m_fIncreaseEnergeBulletForceDownValue;
+
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this,
+			L"EffectSet_SA_AYR_ORB_KI_FX_DAMAGE", fEnergyBulletPowerRate, vPos, vRot, vRot,
+			m_FrameDataNow.unitCondition.landPosition.y, false, -1.f, fEnergyBulletForcePower );
+
+		if ( NULL != pDamageEffect )
+		{
+			CKTDGXMeshPlayer::CXMeshInstance *pMeshInstance = pDamageEffect->GetMainEffect();
+			if ( pMeshInstance != NULL )
+			{
+				if ( 1.f < m_fIncreaseEnergeBulletRange )
+				{
+					const float fMaxLifeTime = pMeshInstance->GetMaxLifeTime();
+					pMeshInstance->SetMaxLifeTime( fMaxLifeTime * m_fIncreaseEnergeBulletRange );
+				}
+
+				pDamageEffect->SetInheritForceDownRate( true );
+
+				if ( 1.f < m_fIncreaseEnergeBulletSize )
+					pDamageEffect->SetScale( D3DXVECTOR3( m_fIncreaseEnergeBulletSize, m_fIncreaseEnergeBulletSize, m_fIncreaseEnergeBulletSize ) );
+			}
+		}
+	}
+	else
+	{
+		D3DXVECTOR3 pos = m_pXSkinAnim->GetCloneFramePosition( L"Dummy2_Lhand" );
+		if( true == GetIsRight() )
+		{
+			pos += GetDirVector() * 100.f;
+		}
+		else
+		{
+			pos -= GetDirVector() * 100.f;
+		}
+
+		CreateNotEnoughMPEffect( pos, 0.f, 0.f, vRotZOffSet_ );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if( FlushMp( _CONST_ARA_::ENERGY_BULLET_MP_CONSUMPTION ) == true )		/// MP 소모율 검사
 	{
 		/// 기탄 생성 위치
@@ -19198,6 +19486,7 @@ void CX2GUAra::CreateEnergeBullet( IN const float vRotZOffSet_ /*= 0.f*/, IN con
 
 		CreateNotEnoughMPEffect( pos, 0.f, 0.f, vRotZOffSet_ );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
