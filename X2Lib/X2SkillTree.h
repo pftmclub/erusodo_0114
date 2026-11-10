@@ -1941,6 +1941,20 @@ public:
 		RNSI_A_RGA_ENTANGLE_UPGRADE                           = 23237,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-10 // char-rena CH3c
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RNW_GLIDING_STRIKE                            = 23023,	// June's Enum.lua; the Night Watcher skill switch cases
+		RNSI_SA_RNW_TRAPPING_ARROW_FUNGUS                     = 23024,
+		RNSI_SA_RNW_FURIOUS_ENGAGE                            = 23025,
+		RNSI_SA_RNW_CALL_OF_RUIN_UPGRADE                      = 23054,
+		RNSI_SA_RNW_GLIDING_STRIKE_UPGRADE                    = 23055,
+		RNSI_SA_RNW_TRAPPING_ARROW_FUNGUS_UPGRADE             = 23056,
+		RNSI_SA_RNW_FURIOUS_ENGAGE_UPGRADE                    = 23057,
+		RNSI_A_RNW_BUTTERFLY                                  = 23227,
+		RNSI_A_RNW_DELAYED_FIRE_UPGRADE                       = 23240,
+		RNSI_A_RNW_SEED_OF_RUIN_UPGRADE                       = 23242,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)

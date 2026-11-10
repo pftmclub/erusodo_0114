@@ -6265,3 +6265,25 @@ Flag `SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC` (`KTDXLIB/Always.h`, end). Plan
 - **What changes in game.** A damage effect with `LOCK_ON_DATA.ONLY_TARGET_ATTACK = TRUE` hits the NPC it is locked on (June `3262b6e0` @3262ba99: a user is matched by the lock-on unit UID, an NPC by the lock-on NPC UID, any other unit is skipped). March cast every defender to `CX2GUUser`, so no NPC could pass and Wind Blast's arrow flew through its target. `X2Lib/X2DamageManager.cpp` `EffectToUnit`, inside `LOCK_ON_USER_ONLY_ON`, March's block in `#else`. June's boss-raid retarget (@3262baca, gate `32481fa0`) is a stand-in: false in this build.
 - **Data (no flag; core-list source).** `data036 Enum.lua` gains `NPC_UNIT_ID.NUI_RENA_TARGETING_GUNGNIR = 2083` and `data037 NPCTemplet.lua` gains June's row for it (`Rena_Targeting_Gungnir.lua`, mesh `CDC_AS_ROCKON_DUMMY.X`), verbatim from `june_src_fixed/data037_kom/NPCTemplet.src.lua:18660`. Without the row the client never built Gungnir's aim NPC (CH2d0 registered it in C++ only), so the cast stayed in its ready state. Ledger refreshed; data036 + data037 packed and copied (backups `kom_backup_tools\data036.kom.20261110_110459`, `data037.kom.20261110_110500`).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC`, `python tools/build.py --deploy`; for the data, delete the `NUI_RENA_TARGETING_GUNGNIR` line in `Enum.lua` and the `char-rena CH3b2` block at the end of `NPCTemplet.lua`, `luasrc.py refresh` both, pack and copy data036 / data037.
+
+## Stage 7 Rena, CH3c: Night Watcher (class 114) skills (2026-11-10)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (same flag; `_SKILL_DEBUG` stays on for the CH3d review, which also covers CH3a - CH3d and retires it). Plan `JUNE_CHARACTER_RENA_PHASES.md` "CH3c - Done". Client only, no data change; `X2SkillTree.h` gains ten `RNSI_*` names.
+- **What changes in game.** The sixteen Night Watcher skill ids run June's registrations in the id switch of `SetEquippedSkillFuncBySkillSlotIndex` (before this they fell into the Power Attack default): Call of Ruin (23022 / 23054), Gliding Strike (23023 / 23055), Trapping Arrow - Fungus (23024 / 23056), Furious Engage (23025 / 23057), Seed of Wrath: Icicle (23041), Rage Fungus (23042), Eradication (23060, with its attack state 302), Delayed Fire (23217 / 23240), Seed of Wrath (23219 / 23242) and Butterfly (23227).
+- **Differs from March.** Gliding Strike's arrows and Trapping Arrow - Fungus's trap arrow and burst come from the skills' effect sets ( no cut-in light on the Fungus ), the Gliding Strike set is played at 1.2 times the scale; Call of Ruin, enhanced, plays its animation at the skill's `SA_ANI_SPEED` and a fall starts in the air once the state's first `USEFUL_VALUE` time has passed; Delayed Fire reads its cool time from the equipped version's actual cool time and has no walk cancel; Furious Engage's walk cancel and the Fungus's dash and walk cancels need the foot on a line; an enhanced Seed of Wrath may drop a second seed 100 higher ( `SA_EFFECTIVE_RATE` ) and Hunter's Ability scales it in PvP too.
+- **Damage (level-1 multiplier; June = the damage effects' NUMERICAL_DATA through the engine, x0.01; March = the Power Attack default these ids fell into before).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Call of Ruin (23022 / 23054) | Power Attack default | 1.98 hits + 39.18 final |
+| Gliding Strike (23023 / 23055) | Power Attack default | 6.58 ( hyper 8.41 ) |
+| Trapping Arrow - Fungus (23024 / 23056) | Power Attack default | 1.44 arrow + 26.36 burst + 0.87 sub |
+| Furious Engage (23025 / 23057) | Power Attack default | four numerical-only tables ( index 1, 1, 1, 2; values by `NUM use` ) |
+| Seed of Wrath: Icicle (23041) | Power Attack default | 4.62 target + 3.44 explosion |
+| Rage Fungus (23042) | Power Attack default | 7.70 |
+| Eradication (23060) | Power Attack default | 3.19 start + 21.24 attack + 10.63 debuff explosion |
+| Delayed Fire (23217 / 23240) | Power Attack default | 1.15 signal arrow + 5.32 explosion |
+| Seed of Wrath (23219 / 23242) | Power Attack default | 2.62 per seed |
+| Butterfly (23227) | Power Attack default | 15.86 |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every class-114 skill falls back to the Power Attack default, and CH2a's - CH3b's too), `python tools/build.py --deploy`.

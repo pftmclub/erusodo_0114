@@ -9321,3 +9321,50 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32cb5390	std::_Adjust_heap ( StartOfDelayedFiringDataSort )	= March	Char Rena CH3c0: STL, std::sort instance ( compare +0x8 )
 32cb5310	std::_Insertion_sort ( StartOfDelayedFiringDataSort )	= March	Char Rena CH3c0: STL, std::sort instance
 32cb5060	std::_Push_heap ( StartOfDelayedFiringDataSort )	= March	Char Rena CH3c0: STL, std::sort instance
+32c6b600	CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_FrameMoveFuture	confirmed	Char Rena CH3c: = March: tail call of CommonFrameMoveFuture
+32c6b610	CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_CameraMove	confirmed	Char Rena CH3c: = March: tail call of CommonCameraMove
+32c6c7a0	CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_Init	confirmed	Char Rena CH3c: = March: empty
+32c6c7b0	CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_StateStartFuture	confirmed	Char Rena CH3c: = March: tail call of CommonStateStartFuture
+32c6c7c0	CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_FrameMoveFuture	confirmed	Char Rena CH3c: = March: m_bApplyMotionOffset = false, CommonFrameMoveFuture
+32c6c7e0	CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_Init	confirmed	Char Rena CH3c: = March: empty
+32c6c7f0	CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_StateStartFuture	confirmed	Char Rena CH3c: = March: tail call of CommonStateStartFuture
+32c6c800	CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_FrameMoveFuture	confirmed	Char Rena CH3c: = March: tail call of CommonFrameMoveFuture
+32c6c810	CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_StateEndFuture	confirmed	Char Rena CH3c: = March: CommonStateEndFuture, fDownAccel = 0
+32c6cc30	CX2GULire_ElvenRanger::LESI_SA_RTR_TRAPPING_ARROW_FUNGUS_Init	confirmed	Char Rena CH3c: = March: 29 preload names, same order
+32c6cda0	CX2GULire_ElvenRanger::LESI_SA_RTR_TRAPPING_ARROW_FUNGUS_FrameMove	PORTED	Char Rena CH3c: inside, _SKILL: CommonFrameMove only ( March: cut-in light, the trap arrow and its burst made here )
+32c6ce40	CX2GULire_ElvenRanger::LESI_P_RNW_SEED_OF_RUIN_Init	confirmed	Char Rena CH3c: = March: 9 preload names, same order
+32c6cec0	CX2GULire_ElvenRanger::LESI_P_RNW_SEED_OF_RUIN_StartFuture	confirmed	Char Rena CH3c: = March: CommonStateStartFuture, speed 0, gravity off
+32c6cef0	CX2GULire_ElvenRanger::LESI_P_RNW_SEED_OF_RUIN_EndFuture	confirmed	Char Rena CH3c: = March: gravity on, CommonStateEndFuture
+32c6d060	CX2GULire_ElvenRanger::LESI_SA_RNW_SEED_OF_RUIN_POLE_Init	PORTED	Char Rena CH3c: new, _SKILL: empty
+32c6d070	CX2GULire_ElvenRanger::LESI_SA_RNW_RAGE_FUNGUS_Init	PORTED	Char Rena CH3c: new, _SKILL: empty
+32c6d0a0	CX2GULire_ElvenRanger::LESI_A_RNW_BUTTERFLY_Init	PORTED	Char Rena CH3c: new, _SKILL: empty
+32c6d910	CX2GULire_ElvenRanger::LESI_SA_RNW_ERADICATION_START_Init	PORTED	Char Rena CH3c: new, _SKILL: empty ( Eradication start state )
+32c75cf0	CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_EventProcess	PORTED	Char Rena CH3c: inside, _SKILL: animation end -> JUMP_DOWN / WAIT, then RENA_GROUND_WALK_CANCEL ( March: WALK_CANCEL_AFTER, no foot test )
+32c7ada0	CX2GULire_ElvenRanger::LESI_SA_RTR_CALL_OF_RUIN_Init	PORTED	Char Rena CH3c: inside, _SKILL: effect handle -1, XSkinMeshReadyInBackground( rena_A_ruin_obje.X ) ( March: XSkinMeshReady )
+32c7adc0	CX2GULire_ElvenRanger::LESI_SA_RTR_CALL_OF_RUIN_EventProcess	PORTED	Char Rena CH3c: inside, _SKILL: animation end -> JUMP_DOWN / WAIT; else in the air past USEFUL_VALUE Future[0][0] -> JUMP_DOWN ( March: end only )
+32c7ae60	CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_StateStart	PORTED	Char Rena CH3c: inside, _SKILL: CommonStateStart first; the skill is GetEquippedActiveSkillTemplet( RNSI_A_RNW_DELAYED_FIRE, true ); cool time = GetActualCoolTime ( March: GetSkillCoolTimeValue )
+32c7af00	CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_EventProcess	PORTED	Char Rena CH3c: inside, _SKILL: animation time > 1.0 -> JUMP_DOWN / WAIT, no walk cancel ( March: WALK_CANCEL_AFTER )
+32c7af40	CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_EventProcess	confirmed	Char Rena CH3c: = March: animation end -> JUMP_DOWN / JUMP_LANDING, CommonEventProcess
+32c7cde0	CX2GULire_ElvenRanger::LESI_SA_RTR_TRAPPING_ARROW_FUNGUS_StateStart	confirmed	Char Rena CH3c: = March: effect handle -1, CommonStateStart
+32c7ce00	CX2GULire_ElvenRanger::LESI_SA_RTR_TRAPPING_ARROW_FUNGUS_EventProcess	PORTED	Char Rena CH3c: inside, _SKILL: animation end -> JUMP_DOWN / WAIT, RENA_GROUND_DASH_CANCEL, RENA_GROUND_WALK_CANCEL, SKILL_CANCEL_AFTER ( March: no foot test on dash / walk )
+32c7d000	CX2GULire_ElvenRanger::LESI_SA_RTR_TRAPPING_ARROW_FUNGUS_StateEnd	confirmed	Char Rena CH3c: = March: CommonStateEnd, effect handle -1
+32c7d0c0	CX2GULire_ElvenRanger::LESI_P_RNW_SEED_OF_RUIN_FrameMoveFuture	confirmed	Char Rena CH3c: = March: future animation >= 0.66 s -> gravity on, CommonFrameMoveFuture
+32c7d0f0	CX2GULire_ElvenRanger::LESI_P_RNW_SEED_OF_RUIN_EventProcess	confirmed	Char Rena CH3c: = March: 0.36 s gravity on; animation end on a line -> JUMP_LANDING; CommonEventProcess
+32c7e3d0	CX2GULire_ElvenRanger::LESI_SA_RNW_SEED_OF_RUIN_POLE_EventProcess	PORTED	Char Rena CH3c: new, _SKILL: animation end -> JUMP_DOWN / WAIT, SKILL_CANCEL_AFTER, RENA_GROUND_BWALK / WALK / DASH / ATTACK_CANCEL ( the same instructions as 32c7f010, 32c7e6e0 )
+32c7e6e0	CX2GULire_ElvenRanger::LESI_SA_RNW_RAGE_FUNGUS_EventProcess	PORTED	Char Rena CH3c: new, _SKILL: the same instructions as 32c7e3d0
+32c7f010	CX2GULire_ElvenRanger::LESI_A_RNW_BUTTERFLY_EventProcess	PORTED	Char Rena CH3c: new, _SKILL: the same instructions as 32c7e3d0
+32c83480	CX2GULire_ElvenRanger::LESI_SA_RNW_ERADICATION_START_EventProcess	PORTED	Char Rena CH3c: new, _SKILL: animation end -> StateChange( LESI_SA_RNW_ERADICATION_ATTACK ), CommonEventProcess
+32c834b0	CX2GULire_ElvenRanger::LESI_SA_RNW_ERADICATION_ATTACK_EventProcess	PORTED	Char Rena CH3c: new, _SKILL: animation end -> JUMP_DOWN / WAIT, CommonEventProcess
+32c84e20	CX2GULire_ElvenRanger::LESI_SA_RTR_CALL_OF_RUIN_StateStartFuture	PORTED	Char Rena CH3c: new, _SKILL: CommonStateStartFuture; an upgraded cast ResetAnimSpeed( m_fAnimSpeedFuture, APPLY_ANIM_SPEED_BY_ITEM_ABILITY, true, SA_ANI_SPEED of RNSI_SA_RNW_CALL_OF_RUIN_UPGRADE )
+32c98ce0	CX2GULire_ElvenRanger::LESI_SA_RTR_CALL_OF_RUIN_StateEnd	confirmed	Char Rena CH3c: = March: CommonStateEnd, DeleteTrapBlade ( inlined: sub-attack set clear, trap blade destroy, flag off ), effect handle -1
+32c98d50	CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_FrameMove	confirmed	Char Rena CH3c: = March: START_OF_DELAYED_FIRING_DELAY at 0.36 s ( Bip01 + 50, ARROW_DEGREE_Z ), index + DET_START_OF_DELAYED_FIRING
+32c990d0	CX2GULire_ElvenRanger::LESI_A_RNW_START_OF_DELAYED_FIRING_StateEnd	confirmed	Char Rena CH3c: = March: EffectSet_Rena_Night_Watcher_ExplosionArrow_Active, UpdateSkillSlotUI for my unit, CommonStateEnd
+32c99280	CX2GULire_ElvenRanger::LESI_SA_RNW_GLIDING_STRIKE_FrameMove	PORTED	Char Rena CH3c: inside, _SKILL: world colour, cut-in light, then at 0.6 s EffectSet_Rena_Night_Watcher_Gliding_Strike ( hyper by IsHyperState ) scaled 1.2 ( March: 7 damage effects made here ); the ARROW_DEGREE_Z and bone reads are unused
+32c9dc40	CX2GULire_ElvenRanger::LESI_P_RNW_SEED_OF_RUIN_FrameMove	PORTED	Char Rena CH3c: inside, _SKILL: at 0.5 s SEED_OF_RUIN ( _DELAY while Delayed Firing is active ), Hunter's Ability without a PvP test; an enhanced seed adds a second seed 100 higher by SA_EFFECTIVE_RATE ( SEED_OF_RUIN_Upgrade / _DELAY_Upgrade )
+32c9eac0	CX2GULire_ElvenRanger::LESI_A_RNW_BUTTERFLY_StateEnd	PORTED	Char Rena CH3c: new, _SKILL: DeleteTrapBlade ( inlined ), then CommonStateEnd
+32ca6970	CX2GULire_ElvenRanger::LESI_SA_RTR_CALL_OF_RUIN_StateStart	PORTED	Char Rena CH3c: inside, _SKILL: CreateTrapBlade, CommonStateStart, then the now-state form of 32c84e20 ( March: no anim speed )
+32ca7000	CX2GULire_ElvenRanger::LESI_A_RNW_BUTTERFLY_StateStart	PORTED	Char Rena CH3c: new, _SKILL: CreateTrapBlade, CommonStateStart
+32ca7810	CX2GULire_ElvenRanger::LESI_SA_RNW_ERADICATION_ATTACK_StateStart	PORTED	Char Rena CH3c: new, _SKILL: CommonStateStart, the hit count restarts and the loop effect set stops ( ResetEradicationLoop, June 32ca2aa0 )
+32ca95f0	CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_StateStart	confirmed	Char Rena CH3c: = March: prior-planned-blow flags, CreateTrapBlade, CommonStateStart
+32caca80	CX2GULire_ElvenRanger::LESI_SA_RNW_FURIOUS_ENGAGE_FrameMove	confirmed	Char Rena CH3c: = March: DAMAGE_DATA_NEXT / _THIRD / _LAST at m_fDamageDataChangeTime / 1 / 2 ( LAST: DeleteTrapBlade, Rfoot attack box ), CheckPriorPlannedBlow, CommonFrameMove
+31e4c4c0	CX2EffectSet::EffectSetInstance::SetEffectScale( vScale, bDamageEffectScale, bApplyMemoScale )	confirmed	Char Rena CH3c: stores the scale ( +0x70 ) and the flag ( +0x7c ); with the third argument 1 the scale is first multiplied by the instance memo scale ( +0x150 ). Gliding Strike passes ( 1.2, true, false ) = March's SetEffectScale( v, true ); no caller passes the memo form yet

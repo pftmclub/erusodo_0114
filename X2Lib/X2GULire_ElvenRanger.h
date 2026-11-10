@@ -2067,6 +2067,19 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void LESI_A_LSR_MIND_OF_SHARPSHOOTER_Init();	/// June 32c6d690
 		void LESI_A_LSR_MIND_OF_SHARPSHOOTER_EventProcess();	/// June 32c831f0
 		void LESI_A_LSR_MIND_OF_SHARPSHOOTER_FrameMove();	/// June 32c83220
+		void LESI_SA_RTR_CALL_OF_RUIN_StateStartFuture();	/// char-rena CH3c: June 32c84e20
+		void LESI_SA_RNW_SEED_OF_RUIN_POLE_Init();	/// June 32c6d060 ( empty )
+		void LESI_SA_RNW_SEED_OF_RUIN_POLE_EventProcess();	/// June 32c7e3d0
+		void LESI_SA_RNW_RAGE_FUNGUS_Init();	/// June 32c6d070 ( empty )
+		void LESI_SA_RNW_RAGE_FUNGUS_EventProcess();	/// June 32c7e6e0
+		void LESI_A_RNW_BUTTERFLY_Init();	/// June 32c6d0a0 ( empty )
+		void LESI_A_RNW_BUTTERFLY_StateStart();	/// June 32ca7000
+		void LESI_A_RNW_BUTTERFLY_EventProcess();	/// June 32c7f010
+		void LESI_A_RNW_BUTTERFLY_StateEnd();	/// June 32c9eac0
+		void LESI_SA_RNW_ERADICATION_START_Init();	/// June 32c6d910 ( empty )
+		void LESI_SA_RNW_ERADICATION_START_EventProcess();	/// June 32c83480
+		void LESI_SA_RNW_ERADICATION_ATTACK_StateStart();	/// June 32ca7810
+		void LESI_SA_RNW_ERADICATION_ATTACK_EventProcess();	/// June 32c834b0
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 
 		//LESI_A_LGA_FREEZING_BOLT
