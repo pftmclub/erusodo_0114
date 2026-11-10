@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-ara CH5` |
 | Plan doc | `JUNE_CHARACTER_ARA_PHASES.md` (branch `main`) |
-| Depends on | CH1 review; may run beside CH2 (its Touches do not overlap `X2GUAra.*` except the cut-in table: not beside a CH2 phase editing the same lines), decision 2 |
+| Depends on | CH1 review; may run beside CH2 (its Touches do not overlap `X2GUAra.*` except the cut-in table: not beside a CH2 phase editing the same lines) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARA_UI` (+ `..._UI_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`ARA UI`) |
 | Review | `kickoffs/char-ara/CH5-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -22,7 +22,7 @@ Do "Phase CH5": Ara's 5 `UnitTemplet.lua` rows (7, 28, 118, 31, 119) become June
 L1210 / L1342 / L1368) and June's rows for 34 (L1397) and 124 (L1423) are added (core-list BOM source; `luasrc.py refresh` after; every other row stays;
 if CH0 found the templet loader refuses a class >= `UC_END`, the two new rows wait for CHNa); the cut-in table `X2GUAra.cpp:36-60` and the InitState
 index switch `:280-310` replaced by June's names and layout (7t cut-in `.gfx` names, `HQ_Cutin_ASD / AYR / ASR_Transcendence`); 7ah; the lobby orb
-handles `m_hSeqEnergyBullet1-3` (`X2UnitViewerUI.h:337-339`, `.cpp:80-82`, `:2465-2501`, checklist 7e l.368) retired or kept per Open decision 2. Pack
+handles `m_hSeqEnergyBullet1-3` (`X2UnitViewerUI.h:337-339`, `.cpp:80-82`, `:2465-2501`, checklist 7e l.368) **retired** (Open decision 2, answered 2026-11-10: under the unit viewer's flag, March's code in `#else`, as the other eight classes). Pack
 data036 and copy it. Done gate: a select-screen pass of all nine March characters with no new error; Ara's skill and hyper cut-ins play June's art;
 the second-job names show June's strings; the lobby shows Little Devil's orb once (`ALD_LobbyWait`).
 

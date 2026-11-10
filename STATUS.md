@@ -138,8 +138,8 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | CH1q | blocked (CH1p review): force power + berserk rework, flag `_FP` | Opus 5.5 / high, Opus review | CH1p review | `X2GUAra.*`, `X2GUUser.*`, `X2Gage*.*`, emulator | `CH1q.md` |
 | CH1q2 | blocked (CH1q review): Specter states + tails, flag `_SPECTER` | Opus 5.5 / high, Opus review | CH1q review | `X2GUAra.*`, `X2GUUser.*` | `CH1q2.md` |
 | CH1 | blocked (CH1q2 review, CH0b): `_LIVE` on, June script, play-test on 7 / 28 / 31 / 118 / 119 | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036, motion koms | `CH1.md` |
-| CH5 | blocked (CH1 review, decision 2): 5 `UnitTemplet` rows + 34 / 124 rows, cut-in table, orb handles | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, `X2GUAra.cpp` cut-ins, `X2UnitViewerUI.*` | `CH5.md` |
-| CHNa | blocked (CH5 review, decision 1): 34 / 124 load and play (`UC_END`, gauge, switches, stat rows, units) | Opus 5.5 / high, Opus review, user play-test | CH5 review | `X2Unit.h`, `X2SocketItem.cpp`, `X2GageManager.cpp`, `X2GUUser.cpp`, emulator, `StatTable.lua` (user packs) | `CHNa.md` |
+| CH5 | blocked (CH1 review): 5 `UnitTemplet` rows + 34 / 124 rows, cut-in table, orb handles | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, `X2GUAra.cpp` cut-ins, `X2UnitViewerUI.*` | `CH5.md` |
+| CHNa | blocked (CH5 review): 34 / 124 load and play (`UC_END`, gauge, switches, stat rows, units) | Opus 5.5 / high, Opus review, user play-test | CH5 review | `X2Unit.h`, `X2SocketItem.cpp`, `X2GageManager.cpp`, `X2GUUser.cpp`, emulator, `StatTable.lua` (user packs) | `CHNa.md` |
 | CHNb | blocked (CHNa review): job change to 34 / 124 (quests 35560-35568, seeds, dialogs) | Opus 5.5 / high, Opus review, user play-test | CHNa review | `FieldQuest.lua`, `Handlers_Quest.cpp`, `X2OfflineClassChangeSeed.h` | `CHNb.md` |
 | CH2a | blocked (CH1 review): Martial Artist (7) skills; no review of its own | Sonnet 5.5 / high, user play-test | CH1 review | `X2GUAra.*` | `CH2a.md` |
 | CH2b0 | blocked (CH1 review): lock-on `ProcessLockOn` `3200fa20`, flag `_LOCKON`; amends char-luciel CH3c20 | Opus 5.5 / high, Opus review | CH1 review | `X2GUAra.*`, `kickoffs/char-luciel/CH3c20.md` | `CH2b0.md` |
@@ -158,7 +158,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 
 Done: -
 
-Open decisions (plan "Open decisions"): 1 stat rows for 34 / 124 (gates CHNa); 2 retire the lobby orb handles (gates CH5).
+Decisions answered 2026-11-10 (plan "Open decisions"): 1 stat rows for 34 / 124 follow Ara's own rule (CHNa writes, user packs); 2 the lobby orb handles are retired (CH5).
 
 ## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.
