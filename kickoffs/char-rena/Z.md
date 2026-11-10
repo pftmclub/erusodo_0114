@@ -21,8 +21,8 @@ Then Raven's Z Done note (the worked example).
 
 Do "Phase Z": the `MODS.md` section `June character: Rena` (flags, files, data, revert order: exe + data036 + motion koms together; natural force's
 `ServerDefine.h` second home); no `SERV_IRUHADEV_JUNE_CHAR_RENA_*_DEBUG` defined; checklist rows carry `(Rena: CHn)`; a Rena row and lessons in the
-Aisha plan's "Template for Stage 7" (what she took against this plan); backlog Stage 7 note; the `stage7-plan` STATUS row pointing at `char-ara` (the first
-CH-N run: `/x2-phase new-plan char-ara`); the `char-rena` block moved to `STATUS_ARCHIVE.md` with a *Closed plans* row.
+Aisha plan's "Template for Stage 7" (what she took against this plan); backlog Stage 7 note; the `char-ara` block's code rows unblocked (Ara was planned 2026-11-10 by `new-plan char-ara`
+while CH4b ran: set `char-ara` CH1a to ready, and CH0b if CH6's walk is done); the `char-rena` block moved to `STATUS_ARCHIVE.md` with a *Closed plans* row.
 
 No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): an id that has a name in an Enum (June's
 `Enum.lua`, or a C++ enum) is never written as a number, in any new or touched code: use the member, and

@@ -1,0 +1,161 @@
+c1a_numerical_blocks.tsv_line	file	templet	block	skill_id	june_skill_name	lookup	result	L1_value	L1_x0.01	L1_pvp_rate	L1_tech_point	L1_hit_add_mp	skill_in_march_templets
+7	DamageEffect.lua	ARA_SHADOW_RISING_EXPLOSION	DAMAGE_DATA	27047	Shadow Blast	INDEX 2	ok	174	1.74	0.4	50	0.83	False
+8	DamageEffect.lua	ARA_SHADOW_RISING_IMPACT	DAMAGE_DATA	27047	Shadow Blast	INDEX 1	ok	2145	21.45	0.4	600	7.5	False
+34	DamageEffect.lua	DAMAGEEFFCT_ASD_Thousands_Blossoms01	DAMAGE_DATA	27600	Heaven's Wrath	INDEX 1	ok	2036	20.36	0.24	488	6.5	False
+35	DamageEffect.lua	DAMAGEEFFCT_ASD_Thousands_Blossoms02	DAMAGE_DATA	27600	Heaven's Wrath	INDEX 2	ok	2167	21.67	0.24	575	7.67	False
+36	DamageEffect.lua	DAMAGEEFFCT_ASD_Thousands_Blossoms_Finish	DAMAGE_DATA	27600	Heaven's Wrath	INDEX 3	ok	3540	35.4	0.24	975	13	False
+37	DamageEffect.lua	DAMAGE_AHD_PRISON_SPEAR_B_Damage	DAMAGE_DATA	27016	Rakshasa\nStance 3: Spear Prison	INDEX 2	ok	604	6.04	0.4	250	3	False
+38	DamageEffect.lua	DAMAGE_ARA_FORCE_SPEAR	DAMAGE_DATA	27211	Force Spear	INDEX 1	ok	495	4.95	0.34	150	1.5	False
+48	DamageEffect.lua	DAMAGE_EFFECT_ALD_FINGER_BULLET	DAMAGE_DATA	27209	Rakshasa Stance 1:\n Soul Reaping	INDEX 1	ok	1229	12.29	0.28	272	2.72	False
+49	DamageEffect.lua	DAMAGE_EFFECT_ALH_DESCENT_DRAGON	DAMAGE_DATA	27008	Dragon Stance 4:\n Moonlight Slash	INDEX 6	ok	6566	65.66	0.4	2250	0	False
+50	DamageEffect.lua	DAMAGE_EFFECT_ALH_DESCENT_DRAGON_DUMMY	DAMAGE_DATA	27008	Dragon Stance 4:\n Moonlight Slash	INDEX 6	ok	6566	65.66	0.4	2250	0	False
+51	DamageEffect.lua	DAMAGE_EFFECT_ALH_DOUBLE_COLLISION_FLIGHT_DAMAGE_02	DAMAGE_DATA	27006	Dragon Stance 3:\n Eight Trigram Palm	INDEX 2	ok	325	3.25	0.4	100	1	False
+52	DamageEffect.lua	DAMAGE_EFFECT_ALH_DOUBLE_COLLISION_START	DAMAGE_DATA	27006	Dragon Stance 3:\n Eight Trigram Palm	INDEX 1	ok	913	9.13	0.4	350	5	False
+53	DamageEffect.lua	DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH	DAMAGE_DATA	27012	Matchless Truth	INDEX 1	ok	319	3.19	0.4	150	2	False
+54	DamageEffect.lua	DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_02	DAMAGE_DATA	27012	Matchless Truth	INDEX 1	ok	319	3.19	0.4	150	2	False
+55	DamageEffect.lua	DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_Final	DAMAGE_DATA	27012	Matchless Truth	INDEX 1	ok	319	3.19	0.4	150	2	False
+56	DamageEffect.lua	DAMAGE_EFFECT_ALH_PEERLESSNESS_SLASH_LAST	DAMAGE_DATA	27012	Matchless Truth	INDEX 2	ok	637	6.37	0.4	300	7	False
+57	DamageEffect.lua	DAMAGE_EFFECT_ALH_POWER_OF_WHITE_TIGER	DAMAGE_DATA	27005	Fierce Tiger\n Strike	INDEX 1	ok	151	1.51	0.4	60	1	False
+58	DamageEffect.lua	DAMAGE_EFFECT_ALH_POWER_OF_WHITE_TIGER	DAMAGE_DATA_NEXT	27005	Fierce Tiger\n Strike	INDEX 1	ok	151	1.51	0.4	60	1	False
+59	DamageEffect.lua	DAMAGE_EFFECT_ALH_POWER_OF_WHITE_TIGER_SHOCK_WAVE	DAMAGE_DATA	27005	Fierce Tiger\n Strike	INDEX 2	ok	2200	22	0.28	1200	16	False
+60	DamageEffect.lua	DAMAGE_EFFECT_ASD_SUPPRESSION_DOWN_FORCE	DAMAGE_DATA	27009	Suppression	INDEX 1	ok	494	4.94	0.24	225	10	False
+61	DamageEffect.lua	DAMAGE_EFFECT_ASD_TURBULENT_WAVE_STREAM	DAMAGE_DATA	27010	Tiger Stance 4:\n Raging Wave	INDEX 1	ok	123	1.23	0.32	46	1	False
+62	DamageEffect.lua	DAMAGE_EFFECT_ASD_TURBULENT_WAVE_STREAM_FINAL	DAMAGE_DATA	27010	Tiger Stance 4:\n Raging Wave	INDEX 2	ok	518	5.18	0.4	150	2	False
+63	DamageEffect.lua	DAMAGE_EFFECT_A_ALD_CONVERSION_HEALTH	DAMAGE_DATA	27210	Life Swap	INDEX 1	ok	769	7.69	0.32	150	1.5	False
+64	DamageEffect.lua	DAMAGE_EFFECT_A_ALD_CONVERSION_MANA	DAMAGE_DATA	27210	Life Swap	INDEX 2	ok	673	6.73	0.28	150	1.5	False
+65	DamageEffect.lua	DAMAGE_EFFECT_A_ALH_Rock_Crash_1	DAMAGE_DATA	27202	Tiger Stance 1:\n Rock Smash	INDEX 1	ok	133	1.33	0.32	23	0.34	False
+66	DamageEffect.lua	DAMAGE_EFFECT_A_ALH_Rock_Crash_Flight_Damage_02	DAMAGE_DATA	27202	Tiger Stance 1:\n Rock Smash	INDEX 2	ok	233	2.33	0.4	34	0.34	False
+67	DamageEffect.lua	DAMAGE_EFFECT_A_ALH_Shoulder_Blow_Memo_Impact	DAMAGE_DATA	27201	Steel Body	INDEX 1	ok	756	7.56	0.4	150	1.5	False
+68	DamageEffect.lua	DAMAGE_EFFECT_A_ALH_Shoulder_Blow_Memo_Impact_Sub	DAMAGE_DATA	27201	Steel Body	INDEX 2	ok	667	6.67	0.32	150	1.5	False
+69	DamageEffect.lua	DAMAGE_EFFECT_A_AYR_WOLF_CLAW_IMPACT	DAMAGE_DATA	27208	Wolf Stance 3:\n Wolf Claw	INDEX 2	ok	384	3.84	0.32	104	1.04	False
+163	DamageEffect.lua	DAMAGE_EFFECT_ENERGY_BEAD_BULLET	DAMAGE_DATA	27018	Rakshasa Stance 2:\n Energy Burst	INDEX 1	ok	640	6.4	0.4	240	3	False
+164	DamageEffect.lua	DAMAGE_EFFECT_ENERGY_BEAD_BULLET_FINAL	DAMAGE_DATA	27018	Rakshasa Stance 2:\n Energy Burst	INDEX 2	ok	532	5.32	0.4	180	2	False
+165	DamageEffect.lua	DAMAGE_EFFECT_ENERGY_VOID_ATTACK_EXPLOSION	DAMAGE_DATA	27019	Energy Void	INDEX 3	ok	450	4.5	0.4	225	5	False
+181	DamageEffect.lua	DAMAGE_EFFECT_FINGER_BULLET_ATTACK_SUCCESS	DAMAGE_DATA	27209	Rakshasa Stance 1:\n Soul Reaping	INDEX 2	ok	553	5.53	0.4	78	0.78	False
+214	DamageEffect.lua	DAMAGE_EFFECT_OPEN_THE_HELL_EXPLOSION	DAMAGE_DATA	27020	Rakshasa Stance 4:\n Soul Escape	INDEX 3	ok	1322	13.22	0.4	450	0	False
+217	DamageEffect.lua	DAMAGE_EFFECT_PRISON_SPEAR_DUMMY_ATTACK	DAMAGE_DATA	27016	Rakshasa\nStance 3: Spear Prison	INDEX 1	ok	239	2.39	0.4	87	1	False
+231	DamageEffect.lua	DAMAGE_EFFECT_SA_ALH_MoonLight_Slash_Crescent_Attack	DAMAGE_DATA	27008	Dragon Stance 4:\n Moonlight Slash	INDEX 1	ok	3006	30.06	0.4	1125	15	False
+232	DamageEffect.lua	DAMAGE_EFFECT_SA_ALH_MoonLight_Slash_Crescent_Attack_FullMoon	DAMAGE_DATA	27008	Dragon Stance 4:\n Moonlight Slash	INDEX 4	ok	3306	33.06	0.4	1125	15	False
+233	DamageEffect.lua	DAMAGE_EFFECT_SA_ALH_MoonLight_Slash_Fullmoon_Attack	DAMAGE_DATA	27008	Dragon Stance 4:\n Moonlight Slash	INDEX 2	ok	3305	33.05	0.4	1125	15	False
+234	DamageEffect.lua	DAMAGE_EFFECT_SA_ALH_MoonLight_Slash_Fullmoon_Attack_FullMoon	DAMAGE_DATA	27008	Dragon Stance 4:\n Moonlight Slash	INDEX 5	ok	4296	42.96	0.4	1125	15	False
+235	DamageEffect.lua	DAMAGE_EFFECT_SA_ALH_Swallow_Assualt	DAMAGE_DATA	27011	Flying Kite	INDEX 2	ok	413	4.13	0.28	135	2	False
+236	DamageEffect.lua	DAMAGE_EFFECT_SA_ALH_Swallow_Assualt_Final	DAMAGE_DATA	27011	Flying Kite	INDEX 2	ok	413	4.13	0.28	135	2	False
+237	DamageEffect.lua	DAMAGE_EFFECT_SA_ALH_Swallow_Assualt_First	DAMAGE_DATA	27011	Flying Kite	INDEX 1	ok	2224	22.24	0.28	900	12	False
+238	DamageEffect.lua	DAMAGE_EFFECT_SA_ASD_Void_Break	DAMAGE_DATA	27010	Tiger Stance 4:\n Raging Wave	INDEX 3	ok	2838	28.38	0.4	900	0	False
+240	DamageEffect.lua	DAMAGE_EFFECT_SA_AYR_ENERGY_CANNON_EXPLOSION	DAMAGE_DATA	27601	Hell Blast	INDEX 3	ok	11365	113.65	0.24	3000	40	False
+241	DamageEffect.lua	DAMAGE_EFFECT_SA_AYR_ENERGY_CANNON_KI	DAMAGE_DATA	27601	Hell Blast	INDEX 1	ok	7103	71.03	0.24	1875	25	False
+242	DamageEffect.lua	DAMAGE_EFFECT_SA_AYR_ENERGY_CANNON_KI_Sub	DAMAGE_DATA	27601	Hell Blast	INDEX 2	ok	370	3.7	0.24	75	1	False
+259	DamageEffect.lua	DAMAGE_EFFECT_SHADOW_KNOT_WEAPON	DAMAGE_DATA	27004	Exorcism Stance 3:\n Shadoweave	INDEX 1	ok	479	4.79	0.4	176	2	False
+260	DamageEffect.lua	DAMAGE_EFFECT_SI_A_ARA_GAIN_FORCE	DAMAGE_DATA	27200	Energy\n Absorption	INDEX 1	ok	721	7.21	0.36	150	1.5	False
+261	DamageEffect.lua	DAMAGE_EFFECT_SI_A_ARA_Tiger_Claw_1st	DAMAGE_DATA	27203	Tiger Stance 2:\n Tiger Claw	INDEX 1	ok	670	6.7	0.32	117	1.17	False
+262	DamageEffect.lua	DAMAGE_EFFECT_SI_A_ARA_Tiger_Claw_2nd	DAMAGE_DATA	27203	Tiger Stance 2:\n Tiger Claw	INDEX 2	ok	193	1.93	0.32	34	0.34	False
+263	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_AA_FIRE_FOX_AGING_HIT	DAMAGE_DATA	27027	Fox Fire	INDEX 2	ok	167	1.67	0.28	67	1	False
+264	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_AA_FIRE_FOX_FIRE_HIT	DAMAGE_DATA	27027	Fox Fire	INDEX 2	ok	167	1.67	0.28	67	1	False
+265	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_AA_FIRE_FOX_FROZEN_HIT	DAMAGE_DATA	27027	Fox Fire	INDEX 2	ok	167	1.67	0.28	67	1	False
+266	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_AA_FIRE_FOX_SHOCK_HIT	DAMAGE_DATA	27027	Fox Fire	INDEX 2	ok	167	1.67	0.28	67	1	False
+267	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_ARA_FALLING_DRAGON	DAMAGE_DATA	27002	Falling Dragon	INDEX 1	ok	2427	24.27	0.4	2250	30	False
+268	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_ARA_PULLING_PIERCE_PULLING	DAMAGE_DATA	27001	Dragon Stance 2:\n Pulling Thrust	INDEX 2	ok	449	4.49	0.4	188	3	False
+269	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_ARA_PULLING_PUSHING	DAMAGE_DATA	27001	Dragon Stance 2:\n Pulling Thrust	INDEX 1	ok	1223	12.23	0.4	563	9	False
+270	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_ARA_Shadow_knot_Final	DAMAGE_DATA	27004	Exorcism Stance 3:\n Shadoweave	INDEX 2	ok	1031	10.31	0.4	469	6	False
+271	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_ARA_TEMPEST_DANCE_1st	DAMAGE_DATA	27000	Tempest Dance	INDEX 1	ok	409	4.09	0.4	169	3	False
+272	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_ARA_TEMPEST_DANCE_2nd	DAMAGE_DATA	27000	Tempest Dance	INDEX 1	ok	409	4.09	0.4	169	3	False
+273	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_ARA_TEMPEST_DANCE_Final	DAMAGE_DATA	27000	Tempest Dance	INDEX 2	ok	887	8.87	0.4	338	5	False
+274	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_ARA_WIND_WEDGE	DAMAGE_DATA	27003	Wolf Stance 2:\n Wind Wedge	INDEX 1	ok	380	3.8	0.32	188	3	False
+275	DamageEffect.lua	DAMAGE_EFFECT_SI_SA_ARA_WIND_WEDGE_FINAL	DAMAGE_DATA	27003	Wolf Stance 2:\n Wind Wedge	INDEX 2	ok	469	4.69	0.4	188	3	False
+280	DamageEffect.lua	DAMAGE_EFFECT_STEAL_SOUL	DAMAGE_DATA	27020	Rakshasa Stance 4:\n Soul Escape	INDEX 1	ok	2118	21.18	0.4	960	12	False
+281	DamageEffect.lua	DAMAGE_EFFECT_SUPPRESSION_ENERGY_EXPLOSION	DAMAGE_DATA	27017	Suppression\n Energy	INDEX 1	ok	4872	48.72	0.24	1875	25	False
+339	DamageEffect.lua	DamageEffect_AAS_Get_Blood	DAMAGE_DATA	27026	Phantom Fox Stance 4:\n Fox's Meal	INDEX 1	ok	308	3.08	0.4	120	1	False
+340	DamageEffect.lua	DamageEffect_AAS_Get_Blood	DAMAGE_DATA_NEXT	27026	Phantom Fox Stance 4:\n Fox's Meal	INDEX 1	ok	308	3.08	0.4	120	1	False
+341	DamageEffect.lua	DamageEffect_AAS_Get_Blood	DAMAGE_DATA_NEXT2	27026	Phantom Fox Stance 4:\n Fox's Meal	INDEX 1	ok	308	3.08	0.4	120	1	False
+342	DamageEffect.lua	DamageEffect_AAS_Get_Blood_Finish	DAMAGE_DATA	27026	Phantom Fox Stance 4:\n Fox's Meal	INDEX 2	ok	499	4.99	0.4	150	2	False
+343	DamageEffect.lua	DamageEffect_AAS_Raid_Attack	DAMAGE_DATA	27218	Phantom Fox Stance 3:\n Rapid Raid	INDEX 1	ok	192	1.92	0.32	40	0.4	False
+344	DamageEffect.lua	DamageEffect_AAS_Raid_Attack_Finish	DAMAGE_DATA	27218	Phantom Fox Stance 3:\n Rapid Raid	INDEX 3	ok	48	0.48	0.32	10	0.1	False
+350	DamageEffect.lua	DamageEffect_AA_NECROMANCY_Add_Damage	DAMAGE_DATA	27028	Spell:\n Necromancy	INDEX 2	ok	150	1.5	0.4	38	1	False
+408	DamageEffect.lua	DamageEffect_ALD_Hell_Of_Tornado_Attack	DAMAGE_DATA	27013	Infernal Circle	INDEX 1	ok	308	3.08	0.4	146	2	False
+409	DamageEffect.lua	DamageEffect_ALD_Hell_Of_Tornado_Attack	DAMAGE_DATA_NEXT	27013	Infernal Circle	INDEX 1	ok	308	3.08	0.4	146	2	False
+410	DamageEffect.lua	DamageEffect_ALD_Hell_Of_Tornado_Attack_Final	DAMAGE_DATA	27013	Infernal Circle	INDEX 2	ok	661	6.61	0.4	333	4	False
+411	DamageEffect.lua	DamageEffect_ALD_WOLF_SPEAR1_MEMO	DAMAGE_DATA	27014	Wolf Stance 4:\n Wolf Fang	INDEX 1	ok	449	4.49	0.32	233	3	False
+412	DamageEffect.lua	DamageEffect_ALD_WOLF_SPEAR2_MEMO	DAMAGE_DATA	27014	Wolf Stance 4:\n Wolf Fang	INDEX 1	ok	449	4.49	0.32	233	3	False
+413	DamageEffect.lua	DamageEffect_ALD_WOLF_SPEAR3_MEMO	DAMAGE_DATA	27014	Wolf Stance 4:\n Wolf Fang	INDEX 1	ok	449	4.49	0.32	233	3	False
+414	DamageEffect.lua	DamageEffect_ALD_WOLF_SPEAR4_MEMO	DAMAGE_DATA	27014	Wolf Stance 4:\n Wolf Fang	INDEX 2	ok	408	4.08	0.32	200	3	False
+415	DamageEffect.lua	DamageEffect_ALD_WOLF_SPEAR_Ultimate_WOLF_Break_Special	DAMAGE_DATA	27014	Wolf Stance 4:\n Wolf Fang	INDEX 3	ok	705	7.05	0.4	225	0	False
+509	DamageEffect_Character.lua	DamageEffect_ASD_Advent_Dragon_AttackFX	DAMAGE_DATA	27064	Spiritual Dragon	INDEX 1	ok	1379	13.79	0.4	375	5	False
+510	DamageEffect.lua	DamageEffect_ASD_Dragon_Falling_DOWN_DAMAGE	DAMAGE_DATA	27204	Fall	INDEX 2	ok	326	3.26	0.32	78	0.78	False
+511	DamageEffect.lua	DamageEffect_ASD_Dragon_Falling_UP	DAMAGE_DATA	27204	Fall	INDEX 1	ok	359	3.59	0.32	91	0.91	False
+522	DamageEffect.lua	DamageEffect_AYR_Energy_Void_Attack	DAMAGE_DATA	27019	Energy Void	INDEX 2	ok	160	1.6	0.4	56	1	False
+523	DamageEffect.lua	DamageEffect_AYR_Energy_Void_Default_Attack	DAMAGE_DATA	27019	Energy Void	INDEX 1	ok	128	1.28	0.32	45	1	False
+545	DamageEffect.lua	DamageEffect_A_ASD_Swallow_Assault_Teeth_Damage	DAMAGE_DATA	27226	Charging Fury	INDEX 1	ok	293	2.93	0.4	28	0.28	False
+546	DamageEffect.lua	DamageEffect_A_ASD_Swallow_Assault_Teeth_End	DAMAGE_DATA	27226	Charging Fury	INDEX 2	ok	286	2.86	0.4	35	0.35	False
+547	DamageEffect.lua	DamageEffect_A_ASR_Fox_Ghost_Projectile	DAMAGE_DATA	27228	Fox Spirit	INDEX 1	ok	545	5.45	0.36	50	0.5	False
+548	DamageEffect.lua	DamageEffect_A_AYR_Gain_Good_Energy_Ball	DAMAGE_DATA	27227	Absorption Nova	INDEX 1	ok	1893	18.93	0.32	300	3	False
+549	DamageEffect.lua	DamageEffect_A_AYR_HIGH_SPEED_Damage	DAMAGE_DATA	27212	High Speed	INDEX 1	ok	900	9	0.4	150	1.5	False
+737	DamageEffect.lua	DamageEffect_FIRE_FOX_SCRATCH_Damage	DAMAGE_DATA	27027	Fox Fire	INDEX 1	ok	70	0.7	0.4	32	0	False
+748	DamageEffect.lua	DamageEffect_Force_Spear_With_Demigod	DAMAGE_DATA	27211	Force Spear	INDEX 1	ok	495	4.95	0.34	150	1.5	False
+910	DamageEffect.lua	DamageEffect_MANA_DRAIN_Damage	DAMAGE_DATA	27216	Mana Drain	INDEX 1	ok	1194	11.94	0.32	300	3	False
+913	DamageEffect.lua	DamageEffect_NINE_TAILED_FOX_Finish_Attack	DAMAGE_DATA	27602	Millennium Fox	INDEX 4	ok	923	9.23	0.24	225	3	False
+914	DamageEffect.lua	DamageEffect_NINE_TAILED_FOX_First_Damage	DAMAGE_DATA	27602	Millennium Fox	INDEX 1	ok	308	3.08	0.24	75	1	False
+915	DamageEffect.lua	DamageEffect_NINE_TAILED_FOX_Landing_Attack	DAMAGE_DATA	27602	Millennium Fox	INDEX 2	ok	2368	23.68	0.24	750	10	False
+916	DamageEffect.lua	DamageEffect_NINE_TAILED_FOX_Lightning_Attack	DAMAGE_DATA	27602	Millennium Fox	INDEX 3	ok	831	8.31	0.24	208	2.78	False
+917	DamageEffect.lua	DamageEffect_Necromancy_Damage	DAMAGE_DATA	27028	Spell:\n Necromancy	INDEX 1	ok	1507	15.07	0.28	1125	10	False
+938	DamageEffect.lua	DamageEffect_RESTRAINTS_SPECTER_Damage	DAMAGE_DATA	27022	Exorcism Stance 2:\n Specter Restraints	INDEX 1	ok	783	7.83	0.4	525	7	False
+939	DamageEffect.lua	DamageEffect_RESTRAINTS_SPECTER_Finish_Damage	DAMAGE_DATA	27022	Exorcism Stance 2:\n Specter Restraints	INDEX 3	ok	451	4.51	0.4	150	2	False
+1036	DamageEffect.lua	DamageEffect_SA_AHD_ENERGY_WAVE_PROJECTILE	DAMAGE_DATA	27015	Energy Wave	INDEX 1	ok	2926	29.26	0.4	1500	20	False
+1037	DamageEffect.lua	DamageEffect_SA_AHD_ENERGY_WAVE_PROJECTILE	DAMAGE_DATA_NEXT	27015	Energy Wave	INDEX 2	ok	1931	19.31	0.4	1500	20	False
+1038	DamageEffect.lua	DamageEffect_SA_AHD_ENERGY_WAVE_PROJECTILE	DAMAGE_DATA_NEXT2	27015	Energy Wave	INDEX 3	ok	965	9.65	0.4	1500	20	False
+1039	DamageEffect.lua	DamageEffect_SA_AHD_ENERGY_WAVE_PROJECTILE_Demigod	DAMAGE_DATA	27015	Energy Wave	INDEX 1	ok	2926	29.26	0.4	1500	20	False
+1040	DamageEffect.lua	DamageEffect_SA_AHD_ENERGY_WAVE_PROJECTILE_Demigod	DAMAGE_DATA_NEXT	27015	Energy Wave	INDEX 2	ok	1931	19.31	0.4	1500	20	False
+1041	DamageEffect.lua	DamageEffect_SA_AHD_ENERGY_WAVE_PROJECTILE_Demigod	DAMAGE_DATA_NEXT2	27015	Energy Wave	INDEX 3	ok	965	9.65	0.4	1500	20	False
+1103	DamageEffect.lua	DamageEffect_SA_ALD_WOLF_Break	DAMAGE_DATA	27014	Wolf Stance 4:\n Wolf Fang	INDEX 3	ok	705	7.05	0.4	225	0	False
+1104	DamageEffect.lua	DamageEffect_SA_ALD_WOLF_Break2	DAMAGE_DATA	27014	Wolf Stance 4:\n Wolf Fang	INDEX 3	ok	705	7.05	0.4	225	0	False
+1105	DamageEffect.lua	DamageEffect_SA_ALD_WOLF_Break2_Special	DAMAGE_DATA	27014	Wolf Stance 4:\n Wolf Fang	INDEX 3	ok	705	7.05	0.4	225	0	False
+1106	DamageEffect.lua	DamageEffect_SA_ALD_WOLF_Break3	DAMAGE_DATA	27014	Wolf Stance 4:\n Wolf Fang	INDEX 3	ok	705	7.05	0.4	225	0	False
+1107	DamageEffect.lua	DamageEffect_SA_ALD_WOLF_Break3_Special	DAMAGE_DATA	27014	Wolf Stance 4:\n Wolf Fang	INDEX 3	ok	705	7.05	0.4	225	0	False
+1108	DamageEffect.lua	DamageEffect_SA_ALD_WOLF_Break_Special	DAMAGE_DATA	27014	Wolf Stance 4:\n Wolf Fang	INDEX 3	ok	705	7.05	0.4	225	0	False
+1115	DamageEffect.lua	DamageEffect_SA_ALH_LinkFlower_AttackProjectile	DAMAGE_DATA	27007	Fire Lotus	INDEX 3	ok	365	3.65	0.32	144	2	False
+1116	DamageEffect.lua	DamageEffect_SA_ALH_LinkFlower_AttackProjectile	DAMAGE_DATA_NEXT	27007	Fire Lotus	INDEX 3	ok	365	3.65	0.32	144	2	False
+1117	DamageEffect.lua	DamageEffect_SA_ALH_Link_Flower_DeBuff_FX_Explosion	DAMAGE_DATA	27007	Fire Lotus	INDEX 4	ok	318	3.18	0.4	113	3	False
+1141	DamageEffect.lua	DamageEffect_SA_ASD_Continuity_Strikr_Throwing_Projectile	DAMAGE_DATA	27044	Tiger Stance - Fierce Spear Dance	INDEX 2	ok	2075	20.75	0.4	390	7.8	False
+1142	DamageEffect.lua	DamageEffect_SA_ASD_Continuity_Strikr_Throwing_Projectile_Explosion	DAMAGE_DATA	27044	Tiger Stance - Fierce Spear Dance	INDEX 3	ok	214	2.14	0.4	49	1.63	False
+1143	DamageEffect.lua	DamageEffect_SA_ASD_Continuity_Strikr_Throwing_Start	DAMAGE_DATA	27044	Tiger Stance - Fierce Spear Dance	INDEX 1	ok	3703	37.03	0.4	1170	5.2	False
+1144	DamageEffect.lua	DamageEffect_SA_ASD_Link_Flower_Slash_1stFX	DAMAGE_DATA	27043	Flame Lotus Strike	INDEX 1	ok	483	4.83	0.4	150	2.5	False
+1145	DamageEffect.lua	DamageEffect_SA_ASD_Link_Flower_Slash_2ndFX	DAMAGE_DATA	27043	Flame Lotus Strike	INDEX 2	ok	346	3.46	0.4	113	2.5	False
+1146	DamageEffect.lua	DamageEffect_SA_ASD_Link_Flower_Slash_Last_AttackLanding_Damage	DAMAGE_DATA	27043	Flame Lotus Strike	INDEX 4	ok	251	2.51	0.4	75	0	False
+1147	DamageEffect.lua	DamageEffect_SA_ASD_Link_Flower_Slash_Last_AttackLanding_Slash_Damage	DAMAGE_DATA	27043	Flame Lotus Strike	INDEX 3	ok	189	1.89	0.4	43	1.07	False
+1148	DamageEffect_Character.lua	DamageEffect_SA_ASR_FOX_PHANTOM_CLAW_Damage1	DAMAGE_DATA	27066	Fox Illusion	INDEX 1	ok	602	6.02	0.4	188	2.5	False
+1149	DamageEffect_Character.lua	DamageEffect_SA_ASR_FOX_PHANTOM_CLAW_Damage2	DAMAGE_DATA	27066	Fox Illusion	INDEX 1	ok	602	6.02	0.4	188	2.5	False
+1150	DamageEffect_Character.lua	DamageEffect_SA_ASR_FOX_PHANTOM_ENERGYBALL_DIE	DAMAGE_DATA	27066	Fox Illusion	INDEX 2	ok	581	5.81	0.4	188	2.5	False
+1170	DamageEffect_Character.lua	DamageEffect_SA_AYR_Raksasa_Fire_End_Damage	DAMAGE_DATA	27065	Rakshasa Inferno	INDEX 3	ok	602	6.02	0.4	150	2	False
+1171	DamageEffect_Character.lua	DamageEffect_SA_AYR_Raksasa_Fire_ProjectileFX	DAMAGE_DATA	27065	Rakshasa Inferno	INDEX 2	ok	608	6.08	0.36	180	2	False
+1172	DamageEffect_Character.lua	DamageEffect_SA_AYR_Raksasa_Fire_Projectile_Explosion	DAMAGE_DATA	27065	Rakshasa Inferno	INDEX 3	ok	602	6.02	0.4	150	2	False
+1173	DamageEffect_Character.lua	DamageEffect_SA_AYR_Raksasa_Fire_Trace_Damage	DAMAGE_DATA	27065	Rakshasa Inferno	INDEX 1	ok	1177	11.77	0.4	360	5	False
+1174	DamageEffect.lua	DamageEffect_SA_AYR_Restriction_Energy_SpearFX1	DAMAGE_DATA	27045	Bind: Energy	INDEX 1	ok	722	7.22	0.32	225	3	False
+1175	DamageEffect.lua	DamageEffect_SA_AYR_Restriction_Energy_SpearFX2	DAMAGE_DATA	27045	Bind: Energy	INDEX 1	ok	722	7.22	0.32	225	3	False
+1176	DamageEffect.lua	DamageEffect_SA_AYR_Restriction_Energy_SpearFX3	DAMAGE_DATA	27045	Bind: Energy	INDEX 1	ok	722	7.22	0.32	225	3	False
+1177	DamageEffect.lua	DamageEffect_SA_AYR_Reverse_Gravity_Field_BlackholeFX	DAMAGE_DATA	27046	Vortex Energy	INDEX 1	ok	760	7.6	0.4	216	3	False
+1178	DamageEffect.lua	DamageEffect_SA_AYR_Reverse_Gravity_Field_Blackhole_Explosion_Damage	DAMAGE_DATA	27046	Vortex Energy	INDEX 2	ok	125	1.25	0.4	25	0	False
+1639	DamageEffect.lua	DamageEffect_SHAKE_CHAOS_Damage1	DAMAGE_DATA	27215	Phantom Fox Stance 2:\n Discordance	INDEX 1	ok	371	3.71	0.4	78	0.78	False
+1640	DamageEffect.lua	DamageEffect_SHAKE_CHAOS_Damage2	DAMAGE_DATA	27215	Phantom Fox Stance 2:\n Discordance	INDEX 1	ok	371	3.71	0.4	78	0.78	False
+1641	DamageEffect.lua	DamageEffect_SHAKE_CHAOS_FINISH_Damage	DAMAGE_DATA	27215	Phantom Fox Stance 2:\n Discordance	INDEX 3	ok	211	2.11	0.4	44	0.44	False
+1664	DamageEffect.lua	DamageEffect_SI_SA_ALS_SEVER_Damage	DAMAGE_DATA	27024	Exorcism Stance 4:\n Darkness Sever	INDEX 1	ok	2955	29.55	0.4	1125	15	False
+1665	DamageEffect.lua	DamageEffect_SI_SA_ALS_SEVER_Damage	DAMAGE_DATA_NEXT	27024	Exorcism Stance 4:\n Darkness Sever	INDEX 1	ok	2955	29.55	0.4	1125	15	False
+1666	DamageEffect.lua	DamageEffect_SI_SA_ALS_SEVER_Damage	DAMAGE_DATA_NEXT2	27024	Exorcism Stance 4:\n Darkness Sever	INDEX 1	ok	2955	29.55	0.4	1125	15	False
+1667	DamageEffect.lua	DamageEffect_SI_SA_ALS_SEVER_Damage	DAMAGE_DATA_NEXT3	27024	Exorcism Stance 4:\n Darkness Sever	INDEX 1	ok	2955	29.55	0.4	1125	15	False
+1668	DamageEffect.lua	DamageEffect_SI_SA_ALS_SEVER_Damage	DAMAGE_DATA_NEXT4	27024	Exorcism Stance 4:\n Darkness Sever	INDEX 1	ok	2955	29.55	0.4	1125	15	False
+1699	DamageEffect.lua	DamageEffect_SMASH_1	DAMAGE_DATA	27026	Phantom Fox Stance 4:\n Fox's Meal	INDEX 3	ok	352	3.52	0.4	113	0	False
+1700	DamageEffect.lua	DamageEffect_SMASH_1_TRENSCENDENCE	DAMAGE_DATA	27026	Phantom Fox Stance 4:\n Fox's Meal	INDEX 4	ok	421	4.21	0.4	113	0	False
+1701	DamageEffect.lua	DamageEffect_SPECTER_OF_BLADE_Damage	DAMAGE_DATA	27048	Spell: Ellipse of Blades	INDEX 1	ok	606	6.06	0.4	171	1.88	False
+1702	DamageEffect.lua	DamageEffect_SPECTER_OF_BLADE_Damage_Finish	DAMAGE_DATA	27048	Spell: Ellipse of Blades	INDEX 2	ok	204	2.04	0.4	60	0.83	False
+1710	DamageEffect.lua	DamageEffect_SUPPRESSION_SPECTER_Damage	DAMAGE_DATA	27025	Suppression:\n Specter	INDEX 1	ok	1241	12.41	0.24	563	8	False
+1717	DamageEffect.lua	DamageEffect_SpecterOfStorm_Damage	DAMAGE_DATA	27021	Spell: Storm	INDEX 1	ok	126	1.26	0.4	61	1	False
+1718	DamageEffect.lua	DamageEffect_SpecterOfStorm_Damage_Next	DAMAGE_DATA	27021	Spell: Storm	INDEX 3	ok	132	1.32	0.4	56	1	False
+1719	DamageEffect.lua	DamageEffect_SpecterOfStorm_Finish_Damage	DAMAGE_DATA	27021	Spell: Storm	INDEX 3	ok	132	1.32	0.4	56	1	False
+1720	DamageEffect.lua	DamageEffect_SpecterOfStorm_Finish_Damage	DAMAGE_DATA_NEXT	27021	Spell: Storm	INDEX 3	ok	132	1.32	0.4	56	1	False
+1721	DamageEffect.lua	DamageEffect_SpecterOfThunder_Buff_Damage	DAMAGE_DATA	27023	Spell: Thunder	INDEX 2	ok	85	0.85	0.28	38	0	False
+1722	DamageEffect.lua	DamageEffect_SpecterOfThunder_Landing_Damage	DAMAGE_DATA	27023	Spell: Thunder	INDEX 1	ok	100	1	0.28	63	2	False
+1723	DamageEffect.lua	DamageEffect_Specter_Walk_Damage	DAMAGE_DATA	27219	Specter Walk	INDEX 1	ok	962	9.62	0.32	150	1.5	False
+1729	DamageEffect.lua	DamageEffect_VERITABLE_PANDEMONIUM_Damage	DAMAGE_DATA	27024	Exorcism Stance 4:\n Darkness Sever	INDEX 3	ok	193	1.93	0.4	54	0	False
+1730	DamageEffect.lua	DamageEffect_VERITABLE_PANDEMONIUM_Damage_Impact	DAMAGE_DATA	27024	Exorcism Stance 4:\n Darkness Sever	INDEX 2	ok	2593	25.93	0.4	1125	0	False
+1731	DamageEffect.lua	DamageEffect_VERITABLE_PANDEMONIUM_Damage_Impact_TRENSCENDENCE	DAMAGE_DATA	27024	Exorcism Stance 4:\n Darkness Sever	INDEX 4	ok	3112	31.12	0.4	1125	0	False
+1732	DamageEffect.lua	DamageEffect_VERITABLE_PANDEMONIUM_Damage_TRENSCENDENCE	DAMAGE_DATA	27024	Exorcism Stance 4:\n Darkness Sever	INDEX 5	ok	232	2.32	0.4	54	0	False
+1733	DamageEffect.lua	DamageEffect_VIEW_BETWEEN_Damage	DAMAGE_DATA	27214	Phantom Fox Stance 1:\n Savor	INDEX 1	ok	331	3.31	0.4	58	0.58	False
+1734	DamageEffect.lua	DamageEffect_VIEW_BETWEEN_FINISH_Damage	DAMAGE_DATA	27214	Phantom Fox Stance 1:\n Savor	INDEX 3	ok	46	0.46	0.4	8	0.8	False

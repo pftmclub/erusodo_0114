@@ -1,0 +1,44 @@
+# June character Ara (Stage 7) - Phase CH4b - Overrides and the memo
+
+| | |
+|---|---|
+| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-ara CH4b` |
+| Plan doc | `JUNE_CHARACTER_ARA_PHASES.md` (branch `main`) |
+| Depends on | CH4a. One at a time with CH1-CH4: they all edit `X2GUAra.*` |
+| Flag | `SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE` (+ `..._PASSIVE_DEBUG`) |
+| Log tag | `[JUNE_CHAR]` (`ARA PASSIVE`) |
+| Review | `kickoffs/char-ara/CH4b-review.md` (Opus 5.5 high; the phase writes it when done); the CH4 stage review: covers CH4a-CH4b, retires `_PASSIVE_DEBUG` |
+
+## Read first (and nothing else from the plan doc unless you need it)
+
+```sh
+python tools/docsection.py JUNE_CHARACTER_ARA_PHASES.md --no-sub "Rules" "Phase CH4 - Passives and class mechanics"
+python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md --list   # then the CH4b Done note once Rena has one
+```
+
+## Task
+
+Do CH4b: `GetActualMPConsume` 0x6a0 `32b96730` (uncarved); 0x3ac `32ba45d0` (March's live 4-arg `ModifyFinalDamageByGameUnitType` body moves to June's
+override, checklist l.991) and 0x6a8 `32b958e0` (also called from its skill use `32bcff21`); 0x428 `32b956a0` (l.940); vslot 485 socket pass `32badc80`
+with its list `32d3f040` (l.284: override the empty user hook, call `AddJuneSkillAdditionalPowerRateBySlot`, never edit `SumSocketOption`); the
+effect-set hooks 0x4c8 `32bc1530` (l.424); `MemoConditionAra` (RTTI `3373d604`, vtable `33502680`, `32ba46f0`) and the memo readers (`APPLY_MEMO`,
+`EFFECT_SET_LIST_EX_MEMO`); `P_AYR_GOOD_ENERGY_BALL` on CH2c0's path; §7 l.281 power-rate socket range if an Ara function calls `3201ad10`.
+Play-test; then the CH4 stage review covers CH4a-CH4b. You are on Opus: delegate the reads, probes and builds.
+
+No hardcoded enum literals (user, 2026-10-26; CLAUDE.md): an id that has a name in an Enum (June's
+`Enum.lua`, or a C++ enum) is never written as a number, in any new or touched code: use the member, and
+register it under a `SERV_IRUHADEV_` flag with June's value and name if C++ lacks it. A value with no Enum
+entry stays a number with a one-line comment. The one exception is a table whose rows are the data itself
+(a `.tsv` of ids), not code.
+
+No `June` prefix (user, 2026-10-28; CLAUDE.md): June's body goes inside March's own function under the flag,
+March's in `#else`. A function March lacks gets a name in the class's own pattern, never with `June` in it.
+Every name (locals and constants too) says what it is in context: no Ghidra address, phase tag or `June` in an identifier.
+Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
+Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
+Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-ara <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+
+## Amended by CH0
+
+(CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
