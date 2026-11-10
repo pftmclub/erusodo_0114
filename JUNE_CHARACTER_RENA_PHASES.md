@@ -2248,6 +2248,53 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (no new define; `_SKILL_DE
 
 **Play-test, set 2 (2026-11-10 12:30-12:31, unit 90; logs read).** The save held set 2 at the character list ( `SLOT sent` A 23025 / 23023 / 23217 / 23219, B 23022 / 23024 / 23041 / 23042 ), but at unit select the emulator's level-up auto-learn ( `X2OfflineSkill.cpp` @930-965: a lv 99 unit learns every upgrade it lacks and replaces its base ) swapped five bases for their Enhanced skills ( `SLOT sent` A 23057 / 23023 / 23240 / 23242, B 23054 / 23056 / 23041 / 23042; the save now holds the upgrades at level 1 ). **Run as bases:** Gliding Strike 23023 ( `ES_CREATE EffectSet_Rena_Night_Watcher_Gliding_Strike`, `hyper 0` ), Seed of Wrath: Icicle 23041 ( `EffectSet_SA_RNW_Seed_Of_Ruin_Pole` + `_Target` ), Rage Fungus 23042 ( `EffectSet_SA_RNW_Rage_Of_Dry` + `_Holding`, hits ). **Not run as bases** ( the Enhanced ones ran again, as in set 1 ): Furious Engage 23025, Delayed Fire 23217, Seed of Wrath 23219, Call of Ruin 23022, Trapping Arrow - Fungus 23024; their only base-vs-Enhanced difference in CH3c code is the not-upgraded branch of Call of Ruin ( no `SA_ANI_SPEED` ) and Seed of Wrath ( no second seed ). 0 `ErrorLog.txt` lines, 0 Motion Error. The user's own set 2 verdict is not in yet.
 
+### CH3d - Done (2026-11-10)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (+ `_SKILL_DEBUG`, still on; now also needs `_RAVEN_SKILL` for `CX2GUUser::SetInvisibility`) and new `SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND`
+(needs `_RENA_LIVE`, `_RAVEN_TRANSCEND`). `MODS.md` "Stage 7 Rena, CH3d"; `funcmap.tsv` rows `Char Rena CH3d` (24); `june_march_divergent.tsv` row `CX2GULire_ElvenRanger::SetInvisibility`
+(replace, ported); checklist rows marked `(Rena: CH3d)` (§4 L178, 7t L592 / L596 / L608, 7u L638 / L646, 7ae L719, 7ag L813, 7ao L955-L958, L974). No JUNE_BUGS row. Review: `CH3d-review.md` (the CH3 skill review).
+
+**The 22 functions** (`charport_adis.py rena --phase CH3d`); the registrations of 23600-23605 are CH1n's.
+- **= March (18):** the Inits `32c6d0b0` / `32c6d1c0` / `32c6d290` / `32c6d350` / `32c6d3f0` (18 / 16 / 14 / 12 / 2 preloads, March's names, order and loaders); EventProcesses `32c7f320` (-> 0xf6),
+  `32c7f350` (remaining <= 0 -> 0xf7), `32c7f6c0` (-> 0xf8), `32c7f6f0` (-> 0xf9), `32c7faa0` (-> 0xfb), and `32c7f3a0` = `32c7f720` = `32c7fad0` (byte-identical: anim end -> JUMP_DOWN / WAIT, dash
+  `0x8c9c`, walk `0x8c98`, skill `0x8c90`, back walk `0x8c94`, Z / X `0x8c88` = March's macros with `ADD_RENA_SYSTEM`); Starts `32c86b20` (vector clear) / `32ca7020` (CreateTrapBlade); FrameMoves
+  `32c9ef20` (EventTimerOneshot 2.16 stops the middle FX), `32c9ece0` (t = max( t - elapsed, 0 ), finish light at 0 < t <= 0.5; it keeps a start value <= 0 where March zeroes it: unreachable);
+  StateEnd `32c9f490` (DeleteTrapBlade inlined). `32c6d1a0` (spin StateEnd) calls the base setter: no source change, the call binds to `CX2GUUser::SetInvisibility` once Rena's member is in `#else`.
+- **Differs (4), written under `_SKILL`:**
+  - Spiral Strike ready StateStart `32c88330`: `CommonStateStart` first, then the spin time = `GetUsefulValueNow( 0, 0 )` (USEFUL_VALUE0 of `LESI_HA_LWS_SPIRAL_STIKE_READY`, 2.75 in June's script;
+    March 5.5f). The spin is 2.75 s instead of 5.5 s.
+  - Spin StateStart `32c9eb20`: June has no Rena `SetInvisibility`; it calls `3200a590` (char-raven CH3d's `CX2GUUser::SetInvisibility`) and writes `+0x8e9c` = 0. Rena's declaration and definition go to
+    `#else`; `CX2GUUser` gains `GetInvisibilityAlpha` / `SetInvisibilityAlpha` (the member is private) under `_RENA_SKILL`. Rena's `ApplyRenderParam` (`32c7fa40`) reads `+0x8e9c`, not CH1h's
+    `m_fRenderParamColorA`: fixed under `_SKILL` inside the `_LIVE` body.
+  - Cryotron Bolt guide-shot FrameMove `32c9efd0`: June's name `DamageEffect_Cryotron_Bolt_Guided_Arrow` (checklist 7u l.644). March's all-caps key is absent from the live `DamageEffect.lua`
+    (0 matches; June's name 1), so March spawned no guided arrow. The rest = March: 20 arrows at 1.144 + i * 0.0679 (`[3373d78c]` = 20), z = i * 9, `Bip01_L_Hand`, lock-on at 2.73.
+- **Callee mapped by this phase:** `322dea10` = `CX2Game::GetNearUnitUidList` (= March `X2Game.cpp:22087`: own team, invincible, HP <= 0, NPC class 102 / 106 skipped; limit 16000000.0 read from
+  `[3348af88]`; the fourth argument 0 = the default).
+
+**Transcendence rows (7ao).**
+- Allow-list: `TranscendCheck` takes 102 / 103 / 114 (one brace-less guard after Raven's).
+- Pictures (`GetCharacterImageName`): prefixes `W_SNEAKER` / `G_ARCHER` / `N_WATCHER` from June's row pushes (subagent, 24 strings `@3345d348`-`@33469808`; spot-checked `TR_W_SNEAKER_LARGE` `@33375e00`
+  and `TR_N_WATCHER_LARGE` `@3337730e` -> `Texture98_NEW`, `TR_N_ARCHER_STATE` `@333720c3` -> `Texture97_NEW`). Large + gray are **Texture98** (the default branch; Rena is not added to the
+  Texture99 condition); gauge `_STATE`, but Night Watcher's gauge piece is June's `TR_N_ARCHER_STATE` (no `TR_N_WATCHER_STATE` anywhere): one override after the piece name. Every piece is in the
+  staged TETs (data215 Texture97 / 98 / 98_GRAY / 100, data057 / datai021 `GUI_character_01`).
+- `LevelUpEvent.lua` (data036, BOM source) gets `TYPE5` = June's `TYPE2` row (`LevelUpEvent.src.lua:491-508`: LEVEL 70, the three classes, `DLG_Transcendental_Change_Guide_Lena.lua`,
+  `LenaVoice_ClassUpReady01.ogg` (data095)). `luasrc.py refresh`, `ledger --check` PASS; `PACK OK data036` (only `LevelUpEvent.lua` changed); `COPY OK data036` md5 569962cf.
+- Already June's, verified: the guide dialog (`adopt-june --dry-run` identical, data034) and `POPUP_TR_W_SNEAKER / G_ARCHER / N_ARCHER` (data215); `HQ_Cutin_RWS / RGA / RNW_Transcendence.gfx`
+  (data195) and CH5's `m_HyperCutIn` rows; `GetHyperModeTableName` (`LESI_LWS / LGA / LNW_HYPER_MODE`, `X2GUUser.cpp:34070-34082`); 18 `SPRT_HYPER_CLASS` ids (23037-23042, 23058-23060,
+  23225-23227, 23412-23417) and 3 `TRANSCENDENTAL_SKILL_DATA` rows (identical files); the hyper effect start's transcended return (CH1h, `32c9b3d0`); the type-13 cut-in (engine). Four base helpers: not copied.
+- **Skill icon gate:** `skillicons.py check 23000-23999`: `skills 128, misses 0, known June gaps 2, sheets 0`, `RESULT: PASS` (23210 / 23234, JUNE_BUGS 576).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_RENA_SKILL --with ..._SKILL_DEBUG --worktree --files` cpp, h, `X2GUUser.h`, `Always.h`: `files: 3 PASS, 0 PASS~, 0 DEFINE, 1 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s),
+  0 non-ASCII, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: PASS`. `flagcheck JUNE_CHAR_RENA_TRANSCEND --worktree --files X2Data.cpp Handlers_Quest.cpp
+  Always.h`: `2 PASS, 1 OTHER, 0 FAIL`, `0 deleted line(s)`, `RESULT: PASS`.
+- `junediverge.py --check` (5 files): `allow-listed: 5`, `RESULT: PASS`. `enumscan.py --check` the three `.cpp`: 4 A rows, all pre-existing (`X2Data.cpp` 104 / 105 / 113, `Handlers_Quest.cpp:1416` `< 100`).
+- DEPLOY OK: X2_offline.exe is 26,188,800 B, dated 2026-11-10 13:00:19, md5 8826d3365713c04b3c529f8d105e064f, equal to X2/US_SERVICE/x2.exe (2026-11-10 13:00:12); built at main 75839f85 + 6 uncommitted code file(s).
+- EXESTR OK: 6 of 6 found (wide): `RENA SKILL spiral strike spin time`, `RENA SKILL cryotron bolt guided arrow`, `DamageEffect_Cryotron_Bolt_Guided_Arrow`, `W_SNEAKER`, `N_WATCHER`, `TR_N_ARCHER_STATE`, md5 8826d336.
+
+**Play-test set-up (save, backed up as `pre_rena_ch3d`).** Units 89 `WindSneakerT` (102), 92 `GrandArcherT` (103), 90 `NightWatcherT` (114): transcendence 1; A-5 (slot 4) = 23600 Spiral Strike /
+23601 Shooter Destiny (Cryotron Bolt) / 23602 Innocent; B-5 (slot 9) = 23058 Tempest / 23059 Ace in the Hole / 23060 Eradication. Not exercised: the level-70 guide popup ( CH6 walks the transition ).
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, Opus review, user play-test (each a different engine piece: planned as two from the start; CH0 adds CH4c if the

@@ -12060,6 +12060,10 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL ) && ( !defined( SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT ) || !defined( SERV_IRUHADEV_JUNE_USER_BONE_ROTATION ) || !defined( SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS ) || !defined( SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ) )
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL needs SERV_IRUHADEV_JUNE_SYNC_CLASS_FLOAT, SERV_IRUHADEV_JUNE_USER_BONE_ROTATION, SERV_IRUHADEV_JUNE_USER_COPY_STATE_CALLBACKS and SERV_IRUHADEV_JUNE_SKILL_SLOT_10
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+// char-rena CH3d: the hyper actives ( Spiral Strike, Cryotron Bolt, Innocent ) and Spiral Strike's hide through CX2GUUser::SetInvisibility ( June 3200a590, char-raven CH3d )
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL ) && !defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL )
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL needs SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL ( CX2GUUser::SetInvisibility and its alpha members )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -12127,4 +12131,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              every defender to a user, so no NPC ever passed ( Wind Blast's arrow flew through its target ).
 //              Revert: undefine the flag ( JUNE_ONLY_TARGET_ATTACK_NPC ).
 #define SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-10
+// Description: char-rena CH3d - Wind Sneaker ( 102 ), Grand Archer ( 103 ) and Night Watcher ( 114 ) join the transcendence allow-list ( TranscendCheck ) and the
+//              transcended class pictures ( T6c rows TR_W_SNEAKER / TR_G_ARCHER / TR_N_WATCHER: 160by160 and gray in Texture98, 50by50, 20by20, gauge _STATE
+//              ( Night Watcher's is TR_N_ARCHER_STATE ), party, unit slot ). Log [JUNE_TRANSCEND] IMAGE. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND
+#if defined( SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND ) )
+#error SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND needs SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE and SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND ( the allow-list chain and the picture rows it extends )
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND
 //////////////////////////////////////////////////////////////////////////

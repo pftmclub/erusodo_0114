@@ -37546,8 +37546,17 @@ void CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_READY_Init()
 
 void CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_READY_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH3d: June 32c88330, the spin time is USEFUL_VALUE0 ( 2.75 in June's script ), read after CommonStateStart
+	CommonStateStart();
+	m_fSpiralStrikeRemainingTime = GetUsefulValueNow( 0, 0 );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA SKILL spiral strike spin time x100 %d", static_cast<int>( m_fSpiralStrikeRemainingTime * 100.f ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	m_fSpiralStrikeRemainingTime = 5.5f;
 	CommonStateStart();
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 }
 void CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_READY_EventProcess()
 {
@@ -37560,9 +37569,18 @@ void CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_READY_EventProcess()
 }
 void CX2GULire_ElvenRanger::LESI_HA_LWS_SPIRAL_STIKE_SPINING_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+	// char-rena CH3d: June 32c9eb20, CX2GUUser's SetInvisibility ( 3200a590 ) and its alpha +0x8e9c
+	SetInvisibility( true );
+	SetInvisibilityAlpha( 0.f );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] RENA SKILL spiral strike spin start invisibility %d alpha x100 %d", static_cast<int>( m_bInvisibility ), static_cast<int>( m_RenderParam.color.a * 100.f ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	SetInvisibility( true );
 //	TransformScale( PROTECT_VECTOR3( 0.001f, 0.001f, 0.001f ) );
 	m_fRenderParamColorA = 0.f;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	
 	if ( NULL != g_pX2Game->GetEffectSet() )
 	{
@@ -37738,8 +37756,18 @@ void CX2GULire_ElvenRanger:: LESI_HA_LGA_CRYOTRON_BOLT_GUIDE_SHOT_FrameMove()
 
 			//가이드 애로우 이펙트 생성
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+            // char-rena CH3d: June 32c9efd0, June's templet name ( checklist 7u l.644 )
+            CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance(
+                this, L"DamageEffect_Cryotron_Bolt_Guided_Arrow", GetPowerRate(), posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+            if ( 0 == i )
+                CX2OfflineLog::Server( L"[JUNE_CHAR] RENA SKILL cryotron bolt guided arrow %d", static_cast<int>( NULL != pEffect ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
             CX2DamageEffect::CEffect* pEffect = g_pX2Game->GetDamageEffect()->CreateInstance( 
                 this, L"DamageEffect_Cryotron_Bolt_GUIDED_ARROW", GetPowerRate(), posR, degree, degree, m_FrameDataNow.unitCondition.landPosition.y );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
             if ( pEffect != NULL )
             {
 			    m_vecCryotronBoltDamageEffect.push_back( 
@@ -37822,6 +37850,9 @@ void CX2GULire_ElvenRanger:: LESI_HA_LGA_CRYOTRON_BOLT_DOWNLANDING_EventProcess(
 	CommonEventProcess();
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+// char-rena CH3d: June has no Rena SetInvisibility; CX2GUUser::SetInvisibility ( 3200a590 ) replaces this
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 void CX2GULire_ElvenRanger::SetInvisibility(bool bVal_)
 {
 	m_bInvisibility					= bVal_;
@@ -37887,6 +37918,7 @@ void CX2GULire_ElvenRanger::SetInvisibility(bool bVal_)
 		}
 	}
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 
 
 
@@ -37900,9 +37932,16 @@ void CX2GULire_ElvenRanger::SetInvisibility(bool bVal_)
 	if( true == m_bInvisibility )
 	{
 		pRenderParam_->renderType		= CKTDGXRenderer::RT_CARTOON;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+		// char-rena CH3d: June 32c7fa40 reads CX2GUUser's alpha +0x8e9c ( SetInvisibility's )
+		pRenderParam_->outLineColor.a	= GetInvisibilityAlpha();
+		m_RenderParam.bAlphaBlend = true;
+		m_RenderParam.color.a			= GetInvisibilityAlpha();
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 		pRenderParam_->outLineColor.a	= m_fRenderParamColorA;
 		m_RenderParam.bAlphaBlend = true;
 		m_RenderParam.color.a			= m_fRenderParamColorA;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 	}
 	else
 	{

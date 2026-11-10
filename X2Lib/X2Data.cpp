@@ -3025,6 +3025,12 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 	case CX2Unit::UC_RAVEN_RECKLESS_FIST:	pwszPrefix = L"R_FIST";	break;
 	case CX2Unit::UC_RAVEN_VETERAN_COMMANDER:	pwszPrefix = L"V_COMMANDER";	break;
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND
+	// char-rena CH3d: June's row pushes ( TR_W_SNEAKER_LARGE @33375e00, TR_N_WATCHER_LARGE @3337730e )
+	case CX2Unit::UC_LIRE_WIND_SNEAKER:	pwszPrefix = L"W_SNEAKER";	break;
+	case CX2Unit::UC_LIRE_GRAND_ARCHER:	pwszPrefix = L"G_ARCHER";	break;
+	case CX2Unit::UC_LIRE_NIGHT_WATCHER:	pwszPrefix = L"N_WATCHER";	break;
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	default:	return true;
 	}
@@ -3087,6 +3093,11 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 	pieceName += pwszPrefix;
 	pieceName += pwszSuffix;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND
+	// char-rena CH3d: June @333720c3: Night Watcher's gauge row is TR_N_ARCHER_STATE ( her other rows are N_WATCHER )
+	if( CX2Unit::UC_LIRE_NIGHT_WATCHER == eUnitClass && CIT_MyGage == eImageType )
+		pieceName = L"TR_N_ARCHER_STATE";
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_IMAGE
 	static std::set<int> s_setLogged;
 	if( true == s_setLogged.insert( static_cast<int>( eUnitClass ) * 16 + static_cast<int>( eImageType ) ).second )

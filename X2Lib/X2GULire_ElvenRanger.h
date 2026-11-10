@@ -698,7 +698,11 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 #endif //BALANCE_GRAND_ARCHER_20121213
 
 #ifdef FINALITY_SKILL_SYSTEM // ±Ë¡æ»∆, ±√±ÿ±‚ Ω√Ω∫≈€
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+		/// char-rena CH3d: June: SetInvisibility is CX2GUUser's ( 3200a590 )
+#else SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 		void SetInvisibility ( bool bVa_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 		virtual void		ApplyRenderParam( CKTDGXRenderer::RenderParam* pRenderParam_ );
 #endif // FINALITY_SKILL_SYSTEM // ±Ë¡æ»∆, ±√±ÿ±‚ Ω√Ω∫≈€
 

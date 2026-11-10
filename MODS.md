@@ -6287,3 +6287,13 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (same flag; `_SKILL_DEBUG` stays on fo
 | Butterfly (23227) | Power Attack default | 15.86 |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every class-114 skill falls back to the Power Attack default, and CH2a's - CH3b's too), `python tools/build.py --deploy`.
+
+## Stage 7 Rena, CH3d: hyper actives and Rena on the transcendence list (2026-11-10)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` ( the hyper-active bodies; now needs `_RAVEN_SKILL` for `CX2GUUser::SetInvisibility`; `..._SKILL_DEBUG` stays on for the CH3d review ) and new `SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND` ( needs `_RENA_LIVE`, `_RAVEN_TRANSCEND` ). Plan `JUNE_CHARACTER_RENA_PHASES.md` "CH3d - Done". Client, emulator and data036.
+- **What changes in game.** Wind Sneaker ( 102 ), Grand Archer ( 103 ) and Night Watcher ( 114 ) can transcend ( `CX2OfflineServer::TranscendCheck` ); a transcended Rena shows June's TR pictures ( `TR_W_SNEAKER` / `TR_G_ARCHER` / `TR_N_WATCHER`: Texture98 large and gray, Texture100 medium / icon / party, Texture97 gauge ( Night Watcher's is `TR_N_ARCHER_STATE` ), `list_TR_*` unit slot ). Reaching level 70 as one of the three opens June's guide ( `DLG_Transcendental_Change_Guide_Lena.lua`, Lena's class-up voice ).
+- **Spiral Strike** spins for June's 2.75 s ( the state's `USEFUL_VALUE0`; March 5.5 s ), and its hide uses June's base `CX2GUUser::SetInvisibility` ( `3200a590` ) instead of Rena's March member: the colour alpha is put back to what it was before the hide, alpha test is switched with alpha blend, the unit is no longer flagged an alpha object; Rena's render override reads the base's alpha.
+- **Cryotron Bolt** spawns its 20 guided arrows again: June renamed the damage effect to `DamageEffect_Cryotron_Bolt_Guided_Arrow`, and March's all-caps name is not in the live `DamageEffect.lua`, so before this phase the arrows never appeared. The other 18 hyper-active functions ( Innocent whole ) are March's.
+- **Damage:** no number changes; the hyper actives' numbers are June's `NewSkillTempletVer2.lua`. Cryotron Bolt's guided-arrow damage ( June's `DamageEffect.lua` row ) is new in play, since March never spawned the arrows.
+- `data036` ( `LevelUpEvent.lua` TYPE5 = June's TYPE2 row ): `PACK OK data036`, `COPY OK data036` md5 569962cf.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND` ( allow-list and pictures ), `python tools/build.py --deploy`; the extra `TYPE5` only adds the level-70 guide popup ( delete the block, `luasrc.py refresh data036 LevelUpEvent.lua`, pack ). The hyper-active changes go back with `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` ( all of Rena's skill port ).

@@ -2789,6 +2789,11 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
 		void SetInvisibility( bool bInvisibility_ );	/// June 3200a590 ( Raven's March member moved into the base )
 #endif SERV_IRUHADEV_JUNE_CHAR_RAVEN_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
+		// char-rena CH3d: June's Rena reads and writes +0x8e9c directly ( 32c9eb20, 32c7fa40 )
+		float GetInvisibilityAlpha() const { return m_fInvisibilityAlpha; }
+		void SetInvisibilityAlpha( float fAlpha_ ) { m_fInvisibilityAlpha = fAlpha_; }
+#endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 
 		//{{ kimhc // 2010.2.10 //	나소드 무기 강화 핸들러
 #ifdef	EVE_SECOND_CLASS_CHANGE
