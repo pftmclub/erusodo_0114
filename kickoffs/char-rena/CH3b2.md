@@ -7,7 +7,7 @@
 | Depends on | CH3b committed (`47559185`); one at a time: `X2GULire_ElvenRanger.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (+ `..._SKILL_DEBUG`, still on) and, for the engine fix, its own `SERV_IRUHADEV_JUNE_*` flag in `Always.h` |
 | Log tag | `[JUNE_CHAR]` (`RENA SKILL`), `JUNE_FX CE_HIT` / `CE_LOCKON` |
-| Review | folds into CH3b's review (`CH3b-review.md`): add this phase's Done note to its read list |
+| Review | its own, `kickoffs/char-rena/CH3b2-review.md` (engine file + core-list Lua keep their own review; amended 2026-11-10) |
 
 ## What the user saw (play-test of unit 92 `GrandArcherT`, set 1, 2026-11-10 10:46-10:48)
 

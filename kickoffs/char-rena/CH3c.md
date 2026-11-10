@@ -7,7 +7,7 @@
 | Depends on | CH3c0 review (CH0 helper phase). One at a time: `X2GULire_ElvenRanger.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`RENA SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
-| Review | `kickoffs/char-rena/CH3c-review.md` (Opus 5.5 high; the phase writes it when done) |
+| Review | none of its own (user, 2026-11-10, amended): the CH3 skill review at CH3d (`CH3d-review.md`) covers it; `_SKILL_DEBUG` stays on; add this phase's spot-check list to `CH3d-review.md` |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 

@@ -2134,7 +2134,7 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (no new define; `_SKILL_DE
 
 ### CH3b2 - Done (2026-11-10)
 
-Opus 5.5 high. Fixes the two CH3b play-test failures. Kickoff `kickoffs/char-rena/CH3b2.md`. Own review (`kickoffs/char-rena/CH3b2-review.md`): engine file and core-list Lua keep their own review under the 2026-11-10 cadence rule; the CH3b review only reads this phase's play-test result. (The kickoff's "folds into the CH3b review" predated that rule.)
+Opus 5.5 high. Fixes the two CH3b play-test failures. Kickoff `kickoffs/char-rena/CH3b2.md`. Own review (`kickoffs/char-rena/CH3b2-review.md`): engine file and core-list Lua keep their own review under the 2026-11-10 cadence rule; the CH3 skill review at CH3d (`CH3d-review.md`, covers CH3a-CH3d; the CH3b review was folded into it, user 2026-11-10) only reads this phase's play-test result. (The kickoff's "folds into the CH3b review" predated that rule.)
 
 **Wind Blast never hit: engine, new flag `SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC`** (`Always.h`, end).
 - June `3262b6e0` @3262ba99-3262bb4f (`EffectToUnit`, right after the `ONLY_RELATIONSHIP` test, same place as March's): when `LockOnData.m_bIsOnlyTargetAttack` (+0x9a0) is set it switches on the defender's type (+0x264): a user is skipped unless `GetUnitUID()` (vslot 0x54) = `m_LockOnUnitUID` (+0x938/+0x93c); an NPC is skipped unless `GetUID()` (+0x270) = `m_LockOnNPCUID` (+0x940); any other type is skipped. March `static_cast`ed every defender to `CX2GUUser` and compared the unit UID only, so a locked-on NPC never passed.

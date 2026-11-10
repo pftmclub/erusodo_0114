@@ -7,7 +7,7 @@
 | Depends on | CH2d review. One at a time: `X2GULire_ElvenRanger.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`RENA SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
-| Review | none of its own (user, 2026-11-10): the CH3b review covers CH3a + CH3b; do not write `CH3a-review.md` (the `_SKILL_DEBUG` define stays on until then) |
+| Review | none of its own (user, 2026-11-10): the CH3 skill review at CH3d (`CH3d-review.md`) covers CH3a-CH3d (amended 2026-11-10); do not write `CH3a-review.md` (the `_SKILL_DEBUG` define stays on until then) |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 

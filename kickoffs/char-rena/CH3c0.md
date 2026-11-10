@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-rena CH3c0` |
 | Plan doc | `JUNE_CHARACTER_RENA_PHASES.md` (branch `main`) |
-| Depends on | CH3b review (runs before CH3c); one at a time with the other `X2GULire_ElvenRanger.*` / `X2GUUser.*` phases |
+| Depends on | CH3b2 review (same `X2DamageManager.*`; CH3a / CH3b have no review of their own since 2026-11-10; runs before CH3c); one at a time with the other `X2GULire_ElvenRanger.*` / `X2GUUser.*` phases |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_CORE` (or the owning shared flag when the helper is `CX2GUUser` / engine code) |
 | Log tag | none (inert until `_LIVE`; the phase that uses it play-tests it) |
 | Review | `kickoffs/char-rena/CH3c0-review.md` (Opus 5.5 high; the phase writes it when done) |

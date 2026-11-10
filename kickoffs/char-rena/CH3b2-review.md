@@ -7,7 +7,7 @@
 | Depends on | CH3b2 done (commit `1cb6fa14`, the user's play-test + "check logs" recorded in its Done note) |
 | Flag | `SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC` (no debug define of its own) |
 | Log tag | `JUNE_FX CE_HIT` ( `--grep "JUNE_FX CE_HIT"` ), `[JUNE_CHAR]` ( `SUMMON npc 2083`, `RENA SKILL wind blast lock on` ) |
-| Why its own review | review cadence (user, 2026-11-10): `X2DamageManager.*`, `Enum*` and core-list Lua keep their own review; this does not fold into the CH3b review |
+| Why its own review | review cadence (user, 2026-11-10): `X2DamageManager.*`, `Enum*` and core-list Lua keep their own review; this does not fold into the CH3 skill review (`CH3d-review.md`) |
 
 ## Read first
 
@@ -27,4 +27,4 @@ Review CH3b2 against June:
 - **Play-test.** The CH3b2 Done note's play-test lines: `CE_HIT DamageEffect_SA_RSR_WindBlast_Arrow` + `..._Explosion`, `SUMMON npc 2083`, `ES_CREATE EffectSet_SA_RGA_Gungnir_Loop`.
 
 Hygiene: `flagcheck.py SERV_IRUHADEV_JUNE_ONLY_TARGET_ATTACK_NPC --range 1cb6fa14^..1cb6fa14`, `junediverge.py --check-all`, `enumscan.py --check X2Lib/X2DamageManager.cpp`, a one-file `/Zs` probe of the cpp ( no play-test of its own unless a fix lands: then full build ).
-Fix clear errors in place (bytepatch only). Write "CH3b2 - Review" in the plan doc, update the STATUS row, and check the next kickoff (`CH3b-review.md`).
+Fix clear errors in place (bytepatch only). Write "CH3b2 - Review" in the plan doc, update the STATUS row, and check the next kickoff (`CH3c0.md`).

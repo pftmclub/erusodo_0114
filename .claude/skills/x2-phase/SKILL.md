@@ -162,14 +162,15 @@ step needs the answer, otherwise let it run). The user has authorised this for O
    plan closes (Z done), append its block to `STATUS_ARCHIVE.md` and replace it with one *Closed plans* row.
 5. **Review kickoff**: if the phase needs a review and `kickoffs/<plan>/<phase>-review.md` does
    not exist, write it from `kickoffs/TEMPLATE-review.md`.
-   **Review cadence (user, 2026-11-10):** a review is per series, not per phase. In a plan's new kickoffs (char ports
-   from `char-ara` on), a run of same-file skill / passive phases that each hand off a play-test (CH2c-d, CH3a-b, CH4a-b)
-   gets one review at the series' last phase, which reads every covered Done note, runs `flagcheck --range` over all of
-   them and `junediverge --check-all`, and retires the debug defines. The earlier phases say "no review of its own" and
-   the Done note says the debug define stays on. Engine or shared-code phases (CH`n`0, anything in `X2GUUser.*`,
-   `X2GUNPC.*`, `X2DamageManager.*`, `Enum*`, core-list Lua) keep their own review. A run of inert transcription phases in
-   one class file (char-luciel CH1b-CH1l) is reviewed every 2-4 phases, not each. Existing kickoffs keep theirs unless amended
-   (char-rena and char-luciel are amended). After a review, write or check the
+   **Review cadence (user, 2026-11-10; widened the same day):** a review is per CH stage, not per phase. In a char port, the
+   class-file skill / passive phases of one stage (all of CH2, all of CH3, all of CH4) get **one** review at the stage's last
+   phase, which reads every covered Done note, runs `flagcheck --range` over all of them and `junediverge --check-all`, and
+   retires the debug defines. The earlier phases say "no review of its own" and the Done note says the debug define stays on;
+   a skill phase's incidental hunk in a shared file gets its own verdict line in that stage review. Engine or shared-code
+   phases (CH`n`0, a fix phase whose subject is `X2GUUser.*`, `X2GUNPC.*`, `X2DamageManager.*`, `Enum*` or core-list Lua,
+   such as char-rena CH3b2 / CH3c0) keep their own review. A run of inert transcription phases in one class file
+   (char-luciel CH1b-CH1l) is reviewed every 2-4 phases, not each. Existing kickoffs keep theirs unless amended (char-rena CH3
+   is amended: `CH3d-review.md` covers CH3a-CH3d; char-luciel's are re-amended when that plan resumes). After a review, write or check the
    next phase's kickoff the same way. The user should never have to ask "what's the kickoff".
 6. **Commit with explicit pathspecs** (`git add <your files>`; never `-A` or `.`), message
    `<Plan> Phase <n>: <what>`. The plan doc, STATUS.md and kickoffs go in the same commit as the

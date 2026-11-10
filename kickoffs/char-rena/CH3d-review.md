@@ -1,19 +1,19 @@
-# June character Rena (Stage 7) - Phase CH3b review ( covers CH3a + CH3b )
+# June character Rena (Stage 7) - Phase CH3d review ( the CH3 skill review: covers CH3a + CH3b + CH3c + CH3d )
 
 | | |
 |---|---|
-| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-rena CH3b review` |
+| Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-rena CH3d review` |
 | Plan doc | `JUNE_CHARACTER_RENA_PHASES.md` (branch `main`) |
-| Depends on | CH3b done (its Done note, commit and the user's play-test + "check logs"); CH3a's play-test logs are already in its Done note |
+| Depends on | CH3d done (its Done note, commit and the user's play-test + "check logs"); CH3a, CH3b (+ CH3b2's play-test), CH3c play-tests already in their Done notes. Amended 2026-11-10 from the CH3b review (user: one review per CH stage for skill phases) |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` and `..._SKILL_DEBUG` (the debug define retires here: `//#define` in `Always.h`) |
 | Log tag | `[JUNE_CHAR]` (`RENA SKILL equip`, `wind blast lock on`, `ace in the hole fire` / `mp refund`, `stigma arrow ... buff factor`, `entangle power rate`), `[JUNE_SKILL]` (`--grep NUM`) |
 
 ## Read first
 
 ```sh
-python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md "Rules" "CH3a - Done (2026-11-10)" "CH3b - Done (2026-11-10)" "CH3b2 - Done (2026-11-10)"
-grep -n "Rena: CH3a\|Rena: CH3b" JUNE2017_CHARACTER_PORT_CHECKLIST.md
-grep -n "Char Rena CH3a\|Char Rena CH3b" june2017_re/funcmap.tsv
+python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md "Rules" "CH3a - Done (2026-11-10)" "CH3b - Done (2026-11-10)" "CH3b2 - Done (2026-11-10)" "CH3c - Done" "CH3d - Done"
+grep -n "Rena: CH3a\|Rena: CH3b\|Rena: CH3c\|Rena: CH3d" JUNE2017_CHARACTER_PORT_CHECKLIST.md
+grep -n "Char Rena CH3a\|Char Rena CH3b\|Char Rena CH3c\|Char Rena CH3d" june2017_re/funcmap.tsv
 ```
 Plus `june2017_re/char_rena/ch0_skill_listing_rows.tsv` (the 10 class-102 and the 13 class-103 table rows) and `MODS.md` "Stage 7 Rena, CH3a" / "CH3b".
 
@@ -29,11 +29,12 @@ Spot-check at least:
 - **Entangle `32c9e7b0` / `32c7d5a0`.** Hunter's Ability ( `0x5b70` ) with no PvP test, `SA_DAMAGE_REL`, the memo `603023`; the cancel order dash `0x8c9c`, walk `0x8c98`, skill `0x8c90`.
 - **Aero Strafe `32c87060` / `32c6c530`.** No damage effect in FrameMove; the hyper form has no cut-in light.
 - **Ace in the Hole.** Start `32c6d8a0` ( the three camera stand-ins ), StartFuture `32c6d8f0`, the four EventProcesses `32c833b0` / `32c833e0` / `32c83410` / `32c83440`, the three wait EventProcesses `32c85430` / `32c85500` / `32c855d0` ( refund x 3 / 2 / 1, the end by `SA_EFFECTIVE_TIME` ), FrameMoveFuture `32c885a0` ( `SA_DEGREE_Z` ), FrameMove `32ca2520` ( clamp to `SA_DEGREE_MAX`, `SetRotateBone`, the effect set per state at 0.2 s, the local rotation ).
+- **CH3c ( Night Watcher 114 ) and CH3d ( hyper actives, transcendence rows ).** The spot-check lists CH3c and CH3d add here when they finish; CH3d's `X2GUUser.*` / `X2Offline*` hunks get their own verdict line; skill icons PASS for the transcendence ids.
 - **The "= March" claims.** Every funcmap row marked `= March`, in particular `32c84b50` / `32c84c70` ( Aero Strafe's three speed steps ) and `32c793f0` / `32c79430`.
 - **Templet swap.** Every term that reads a class-102 / 103 skill id in the new code reads it through the swap ( `GetEquippedActiveSkillTemplet( id, true )`, `GetNowStateSkillID()`, `GetFutureStateSkillID()` ), never a base id alone.
 - **CH3b2's play-test.** Wind Blast's and Gungnir's pass/fail lines are in "CH3b2 - Done" (the CH3b2 play-test). The engine and data change itself is reviewed in `CH3b2-review.md`, not here.
 - **Play-test.** Read `logs.py --grep "RENA SKILL"` for CH3b's set ( the `equip skill` lines per id, `wind blast lock on`, `ace in the hole fire` x3 and `mp refund`, `stigma arrow buff factor`, `entangle power rate` ), `ErrorLog.txt` ( 0 Motion Error / missing mesh or particle ), and the `[JUNE_SKILL]` lines against `MODS.md` "Stage 7 Rena, CH3b".
 
-Hygiene: `flagcheck.py SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL --with SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG --range <CH3a commit>^..<CH3b commit>` ( 35f73de4 is CH3a's code commit ), `junediverge.py --check-all`,
+Hygiene: `flagcheck.py SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL --with SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG --range <CH3a commit>^..<CH3d commit>` ( 35f73de4 is CH3a's code commit; list CH3b2 / CH3c0 commits as OTHER, they have their own reviews ), plus `SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND --range` over CH3d, `junediverge.py --check-all`,
 `enumscan.py --check X2Lib/X2GULire_ElvenRanger.cpp`, a one-file `/Zs` probe of the cpp. Retire `_SKILL_DEBUG` (`//#define`; a build with the only change a commented `_DEBUG` define starts but is not awaited).
-Fix clear errors in place (bytepatch only). Write "CH3b - Review" in the plan doc (CH3a's findings in it), update the STATUS rows (CH3b done, CH3c0 ready), and check `CH3c0.md`.
+Fix clear errors in place (bytepatch only). Write "CH3d - Review" in the plan doc ( CH3a-CH3c findings in it ), update the STATUS rows ( CH3a-CH3d done ), and check `CH6.md`.

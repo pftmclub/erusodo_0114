@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-rena CH4b` |
 | Plan doc | `JUNE_CHARACTER_RENA_PHASES.md` (branch `main`) |
-| Depends on | CH4a (play-test passed; no review of its own) and CH3c review. One at a time: `X2GULire_ElvenRanger.*` |
+| Depends on | CH4a (play-test passed; no review of its own) and CH3c (play-test passed). One at a time: `X2GULire_ElvenRanger.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE` (+ `_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`RENA PASSIVE`) |
 | Review | `kickoffs/char-rena/CH4b-review.md` (Opus 5.5 high; the phase writes it when done). **It covers CH4a + CH4b** (user, 2026-11-10): both Done notes, `flagcheck --range` over both, `--check-all`, retires `_PASSIVE_DEBUG` |

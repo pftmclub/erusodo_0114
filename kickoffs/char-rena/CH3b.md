@@ -7,7 +7,7 @@
 | Depends on | CH3a (play-test passed; no review of its own). One at a time: `X2GULire_ElvenRanger.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`RENA SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
-| Review | `kickoffs/char-rena/CH3b-review.md` (Opus 5.5 high; the phase writes it when done). **It covers CH3a + CH3b** (user, 2026-11-10): both Done notes, `flagcheck --range` over both, `--check-all`, retires `_SKILL_DEBUG` |
+| Review | none of its own (user, 2026-11-10, amended): the one CH3 skill review, `kickoffs/char-rena/CH3d-review.md` at CH3d, covers CH3a-CH3d; `_SKILL_DEBUG` stays on until then |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 
