@@ -1917,6 +1917,8 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 		float m_fRapidShotAimAngle;	/// char-rena CH2c: June +0x97ec ( constructor 0 ): the Rapid Shot aim angle in degrees, within +-40
 		float m_fSharpfallStartPosY;	/// char-rena CH3a: June +0x9804 ( constructor 0 ): the height Sharpfall starts from ( its landing start reads the fall )
+		float m_fAceInTheHoleAimAngle;	/// char-rena CH3b: June +0x9808 ( constructor 0 ): Ace in the Hole's aim angle in degrees, within +-SA_DEGREE_MAX
+		float m_fSkillCameraOverrideSecondValue;	/// char-rena CH3b: June +0x8d94 ( CX2GUUser camera group, constructor 0 ): stand-in, the reader is Stage 9's camera pair; Ace in the Hole sets it to 220.0
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 		unsigned short m_usEradicationHitCount;	/// June +0x9810 ( constructor 0 ): Eradication's hit count
 		float m_fEradicationLoopEffectTime;	/// June +0x9814 ( constructor 0 ): Eradication's SA_EFFECTIVE_TIME
@@ -2038,6 +2040,25 @@ class CX2GULire_ElvenRanger : public CX2GUUser
 		void LESI_A_RWS_PAIN_Init();	/// June 32c6d080
 		void LESI_A_RWS_PAIN_EventProcess();	/// June 32c7e9f0
 		void LESI_SA_RWS_TEMPEST_Init();	/// June 32c6d880
+		void LESI_A_LGA_STIGMA_ARROW_HYPER_FrameMove();	/// char-rena CH3b: June 32cacff0
+		void LESI_SA_RGA_BLAST_ARROW_Init();	/// June 32c6d040
+		void LESI_SA_RGA_BLAST_ARROW_EventProcess();	/// June 32c7ddb0
+		void LESI_SA_RGA_CUTLASS_WIND_Init();	/// June 32c6d050
+		void LESI_SA_RGA_CUTLASS_WIND_EventProcess();	/// June 32c7e0c0
+		void LESI_A_RGA_ONE_TARGET_SHOT_Init();	/// June 32c6d090
+		void LESI_A_RGA_ONE_TARGET_SHOT_EventProcess();	/// June 32c7ed00
+		void LESI_SA_RGA_ACEINTHEHOLE_START_Init();	/// June 32c6d890 ( empty )
+		void LESI_SA_RGA_ACEINTHEHOLE_START_StateStart();	/// June 32c6d8a0
+		void LESI_SA_RGA_ACEINTHEHOLE_START_StateStartFuture();	/// June 32c6d8f0
+		void LESI_SA_RGA_ACEINTHEHOLE_START_EventProcess();	/// June 32c833b0
+		void LESI_SA_RGA_ACEINTHEHOLE_WAIT_EventProcess();	/// June 32c85430
+		void LESI_SA_RGA_ACEINTHEHOLE_1ST_ATTACK_EventProcess();	/// June 32c833e0
+		void LESI_SA_RGA_ACEINTHEHOLE_WAIT_AFTER_1ST_ATTACK_EventProcess();	/// June 32c85500
+		void LESI_SA_RGA_ACEINTHEHOLE_2ND_ATTACK_EventProcess();	/// June 32c83410
+		void LESI_SA_RGA_ACEINTHEHOLE_WAIT_AFTER_2ND_ATTACK_EventProcess();	/// June 32c855d0
+		void LESI_SA_RGA_ACEINTHEHOLE_3RD_ATTACK_EventProcess();	/// June 32c83440
+		void LESI_SA_RGA_ACEINTHEHOLE_WAIT_FrameMoveFuture();	/// June 32c885a0 ( the wait and the first two attack states )
+		void LESI_SA_RGA_ACEINTHEHOLE_WAIT_FrameMove();	/// June 32ca2520 ( all six states after the start )
 		void LESI_A_LGA_RAPID_SHOT_READY_FrameMoveFuture();	/// June 32c88050: shared by the ready, attack and finish states
 		void LESI_A_LGA_RAPID_SHOT_READY_FrameMove();	/// June 32c86720
 		void UpdateRapidShotAimRotation();	/// June 32c86620

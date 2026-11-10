@@ -6236,3 +6236,25 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (same flag; `_SKILL_DEBUG` is defined 
 | Sharpfall / Airelinna / Nature Force | Power Attack default | state and effect-set driven ( Sharpfall: x ( 1 + fall term ) when Enhanced ) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every class-102 skill falls back to the Power Attack default, and CH2a's - CH2d's too), `python tools/build.py --deploy`.
+
+## Stage 7 Rena, CH3b: Grand Archer (class 103) skills (2026-11-10)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (same flag; `_SKILL_DEBUG` stays on for the CH3b review, which retires it). Plan `JUNE_CHARACTER_RENA_PHASES.md` "CH3b - Done". Client only, no data change; `X2SkillTree.h` gains thirteen `RNSI_*` names.
+- **What changes in game.** The thirteen Grand Archer skills run June's registrations in the id switch of `SetEquippedSkillFuncBySkillSlotIndex` (before this they fell into the Power Attack default): Gungnir (23015 / 23049), Wind Blast (23016 / 23050), Aero Strafe (23017 / 23051), Freezing Arrow (23018 / 23052), Stigma Arrow (23211 / 23235), Entangle (23213 / 23237), Blast Arrow (23039), Cutlass Wind (23040), One Target Shot (23226) and Ace in the Hole (23059).
+- **Differs from March.** Wind Blast fires one homing arrow ( the nearest target within 1200 is its lock-on ); Aero Strafe's damage comes from its effect sets, not from a damage effect made in FrameMove, and its hyper form has no cut-in light; Stigma Arrow spawns `DamageEffect_A_RGA_Stigma_Arrow` ( `_Hyper` in hyper ) and pushes its first buff factor levelled with the skill memo's rate; Entangle's Hunter's Ability bonus also applies in PvP and its dash / walk / skill cancels need the foot on a line; Ace in the Hole is three arrows: the skill key shoots, up / down aims within `SA_DEGREE_MAX`, left / right or the end of `SA_EFFECTIVE_TIME` ends it and gives back `SA_MP_RETAKE_ABS` for each arrow not shot.
+- **Damage (level-1 multiplier; June = the damage effects' NUMERICAL_DATA through the engine, x0.01; March = the Power Attack default these ids fell into before, with no skill-specific damage effect).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Gungnir (23015 / 23049) | Power Attack default | 2.75 spear + 1.40 explosion ( hyper 3.51 + 1.79 ) |
+| Wind Blast (23016 / 23050) | Power Attack default | 8.29 arrow + 4.53 explosion |
+| Aero Strafe (23017 / 23051) | Power Attack default | 9.15 + 8.74 explosion ( effect sets ) |
+| Freezing Arrow (23018 / 23052) | Power Attack default | 11.40 + 5.48 explosion ( hyper 14.56 + 5.48 ) |
+| Stigma Arrow (23211 / 23235) | Power Attack default | 8.73 ( hyper the same ) |
+| Entangle (23213 / 23237) | Power Attack default | 6.12 ( `..._ENTANGLE_BOMB` ) |
+| Blast Arrow (23039) | Power Attack default | 4.91 arrow + 0.69 black hole |
+| Cutlass Wind (23040) | Power Attack default | 2.83 |
+| One Target Shot (23226) | Power Attack default | 4.28 |
+| Ace in the Hole (23059) | Power Attack default | 14.76 x 2 arrows, 53.37 final arrow + 6.69 explosion |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL` (every class-103 skill falls back to the Power Attack default, and CH2a's - CH3a's too), `python tools/build.py --deploy`.

@@ -1924,6 +1924,23 @@ public:
 		RNSI_A_RWS_REFLEX_MAGIC_UPGRADE                       = 23232,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-10 // char-rena CH3b
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_RGA_WIND_BLAST                                = 23016,	// June's Enum.lua; the Grand Archer skill switch cases
+		RNSI_SA_RGA_AERO_STRAFE                               = 23017,
+		RNSI_SA_RGA_FREEZING_ARROW                            = 23018,
+		RNSI_SA_RGA_BLAST_ARROW                               = 23039,
+		RNSI_SA_RGA_CUTLASS_WIND                              = 23040,
+		RNSI_SA_RGA_GUNGNIR_UPGRADE                           = 23049,
+		RNSI_SA_RGA_WIND_BLAST_UPGRADE                        = 23050,
+		RNSI_SA_RGA_AERO_STRAFE_UPGRADE                       = 23051,
+		RNSI_SA_RGA_FREEZING_ARROW_UPGRADE                    = 23052,
+		RNSI_A_RGA_STIGMA_ARROW                               = 23211,
+		RNSI_A_RGA_ONE_TARGET_SHOT                            = 23226,
+		RNSI_A_RGA_STIGMA_ARROW_UPGRADE                       = 23235,
+		RNSI_A_RGA_ENTANGLE_UPGRADE                           = 23237,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-10-27 // June character port Phase CH2a (JUNE_CHARACTER_EVE_PHASES.md)
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		// June SKILL_ID names Eve's Nasod skill cases spell (values from June's Enum.lua)
