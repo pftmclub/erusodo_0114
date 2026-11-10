@@ -56,3 +56,9 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 ## Amended by CH1n (2026-11-09)
 
 - **Slot state:** Sharpfall (23009) registers `LESI_SA_LCR_SHARPFALL_HYPER_LANDING` ( 202, CH1i's `_CORE` member ) by table name. The id switch takes `GetUpgradeBaseSkillID( eSkillID_ )` (`CH2a.md`, Amended by CH1n).
+
+## Amended by the CH2d review (2026-11-10)
+
+- **`_SKILL_DEBUG` is retired** (`KTDXLIB/Always.h:12071` reads `//#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG`). Re-define it for your play-test, as CH2c did (bytepatch, one line); it stays on until the CH3b review retires it.
+- **Log noise, not a defect:** `OpenXET` lines naming skill meshes are the engine's optional same-name `.XET` lookup beside every mesh (`KTDXDeviceXMesh.cpp:1382`); judge assets by Motion Error / missing `.X` / `.dds` lines only.
+- **CH4a can start once you are done:** both phases edit `X2GULire_ElvenRanger.*`, so run them one at a time.

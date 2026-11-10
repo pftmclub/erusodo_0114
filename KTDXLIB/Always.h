@@ -12068,7 +12068,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Rena ) Phase CH2a - temporary [JUNE_CHAR] RENA SKILL lines ( the equipped skill's slot and state ) for CH2a's play-test;
 //              they sit inside JUNE_CHAR_RENA_SKILL code only.
 //              Revert: undefine the flag ( JUNE_CHAR_RENA_SKILL_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_RENA_SKILL
@@ -12111,7 +12111,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Rena ) Phase CH2d0 - temporary [JUNE_CHAR] RENA TRAP lines ( spawn request, owner link, removal ) for CH2d's play-test;
 //              they sit inside JUNE_CHAR_RENA_TRAP code and the two trap-list erase functions only.
 //              Revert: undefine the flag ( JUNE_CHAR_RENA_TRAP_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_RENA_TRAP
