@@ -9655,3 +9655,16 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32bb3ab0	CX2GUAra::DashEndEventProcess	PORTED	Char Ara CH1d2: inside; oneX on line 3 -> ASI_DASH_COMBO_ALS_X
 32bb3df0	CX2GUAra::DashJumpLandingEventProcess	PORTED	Char Ara CH1d2: inside; same as March
 32bb3ff0	CX2GUAra::DashJumpPowerLandingEventProcess	PORTED	Char Ara CH1d2: inside; same as March
+32b9b920	CX2GUAra::ASI_COMBO_ALH_ZZXX_EventProcess	PORTED	Char Ara CH1e: inside; same as March
+32b9b950	CX2GUAra::ASI_COMBO_ALH_ZZXX_LANDING_EventProcess	PORTED	Char Ara CH1e: inside; same as March, dash cancel with the on-line test
+32b9bae0	CX2GUAra::ASI_DASH_COMBO_ALH_ZZ_EventProcess	PORTED	Char Ara CH1e: inside; walk / dash / skill cancels all with the on-line test ( March macros have none )
+32b9bcc0	CX2GUAra::ASI_JUMP_ATTACK_ALH_ZZ_EventProcess	PORTED	Char Ara CH1e: inside; same as March
+32b9bfe0	CX2GUAra::ASI_DASH_JUMP_COMBO_ASD_ZX_EventProcess	PORTED	Char Ara CH1e: inside; cancel time tested against the future animation ( March: the now animation )
+32b9c050	CX2GUAra::ASI_DOUBLE_JUMP_FRONT_COMBO_ASD_Z_BACK_EventProcess	PORTED	Char Ara CH1e: inside; cancel time tested against the future animation ( March: the now animation )
+32b9cf00	CX2GUAra::ASI_P_ASD_BRUTAL_PIERCING_EventProcess	PORTED	Char Ara CH1e: new under _CORE; shared by ASI_P_ASD_BRUTAL_PIERCING and _SMALL; CH1m registers
+32ba4870	CX2GUAra::ASI_COMBO_ALH_XXXZ_EventProcess	PORTED	Char Ara CH1e: new under _CORE; airial dash from the combo, X -> XXXZX on line 1, cancels, ZX cancel; CH1m registers
+32ba4d00	CX2GUAra::ASI_COMBO_ALH_XXXZX_EventProcess	PORTED	Char Ara CH1e: new under _CORE; landing -> ASI_COMBO_ALH_ZZXX_LANDING; CH1m registers
+32ba4d30	CX2GUAra::ASI_COMBO_ALH_XXXZX_Landing_EventProcess	PORTED	Char Ara CH1e: new under _CORE; June registers the _Landing spelling, the script table is _LANDING ( JUNE_BUGS 588 ); CH1m registers
+32ba5050	CX2GUAra::ASI_DASH_JUMP_COMBO_ASD_XZ_EventProcess	PORTED	Char Ara CH1e: new under _CORE; landing -> ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING; CH1m registers
+32ba5080	CX2GUAra::ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING_EventProcess	PORTED	Char Ara CH1e: new under _CORE; same body as ZZXX_LANDING; CH1m registers
+32bbac50	CX2GUAra::ASI_P_ASD_BRUTAL_PIERCING_StateStart	PORTED	Char Ara CH1e: new under _CORE; EffectSet_CSI_CIP_IRON_WILL then CommonStateStart, shared with _SMALL; CH1m registers

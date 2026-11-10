@@ -258,6 +258,11 @@ public:
 		ASI_DASH_JUMP_COMBO_ASD_XZ,			/// char-ara CH1d2: June script id 320 ( Sakra Devanam dash-jump X-Z; CH1m maps, CH1e owns the state )
 		ASI_DASH_COMBO_ALS_ZX,				/// char-ara CH1d2: June script id 325 ( Little Specter dash Z-X; CH1m maps, CH1g owns the state )
 		ASI_DASH_JUMP_COMBO_ASR_XZ,			/// char-ara CH1d2: June script id 327 ( Asura dash-jump X-Z; CH1m maps, CH1g owns the state )
+		ASI_COMBO_ALH_XXXZX,				/// char-ara CH1e: June script id 318 ( Little Hsien XXX-Z-X; CH1m maps )
+		ASI_COMBO_ALH_XXXZX_Landing,		/// char-ara CH1e: June script id 319 ( Little Hsien XXX-Z-X landing; CH1m maps )
+		ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING,	/// char-ara CH1e: June script id 321 ( Sakra Devanam dash-jump X-Z landing; CH1m maps )
+		ASI_P_ASD_BRUTAL_PIERCING,			/// char-ara CH1e: June script id 331 ( Sakra Devanam brutal piercing; CH1m maps )
+		ASI_P_ASD_BRUTAL_PIERCING_SMALL,	/// char-ara CH1e: June script id 332 ( Sakra Devanam brutal piercing, small damage; CH1m maps )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	#pragma endregion 2-1, 2-2차 전직
 
@@ -1063,6 +1068,15 @@ protected:
 
 	void ASI_DASH_JUMP_COMBO_ASD_ZX_EventProcess();			//DASH_JUMP_COMBO_ZX
 	void ASI_DOUBLE_JUMP_FRONT_COMBO_ASD_Z_BACK_EventProcess();//DOUBLE_JUMP_FRONT_COMBO_Z_BACK
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+	void ASI_COMBO_ALH_XXXZ_EventProcess();							/// char-ara CH1e: June 32ba4870
+	void ASI_COMBO_ALH_XXXZX_EventProcess();						/// char-ara CH1e: June 32ba4d00
+	void ASI_COMBO_ALH_XXXZX_Landing_EventProcess();				/// char-ara CH1e: June 32ba4d30
+	void ASI_DASH_JUMP_COMBO_ASD_XZ_EventProcess();					/// char-ara CH1e: June 32ba5050
+	void ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING_EventProcess();			/// char-ara CH1e: June 32ba5080
+	void ASI_P_ASD_BRUTAL_PIERCING_EventProcess();					/// char-ara CH1e: June 32b9cf00
+	void ASI_P_ASD_BRUTAL_PIERCING_StateStart();					/// char-ara CH1e: June 32bbac50
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 	void ASI_A_ALH_BREAKING_Init();							//이화접목 대기
 	void ASI_A_ALH_BREAKING_FrameMove();

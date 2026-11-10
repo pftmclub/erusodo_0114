@@ -49,7 +49,36 @@ namespace _CONST_ARA_
 	else if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && true == IsOnSomethingFuture() && \
 	( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) ) \
 	{ StateChangeDashIfPossible(); }
+// char-ara CH1e: June's WALK_CANCEL_AFTER with the on-line test ( 32b9bae0 @32b9bb2f ), as the two above
+#define WALK_CANCEL_AFTER_ON_LINE_( time ) \
+	else if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && true == IsOnSomethingFuture() && \
+	( true == m_InputData.pureRight || true == m_InputData.pureLeft ) ) \
+	{ StateChange( USI_WAIT ); }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+// char-ara CH1e: the four macros above again, for the _CORE functions while _LIVE is off
+#define ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( iEventFlagIndex, fInputTimingStart, fInputTiming, fChangeTiming, bCondition, iStateID ) \
+	else if( m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] == true && \
+		( (float)(fChangeTiming) < m_pXSkinAnimFuture->GetNowAnimationTime() || true == m_pXSkinAnimFuture->IsAnimationEnd() ) ) \
+	{ StateChange( (iStateID) ); m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = false; } \
+	else if( m_pXSkinAnimFuture->GetNowAnimationTime() < (float)(fInputTiming) && (float)(fInputTimingStart) <= m_pXSkinAnimFuture->GetNowAnimationTime() && true == (bCondition) ) \
+	{ m_FrameDataFuture.stateParam.bEventFlagList[(int)(iEventFlagIndex)] = true; }
+#define BWALK_CANCEL_AFTER_ON_LINE_( time ) \
+	else if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && true == IsOnSomethingFuture() && \
+	( ( m_InputData.pureLeft == true && m_FrameDataFuture.syncData.bIsRight == true) || \
+	( m_InputData.pureRight == true && m_FrameDataFuture.syncData.bIsRight == false) ) ) \
+	{ StateChange( USI_WAIT ); }
+#define DASH_CANCEL_AFTER_ON_LINE_( time ) \
+	else if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && true == IsOnSomethingFuture() && \
+	( true == m_InputData.pureDoubleRight || true == m_InputData.pureDoubleLeft ) ) \
+	{ StateChangeDashIfPossible(); }
+#define WALK_CANCEL_AFTER_ON_LINE_( time ) \
+	else if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && true == IsOnSomethingFuture() && \
+	( true == m_InputData.pureRight || true == m_InputData.pureLeft ) ) \
+	{ StateChange( USI_WAIT ); }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 #pragma region 필살기 사용 시 Cut in image
 static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
@@ -14167,15 +14196,36 @@ void CX2GUAra::ASI_A_ARA_GAIN_FORCE_EventProcess()
 //소선 커맨드
 void CX2GUAra::ASI_COMBO_ALH_ZZXX_EventProcess() //ZZXX
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1e: June 32b9b920
 	if ( true == IsOnSomethingFuture() )
 	{
 		StateChange( ASI_COMBO_ALH_ZZXX_LANDING );
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( ASI_COMBO_ALH_ZZXX_LANDING );
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 void CX2GUAra::ASI_COMBO_ALH_ZZXX_LANDING_EventProcess() //ZZXX
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1e: June 32b9b950
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -14184,9 +14234,23 @@ void CX2GUAra::ASI_COMBO_ALH_ZZXX_LANDING_EventProcess() //ZZXX
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 void CX2GUAra::ASI_DASH_COMBO_ALH_ZZ_EventProcess() //ZZ
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1e: June 32b9bae0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		StateChange( USI_WAIT );
@@ -14197,9 +14261,12 @@ void CX2GUAra::ASI_DASH_COMBO_ALH_ZZ_EventProcess() //ZZ
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 void CX2GUAra::ASI_JUMP_ATTACK_ALH_ZZ_EventProcess() //ZZ
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1e: June 32b9bcc0
 	if ( true == IsOnSomethingFuture() )
 	{
 		bool &bPureDown = m_FrameDataFuture.stateParam.bEventFlagList[0];
@@ -14213,6 +14280,21 @@ void CX2GUAra::ASI_JUMP_ATTACK_ALH_ZZ_EventProcess() //ZZ
 	}
 
 	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	if ( true == IsOnSomethingFuture() )
+	{
+		bool &bPureDown = m_FrameDataFuture.stateParam.bEventFlagList[0];
+
+		if ( true == bPureDown )
+		{
+			m_fCanNotJumpTime = 0.2f;
+		}
+
+		StateChange( USI_JUMP_LANDING );
+	}
+
+	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 //소선 액티브
@@ -14444,6 +14526,25 @@ void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_END_EventProcess() //팔괘장_END
 
 void CX2GUAra::ASI_DASH_JUMP_COMBO_ASD_ZX_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1e: June 32b9bfe0 ( the cancel time is read from the future animation; March read the now animation )
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( ASI_COMBO_ALH_ZZXX_LANDING );
+	}
+	else if ( m_fAttackCancelAfter <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if ( true == m_InputData.oneZ )
+		{
+			StateChange( ASI_JUMP_ATTACK_Z );
+		}
+		else if ( true == m_InputData.oneX )
+		{
+			StateChange( ASI_JUMP_ATTACK_X );
+		}
+	}
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == IsOnSomethingFuture() )
 	{
 		StateChange( ASI_COMBO_ALH_ZZXX_LANDING );
@@ -14460,9 +14561,29 @@ void CX2GUAra::ASI_DASH_JUMP_COMBO_ASD_ZX_EventProcess()
 		}
 	}
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 void CX2GUAra::ASI_DOUBLE_JUMP_FRONT_COMBO_ASD_Z_BACK_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1e: June 32b9c050 ( the cancel time is read from the future animation; March read the now animation )
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_LANDING );
+	}
+	else if ( m_fAttackCancelAfter <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+	{
+		if ( true == m_InputData.oneZ )
+		{
+			StateChange( ASI_JUMP_ATTACK_Z );
+		}
+		else if ( true == m_InputData.oneX )
+		{
+			StateChange( ASI_JUMP_ATTACK_X );
+		}
+	}
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( true == IsOnSomethingFuture() )
 	{
 		StateChange( USI_JUMP_LANDING );
@@ -14479,7 +14600,131 @@ void CX2GUAra::ASI_DOUBLE_JUMP_FRONT_COMBO_ASD_Z_BACK_EventProcess()
 		}
 	}
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+// char-ara CH1e: June 32ba4870 ( ASI_COMBO_ALH_XXXZ; CH1m registers it )
+void CX2GUAra::ASI_COMBO_ALH_XXXZ_EventProcess()
+{
+	if ( 0.9f < m_pXSkinAnimFuture->GetNowAnimationTime() && true == IsOnSomethingFuture() )
+	{
+		StateChange( ASI_COMBO_ALH_XXXZX_Landing );
+	}
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		if ( m_fEventTime[1].keyInputStart <= m_pXSkinAnimFuture->GetNowAnimationTime() &&
+			m_pXSkinAnimFuture->GetNowAnimationTime() < m_fEventTime[1].keyInputEnd &&
+			( true == m_InputData.pureDoubleLeft || true == m_InputData.pureDoubleRight ) )
+		{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+			// char-ara CH1e: the two members exist under _LIVE only
+			m_bAirialDashFromCombo = true;
+			m_bAirialDashTurnAround = ( false == m_FrameDataNow.syncData.bIsRight && true == m_InputData.pureDoubleRight ) ||
+				( true == m_FrameDataNow.syncData.bIsRight && true == m_InputData.pureDoubleLeft );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+			StateChangeAirialDashIfPossible();
+		}
+		ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+			true == m_InputData.oneX && true == IsInJobLine( 1 ), ASI_COMBO_ALH_XXXZX )
+	}
+	else
+	{
+		IF_SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+		WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+		BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+		DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+		else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+			true == IsOnSomethingFuture() && true == m_InputData.oneZ )
+		{
+			StateChange( GetComboZStateID() );
+		}
+		else if ( 0.f <= m_fAttackCancelAfterEx && m_pXSkinAnimFuture->GetNowAnimationTime() > m_fAttackCancelAfterEx &&
+			true == IsOnSomethingFuture() && true == m_InputData.oneX )
+		{
+			StateChange( GetComboXStateID() );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH1e: June 32ba4d00 ( ASI_COMBO_ALH_XXXZX; CH1m registers it )
+void CX2GUAra::ASI_COMBO_ALH_XXXZX_EventProcess()
+{
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( ASI_COMBO_ALH_ZZXX_LANDING );
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH1e: June 32ba4d30 ( ASI_COMBO_ALH_XXXZX_Landing; CH1m registers it )
+void CX2GUAra::ASI_COMBO_ALH_XXXZX_Landing_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+}
+
+// char-ara CH1e: June 32ba5050 ( ASI_DASH_JUMP_COMBO_ASD_XZ; CH1m registers it )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_ASD_XZ_EventProcess()
+{
+	if ( true == IsOnSomethingFuture() )
+	{
+		StateChange( ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING );
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH1e: June 32ba5080 ( ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING; CH1m registers it )
+void CX2GUAra::ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+}
+
+// char-ara CH1e: June 32b9cf00 ( ASI_P_ASD_BRUTAL_PIERCING and _SMALL share it; CH1m registers them )
+void CX2GUAra::ASI_P_ASD_BRUTAL_PIERCING_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+		{
+			StateChange( USI_WAIT );
+		}
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH1e: June 32bbac50 ( ASI_P_ASD_BRUTAL_PIERCING and _SMALL share it; CH1m registers them )
+void CX2GUAra::ASI_P_ASD_BRUTAL_PIERCING_StateStart()
+{
+	g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CSI_CIP_IRON_WILL", this );
+
+	CommonStateStart();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 void CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
 {

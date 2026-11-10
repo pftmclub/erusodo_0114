@@ -6337,3 +6337,11 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` (still `//#define`), `_CORE` (defined: 
 **Damage numbers (once `_LIVE` is on).** Dash Z-push-X attack: March multiplies `fPhysic` by `1 + min( charge, 2 )` at 0.001 s (x1 .. x3); June multiplies it by `1 + 0.25 x charge` at state start (x1 .. x1.5). Dash Z and the Z-push-X charge / attack states no longer play their effect sets from code (JUNE_BUGS 587). Dash Z no longer swaps `DAMAGE_DATA_NEXT` in FrameMove.
 
 **Revert.** Leave `_LIVE` commented out; to drop the state names and the new function, undefine `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE`.
+
+## Stage 7 Ara, CH1e: Little Hsien / Sakra Devanam line states under `_LIVE` (inert, 2026-11-10)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` (still `//#define`) and `_CORE` (defined: seven new functions, five state names). 6 June functions of `CX2GUAra` written inside March's (ZZXX, ZZXX landing, dash ZZ, jump-attack ZZ, dash-jump ZX, double-jump Z-back) and 7 new ones (XXXZ, XXXZX, XXXZX landing, dash-jump XZ, XZ landing, brutal piercing event process and state start). No effect until `_LIVE` ships with CH1.
+
+**Damage numbers.** None changed by this phase. Behaviour once `_LIVE` is on: Sakra dash-jump Z-X and double-jump Z-back test their cancel time against the future animation; the Little Hsien dash ZZ and the landings cancel to walk / dash only on the line (June's cancel macros).
+
+**Revert.** Leave `_LIVE` commented out; to drop the new functions and state names, undefine `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE`.

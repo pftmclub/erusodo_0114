@@ -601,6 +601,33 @@ All 26 class-map rows of phase CH1d2 are written: 25 `inside` (June's body in Ma
 
 Next: `/x2-phase char-ara CH1e` (Sonnet 5.5 high). Its kickoff was checked and is current.
 
+### CH1e - Done (2026-11-10)
+
+All 13 class-map rows of phase CH1e are written: 6 `inside` (June's body in March's own `CX2GUAra` function under `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE`, March's in `#else`) and 7 new under `_CORE` (referenced by nothing until CH1m). Five state names join `ARA_STATE_ID` under `_CORE`: `ASI_COMBO_ALH_XXXZX` (June id 318), `ASI_COMBO_ALH_XXXZX_Landing` (319), `ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING` (321), `ASI_P_ASD_BRUTAL_PIERCING` (331), `_SMALL` (332). No new `Always.h` define. 13 funcmap rows `Char Ara CH1e`; checklist L178 carries `(Ara: CH1e ...)`; `JUNE_BUGS.md` row 588; `MODS.md` section "Stage 7 Ara, CH1e". The other 14 of the 27 states have no function of their own in the class map: START / WIN / LOSE (x2 each, shared engine callbacks) and the four quick-stand states (CH1b's `StandUpRolling*`); CH1m registers them.
+
+| June | `CX2GUAra::` | June | `CX2GUAra::` |
+|---|---|---|---|
+| `32b9b920` `32b9b950` `32b9bae0` `32b9bcc0` | ZZXX EP, ZZXX landing EP, dash ZZ EP, jump-attack ZZ EP (inside) | `32b9bfe0` `32b9c050` | dash-jump ASD_ZX EP, double-jump ASD Z-back EP (inside) |
+| `32ba4870` `32ba4d00` `32ba4d30` | `ASI_COMBO_ALH_XXXZ` / `_XXXZX` / `_XXXZX_Landing` `_EventProcess` (new) | `32ba5050` `32ba5080` | `ASI_DASH_JUMP_COMBO_ASD_XZ` / `_XZ_LANDING` `_EventProcess` (new) |
+| `32b9cf00` `32bbac50` | `ASI_P_ASD_BRUTAL_PIERCING_EventProcess` / `_StateStart` (new; `_SMALL` shares both, CH1m registers it to the same) | | |
+
+**Where June differs from March** (read from `charport_adis.py ara --phase CH1e`; the rest is March's logic written out whole):
+- **Cancel macros.** June's walk / dash / skill cancels all carry the `IsOnSomethingFuture()` test; March's `WALK_CANCEL_AFTER` and `DASH_CANCEL_AFTER` have none. The phase uses CH1d's `DASH_CANCEL_AFTER_ON_LINE_` and adds `WALK_CANCEL_AFTER_ON_LINE_` (dash ZZ has no foot guard, so it matters there). The skill macro is the shared June-expanded `SKILL_CANCEL_AFTER` / `IF_SKILL_CANCEL_AFTER`.
+- **Dash-jump ASD_ZX and double-jump Z-back EP:** the `m_fAttackCancelAfter` test reads the future animation (`m_pXSkinAnimFuture`); March read the now animation. Landing targets equal March's (`ASI_COMBO_ALH_ZZXX_LANDING` / `USI_JUMP_LANDING`).
+- **`ASI_COMBO_ALH_XXXZ` EP (329 instructions):** at 0.9 s on the line it enters `ASI_COMBO_ALH_XXXZX_Landing`, then falls through. In the air: the double-key airial dash of the combo states (event time 1, `m_bAirialDashFromCombo`, turn-around) or event 0 (`oneX` and `IsInJobLine( 1 )` -> `ASI_COMBO_ALH_XXXZX`, `OR_ANIMATION_END_` macro). On the line: skill / hyper cancel, walk, back-walk, dash, then `m_fAttackCancelAfterEx` with Z / X -> `GetComboZStateID()` / `GetComboXStateID()` (`ASI_COMBO_Z` / `_X`).
+- **Clones of one another** (listings equal modulo branch addresses): `ASI_COMBO_ALH_XXXZX_Landing` EP and `_ASD_XZ_LANDING` EP = ZZXX landing EP; `XXXZX` EP = ZZXX EP; `ASD_XZ` EP = ZZXX EP with `ASI_DASH_JUMP_COMBO_ASD_XZ_LANDING`.
+- **Brutal piercing:** EP at animation end -> `USI_JUMP_DOWN` and `y -= 45` (`LINE_RADIUS` x 1.5, as the quicken-guard EP) off the line, else `USI_WAIT`. StateStart plays `EffectSet_CSI_CIP_IRON_WILL` then `CommonStateStart()`, as `ASI_P_ASD_QUICKEN_GUARD_StateStart`.
+- **JUNE_BUGS 588:** June registers `ASI_COMBO_ALH_XXXZX_Landing`; the script's table is `ASI_COMBO_ALH_XXXZX_LANDING`, so the state has no script table. Registration keeps June's spelling (CH1m).
+- **Shape of the `_CORE` functions.** CH1a / CH1d's three macros exist only under `_LIVE`; a `_CORE` block (`_CORE` and not `_LIVE`) repeats them so the new functions compile while `_LIVE` is off. `XXXZ` EP writes `m_bAirialDashFromCombo` / `m_bAirialDashTurnAround` under an inner `#ifdef _LIVE` (the members exist under `_LIVE` only). No branch drifted out of scope.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --with ..._CORE ..._FP --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `files: 1 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is `//#define` (by design). With `_CORE` as the flag: `define: KTDXLIB/Always.h:12207`, `RESULT: PASS`. cpp +245, `.h` +14, 0 deletions.
+- One-file `/c /Zs /EHsc` probe of `X2GUAra.cpp` (`census.cl_cmd`, no PCH): exit 0, 0 errors with `_LIVE` off, with `/D ..._LIVE`, and with `_LIVE` + `_FP`; `cl /P`: `ASI_COMBO_ALH_XXXZ_EventProcess` and `ASI_P_ASD_BRUTAL_PIERCING_StateStart` 1 each off and on, `m_fAttackCancelAfter <= m_pXSkinAnimFuture` 0 off / 2 on. (First probe found the two `_LIVE`-only members; fixed as above.)
+- `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: 0 A/B rows.
+- Full build skipped: no play-test (`_LIVE` is off), so no `DEPLOY OK` / `exestr` line.
+
+**Nothing to play-test.** Phase tag in every block: `// char-ara CH1e`. No `_DEBUG` define exists; no review of its own (the CH1g review covers CH1e-CH1g). Next: `/x2-phase char-ara CH1f` on Sonnet 5.5 high.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.
