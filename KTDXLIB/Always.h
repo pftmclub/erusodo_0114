@@ -12176,7 +12176,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: char-rena CH4a - temporary [JUNE_CHAR] RENA PASSIVE log lines ( init values, each attack-result callback, the two
 //              delegates ) for the play-test; they sit inside JUNE_CHAR_RENA_PASSIVE code only; the CH4b review retires them.
 //              Revert: undefine the flag ( JUNE_CHAR_RENA_PASSIVE_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG
 #ifndef SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE
 #error SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_RENA_PASSIVE

@@ -65,3 +65,8 @@ not fall into the Power Attack default. Back Kick's base id (23203) must **not**
   ( `_SKILL_DEBUG` retired ), so read `ES_CREATE` lines and `ErrorLog.txt` ( 0 Motion Error ) instead.
 - **CH3d's visual checks** ( the user's verdict was not given ): the transcended pictures on 102 / 103 / 114 ( character list, HUD portrait, gauge: Night Watcher's is `TR_N_ARCHER_STATE` ), the transcendence cut-ins,
   and Spiral Strike's spin ( Rena invisible for its 2.75 s, visible again on landing ).
+
+## Amended by CH4b review (2026-11-10)
+
+Eradication's free cast ( Night Watcher 114 ): its count grows only on **kills** made by an Eradication or Eradication-explosion hit. Kill `SA_EFFECTIVE_COUNT` enemies that way, then press Eradication again:
+it must go straight to its attack state and spend no MP; the cool time after it is the normal one ( June's `-1.0` is never read on that path ). The `RENA PASSIVE` log lines are retired, so judge by the MP bar.
