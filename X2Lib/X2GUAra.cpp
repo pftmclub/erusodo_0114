@@ -18109,12 +18109,64 @@ void CX2GUAra::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, float 
 
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 #ifdef MODIFY_RIDING_PET_AWAKE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+namespace _CONST_ARA_CH1C_
+{
+	// char-ara CH1c: June 32011d20 / 31fd66b0 / 32011f50 ( the awakening effect-set family ); stand-in: not ported ( Stage 12 ), June's empty-name default
+	void AraAwakeningEffectBegin()			{}
+	bool AraAwakeningEffectSetPresent()		{ return false; }
+	void AraAwakeningEffectPlay()			{}
+}
+using namespace _CONST_ARA_CH1C_;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 void CX2GUAra::RidingHyperModeFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1c: June 32bc5ba0
 	CommonHyperModeFrameMove( 0.f, 0.1f, 0.1f, true );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	CommonHyperModeFrameMove( 0.f, 0.1f, 0.1f, true );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 void CX2GUAra::CommonHyperModeFrameMove( float fTime1_, float fTime2_, float fTime3_, bool bSound_ /*= false*/  )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1c: June 32bc0140, the third timer has no body ( the BoostPower voice is gone ); the trace only without the awakening set
+	g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
+
+	if( true == m_pXSkinAnim->EventTimerOneshot( fTime1_ ) )
+	{
+		ShowMinorParticleHyperModeChange();
+	}
+	else if( true == m_pXSkinAnim->EventTimerOneshot( fTime2_ ) )
+	{
+		AraAwakeningEffectBegin();
+		if( true == AraAwakeningEffectSetPresent() )
+			AraAwakeningEffectPlay();
+
+		ShowMinorParticleHyperModeShock();
+
+		UpDownCrashCamera( 30.0f, 0.4f );
+		g_pKTDXApp->GetDGManager()->ClearScreen();
+
+		if( false == AraAwakeningEffectSetPresent() )
+			ShowMinorParticleHyperModeTrace();
+
+		ApplyHyperModeBuff();
+
+		if( true == bSound_ )
+		{
+			PlaySound( L"Energy.ogg" );
+			PlaySound( L"Break.ogg" );
+			PlaySound( L"Change.ogg" );
+		}
+	}
+	else if( true == m_pXSkinAnim->EventTimerOneshot( fTime3_ ) )
+	{
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	g_pX2Game->GetWorld()->SetWorldColor( 0xff222222 );
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -18165,6 +18217,7 @@ void CX2GUAra::CommonHyperModeFrameMove( float fTime1_, float fTime2_, float fTi
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #endif // MODIFY_RIDING_PET_AWAKE
 

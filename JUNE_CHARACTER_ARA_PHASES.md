@@ -495,6 +495,33 @@ All 17 class-map rows of phase CH1b are written, all `inside`: June's body in Ma
 
 Next: `/x2-phase char-ara CH1c` (Sonnet 5.5 high); its kickoff was checked and is current.
 
+### CH1c - Done (2026-11-10)
+
+All 3 class-map rows of phase CH1c are accounted for: 2 written (both `inside`), 1 thunk with nothing to write. No `new` row, so no `_CORE`; no `_FP` / `_SPECTER` line was needed. `_LIVE` stays `//#define`. 3 funcmap rows `Char Ara CH1c`; checklist L178 carries `(Ara: CH1c)`; `JUNE_BUGS.md` rows 584 and 585.
+
+| June | `CX2GUAra::` | what |
+|---|---|---|
+| `32b90f30` | RidingHyperModeStart | a thunk (`jmp 31fe96c0`) to `CX2GUUser::RidingHyperModeStart`; March registers it for `ASI_RIDING_HYPER_MODE` already: nothing to write |
+| `32bc5ba0` | RidingHyperModeFrameMove | `CommonHyperModeFrameMove( 0, 0.1, 0.1, true )`, = March (inside, `_LIVE`) |
+| `32bc0140` | CommonHyperModeFrameMove | inside, `_LIVE`: see below |
+
+**The other 34 states of the kickoff list are base callbacks.** Riding (27 `ASI_RIDING*`), pepper run (5), dance (3) and the amusement phoenix-run states have no function in Ara's range: every callback is a `CX2GUUser` function (June's thunks `329cb180`-`329cc960` jump to them; the targets are all outside `0x32b90b70`-`0x32bd86e0`) that March's `InitState` registers already, so nothing is transcribed (registration is CH1m). `ASI_RIDING_DIE` uses CH1b's DieFront functions.
+
+**Where June differs from March** (`CommonHyperModeFrameMove`, read from `charport_adis.py ara 32bc0140`):
+- **Third timer has no body** (`32bc03cf`: `EventTimerOneshot( t3 )` result dropped). March plays `AraVoice_BoostPower.ogg` there (full hyper only) and from the second timer when `t2 == t3`; June has neither (JUNE_BUGS 584; twin of Chung 490). The kept empty `else if` stays.
+- **Second timer:** June adds the awakening effect-set family `32011d20` (begin), `31fd66b0` (present test), `32011f50` (play, only when present) before the shock particle and the trace `31ffda00` only when the set is absent. These are stand-ins in `_CONST_ARA_CH1C_` (`AraAwakeningEffectBegin` / `SetPresent` = false / `Play`, "not ported (Stage 12), June's empty-name default"), the same as Chung / Rena / Raven / Elsword / Eve.
+- **= March:** the world color `0xff222222`, the two `EventTimerOneshot` timers in an else-if chain, `ShowMinorParticleHyperModeChange` / `Shock` with the default bone `Dummy1_Rhand`, `UpDownCrashCamera( 30, 0.4 )` (`32290350`), `ClearScreen` (inlined: the DG manager's color block set to 1.0), `ApplyHyperModeBuff` (vslot 0xc0), the three sounds when `bSound`, and the tail vslot 0x7cc `CommonFrameMove`. The `MaxHyperModeTime` label in `charport_adis` for `+0x24c` is the anim's one-shot timer (March `m_fAnimOneshotTimer`).
+- **Caller:** the ordinary `HyperModeFrameMove` (`32bc1a90`, CH1i) calls the same helper with `( 0.693, 0.759, 1.287 )`; so row 584 hits every Ara awakening.
+- **Not found to differ:** nothing in June's body reads `IsFullHyperMode` / force power, so no `_FP` line. The `ASI_RIDING_DAMAGE_FRONT` double table and the missing `ASI_RIDING_DAMAGE_BACK` table (kickoff note) are June script facts: JUNE_BUGS 585, kept verbatim (CH1 adopts the script as is).
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --worktree --files X2Lib/X2GUAra.cpp`: `files: 1 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only because `_LIVE` is `//#define` (by design). `git diff --patience --numstat`: 53 / 0.
+- One-file `/Zs` probe of `X2GUAra.cpp` (`census.cl_cmd`, no PCH): 0 errors with `_LIVE` off and with `/D SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE`; the `/P` output has `AraAwakeningEffectBegin` 2 times with the flag on, 0 off.
+- `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `allow-listed: 0`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: 0 A/B rows.
+- Full build skipped: no play-test (`_LIVE` is off), so no `DEPLOY OK` / `exestr` line.
+
+**Nothing to play-test.** Phase tag in every block: `// char-ara CH1c`. Review: none of its own, the CH1d2 review covers CH1c-CH1d2 (the `_DEBUG` define stays on: there is none yet). Next: `/x2-phase char-ara CH1d` (Sonnet 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

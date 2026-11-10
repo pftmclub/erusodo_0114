@@ -105,8 +105,8 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH1c | ready: riding, pepper run, dance | Sonnet 5.5 / high | CH1b review (done) | `X2GUAra.*` | `CH1c.md` |
-| CH1d | blocked (CH1c): ground combos | Sonnet 5.5 / high | CH1c | `X2GUAra.*` | `CH1d.md` |
+| CH1c | done 2026-11-10 (riding hyper-mode FrameMove + shared helper under `_LIVE`, 34 states are base callbacks, probes 0 errors, no play-test); CH1d2 review covers it | Sonnet 5.5 / high | CH1b review (done) | `X2GUAra.*` | `CH1c.md` |
+| CH1d | **ready** (CH1c done): ground combos | Sonnet 5.5 / high | CH1c | `X2GUAra.*` | `CH1d.md` |
 | CH1d2 | blocked (CH1d): dash combos; review covers CH1c-CH1d2 | Sonnet 5.5 / high, Opus review | CH1d | `X2GUAra.*` | `CH1d2.md` |
 | CH1e | blocked (CH1d2 review): Little Hsien / Sakra Devanam lines | Sonnet 5.5 / high | CH1d2 review | `X2GUAra.*` | `CH1e.md` |
 | CH1f | blocked (CH1e): Little Devil / Yama Raja lines | Sonnet 5.5 / high | CH1e | `X2GUAra.*` | `CH1f.md` |
@@ -146,7 +146,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | CH6 | blocked (CH4b review, CH5 review, CHNb review): scans rerun + user walk incl. both job changes and the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH4b, CH5, CHNb reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template + CH-N rewrite, `stage7-plan` -> `char-elesis` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Done: CH0 (2026-11-10), CH0b (2026-11-10), CH1a (2026-11-10; no play-test, full build skipped, `_LIVE` stays off), CH1b + CH1a-CH1b review (2026-11-10; pass, no code change).
+Done: CH0 (2026-11-10), CH0b (2026-11-10), CH1a (2026-11-10; no play-test, full build skipped, `_LIVE` stays off), CH1b + CH1a-CH1b review (2026-11-10; pass, no code change). CH1c (2026-11-10; no play-test, full build skipped, `_LIVE` stays off).
 
 Decisions answered 2026-11-10 (plan "Open decisions"): 1 stat rows for 34 / 124 follow Ara's own rule (CHNa writes, user packs); 2 the lobby orb handles are retired (CH5).
 
