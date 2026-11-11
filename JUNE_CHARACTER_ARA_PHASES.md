@@ -1646,7 +1646,7 @@ Opus 5.5. New class-generic flag `SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE` (`Alway
 - **Hygiene:** `flagcheck --worktree` (7 files): 6 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL, 0 token, 0 encoding. `junediverge --check` (7 files): RESULT: PASS.
   `enumscan --check`: 0 rows on the changed lines.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 26,226,688 B, dated 2026-11-11 20:06:50, md5 8b63ccc6152ffdca693c5e549025a5a1` (built at `fae707a6` + the 7 files). No new strings, so no EXESTR line.
-- **Play-test (2026-11-11, user screenshots):** 1ST guide opens with June's art (all 10 textures June-identical, `stage-june --dry-run`) but the descriptions overlap; 2ND guide opens unfilled. Both = `32713c10`, CHNb2.
+- **Play-test (2026-11-11, user screenshots):** 1ST guide opens with June's art (all 10 textures June-identical, `stage-june --dry-run`) but the descriptions overlap; 2ND guide opens unfilled. Both = `32713c10`, CHNb2. Job changes PASS: AraGuideMA 7 -> 34 (`/qdone 35560-35563`), AraGuideLS 34 -> 124 (`/qdone 35564-35568`, NetError 0 x5), both kept their class after a relog (save: 34 / 124); 2ND guide's Buy opened the shop on Sakra Devanam's item (line 1 until CHNb2's button rebinding); 0 EXCEPTION. `AddGroupChainQuest` unbound (ChainQuestInfo.lua) is pre-existing, backlog line 314.
 
 ## Phase CH2 - Skills: Martial Artist and the first jobs (classes 7, 28, 31, 34)
 
