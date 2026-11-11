@@ -6506,3 +6506,11 @@ Follow-up the same day (user: the party window's dungeon picture was still March
 **In game.** A bare level-99 character of any class shows 1202 / 1202 / 301 / 301 / 157000; classes that had no rows (Add, Lu/Ciel, Rose, Ain, third jobs) no longer fall back to the synthetic curve.
 **Packed.** Compiled to luajit bytecode, `data036.kom` md5 `ad79cd998b7876b4a48b660d7063578a`; the old bytecode is in `kom_contents_bytecode/data036_kom/StatTable.lua`.
 **Revert.** `python tools/statflat.py restore` (per-class rows are in git at `85ff0434`), compile, `kom.py pack data036`, `kom.py copy data036`.
+
+## Stage 7 Ara, CH5: UnitTemplet rows, the skill cut-in table, the lobby orb and the creation button script (2026-11-11)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI` (`KTDXLIB/Always.h`; `#error` without `_ARA_LIVE` and `SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER`). `X2GUAra.cpp`: `s_SkillCutInSet` = June `333a8bf0` (table `337ad900`, 4 sets of 3: `HQ_CutIn_Ara_01` / `_11`, `_SD_`, `_YR_`, `_AS_`; GFx names without extension), log `ARA UI cut-in set`; `X2GUUser.cpp`: `ARA UI hyper cut-in` log; `X2UnitViewerUI.cpp`: the Little Devil orb handles `m_hSeqEnergyBullet1-3` retired at all 7 sites (the `ALD_LobbyWait` row of `UnitViewerEffectSetTable.lua` draws the orb).
+
+**Data:** data036 `UnitTemplet.lua` (core-list source): Ara's 5 blocks are June's text and June's 34 / 124 blocks are added (55 -> 57 blocks): `m_fLobbyRotationY` 1 / 15 / 1 / 10 / 15 / 1 / 40 on 7 / 28 / 118 / 31 / 119 / 34 / 124, `m_HyperCutIn` / `m_BerserkCutIn` on 118 / 119 / 124. data034 `DLG_Unit_Create_ClassChange_Button_Ara.lua` = June's bytecode (replaces March's, backup `kom_backup_stage_june/20261111_172401`); its third-line buttons are inert until CHNa. Backups of the live koms: `kom_backup_tools/data036.kom.20261111_172713`, `data034.kom.20261111_172714`.
+
+**Revert:** undefine `SERV_IRUHADEV_JUNE_CHAR_ARA_UI` (March's table and orb return), restore the two koms from the backups above and `kom.py copy` them, `python tools/build.py --deploy`.

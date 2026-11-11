@@ -12453,3 +12453,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_STACK needs JUNE_BUFF_BEHAVIOR_PARITY ( stack-count setters ), JUNE_HUD_BUFF_COUNT ( PushBuff count ), JUNE_CHAR_EVE_PASSIVE ( HaveSkillBuff, GetSkillBuffTempletID ), JUNE_DIVERGE_SKILL_LEVEL_VALUE ( GetSkillLevelValue ) and JUNE_ENUM_NAMES ( RNSI_P_AYR_DEMIGOD )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH5 - UI and data: the skill cut-in table is June's ( 333a8bf0 / 337ad900, four sets of three:
+//              HQ_CutIn_Ara_01 / _11, _SD_, _YR_, _AS_ ), its use logged ( ARA UI cut-in ), the awakening hyper cut-in logged, and the Little
+//              Devil lobby orb handles ( m_hSeqEnergyBullet1-3 ) of the unit viewer retired: the UnitViewerEffectSetTable row ALD_LobbyWait
+//              draws the orb. The UnitTemplet rows and the creation-screen button script are data ( data036, data034 ), not flagged.
+//              Revert: comment out the #define ( JUNE_CHAR_ARA_UI ).
+#define SERV_IRUHADEV_JUNE_CHAR_ARA_UI
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_UI ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ) || !defined( SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_UI needs SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ( the cut-in reader ) and SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER ( the lobby orb row )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_UI
+//////////////////////////////////////////////////////////////////////////

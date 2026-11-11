@@ -44097,6 +44097,10 @@ bool CX2GUUser::IsChangeWorldColorNow()
 	if ( CX2Unit::UT_LIRE == pUnitTemplet->m_UnitType )
 		CX2OfflineLog::Server( L"[JUNE_CHAR] RENA UI hyper cut-in class %d name %s", static_cast<int>( pUnitTemplet->m_UnitClass ), wstrCutInName.c_str() );
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_UI
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_UI
+	if ( CX2Unit::UT_ARA == pUnitTemplet->m_UnitType )
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARA UI hyper cut-in class %d name %s", static_cast<int>( pUnitTemplet->m_UnitClass ), wstrCutInName.c_str() );	// char-ara CH5
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 }
 #endif SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME
 

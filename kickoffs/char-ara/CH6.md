@@ -29,3 +29,10 @@ and return to the village; **the becoming-transcended transition** on un-transce
 ## Amended by CH0 (2026-11-10)
 
 Nothing in the CH0 maps carries this phase's id; the plan section is the scope.
+
+## Amended by CH5 (2026-11-11)
+
+The walk adds the checks CH5 left to it. Cut-ins: on each Ara job cast a skill that reaches the cut-in and read `[JUNE_CHAR] ARA UI cut-in set <set> name <gfx>` (set 0 = jobs 7 / 28 / 31 `HQ_CutIn_Ara_01` / `_11`;
+set 1 = 118 `HQ_CutIn_Ara_SD_01` / `_11`; set 2 = 119 `_YR_`; set 3 = 124 `_AS_`; the `_11` entry is the full hyper-mode cut-in), and the awakening hyper / berserk entry on 118 / 119 / 124
+(`[JUNE_CHAR] ARA UI hyper cut-in class <c> name HQ_Cutin_AS{D,R}_Transcendence`, only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME`). Creation screen: open it, pick Ara, click
+Little Hsien / Sakra Devanam / Little Devil / Yama Raja and read each preview and movie (`Movie_Create_Ara_*`); the 34 / 124 buttons are CHNa's. Lobby: Little Devil's orb shows once (`ALD_LobbyWait`).

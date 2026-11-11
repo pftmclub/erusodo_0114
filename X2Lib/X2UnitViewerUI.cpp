@@ -77,9 +77,13 @@ CX2UnitViewerUI::CX2UnitViewerUI(void)
 #endif //NEW_CHARACTER_EL
 
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // ±èÅÂÈ¯
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_UI
+	// char-ara CH5: the Little Devil orb ( m_hSeqEnergyBullet1-3 ) is retired: the UnitViewerEffectSetTable row ALD_LobbyWait draws it
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 	m_hSeqEnergyBullet1			= INVALID_PARTICLE_SEQUENCE_HANDLE;
 	m_hSeqEnergyBullet2			= INVALID_PARTICLE_SEQUENCE_HANDLE;
 	m_hSeqEnergyBullet3			= INVALID_PARTICLE_SEQUENCE_HANDLE;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 
 #ifdef SERV_IRUHADEV_JUNE_CHARINFO_VIEW_ATTRIB_ENCHANT
@@ -225,9 +229,13 @@ CX2UnitViewerUI::~CX2UnitViewerUI(void)
 #endif //NEW_CHARACTER_EL
 
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // ±èÅÂÈ¯
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_UI
+	// char-ara CH5: the Little Devil orb ( m_hSeqEnergyBullet1-3 ) is retired: the UnitViewerEffectSetTable row ALD_LobbyWait draws it
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 	g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqEnergyBullet1 );
 	g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqEnergyBullet2 );
 	g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqEnergyBullet3 );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE	  // ±èÁ¾ÈÆ, ¿¤¸®½Ã½º 1-2 ±×·£µå ¸¶½ºÅÍ, 2-2 ºí·¹ÀÌÂ¡ ÇÏÆ®
@@ -585,6 +593,9 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 #endif //NEW_CHARACTER_EL
 
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // ±èÅÂÈ¯
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_UI
+	// char-ara CH5: the Little Devil orb ( m_hSeqEnergyBullet1-3 ) is retired: the UnitViewerEffectSetTable row ALD_LobbyWait draws it
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 	if( m_hSeqEnergyBullet1 != INVALID_PARTICLE_SEQUENCE_HANDLE )
 	{
 		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_hSeqEnergyBullet1 );
@@ -624,6 +635,7 @@ HRESULT CX2UnitViewerUI::OnFrameMove( double fTime, float fElapsedTime )
 		else
 			m_hSeqEnergyBullet3 = INVALID_PARTICLE_SEQUENCE_HANDLE;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE	  // ±èÁ¾ÈÆ, ¿¤¸®½Ã½º 1-2 ±×·£µå ¸¶½ºÅÍ, 2-2 ºí·¹ÀÌÂ¡ ÇÏÆ®
@@ -1189,6 +1201,9 @@ void CX2UnitViewerUI::NotifyShowObjectChanged()
 #endif //NEW_CHARACTER_EL
 
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // ±èÅÂÈ¯
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_UI
+	// char-ara CH5: the Little Devil orb ( m_hSeqEnergyBullet1-3 ) is retired: the UnitViewerEffectSetTable row ALD_LobbyWait draws it
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 	if( m_hSeqEnergyBullet1 != INVALID_PARTICLE_SEQUENCE_HANDLE )
 	{
 		CKTDGParticleSystem::CParticleEventSequence* pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_hSeqEnergyBullet1 );
@@ -1210,6 +1225,7 @@ void CX2UnitViewerUI::NotifyShowObjectChanged()
 		if( NULL != pSeq )
 			pSeq->SetShowObject( bShow );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE	  // ±èÁ¾ÈÆ, ¿¤¸®½Ã½º 1-2 ±×·£µå ¸¶½ºÅÍ, 2-2 ºí·¹ÀÌÂ¡ ÇÏÆ®
@@ -1535,6 +1551,9 @@ void    CX2UnitViewerUI::OnFrameRender_Draw()
 #endif //NEW_CHARACTER_EL
 
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // ±èÅÂÈ¯
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_UI
+	// char-ara CH5: the Little Devil orb ( m_hSeqEnergyBullet1-3 ) is retired: the UnitViewerEffectSetTable row ALD_LobbyWait draws it
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 		pSeq = g_pData->GetUIMajorParticle()->GetInstanceSequence( m_hSeqEnergyBullet1 );
 		if( pSeq != NULL )
 		{	
@@ -1553,6 +1572,7 @@ void    CX2UnitViewerUI::OnFrameRender_Draw()
 			CKTDGStateManager::PushStates( pSeq->GetRenderStateID() );
 			pSeq->OnFrameRender_Draw();
 		}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 
 #ifdef SERV_ELESIS_SECOND_CLASS_CHANGE	  // ±èÁ¾ÈÆ, ¿¤¸®½Ã½º 1-2 ±×·£µå ¸¶½ºÅÍ, 2-2 ºí·¹ÀÌÂ¡ ÇÏÆ®
@@ -2155,6 +2175,9 @@ void CX2UnitViewerUI::PlayAnim( const WCHAR* pName, CKTDGXSkinAnim::XSKIN_ANIM_P
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // ±èÅÂÈ¯
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_UI
+	// char-ara CH5: the Little Devil orb ( m_hSeqEnergyBullet1-3 ) is retired: the UnitViewerEffectSetTable row ALD_LobbyWait draws it
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 	if( m_hSeqEnergyBullet1 != INVALID_PARTICLE_SEQUENCE_HANDLE &&
 		m_hSeqEnergyBullet2 != INVALID_PARTICLE_SEQUENCE_HANDLE &&
 		m_hSeqEnergyBullet3 != INVALID_PARTICLE_SEQUENCE_HANDLE )
@@ -2184,6 +2207,7 @@ void CX2UnitViewerUI::PlayAnim( const WCHAR* pName, CKTDGXSkinAnim::XSKIN_ANIM_P
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
@@ -2456,6 +2480,9 @@ void CX2UnitViewerUI::SetUnit( CX2Unit* pUnit, CX2UnitViewerUI::UNIT_VIEWER_STAT
 #endif SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER
 
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // ±èÅÂÈ¯
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_UI
+	// char-ara CH5: the Little Devil orb ( m_hSeqEnergyBullet1-3 ) is retired: the UnitViewerEffectSetTable row ALD_LobbyWait draws it
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 	g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqEnergyBullet1 );
 	g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqEnergyBullet2 );
 	g_pData->GetUIMajorParticle()->DestroyInstanceHandle( m_hSeqEnergyBullet3 );
@@ -2516,6 +2543,7 @@ void CX2UnitViewerUI::SetUnit( CX2Unit* pUnit, CX2UnitViewerUI::UNIT_VIEWER_STAT
 				pSeq->SetEmitRate( 0.0f, 0.0f );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 
 #ifdef SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER

@@ -87,6 +87,16 @@ namespace _CONST_ARA_
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 #pragma region 필살기 사용 시 Cut in image
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_UI
+// char-ara CH5: June 333a8bf0 ( table 337ad900, stride 0x90 = 3 x 0x30; GFx names without extension ): set 0 Ara, 1 Sakra Devanam, 2 Yama Raja, 3 Asura
+static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
+{
+	{ CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_01" ), CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_11" ), CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_11" ), },
+	{ CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_SD_01" ), CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_SD_11" ), CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_SD_11" ), },
+	{ CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_YR_01" ), CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_YR_11" ), CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_YR_11" ), },
+	{ CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_AS_01" ), CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_AS_11" ), CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_AS_11" ), },
+};
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
 {
 	{ /// 노전직, // 1차전직 ( 소선 )
@@ -112,6 +122,7 @@ static const CX2GUUser::SkillCutInSet s_SkillCutInSet[] =
 #endif //SERV_ARA_CHANGE_CLASS_SECOND
 
 };
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 
 #ifdef SERV_APRIL_FOOLS_DAY
 static const CX2GUUser::SkillCutIn s_SkillCutInSetFoolsDay = CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_Gura.dds");
@@ -7093,6 +7104,9 @@ void CX2GUAra::InitPromotionEquipList()
 
 		IF_EVENT_ENABLED( 0x8b3 )
 			cutIn = s_SkillCutInSetEvent8b3[ ( 0 == ( rand() & 1 ) ) ? 0 : 1 ];	// even rand() -> CASH_21
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_UI
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARA UI cut-in set %d name %s", m_iSkillCutInSetIndex, cutIn.fileName.c_str() );	// char-ara CH5
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 
 		ActiveSkillShow( L"Dummy2_Lhand", cutIn.fileName.c_str(), cutIn.vSize, cutIn.vPosition, IsHyperState(), bOnlyLight_ );
 	}
