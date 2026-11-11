@@ -110,7 +110,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | CHNb | blocked (CHNa review): job change to 34 / 124 (quests 35560-35568, seeds, dialogs) | Opus 5.5 / high, Opus review, user play-test | CHNa review | `FieldQuest.lua`, `Handlers_Quest.cpp`, `X2OfflineClassChangeSeed.h` | `CHNb.md` |
 | CH2a | **done 2026-11-11** (play-test logs clean, 7 skills cast; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3); no review of its own | Sonnet 5.5 / high, user play-test | CH1 review | `X2GUAra.*` | `CH2a.md` |
 | CH2b | **done 2026-11-11** (play-test logs clean, 5 skills cast; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3): Little Hsien (28) SA-tier skills; no review of its own | Sonnet 5.5 / high, user play-test | CH2a, CH2b0 review | `X2GUAra.*` | `CH2b.md` |
-| CH2b2 | **ready**: Little Hsien (28) A-tier skills (CH0 split) | Sonnet 5.5 / high, user play-test | CH2b | `X2GUAra.*` | `CH2b2.md` |
+| CH2b2 | **built 2026-11-11, play-test owed** (unit 97, 4 skills; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3): Little Hsien (28) A-tier skills; no review of its own | Sonnet 5.5 / high, user play-test | CH2b | `X2GUAra.*` | `CH2b2.md` |
 | CH2c0 | **ready**: add-N-stacks buff path 7at, flag `_STACK` | Opus 5.5 / high, Opus review | CH1 review | `X2GUAra.*`, `X2GageManager.*` | `CH2c0.md` |
 | CH2c | blocked (CH2b2, CH2c0 review): Little Devil (31) SA-tier skills | Sonnet 5.5 / high, user play-test | CH2b2, CH2c0 review | `X2GUAra.*` | `CH2c.md` |
 | CH2c2 | blocked (CH2c): Little Devil (31) A-tier skills (CH0 split) | Sonnet 5.5 / high, user play-test | CH2c | `X2GUAra.*` | `CH2c2.md` |

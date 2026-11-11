@@ -9953,3 +9953,31 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32baa520	state registration helper of ASI_SA_ALH_DOUBLE_COLLISION_END	PORTED	Char Ara CH2b: inside, under _SKILL: ASI_SA_ALH_DOUBLE_COLLISION_END_CreateState sets no OnFrameMove
 32baae10	state registration helper of ASI_SA_ALH_LINK_FLOWER	PORTED	Char Ara CH2b: new under _SKILL: ASI_SA_ALH_LINK_FLOWER_CreateState ( table + EventProcess ), used by SetEquipped ( normal and hyper ) and InitAquiredActiveSkillState ( 27007 )
 32bc9110	state registration helper of ASI_SA_ALH_DESCENT_DRAGON	PORTED	Char Ara CH2b: inside, under _SKILL: ASI_SA_ALH_DESCENT_DRAGON_CreateState gains StateStart
+32b922b0	ASI_A_ARA_TIGER_CLAW_START.Init	confirmed	Char Ara CH2b2: = March, no code ( Init preload list compared by script )
+32b92300	ASI_A_ARA_TIGER_CLAW_START.Start	PORTED	Char Ara CH2b2: inside, under _SKILL: ASI_A_ARA_TIGER_CLAW_START_StateStart without the memo count ( the memo test is June stub 31fca9e0, always false )
+32b92340	ASI_A_ARA_TIGER_CLAW_START.End	confirmed	Char Ara CH2b2: = March, no code ( listing read, same calls and constants )
+32b92360	ASI_A_ARA_TIGER_CLAW_END.Init	confirmed	Char Ara CH2b2: = March, no code ( Init preload list compared by script )
+32b92a60	ASI_A_ALH_ROCK_CRASH_FALLING_START.Init	confirmed	Char Ara CH2b2: = March, no code ( Init preload list compared by script )
+32b92ab0	ASI_A_ALH_ROCK_CRASH_FALLING_START.Start	confirmed	Char Ara CH2b2: = March, no code ( listing read, same calls and constants )
+32b92ad0	ASI_A_ALH_ROCK_CRASH_END.Init	confirmed	Char Ara CH2b2: = March, no code ( Init preload list compared by script )
+32b92d70	ASI_A_ASD_FALLING_BLOSSOM_Start.Init	confirmed	Char Ara CH2b2: = March, no code ( Init preload list compared by script )
+32b92e60	ASI_A_ASD_FALLING_BLOSSOM_Finish.Init	confirmed	Char Ara CH2b2: = March, no code ( Init preload list compared by script )
+32b92f50	ASI_A_ARA_QUICK_STAB.Init	confirmed	Char Ara CH2b2: = March, no code ( Init preload list compared by script )
+32b92f90	ASI_A_ARA_QUICK_STAB.FrameMove	PORTED	Char Ara CH2b2: inside, under _SKILL: ASI_A_ARA_Quick_Stab_FrameMove = CommonFrameMove only ( USE_FORCE_POWER 0.001 and the effect set are the state script's )
+32b9b740	ASI_A_ARA_TIGER_CLAW_END.EventProcess	PORTED	Char Ara CH2b2: inside, under _SKILL: dash cancel needs the foot on a line ( DASH_CANCEL_AFTER_ON_LINE_ ), walk cancel none
+32b9c410	ASI_A_ALH_ROCK_CRASH_END.EventProcess	PORTED	Char Ara CH2b2: inside, under _SKILL: walk and dash cancels need the foot on a line ( WALK_ / DASH_CANCEL_AFTER_ON_LINE_ )
+32b9cb10	ASI_A_ASD_FALLING_BLOSSOM_Finish.EventProcess	PORTED	Char Ara CH2b2: inside, under _SKILL: walk and dash cancels need the foot on a line, skill cancel as March; the jump-down y step 45.0 = LINE_RADIUS x 1.5
+32b9cd20	ASI_A_ARA_QUICK_STAB.EventProcess	PORTED	Char Ara CH2b2: inside, under _SKILL: animation end -> WAIT, on-line walk cancel, skill cancel, on-line dash cancel; March's jump-down test is gone
+32baa560	ASI_A_ASD_FALLING_BLOSSOM_Start.Start	PORTED	Char Ara CH2b2: inside, under _SKILL: UpForcePower( 1 ) then the Open Mind buff ( RNSI_P_AYR_OPEN_MIND 27417 ) then the FP-cancel count; registered for the Start state only
+32bac430	ASI_A_ARA_TIGER_CLAW_START.EventProcess	PORTED	Char Ara CH2b2: inside, under _SKILL: StateChangeOrFPCancel( ASI_A_ARA_TIGER_CLAW_END ) at animation end + FP-cancel probe window ( as CH2b Double Collision )
+32bac6d0	ASI_A_ALH_ROCK_CRASH_FALLING_START.EventProcess	PORTED	Char Ara CH2b2: inside, under _SKILL: StateChangeOrFPCancel( ASI_A_ALH_ROCK_CRASH_END ) at animation end + FP-cancel probe window
+32bac7f0	ASI_A_ASD_FALLING_BLOSSOM_Start.EventProcess	PORTED	Char Ara CH2b2: inside, under _SKILL: StateChangeOrFPCancel( ASI_A_ASD_FALLING_BLOSSOM_FINISH ) at animation end + FP-cancel probe window
+32bb7170	ASI_A_ARA_TIGER_CLAW_START.FrameMove	confirmed	Char Ara CH2b2: = March, no code ( listing read, same calls and constants )
+32bb7490	ASI_A_ARA_TIGER_CLAW_END.FrameMove	confirmed	Char Ara CH2b2: = March, no code ( listing read, same calls and constants )
+32bba350	ASI_A_ALH_ROCK_CRASH_FALLING_START.FrameMove	confirmed	Char Ara CH2b2: = March, no code ( listing read, same calls and constants ); the memo flag is the always-false stub, March passes false the same way
+32bba6d0	ASI_A_ALH_ROCK_CRASH_FALLING_START.End	confirmed	Char Ara CH2b2: = March, no code ( listing read, same calls and constants )
+32bba730	ASI_A_ALH_ROCK_CRASH_END.FrameMove	confirmed	Char Ara CH2b2: = March, no code ( listing read, same calls and constants ); the memo flag is the always-false stub
+32bc8f40	state registration helper of ASI_A_ARA_TIGER_CLAW_START	confirmed	Char Ara CH2b2: = March ( Init / Start / FrameMove / EventProcess / End ); RNSI_A_ALH_TIGER_CLAW 27203 / 27229 added as case labels in SetEquipped and InitAquired ( chain lookup takes the swapped id )
+32bc8fb0	state registration helper of ASI_A_ARA_TIGER_CLAW_END	confirmed	Char Ara CH2b2: = March ( Init / FrameMove / EventProcess )
+32bc9170	state registration helper of ASI_A_ALH_ROCK_CRASH_FALLING_START	confirmed	Char Ara CH2b2: = March; RNSI_A_ALH_ROCK_CRASH 27202 / 27223 added as case labels in SetEquipped and InitAquired ( chain lookup takes the swapped id )
+32bc91e0	state registration helper of ASI_A_ALH_ROCK_CRASH_END	confirmed	Char Ara CH2b2: = March ( Init / FrameMove / EventProcess )

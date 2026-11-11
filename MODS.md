@@ -6424,6 +6424,22 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's; no new define). Plan `JUNE_CHA
 - **Save.** Unit 97 `LittleHsienT` slots changed for the play-test ( backup `db_backup/els_db_20261111_145422_pre_sql.sql` ).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( every Ara skill falls back to the Wind Wedge default ), `python tools/build.py --deploy`.
 
+## Stage 7 Ara, CH2b2: Little Hsien (class 28) actives, ids from 27200 (2026-11-11)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's; no new define). Plan `JUNE_CHARACTER_ARA_PHASES.md` "CH2b2 - Done". `RNSI_*` base and enhanced ids join March's `SetEquippedSkillFuncBySkillSlotIndex` cases ( Rock Crash 27202 / 27223, Tiger Claw 27203 / 27229, Fall 27204 / 27230, Quick Thrust 27205 / 27231 ) and `InitAquiredActiveSkillState`'s Rock Crash and Tiger Claw cases ( their chain lookups take the upgrade-swapped id ); `X2SkillTree.h` names `RNSI_A_ALH_TIGER_CLAW_UPGRADE`, `_DRAGON_FALLING_UPGRADE`, `_QUICK_STAB_UPGRADE`.
+- **Differs from March.** Tiger Claw / Rock Crash / Fall ( first state ): the animation end calls `StateChangeOrFPCancel` and the FP-cancel probe window runs ( as Double Collision ); Tiger Claw's start loses the memo force-power count ( June's memo test is its always-false stub ); Fall's start adds the Open Mind buff after its one force power; Tiger Claw end, Rock Crash end and Fall finish: walk / dash cancels need the foot on a line. Quick Thrust: June's FrameMove is `CommonFrameMove` only ( the force power cost and the effect set are the state script's ), the jump-down test is gone, walk / dash cancels need the foot on a line.
+- **Damage ( level-1 multiplier; June = the damage effects' NUMERICAL_DATA through the engine, x0.01; March = the same-named damage effects the shipped tables carry ).**
+
+| Skill ( June id ) | March damage | June damage |
+|---|---|---|
+| Tiger Stance 1: Rock Smash ( 27202 / 27223 ) | the `Rock_Crash` damage effect tables | 1.33 ( hit ), 2.33 ( flight ) |
+| Tiger Stance 2: Tiger Claw ( 27203 / 27229 ) | the `Tiger_Claw` damage effect tables | 6.70 ( first ), 1.93 ( second ) |
+| Fall ( 27204 / 27230 ) | the `Dragon_Falling` damage effect tables | 3.59 ( up ), 3.26 ( down ) |
+| Quick Thrust ( 27205 / 27231 ) | the state's own table ( no damage row ) | 1.90 ( state table index 1 ) |
+
+- **Save.** Unit 97 `LittleHsienT` slots changed for the play-test ( backup `db_backup/els_db_20261111_152550_pre_sql.sql` ).
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( every Ara skill falls back to the Wind Wedge default ), `python tools/build.py --deploy`.
+
 ## BUG_REPORT 2026-11-08, items 1-5 (fixed 2026-11-11)
 
 **1. Underground Waterway boss room froze the player (data only).** The merged data037 `NPCTemplet.lua` kept March's row for `NUI_BENDERS_NASOD` (`LUA_FILE_NAME = "Benders_Nasword.lua"`), while June's dungeon cutscene NPC (`Event_NPC_Benders_Elder.lua`) starts state `BENDERS_NASOD_START`, which only June's `BENDERS_NASOD.LUA` has. The boss stayed hidden in its start state and `STOP_AT_START_STATE` kept input off. The row now carries June's `MOTION` / `LUA_FILE_NAME` (the old values are in the comment above it); June's `Motion_Benders_Nasword.xet` staged into data006 (March's copy under `kom_backup_stage_june\20261111_105336`). `luabind.py check BENDERS_NASOD Event_NPC_Benders_Elder` PASS, `npc_anim_census.py` 0 missing anims. Revert: restore the two values in the row, `luasrc.py refresh data037 NPCTemplet.lua`, repack data037.
