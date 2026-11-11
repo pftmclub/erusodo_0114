@@ -977,6 +977,59 @@ X2Lib/X2GUUser.h X2Lib/X2GUUser.cpp`: `files: 2 PASS`, same zeros, `RESULT: PASS
 `_LIVE` + `_FP` + `_SPECTER`: exit 0, 0 errors each. No `_DEBUG` define to retire. Full build skipped: no play-test ( no code change ). `CH1n.md` checked.
 Nothing to play-test. Next: `/x2-phase char-ara CH1n` ( Opus 5.5 high ).
 
+### CH1n - Done (2026-11-11)
+
+**Slot head (`32bd09d0`), inside, `_LIVE`.** June's head sits in March's own `SetEquippedSkillFuncBySkillSlotIndex` up to the id switch; March's head and
+type switch are the `#else` (`_LIVE` still `//#define`d). Rena's CH1n is the template; read from the decompile and the exe bytes:
+- Bounds `0 > slot || 4 < slot`; tables `334fea50` / `334fea78` (normal A / B) and `334fea64` / `334fea8c` (hyper) read from the PE = {50..58} / {60..68} /
+  {51..59} / {61..69} = March's `_CONST_GUUSER_` arrays. `31fd2af0` dropped (7i); the `+0x11 = 1` stores (head and epilogue `@32bd2778`) dropped: March answers
+  through `IsSkillSlotState`; hyper word `+0x10 = 0x101` = `m_bHyperState`. `31fca8e0( id, 1 )` = `GetEquippedActiveSkillTemplet( id, true )`.
+- **Memo exit `@32bd0af5` (Ara differs from Rena).** `31fdbcc0( id )` (`GetTranscendenceMemoSkillID`), then `32206450( memo, 1 )` non-null: memo `0x6a56` / `0x6a6c`
+  (`RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS` / `_ADD_TRANS_UPGRADE`, 27222 / 27244, registered under `JUNE_ENUM_NAMES`) -> `32babb50` on both states = March's
+  `ASI_A_ALD_CONVERSION_MANA_CreateState` (same table, Init / FrameMove / EventProcess); any other transcended skill returns. June's helper runs `Init()` on
+  the hyper state too (clears its hyper flag), as March's own Conversion Mana case does.
+- **Types** (raw `[templet +4] - 5`, 12 entries): 5 buff = `ASI_COMMON_BUFF` on both (FM `329ccd90` -> vslot 0x5f0 = Ara's `32ba6830` `COMMON_BUFF_FrameMove`, EP
+  `329cba40` -> `31fcbd60`); 6 / 7 / 0xd-0x10 active; 0xc + id 900 = `ASI_THROW_ITEM` (vslots 0x5f4 / 0x5f8, not overridden); 8-11 and 17 / 18 return.
+- **Raw id (Ara differs from Rena).** Both June switches take `param_2` itself: no `GetUpgradeBaseSkillID`. The active arm `break`s to March's id switch.
+- **Hyper split = CH3d** (its kickoff says so; amended with the shape): `0x6bd0 < id`: 27601 / 27604 -> `32baab30` (Energy Cannon), 27602 / 27605 -> `32baace0`
+  (Nine-Tailed Fox, June-only), 27603 -> Thousands Blossoms; `== 0x6bd0` Thousands Blossoms inline. Its default `@32bd271e` = the id switch default = Wind
+  Wedge START (`32baf390`) + END 193 (`32baa230`) = March's `default:` placement on Wind Wedge: nothing new for CH1n.
+- No cool-time / MP / hyper-stone block in `32bd09d0` or `32bd34c0` (checklist L263): the dev free-skill gate stays CH1k's (`CanUseSpecialAttack`).
+
+**Second switch head (`32bd34c0` = `InitAquiredActiveSkillState`, vslot 0x68c), inside, `_LIVE`.** Unit null -> return; templet =
+`GetUserSkillTemplet( GetUpgradeSwappedSkillID( id ), true )` (`328905b0` then `32890720`, which swaps once more: kept verbatim, harmless); null -> return;
+switch on the raw id = March's frame. The swapped id is a local (`eUpgradeSwappedSkillID`) for the 56 case bodies' chain lookups (June @32bd35a1 ...):
+routed to the skill phases (CH2a-CH3d kickoffs amended).
+
+**`GetSkillChainInfoPtrBySkillID` (`32d3ed30`), replaced under `_LIVE`.** June also matches the chain skill's enhanced id (`GetUpgradedSkillID` `32205c00`,
+skill tree present). June callers `32024b00` (`SetEquippedSkillLevelCommon`, every class) and `32bd34c0`. `june_march_divergent.tsv` row added.
+
+**Base callbacks.** `june2017_re/char_ara/ch1n_triage.py` joins every callback target outside Ara's range in `ch0_reg.tsv` (174 VAs) with Raven's, Chung's,
+Elsword's and Rena's CH1n triages -> `ch1n_user_callback_triage.tsv`: 174 / 174 found (61 SAME; DIFF: 15 ported for every class, 5 kept, 47 Stage 17), 46 `n/a`
+(19 the `USI_EVENT_SNIPER_*` / `PROTON_BOMB_*` callbacks of `3202b110` = shared `InitEventStates`, Effect C9h-4h; 14 riding / empty, 3 phoenix, 3 dance, 5
+bounding, 1 wait-state-change, 1 vslot 0x600 thunk). Nothing new: no `X2GUUser` site needs Ara's `_LIVE`.
+
+**Not ported here, routed:** hyper split (CH3d), the 86 + 56 case bodies (their state phases), `CreateLockOnSystem`'s June member (CH2b0), l.286 (CH1o).
+
+**Checks.**
+- One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GUAra.cpp` off / `_LIVE` / `_LIVE` + `_FP` + `_SPECTER` and `X2ComboAndSkillChainSystem.cpp` off / `_LIVE`:
+  `exit 0 errors 0` each (the new `Always.h` guard passes with `_LIVE`).
+- `cl /P` off / `_LIVE`: `GetUpgradeSwappedSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) )` 0 / 1, `RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS ==` 0 / 1,
+  `ST_SPECIAL_ACTIVE_GRADE_3:` 0 / 1, `GetTranscendenceMemoSkillID( eSkillID_ )` 0 / 1, `ASI_A_ALD_CONVERSION_MANA_CreateState( normalStateData` 1 / 2;
+  `GetUpgradedSkillID( ptrComboAndSkillChainInfo` 0 / 1.
+- `git diff --patience --numstat`: `X2GUAra.cpp` 77 / 0, `X2ComboAndSkillChainSystem.cpp` 18 / 0, `X2SkillTree.h` 6 / 0, `Always.h` 9 / 0; bytepatch: high bytes
+  unchanged (25962 / 204 / 23310 / 38738), EOLs kept.
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --with SERV_IRUHADEV_JUNE_CHAR_ARA_CORE --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2ComboAndSkillChainSystem.cpp KTDXLIB/Always.h`:
+  `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 1 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`;
+  RESULT FAIL only for the `//#define`; the ERROR is `Always.h` (an earlier `#if` the tool cannot evaluate, as CH1m), a pure 9-line insertion.
+- `flagcheck SERV_IRUHADEV_JUNE_ENUM_NAMES --worktree --files X2Lib/X2SkillTree.h`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`.
+- `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2ComboAndSkillChainSystem.cpp X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `RESULT: PASS`. `enumscan.py --check`
+  (`X2GUAra.cpp`, `X2ComboAndSkillChainSystem.cpp`): `0 A/B row(s)`.
+- Checklist marked `(Ara: CH1n)`: L263 (no check here), L329 (memo exit), L440 (head), L444 (both stores dropped), L738 (types 14-16). Funcmap rows `Ara CH1n` (3).
+  No JUNE_BUGS row. Full build skipped: no play-test.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-ara CH1n review` (Opus 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

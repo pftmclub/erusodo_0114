@@ -102,6 +102,23 @@ void CX2ComboAndSkillChainSystem::InitSkillStateChained( CX2GUUser* pCX2GUUser_ 
 
 CX2ComboAndSkillChainInfoPtr CX2ComboAndSkillChainSystem::GetSkillChainInfoPtrBySkillID( const int iSkillID_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1n: June 32d3ed30 also matches the chain skill's enhanced id ( GetUpgradedSkillID 32205c00 )
+	BOOST_FOREACH( CX2ComboAndSkillChainInfoPtr ptrComboAndSkillChainInfo, m_vecComboAndSkillChainInfoPtrInSystem )
+	{
+		if ( NULL == ptrComboAndSkillChainInfo )
+			continue;
+
+		bool bSkillMatched = ( iSkillID_ == ptrComboAndSkillChainInfo->GetSkillID() );
+		if ( false == bSkillMatched && NULL != g_pData && NULL != g_pData->GetSkillTree() )
+			bSkillMatched = ( iSkillID_ == g_pData->GetSkillTree()->GetUpgradedSkillID( ptrComboAndSkillChainInfo->GetSkillID() ) );
+
+		if ( CASCT_SKILL == ptrComboAndSkillChainInfo->GetComboAndSkillChainType() && true == bSkillMatched )
+			return ptrComboAndSkillChainInfo;
+	}
+
+	return CX2ComboAndSkillChainInfoPtr();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	BOOST_FOREACH( CX2ComboAndSkillChainInfoPtr ptrComboAndSkillChainInfo, m_vecComboAndSkillChainInfoPtrInSystem )
 	{
 		if ( NULL != ptrComboAndSkillChainInfo 
@@ -111,6 +128,7 @@ CX2ComboAndSkillChainInfoPtr CX2ComboAndSkillChainSystem::GetSkillChainInfoPtrBy
 	}
 
 	return CX2ComboAndSkillChainInfoPtr();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 CX2ComboAndSkillChainInfoPtr CX2ComboAndSkillChainSystem::GetSkillChainInfoPtrByStateID( const int iStateID_ ) const

@@ -54,3 +54,10 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - **Checklist rows: 7** (`awk -F'\t' '$5 ~ /(^| )CH2d( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S; L312 "CEffect +0xb18 writer 32bb0bd6 (in a function called from 3; L664 CUSTOM_RENDER_STATE class users: Ara_Martial_Artist among th; L713-L745 an id of a listed type with no case plays the class's first ; L726 types 14-16 / 17 / 18 named in the class switch; L852-L855 "pass June's skip / adjust / level / creator at every ported; L868 "BUFF_FACTOR_ID_AND_APPLY_TIME ""appears only in Elesis's sc.
 - **Identified callees first needed here: 4** (`awk -F'\t' '$8 ~ /(^| )CH2d( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `31cf1920` `31fac1f0` `32ec59d0` `33086a38`.
 - `ASI_A_ALS_SHAKE_CHAOS` is registered at 291 and at 333 (no Enum name for 333: a number with a comment). `ASI_SA_ALS_SPECTER_OF_BLADE` / `_FINISH` are dead data. `CalcLockOnLandingPos` `32bc0420` and `FindSpecterOfThunderLockOnTarget` `32bc5f80` are here; `ASI_SA_ALS_SPECTER_OF_STORM_LANDING` EventProcess `32ba6220`.
+
+## Amended by CH1n (2026-11-11)
+
+- **Second skill switch.** Each id of this phase that has a case in `InitAquiredActiveSkillState` (`32bd34c0`, `awk -F'	' '$1=="32bd34c0"' june2017_re/char_ara/ch0_skill_listing_rows.tsv`)
+  gets June's case body too, inside March's case under `_SKILL`. June's chain lookup there takes the upgrade-swapped id: CH1n's head declares
+  `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
+- `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).

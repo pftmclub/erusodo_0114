@@ -54,3 +54,10 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - **Force-power rows: 16** (`awk -F'\t' '$7 ~ /(^| )CH2a( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: differs 10, unchecked 6).
 - **Identified callees first needed here: 1** (`awk -F'\t' '$8 ~ /(^| )CH2a( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `32a31a70`.
 - 48 functions (whole). The `32babba0` FP-cancel helper is CH1q's (called here).
+
+## Amended by CH1n (2026-11-11)
+
+- **Second skill switch.** Each id of this phase that has a case in `InitAquiredActiveSkillState` (`32bd34c0`, `awk -F'	' '$1=="32bd34c0"' june2017_re/char_ara/ch0_skill_listing_rows.tsv`)
+  gets June's case body too, inside March's case under `_SKILL`. June's chain lookup there takes the upgrade-swapped id: CH1n's head declares
+  `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
+- `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).

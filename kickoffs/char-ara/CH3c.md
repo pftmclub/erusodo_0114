@@ -54,3 +54,10 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - **Skills: 9** (`ch0_state_skill.tsv` part 2, col 6 = the class-level phase; a split half takes the skills whose states (col 5, then part 1 col 8) are its own): 27026 RNSI_SA_ASR_GET_BLOOD, 27027 RNSI_SA_ASR_FIRE_FOX, 27028 RNSI_SA_ASR_NECROMANCY, 27047 RNSI_SA_ASR_SHADOW_RISING, 27048 RNSI_SA_ASR_SPECTER_OF_BLADE, 27061 RNSI_SA_ASR_GET_BLOOD_UPGRADE, 27062 RNSI_SA_ASR_FIRE_FOX_UPGRADE, 27063 RNSI_SA_ASR_NECROMANCY_UPGRADE, 27066 RNSI_SA_ASR_FOX_PHANTOM.
 - **Checklist rows: 6** (`awk -F'\t' '$5 ~ /(^| )CH3c( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L166 "CUSTOM_RENDER_STATE enum table: Add x7, Ara x1 (""statement; L178 June-only members of tables March has (SKILL_ID names, ARA_S; L664 CUSTOM_RENDER_STATE class users: Ara_Martial_Artist among th; L713-L745 an id of a listed type with no case plays the class's first ; L726 types 14-16 / 17 / 18 named in the class switch; L868 "BUFF_FACTOR_ID_AND_APPLY_TIME ""appears only in Elesis's sc.
 - `ASI_SA_ASR_FOX_PHANTOM`'s `CUSTOM_RENDER_STATE`: labelled stand-in (7w).
+
+## Amended by CH1n (2026-11-11)
+
+- **Second skill switch.** Each id of this phase that has a case in `InitAquiredActiveSkillState` (`32bd34c0`, `awk -F'	' '$1=="32bd34c0"' june2017_re/char_ara/ch0_skill_listing_rows.tsv`)
+  gets June's case body too, inside March's case under `_SKILL`. June's chain lookup there takes the upgrade-swapped id: CH1n's head declares
+  `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
+- `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).

@@ -1894,6 +1894,12 @@ public:
 		RNSI_P_AYR_RESURRECTION                               = 27409,	// char-ara CH1k: June's Enum.lua; its heal action sets the protection debuff at its level
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH1n
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS                = 27222,	// char-ara CH1n: June's Enum.lua; its transcended slot keeps the Conversion Mana state
+		RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS_UPGRADE        = 27244,	// char-ara CH1n: June's Enum.lua; the enhanced one, same state
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-09 // char-rena CH1i
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_SA_RWS_VIOLENT_ATTACK                            = 23008,	// June's Enum.lua; SetEquippedSkillLevel sets its landing states

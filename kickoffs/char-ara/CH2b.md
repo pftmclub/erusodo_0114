@@ -58,3 +58,10 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 ## Amended by the CH1k review (2026-11-11)
 
 - **Moonlight Slash data grew in June** (0x28 bytes, ctor `32bd6e80`): +0x20 and +0x24 are new floats, both 1.0. The CH1k review added +0x20 as `sMoonLightSlashData::m_fEffectiveRate` (`_CORE`, `GetEffectiveRate` / `SetEffectiveRate`); `CanUseSpecialAttack` stores the skill's `SA_EFFECTIVE_RATE` there (June @32bd08c5). The Moonlight Slash states read it; +0x24 is not declared yet: name and declare it from the state that writes / reads it.
+
+## Amended by CH1n (2026-11-11)
+
+- **Second skill switch.** Each id of this phase that has a case in `InitAquiredActiveSkillState` (`32bd34c0`, `awk -F'	' '$1=="32bd34c0"' june2017_re/char_ara/ch0_skill_listing_rows.tsv`)
+  gets June's case body too, inside March's case under `_SKILL`. June's chain lookup there takes the upgrade-swapped id: CH1n's head declares
+  `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
+- `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).

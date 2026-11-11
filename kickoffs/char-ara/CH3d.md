@@ -50,3 +50,11 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - **Skills: 6** (`ch0_state_skill.tsv` part 2, col 6 = the class-level phase; a split half takes the skills whose states (col 5, then part 1 col 8) are its own): 27600 RNSI_HA_ASD_THOUSANDS_BLOSSOMS, 27601 RNSI_HA_AYR_ENERGY_CANNON, 27602 RNSI_HA_ASR_NINE_TAILED_FOX, 27603 RNSI_HA_ASD_THOUSANDS_BLOSSOMS_UPGRADE, 27604 RNSI_HA_AYR_ENERGY_CANNON_UPGRADE, 27605 RNSI_HA_ASR_NINE_TAILED_FOX_UPGRADE.
 - **Checklist rows: 9** (`awk -F'\t' '$5 ~ /(^| )CH3d( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L178 June-only members of tables March has (SKILL_ID names, ARA_S; L592 "SHOW_HYPER_CUT_IN_TIME in the class script (""plus Ara's be; L594 June UnitTemplet.lua m_HyperCutIn / m_BerserkCutIn keys and ; L607 hyper active skills: cut-in shown whatever the option says (; L713-L745 an id of a listed type with no case plays the class's first ; L814 TC slot A-5 / B-5 states and the Stage 6 skips; L954 every class also brings: emulator allow-list id, LevelUpEven; L959 hyper-effect start returns at once for a transcended unit; L978 transcend Ara: 32bb22d0 hyper effect start (vslot 49) branch.
 - **CH-N (class path) rows: 1** (`awk -F'\t' '$7 ~ /(^| )CH3d( |$)/' june2017_re/char_ara/ch0_classn.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
+
+## Amended by CH1n (2026-11-11)
+
+- **Second skill switch.** Each id of this phase that has a case in `InitAquiredActiveSkillState` (`32bd34c0`, `awk -F'	' '$1=="32bd34c0"' june2017_re/char_ara/ch0_skill_listing_rows.tsv`)
+  gets June's case body too, inside March's case under `_SKILL`. June's chain lookup there takes the upgrade-swapped id: CH1n's head declares
+  `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
+- `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).
+- **Hyper split.** June's `0x6bd0 < id` switch (27601 / 27604 `32baab30`, 27602 / 27605 `32baace0`, 27603 and `== 0x6bd0` Thousands Blossoms inline, default `@32bd271e` = the Wind Wedge default) goes in the slot head's active arm, where CH1n left the comment `June's hyper split ( 27600 and up ) is CH3d's`.

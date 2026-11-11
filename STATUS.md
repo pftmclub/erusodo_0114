@@ -105,7 +105,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH1n | **ready** (CH1m review passed 2026-11-11): base callbacks, slot head `32bd09d0`, dev gate | Opus 5.5 / high, Opus review | CH1m review | `X2GUAra.*`, `X2GUUser.*` | `CH1n.md` |
+| CH1n | **review ready** (CH1n done 2026-11-11: slot head + memo exit, `InitAquiredActiveSkillState` head, chain lookup; no play-test) | Opus 5.5 / high, Opus review | CH1m review | `X2GUAra.*`, `X2GUUser.*` | `CH1n.md`, `CH1n-review.md` |
 | CH1o | blocked (CH1n review): virtuals, `SetSkillLevelStateData` term | Opus 5.5 / high, Opus review | CH1n review | `X2GUAra.*`, `X2GUUser.*` | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag, hooks, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUAra.*`, `X2GUUser.*` | `CH1p.md` |
 | CH1q | blocked (CH1p review): force power + berserk rework, flag `_FP` | Opus 5.5 / high, Opus review | CH1p review | `X2GUAra.*`, `X2GUUser.*`, `X2Gage*.*`, emulator | `CH1q.md` |

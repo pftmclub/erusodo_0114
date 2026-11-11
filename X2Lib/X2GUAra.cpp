@@ -3288,6 +3288,77 @@ void CX2GUAra::InitStateByUnitClass()
 /*virtual*/ void CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_,
 																 const bool bSlotB_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1n: June 32bd09d0 up to its id switch; its batch 3207c1a0 / 31fdf970 only re-protects the edited entries ( anti-tamper ), nothing to port
+	if ( iSlotIndex_ < 0 || iSlotIndex_ > 4 )
+		return;
+
+	const int iNormalStateID = ( false == bSlotB_ ? _CONST_GUUSER_::aNormalSkillStateID[iSlotIndex_] : _CONST_GUUSER_::aNormalSkillStateIDSlotB[iSlotIndex_] );	// June 334fea50 / 334fea78
+	UserUnitStateData& normalStateData = m_StateList[ iNormalStateID ];
+	normalStateData.Init();		// June's 31fd2af0 snapshot before it is the engine's ( checklist 7i )
+	normalStateData.stateID = iNormalStateID;	// June's +0x11 = 1 stores are IsSkillSlotState ( X2GUUser.cpp )
+
+	const int iHyperStateID = ( false == bSlotB_ ? _CONST_GUUSER_::aHyperSkillStateID[iSlotIndex_] : _CONST_GUUSER_::aHyperSkillStateIDSlotB[iSlotIndex_] );	// June 334fea64 / 334fea8c
+	UserUnitStateData& hyperStateData = m_StateList[ iHyperStateID ];
+	hyperStateData.Init();
+	hyperStateData.m_bHyperState = true;	// June word +0x10 = 0x101
+	hyperStateData.stateID = iHyperStateID;
+
+	const CX2SkillTree::SkillTemplet* pSkillTempletEquipped = GetEquippedActiveSkillTemplet( eSkillID_, true );
+	if ( NULL == pSkillTempletEquipped )
+		return;
+
+	const int iTranscendenceSkillID = GetTranscendenceMemoSkillID( eSkillID_ );
+	if ( 0 != iTranscendenceSkillID && NULL != g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iTranscendenceSkillID ) ) )
+	{
+		// June @32bd0af5: only Conversion Health's transcended ids register a state here ( 32babb50 )
+		if ( CX2SkillTree::RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS == iTranscendenceSkillID || CX2SkillTree::RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS_UPGRADE == iTranscendenceSkillID )
+		{
+			ASI_A_ALD_CONVERSION_MANA_CreateState( normalStateData, normalStateData.stateID );
+			ASI_A_ALD_CONVERSION_MANA_CreateState( hyperStateData, hyperStateData.stateID );
+		}
+		return;
+	}
+
+	switch ( pSkillTempletEquipped->m_eType )
+	{
+	case CX2SkillTree::ST_BUFF:
+		{
+			m_LuaManager.MakeTableReference( "ASI_COMMON_BUFF", normalStateData.stateID );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, COMMON_BUFF_FrameMove );	// June 329ccd90 = vslot 0x5f0 ( 32ba6830 )
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, COMMON_BUFF_EventProcess );	// June 329cba40 = 31fcbd60
+
+			m_LuaManager.MakeTableReference( "ASI_COMMON_BUFF", hyperStateData.stateID );
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+		} return;
+
+	case CX2SkillTree::ST_ACTIVE:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE:
+	case CX2SkillTree::ST_HYPER_ACTIVE_SKILL:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+	case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+		break;	// June's hyper split ( 27600 and up ) is CH3d's; its id switch takes the raw id, March's cases until CH2-CH3
+
+	case CX2SkillTree::ST_RELATIONSHIP_SKILL:
+		{
+			if ( CX2SkillTree::SI_ETC_WS_COMMON_LOVE == eSkillID_ )
+			{
+				m_LuaManager.MakeTableReference( "ASI_THROW_ITEM", normalStateData.stateID );
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUUser, COMMON_RELATIONSHIP_SKILL_FrameMove );		// June 329cc0d0 = vslot 0x5f4
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, COMMON_RELATIONSHIP_SKILL_EventProcess );	// June 329cc170 = vslot 0x5f8
+
+				m_LuaManager.MakeTableReference( "ASI_THROW_ITEM", hyperStateData.stateID );
+				hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+				hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+			}
+		} return;
+
+	default:
+		return;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( iSlotIndex_ < 0 || iSlotIndex_ >= ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ) )
 		return;
 
@@ -3354,6 +3425,7 @@ void CX2GUAra::InitStateByUnitClass()
 			return;
 		} break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////// 여기서 부터 ACTIVE, SPECIAL ACTIVE 스킬//////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22721,8 +22793,13 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 	if ( NULL != GetUnit() )
 	{
 		const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+		const CX2SkillTree::SKILL_ID eUpgradeSwappedSkillID = userSkillTree.GetUpgradeSwappedSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );	// char-ara CH1n: June 32bd34c0 ( 328905b0 ); its cases' chain lookups take it ( CH2-CH3 )
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = userSkillTree.GetUserSkillTemplet( eUpgradeSwappedSkillID, true );	// June 32890720 swaps once more
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 		const CX2SkillTree::SkillTemplet* pSkillTemplet = 
 			userSkillTree.GetUserSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 		if ( NULL != pSkillTemplet )
 		{
 			switch ( iSkillID_ )

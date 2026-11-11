@@ -1,0 +1,175 @@
+member	june_va	covered_by	verdict	outcome	ara_slots
+-	31fc8620	char_rena/ch1n_user_callback_triage.tsv	n/a	registered by shared InitWaitStateChange (SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE)	1
+-	31fc99f0	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	31fc9a00	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	31fc9a10	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	31fc9a20	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	31fc9a70	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	31fc9a80	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	31fc9aa0	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	31fc9b90	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	31fce380	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	31fce3b0	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	31fce3e0	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	31fce410	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	31fce440	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	31fce470	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	31fce4a0	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	31fce4d0	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	31fcfb70	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	31fd40b0	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	31fd41a0	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	32002f70	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	3200d450	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	3200d900	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	3200dba0	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	3200df80	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	3200dff0	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	3200e260	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	3200e6e0	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	3200e740	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	3200e9e0	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	3200ed60	Effect C9h-4h	n/a	registered by shared InitEventStates 3202b110 (SERV_IRUHADEV_JUNE_EVENT_STATES)	1
+-	3202a7d0	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	3
+-	32033fe0	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	320343e0	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: riding 93-96 / empty FrameMove, Stage 17 (CH1m comment lines)	1
+-	329cc030	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: PvP amusement mode, no PvP offline (CH1m comment lines)	1
+-	329cc040	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: dance state, Stage 10 (CH1m comment lines)	1
+-	329cc050	char_rena/ch1n_user_callback_triage.tsv	n/a	registered by shared InitBoundingStates (SERV_IRUHADEV_JUNE_BOUNDING_STATE)	1
+-	329cc0b0	char_rena/ch1n_user_callback_triage.tsv	n/a	registered by shared InitBoundingStates (SERV_IRUHADEV_JUNE_BOUNDING_STATE)	1
+-	329cc0c0	char_rena/ch1n_user_callback_triage.tsv	n/a	registered by shared InitBoundingStates (SERV_IRUHADEV_JUNE_BOUNDING_STATE)	1
+-	329cc130	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: PvP amusement mode, no PvP offline (CH1m comment lines)	1
+-	329cc140	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: dance state, Stage 10 (CH1m comment lines)	1
+-	329cc150	char_rena/ch1n_user_callback_triage.tsv	n/a	registered by shared InitBoundingStates (SERV_IRUHADEV_JUNE_BOUNDING_STATE)	1
+-	329cc1c0	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: PvP amusement mode, no PvP offline (CH1m comment lines)	1
+-	329cc1d0	char_rena/ch1n_user_callback_triage.tsv	n/a	not registered: dance state, Stage 10 (CH1m comment lines)	1
+-	329cc1e0	char_rena/ch1n_user_callback_triage.tsv	n/a	registered by shared InitBoundingStates (SERV_IRUHADEV_JUNE_BOUNDING_STATE)	1
+-	32adf320	char_rena/ch1n_user_callback_triage.tsv	n/a	vslot 0x600 thunk = Rena HyperModeFrameMove 32ca5310 (class override, CH1i)	1
+DAMAGE_GROGGY_EventProcess	329cc160	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DamageAirDownEventProcess	31fcc180	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DamageAirDownInvincibleEventProcess	31fcc1b0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DamageAirDownLandingFrameMove	31ffd160	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DamageAirDownLandingStart	31ffcee0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DamageAirFallEventProcess	31fcc1e0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DamageAirFlyEventProcess	31fcc260	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	2
+DamageAirSmallEventProcess	31fcc150	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	1
+DamageAirSmallStartFuture	31fd26c0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DamageAirUpEventProcess	31fcc220	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DamageBigEventProcess	31fcbf80	char_elsword/ch1n_user_callback_triage.tsv	SAME	same as March	2
+DamageBigStart	31fc7fd0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	2
+DamageRevengeCameraMove	31ffd390	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DamageRevengeEventProcess	31fcc2b0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DamageRevengeStart	31ffd310	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DamageSmallEventProcess	31fcbed0	char_elsword/ch1n_user_callback_triage.tsv	SAME	same as March	2
+DamageStandUpEnd	31fc7ff0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	2
+DamageStandUpEventProcess	31fcc0e0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	2
+DashFrameMoveFuture	31fd25e0	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	2
+DashJumpEndFuture	31fc7f80	char_elsword/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DashJumpFrameMoveFuture	31fd2520	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DashJumpLandingStartFuture	31fcbe40	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	2
+DashJumpStart	31fcbdf0	char_elsword/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DashJumpStartFuture	31fc7f50	char_elsword/ch1n_user_callback_triage.tsv	SAME	same as March	1
+DashStartFuture	329cc1f0	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	2
+HyperModeEnd	329cc0e0	char_chung/ch1n_user_callback_triage.tsv	DIFF	kept: Add stand-in (Chung CH1n)	1
+HyperModeEventProcess	31fcc300	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+HyperModeStartFuture	31fc8050	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+JumpFrameMoveFuture	31fd2470	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	5
+JuneRandomLoseEventProcess	31fcd0b0	char_chung/ch1n_user_callback_triage.tsv	DIFF	kept: find guard stand-in (Chung CH1n)	1
+LoseStateStart	320007e0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+PEPPER_RUN_END_EventProcess	329cc1a0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	2
+PEPPER_RUN_END_FrameMove	329cc100	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	2
+PEPPER_RUN_EventProcess	329cc070	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+PEPPER_RUN_FrameMoveFuture	329cbff0	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	2
+PEPPER_RUN_JUMP_DOWN_EventProcess	329cc0a0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+PEPPER_RUN_JUMP_DOWN_FrameMoveFuture	329cc020	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	2
+PEPPER_RUN_JUMP_DOWN_StateStartFuture	329cc1b0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	2
+PEPPER_RUN_JUMP_UP_EventProcess	329cc120	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+PEPPER_RUN_JUMP_UP_FrameMoveFuture	329cc090	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	2
+PEPPER_RUN_JUMP_UP_StateStartFuture	329cc010	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	2
+PEPPER_RUN_READY_EventProcess	329cc180	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingAttackXEventProcess	320322e0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingAttackXStart	31fe93f0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingAttackXStartFuture	31fce2c0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingAttackZEventProcess	32031e60	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingAttackZStart	32001f70	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingAttackZStartFuture	31fce260	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingDamageBackEventProcess	31fd3760	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingDamageBackStart	31fce220	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingDamageBackStartFuture	31fce1e0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingDamageFrontEventProcess	31fd3630	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingDamageFrontStart	31fce1a0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingDamageFrontStartFuture	31fce160	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingDashEndEventProcess	329cc110	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingDashEndFrameMove	31fd3460	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingDashEndStart	31fce080	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingDashEndStartFuture	31fd3400	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingDashEventProcess	329cc080	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingDashJumpEndFuture	31fc8880	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingDashJumpEventProcess	32031860	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingDashJumpFrameMoveFuture	31fd3570	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingDashJumpLandingEventProcess	32031bb0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingDashJumpLandingStart	31fce110	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingDashJumpStart	31fce0b0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingDashJumpStartFuture	31fc8850	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingDashStart	31fce040	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingHyperModeEnd	32cf0fa0	char_chung/ch1n_user_callback_triage.tsv	DIFF	kept: Add stand-in (Chung CH1n)	1
+RidingHyperModeEventProcess	32006b90	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingHyperModeStartFuture	31fc8ae0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingJumpAttackZEventProcess	31fd3890	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingJumpAttackZFrameMoveFuture	31fc88a0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingJumpAttackZStart	32002c60	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingJumpAttackZStartFuture	31fce290	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingJumpDownEventProcess	32030e70	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingJumpDownStart	31fcdf90	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingJumpDownStartFuture	31fcdf60	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingJumpLandingEventProcess	329cc000	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingJumpLandingStart	31fcdff0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingJumpLandingStartFuture	31fcdfc0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingJumpUpEventProcess	32030d50	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingJumpUpStart	31fcdf30	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingJumpUpStartFuture	31fcdf00	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingOffEnd	329cc060	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingOffEventProcess	31fc8830	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingOnEnd	31fc8810	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingOnEventProcess	32030580	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingOnStart	31fcdd50	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingOnStartFuture	31fcdd20	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingSpecialAttackEventProcess	320327f0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingSpecialAttackFrameMove	32003ea0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingSpecialAttackStart	31fce320	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingSpecialAttackStartFuture	31fce2f0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingSpecialMoveEnd	31fd4000	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingSpecialMoveEndFutrue	31fd3eb0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingSpecialMoveEventProcess	32032e70	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingSpecialMoveFrameMove	31fc88e0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingSpecialMoveFrameMoveFuture	31fd3950	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingSpecialMoveStart	32004950	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingSpecialMoveStartFuture	31fe94e0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingStartEventProcess	3201f780	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingStartStart	31fcdcb0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+RidingStartStartFuture	31fcdc80	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingWaitEventProcess	329cc0f0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingWaitHabitEventProcess	32032bb0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingWaitHabitStart	32004760	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingWaitHabitStartFuture	31fce350	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingWaitStart	32001c10	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingWaitStartFuture	31fcdea0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingWalkEventProcess	329cc190	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingWalkStart	32001dc0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+RidingWalkStartFuture	31fcded0	char_chung/ch1n_user_callback_triage.tsv	DIFF	Stage 17 (Chung CH1n)	1
+StartEnd	3201b460	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	2
+StartEventProcess	3201b390	char_chung/ch1n_user_callback_triage.tsv	DIFF	kept (Chung CH1n)	1
+StartIntrudeEventProcess	31fcbdb0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+StartIntrudeFrameMove	31ffc5c0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+StartIntrudeStart	31ffc280	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+StartStateStart	31ffbd70	char_chung/ch1n_user_callback_triage.tsv	DIFF	kept (Chung CH1n)	1
+THROW_ITEM_CameraMove	31fc7e50	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+THROW_ITEM_EventProcess	31fcbc10	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	1
+THROW_ITEM_FrameMove	31ff92d0	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	1
+THROW_ITEM_FrameMoveFuture	31fc7e40	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+THROW_ITEM_StateEnd	31ffaad0	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	1
+THROW_ITEM_StateStart	31fc7e20	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+WalkFrameMoveFuture	31fd23e0	char_chung/ch1n_user_callback_triage.tsv	DIFF	ported for every class (Chung CH1n2 / Elsword CH1n base flags)	2
+WallLandingEndFuture	31fc8030	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+WallLandingEventProcess	31fd2760	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1
+WinStateStart	320004b0	char_chung/ch1n_user_callback_triage.tsv	SAME	same as March	1

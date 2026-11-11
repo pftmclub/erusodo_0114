@@ -53,3 +53,10 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - **Checklist rows: 10** (`awk -F'\t' '$5 ~ /(^| )CH3a( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L55 numerical-only DAMAGE_DATA table in state ASI_SA_ASD_TURBULE; L55 numerical-only DAMAGE_DATA table in state ASI_SA_ASD_TURBULE; L55 numerical-only DAMAGE_DATA + numerical override live (the 14; L116 APPLIED_SKILL_ID (parsed since 8c); L117 NUMERICAL_DATA_INDEX; L121 "BUFF_FACTOR_ID_ULTIMATE x3 in Ara_Martial_Artist (""to-impl; L178 June-only members of tables March has (SKILL_ID names, ARA_S; L713-L745 an id of a listed type with no case plays the class's first ; L726 types 14-16 / 17 / 18 named in the class switch; L775-L777 ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK EventProcess (@32bc204c, M.
 - **Force-power rows: 7** (`awk -F'\t' '$7 ~ /(^| )CH3a( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: differs 5, unchecked 2).
 - Swallow Assault (`ASI_SA_ALH_SWALLOW_ASSAULT_*`, 27011; `ATTACK` EventProcess `@32bc204c`, `_FINISH` StateStart `@32bb70ff`) is here and runs on CH2b0's `ProcessLockOn`, passing June's `NULL, &lineIndex` (checklist l.775-776). Split: CH3a = skills with the smallest id < 27012 (and states with no skill), CH3a2 = the rest. `BUFF_FACTOR_ID_ULTIMATE` (l.121): re-check the reader gate.
+
+## Amended by CH1n (2026-11-11)
+
+- **Second skill switch.** Each id of this phase that has a case in `InitAquiredActiveSkillState` (`32bd34c0`, `awk -F'	' '$1=="32bd34c0"' june2017_re/char_ara/ch0_skill_listing_rows.tsv`)
+  gets June's case body too, inside March's case under `_SKILL`. June's chain lookup there takes the upgrade-swapped id: CH1n's head declares
+  `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
+- `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).
