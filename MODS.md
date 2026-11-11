@@ -6440,6 +6440,27 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's; no new define). Plan `JUNE_CHA
 - **Save.** Unit 97 `LittleHsienT` slots changed for the play-test ( backup `db_backup/els_db_20261111_152550_pre_sql.sql` ).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( every Ara skill falls back to the Wind Wedge default ), `python tools/build.py --deploy`.
 
+## Stage 7 Ara, CH2c: Little Devil (class 31) special actives, ids below 27200 (2026-11-11)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's; no new define). Plan `JUNE_CHARACTER_ARA_PHASES.md` "CH2c - Done". The `RNSI_*` base and enhanced ids join March's `SetEquippedSkillFuncBySkillSlotIndex` cases ( Hell of Tornado 27013 / 27035, Wolf Spear 27014 / 27039, Energy Wave 27015 / 27040, Prison Spear 27016 / 27054, Suppression Energy 27017 / 27055 ) and Wolf Spear's and Prison Spear's `InitAquiredActiveSkillState` cases ( their chain lookups take the upgrade-swapped id ). `X2SkillTree.h` gains five names ( 27017, 27035, 27040, 27054, 27055 ).
+- **Differs from March.**
+  - **Energy Wave** is two states now: the cast ( Start / StartFuture, held key, ends in the new fire state ) and `ASI_SA_ALD_ENERGY_WAVE_FIRE`, which spawns `EffectSet_SA_AHD_ENERGY_WAVE_PROJECTILE` at 0.01 s ( `_Devided` with Demigod learned ), its power rate x ( 1 + `SA_DAMAGE_REL` ) and its size x ( 1 + `SA_PROJECTILE_SIZE` ), then jumps down. March's one state ran the skill's effect set from the script and jumped down at the end.
+  - **Hell of Tornado / Wolf Spear / Prison Spear** ( first state ): the animation end calls `StateChangeOrFPCancel` and the FP-cancel probe window runs ( as CH2b2's Rock Crash ). Hell of Tornado keeps the skill cancel; Wolf Spear has no cancel at all; Prison Spear has the walk and dash cancels.
+  - **Walk and dash cancels need the foot on a line:** Hell of Tornado's and Prison Spear's first states, the Energy Wave fire state, the Hell of Tornado / Wolf Spear / Suppression Energy end states and the end state Prison Spear shares with Energy Bead.
+  - Wolf Break ( Wolf Spear's second state ) is June's already ( CH2c0 ); its start and event process = March.
+- **Damage ( level-1 multiplier, x0.01 of the NUMERICAL_DATA row; March = the same-named damage effects the shipped tables carry ).**
+
+| Skill ( June id ) | March damage | June damage |
+|---|---|---|
+| Hell of Tornado ( 27013 / 27035 ) | the `Hell_Of_Tornado_Attack` damage effect tables | 3.08 ( hits ), 6.61 ( final ) |
+| Wolf Stance 4: Wolf Fang ( 27014 / 27039 ) | the `Wolf_Break` damage effect tables | 7.05 ( Wolf Break shots ) |
+| Energy Wave ( 27015 / 27040 ) | the `ENERGY_WAVE_PROJECTILE` damage effect tables | 29.26 / 19.31 / 9.65 ( three hits ) |
+| Prison Spear ( 27016 / 27054 ) | the `PRISON_SPEAR` damage effect tables | 6.04 ( spear ), 2.39 ( dummy ) |
+| Suppression Energy ( 27017 / 27055 ) | the `SUPPRESSION_ENERGY_EXPLOSION` damage effect | 48.72 ( explosion ) |
+
+- **Save.** Unit 99 `LittleDevil99` ( class 31, lv 99 ) slots changed for the play-test ( backup `db_backup/els_db_20261111_162910_pre_sql.sql` ).
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( every Ara skill falls back to the Wind Wedge default ), `python tools/build.py --deploy`.
+
 ## BUG_REPORT 2026-11-08, items 1-5 (fixed 2026-11-11)
 
 **1. Underground Waterway boss room froze the player (data only).** The merged data037 `NPCTemplet.lua` kept March's row for `NUI_BENDERS_NASOD` (`LUA_FILE_NAME = "Benders_Nasword.lua"`), while June's dungeon cutscene NPC (`Event_NPC_Benders_Elder.lua`) starts state `BENDERS_NASOD_START`, which only June's `BENDERS_NASOD.LUA` has. The boss stayed hidden in its start state and `STOP_AT_START_STATE` kept input off. The row now carries June's `MOTION` / `LUA_FILE_NAME` (the old values are in the comment above it); June's `Motion_Benders_Nasword.xet` staged into data006 (March's copy under `kom_backup_stage_june\20261111_105336`). `luabind.py check BENDERS_NASOD Event_NPC_Benders_Elder` PASS, `npc_anim_census.py` 0 missing anims. Revert: restore the two values in the row, `luasrc.py refresh data037 NPCTemplet.lua`, repack data037.

@@ -617,6 +617,11 @@ protected:
 	void			ASI_SA_ALH_DESCENT_DRAGON_StateStart();	// char-ara CH2b: June 32b92a50
 	void			ASI_SA_ALH_LINK_FLOWER_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2b: June 32baae10
 	void			ASI_SA_ALH_LINK_FLOWER_EventProcess();	// char-ara CH2b: June 32ba5870
+	void			ASI_SA_ALD_ENERGY_WAVE_StateStartFuture();	// char-ara CH2c: June 32b93540
+	void			ASI_SA_ALD_ENERGY_WAVE_StateStart();	// char-ara CH2c: June 32b93570
+	void			ASI_SA_ALD_ENERGY_WAVE_FIRE_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2c: June 32bce770
+	void			ASI_SA_ALD_ENERGY_WAVE_FIRE_FrameMove();	// char-ara CH2c: June 32bc2900
+	void			ASI_SA_ALD_ENERGY_WAVE_FIRE_EventProcess();	// char-ara CH2c: June 32b9dd60
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2
@@ -1606,6 +1611,9 @@ protected:
 	
 	const CX2SkillTree::SkillTemplet*	m_pSkillTemplet;	/// 스킬 템플릿 포인터
 	int		m_iPressedSkillSlotIndex;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	float	m_fEnergyWaveChargeTime;	/// char-ara CH2c: June +0x9714, Energy Wave's start zeroes it; only June's unregistered charge state reads it
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	float	m_fMPConsume;
 
 	float	m_fShadowKnotTime;								/// 그림자 매듭 Wait 타임

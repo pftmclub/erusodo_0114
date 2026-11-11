@@ -1911,6 +1911,15 @@ public:
 		RNSI_P_ASR_OPEN_MIND                                  = 27419,	// char-ara CH1q: June's Enum.lua; spent force power heals while hyper mode runs
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH2c
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_ALD_SUPPRESSION_ENERGY                        = 27017,	// char-ara CH2c: June's Enum.lua; Suppression Energy
+		RNSI_SA_ALD_HELL_OF_TORNADO_UPGRADE                   = 27035,	// char-ara CH2c: June's Enum.lua; the enhanced Hell of Tornado
+		RNSI_SA_ALD_ENERGY_WAVE_UPGRADE                       = 27040,	// char-ara CH2c: June's Enum.lua; the enhanced Energy Wave
+		RNSI_SA_ALD_PRISON_SPEAR_UPGRADE                      = 27054,	// char-ara CH2c: June's Enum.lua; the enhanced Prison Spear
+		RNSI_SA_ALD_SUPPRESSION_ENERGY_UPGRADE                = 27055,	// char-ara CH2c: June's Enum.lua; the enhanced Suppression Energy
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-11 // char-ara CH2c0
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_P_AYR_DEMIGOD                                    = 27418,	// char-ara CH2c0: June's Enum.lua; Wolf Break and Open the Hell spend its stacks

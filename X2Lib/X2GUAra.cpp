@@ -205,6 +205,9 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	, m_bFPCancelProbe( false )	// char-ara CH1d
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	, m_fEnergyWaveChargeTime( 0.f )	// char-ara CH2c: June ctor 32bc6bf0 +0x9714
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	, m_fMpGainPerForcePowerInFullHyperMode( 0.f ), m_iFPCancelChainCount( 0 ), m_iSnapshotForcePower( 0 )	// char-ara CH1q: June 32bc6bf0 @32bc7635 / @32bc77a3
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
@@ -4120,14 +4123,29 @@ void CX2GUAra::InitStateByUnitClass()
 
 	#pragma region SI_SA_ALD_ENERGY_WAVE
 		case CX2SkillTree::SI_SA_ALD_ENERGY_WAVE:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_SA_ALD_ENERGY_WAVE:	// char-ara CH2c: June 32bd09d0 case 27015 / 27040
+		case CX2SkillTree::RNSI_SA_ALD_ENERGY_WAVE_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			{
 				ASI_SA_ALD_ENERGY_WAVE_CreateState( normalStateData, normalStateData.stateID );
 				ASI_SA_ALD_ENERGY_WAVE_CreateState( hyperStateData, hyperStateData.stateID );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+				{
+					UserUnitStateData subStateData;	// char-ara CH2c: June 32bd09d0 @32bd1903, the fire state ( helper 32bce770 )
+					ASI_SA_ALD_ENERGY_WAVE_FIRE_CreateState( subStateData, ASI_SA_ALD_ENERGY_WAVE_FIRE );
+					m_StateList[subStateData.stateID] = subStateData;
+				}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			} break;
 	#pragma endregion 기공파
 
 	#pragma region SI_SA_ALD_HELL_OF_TORNADO
 		case CX2SkillTree::SI_SA_ALD_HELL_OF_TORNADO:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_SA_ALD_HELL_OF_TORNADO:	// char-ara CH2c: June 32bd09d0 case 27013 / 27035
+		case CX2SkillTree::RNSI_SA_ALD_HELL_OF_TORNADO_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			{
 				ASI_SA_ALD_HELL_OF_TORNADO_CreateState( normalStateData, normalStateData.stateID );
 				ASI_SA_ALD_HELL_OF_TORNADO_CreateState( hyperStateData, hyperStateData.stateID );
@@ -4140,6 +4158,10 @@ void CX2GUAra::InitStateByUnitClass()
 
 	#pragma region SI_SA_ALD_WOLF_SPEAR
 		case CX2SkillTree::SI_SA_ALD_WOLF_SPEAR:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR:	// char-ara CH2c: June 32bd09d0 case 27014 / 27039
+		case CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			{
 				ASI_SA_ALD_WOLF_SPEAR_CreateState( normalStateData, normalStateData.stateID );
 				ASI_SA_ALD_WOLF_SPEAR_CreateState( hyperStateData, hyperStateData.stateID );
@@ -4176,6 +4198,10 @@ void CX2GUAra::InitStateByUnitClass()
 
 	#pragma region SI_SA_ALD_PRISON_SPEAR
 		case CX2SkillTree::SI_SA_ALD_PRISON_SPEAR:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_SA_ALD_PRISON_SPEAR:	// char-ara CH2c: June 32bd09d0 case 27016 / 27054
+		case CX2SkillTree::RNSI_SA_ALD_PRISON_SPEAR_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			{
 				ASI_SA_ALD_PRISON_SPEAR_CreateState( normalStateData, normalStateData.stateID );
 				ASI_SA_ALD_PRISON_SPEAR_CreateState( hyperStateData, hyperStateData.stateID );
@@ -4219,6 +4245,10 @@ void CX2GUAra::InitStateByUnitClass()
 
 	#pragma region SI_SA_AYR_SUPPRESSION_ENERGY
 		case CX2SkillTree::SI_SA_AYR_SUPPRESSION_ENERGY:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_SA_ALD_SUPPRESSION_ENERGY:	// char-ara CH2c: June 32bd09d0 case 27017 / 27055
+		case CX2SkillTree::RNSI_SA_ALD_SUPPRESSION_ENERGY_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			{
 				ASI_SA_AYR_SUPPRESSION_ENERGY_CreateState( normalStateData, normalStateData.stateID );
 				ASI_SA_AYR_SUPPRESSION_ENERGY_CreateState( hyperStateData, hyperStateData.stateID );
@@ -22930,6 +22960,10 @@ void CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_CreateState( UserUnitStateData& stateData_
 	stateData_.stateID			= iStateId_;
 	m_LuaManager.MakeTableReference( "ASI_SA_ALD_ENERGY_WAVE", stateData_.stateID );
 	stateData_.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_ALD_ENERGY_WAVE_Init );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	stateData_.StateStartFuture	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALD_ENERGY_WAVE_StateStartFuture );	// char-ara CH2c: June helper 32baa890
+	stateData_.StateStart		= SET_CB_FUNC( CX2GUAra, ASI_SA_ALD_ENERGY_WAVE_StateStart );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALD_ENERGY_WAVE_EventProcess );
 }
 
@@ -22963,6 +22997,15 @@ void CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_Init()
 */
 void CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c: June 32b9dd20 ( the held key follows its slot; the animation end starts the fire state )
+	m_kSkillSlotKey.FollowSlotSwap();
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChange( ASI_SA_ALD_ENERGY_WAVE_FIRE );
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		if ( false == IsOnSomethingFuture() )
@@ -22976,9 +23019,73 @@ void CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_EventProcess()
 		DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 		CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 #pragma endregion 기공파
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+// char-ara CH2c: June 32b93540 ( the held key follows the slot the skill was cast from, 0-9 )
+void CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_StateStartFuture()
+{
+	m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 );
+
+	CommonStateStartFuture();
+}
+
+// char-ara CH2c: June 32b93570 ( the charge time is read only by June's unregistered charge state )
+void CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_StateStart()
+{
+	m_fEnergyWaveChargeTime = 0.f;
+
+	CommonStateStart();
+}
+
+// char-ara CH2c: June helper 32bce770
+void CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_FIRE_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALD_ENERGY_WAVE_FIRE", stateData_.stateID );
+	stateData_.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_ALD_ENERGY_WAVE_FIRE_FrameMove );
+	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALD_ENERGY_WAVE_FIRE_EventProcess );
+}
+
+// char-ara CH2c: June 32bc2900 ( the projectile effect set at 0.01 s; the damage and size abilities scale it, Demigod swaps in the divided set )
+void CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_FIRE_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( 0.01f ) && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		const CX2SkillTree::SKILL_ID eNowSkillID = GetNowStateSkillID();	// June user vslot 0x524
+		const float fPowerRate = ( GetLearnedSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, eNowSkillID ) + 1.f ) * GetPowerRate();
+		const float fProjectileSize = 1.f + GetLearnedSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_SIZE, eNowSkillID );
+		const wstring wstrEffectSetName = ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_DEMIGOD ) )
+			? L"EffectSet_SA_AHD_ENERGY_WAVE_PROJECTILE_Devided" : L"EffectSet_SA_AHD_ENERGY_WAVE_PROJECTILE";
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( wstrEffectSetName, this, NULL, IsHyperState(), fPowerRate, -1.f,
+			D3DXVECTOR3( fProjectileSize, fProjectileSize, fProjectileSize ) );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH2c: June 32b9dd60 ( March's Energy Wave end: jump down, with the walk and dash cancels needing the foot on a line )
+void CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_FIRE_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+
+		StateChange( USI_JUMP_DOWN );
+	}
+
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #pragma region SI_SA_ALD_HELL_OF_TORNADO
 /** @function	: ASI_SA_ALD_HELL_OF_TORNADO_CreateState
 	@brief		: 해당 스킬 아이디에 대한 스테이트 정보 설정
@@ -23034,6 +23141,26 @@ void CX2GUAra::ASI_SA_ALD_HELL_OF_TORNADO_Init()
 */
 void CX2GUAra::ASI_SA_ALD_HELL_OF_TORNADO_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c: June 32bacb50 ( animation end -> FP cancel or the finish state; the walk and dash cancels need the foot on a line )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_SA_ALD_HELL_OF_TORNADO_FINISH );
+
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+	const bool bStartFPCancel = ( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() );	// June vslot 0x7f8 ( true = ASUT_GROUND )
+	m_bFPCancelProbe = false;
+
+	if ( true == bStartFPCancel )
+	{
+		m_bFPCancel = true;
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 #ifdef BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
@@ -23061,6 +23188,7 @@ void CX2GUAra::ASI_SA_ALD_HELL_OF_TORNADO_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 		CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function	: ASI_SA_ALD_HELL_OF_TORNADO_FINISH_CreateState
@@ -23116,8 +23244,14 @@ void CX2GUAra::ASI_SA_ALD_HELL_OF_TORNADO_FINISH_EventProcess()
 	}
 
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c: June 32b9df70 ( the walk and dash cancels need the foot on a line )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 
 	CommonEventProcess();
 }
@@ -23161,6 +23295,21 @@ void CX2GUAra::ASI_SA_ALD_WOLF_SPEAR_StateStart()
 */
 void CX2GUAra::ASI_SA_ALD_WOLF_SPEAR_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c: June 32bacdb0 ( animation end -> FP cancel or the finish state; no skill, walk or dash cancel )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_SA_ALD_WOLF_SPEAR_FINISH );
+
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )	// June vslot 0x7f8 ( true = ASUT_GROUND )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 #ifdef BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
@@ -23184,6 +23333,7 @@ void CX2GUAra::ASI_SA_ALD_WOLF_SPEAR_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function	: ASI_SA_ALD_WOLF_SPEAR_FINISH_CreateState
@@ -23226,8 +23376,14 @@ void CX2GUAra::ASI_SA_ALD_WOLF_SPEAR_FINISH_EventProcess()
 	}
 
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c: June 32b9e190 ( the walk and dash cancels need the foot on a line )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 #pragma endregion 낭아 4식 - 늑대이빨
 
@@ -23509,8 +23665,14 @@ void CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_FINISH_EventProcess()
 			StateChange( USI_WAIT );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c: June 32b9e4c0 ( the Energy Bead and Prison Spear finish states share it; the walk and dash cancels need the foot on a line )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 
 	CommonEventProcess();
 }
@@ -23561,6 +23723,25 @@ void CX2GUAra::ASI_SA_ALD_PRISON_SPEAR_Init()
 */
 void CX2GUAra::ASI_SA_ALD_PRISON_SPEAR_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c: June 32bad100 ( animation end -> FP cancel or the finish state; the walk and dash cancels need the foot on a line )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_SA_ALD_PRISON_SPEAR_FINISH );
+
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+	const bool bStartFPCancel = ( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() );	// June vslot 0x7f8 ( true = ASUT_GROUND )
+	m_bFPCancelProbe = false;
+
+	if ( true == bStartFPCancel )
+	{
+		m_bFPCancel = true;
+	}
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 #ifdef BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
@@ -23587,6 +23768,7 @@ void CX2GUAra::ASI_SA_ALD_PRISON_SPEAR_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 		CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function	: ASI_SA_ALD_PRISON_SPEAR_FINISH_CreateState
@@ -24170,8 +24352,14 @@ void CX2GUAra::ASI_SA_AYR_SUPPRESSION_ENERGY_EventProcess()
 	}
 
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c: June 32b9eac0 ( the walk and dash cancels need the foot on a line )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 
 	CommonEventProcess();
 }
@@ -24858,19 +25046,31 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 				} break;
 
 			case CX2SkillTree::SI_SA_ALD_WOLF_SPEAR:		/// 아라 1차 전직 소마 - 낭아 4식 늑대이빨
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+			case CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR:	// char-ara CH2c: June 32bd34c0 case 27014 / 27039 ( the chain lookups take the swapped id )
+			case CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 				{
 					{
 						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALD_WOLF_SPEAR];
 						ASI_SA_ALD_WOLF_SPEAR_CreateState( stateData, ASI_SA_ALD_WOLF_SPEAR );
 						SetSkillLevelStateData( pSkillTemplet, stateData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// char-ara CH2c: June 32bd34c0 @32bd41fd
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( iSkillID_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 					}
 
 					{
 						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALD_WOLF_SPEAR_FINISH];
 						ASI_SA_ALD_WOLF_SPEAR_FINISH_CreateState( stateData, ASI_SA_ALD_WOLF_SPEAR_FINISH );
 						SetSkillLevelStateData( pSkillTemplet, stateData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// char-ara CH2c: June 32bd34c0 @32bd4291
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( iSkillID_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 					}
 
 					{
@@ -24913,12 +25113,20 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 				} break;
 
 			case CX2SkillTree::SI_SA_ALD_PRISON_SPEAR:		/// 아라 1차 전직 소마 - 나찰 3식 창살감옥
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+			case CX2SkillTree::RNSI_SA_ALD_PRISON_SPEAR:	// char-ara CH2c: June 32bd34c0 case 27016 / 27054 ( the chain lookup takes the swapped id )
+			case CX2SkillTree::RNSI_SA_ALD_PRISON_SPEAR_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 				{
 					{
 						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALD_PRISON_SPEAR];
 						ASI_SA_ALD_PRISON_SPEAR_CreateState( stateData, ASI_SA_ALD_PRISON_SPEAR );
 						SetSkillLevelStateData( pSkillTemplet, stateData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// char-ara CH2c: June 32bd34c0 @32bd4536
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( iSkillID_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 					}
 
 					{

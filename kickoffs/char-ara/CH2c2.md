@@ -62,3 +62,8 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
   `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
 - `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).
 - The slot head's memo exit (CH1n, `@32bd0af5`) already calls `ASI_A_ALD_CONVERSION_MANA_CreateState` for Conversion Health's transcended ids 27222 / 27244 (`32babb50`); if June's helper body differs, it changes in that function.
+
+## Amended by CH2c (2026-11-11)
+
+- `ASI_SA_ALD_ENERGY_BEAD_FINISH_EventProcess` (June `32b9e4c0`) serves both the Energy Bead and the Prison Spear finish states; CH2c already put June's body in it (on-line walk and dash cancels, under `_SKILL`). Do not transcribe it again: Energy Bead's remaining rows are its own state functions and registration.
+- The five class-31 special-active names, the Prison Spear / Wolf Spear second-switch labels and `m_fEnergyWaveChargeTime` are CH2c's. Class-31 save: unit 99 `LittleDevil99` (lv 99, the enhanced ids learned); CH2c's slots are on it, so unslot them before slotting this phase's skills.

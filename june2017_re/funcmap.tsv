@@ -9985,3 +9985,39 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 3236a2f0 (CH2c0)	CX2BuffTemplet::AddAccumulationCountNow( iDelta, pGameUnit )	PORTED	Char Ara CH2c0 (SERV_IRUHADEV_JUNE_CHAR_ARA_STACK): UCM map (+0x50, size +0x58) find key 0 (UCM_ACCUMULATION_COUNT_NOW); absent -> nothing; value += (float)iDelta (fild / fadd / fstp); every displayer vslot 1 StartDisplayer( unit, this ) + start +0xc; +0xa8 GetUseBuffIcon -> BuffIcon 322ab560 (+0x34, +0x68, +0x84, +0xa0, +0xa4), PushBuff 32489810( unit vslot 0x54 UID, icon, +0x64 IsDeBuff, GetAccumulationCountNow ); no behavior re-apply, no icon-text hook (vslot 0x788)
 32bbb050 (CH2c0)	CX2GUAra::ASI_SA_ALD_WOLF_BREAK_FrameMove (June body)	PORTED	Char Ara CH2c0: June = March's body plus one block after CommonFrameMove, inserted under _STACK: GetSkillLevelValue( RNSI_P_AYR_DEMIGOD 27418 ) > 0 and, for t = 1.2 .. 1.9 step 0.1 (floats 3344ce94 .. 334a1a44; 3 inlined Oneshot tests, 5 via 31e4c230), HaveSkillBuff( 27418, 0, true ) (vslot 0x240) && EventTimerOneshot( t ) -> AddBuffAccumulationCountByTempletID( GetSkillBuffTempletID( 27418, 0, true ) 3229a3d0, -1 ), PlayEffectSet( EffectSet_P_AYR_GOOD_ENERGY_BALL_Wolf_Break, this, NULL, IsHyperState, GetPowerRate ) defaults otherwise, no GetEffectSet null test; the March part (1.1 / 1.35 / 1.63 / 2.0, Break2 / Break3 / _Special, +-100 Bip01) is June's unchanged
 32bbb720 (CH2c0)	CX2GUAra::ASI_SA_AYR_OPEN_THE_HELL_FrameMove (June body)	PORTED	Char Ara CH2c0: as 32bbb050 with t = 0.75 / 0.8 / 0.85 / 0.9 / 0.95 / 1.0 (push 0x3f800000) / 1.05 / 1.1 and EffectSet_P_AYR_GOOD_ENERGY_BALL_Open_The_Hell; the March part (0.01 Oneshot, GetEffectSet null test, SA_AYR_OPEN_THE_HELL_ALL, GetPowerRate x m_fOpenTheHellIncreaseDamage +0x96dc) is June's unchanged
+32b93460	ASI_SA_ALD_ENERGY_WAVE.Init	confirmed	Char Ara CH2c: = March, no code ( Init preload list compared by script )
+32b93540	CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_StateStartFuture	PORTED	Char Ara CH2c: new, under _SKILL: m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 ) ( 31fce6d0 ), then CommonStateStartFuture
+32b93570	CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_StateStart	PORTED	Char Ara CH2c: new, under _SKILL: m_fEnergyWaveChargeTime ( +0x9714 ) = 0, then CommonStateStart; only June's unregistered CHARGE state reads the float ( JUNE_BUGS 606 )
+32b93640	ASI_SA_ALD_HELL_OF_TORNADO.Start	confirmed	Char Ara CH2c: = March, no code ( CommonStateStart, m_usBeforeForceGainCount = m_usForceGainCount; +0x9622 / +0x9624 are March's two members )
+32b93660	ASI_SA_ALD_HELL_OF_TORNADO.Init	confirmed	Char Ara CH2c: = March, no code ( Init preload list compared by script )
+32b93740	ASI_SA_ALD_HELL_OF_TORNADO_FINISH.Init	confirmed	Char Ara CH2c: = March, no code ( Init preload list compared by script )
+32b93800	ASI_SA_ALD_WOLF_SPEAR.Init	confirmed	Char Ara CH2c: = March, no code ( Init preload list compared by script )
+32b93820	ASI_SA_ALD_WOLF_SPEAR.Start	confirmed	Char Ara CH2c: = March, no code ( CommonStateStart, m_usBeforeForceGainCount = m_usForceGainCount )
+32b93840	ASI_SA_ALD_WOLF_SPEAR_FINISH.Init	confirmed	Char Ara CH2c: = March, no code ( Init preload list compared by script )
+32b939f0	ASI_SA_ALD_PRISON_SPEAR.Start	confirmed	Char Ara CH2c: = March, no code ( CommonStateStart, m_usBeforeForceGainCount = m_usForceGainCount )
+32b93a10	ASI_SA_ALD_PRISON_SPEAR.Init	confirmed	Char Ara CH2c: = March, no code ( Init preload list compared by script )
+32b93a70	ASI_SA_ALD_PRISON_SPEAR_FINISH.Init	confirmed	Char Ara CH2c: = March, no code ( Init preload list compared by script )
+32b93d00	ASI_SA_AYR_SUPPRESSION_ENERGY.Init	confirmed	Char Ara CH2c: = March, no code ( Init preload list compared by script )
+32b93dc0	ASI_SA_ALD_WOLF_BREAK.Init	confirmed	Char Ara CH2c: = March, no code ( Init preload list compared by script )
+32b93e20	ASI_SA_ALD_WOLF_BREAK.Start	confirmed	Char Ara CH2c: = March, no code ( CommonStateStart, m_iWolfBreakeCount = 0 ( +0x96e0 ) )
+32b9dd20	CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_EventProcess	PORTED	Char Ara CH2c: inside, under _SKILL: m_kSkillSlotKey.FollowSlotSwap ( 31fce670 ), the animation end changes to ASI_SA_ALD_ENERGY_WAVE_FIRE, CommonEventProcess; March's body ( end -> jump down, cancels ) is now the fire state's
+32b9dd60	CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_FIRE_EventProcess	PORTED	Char Ara CH2c: new, under _SKILL: March's old Energy Wave end ( jump down at the animation end, y - 45 off a line ) with the skill cancel and the on-line walk / dash cancels
+32b9df70	CX2GUAra::ASI_SA_ALD_HELL_OF_TORNADO_FINISH_EventProcess	PORTED	Char Ara CH2c: inside, under _SKILL: the walk and dash cancels need the foot on a line ( the rest = March )
+32b9e190	CX2GUAra::ASI_SA_ALD_WOLF_SPEAR_FINISH_EventProcess	PORTED	Char Ara CH2c: inside, under _SKILL: the walk and dash cancels need the foot on a line ( the rest = March )
+32b9e4c0	CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_FINISH_EventProcess	PORTED	Char Ara CH2c: inside, under _SKILL: one function for the Energy Bead and Prison Spear finish states; the walk and dash cancels need the foot on a line ( CH2c2's Energy Bead finish takes it with this edit )
+32b9eac0	CX2GUAra::ASI_SA_AYR_SUPPRESSION_ENERGY_EventProcess	PORTED	Char Ara CH2c: inside, under _SKILL: the walk and dash cancels need the foot on a line ( the rest = March )
+32b9ece0	ASI_SA_ALD_WOLF_BREAK.EventProcess	confirmed	Char Ara CH2c: = March, no code ( end -> jump down / wait, same y - 45 order )
+32baa890	CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_CreateState	PORTED	Char Ara CH2c: inside, under _SKILL: Init, StartFuture, Start, EventProcess ( June thunks 32bd59e0 / 32bd59f0 / 32bd5a00 / 32bd6720 )
+32baa940	ASI_SA_ALD_HELL_OF_TORNADO_FINISH registration helper	confirmed	Char Ara CH2c: = March ( Init, EventProcess )
+32baa990	ASI_SA_ALD_WOLF_SPEAR_FINISH registration helper	confirmed	Char Ara CH2c: = March ( Init, EventProcess )
+32baaa30	ASI_SA_ALD_PRISON_SPEAR_FINISH registration helper	confirmed	Char Ara CH2c: = March ( Init, the Energy Bead finish EventProcess )
+32baaae0	ASI_SA_AYR_SUPPRESSION_ENERGY registration helper	confirmed	Char Ara CH2c: = March ( Init, EventProcess )
+32bacb50	CX2GUAra::ASI_SA_ALD_HELL_OF_TORNADO_EventProcess	PORTED	Char Ara CH2c: inside, under _SKILL: the animation end calls StateChangeOrFPCancel ( finish ), the FP-cancel probe window, then the skill cancel and the on-line walk / dash cancels
+32bacdb0	CX2GUAra::ASI_SA_ALD_WOLF_SPEAR_EventProcess	PORTED	Char Ara CH2c: inside, under _SKILL: the animation end calls StateChangeOrFPCancel ( finish ), the FP-cancel probe window, no cancels
+32bad100	CX2GUAra::ASI_SA_ALD_PRISON_SPEAR_EventProcess	PORTED	Char Ara CH2c: inside, under _SKILL: as Hell of Tornado without the skill cancel
+32bae930	ASI_SA_ALD_HELL_OF_TORNADO registration helper	confirmed	Char Ara CH2c: = March ( Init, Start, EventProcess )
+32bae980	ASI_SA_ALD_WOLF_SPEAR registration helper	confirmed	Char Ara CH2c: = March ( Init, Start, EventProcess )
+32baea20	ASI_SA_ALD_PRISON_SPEAR registration helper	confirmed	Char Ara CH2c: = March ( Init, Start, EventProcess )
+32bc2900	CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_FIRE_FrameMove	PORTED	Char Ara CH2c: new, under _SKILL: at 0.01 s EffectSet_SA_AHD_ENERGY_WAVE_PROJECTILE ( _Devided with RNSI_P_AYR_DEMIGOD learned ) at ( SA_DAMAGE_REL + 1 ) x GetPowerRate, scale 1 + SA_PROJECTILE_SIZE ( abilities 0xf / 0x20 of the state's skill, 32007b10 ), then CommonFrameMove
+32bc9350	ASI_SA_ALD_WOLF_BREAK registration helper	confirmed	Char Ara CH2c: = March ( Init, Start, FrameMove, EventProcess ); registered in the second skill switch as in March
+32bce770	CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_FIRE_CreateState	PORTED	Char Ara CH2c: new, under _SKILL: FrameMove ( 32bd84d0 ) and EventProcess ( 32bd6730 ) only; registered as a sub-state of Energy Wave ( June @32bd1903 )
