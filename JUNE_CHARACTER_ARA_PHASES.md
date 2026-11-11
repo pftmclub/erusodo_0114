@@ -1195,7 +1195,9 @@ inputs `IsFullHyperMode` (0x9c) and `IsHyperModeState` (`32bd85f0`) are CH1q's. 
 
 **Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUUser.cpp`: `X2GUAra.cpp` PASS +13 -1, `X2GUUser.cpp` PASS +23;
 `files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `1 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token,
-0 encoding change(s)`; RESULT FAIL only for `define: NOT FOUND` (`//#define`). `Always.h`: +9, a pure insertion (guard only).
+0 encoding change(s)`; RESULT FAIL only for `define: NOT FOUND` (`//#define`). After the commit (`e291386c`), `--range e291386c^..e291386c` with the
+same `--files`: the same tallies (`2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `1 deleted line(s)`, 0 / 0 / 0 / 0), FAIL only for the `//#define`.
+`Always.h`: +9, a pure insertion (guard only).
 `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2GUUser.cpp`: `allow-listed: 7`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp
 X2Lib/X2GUUser.cpp`: `0 A/B row(s)`. One-file `/c /Zs /EHsc` probes (`census.cl_cmd`): `X2GUAra.cpp` and `X2GUUser.cpp` off, `_LIVE`, `_LIVE` + `_FP` + `_SPECTER`
 + `_SKILL`: exit 0, 0 errors, 38 / 39 warnings each (unchanged). Full build skipped: no play-test. No `_DEBUG` define. Funcmap: `31fd3360` PORTED, `32b93bc0`
