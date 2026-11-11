@@ -1117,6 +1117,7 @@ March's `X2GUUser.cpp:10297` `== AT_NORMAL`.
   `0 A/B row(s)`.
 - One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH) of X2GUAra / X2DamageManager / X2GUNPC / X2GUUser `.cpp`, `_LIVE` off and on: exit 0,
   0 errors x8; X2GUAra.cpp with `_LIVE` + `_FP` + `_SPECTER`: exit 0, 0 errors.
+- After the commit (`238ddfcc`), the same flagcheck `--range 238ddfcc^..238ddfcc --files` the 8: `files: 8 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `38 deleted line(s)`, 0 non-ASCII, 0 EOL-mismatched, 0 `#else/#endif` without the token, 0 encoding changes; RESULT FAIL only for the `//#define`.
 - No `_DEBUG` define. Full build skipped: no play-test.
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-ara CH1o review` (Opus 5.5 high).
