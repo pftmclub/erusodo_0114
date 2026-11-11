@@ -51,3 +51,18 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 ## Amended by CH0
 
 (CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+
+## Amended by char-ara CHNa (2026-11-11)
+
+- What Ara's CHNa landed and you reuse: `SERV_IRUHADEV_JUNE_CLASS_PATH` (socket-group bound 202, `GetClassLevel` = June). Your own flag carries the Add rows.
+- **Lines 2 / 3** (June table `337a1660` Add block): first job 33 (`337a194c`) / 36 (`337a1950`), second job 123 (`337a1960`) / 126 (`337a1964`).
+- **Stat chart** (June `3254ee40`): 33 / 123 = 2,3,3; 36 / 126 = 3,2,3.
+- **Portraits** (`CX2Data::GetCharacterImageName`, `X2Data.cpp`): a class March lacks needs a new index in all nine positional arrays + the switch (Ara took 55 / 56;
+  take the next free ones after the last landed port). Rows from June `31ee0de0`: `python june2017_re/char_image_rows.py 33:0x37 123:0x38 36:0x3d 126:0x3e` prints file / piece per CIT type
+  (`--check` first: it must reproduce March's Little Devil / Yama Raja rows). Check each piece in the March TET (keys are stored uppercase UTF-16) and stage the June
+  textures it names (Ara's were all June's already except data215 `Texture101_NEW` / `_GRAY`).
+- **Creation-screen texture (the user saw it blank on Ara):** the class name, story text, radar chart and job text are pieces of
+  `DLG_UI_Common_Texture_GUI_character_info_09` (`name_class_<type>_<line>`, `text_class_2_<line>`, `star_graph_class_2_<line>`, `text_class_under_2_<line>`).
+  March's copy differs from June's (`.tga` and `.TET` both differ; CH0c stages it first; `kom.py stage-june --dry-run` 2026-11-11): stage June's `.tga` + `.TET`, pack data057, copy. Ara's March copy showed a
+  Korean placeholder name and empty text / radar for the third line until June's went in.
+- **Stat rows: none.** The user's flat StatTable (2026-11-11) already has every June class id (`statflat.py check`); the per-class rows and the type-fallback log in this kickoff are moot.

@@ -56,3 +56,18 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by char-ara CHNa (2026-11-11)
+
+- What Ara's CHNa landed and you reuse: `SERV_IRUHADEV_JUNE_CLASS_PATH` (socket-group bound 202, `GetClassLevel` = June). Your own flag carries the Elesis rows.
+- **Third line** (`GetThirdLineElesisClassTypeByUnitClassType`, the Ara pattern in `X2Unit.h`): June table `337a1660` Elesis block = basic 8, first job 35 (`337a1900`), second job 125 (`337a1914`).
+- **Stat chart** 35 / 125 = 2,1,1 (MIDDLE, LOW, LOW; June `3254ee40`).
+- **Portraits** (`CX2Data::GetCharacterImageName`, `X2Data.cpp`): a class March lacks needs a new index in all nine positional arrays + the switch (Ara took 55 / 56;
+  take the next free ones after the last landed port). Rows from June `31ee0de0`: `python june2017_re/char_image_rows.py 35:0x3b 125:0x3c` prints file / piece per CIT type
+  (`--check` first: it must reproduce March's Little Devil / Yama Raja rows). Check each piece in the March TET (keys are stored uppercase UTF-16) and stage the June
+  textures it names (Ara's were all June's already except data215 `Texture101_NEW` / `_GRAY`).
+- **Creation-screen texture (the user saw it blank on Ara):** the class name, story text, radar chart and job text are pieces of
+  `DLG_UI_Common_Texture_GUI_character_info_08` (`name_class_<type>_<line>`, `text_class_2_<line>`, `star_graph_class_2_<line>`, `text_class_under_2_<line>`).
+  March's copy differs from June's (`.tga` differs; `kom.py stage-june --dry-run` 2026-11-11): stage June's `.tga` + `.TET`, pack data057, copy. Ara's March copy showed a
+  Korean placeholder name and empty text / radar for the third line until June's went in.
+- **Stat rows: none.** The user's flat StatTable (2026-11-11) already has every June class id (`statflat.py check`); the per-class rows and the type-fallback log in this kickoff are moot.

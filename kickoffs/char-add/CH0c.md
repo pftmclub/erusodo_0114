@@ -59,3 +59,15 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 ## Amended by CH0
 
 (CH0 fills this: the filter with real column numbers, the function / state / skill counts and June addresses, checklist rows, any split.)
+
+## Amended by char-ara CHNa (2026-11-11)
+
+- **Creation-screen texture (the user saw it blank on Ara):** the class name, story text, radar chart and job text are pieces of
+  `DLG_UI_Common_Texture_GUI_character_info_09` (`name_class_<type>_<line>`, `text_class_2_<line>`, `star_graph_class_2_<line>`, `text_class_under_2_<line>`).
+  March's copy differs from June's (`.tga` and `.TET` both differ; `kom.py stage-june --dry-run` 2026-11-11): stage June's `.tga` + `.TET`, pack data057, copy. Ara's March copy showed a
+  Korean placeholder name and empty text / radar for the third line until June's went in.
+- **Lines on the creation screen** go through `GetUnitClassByUnitClassTypeAndLineType` = June `3234b390`, table `337a1660` filled by `3234afb0`; Add block `337a1930`: basic 9
+  (all lines), first job 32 / 33 / 36, second job 122 / 123 / 126 (lines 1 / 2 / 3). March's `GetNewCharacterClassByUnitClassTypeAndLineType` is the function to check.
+- **Stat chart** (June `3254ee40`): 9 = 2,3,2; 32 / 122 = 2,2,2. **Portraits** for 9 / 32 / 122 exist in March (indexes 52-54); check them with
+  `python june2017_re/char_image_rows.py 9:0x34 32:0x35 122:0x36`.
+- **Stat rows: none.** The user's flat StatTable (2026-11-11) already has every June class id (`statflat.py check`); the per-class rows and the type-fallback log in this kickoff are moot.

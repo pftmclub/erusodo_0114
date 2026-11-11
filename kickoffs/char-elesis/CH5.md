@@ -51,3 +51,13 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by char-ara CHNa (2026-11-11)
+
+- **Creation-screen texture (the user saw it blank on Ara):** the class name, story text, radar chart and job text are pieces of
+  `DLG_UI_Common_Texture_GUI_character_info_08` (`name_class_<type>_<line>`, `text_class_2_<line>`, `star_graph_class_2_<line>`, `text_class_under_2_<line>`).
+  March's copy differs from June's (`.tga` differs, `.TET` identical; `kom.py stage-june --dry-run` 2026-11-11): stage June's `.tga` + `.TET`, pack data057, copy. Ara's March copy showed a
+  Korean placeholder name and empty text / radar for the third line until June's went in.
+- **Lines 1 / 2 on the creation screen** go through `GetUnitClassByUnitClassTypeAndLineType` = June `3234b390`, table `337a1660` filled by `3234afb0`; Elesis block
+  `337a18e0`: basic 8 (all lines), first job 29 / 30 / 35, second job 120 / 121 / 125 (lines 1 / 2 / 3). Compare March's `GetFirstLine` / `GetSecondLineElesisClassTypeByUnitClassType`.
+- **Stat chart** (`GetUnitStatInfomationChart`, June `3254ee40`; speed, range, difficulty with LOW 1 / MIDDLE 2 / HIGH 3): 8 / 29 / 120 = 2,1,2; 30 / 121 = 2,2,2. Check March's arms against it.
