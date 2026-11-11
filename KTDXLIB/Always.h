@@ -12261,7 +12261,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Ara ) Phase CH2a - Martial Artist skills ( Tempest Dance, Pulling Pierce, Falling Dragon, Wind Wedge, Shadow Knot,
 //              Gain Force, Shoulder Blow ): defining SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL turns on June's state functions and registrations. The DEBUG flag
 //              logs each equipped skill's state; the CH2d3 review retires it. Revert: comment out the #define ( JUNE_CHAR_ARA_SKILL_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL_DEBUG
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL_DEBUG ) && !defined( SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL )
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL_DEBUG

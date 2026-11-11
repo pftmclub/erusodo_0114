@@ -5,7 +5,7 @@
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-ara CH3a` |
 | Plan doc | `JUNE_CHARACTER_ARA_PHASES.md` (branch `main`) |
 | Depends on | CH2d3 review. One at a time with CH1-CH4: they all edit `X2GUAra.*` |
-| Flag | `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (+ `..._SKILL_DEBUG`) |
+| Flag | `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (+ `..._SKILL_DEBUG`: the CH2d3 review retired it, so CH3a's first edit turns it back on, uncommenting its `//#define` in `KTDXLIB/Always.h` with `bytepatch.py`; amended 2026-11-12) |
 | Log tag | `[JUNE_CHAR]` (`ARA SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
 | Review | none of its own: the CH3d review covers it (its `_DEBUG` define stays on) |
 
