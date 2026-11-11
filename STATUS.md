@@ -105,7 +105,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH1 | **user play-test**: `_LIVE` / `_FP` / `_SPECTER` on, June script + LD / SD motions packed and copied, Enum.lua chain / render fix after run 1, DEPLOY OK md5 0909cda3; then CH1 review | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036, motion koms | `CH1.md`, `CH1-review.md` |
+| CH1 | **review ready**: play-test passed (2026-11-11, all 5 classes `ARA DATA`, 0 KEM / Motion / Ara lua errors); Enum.lua fix + enum gate landed | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036, motion koms | `CH1.md`, `CH1-review.md` |
 | CH5 | blocked (CH1 review): 5 `UnitTemplet` rows + 34 / 124 rows, cut-in table, orb handles | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, `X2GUAra.cpp` cut-ins, `X2UnitViewerUI.*` | `CH5.md` |
 | CHNa | blocked (CH5 review): 34 / 124 load and play (`UC_END`, gauge, switches, stat rows, units) | Opus 5.5 / high, Opus review, user play-test | CH5 review | `X2Unit.h`, `X2SocketItem.cpp`, `X2GageManager.cpp`, `X2GUUser.cpp`, emulator, `StatTable.lua` (user packs) | `CHNa.md` |
 | CHNb | blocked (CHNa review): job change to 34 / 124 (quests 35560-35568, seeds, dialogs) | Opus 5.5 / high, Opus review, user play-test | CHNa review | `FieldQuest.lua`, `Handlers_Quest.cpp`, `X2OfflineClassChangeSeed.h` | `CHNb.md` |

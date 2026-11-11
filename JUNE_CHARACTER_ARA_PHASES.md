@@ -1469,6 +1469,17 @@ merged data036 `Enum.lua` (core-list source) missing June members that June's sc
   Elsword `SKILL_ID.RNSI_A_ERS_ENCHANT_BREAK` / `RNSI_P_ELK_FIGHT_GOD`, Raven `SKILL_ID.RNSI_A_RBM_POINTED_STILETTO` (all three have C++ members),
   Chung `CHUNG_STATE_ID.CSI_CFG_COMBO_XXFRONTZ` (C++ `USI_END + 168`), Aisha `DAMAGE_TRIGGER_TYPE.DTT_AISHA_STICK_ATTACK` (June 17, no C++ member).
   Asked of the user in the CH1 hand-off: fix now, or route.
+
+**Play-test (2026-11-11, second run 12:52-12:58 on md5 0909cda3): user "all test passed".** Load, combos / movement, force power fill,
+berserk with portrait and tail on units 96 / 97 / 99 / 98 / 48; skills not cast (CH2a's).
+- `offline_server.log`: `ARA DATA` for all five classes, each `script ARA_MARTIAL_ARTIST.lua motion MOTION_ARA.X wait_state_change 1`;
+  states 7: 139, 28: 164, 31: 154, 118: 182, 119: 162 (the review checks them against the registrations).
+- `ErrorLog.txt` against `ErrorLog_pre_CH1_ara.txt` / `_pre_CH0b_ara.txt`: `KEM_ERROR` 0 / 0 / 0, `Motion Error` 0 / 0 / 0, `[LUA_SRC]` 7 / 7 / 7,
+  `lua error` 3 / 3 / 3 (TutorSystem, `ChainQuestInfo` `AddGroupChainQuest`, both pre-existing); **no `ARA_MARTIAL_ARTIST` error, no popup.**
+  No missing animation. `offline_packets.log`: `EXCEPTION` 0, `UNHANDLED` only `E_DISABLE_HB_CHECK_REQ` (known).
+- CH0b's routed face lines: `ErrorEnum(433) Anim Frame : 80, Mesh Frame : 81` x21 (`MESH_ARA_BASIC_FACE_SORTED.X` 19, `..._CASH_FACE_BERSERK_SORTED.X`
+  2) remain with June's script and motions: June's own data, `JUNE_BUGS.md` row 603. `ARA_COMBOSHOT.OGG` `result : 47` (CH0b's, existing sound
+  path); `QUEST_11000_ARA_END.GFX` probe (event scene, plays from the `.swf`). Nothing new to route.
   `DEPLOY OK: X2_offline.exe is 26,225,152 B, dated 2026-11-11 12:51:03, md5 0909cda31c6bbad805e34fb4193375fa, equal to X2/US_SERVICE/x2.exe (2026-11-11 12:50:55); built at main d98916f0 + 1 uncommitted code file(s).`
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
