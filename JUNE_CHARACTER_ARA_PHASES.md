@@ -931,6 +931,9 @@ helper sits in its block ). The `_LIVE` probe passes them. Checklist l.178 / 428
   `files: 2 PASS`, `RESULT: PASS`. `Always.h`: the tool cannot evaluate it ( an earlier `#if` ); a pure insertion.
 - `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h KTDXLIB/Always.h`: `RESULT: PASS`. `enumscan --check`: `0 A/B row(s)`.
 - Full build skipped: no play-test.
+- After the commit ( `2a45acf4` ): `flagcheck JUNE_CHAR_ARA_LIVE --range 2a45acf4^..2a45acf4 --files X2Lib/X2GUAra.cpp`: `files: 1 PASS`, `0 deleted, 0 non-ASCII
+  inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: FAIL` only for the `//#define`; `JUNE_CHAR_ARA_CORE
+  --range 2a45acf4^..2a45acf4 --files X2Lib/X2GUUser.h X2Lib/X2GUUser.cpp`: `files: 2 PASS`, same zeros, `RESULT: PASS`.
 
 **For CH1 final:** June's chain table keys come from the script's `ASI_` values; the C++ passes the member, so `Enum.lua` must give the C++ values ( check
 in CH1's play-test with a Little Hsien chain ).
