@@ -2550,6 +2550,10 @@ class CX2GUNPC : public CX2GameUnit
 		bool							m_bNotAffectBlackHole;	/// June +0x8ac5: the NPC's INIT key NOT_AFFECT_BLACKHOLE ( 327a0fa0 @327a5f0b ); a black hole never pulls this NPC ( 31f6eea0 @31f6f0bf, C3i )
 		bool							GetNotAffectBlackHole() const { return m_bNotAffectBlackHole; }
 #endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+#ifdef SERV_IRUHADEV_JUNE_NPC_ESCAPE_FROM_LOCK_ON
+		bool							m_bEscapeFromLockOn;	// char-ara CH2b0: June +0x8fb6, INIT key ESCAPE_FROM_LOCK_ON ( 327a0fa0 @327abb70 )
+		bool							GetEscapeFromLockOn() const { return m_bEscapeFromLockOn; }
+#endif SERV_IRUHADEV_JUNE_NPC_ESCAPE_FROM_LOCK_ON
 #ifdef SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE
 		bool							GetNoFallDownAtState() const { return GetNowStateData().m_bNoFallDownAtState; }	/// June: GetNowStateData() 31e8a990 + 0x401 ( C3i )
 #endif SERV_IRUHADEV_JUNE_NO_FALL_DOWN_AT_STATE

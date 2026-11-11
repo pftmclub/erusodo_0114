@@ -778,7 +778,7 @@ bOnLine, bDroppable )`; March's 7-arg form forwards (index twice, `false`). Clas
 - Ara: `SLockOnSystem::ProcessLockOn` (`3200fa20` @`3200ff98`, March `X2GUAra.cpp:5449`), `ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK` EventProcess (`@32bc204c`,
   `:11298`) and `_FINISH` StateStart (`@32bb70ff`, `:11405`; char-ara CH0 updated the March lines; June has Swallow Assault as a Sakra Devanam 118 skill, Ara CH3a) pass `NULL, &lineIndex` (March seeds `lineIndex = 0`, so its head tests line 0). June also
   calls `CanDown` (all NULL) in `ProcessLockOn`'s candidate loop (`@3200fcad`) and clears a flag when it fails; March's loop has none. June's
-  `ProcessLockOn` is shared with Luciel.
+  `ProcessLockOn` is shared with Luciel. (Ara: CH2b0, `ProcessLockOn` both calls; the Swallow Assault calls ride CH3a)
 - Chung Artillery Strike Ready (`@32bfe8c3`, `X2GUChung.cpp:17152`) and Aisha Hell Drop (`@32cd97ba`, `X2GUArme_VioletMage.cpp:16482`) pass the in
   index and a NULL out index; March's out local is unread, so nothing changes. Aisha's June state always creates `NUI_UFO_AISHA_DROPPER_MEMO` (0x627). (Aisha: CH3a - `June_AVSI_SA_AVP_HELL_DROP_FrameMove`; Lightning Shower's two `CanDown` calls with a NULL out index wait for CH3a2.)
 - June-only helpers with `NULL, &idx`: user landing prediction `32021390` (Add / Luciel / Arme callers; Ara @`32b9402e` in `ASI_DASH_JUMP_COMBO_ALS_ZX` StartFuture `32b93fe0`, Ara CH1g), target-follow prediction `3200eeb0`, line clamp

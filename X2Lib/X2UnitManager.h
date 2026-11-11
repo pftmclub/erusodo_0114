@@ -2952,6 +2952,10 @@ class CX2UnitManager
 			NUI_TARGETING_CHUNG_HEAVY_FIELD         = 2525,
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			// char-ara CH2b0: the raid NPC June's lock-on still targets ( 3200fa20 @3200fb44 )
+			NUI_RAID_RED_DRAGON_PHASE3_2            = 2101,
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 //}}
 //}} robobeg : 2013-02-27

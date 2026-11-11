@@ -587,6 +587,22 @@ inline D3DXVECTOR3 GetDirVecToDegree( D3DXVECTOR3 dirVec )
 	return outDegree;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
+// char-ara CH2b0: June 320701e0, xz distance of vPos_ from the line through vLinePos_ along vLineDir_
+inline float GetDistanceFromDirLineXZ( const D3DXVECTOR3& vLinePos_, const D3DXVECTOR3& vLineDir_, const D3DXVECTOR3& vPos_ )
+{
+	const D3DXVECTOR3 vBackDegree = GetDirVecToDegree( D3DXVECTOR3( 0.f - vLineDir_.x, 0.f, 0.f - vLineDir_.z ) );
+	const D3DXVECTOR3 vToLineDegree = GetDirVecToDegree( D3DXVECTOR3( vLinePos_.x - vPos_.x, 0.f, vLinePos_.z - vPos_.z ) );
+	const float fDeltaX = vPos_.x - vLinePos_.x;
+	const float fDeltaZ = vPos_.z - vLinePos_.z;
+	const float fDistance = sqrtf( fDeltaX * fDeltaX + fDeltaZ * fDeltaZ );
+	float fAngle = -( vBackDegree.y + 180.0 );
+	fAngle = fAngle + vToLineDegree.y;
+	fAngle = fAngle * 0.017453292f;
+	return fabsf( sinf( fAngle ) * fDistance );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
+
 inline bool Pick2DRect( const POINT& ptMouse,
 					   const D3DXVECTOR2& vLeftTop, const D3DXVECTOR2& vRightTop,
 					   const D3DXVECTOR2& vLeftBottom,	const D3DXVECTOR2& vRightBottom )

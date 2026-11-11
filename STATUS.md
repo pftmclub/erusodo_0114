@@ -109,7 +109,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | CHNa | blocked (CH5 review): 34 / 124 load and play (`UC_END`, gauge, switches, stat rows, units) | Opus 5.5 / high, Opus review, user play-test | CH5 review | `X2Unit.h`, `X2SocketItem.cpp`, `X2GageManager.cpp`, `X2GUUser.cpp`, emulator, `StatTable.lua` (user packs) | `CHNa.md` |
 | CHNb | blocked (CHNa review): job change to 34 / 124 (quests 35560-35568, seeds, dialogs) | Opus 5.5 / high, Opus review, user play-test | CHNa review | `FieldQuest.lua`, `Handlers_Quest.cpp`, `X2OfflineClassChangeSeed.h` | `CHNb.md` |
 | CH2a | **done 2026-11-11** (play-test logs clean, 7 skills cast; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3); no review of its own | Sonnet 5.5 / high, user play-test | CH1 review | `X2GUAra.*` | `CH2a.md` |
-| CH2b0 | **ready**: lock-on `ProcessLockOn` `3200fa20`, flag `_LOCKON`; amends char-luciel CH3c20 | Opus 5.5 / high, Opus review | CH1 review | `X2GUAra.*`, `kickoffs/char-luciel/CH3c20.md` | `CH2b0.md` |
+| CH2b0 | **review ready** (done 2026-11-11: June `ProcessLockOn` + `+0x30` + NPC `ESCAPE_FROM_LOCK_ON`, flag `_LOCKON`; probe only, no play-test): `CH2b0-review.md` | Opus 5.5 / high, Opus review | CH1 review | `X2GUAra.*`, `X2GUNPC.*`, `KTDXCommonFunc.h`, `X2UnitManager.h` | `CH2b0.md` |
 | CH2b | blocked (CH2a, CH2b0 review): Little Hsien (28) SA-tier skills | Sonnet 5.5 / high, user play-test | CH2a, CH2b0 review | `X2GUAra.*` | `CH2b.md` |
 | CH2b2 | blocked (CH2b): Little Hsien (28) A-tier skills (CH0 split) | Sonnet 5.5 / high, user play-test | CH2b | `X2GUAra.*` | `CH2b2.md` |
 | CH2c0 | **ready**: add-N-stacks buff path 7at, flag `_STACK` | Opus 5.5 / high, Opus review | CH1 review | `X2GUAra.*`, `X2GageManager.*` | `CH2c0.md` |

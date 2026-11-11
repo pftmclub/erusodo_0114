@@ -12418,3 +12418,25 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              result ( June 32ce9f90 @IsAttackTrigger( 0x11 ) ), which had the bare 17. Revert: comment out the #define.
 #define SERV_IRUHADEV_ENUM_GATE_AISHA_TRIGGER
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June NPC INIT_COMPONENT key ESCAPE_FROM_LOCK_ON ( char-ara CH2b0 ): CX2GUNPC::m_bEscapeFromLockOn ( June +0x8fb6, read in
+//              327a0fa0 @327abb70, cleared by the ctor 32762670 @327633f2 ). June's lock-on target picks skip an NPC that sets it.
+//              Class-agnostic. Revert: comment out the #define.
+#define SERV_IRUHADEV_JUNE_NPC_ESCAPE_FROM_LOCK_ON
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH2b0: June's SLockOnSystem::ProcessLockOn ( 3200fa20 ) whole inside March's, with
+//              the +0x30 facing-line range ( 32b4cf30 ), the xz line distance ( 320701e0 ), June's CanDown shapes ( @3200fcad, @3200ff98 ),
+//              the AT_SPECIAL invincibility test, the raid red dragon exception and the ESCAPE_FROM_LOCK_ON skip.
+//              Revert: comment out the #define ( JUNE_CHAR_ARA_LOCKON ).
+#define SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON ) && ( !defined( SERV_IRUHADEV_JUNE_LINEMAP_CANDOWN_SIGNATURE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_SKILL ) || !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_CORE ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) || !defined( SERV_IRUHADEV_JUNE_NPC_ESCAPE_FROM_LOCK_ON ) || !defined( FIELD_BOSS_RAID ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON needs JUNE_LINEMAP_CANDOWN_SIGNATURE ( 9-arg CanDown ), JUNE_CHAR_EVE_SKILL ( GetIsNowPVPCorrectionGame ), JUNE_CHAR_ARME_CORE ( GetInvincibleByAttackTypeId ), JUNE_ENUM_NAMES, JUNE_NPC_ESCAPE_FROM_LOCK_ON and FIELD_BOSS_RAID
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
+//////////////////////////////////////////////////////////////////////////

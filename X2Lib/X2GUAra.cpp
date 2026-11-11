@@ -8707,6 +8707,120 @@ void CX2GUAra::RemoveBerserkEquipFromViewList( CX2EqipPtr pEquipPtrToRemove, int
 #pragma region SLockOnSystem::ProcessLockOn
 void CX2GUAra::SLockOnSystem::ProcessLockOn( CX2GUAra* myUnit )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
+	// char-ara CH2b0: June 3200fa20
+	int iSize = 0;
+	float fDistance = m_fPveRange * m_fPveRange;
+	vector<CX2GameUnit*> vecAreaUnit;
+	D3DXVECTOR3 pos = myUnit->GetPos();
+	bool bEveryCandidateOverLine = true;	// June [esp+0x17]: any candidate with no line under it blocks the safe-pos update ( JUNE_BUGS )
+
+	for( int i = 0; i < g_pX2Game->GetUnitNum(); ++i )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( i );
+		if( pUnit->GetTeam() == myUnit->GetTeam() )
+			continue;
+
+		if( true == pUnit->GetIsBosRaidNPC() &&
+			( CX2GameUnit::GUT_NPC != pUnit->GetGameUnitType() || false == static_cast<CX2GUNPC*>( pUnit )->IsUnitID( CX2UnitManager::NUI_RAID_RED_DRAGON_PHASE3_2 ) ) )
+			continue;
+
+		// June slot 94 with AT_SPECIAL
+		const bool bInvincible = ( CX2GameUnit::GUT_NPC == pUnit->GetGameUnitType() ) ?
+			static_cast<CX2GUNPC*>( pUnit )->GetInvincibleByAttackTypeId( CX2DamageManager::AT_SPECIAL ) : pUnit->GetInvincible();
+		if( true == bInvincible )
+			continue;
+
+		if( pUnit->GetNowHp() <= 0.f )
+			continue;
+
+		if( pUnit->GetGameUnitType() == CX2GameUnit::GUT_NPC )
+		{
+			CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
+			switch( pNPC->GetNPCTemplet().m_ClassType )
+			{
+			case CX2UnitManager::NCT_THING_TRAP:
+			case CX2UnitManager::NCT_THING_BOX:
+			case CX2UnitManager::NCT_THING_GATE:
+			case CX2UnitManager::NCT_THING_CHECKER:
+				{
+					continue;
+				} break;
+			}
+
+			if( true == pNPC->GetEscapeFromLockOn() )
+				continue;
+		}
+
+		if( NULL != g_pX2Game->GetWorld() && NULL != g_pX2Game->GetWorld()->GetLineMap() &&
+			false == g_pX2Game->GetWorld()->GetLineMap()->CanDown( pUnit->GetPos(), LINE_RADIUS, NULL, NULL, NULL, false, false, true, false ) )
+			bEveryCandidateOverLine = false;
+
+		if( true == g_pX2Game->GetIsNowPVPCorrectionGame() &&
+			m_fFacingLineRange < GetDistanceFromDirLineXZ( myUnit->GetPos(), myUnit->GetDirVector(), pUnit->GetPos() ) )
+			continue;
+
+		// June also tests its XS_PVE_GAME ( 23 ), a state March lacks
+		if ( g_pMain->GetNowStateID() == CX2Main::XS_PVP_GAME )
+			fDistance = m_fPvpRange * m_fPvpRange;
+
+		if( GetDistance3Sq( pos, pUnit->GetPos() ) < fDistance )
+		{
+			vecAreaUnit.push_back( pUnit );
+		}
+	}
+
+	iSize = vecAreaUnit.size();
+
+	if ( 1 < iSize )
+	{
+		int iCount = 0;
+
+		BOOST_FOREACH( CX2GameUnit* pUnit, vecAreaUnit )
+		{
+			if ( m_BeforeTargetUID == pUnit->GetUnitUID() )
+				vecAreaUnit.erase( vecAreaUnit.begin() + iCount );
+
+			++iCount;
+		}
+	}
+
+	iSize = vecAreaUnit.size();
+
+	if ( 0 < iSize )
+	{
+		int iRandValue = myUnit->GetRandomInt() % iSize;
+
+		CX2GameUnit* pUnit = vecAreaUnit.at( iRandValue );
+
+		if ( NULL != pUnit )
+		{
+			m_vDestPos = pUnit->GetPos();
+			m_BeforeTargetUID = pUnit->GetUnitUID();
+
+			if( NULL != g_pX2Game->GetWorld() && NULL != g_pX2Game->GetWorld()->GetLineMap() )
+			{
+				int lineIndex = 0;
+
+				if( g_pX2Game->GetWorld()->GetLineMap()->CanDown( m_vDestPos, LINE_RADIUS, NULL, NULL, &lineIndex, false, false, true, false ) == true )
+				{
+					const CKTDGLineMap::LineData* pLineData = g_pX2Game->GetWorld()->GetLineMap()->GetLineData( lineIndex );
+					if( NULL != pLineData )
+					{
+						if( pLineData->lineType == CKTDGLineMap::LT_NORMAL && pLineData->bEnable == true && true == bEveryCandidateOverLine )
+							SetSafePos( m_vDestPos );
+					}
+				}
+			}
+
+			m_bLockOnUnit = true;
+		}
+	}
+	else
+	{
+		m_bLockOnUnit = false;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
 	int iSize = 0;
 	float fDistance = m_fPveRange * m_fPveRange;
 	vector<CX2GameUnit*> vecAreaUnit;
@@ -8806,6 +8920,7 @@ void CX2GUAra::SLockOnSystem::ProcessLockOn( CX2GUAra* myUnit )
 	{
 		m_bLockOnUnit = false;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
 }
 #pragma endregion 
 

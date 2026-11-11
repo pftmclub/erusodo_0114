@@ -1608,6 +1608,47 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (`Always.h:12252`, defined 
 
 **Play-test (2026-11-11, run 13:44:49-13:51 on md5 7a99c94e; user asked for the logs, on-screen cool time / MP not reported).** Unit 96: `ARA SKILL equip` 27220 / 27029 / 27030 / 27031 ( bank A slots 0-3, states 49 / 51 / 53 / 55 ), 27032 / 27033 / 27201 ( bank B slots 0 / 1 / 2, states 59 / 61 / 63 ). Casts seen: Pulling Pierce x4, Tempest Dance x2, Falling Dragon x5, Wind Wedge x2, Shadow Knot x1 ( weapon mesh hit, Stiff and Final effect sets ), Gain Force ( intake and normal damage effects hit ), Shoulder Blow ( memo effect set and impact ). ErrorLog: `KEM_ERROR` 0, `Motion Error` 0; only the unrelated `AddGroupChainQuest` and TutorSystem lines. `NUM use` lines: none ( only `JUNE_SKILL LOAD` carries the tag ). Not played: the hyper casts and the base ids 27000-27004 / 27200 / 27201 as A-bank skills ( the CH2d3 review or CH6 ).
 
+### CH2b0 - Done (2026-11-11)
+
+**What landed** (Opus 5.5; Ghidra read-only; flags `SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON` and `SERV_IRUHADEV_JUNE_NPC_ESCAPE_FROM_LOCK_ON`, both defined):
+- **`CX2GUAra::SLockOnSystem::ProcessLockOn`** (`X2GUAra.cpp`, ~:8710): June `3200fa20` whole under `_LOCKON`, March in `#else`. June's loop order:
+  team; `GetIsBosRaidNPC` unless the NPC is `NUI_RAID_RED_DRAGON_PHASE3_2` (`32757e60( 0x835 )` = `IsUnitID`); slot 94 `GetInvincible( AT_SPECIAL )`
+  (NPC `GetInvincibleByAttackTypeId`, Aisha's); `GetNowHp` (June inlines March's); NPC class GATE / BOX / TRAP / CHECKER; NPC `GetEscapeFromLockOn`;
+  the candidate `CanDown( pos, LINE_RADIUS, NULL, NULL, NULL, false, false, true, false )` (`@3200fcad`) that clears `bEveryCandidateOverLine`;
+  `GetIsNowPVPCorrectionGame()` (`322cc1a0`) -> skip when `m_fFacingLineRange < GetDistanceFromDirLineXZ( owner pos, owner GetDirVector, pos )`;
+  the PvP range in `XS_PVP_GAME` (June also tests its state 23 `XS_PVE_GAME`, which March lacks; March's 23 is `XS_ARCADE_ROOM`, so it is not
+  tested); the March erase / pick; the final `CanDown( dest, LINE_RADIUS, NULL, NULL, &lineIndex, false, false, true, false )` (`@3200ff98`), with
+  the safe position written only when the line is `LT_NORMAL`, enabled and the loop flag held.
+- **`SLockOnSystem::m_fFacingLineRange`** (`X2GUAra.h`): June's `+0x30` (`32b4cf30`), 99999.0 (`33441c60`), `Get/SetFacingLineRange`. June's
+  Swallow Assault Ready (`32b9b3c0`) rewrites it with the same value before `ProcessLockOn`; CH3a calls the setter.
+- **`GetDistanceFromDirLineXZ`** (`KTDXLIB/KTDXCommonFunc.h`, after `GetDirVecToDegree`): June `320701e0`, traced from the disassembly (Ghidra's
+  decompile is wrong): `| sin( ( GetDirVecToDegree( P1 - P3 ).y - ( GetDirVecToDegree( -dir ).y + 180.0 ) ) * 0.017453292f ) * xz|P3 - P1| |`, the
+  xz distance from the owner's facing line. Its other callers (`32295cc0`, Elesis `32b7ad80`) widen its `#if` when ported.
+- **NPC key `ESCAPE_FROM_LOCK_ON`** (`X2GUNPC.h` / `.cpp`): June `+0x8fb6`, read in `327a0fa0 @327abb70`, cleared by the ctor (`@327633f2`);
+  `m_bEscapeFromLockOn` / `GetEscapeFromLockOn`. 17 June NPC scripts set it (ERDA_MID_*, Raid_Buff1, ...).
+- **Enum**: `NUI_RAID_RED_DRAGON_PHASE3_2 = 2101` in `X2UnitManager.h` under `SERV_IRUHADEV_JUNE_ENUM_NAMES` (June `Enum.src.lua:4079`).
+- **Plan correction**: the landing helper `32bc0420` is Specter of Thunder's (CH2d), as CH0 found; not ported here.
+- **char-luciel CH3c20 amended to "hoist only"**: June's `ProcessLockOn` is one function shared by Ara and Lu/Ciel (callers `32b07a40`, `32b15290`), so
+  its body now lives once, here; CH3c20 moves the struct out of `CX2GUAra` without transcribing it again.
+- funcmap rows `Char Ara CH2b0` (5); `JUNE_BUGS.md` 604 (one off-line enemy anywhere blocks the safe-pos update, kept verbatim); checklist 7ac marked.
+
+**Routed (scope rule).** The other June readers of the NPC byte (`CX2Game` picks `322d0f70` ... `322dadd0`, the stand-in at `X2Game.cpp:16010`,
+NPC `32771b80` / `32773cd0` / `32774750`; Elesis `32b7ad80` comes with char-elesis): backlog Stage 2 bullet "NPC `ESCAPE_FROM_LOCK_ON` in the other
+lock-on picks". `MODS.md` (its `+0x8fb6` "not identified" line) is updated at Z.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ARA_LOCKON --worktree --with JUNE_NPC_ESCAPE_FROM_LOCK_ON` (7 code files): 2 PASS (`X2GUAra.cpp` +115, `.h` +10), 1 PASS~
+  (`KTDXCommonFunc.h`, one blank line before the block), 1 DEFINE, 3 OTHER (`X2GUNPC.*` = the NPC flag, `X2UnitManager.h` = `JUNE_ENUM_NAMES`), 0 deleted,
+  `RESULT: PASS`. `flagcheck JUNE_NPC_ESCAPE_FROM_LOCK_ON`: 2 PASS, 1 ERROR = the `Always.h` guard evaluation (turning the NPC flag off alone trips
+  `_LOCKON`'s `#error`, as intended; same class as CH1's). `flagcheck JUNE_ENUM_NAMES --files X2UnitManager.h`: PASS.
+- `junediverge.py --check` the six code files: `allow-listed: 4`, `RESULT: PASS`. `enumscan.py --check X2GUAra.cpp X2GUNPC.cpp`: 0 A/B rows.
+- Probes (`/c /Zs /EHsc`): `X2GUAra.cpp` 0 errors, `X2GUNPC.cpp` 0 errors, and a probe that `#error`s unless both flags are defined and uses
+  `GetDistanceFromDirLineXZ` and the new enum: 0 errors.
+- Full build skipped: no play-test (the callers are Swallow Assault's Ready `:17529` and Attack `:17741` states; CH2b / CH3a's play-test exercises them).
+
+**How to see it in game** (CH3a): Swallow Assault picks a random enemy within 1200 (dungeon), re-picks while force power lasts; with an
+`ESCAPE_FROM_LOCK_ON` NPC (e.g. a raid buff totem) in range, it is never picked. No log line of its own.
+
 ## Phase CH3 - Skills: second jobs (118, 119, 124), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows); one Opus review at CH3d (covers CH3a-CH3d). Sub-tag `SKILL`.

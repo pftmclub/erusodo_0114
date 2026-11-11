@@ -251,6 +251,11 @@ the rule (`JUNE_ENGINE_REMAINDER_PHASES.md` "Scope audit (2026-10-20)"):
   Every unit; find the June data that reaches them first (funcmap rows "Char CH4b").
   (char-rena CH1o, 2026-11-09: slot 0x1e8 now exists, under Rena's `_LIVE`, as the empty `CX2GameUnit::ProcessAttackResultPassive` with its three
   call sites; `32011b80` becomes `CX2GUUser`'s override of it, and Rena's override already calls `CX2GUUser::ProcessAttackResultPassive` first.)
+- **NPC `ESCAPE_FROM_LOCK_ON` in the other lock-on picks** (char-ara CH2b0, 2026-11-11). CH2b0 identified the NPC byte `+0x8fb6` as the INIT key
+  `ESCAPE_FROM_LOCK_ON` (`327a0fa0 @327abb70`; `CX2GUNPC::GetEscapeFromLockOn`, flag `SERV_IRUHADEV_JUNE_NPC_ESCAPE_FROM_LOCK_ON`; 17 June NPC scripts) and
+  wired only Ara's `ProcessLockOn`. Its other June readers skip such an NPC too: `CX2Game` target picks `322d0f70`, `322d1240`, `322d4a10`, `322d7670`,
+  `322daa10`, `322dadd0` (March `GetLockOnNearstTarget*`, stand-in comment `X2Game.cpp:16010`; `MODS.md` "not identified"), NPC `32771b80`, `32773cd0`,
+  `32774750`; Elesis `32b7ad80` comes with char-elesis. Port each reader's test (funcmap row `327a0fa0 @327abb70`).
 
 ### Stage 3: skill system core (skill tree engine + skill slots)
 

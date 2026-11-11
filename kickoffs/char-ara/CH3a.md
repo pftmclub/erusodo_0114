@@ -69,3 +69,8 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 
 The CH1 play-test did not chain a skill, so the `SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED` check moves here: on unit 98 (118, Fullmoon Slash 27402 learned)
 the hand-off has the user chain Pulling Pierce and cast it alone; the chained cast plays faster (June `320506f0` @32051bef, `m_fNowSkillPassiveRate`).
+
+## Amended by CH2b0 (2026-11-11)
+
+June's `ASI_SA_ALH_SWALLOW_ASSAULT_READY` StateStart (`32b9b3c0`) writes the lock-on's `+0x30` with 99999.0 (`33441c60`) before its ranges: call
+`m_sLockOnSystemPtr->SetFacingLineRange( 99999.f )` there (CH2b0 added the member; `ProcessLockOn` is June's since CH2b0).

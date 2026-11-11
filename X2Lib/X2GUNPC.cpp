@@ -2496,6 +2496,9 @@ void CX2GUNPC::CommonConstructor()
 #ifdef SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
 	m_bNotAffectBlackHole = false;	/// June's ctor 32762c60 zeroes +0x8ac4..+0x8ac7 ( this is +0x8ac5 ) with one dword store
 #endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+#ifdef SERV_IRUHADEV_JUNE_NPC_ESCAPE_FROM_LOCK_ON
+	m_bEscapeFromLockOn = false;	// char-ara CH2b0: June ctor 32762670 @327633f2
+#endif SERV_IRUHADEV_JUNE_NPC_ESCAPE_FROM_LOCK_ON
 	m_bEnableEventProcess		= true;
 	m_bIsActiveMonster			= true;
 	m_AddRotateDegree			= D3DXVECTOR3(0,0,0);
@@ -4536,6 +4539,9 @@ void CX2GUNPC::InitComponent()
 		/// Its one reader is the black-hole pull ( CEffect::OnFrameMove_BlackHoleData 31f6eea0 @31f6f0bf ). 36 June NPC scripts set it.
 		LUA_GET_VALUE( m_LuaManager, "NOT_AFFECT_BLACKHOLE",	m_bNotAffectBlackHole,	false	);
 #endif SERV_IRUHADEV_JUNE_NOT_AFFECT_BLACKHOLE
+#ifdef SERV_IRUHADEV_JUNE_NPC_ESCAPE_FROM_LOCK_ON
+		LUA_GET_VALUE( m_LuaManager, "ESCAPE_FROM_LOCK_ON",	m_bEscapeFromLockOn,	false	);	// char-ara CH2b0: June 327a0fa0 @327abb70
+#endif SERV_IRUHADEV_JUNE_NPC_ESCAPE_FROM_LOCK_ON
 
         LUA_GET_VALUE( m_LuaManager, "SKY_DIE",				    m_bSkyDie,			    false	);
 		LUA_GET_VALUE( m_LuaManager, "DEFENCE_RATE",			m_DefenceRate,			0		);

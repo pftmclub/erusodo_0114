@@ -466,6 +466,9 @@ public:
 		D3DXVECTOR3	m_vSafePos;			/// 최근 이동한 가장 안전한 위치
 		UidType		m_BeforeTargetUID;	/// 이전에 타겟된 유닉의 UID
 		
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
+		float		m_fFacingLineRange;	// char-ara CH2b0: June +0x30, max xz distance from the owner's facing line in a PvP / PvE game
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
 		SLockOnSystem() : m_bLockOnUnit( false ), m_fPvpRange( 0.f ), m_fPveRange( 0.f ), m_BeforeTargetUID( -1 )
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
         , m_uRefCount(0)
@@ -473,6 +476,9 @@ public:
 		{
 			INIT_VECTOR3( m_vDestPos,	0.f, 0.f, 0.f );
 			INIT_VECTOR3( m_vSafePos,	0.f, 0.f, 0.f );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
+			m_fFacingLineRange = 99999.f;	// char-ara CH2b0: June 32b4cf30 ( 33441c60 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
 		}
 
 	public:
@@ -492,6 +498,10 @@ public:
 		
 		D3DXVECTOR3 GetSafePos() { return m_vSafePos; }
 		void		SetSafePos( D3DXVECTOR3 vPos_ ) { m_vSafePos = vPos_; }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
+		float	GetFacingLineRange() const { return m_fFacingLineRange; }	// char-ara CH2b0: Swallow Assault Ready resets it ( 32b9b3c0 )
+		void	SetFacingLineRange( float fRange_ ) { m_fFacingLineRange = fRange_; }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
 
 		void ProcessLockOn( CX2GUAra* myUnit );
 
