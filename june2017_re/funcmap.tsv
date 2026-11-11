@@ -10102,3 +10102,14 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32bd0960	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_CreateState	PORTED	Char Ara CH2d: new, under _SKILL: the registration helper ( callbacks as June's thunks )
 31fc9570	CX2GUAra::ClearCustomRenderState	PORTED	Char Ara CH2d: new, under _SKILL: colour alpha 1, custom render state 0, outline alpha 1, blend off ( Raven names the same four stores )
 31e4c4c0	CX2GUAra::SetSpecterOfStormEffectSetScale	PORTED	Char Ara CH2d: new, under _SKILL: June inlines SetEffectScale( size, true, memo ) in the Storm FrameMove / finish FrameMove; March spelled out as SetEffectScale then x m_vMemoScale
+32bcf400	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_CreateState	PORTED	Char Ara CH2dx: new, under _SKILL: up-aim state on 0x14e ( FrameMoveFuture, FrameMove, EventProcess ); June's script has no such table ( JUNE_BUGS 610 )
+32bcf450	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_CreateState	PORTED	Char Ara CH2dx: new, under _SKILL: down-aim state on 0x14f, shares the up state's frame moves
+32bc9f50	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_CreateState	PORTED	Char Ara CH2dx: new, under _SKILL: 27036's finish on the finish id 0x131 with table ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH, init = base finish's 32b94bc0
+32bc67f0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_FrameMoveFuture	PORTED	Char Ara CH2dx: new, under _SKILL: aim arrow rotate by the future facing, both degree states
+32bab500	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_FrameMove	PORTED	Char Ara CH2dx: new, under _SKILL: hold time down; aim +-100/s by GetNowStateID ( up / down ), clamped to [0, SA_SCOPE_ABS_Y]
+32ba5b50	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_EventProcess	PORTED	Char Ara CH2dx: new, under _SKILL: hold over / key released -> finish, Down -> 0x14f, the skill-end cancel block
+32ba5e90	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_EventProcess	PORTED	Char Ara CH2dx: new, under _SKILL: mirror of 32ba5b50 ( Up -> 0x14e )
+32ba7c90	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_StateStartFuture	PORTED	Char Ara CH2dx: new, under _SKILL: CommonStateStartFuture, then the protractor ring and aim arrow particles destroyed
+32ba61d0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMoveFuture	PORTED	Char Ara CH2dx: new, under _SKILL: future dirDegree.z ( +0x7e0c ) = aim degree
+32bc0e30	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMove	PORTED	Char Ara CH2dx: new, under _SKILL: base finish 32bbdae0 + now dirDegree.z ( +0x80ac ) = aim past 0.4 s + SetRotateBone( Bip01, (-1,0,-1), (-1,0,aim) ) before the damage ( JUNE_BUGS 611 )
+32ba61f0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_EventProcess	PORTED	Char Ara CH2dx: new, under _SKILL: animation end -> landing 0x132, no line test

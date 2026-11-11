@@ -76,3 +76,9 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
   `CX2DamageEffect::CEffect::ScaleDamageByRate` ( June `32bb09f0` ), `CreateStoneProtractorAimArrow`, `SetStoneProtractorAimArrowRotate`, `GetMpScaledPowerRate`, `SetSpecterOfStormEffectSetScale` exist; the
   degree and ultimate states call them. The second skill switch ( `InitAquiredActiveSkillState` ) has no Storm case in June: nothing to add there.
 - Restraints Specter's second-switch case ( 27022 / 27041 ) is CH2d's; the Sever state of 27024 ( `ASI_SA_ALS_SEVER` ) is yours.
+
+## Amended by CH2dx (2026-11-11)
+
+- **Moved to CH2dx (done there):** the enhanced Storm's ( 27036 ) degree states and ultimate finish: `32bc9f50` `32bcf400` `32bcf450` `32ba7c90` `32ba61d0` `32bc0e30` `32ba61f0` `32bab500` `32bc67f0` `32ba5b50` `32ba5e90` ( 11 rows, class map col 7 now `CH2dx` ). 27036's case is complete; this phase has **20 functions** left: Sever, Suppression Specter, Veritable Pandemonium ( + finish ) and their registrations.
+- **Chain stand-in.** CH2dx refuses a chain step into an unregistered state ( `IsStateRegistered`, in `CanUseSpecialAttack`'s chain block ): Restraints -> Shadow Knot -> Sever. Registering Sever ( `32bcea30` ) here makes that chain run through; test it ( slot Restraints, press its key three times: Restraints, Shadow Knot, Sever ) and look for `[JUNE_CHAR] ARA SKILL state <Sever id>` with no `BLANK`. Keep the guard: CH3's chain states ( Low Brandish, Turbulent Wave, Void Break ) still rely on it.
+- The CH2dx debug line `[JUNE_CHAR] ARA SKILL state %d skill %d` ( every skill state entered; `BLANK` marks an unported one ) stays on with `_SKILL_DEBUG` until the CH2d3 review.

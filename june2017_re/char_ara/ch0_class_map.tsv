@@ -431,10 +431,10 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32ba5840	state-fn	ASI_COMBO_ALD_XXdownXXXX.EventProcess	-	new	ASI_COMBO_ALD_XXdownXXXX_EventProcess	CH1f	1 states	y
 32ba5870	state-fn	ASI_SA_ALH_LINK_FLOWER.EventProcess	-	new	ASI_SA_ALH_LINK_FLOWER_EventProcess	CH2b	1 states	n
 32ba5ab0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM.Start	-	new	ASI_SA_ALS_SPECTER_OF_STORM_StateStart	CH2d	1 states	n
-32ba5b50	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_DEGREE.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_EventProcess	CH2d2	1 states	n
-32ba5e90	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_EventProcess	CH2d2	1 states	n
-32ba61d0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.FrameMoveFuture	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMoveFuture	CH2d2	1 states	y
-32ba61f0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_EventProcess	CH2d2	1 states	y
+32ba5b50	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_DEGREE.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_EventProcess	CH2dx	1 states	n
+32ba5e90	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_EventProcess	CH2dx	1 states	n
+32ba61d0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.FrameMoveFuture	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMoveFuture	CH2dx	1 states	y
+32ba61f0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_EventProcess	CH2dx	1 states	y
 32ba6220	helper	-	-	new	ASI_SA_ALS_SPECTER_OF_STORM_LANDING_EventProcess	CH2d	CH0 Opus: ASI_SA_ALS_SPECTER_OF_STORM_LANDING EventProcess (thunk 32bd6a10 stored by its setup helper 32bc9fc0; skill 27021 / 27036); name: named (high): thunk 32bd6a10 is stored at [state+0x48] by the registration helper 32bc9fc0 (table name ASI_SA_ALS_SPECTER_OF_STORM_LANDING); on-ground check -> StateChange JUMP_DOWN / 0xd, then CommonEventProcess; col 7 says CH1o, belongs to CH2d	y
 32ba6270	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes a16058773353568b	n
 32ba62c0	helper	called by 32babba0 32bad670 32bc9c70 32bcfaa0	-	new	MarkNowSkillFPGainReady	CH1k	name: named (low): walks the FP-gain table (+0x9858, 0x18-byte entries) and sets flag byte +1 on sub-entries matching skill +0x9844 / hit id +0x9840; called by 32babba0 and the Specter of Storm states	y
@@ -460,7 +460,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32ba7b50	override 0x744	?	- (name unsettled)	new	RestoreGageSnapshot	CH1q	gauge snapshot (vslot 0x744); name: named (high): vslot 0x744: IsMyUnit -> SetForcePower(+0x92bc) then base 3204da60; same name as Chung 32bf4600 / Rena	y
 32ba7b80	helper	called by 32ba7ec0	-	new	GetPassiveSkillRate	CH1j	name: named (low): float(passiveId): skill level > 0 -> templet ability 0xb0 (1.0 if <= 0), else 1.0; only caller 32ba7ec0	y
 32ba7c20	state-fn	ASI_SA_ALS_SPECTER_OF_STORM.StartFuture	-	new	ASI_SA_ALS_SPECTER_OF_STORM_StateStartFuture	CH2d	1 states	y
-32ba7c90	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.StartFuture	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_StateStartFuture	CH2d2	1 states	y
+32ba7c90	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.StartFuture	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_StateStartFuture	CH2dx	1 states	y
 32ba7cf0	helper	called by 32bce2e0	-	new	UpdateOpenMindBuffByForcePower	CH1j	name: named (medium): CommonFrameMove: P_ASD_OPEN_MIND 0x6b17 learned; FP full -> buff on / FP empty -> off through 3229ea50 and vslot 0x23c	y
 32ba7da0	helper	called by 32bce2e0	-	new	UpdateValorDevotionTimer	CH1j	name: named (medium): CommonFrameMove: float +0x9868 -= elapsed; P_ASD_VALOR_DEVOTION 0x6b18: FP full -> timer = ability 0xa9, FP empty and timer > 0 -> 0 and vslot 0x23c(0x6b18,0,1)	y
 32ba7e40	helper	called by 32bd6b10	-	new	ProcessAsuraOpenMindOnHit	CH4a	name: named (low): attack-result delegate (thunk 32bd6b10): DamageData target present, not 0x1a0 base, own debuff count (IS_DEBUF) != 0 or 3226fce0 -> vslot 0x23c(0x6b1b = P_ASR_OPEN_MIND)	y
@@ -510,7 +510,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32bab370	state-fn	ASI_SA_ASD_LINK_FLOWER_SLASH_1st.StartFuture ASI_SA_ASD_LINK_FLOWER_SLASH_2nd.StartFuture	-	new	ASI_SA_ASD_LINK_FLOWER_SLASH_1st_StateStartFuture	CH3a2	2 states	y
 32bab3c0	state-fn	ASI_SA_ASD_LINK_FLOWER_SLASH_LAST.StartFuture	-	new	ASI_SA_ASD_LINK_FLOWER_SLASH_LAST_StateStartFuture	CH3a2	1 states	y
 32bab410	override 0x628	CanRidingState	X2GUAra.h:445 virtual bool CanRidingState();	inside	-	CH1i	base 31fd7930	y
-32bab500	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE.FrameMove ASI_SA_ALS_SPECTER_OF_STORM_DEGREE.FrameMove	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_FrameMove	CH2d2	2 states	n
+32bab500	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE.FrameMove ASI_SA_ALS_SPECTER_OF_STORM_DEGREE.FrameMove	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_FrameMove	CH2dx	2 states	n
 32bab5c0	helper	-	-	new	UpForcePowerByReadySkillGain	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpForcePower; was CH1j; name: named (low): gain = 32bab090, consume 32bab110, if byte +0x983c == 0: UpForcePower inline (MP conversion, passive 0x6b19) and set +0x983c = 1; callers 32babba0 / Specter states / CommonStateStartFuture	y
 32bab6b0	helper	reached only through callers with no phased caller 32bab7c0	-	new	TakeSkillFPGainByHit	CH1o	phase unsettled: read it; name: named (low): FP-gain table: finds the entry of skill arg2 whose sub-entry key == arg3 and flag set, returns gain and clears the id; caller 32bab780	y
 32bab780	helper	-	-	new	UpForcePowerBySkillHit	CH1q	CH0 Opus: force-power map (ch0_fp.tsv) row CX2GUAra::UpForcePower; was CH1h; name: named (medium): attack-result: IsMyUnit and byte +0x983c == 0 -> gain from 32bab6b0(DD skill +0x5c4 or +0x590, key +0x5e8) -> UpForcePower inline; caller AttackResultByType 32bceca0	y
@@ -690,7 +690,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32bc0b10	state-fn	ASI_COMBO_ALD_XXdownXXX.FrameMove	-	new	ASI_COMBO_ALD_XXdownXXX_FrameMove	CH1f	1 states	y
 32bc0b60	state-fn	ASI_COMBO_ALD_XXdownXXXX.FrameMove	-	new	ASI_COMBO_ALD_XXdownXXXX_FrameMove	CH1f	1 states	y
 32bc0bb0	helper	called by 32bc66d0 32bc6720 32bc6770	-	new	CreateDashJumpXZBullet	CH1g	name: named (medium): FlushMp then DamageEffect_ASR_Dash_Jump_XZ_pr... at Bip01_R/L_Finger2, else CreateNotEnoughMPEffect; callers DASH_JUMP_COMBO_ASR_XZ / XZZ FrameMove	y
-32bc0e30	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.FrameMove	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMove	CH2d2	1 states	y
+32bc0e30	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH.FrameMove	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMove	CH2dx	1 states	y
 32bc12e0	helper	called by 32bc67f0 32bc6820	-	new	SetStoneProtractorAimArrowFade	CH2d	name: named (low): (bHide): sets the particle sequence of handle +0x18 (alpha 0 or fade value) and its child; callers 32bc67f0 / 32bc6820 (Specter of Storm)	y
 32bc13c0	helper	called by 32bce2e0	-	new	CreateTranscendenceDamageEffectByTimer	CH1j	name: named (low): CommonFrameMove: P_AYR_OPEN_MIND learned and counter +0x986c != 0 and 1/3 s since +0x9870 -> counter--, DamageEffect_P_AYR_TRANCENDENCE_ at Bip01	y
 32bc1530	override 0x4c8	?	- (name unsettled)	new	ApplyEffectSetScaleBySkill	CH4b	vslot 0x4c8 override; name: named (low): vslot 0x4c8 hook after an EffectSet play: RELATE_SKILL (+0x38) == A_ASR_RAID_UPGRADE 0x6a6a and ability 0x52 -> effect set scale +0x70/+0x74/+0x78 and byte +0x7c = 0	y
@@ -731,7 +731,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32bc66d0	state-fn	ASI_DASH_JUMP_COMBO_ASR_XZ.FrameMove	-	new	ASI_DASH_JUMP_COMBO_ASR_XZ_FrameMove	CH1g	1 states	n
 32bc6720	state-fn	ASI_DASH_JUMP_COMBO_ASR_XZZ.FrameMove ASI_DASH_JUMP_COMBO_ASR_XZZZ.FrameMove	-	new	ASI_DASH_JUMP_COMBO_ASR_XZZ_FrameMove	CH1g	2 states	y
 32bc6770	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d90518784333568b	n
-32bc67f0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE.FrameMoveFuture ASI_SA_ALS_SPECTER_OF_STORM_DEGREE.FrameMoveFuture	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_FrameMoveFuture	CH2d2	2 states	y
+32bc67f0	state-fn	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE.FrameMoveFuture ASI_SA_ALS_SPECTER_OF_STORM_DEGREE.FrameMoveFuture	-	new	ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_FrameMoveFuture	CH2dx	2 states	y
 32bc6820	helper	called by 32bc9c70	-	new	CreateStoneProtractorAimArrow	CH2d	name: named (medium): particle sequence "Ara_StomeProtractor_AimArrow" at Bip01 (+ 31cf9570 CreateNewParticle), then 32bc12e0; caller SA_ALS_SPECTER_OF_STORM state 32bc9c70	y
 32bc6aa0	helper	called by 32bc8380	-	new	CleanupSkillFPGainTable	CH1j	name: named (medium): FP-gain table: erases sub-entries with flag +1 set or negative id, then empty entries; caller CommonStateStartFuture 32bc8380	y
 32bc6bf0	helper	-	X2GUAra.h:441 CX2GUAra constructor	inside	-	CH1h	ctor: CX2GUAra::CX2GUAra (vtable store 32bc6c4d; its only caller 32bc79c9 is the unit factory 32bc7970, outside the class map)	y
@@ -781,7 +781,7 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32bc9810	state-fn	ASI_SA_AYR_RESTRICTION_ENERGY_END.FrameMove	-	new	ASI_SA_AYR_RESTRICTION_ENERGY_END_FrameMove	CH3b	1 states	y
 32bc9a60	helper	-	-	new	ProcessFullHyperHitReward	CH1q	CH0 Opus: June-only berserk per-hit reward roll (FULL_HYPER_MODE_ADVANTAGE_* keys), called from AttackResultByType; name: named (medium): berserk per-hit roll (ch0_fp.tsv): counter +0x9700 vs FULL_HYPER_MODE_ADVANTAGE_COUNT, socket rate x spec A, then 32bc5bc0; caller AttackResultByType 32bceca0	y
 32bc9c70	state-fn	ASI_SA_ALS_SPECTER_OF_STORM.EventProcess	-	new	ASI_SA_ALS_SPECTER_OF_STORM_EventProcess	CH2d	1 states	y
-32bc9f50	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d2	called by 32bd1f54	y
+32bc9f50	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2dx	called by 32bd1f54	y
 32bc9fc0	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_LANDING	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1f76	y
 32bca010	override 0x780	?	- (name unsettled)	new	DamageExceptionClassHook	CH4a	the 0x780 hook (base 33093ad0); name: named (high): vslot 0x780; X2GUUser.h:3144 names it (base 33093ad0, (DamageData*, float& fPowerRate)); body fills the FP-gain table (27415 / 27417 blocks)	y
 32bca580	registrar	InitState body (112 registrations + the hyper row id 23 + the berserk row id 155; called by the wrapper 32bcf4a0 @32bcf53e)	X2GUAra.cpp InitStateCommon	inside	-	CH1m		y
@@ -804,8 +804,8 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32bcebc0	helper	state registration helper of ASI_SA_AA_FIRE_FOX	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH3c	called by 32bd1fd9 32bd1fe2	y
 32bcec30	helper	state registration helper of ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d2	called by 32bd4b4d	y
 32bceca0	override 0x4e0	AttackResultByType	X2GUAra.h:679 virtual void AttackResultByType( CX2DamageManager::DamageData &pDamageData );	inside	-	CH1h	base 320144d0	y
-32bcf400	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_DEGREE	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d2	called by 32bd1f10	y
-32bcf450	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d2	called by 32bd1f32	y
+32bcf400	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_DEGREE	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2dx	called by 32bd1f10	y
+32bcf450	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2dx	called by 32bd1f32	y
 32bcf4a0	override 0x7a4 + registrar	InitState	X2GUAra.h:454 virtual void InitState();	inside	-	CH1m	base 31aa1d30	y
 32bcfaa0	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	- (no virtual of that name in X2GUAra.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
 32bd0900	helper	state registration helper of ASI_SA_AA_SPECTER_OF_THUNDER	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1d7d 32bd1d86	y

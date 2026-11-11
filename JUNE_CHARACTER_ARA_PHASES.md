@@ -2047,6 +2047,38 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's, no new define; its
 
 **Play-test hand-off.** Unit 135 `LSpecter99` ( Ara, class 34, lv 99, not transcended; backups `db_backup/els_db_20261111_215943_pre_ch2d_pre_addchar.sql`, `_220003_pre_sql.sql` ). Slotted for you, A bank: slot 0 Specter of Storm ( 27021 ), slot 1 Restraints Specter ( 27022 ), slot 2 Specter of Thunder ( 27023 ). Do **not** learn the enhanced ids ( 27036 / 27041 / 27042 ): 27036 needs CH2d2. Dev console ( END key ): `/invin 0`, then `/stage 1`. Each skill twice, enemies in front, force power on the bar ( Storm spends up to 4, Restraints up to 3, Thunder none ): a cool time on the slot after the first cast, the MP bar drops, a second cast during the cool time is refused. **Specter of Thunder:** with an enemy in range the unit fades out, appears on the enemy's line and fades back in ( turn to face it ); with no enemy in range it is a plain cast with walk / dash cancels. **Restraints Specter:** the ring damage at the hip ( more force power, bigger damage ), then the finish state; every enemy the ring hit takes a second hit. **Specter of Storm:** an effect set that grows with the force power ( more force power, bigger effect and damage ), the damage 100 in front of the foot, the finish effect, then the landing. Then `python tools/logs.py --grep "ARA SKILL"` ( three `equip` lines ) and say "check logs"; I read ErrorLog for `KEM_ERROR` / `Motion Error` and the effect names ( `EffectSet_SI_SA_ALS_SPECTER_OF_STORM`, `..._FINISH`, `DamageEffect_RESTRAINTS_SPECTER_Damage`, `DamageEffect_SpecterOfStorm_Damage`, the Thunder states ).
 
+### CH2dx - Done (2026-11-11)
+
+Opus 5.5. Fix of CH2d's play-test ( unit 135 `LSpecter99`: Specter of Thunder worked, Specter of Storm and Restraints Specter left the unit stuck ). Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( CH2a's, no new define; `_SKILL_DEBUG` stays on until the CH2d3 review ). No review of its own ( CH2d3's covers it ).
+
+**Cause ( both ).** A state id that nothing registered is entered as a blank state ( no callbacks, no Lua table ), which never leaves ( `X2GUUser.cpp` commit at the future-state switch ).
+- **Storm 27036.** The game swaps the slotted base ids for the learned enhanced ones ( save rows 27036 / 27041 / 27042 at level 1 ). 27036's held EventProcess ( June `32bc9c70` ) changes to `ASI_SA_ALS_SPECTER_OF_STORM_FINISH`, which only the base 27021 case registered ( its `SetEquippedSkillLevel` block even created the entry blank with `m_StateList[]` ). Log: the Storm damage at 22:13:05.7, then nothing until the warp at 22:13:30.
+- **Restraints 27041.** Not Restraints itself: June's `CHAIN_SYSTEM` row ( combo `ASI_COMBO_ALS_XXXLoopZ` -> Restraints -> Shadow Knot -> Sever, `ARA_MARTIAL_ARTIST.lua` l.211-230 ) let the second press of the slot run Shadow Knot ( learned 27033: `ARA_Shadow_Knot_Start` at 22:13:54.851, the weapon hit, the catch box at 22:13:56.2 ) and the third press, in the catch state's FP-cancel window, start **Sever** ( `ASI_SA_ALS_SEVER`, CH2d2's, unregistered ). Shadow Knot's end effect never appears in the log, so the catch state was left for Sever, not for its end state. A chained skill that is learned but not slotted also skips the cool time ( `fCoolTimeLeft = 0` ), which is why the "second cast during the cool time" was not refused.
+
+**Fixes.**
+
+| June | `CX2GUAra::` | What it does |
+|---|---|---|
+| `32bd09d0` @`32bd1ef3`-@`32bd1f65` | 27036 case | registers the up / down aim states ( 0x14e / 0x14f ) and the ultimate finish on the finish id 0x131, June's order |
+| `32bcf400` `32bcf450` `32bc9f50` | `..._DEGREE_` / `_ULTIMATE_DEGREE_` / `_ULTIMATE_FINISH_CreateState` | tables `ASI_SA_ALS_SPECTER_OF_STORM_DEGREE` ( absent from June's script: JUNE_BUGS 610 ), `_ULTIMATE_DEGREE`, `_ULTIMATE_FINISH`; the finish's init is the base finish's `32b94bc0` |
+| `32bc67f0` `32bab500` | `..._DEGREE_FrameMoveFuture`, `_FrameMove` ( both aim states ) | aim arrow follows the facing; hold time down; aim +-100 a second by the now state, kept within 0 and `SA_SCOPE_ABS_Y` |
+| `32ba5b50` `32ba5e90` | `..._DEGREE_` / `_ULTIMATE_DEGREE_EventProcess` | hold over or key released -> finish; Down / Up -> the other aim state; the skill-end cancel block ( same shape as `32ba19b0` ) |
+| `32ba7c90` `32ba61d0` `32bc0e30` `32ba61f0` | `..._ULTIMATE_FINISH_StateStartFuture`, `_FrameMoveFuture`, `_FrameMove`, `_EventProcess` | ring and arrow particles go; future / now `dirDegree.z` = aim ( now past 0.4 s ); base finish effect set and damage, Bip01 tilted by `SetRotateBone( (-1,0,-1), (-1,0,aim) )` first ( JUNE_BUGS 611 ); animation end -> landing |
+| - ( stand-in ) | `IsStateRegistered`, guard in `CanUseSpecialAttack`'s chain block | a chain step into an unregistered or blank state is refused ( `ARA SKILL chain refused` ); covers Sever until CH2d2 and CH3's chain states until theirs |
+| - ( debug ) | `CommonStateStartFuture` | `[JUNE_CHAR] ARA SKILL state <id> skill <id>` for every skill state entered, `BLANK` for any state entered with no callback |
+
+Scope: the degree states and ultimate finish were CH2d2's; 27036 is unplayable without them ( the held key reaches both aim states ), so they moved here ( 11 class-map rows, col 7 now `CH2dx`; `CH2d2.md` amended: 20 functions left ). Sever stays CH2d2's behind the guard. `funcmap.tsv` rows `Char Ara CH2dx` ( 11 ); `MODS.md` "Stage 7 Ara, CH2dx"; `JUNE_BUGS.md` 610 / 611.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ARA_SKILL --with ..._SKILL_DEBUG --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `2 PASS ( +202 -1, +12 ), 0 FAIL`, `1 deleted line(s)` ( the 27036 case comment, which named the states as CH2d2's ), `0 non-ASCII inserted`, `0 EOL-mismatched`, `0 #else/#endif without the flag token`, `0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: `0 A/B row(s) remain`. `luabind.py check Ara_Martial_Artist`: `0 unbound`, ENUM `0 missing`, STATE `37 compared, 0 wrong`, `RESULT: PASS`. `/Zs` probe `X2GUAra.cpp`: 0 errors.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,264,064 B, 2026-11-11 22:42:14`; `DEPLOY OK: X2_offline.exe is 26,264,064 B, dated 2026-11-11 22:42:21, md5 a2e8854a38f54e2888cf78a84c1887fb, equal to X2/US_SERVICE/x2.exe (2026-11-11 22:42:14); built at main 6236adac + 2 uncommitted code file(s).`
+- `EXESTR OK: 2 of 2 found in X2_offline.exe, 26264064 B, md5 a2e8854a` ( narrow `ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH`, `ASI_SA_ALS_SPECTER_OF_STORM_DEGREE` ); `EXESTR OK: 2 of 2` ( wide `[JUNE_CHAR] ARA SKILL chain refused: ...`, `[JUNE_CHAR] ARA SKILL state %d skill %d%s` ).
+
+**Save.** New unit 136 `LSpecBase99` ( class 34, lv 99, `createchar.py`; backup `db_backup/els_db_20261111_223500_pre_createchar.sql` ): base ids only, A0 Specter of Storm 27021, A1 Restraints Specter 27022, A2 Specter of Thunder 27023 ( also learned: Shadow Knot 27004, Sever 27024 ). Unit 135 keeps the enhanced ids ( A0 27036, A1 27041, A2 27042 ).
+
+**Play-test hand-off.** In the chat of 2026-11-11 ( both units, each skill twice, the held Storm with Up / Down, the Restraints key pressed three times ). Lines to read: `[JUNE_CHAR] ARA SKILL state` ( no `BLANK` ), `ARA SKILL chain refused`, the Storm finish / landing effects, 0 `EXCEPTION`.
+
 ### CH5 - Done (2026-11-11)
 
 Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI` (`Always.h` end; `#error` without `_ARA_LIVE` and `JUNE_UNIT_VIEWER_EFFECT_PLAYER`). Review kickoff `kickoffs/char-ara/CH5-review.md` written.

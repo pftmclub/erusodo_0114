@@ -672,6 +672,18 @@ protected:
 	void			ASI_SA_ALS_SPECTER_OF_STORM_LANDING_StateStart();	// char-ara CH2d: June 32bbdeb0
 	void			ASI_SA_ALS_SPECTER_OF_STORM_LANDING_EventProcess();	// char-ara CH2d: June 32ba27a0
 	void			ASI_SA_ALS_SPECTER_OF_STORM_LANDING_UPGRADE_EventProcess();	// char-ara CH2d: June 32ba6220
+	void			ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2dx: June 32bcf400
+	void			ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2dx: June 32bcf450
+	void			ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2dx: June 32bc9f50
+	void			ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_FrameMoveFuture();	// char-ara CH2dx: June 32bc67f0 ( both degree states )
+	void			ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_FrameMove();	// char-ara CH2dx: June 32bab500 ( both degree states )
+	void			ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_EventProcess();	// char-ara CH2dx: June 32ba5b50
+	void			ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_EventProcess();	// char-ara CH2dx: June 32ba5e90
+	void			ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_StateStartFuture();	// char-ara CH2dx: June 32ba7c90
+	void			ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMoveFuture();	// char-ara CH2dx: June 32ba61d0
+	void			ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMove();	// char-ara CH2dx: June 32bc0e30
+	void			ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_EventProcess();	// char-ara CH2dx: June 32ba61f0
+	bool			IsStateRegistered( const int iStateID_ ) const;	// char-ara CH2dx: stand-in, not June ( the state exists with a callback )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2

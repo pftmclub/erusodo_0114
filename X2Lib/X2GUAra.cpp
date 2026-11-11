@@ -4224,10 +4224,20 @@ void CX2GUAra::InitStateByUnitClass()
 				}
 			} break;
 
-		case CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_STORM_UPGRADE:	// char-ara CH2d: June 32bd09d0 case 27036 ( the degree states and the ultimate finish are CH2d2's )
+		case CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_STORM_UPGRADE:	// char-ara CH2d: June 32bd09d0 case 27036 ( CH2dx adds the degree states and the ultimate finish )
 			{
 				ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_CreateState( normalStateData, normalStateData.stateID );
 				ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_CreateState( hyperStateData, hyperStateData.stateID );
+
+				{	// char-ara CH2dx: June @32bd1ef3-@32bd1f65, the two degree states and the ultimate finish on the finish id
+					UserUnitStateData subStateData;
+					ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_CreateState( subStateData, ASI_SA_ALS_SPECTER_OF_STORM_DEGREE );
+					m_StateList[subStateData.stateID] = subStateData;
+					ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_CreateState( subStateData, ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE );
+					m_StateList[subStateData.stateID] = subStateData;
+					ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_CreateState( subStateData, ASI_SA_ALS_SPECTER_OF_STORM_FINISH );
+					m_StateList[subStateData.stateID] = subStateData;
+				}
 
 				UserUnitStateData subStateData;
 				ASI_SA_ALS_SPECTER_OF_STORM_LANDING_UPGRADE_CreateState( subStateData, ASI_SA_ALS_SPECTER_OF_STORM_LANDING );
@@ -5543,6 +5553,10 @@ void CX2GUAra::CommonStateStartFuture()
 	KTDXPROFILE();
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	// char-ara CH1j: June 32bc8380 ( the base runs last: June jumps to it )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL_DEBUG
+	if ( 0 < GetFutureStateSkillID() || false == IsStateRegistered( GetFutureStateID() ) )	// char-ara CH2dx: each skill state entered, and any state entered blank
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARA SKILL state %d skill %d%s", GetFutureStateID(), GetFutureStateSkillID(), ( true == IsStateRegistered( GetFutureStateID() ) ) ? L"" : L" BLANK" );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL_DEBUG
 	m_fNowSkillPassiveRate = GetNowSkillPassiveRate();
 
 	if ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_ASD_VALOR_DEVOTION, 0, true )
@@ -6320,6 +6334,19 @@ bool CX2GUAra::CanUseSpecialAttack( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eAc
 				pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillIdChained, true );
 				if ( NULL == pSkillTemplet )
 					return false;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+				{	// char-ara CH2dx: stand-in: a chain step into a state no phase has registered yet ( Sever, CH2d2 ) is refused, not entered blank
+					const int iMatchedStateID = ( GetRemainHyperModeTime() <= 0.f ) ? ptrInfo->GetStateIdMatchedToChain() : ptrInfo->GetHyperStateIdMatchedToChain();
+					const int iChainedStateID = ( 0 != iMatchedStateID ) ? iMatchedStateID : ptrInfo->GetStateIdChained();
+					if ( false == IsStateRegistered( iChainedStateID ) )
+					{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL_DEBUG
+						CX2OfflineLog::Server( L"[JUNE_CHAR] ARA SKILL chain refused: skill %d state %d not registered", static_cast<int>( eSkillIdChained ), iChainedStateID );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL_DEBUG
+						return false;
+					}
+				}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 
 				pSkillSlotData = accessUserSkillTree.GetSkillSlot( pSkillTemplet->m_eID );
 				if ( NULL != pSkillSlotData )
@@ -11249,6 +11276,180 @@ void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_UPGRADE_EventProcess()
 	CommonEventProcess();
 }
 
+namespace _CONST_ARA_CH2DX_
+{
+	const double	ULTIMATE_FINISH_AIM_TIME			= 0.4f;		// June 32bc0e30 @32bc1085 ( the float 0.4 widened )
+	const double	AIM_DEGREE_SPEED					= 100.0;	// June 32bab500 @32bab559 ( -100.0 at @32bab561 )
+}
+using namespace _CONST_ARA_CH2DX_;
+
+// char-ara CH2dx: stand-in, not June ( June registers every state; a state no phase has ported is missing or blank here )
+bool CX2GUAra::IsStateRegistered( const int iStateID_ ) const
+{
+	UserUnitStateDataMap::const_iterator mit = m_StateList.find( static_cast<UserUnitStateDataMap::key_type>( iStateID_ ) );
+	if ( m_StateList.end() == mit )
+		return false;
+
+	return ( NULL != mit->second.OnEventProcess || NULL != mit->second.OnFrameMove || NULL != mit->second.StateStart || NULL != mit->second.StateStartFuture );
+}
+
+// char-ara CH2dx: June helper 32bcf400 ( June's script has no table of this name: JUNE_BUGS )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_SPECTER_OF_STORM_DEGREE", stateData_.stateID );
+	stateData_.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_FrameMoveFuture );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_EventProcess );
+}
+
+// char-ara CH2dx: June helper 32bcf450
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE", stateData_.stateID );
+	stateData_.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_FrameMoveFuture );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_EventProcess );
+}
+
+// char-ara CH2dx: June helper 32bc9f50 ( registered on the finish id; the init is the base finish's )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_FINISH_Init );
+	stateData_.StateStartFuture	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_StateStartFuture );
+	stateData_.OnFrameMoveFuture	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMoveFuture );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_EventProcess );
+}
+
+// char-ara CH2dx: June 32bc67f0 ( the aim arrow turns with the facing )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_FrameMoveFuture()
+{
+	SetStoneProtractorAimArrowRotate( m_FrameDataFuture.syncData.bIsRight );
+	CommonFrameMoveFuture();
+}
+
+// char-ara CH2dx: June 32bab500 ( the hold time runs down; the aim degree rises 100 a second in the up state, falls in the down state, kept within 0 and the aim range )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_FrameMove()
+{
+	if ( 0.f < m_StoneProtractorAim.m_fHoldTime )
+		m_StoneProtractorAim.m_fHoldTime -= m_fElapsedTime;
+
+	const float fAimStep = static_cast<float>( m_fElapsedTime * ( ( ASI_SA_ALS_SPECTER_OF_STORM_DEGREE == GetNowStateID() ) ? AIM_DEGREE_SPEED : -AIM_DEGREE_SPEED ) );
+	m_StoneProtractorAim.m_fAimDegree = fAimStep + m_StoneProtractorAim.m_fAimDegree;
+	if ( m_StoneProtractorAim.m_fScopeY < m_StoneProtractorAim.m_fAimDegree )
+		m_StoneProtractorAim.m_fAimDegree = m_StoneProtractorAim.m_fScopeY;
+	else if ( 0.f > m_StoneProtractorAim.m_fAimDegree )
+		m_StoneProtractorAim.m_fAimDegree = 0.f;
+
+	CommonFrameMove();
+}
+
+// char-ara CH2dx: June 32ba5b50 ( hold time over or the key let go -> finish; Down -> the down state; the cancels as the plain skill state )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_DEGREE_EventProcess()
+{
+	m_kSkillSlotKey.FollowSlotSwap();
+
+	if ( false == ( 0.f < m_StoneProtractorAim.m_fHoldTime ) )
+		StateChange( ASI_SA_ALS_SPECTER_OF_STORM_FINISH );
+	else if ( true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) )
+		StateChange( ASI_SA_ALS_SPECTER_OF_STORM_FINISH );
+	else if ( true == m_InputData.pureDown )
+		StateChange( ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE );
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH2dx: June 32ba5e90 ( the down state: as the up state, Up -> the up state )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE_EventProcess()
+{
+	m_kSkillSlotKey.FollowSlotSwap();
+
+	if ( false == ( 0.f < m_StoneProtractorAim.m_fHoldTime ) )
+		StateChange( ASI_SA_ALS_SPECTER_OF_STORM_FINISH );
+	else if ( true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) )
+		StateChange( ASI_SA_ALS_SPECTER_OF_STORM_FINISH );
+	else if ( true == m_InputData.pureUp )
+		StateChange( ASI_SA_ALS_SPECTER_OF_STORM_DEGREE );
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH2dx: June 32ba7c90 ( the ring and aim arrow particles go )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_StateStartFuture()
+{
+	CommonStateStartFuture();
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_StoneProtractorAim.m_hAimArrowSeq );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_StoneProtractorAim.m_hProtractor );
+	m_StoneProtractorAim.m_hAimArrowSeq = INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_StoneProtractorAim.m_hProtractor = INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_StoneProtractorAim.m_hAimArrowParticle = INVALID_PARTICLE_HANDLE;
+}
+
+// char-ara CH2dx: June 32ba61d0 ( the future body takes the aim degree )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMoveFuture()
+{
+	CommonFrameMoveFuture();
+	m_FrameDataFuture.unitCondition.dirDegree.z = m_StoneProtractorAim.m_fAimDegree;
+}
+
+// char-ara CH2dx: June 32bc0e30 ( the base finish's effect set and damage; past 0.4 s the body takes the aim degree, the damage tilts Bip01 by it )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( STORM_EFFECT_TIME ) )
+	{
+		const CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SI_SA_ALS_SPECTER_OF_STORM_FINISH", this, NULL, IsHyperState(), GetPowerRate() );
+		SetSpecterOfStormEffectSetScale( hEffectSet );
+		m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+	}
+	else if ( ULTIMATE_FINISH_AIM_TIME < m_pXSkinAnim->GetNowAnimationTime() )
+	{
+		m_FrameDataNow.unitCondition.dirDegree.z = m_StoneProtractorAim.m_fAimDegree;
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( STORM_FINISH_DAMAGE_TIME ) && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		// June @32bc10da: the degree vector's x is -1 too ( JUNE_BUGS )
+		SetRotateBone( true, L"Bip01", D3DXVECTOR3( -1.f, 0.f, -1.f ), D3DXVECTOR3( -1.f, 0.f, m_StoneProtractorAim.m_fAimDegree ) );
+
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_SpecterOfStorm_Finish_Damage", GetPowerRate(),
+			GetBonePos( L"Bip01" ), GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+		{
+			pDamageEffect->SetScale( D3DXVECTOR3( m_fSpecterOfStormSize, m_fSpecterOfStormSize, m_fSpecterOfStormSize ) );
+			m_hSpecterOfStormFinishEffect = pDamageEffect->GetHandle();
+			pDamageEffect->ScaleDamageByRate( m_fSpecterOfStormRangeRate );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH2dx: June 32ba61f0 ( animation end -> the landing, on a line or not )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChange( ASI_SA_ALS_SPECTER_OF_STORM_LANDING );
+
+	CommonEventProcess();
+}
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 // char-ara CH1q: June 32bc5bc0 ( HP by a share of the max HP, one force power, the kill effect set; the handle is not kept )
 void CX2GUAra::GainFullHyperKillReward()

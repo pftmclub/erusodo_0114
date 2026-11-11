@@ -6501,6 +6501,13 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's; no new define). Plan `JUNE_CHA
 - **Save.** New unit 135 `LSpecter99` ( class 34, lv 99 ): slot A0 Specter of Storm 27021, A1 Restraints Specter 27022, A2 Specter of Thunder 27023 ( backups `db_backup/els_db_20261111_215943_pre_ch2d_pre_addchar.sql`, `_220003_pre_sql.sql` ).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( every Ara skill falls back to the Wind Wedge default ), `python tools/build.py --deploy`.
 
+## Stage 7 Ara, CH2dx: Specter of Storm / Restraints Specter stuck after the cast (2026-11-11)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's; no new define). Plan `JUNE_CHARACTER_ARA_PHASES.md` "CH2dx - Done".
+- **Enhanced Specter of Storm ( 27036 ).** Its case now registers June's other three states ( June `32bd09d0` @`32bd1ef3`-@`32bd1f65` ): the up / down aim states ( hold Up / Down while the skill key is held: the aim degree moves 100 a second within 0 and `SA_SCOPE_ABS_Y`, the protractor arrow turns ) and the ultimate finish on the finish id ( the base finish's effect set and damage, the body and Bip01 tilted by the aim ). Before, the held cast ended in an unregistered finish state and the unit stood still.
+- **Chain stand-in ( not June ).** A skill-chain step whose state no phase has registered yet ( Restraints Specter -> Shadow Knot -> **Sever**, Sever is CH2d2's ) is refused instead of entering a blank state. The guard sits in `CanUseSpecialAttack`'s chain block; it stops mattering once every chain state is ported.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL`, `python tools/build.py --deploy`.
+
 ## BUG_REPORT 2026-11-08, items 1-5 (fixed 2026-11-11)
 
 **1. Underground Waterway boss room froze the player (data only).** The merged data037 `NPCTemplet.lua` kept March's row for `NUI_BENDERS_NASOD` (`LUA_FILE_NAME = "Benders_Nasword.lua"`), while June's dungeon cutscene NPC (`Event_NPC_Benders_Elder.lua`) starts state `BENDERS_NASOD_START`, which only June's `BENDERS_NASOD.LUA` has. The boss stayed hidden in its start state and `STOP_AT_START_STATE` kept input off. The row now carries June's `MOTION` / `LUA_FILE_NAME` (the old values are in the comment above it); June's `Motion_Benders_Nasword.xet` staged into data006 (March's copy under `kom_backup_stage_june\20261111_105336`). `luabind.py check BENDERS_NASOD Event_NPC_Benders_Elder` PASS, `npc_anim_census.py` 0 missing anims. Revert: restore the two values in the row, `luasrc.py refresh data037 NPCTemplet.lua`, repack data037.
