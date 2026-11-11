@@ -12398,3 +12398,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED ( CX2GUUser::m_fNowSkillPassiveRate and its reader )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: enum-gate-fix F1 (ENUM_GATE_FIX_PHASES.md). Registers June's DAMAGE_TRIGGER_TYPE DTT_AISHA_STICK_ATTACK = 17 in
+//              CX2DamageManager (Arme_VioletMage.lua's ATTACK_TRIGGER_TYPE) and names it at its one reader, Open Mind's attack
+//              result ( June 32ce9f90 @IsAttackTrigger( 0x11 ) ), which had the bare 17. Revert: comment out the #define.
+#define SERV_IRUHADEV_ENUM_GATE_AISHA_TRIGGER
+//////////////////////////////////////////////////////////////////////////

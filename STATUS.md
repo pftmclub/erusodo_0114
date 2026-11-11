@@ -138,7 +138,7 @@ Plan `ENUM_GATE_FIX_PHASES.md` · branch `main` · log tag none (`ErrorLog.txt` 
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| F1 | **ready**: 5 silent nils (Elsword x2, Raven, Chung `CSI_CFG_COMBO_XXFRONTZ`, Aisha `DTT_AISHA_STICK_ATTACK`); runs beside char-ara | Opus 5.5 / high, user play-test | - | data036 `Enum.lua`, `X2DamageManager.h`, Always.h | `F1.md` |
+| F1 | **play-test**: 5 Enum.lua members + `DTT_AISHA_STICK_ATTACK` (reader already ported, literal named); gate PASS, PACK/COPY data036, DEPLOY OK 5d3ea84f; user play-tests | Opus 5.5 / high, user play-test | - | data036 `Enum.lua`, `X2DamageManager.h`, `X2GUArme_VioletMage.cpp`, Always.h | `F1.md` |
 
 ## char-elesis - June character port, Stage 7: Elesis (CH-N reused from Ara)
 Plan `JUNE_CHARACTER_ELESIS_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `ELESIS <sub>`: `DATA`, `CORE`, `WOS`, `CLASS`, `SUMMON`, `SKILL`, `PASSIVE`, `BLOOD`, `UI`, `NUM`) · flags `SERV_IRUHADEV_JUNE_CHAR_ELESIS_*` (`_CORE`, `_LIVE`, `_WOS`, `_CLASS`, `_SUMMON`, `_SKILL`, `_TRANSCEND`, `_PASSIVE`, `_BLOOD`, `_UI`, + `_DEBUG`), class-generic `SERV_IRUHADEV_JUNE_CLASS_PATH` (Ara's CHNa) · kickoffs `kickoffs/char-elesis/` · backlog Stage 7 · created 2026-11-11.

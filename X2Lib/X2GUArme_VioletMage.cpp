@@ -36487,7 +36487,11 @@ void CX2GUArme_VioletMage::OpenMindAttackResult( const CX2DamageManager::DamageD
 		return;
 
 	CX2GameUnit* pDefender = damageData_.optrDefenderGameUnit.GetObservable();
+#ifdef SERV_IRUHADEV_ENUM_GATE_AISHA_TRIGGER
+	if( NULL == pDefender || false == damageData_.IsAttackTrigger( CX2DamageManager::DTT_AISHA_STICK_ATTACK ) )	// enum-gate-fix F1
+#else SERV_IRUHADEV_ENUM_GATE_AISHA_TRIGGER
 	if( NULL == pDefender || false == damageData_.IsAttackTrigger( 17 ) )
+#endif SERV_IRUHADEV_ENUM_GATE_AISHA_TRIGGER
 		return;
 
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
