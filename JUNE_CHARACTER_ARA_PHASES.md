@@ -1028,6 +1028,9 @@ bounding, 1 wait-state-change, 1 vslot 0x600 thunk). Nothing new: no `X2GUUser` 
 - Checklist marked `(Ara: CH1n)`: L263 (no check here), L329 (memo exit), L440 (head), L444 (both stores dropped), L738 (types 14-16). Funcmap rows `Ara CH1n` (3).
   No JUNE_BUGS row. Full build skipped: no play-test.
 
+- After the commit ( `044fcdd5` ): `flagcheck JUNE_CHAR_ARA_LIVE --with JUNE_CHAR_ARA_CORE --range 044fcdd5^..044fcdd5 --files` ( the three files ): `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 1 ERROR`,
+  same zeros, `RESULT: FAIL` only for the `//#define` ( ERROR = `Always.h`, as above ); `JUNE_ENUM_NAMES --range 044fcdd5^..044fcdd5 --files X2Lib/X2SkillTree.h`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`.
+
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-ara CH1n review` (Opus 5.5 high).
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
