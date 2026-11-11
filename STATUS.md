@@ -232,7 +232,7 @@ Decision answered 2026-11-11 (plan "Open decisions"): 1 stat rows for all seven 
 
 | Phase | State | Model / effort | Depends | Touches | Kickoff |
 |---|---|---|---|---|---|
-| G1 | **done, play-test owed** (2026-11-11): 12 June guides staged, `LevelUpEvent.lua` rows for the six, luabind PASS, data034 / data036 packed + copied; units 111-134 in the save; "check logs" after the test | Sonnet 5.5 / high, user play-test | - | data034 dialogs, data036 `LevelUpEvent.lua` | `G1.md` |
+| G1 | **done** (2026-11-11, play-test passed: 6 x 1st, 18 x 2nd, 0 EXCEPTION); only row 607 (black description text, June verbatim) is open for the user to decide | Sonnet 5.5 / high | - | data034 dialogs, data036 `LevelUpEvent.lua` | `G1.md` |
 
 ## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.
