@@ -19,7 +19,7 @@ cat kickoffs/char-luciel/CH3c20.md
 
 ## Task
 
-Port June's `SLockOnSystem::ProcessLockOn` `3200fa20` whole inside March's (`X2GUAra.cpp:5366-5476`, declared `X2GUAra.h`), March's in `#else`:
+Port June's `SLockOnSystem::ProcessLockOn` `3200fa20` whole inside March's (`X2GUAra.cpp:8677-8780` since CH1, was `:5366-5476`; declared `X2GUAra.h`), March's in `#else`:
 June's `CanDown( pos, r, pOutPos, NULL, &lineIndex, ... )` shape at `@3200ff98` (the 9-arg overload from world W1f), the candidate-loop `CanDown` at
 `@3200fcad` that clears a flag when it fails (March has none), and the Ara landing helper `32bc0420` (new, plain name). June's function is shared with
 Lu/Ciel (callers `32b07a40`, `32b15290`): keep it where March has it and amend `kickoffs/char-luciel/CH3c20.md` to "hoist only: Ara's CH2b0 holds
@@ -44,3 +44,7 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 
 - **Checklist rows: 3** (`awk -F'\t' '$5 ~ /(^| )CH2b0( |$)/' june2017_re/char_ara/ch0_checklist_rows.tsv`; col 5 may name several phases): L775-L778 SLockOnSystem::ProcessLockOn 3200fa20 @3200ff98 (March X2GUA; L775-L777 ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK EventProcess (@32bc204c, M; L782 Ara landing helper 32bc0420 ( NULL, &idx ).
 - The plan's "landing helper `32bc0420`" is Specter of Thunder's (CH2d), not the lock-on's: this phase is `3200fa20` and its candidate-loop `CanDown` only. `SLockOnSystem::CreateLockOnSystem` `32b4cf30`: June's struct has one extra float at `+0x30`: add the member here. The first caller is Swallow Assault in CH3a (a 118 skill in June), so CH2b0 must land before CH3a (it does).
+
+## Amended by the CH1 review (2026-11-11)
+
+`ProcessLockOn` moved to `X2GUAra.cpp:8677-8780` (CH1a-CH1q2 insertions); callers `:17149`, `:17361`. Nothing else in this kickoff changed.

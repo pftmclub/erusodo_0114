@@ -21,7 +21,7 @@ python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md "CH5 - Done (2026-11-09
 Do "Phase CH5": Ara's 5 `UnitTemplet.lua` rows (7, 28, 118, 31, 119) become June's (`june_src_fixed/data036_kom/UnitTemplet.src.lua` L1158 / L1184 /
 L1210 / L1342 / L1368) and June's rows for 34 (L1397) and 124 (L1423) are added (core-list BOM source; `luasrc.py refresh` after; every other row stays;
 if CH0 found the templet loader refuses a class >= `UC_END`, the two new rows wait for CHNa); the cut-in table `X2GUAra.cpp:36-60` and the InitState
-index switch `:280-310` replaced by June's names and layout (7t cut-in `.gfx` names, `HQ_Cutin_ASD / AYR / ASR_Transcendence`); 7ah; the lobby orb
+index switch `:280-310` (line refs moved: see "Amended by the CH1 review") replaced by June's names and layout (7t cut-in `.gfx` names, `HQ_Cutin_ASD / AYR / ASR_Transcendence`); 7ah; the lobby orb
 handles `m_hSeqEnergyBullet1-3` (`X2UnitViewerUI.h:337-339`, `.cpp:80-82`, `:2465-2501`, checklist 7e l.368) **retired** (Open decision 2, answered 2026-11-10: under the unit viewer's flag, March's code in `#else`, as the other eight classes). Pack
 data036 and copy it. Done gate: a select-screen pass of all nine March characters with no new error; Ara's skill and hyper cut-ins play June's art;
 the second-job names show June's strings; the lobby shows Little Devil's orb once (`ALD_LobbyWait`).
@@ -51,3 +51,12 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - **CH-N (class path) rows: 6** (`awk -F'\t' '$7 ~ /(^| )CH5( |$)/' june2017_re/char_ara/ch0_classn.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
 - `ch0_unittemplet_ara.tsv`: 7 / 28 / 31 add `m_fLobbyRotationY` only (1 / 15 / 10); 118 / 119 add `m_fLobbyRotationY` (1 / 15), `m_HyperCutIn` (`HQ_Cutin_ASD_Transcendence` / `_AYR_`) and `m_BerserkCutIn` (`HQ_Cutin_ASD_1_Transcendence` / `_AYR_1_`); 34 (24 keys, `STR_ID_31537` / `_31539`, `Motion_Ara_LS.x`, `Movie_Create_Ara_AA.avi`) and 124 (27 keys, `STR_ID_31538` / `_31540`, `m_GameMotion2 = Motion_Ara_AA.x`) are new. All string ids are in `general.ess`. The templet loader has no `UC_END` refusal: the 34 / 124 rows go in here (CHNa needs them).
 - The live data033 already holds June's `Motion_ARA_Common.x` and `Motion_ARA_Lobby.x`; they lack `ALD_lobbyWait` (June: `ALD_LobbyWait`; played at `X2SquareUnit.cpp:1079`, `X2UnitViewerUI.cpp:2173`) and `AYR_LobbyReadyAtcion` (`X2UnitViewerUI.cpp:5260`): class 31 / 119 lobby idles. Check whether those sites are live and what June plays there; fix in this phase (Ara's lobby).
+
+## Amended by the CH1 review (2026-11-11)
+
+Line refs moved since CH0 (CH1a-CH1q2). Cut-in table: `X2GUAra.cpp:89-118` (`s_SkillCutInSet`, April Fools' set at `:117`). InitState index switch:
+the live `_LIVE` copy is `:538-556` (June byte table `32bcfa1c`; 0 / 1 / 2 / 3, Asura = 3); March's `#else` copy is `:599-629`. The orb handles
+`m_hSeqEnergyBullet1-3` are used at `X2UnitViewerUI.cpp:80-82`, `228-230`, `588-625`, `1192-1208`, `1538-1550`, `2158-2169` and `2459-2501`: retire every
+use, not only the three ranges named above (`grep -n m_hSeqEnergyBullet X2Lib/X2UnitViewerUI.cpp`). The CH1 play-test logged 6 x `ErrorEnum(135)`
+`HQ_CUTIN_ARA_RAGE.DDS.GFX` (a `.gfx` probe that falls back; the cut-in played): it belongs to this phase's 7t cut-in `.gfx` names. Check it is gone or
+explained after the table change.

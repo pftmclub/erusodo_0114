@@ -1482,6 +1482,50 @@ berserk with portrait and tail on units 96 / 97 / 99 / 98 / 48; skills not cast 
   path); `QUEST_11000_ARA_END.GFX` probe (event scene, plays from the `.swf`). Nothing new to route.
   `DEPLOY OK: X2_offline.exe is 26,225,152 B, dated 2026-11-11 12:51:03, md5 0909cda31c6bbad805e34fb4193375fa, equal to X2/US_SERVICE/x2.exe (2026-11-11 12:50:55); built at main d98916f0 + 1 uncommitted code file(s).`
 
+### CH1 - Review (2026-11-11): pass, no code change
+
+Opus 5.5. **Verdict: passes.** No source change; no debug define to retire (the `ARA FP` lines went with the CH1q review). `ARA DATA` stays, as Rena's did.
+- **Deploy unit:** data036 `Ara_Martial_Artist.lua` 250,093 B sha1 `8b6d21d6...` header `1B 4B 4C 81` = the `june_adopt_20261111_121334.tsv` row (ljconv); no
+  `.src.lua` sidecar. `stage-june --dry-run ch1_held_motions.tsv`: `2 staged (0 new, 0 replaced, 2 identical)`. `kom.py status data036 data033`: both in sync,
+  `+0 / -0 / ~0` vs live (data036's `[stale .src.lua: compile]` is older non-Ara sidecars, as in Rena's review). `exestr.py "ARA DATA" --form wide`: `EXESTR OK: 1 of 1`
+  (wide x1), md5 `0909cda3`. `luabind.py check Ara_Martial_Artist`: `ENUM 0 table(s) missing, 0 member(s) missing, 1 nil in June too` (`CT_PARTS_LOOK_TRACKINGT`),
+  `STATE: 37 ... 0 wrong`, `RESULT: PASS`. `luasrc.py core --check` / `ledger --check`: PASS, 0 FAIL, 0 WARN.
+- **State counts, exact for all 5 units** (logged at the end of June's `InitState`, `X2GUAra.cpp:595`): body 98 (`InitStateCommon`; June's 112 = 98 + 3 bounding +
+  11 left out: riding 93-96, PvP amusement 123-126, dance 127-129) + 3 START / WIN / LOSE + 4 hooks (3 `DAMAGE_BOUNDING` from `InitBoundingStates( "ASI_" )`, 1
+  `USI_WAIT_STATE_CHANGE`) + 9 `USI_EVENT_*` + 20 slot + 1 key 0 = 135, + class path (`InitStateByUnitClass`, fall-through as the CH1m review: 7 = 0, 28 = 15, 31 = 7,
+  118 = 4 + 15, 119 = 2 + 7) + learned-skill sub-states (`SetEquippedSkillLevelStateData` `m_StateList[ id ]`, ids the class path did not register):
+  7 (unit 96): 135+0+4 = 139; 28 (97): 135+15+14 = 164; 31 (99): 135+7+12 = 154; 118 (98): 135+19+28 = 182; 119 (48): 135+9+18 = 162. All = the log. The 99 / 48
+  lines follow `ENTER unitUID=99` / `SLOT sent unit 48` (38 and 24 not loaded). Rena's formula counted START / WIN / LOSE inside her "C++" term; same totals.
+- **START / WIN / LOSE:** `list size 0` 0, `re-bind skipped` 0 (both logs); 18 `JUNE_FX C3e-2 roll` lines pick real tables: `ASI_START`, `ASI_WIN2`, `ASI_LOSE`,
+  `ASI_LOSE2`, `ASI_ALH_START`, `ASI_ALH_WIN2` (index 3 of 4), and the ALD / ASD / AYR rows.
+- **Force power / berserk / tails / chain speed:** the user's run passed the visual checks (fill, berserk with portrait and tail on 96 / 97 / 99 / 98 / 48); skills
+  were not cast, so the two-cast check moves to CH2a (its hand-off already carries it). Chain speed was not chained in the run (optional per the gate); it moves to
+  CH3a's hand-off (`CH3a.md` amended).
+- **ErrorLog** (current / `_pre_CH1_ara` / `_pre_CH0b_ara`): `KEM_ERROR` 0 / 0 / 0, `Motion Error` 0 / 0 / 0, `[LUA_SRC]` 7 / 7 / 7, `lua error` 3 / 3 / 3, `StateID` /
+  `Parsing Error` / `ARA_MARTIAL_ARTIST` 0; `ErrorEnum(433)` 21 = the face-mesh 80 / 81 lines (`JUNE_BUGS.md` 603). New Ara lines are known or unopened: `ARA_COMBOSHOT.OGG`
+  `result : 47` (CH0b's), `QUEST_11000_ARA_END.GFX` and 6 `HQ_CUTIN_ARA_RAGE.DDS.GFX` `.gfx` probes (both play; the cut-in one is routed to CH5's 7t `.gfx` names,
+  `CH5.md` amended), one-time `OpenXET` probes for `MOTION_ARA_LOBBY` / `MESH_ARA_CASH_*`. `offline_packets.log`: `EXCEPTION` 0, `UNHANDLED` only `E_DISABLE_HB_CHECK_REQ`.
+- **Ghidra spot-checks:** (1) Max force power 10 at every level: June's four `SetMaxForcePower` `32a32720` calls are `Init` @32bc7efc `push 0xa`, `ReInit`
+  @32bc81a5 `push 0xa` (own unit only, after `test al,al`), `SetMyPlayStatusFromPacket` @32a34a2b `push 0xa`, and the gauge copy @32a349c3 (copies the other's max) =
+  `X2GUAra.cpp:344` / `:430` (`MAX_FORCE_POWER` 10, `:123`) and `X2GageData.cpp:1024` / `:970`; the level formula is only in the `#else` branches. (2) June's chain parser
+  `32d3f2a0` (the caller of `SECRET_SKILL_STATE_ID` `32d3f710`, then `32d3f8c0` / `32d3fb30`) reads the same three fields per row (`32fea4e0` 1 / 2 / 3), looks the state
+  up with `32d3ee60` and creates / connects / pushes as March's `CreateComboAndSkillChain` (`X2ComboAndSkillChainSystem.cpp:25-95`), so June's `CHAIN_SYSTEM` rows parse
+  as March reads them. June returns false silently on a bad row where March pops `DISPLAY_ERROR`; reachable only with a broken table, which the enum gate now refuses
+  before a pack: noted, not ported (no Ara behaviour).
+- **Routed gaps:** the five silent nils CH1's enum gate found in Elsword / Raven / Chung / Aisha have their plan (`enum-gate-fix`, `a3b0ca83`).
+- **Checklist / scans:** `(Ara: CH1 ...)` marks present (now l.16, 212, 426, 430, 512, 551, 595, 677, and `(Ara: CH0b / CH1 ...)` l.763: the checklist grew 3 lines).
+  `charport_keys.py Ara_Martial_Artist`: `june-only=5 neither=7 march-only-site=4 both=234` = CH1's.
+- **Kickoffs:** `CH5.md` amended (cut-in table now `X2GUAra.cpp:89-118`, live switch `:538-556`, March's `#else` `:599-629`, every `m_hSeqEnergyBullet` use, the cut-in
+  `.gfx` probe). `CH2b0.md` amended (`ProcessLockOn` now `:8677-8780`). `CH2a.md` (no line refs; carries the two-cast check) and `CH2c0.md` (checklist 7at, addresses
+  only) match.
+
+Hygiene: `flagcheck JUNE_CHAR_ARA_CORE --range 74eca033^..74eca033 --files X2Lib/X2GUAra.h`: `1 PASS, 0 FAIL, 0 ERROR`, all zeros, `RESULT: PASS`. `JUNE_CHAR_ARA_LIVE --range
+d98916f0^..d98916f0`: `X2GUAra.cpp` PASS +7; `5 deleted` (the five `//#define` lines), `0 non-ASCII, 0 EOL, 0 #else/#endif without the flag token, 0 encoding`; `Always.h`
+ERROR only: each `--with` set strips a flag another guard names (`:12217` `_FP && !_LIVE`, then `:12253` `_SKILL`, then `:6033` `EFFECTSET_BUFF_LIST`), so RESULT FAIL is
+the guard evaluation, as in the CH1 Done note and the CH1q2 review. `_FP` / `_SPECTER`: `OTHER` only, `RESULT: PASS`; `SPECTER_STATE` / `CHAIN_ANIM_SPEED`: the same
+`Always.h` guard ERROR, no code row. `junediverge.py --check-all`: `allow-listed: 205`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h`: `0 A/B row(s)`.
+Full build skipped: no play-test (no code change). CH5, CH2a, CH2b0 and CH2c0 are ready.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

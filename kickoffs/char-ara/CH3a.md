@@ -64,3 +64,8 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 ## Amended by CH1q (2026-11-11)
 
 - `m_hKillEnemyEffectSet` (`+0x9718`, CH1j) is misnamed: June's berserk kill reward `32bc5bc0` keeps no handle; the only writer is @`32bb6f8c` in `ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK` FrameMove `32bb6950` (reader @`32bb6eb2`), and `StopKillEnemyEffectSet` `32bc5ea0` skips the stop while that state runs. Rename the member and its stop for what Swallow Assault plays (bytepatch, both `.h` / `.cpp` sites) and write it in that FrameMove.
+
+## Amended by the CH1 review (2026-11-11)
+
+The CH1 play-test did not chain a skill, so the `SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED` check moves here: on unit 98 (118, Fullmoon Slash 27402 learned)
+the hand-off has the user chain Pulling Pierce and cast it alone; the chained cast plays faster (June `320506f0` @32051bef, `m_fNowSkillPassiveRate`).
