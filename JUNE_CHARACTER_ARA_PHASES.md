@@ -1033,6 +1033,43 @@ bounding, 1 wait-state-change, 1 vslot 0x600 thunk). Nothing new: no `X2GUUser` 
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-ara CH1n review` (Opus 5.5 high).
 
+### CH1n - Review (2026-11-11): pass, no code change
+
+Fresh Ghidra decompiles of `32bd09d0`, `32bd34c0`, `32d3ed30` and `32babb50`, read against `044fcdd5` and the exe bytes (`read_va`, `disasm_range.py`):
+- **Slot head.** `(int)slot < 0 || 4 < slot` -> exit; PE tables `334fea50` = 50 / 52 / 54 / 56 / 58, `334fea64` = 51 ... 59, `334fea78` = 60 ... 68,
+  `334fea8c` = 61 ... 69 = `_CONST_GUUSER_` (normal A, hyper A, normal B, hyper B, as the port indexes them). `31fd2af0` before `Init()` dropped (7i);
+  hyper word `+0x10 = 0x101` = `m_bHyperState` + the slot byte; every `+0x11 = 1` store (head, memo arm, case arms, `@32bd2778`) = `IsSkillSlotState`.
+  `31fca8e0( id, 1 )` = `GetEquippedActiveSkillTemplet( id, true )` (`X2GUUser.h:2704`, the `bUpgradeSwap_` overload).
+- **Memo exit `@32bd0af5`.** `31fdbcc0( id )` -> memo; `memo != 0 && 32206450( memo, 1 )` (`GetSkillTemplet`, callers always pass 1) ; the compare is on
+  the memo (`0x6a56` = 27222, `0x6a6c` = 27244 = June `Enum.src.lua` l.16211 / l.14942); other memo -> `@32bd2778` (two `+0x11` stores) -> return. `32babb50`
+  = `Init()`, table `ASI_A_ALD_CONVERSION_MANA`, +0x14 / +0x34 / +0x44 = thunks to `32b932b0` Init / `32baa680` FrameMove / `32b9da00` EventProcess =
+  March's `ASI_A_ALD_CONVERSION_MANA_CreateState` (`X2GUAra.cpp:21067`; its `stateID` store repeats the caller's).
+- **Types.** `SKILL_TYPE` 5 `ST_BUFF`, 6 / 7 / 13-16 active (13 = `ST_HYPER_ACTIVE_SKILL`, `FINALITY_SKILL_SYSTEM` defined), 12 `ST_RELATIONSHIP_SKILL` +
+  raw id 900 (`SI_ETC_WS_COMMON_LOVE`, live value 900 under `UPGRADE_SKILL_SYSTEM_2013`; June `Enum.src.lua` l.16050), the rest return. Thunks:
+  `329ccd90` -> `32a77a20` -> vslot 0x5f0; `329cba40` -> `31fcbd60`; `329ccda0` -> `329cc0d0` -> vslot 0x5f4; `329ccdb0` -> `329cc170` -> vslot 0x5f8.
+  Strings `ASI_COMMON_BUFF` (both slots) and `ASI_THROW_ITEM` (both). Both switches take `param_2` raw.
+- **Hyper split (CH3d).** 0x6bd1 / 0x6bd4 = 27601 / 27604 `RNSI_HA_AYR_ENERGY_CANNON(_UPGRADE)` -> `32baab30`; 0x6bd2 / 0x6bd5 = 27602 / 27605
+  `RNSI_HA_ASR_NINE_TAILED_FOX(_UPGRADE)` -> `32baace0`; 0x6bd3 and `== 0x6bd0` -> Thousands Blossoms inline: `CH3d.md` amendment matches. Default
+  `@32bd271e` = `32baf390` + END 0xc1 = March's `default:` on `SI_A_AM_WIND_WEDGE` (`X2GUAra.cpp:3436`).
+- **`32bd34c0` head.** `+0x867c` null -> exit; user tree = unit +0x494; `328905b0( id )` then `32890720( swapped, 1 )`; null -> exit; switch on `param_2`.
+- **`32d3ed30`.** Per entry: null skip; `match = id == +0xc`, else (g_pData and its +0x50 tree present) `id == 32205c00( +0xc )`; then `+0x10 == 2`
+  (`CASCT_SKILL`) && match -> return: the port's order. Callers: `32024d6d` in `32024b00` and 32 sites inside `32bd34c0` (one per chain-carrying case;
+  the Done note's "56 case bodies" are the states, not the lookups). March's callers: `X2GUUser.cpp` 1, `X2GUAra.cpp` 20: no other class reaches it.
+- **Callbacks.** `ch1n_triage.py` rerun: `targets 174 rows 174 missing 0`, output `cmp`-identical to the committed `ch1n_user_callback_triage.tsv`.
+- Nits kept: the throw comment cites the thunk's target (`329cc0d0`) where the buff one cites the thunk (`329ccd90`); both are correct.
+
+**Checks.**
+- One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`): `X2GUAra.cpp` off / `_LIVE` / `_LIVE` + `_FP` + `_SPECTER`, `X2ComboAndSkillChainSystem.cpp` off / `_LIVE`:
+  `exit 0 errors 0` each.
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --with SERV_IRUHADEV_JUNE_CHAR_ARA_CORE --range 044fcdd5^..044fcdd5 --files` (the three files): `files: 2 PASS, 0 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 1 ERROR`,
+  `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only for the
+  `//#define` (ERROR = `Always.h` l.12217, an `#if` the tool cannot evaluate; a pure 9-line insertion).
+- `flagcheck SERV_IRUHADEV_JUNE_ENUM_NAMES --range 044fcdd5^..044fcdd5 --files X2Lib/X2SkillTree.h`: `files: 0 PASS, 1 PASS~ (blank/marker only), 0 DEFINE, 0 OTHER (other flags), 0 FAIL, 0 ERROR`, `RESULT: PASS`.
+- `junediverge.py --check-all`: `allow-listed: 202`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp X2Lib/X2ComboAndSkillChainSystem.cpp`: `0 A/B row(s)`.
+- No `_DEBUG` define to retire. Full build skipped: no play-test.
+
+**Nothing to play-test.** Next: `/x2-phase char-ara CH1o` (Opus 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.
