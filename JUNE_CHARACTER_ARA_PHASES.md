@@ -1649,6 +1649,33 @@ lock-on picks". `MODS.md` (its `+0x8fb6` "not identified" line) is updated at Z.
 **How to see it in game** (CH3a): Swallow Assault picks a random enemy within 1200 (dungeon), re-picks while force power lasts; with an
 `ESCAPE_FROM_LOCK_ON` NPC (e.g. a raid buff totem) in range, it is never picked. No log line of its own.
 
+### CH2b0 - Review (2026-11-11): pass, no code change
+
+Checked against the exe bytes (Ghidra `disassemble_function`, read-only; `charport_consts.py` for operand widths; `xorstrings.tsv`). No debug define to retire.
+- **`ProcessLockOn` `3200fa20`.** Filter order @`3200faf1`-`3200fbe0`: team (`+0x278` protected); slot 0x3c8 `== 1` -> skip unless `+0x264 == 1` and
+  `32757e60( 0x835 )` (C++ `GUT_NPC` + `IsUnitID( NUI_RAID_RED_DRAGON_PHASE3_2 )`, 2101 = June `Enum.src.lua:4079`, no March member at 2101); slot 0x178 with
+  `[esp+0x24] = 1` by pointer (user = slot 0x180, NPC = the attack-type list, funcmap 3953) = `AT_SPECIAL` (1); `+0xc04` null passes, `+0x20` null skips,
+  `fldz; fcomp; test ah,1` keeps NaN = March `GetNowHp() <= 0.f`; NPC class 100-102 / 106 = `NCT_THING_GATE` / `BOX` / `TRAP` / `CHECKER`; `+0x8fb6 == 1`.
+  Flag `[esp+0x17]`: set @`3200fa8b`, cleared from AL @`3200fcb6` after the candidate `CanDown` (world / line map null -> untouched), tested @`3200fffd`.
+  `322cc1a0` branch: pushes = candidate pos, owner slot 0x16c (`GetDirVector`, funcmap 4797), owner pos; `fld [this+0x30]`, `fld result; fcompp; test
+  ah,0x41; jz 3200fdc5` (a continue) = skip when distance > `+0x30`, NaN kept: matches `m_fFacingLineRange < dist`. States `9` (`XS_PVP_GAME`, March 9)
+  and `0x17` (June's own `XS_PVE_GAME`, funcmap 1529; March's 23 is `XS_ARCADE_ROOM`): testing `XS_PVP_GAME` only is right. Range test `fld dist; fld
+  range; fcompp; test ah,0x41; jnz skip` = `dist < range` on the start-of-call position. Both `CanDown` lists against `(pos, radius, pOutPos, pInLineIndex,
+  pOutLineIndex, bDownRadius, bIsMonster, bOnLine, bDroppable)`: @`3200fcad` `0,0,0,0,0,1,0`; @`3200ff98` `0,0,&idx,0,0,1,0` with `idx` = 0 in the reused
+  arg slot; radius `30.0` dword = `LINE_RADIUS`. Line test `+4 == 0` (`LT_NORMAL`), `+8 == 1`, flag `== 1`; `pUnit` null sets neither lock state: matches.
+- **`320701e0`.** Slots traced: A1 = line pos, A2 = dir, A3 = pos. Vector 1 = `( 0 - dir.x, 0 - 0, 0 - dir.z )` (y = 0 stored into A1's arg slot
+  `[esp+0x4c]`, reused for vector 2's y and the distance's x*0 term); vector 2 = `A1 - A3` in xz; distance = `sqrt( (0 + dx*dx) + dz*dz )` of `A3 - A1`,
+  float stores between steps; `fadd qword 180.0; fchs; fadd vToLine.y; fmul qword 0.01745329238474369` (= `0.017453292f` widened, so the float literal is
+  exact); `_CIsin` then `* distance`, `fabs`, each stored as float. The C++ matches step for step (`0.f - x` keeps June's +0).
+- **`32b4cf30`.** `fld dword [33441c60]` (99999.0) `fstp [eax+0x30]` @`32b4cf64`. NPC key @`327abb70`: `xorstrings` row `327aba53` = `ESCAPE_FROM_LOCK_ON`,
+  `lea ebx,[edi+0x8fb6]`, `call 32fe9e40`, `test al,al; jnz; mov [ebx],al` = false when missing (same shape as `NOT_AFFECT_BLACKHOLE` @`327a5f0b`); ctor
+  `mov word [esi+0x8fb6],bx` (0) @`327633f2`.
+
+**Hygiene.** `flagcheck JUNE_CHAR_ARA_LOCKON --range a3b59faa^..a3b59faa --with JUNE_NPC_ESCAPE_FROM_LOCK_ON --files <7>`: 2 PASS, 1 PASS~, 1 DEFINE, 3 OTHER,
+0 FAIL, 0 ERROR, 0 deleted, `RESULT: PASS`. `flagcheck JUNE_NPC_ESCAPE_FROM_LOCK_ON` (3 files): 2 PASS, 1 ERROR = the `Always.h:12439` dependency guard,
+as in the Done note. `junediverge.py --check-all`: allow-listed 205, `RESULT: PASS`. `enumscan.py --check X2GUAra.cpp X2GUNPC.cpp`: 0 A/B rows. Probes
+(`/c /Zs /EHsc`): `X2GUAra.cpp`, `X2GUNPC.cpp` 0 errors. Full build skipped: no play-test.
+
 ## Phase CH3 - Skills: second jobs (118, 119, 124), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows); one Opus review at CH3d (covers CH3a-CH3d). Sub-tag `SKILL`.
