@@ -1,0 +1,141 @@
+c1a_numerical_blocks.tsv_line	file	templet	block	skill_id	june_skill_name	lookup	result	L1_value	L1_x0.01	L1_pvp_rate	L1_tech_point	L1_hit_add_mp	skill_in_march_templets
+42	DamageEffect.lua	DAMAGE_EFFECT_ADE_GRAVITY_BURSTER_DOWN_FORCE	DAMAGE_DATA	29019	Gravity Buster	INDEX 1	ok	3538	35.38	0.4	1500	20	False
+43	DamageEffect.lua	DAMAGE_EFFECT_ADE_GRAVITY_BURSTER_DOWN_FORCE_MUTATION	DAMAGE_DATA	29019	Gravity Buster	INDEX 2	ok	3892	38.92	0.4	1500	20	False
+211	DamageEffect.lua	DAMAGE_EFFECT_MOONLIGHT_RHAPSODY_Debuff_Explosion_Accumulation_1	DAMAGE_DATA	29024	Moonlight Rhapsody	INDEX 2	ok	390	3.9	0.28	150	0	False
+212	DamageEffect.lua	DAMAGE_EFFECT_MOONLIGHT_RHAPSODY_Debuff_Explosion_Accumulation_2	DAMAGE_DATA	29024	Moonlight Rhapsody	INDEX 3	ok	612	6.12	0.28	225	0	False
+213	DamageEffect.lua	DAMAGE_EFFECT_MOONLIGHT_RHAPSODY_Debuff_Explosion_Accumulation_3	DAMAGE_DATA	29024	Moonlight Rhapsody	INDEX 4	ok	854	8.54	0.28	300	0	False
+289	DamageEffect.lua	DAMAGE_EFFECT_Star_Fall_Explode	DAMAGE_DATA	29016	Install - Starfall	INDEX 1	ok	455	4.55	0.38	246	1.43	False
+345	DamageEffect.lua	DamageEffect_AAT_Phantom_Seeker_Projectile_Main	DAMAGE_DATA	29015	Phantom Seeker	INDEX 2	ok	709	7.09	0.28	375	5	False
+346	DamageEffect.lua	DamageEffect_AAT_Phantom_Seeker_Projectile_Sub	DAMAGE_DATA	29015	Phantom Seeker	INDEX 1	ok	264	2.64	0.28	107	1.43	False
+347	DamageEffect_Character.lua	DamageEffect_AAT_Phantom_Seeker_Projectile_Sub_Fast	DAMAGE_DATA	29015	Phantom Seeker	INDEX 1	ok	264	2.64	0.28	107	1.43	False
+348	DamageEffect.lua	DamageEffect_AAT_Psionic_Generator_Explosion	DAMAGE_DATA	29014	Psionic Generator	INDEX 1	ok	5014	50.14	0.4	2175	30	False
+349	DamageEffect.lua	DamageEffect_AAT_Rushing_Drone_Explosion	DAMAGE_DATA	29208	Dynamo Configuration\n- Rushing Drones	INDEX 1	ok	581	5.81	0.4	150	1.5	False
+352	DamageEffect.lua	DamageEffect_ADE_HA_Paranoia_1st_Hit	DAMAGE_DATA	29602	Paranoia	INDEX 1	ok	2960	29.6	0.24	750	10	False
+353	DamageEffect.lua	DamageEffect_ADE_HA_Paranoia_Dimension_Break	DAMAGE_DATA	29602	Paranoia	INDEX 2	ok	4609	46.09	0.24	1125	15	False
+354	DamageEffect.lua	DamageEffect_ADE_REVERSE_CIRCLE_Potal_Damage	DAMAGE_DATA	29020	Reverse Circle	INDEX 1	ok	191	1.91	0.4	75	1	False
+355	DamageEffect.lua	DamageEffect_ADE_REVERSE_CIRCLE_Potal_Damage_Exit	DAMAGE_DATA	29020	Reverse Circle	INDEX 1	ok	191	1.91	0.4	75	1	False
+356	DamageEffect.lua	DamageEffect_ADE_REVERSE_CIRCLE_Projectile	DAMAGE_DATA	29020	Reverse Circle	INDEX 2	ok	393	3.93	0.4	150	2	False
+357	DamageEffect.lua	DamageEffect_ADE_REVERSE_CIRCLE_Projectile_Explosion	DAMAGE_DATA	29020	Reverse Circle	INDEX 3	ok	1652	16.52	0.4	675	2.67	False
+358	DamageEffect.lua	DamageEffect_ADE_REVERSE_STIGMA_Attack	DAMAGE_DATA	29025	Reverse Stigma	INDEX 1	ok	2047	20.47	0.28	750	10	False
+359	DamageEffect.lua	DamageEffect_ADE_REVERSE_STIGMA_Return	DAMAGE_DATA	29025	Reverse Stigma	INDEX 2	ok	461	4.61	0.28	150	1	False
+360	DamageEffect_Character.lua	DamageEffect_ADE_REVERSE_STIGMA_Return_ManaBurn	DAMAGE_DATA	29025	Reverse Stigma	INDEX 2	ok	461	4.61	0.28	150	1	False
+361	DamageEffect_Character.lua	DamageEffect_ADE_SA_VoidImpact_DamageFX	DAMAGE_DATA	29041	Void Impact	INDEX 1	ok	749	7.49	0.4	150	2	False
+362	DamageEffect_Character.lua	DamageEffect_ADE_SA_VoidImpact_DamageFX2	DAMAGE_DATA	29041	Void Impact	INDEX 1	ok	749	7.49	0.4	150	2	False
+435	DamageEffect.lua	DamageEffect_ALP_Psionic_Beat_Damage	DAMAGE_DATA	29207	Psionic Beat	INDEX 1	ok	426	4.26	0.4	67	0.67	False
+436	DamageEffect.lua	DamageEffect_ALP_PsychicStorm_Projectile	DAMAGE_DATA	29009	Psychic Storm	INDEX 2	ok	123	1.23	0.36	50	0	False
+437	DamageEffect.lua	DamageEffect_ALP_Psychic_Storm_Loop	DAMAGE_DATA	29009	Psychic Storm	INDEX 1	ok	360	3.6	0.28	150	2.22	False
+438	DamageEffect.lua	DamageEffect_ALP_Quicksilver_Accel_Additional_Shock	DAMAGE_DATA	29011	Quicksilver Accel	INDEX 1	ok	39	0.39	0.4	13	0.25	False
+439	DamageEffect.lua	DamageEffect_ALP_Quicksilver_Accel_Blackhole	DAMAGE_DATA	29011	Quicksilver Accel	INDEX 2	ok	39	0.39	0.4	13	0.19	False
+440	DamageEffect.lua	DamageEffect_ALP_Quicksilver_Accel_Blackhole	DAMAGE_DATA_NEXT	29011	Quicksilver Accel	INDEX 2	ok	39	0.39	0.4	13	0.19	False
+441	DamageEffect.lua	DamageEffect_ALP_Quicksilver_Accel_Blackhole_Back	DAMAGE_DATA	29011	Quicksilver Accel	INDEX 2	ok	39	0.39	0.4	13	0.19	False
+442	DamageEffect.lua	DamageEffect_ALP_Quicksilver_Accel_Impact	DAMAGE_DATA	29011	Quicksilver Accel	INDEX 3	ok	606	6.06	0.4	225	3	False
+443	DamageEffect.lua	DamageEffect_ALP_Quicksilver_Accel_Impact_Stun	DAMAGE_DATA	29011	Quicksilver Accel	INDEX 3	ok	606	6.06	0.4	225	3	False
+444	DamageEffect.lua	DamageEffect_ALP_Twirl_Rush_Impact_Damage	DAMAGE_DATA	29206	Rush Twirl	INDEX 2	ok	676	6.76	0.4	100	1.5	False
+445	DamageEffect.lua	DamageEffect_ALP_Twirl_Rush_Impact_Damage_Hyper	DAMAGE_DATA	29206	Rush Twirl	INDEX 3	ok	173	1.73	0.4	20	0.3	False
+446	DamageEffect.lua	DamageEffect_ALP_Twirl_Rush_Push_Damage	DAMAGE_DATA	29206	Rush Twirl	INDEX 1	ok	71	0.71	0.4	10	0.1	False
+462	DamageEffect.lua	DamageEffect_AMM_APOCALYPSE_Attack_A_Projectile_Explosion	DAMAGE_DATA	29601	Apocalypse	INDEX 2	ok	445	4.45	0.24	131	2.5	False
+463	DamageEffect.lua	DamageEffect_AMM_APOCALYPSE_Attack_A_Projectile_Explosion_PVP	DAMAGE_DATA	29601	Apocalypse	INDEX 2	ok	445	4.45	0.24	131	2.5	False
+464	DamageEffect.lua	DamageEffect_AMM_APOCALYPSE_Attack_B_Explosion	DAMAGE_DATA	29601	Apocalypse	INDEX 3	ok	255	2.55	0.24	75	2	False
+465	DamageEffect.lua	DamageEffect_AMM_APOCALYPSE_Attack_B_Explosion_PVP	DAMAGE_DATA	29601	Apocalypse	INDEX 3	ok	255	2.55	0.24	75	2	False
+466	DamageEffect.lua	DamageEffect_AMM_Countdown_Bomb_Explosion	DAMAGE_DATA	29211	Dynamo Configuration\n- Delayed Explosion	INDEX 2	ok	851	8.51	0.4	150	1.5	False
+467	DamageEffect.lua	DamageEffect_AMM_Countdown_Bomb_Explosion_Mutation	DAMAGE_DATA	29211	Dynamo Configuration\n- Delayed Explosion	INDEX 3	ok	1702	17.02	0.4	150	1.5	False
+468	DamageEffect.lua	DamageEffect_AMM_Countdown_Bomb_Hit	DAMAGE_DATA	29211	Dynamo Configuration\n- Delayed Explosion	INDEX 1	ok	321	3.21	0.4	50	0.5	False
+469	DamageEffect.lua	DamageEffect_AMM_Dividing_Missile_Dynamo_Explosion_Big	DAMAGE_DATA	29209	Dynamo Configuration\n- Fission Shot	INDEX 1	ok	1138	11.38	0.4	200	2	False
+470	DamageEffect.lua	DamageEffect_AMM_Dividing_Missile_Dynamo_Explosion_Big_MUC	DAMAGE_DATA	29209	Dynamo Configuration\n- Fission Shot	INDEX 2	ok	2276	22.76	0.28	200	2	False
+471	DamageEffect.lua	DamageEffect_AMM_Dividing_Missile_Dynamo_Explosion_Small	DAMAGE_DATA	29209	Dynamo Configuration\n- Fission Shot	INDEX 3	ok	306	3.06	0.28	50	0.5	False
+472	DamageEffect.lua	DamageEffect_AMM_Flick_Disc_Dynamo_Damage_Main	DAMAGE_DATA	29210	Dynamo Configuration\n- Flick Disc	INDEX 1	ok	473	4.73	0.4	100	0.33	False
+473	DamageEffect.lua	DamageEffect_AMM_Flick_Disc_Dynamo_Damage_Sub	DAMAGE_DATA	29210	Dynamo Configuration\n- Flick Disc	INDEX 2	ok	315	3.15	0.4	67	0.17	False
+474	DamageEffect.lua	DamageEffect_AMM_HA_Apocalypse_Finish_Hit	DAMAGE_DATA	29601	Apocalypse	INDEX 7	ok	923	9.23	0.24	225	5	False
+475	DamageEffect.lua	DamageEffect_AMM_HA_Apocalypse_Finish_Hit2	DAMAGE_DATA	29601	Apocalypse	INDEX 7	ok	923	9.23	0.24	225	5	False
+476	DamageEffect.lua	DamageEffect_AMM_HA_Apocalypse_Start_Hit	DAMAGE_DATA	29601	Apocalypse	INDEX 1	ok	1135	11.35	0.24	313	4.17	False
+477	DamageEffect.lua	DamageEffect_AMM_HA_Attack_C	DAMAGE_DATA	29601	Apocalypse	INDEX 4	ok	2728	27.28	0.24	675	4	False
+478	DamageEffect.lua	DamageEffect_AMM_HA_Attack_C	DAMAGE_DATA_NEXT	29601	Apocalypse	INDEX 5	ok	1364	13.64	0.24	900	4	False
+479	DamageEffect.lua	DamageEffect_AMM_HA_Attack_C	DAMAGE_DATA_NEXT2	29601	Apocalypse	INDEX 6	ok	682	6.82	0.24	900	4	False
+480	DamageEffect.lua	DamageEffect_AMM_HA_Attack_C_PVP	DAMAGE_DATA	29601	Apocalypse	INDEX 4	ok	2728	27.28	0.24	675	4	False
+481	DamageEffect.lua	DamageEffect_AMM_HA_Attack_C_PVP	DAMAGE_DATA_NEXT	29601	Apocalypse	INDEX 5	ok	1364	13.64	0.24	900	4	False
+482	DamageEffect.lua	DamageEffect_AMM_HA_Attack_C_PVP	DAMAGE_DATA_NEXT2	29601	Apocalypse	INDEX 6	ok	682	6.82	0.24	900	4	False
+483	DamageEffect.lua	DamageEffect_AMM_Shooting_Chaser_Buff_Attack	DAMAGE_DATA	29018	Install\n- Shooting Chaser	INDEX 1	ok	142	1.42	0.38	43	0.46	False
+484	DamageEffect.lua	DamageEffect_AMM_Shooting_Chaser_Buff_Dummy_Attack	DAMAGE_DATA	29018	Install\n- Shooting Chaser	INDEX 1	ok	142	1.42	0.38	43	0.46	False
+485	DamageEffect.lua	DamageEffect_AMM_Ultimate_Fury_Dynamo_Attack	DAMAGE_DATA	29017	Install - Ultimate Fury	INDEX 1	ok	86	0.86	0.4	32	0	False
+486	DamageEffect.lua	DamageEffect_AMM_Ultimate_Fury_Dynamo_Dummy_Attack	DAMAGE_DATA	29017	Install - Ultimate Fury	INDEX 1	ok	86	0.86	0.4	32	0	False
+487	DamageEffect.lua	DamageEffect_AN_Pulse_Bullet_Ball_Shock	DAMAGE_DATA	29202	Particle Shot	INDEX 1	ok	740	7.4	0.4	150	1.5	False
+488	DamageEffect.lua	DamageEffect_AN_Void_Breaker_Explosion	DAMAGE_DATA	29001	Void Breaker	INDEX 2	ok	693	6.93	0.4	338	5	False
+489	DamageEffect.lua	DamageEffect_AN_Void_Breaker_Explosion	DAMAGE_DATA_NEXT	29001	Void Breaker	INDEX 2	ok	693	6.93	0.4	338	5	False
+490	DamageEffect_Character.lua	DamageEffect_AN_Void_Breaker_Explosion_Mini	DAMAGE_DATA	29001	Void Breaker	INDEX 4	ok	139	1.39	0.5	338	5	False
+491	DamageEffect_Character.lua	DamageEffect_AN_Void_Breaker_Explosion_Mini	DAMAGE_DATA_NEXT	29001	Void Breaker	INDEX 4	ok	139	1.39	0.5	338	5	False
+492	DamageEffect.lua	DamageEffect_AN_Void_Breaker_Projectile	DAMAGE_DATA	29001	Void Breaker	INDEX 1	ok	47	0.47	0.32	21	0.29	False
+493	DamageEffect.lua	DamageEffect_AN_Void_Breaker_Projectile	DAMAGE_DATA_NEXT	29001	Void Breaker	INDEX 1	ok	47	0.47	0.32	21	0.29	False
+494	DamageEffect_Character.lua	DamageEffect_AN_Void_Breaker_Projectile_Mini	DAMAGE_DATA	29001	Void Breaker	INDEX 3	ok	10	0.1	0.4	21	0.29	False
+495	DamageEffect_Character.lua	DamageEffect_AN_Void_Breaker_Projectile_Mini	DAMAGE_DATA_NEXT	29001	Void Breaker	INDEX 3	ok	10	0.1	0.4	21	0.29	False
+496	DamageEffect.lua	DamageEffect_APT_A_Desolver_Dynamo_Explosion	DAMAGE_DATA	29203	Dynamo Configuration\n- Dissolver	INDEX 1	ok	207	2.07	0.4	30	0.3	False
+497	DamageEffect.lua	DamageEffect_APT_A_Desolver_Dynamo_Explosion	DAMAGE_DATA_NEXT	29203	Dynamo Configuration\n- Dissolver	INDEX 1	ok	207	2.07	0.4	30	0.3	False
+498	DamageEffect.lua	DamageEffect_APT_A_Desolver_Dynamo_Hyper	DAMAGE_DATA	29203	Dynamo Configuration\n- Dissolver	INDEX 2	ok	386	3.86	0.4	75	0.75	False
+499	DamageEffect.lua	DamageEffect_APT_A_Desolver_Dynamo_Projectile	DAMAGE_DATA	29203	Dynamo Configuration\n- Dissolver	INDEX 1	ok	207	2.07	0.4	30	0.3	False
+500	DamageEffect.lua	DamageEffect_APT_Magnetron_Dynamo_Explosion	DAMAGE_DATA	29205	Dynamo Configuration\n- Magnetron	INDEX 2	ok	345	3.45	0.4	58	0.75	False
+501	DamageEffect.lua	DamageEffect_APT_Pylon_Additional_Shock	DAMAGE_DATA	29204	Dynamo Configuration - Pylon	INDEX 2	ok	41	0.41	0.36	12	0.25	False
+502	DamageEffect.lua	DamageEffect_APT_SA_Quake_Buster_Impact_Main	DAMAGE_DATA	29005	Quake Buster	INDEX 2	ok	3326	33.26	0.4	1200	17	False
+503	DamageEffect.lua	DamageEffect_APT_SA_Quake_Buster_Impact_Main_Hyper	DAMAGE_DATA	29005	Quake Buster	INDEX 5	ok	3825	38.25	0.4	1200	17	False
+504	DamageEffect.lua	DamageEffect_APT_SA_Quake_Buster_Impact_Sub	DAMAGE_DATA	29005	Quake Buster	INDEX 3	ok	65	0.65	0.4	30	0.4	False
+505	DamageEffect.lua	DamageEffect_APT_SA_Quake_Buster_Impact_Sub_Hyper	DAMAGE_DATA	29005	Quake Buster	INDEX 6	ok	74	0.74	0.4	30	0.4	False
+506	DamageEffect.lua	DamageEffect_APT_SA_Quake_Buster_Projectile	DAMAGE_DATA	29005	Quake Buster	INDEX 1	ok	173	1.73	0.4	75	1	False
+507	DamageEffect.lua	DamageEffect_APT_SA_Quake_Buster_Projectile_Hyper	DAMAGE_DATA	29005	Quake Buster	INDEX 4	ok	199	1.99	0.4	75	1	False
+508	DamageEffect.lua	DamageEffect_APT_Stasis_Field_Activate	DAMAGE_DATA	29007	Stasis Field	INDEX 2	ok	4418	44.18	0.4	2250	27	False
+512	DamageEffect.lua	DamageEffect_ATT_Maximum_Strike_Boom	DAMAGE_DATA	29022	Maximum Strike	INDEX 1	ok	126	1.26	0.4	75	1.5	False
+513	DamageEffect.lua	DamageEffect_ATT_Maximum_Strike_Bullet_Attack	DAMAGE_DATA	29022	Maximum Strike	INDEX 2	ok	514	5.14	0.4	188	0.83	False
+514	DamageEffect.lua	DamageEffect_ATT_Maximum_Strike_Bullet_Explosion	DAMAGE_DATA	29022	Maximum Strike	INDEX 3	ok	408	4.08	0.4	188	2.5	False
+515	DamageEffect.lua	DamageEffect_ATT_Space_Crack_Rupture_Main	DAMAGE_DATA	29212	Dynamo Configuration\n- Space Crack	INDEX 1	ok	220	2.2	0.4	33	0.33	False
+516	DamageEffect.lua	DamageEffect_ATT_Space_Crack_Rupture_Sub	DAMAGE_DATA	29212	Dynamo Configuration\n- Space Crack	INDEX 2	ok	63	0.63	0.4	10	0.33	False
+517	DamageEffect.lua	DamageEffect_ATT_Stardust_Shower_Ball_Attack_1	DAMAGE_DATA	29021	Stardust Shower	INDEX 1	ok	217	2.17	0.32	94	0.83	False
+518	DamageEffect.lua	DamageEffect_ATT_Stardust_Shower_Ball_Attack_2	DAMAGE_DATA	29021	Stardust Shower	INDEX 1	ok	217	2.17	0.32	94	0.83	False
+519	DamageEffect.lua	DamageEffect_ATT_Stardust_Shower_Ball_Explosion	DAMAGE_DATA	29021	Stardust Shower	INDEX 2	ok	1955	19.55	0.4	750	10	False
+520	DamageEffect.lua	DamageEffect_ATT_Void_Field_Attack	DAMAGE_DATA	29023	Void Field	INDEX 2	ok	119	1.19	0.28	63	0.13	False
+521	DamageEffect.lua	DamageEffect_ATT_Void_Field_Explosion	DAMAGE_DATA	29023	Void Field	INDEX 1	ok	2925	29.25	0.28	1125	18	False
+528	DamageEffect.lua	DamageEffect_A_ADE_FORCE_FINGER_Explosion	DAMAGE_DATA	29215	Force Finger	INDEX 1	ok	280	2.8	0.28	113	2.5	False
+540	DamageEffect_Character.lua	DamageEffect_A_ALP_Spear_Dynamo_ProjectileFX	DAMAGE_DATA	29221	Dynamo Configuration - Railgun	INDEX 1	ok	1835	18.35	0.4	200	0.67	False
+541	DamageEffect_Character.lua	DamageEffect_A_ALP_Spear_Dynamo_Projectile_HyperFX	DAMAGE_DATA	29221	Dynamo Configuration - Railgun	INDEX 1	ok	1835	18.35	0.4	200	0.67	False
+542	DamageEffect_Character.lua	DamageEffect_A_AMM_Aiming_Nova_Projectile_Fire	DAMAGE_DATA	29222	Dynamo Configuration - Synapse Break	INDEX 1	ok	1726	17.26	0.4	225	1.75	False
+543	DamageEffect.lua	DamageEffect_A_AN_Phase_Shift_Impact	DAMAGE_DATA	29201	Phase Shift	INDEX 1	ok	158	1.58	0.32	33	0.5	False
+544	DamageEffect.lua	DamageEffect_A_APT_Pylon_Dynamo_Impact	DAMAGE_DATA	29204	Dynamo Configuration - Pylon	INDEX 1	ok	320	3.2	0.4	60	0.5	False
+662	DamageEffect_Character.lua	DamageEffect_A_Reverse_Field_Projectile_Fire	DAMAGE_DATA	29223	Dynamo Configuration'- Reverse Field	INDEX 1	ok	267	2.67	0.4	32	0.75	False
+671	DamageEffect.lua	DamageEffect_Add_Phase_Shift_Explosion	DAMAGE_DATA	29201	Phase Shift	INDEX 2	ok	355	3.55	0.32	68	1	False
+702	DamageEffect.lua	DamageEffect_Drone_Activator_Loop_Explosion	DAMAGE_DATA	29013	Install\n- Drone Activator	INDEX 1	ok	1376	13.76	0.4	750	10	False
+911	DamageEffect.lua	DamageEffect_MOONLIGHT_RHAPSODY_Start	DAMAGE_DATA	29024	Moonlight Rhapsody	INDEX 1	ok	3001	30.01	0.28	1500	0	False
+929	DamageEffect.lua	DamageEffect_Panzer_Buster_Fire	DAMAGE_DATA	29012	Panzer Buster	INDEX 1	ok	2958	29.58	0.4	1425	6.67	False
+930	DamageEffect.lua	DamageEffect_Panzer_Buster_Ultimate_Fire	DAMAGE_DATA	29012	Panzer Buster	INDEX 1	ok	2958	29.58	0.4	1425	6.67	False
+931	DamageEffect.lua	DamageEffect_Panzer_Buster_Ultimate_Sub_Attack	DAMAGE_DATA	29012	Panzer Buster	INDEX 2	ok	649	6.49	0.4	375	0	False
+932	DamageEffect.lua	DamageEffect_Particle_Prism	DAMAGE_DATA	29003	Particle Prism	INDEX 1	ok	1382	13.82	0.32	900	12	False
+993	DamageEffect_Character.lua	DamageEffect_SA_ADE_Dimension_Breaker_BlackHole_ExplosionFX	DAMAGE_DATA	29060	Dimension Breaker	INDEX 2	ok	3959	39.59	0.28	1500	20	False
+994	DamageEffect_Character.lua	DamageEffect_SA_ADE_Dimension_Breaker_BlackHole_LoopFX	DAMAGE_DATA	29060	Dimension Breaker	INDEX 1	ok	298	2.98	0.32	107	1.43	False
+995	DamageEffect_Character.lua	DamageEffect_SA_ADE_Dimension_Breaker_BlackHole_LoopFX2	DAMAGE_DATA	29060	Dimension Breaker	INDEX 1	ok	298	2.98	0.32	107	1.43	False
+996	DamageEffect_Character.lua	DamageEffect_SA_ADE_MoonLight_Breaker_Explosion2ndFX	DAMAGE_DATA	29042	Moonlight Breaker	INDEX 1	ok	2250	22.5	0.4	750	10	False
+997	DamageEffect_Character.lua	DamageEffect_SA_ADE_MoonLight_Breaker_Explosion2ndFX1	DAMAGE_DATA	29042	Moonlight Breaker	INDEX 2	ok	966	9.66	0.4	250	2	False
+998	DamageEffect_Character.lua	DamageEffect_SA_ADE_MoonLight_Breaker_Explosion2ndFX2	DAMAGE_DATA	29042	Moonlight Breaker	INDEX 2	ok	966	9.66	0.4	250	2	False
+999	DamageEffect_Character.lua	DamageEffect_SA_ADE_MoonLight_Breaker_Explosion2ndFX3	DAMAGE_DATA	29042	Moonlight Breaker	INDEX 2	ok	966	9.66	0.4	250	2	False
+1118	DamageEffect_Character.lua	DamageEffect_SA_ALP_Pion_Rusing_KickFX	DAMAGE_DATA	29037	Psion Rush	INDEX 2	ok	3007	30.07	0.4	525	8	False
+1119	DamageEffect_Character.lua	DamageEffect_SA_ALP_Pion_Rusing_PunchFX	DAMAGE_DATA	29037	Psion Rush	INDEX 1	ok	931	9.31	0.4	225	2.5	False
+1120	DamageEffect_Character.lua	DamageEffect_SA_ALP_QuickSilver_Strike_Explosion	DAMAGE_DATA	29038	Quicksilver Strike	INDEX 1	ok	2481	24.81	0.4	750	3.33	False
+1121	DamageEffect_Character.lua	DamageEffect_SA_ALP_QuickSilver_Strike_FinishFX	DAMAGE_DATA	29038	Quicksilver Strike	INDEX 4	ok	1711	17.11	0.4	450	2	False
+1122	DamageEffect_Character.lua	DamageEffect_SA_ALP_QuickSilver_Strike_PunchFX	DAMAGE_DATA	29038	Quicksilver Strike	INDEX 2	ok	123	1.23	0.4	25	0.33	False
+1123	DamageEffect_Character.lua	DamageEffect_SA_ALP_QuickSilver_Strike_PunchFX_Explosion	DAMAGE_DATA	29038	Quicksilver Strike	INDEX 3	ok	266	2.66	0.4	50	0.67	False
+1124	DamageEffect_Character.lua	DamageEffect_SA_ALP_SupersonicFX	DAMAGE_DATA	29058	Supersonic	INDEX 1	ok	669	6.69	0.4	121	1.61	False
+1125	DamageEffect_Character.lua	DamageEffect_SA_ALP_Supersonic_FinalFX	DAMAGE_DATA	29058	Supersonic	INDEX 2	ok	4164	41.64	0.4	1088	14.5	False
+1130	DamageEffect_Character.lua	DamageEffect_SA_AMM_Charged_Impulsar_Summon_DieFX	DAMAGE_DATA	29039	Install - Charged Impulser	INDEX 1	ok	515	5.15	0.36	195	13	False
+1131	DamageEffect_Character.lua	DamageEffect_SA_AMM_Extreme_Chaser_Attack	DAMAGE_DATA	29059	Extreme Chaser	INDEX 1	ok	295	2.95	0.36	56	1.5	False
+1132	DamageEffect_Character.lua	DamageEffect_SA_AMM_Force_Filed_ActivateFX	DAMAGE_DATA	29040	Force Field	INDEX 1	ok	3104	31.04	0.28	1500	20	False
+1133	DamageEffect.lua	DamageEffect_SA_AN_Particle_Accelerator_Attack	DAMAGE_DATA	29002	Particle Accelerator	INDEX 1	ok	4840	48.4	0.24	2175	30	False
+1134	DamageEffect.lua	DamageEffect_SA_APT_Conqueror_Hyper	DAMAGE_DATA	29008	Conqueror	INDEX 3	ok	6471	64.71	0.4	2100	29	False
+1135	DamageEffect.lua	DamageEffect_SA_APT_Conqueror_Hyper_Pre	DAMAGE_DATA	29008	Conqueror	INDEX 2	ok	25	0.25	0.4	15	0.2	False
+1136	DamageEffect.lua	DamageEffect_SA_APT_Conqueror_Projectile_Shock	DAMAGE_DATA	29008	Conqueror	INDEX 1	ok	545	5.45	0.28	181	2.5	False
+1137	DamageEffect.lua	DamageEffect_SA_APT_EMP_Shock	DAMAGE_DATA	29010	EMP Shock	INDEX 1	ok	2946	29.46	0.28	1500	0	False
+1138	DamageEffect.lua	DamageEffect_SA_APT_Magnetron_Dynamo_Impact	DAMAGE_DATA	29205	Dynamo Configuration\n- Magnetron	INDEX 1	ok	297	2.97	0.4	50	0.5	False
+1139	DamageEffect.lua	DamageEffect_SA_APT_Pulse_Cannon_Projectile	DAMAGE_DATA	29006	Pulse Cannon	INDEX 1	ok	430	4.3	0.32	225	1.25	False
+1140	DamageEffect.lua	DamageEffect_SA_APT_Stasis_Field_Attack	DAMAGE_DATA	29007	Stasis Field	INDEX 1	ok	447	4.47	0.4	225	3	False
+1642	DamageEffect.lua	DamageEffect_SI_A_AN_MIND_BREAK	DAMAGE_DATA	29214	Mind Break	INDEX 1	ok	574	5.74	0.32	100	1.5	False
+1661	DamageEffect.lua	DamageEffect_SI_HA_ALP_DOOMS_DAY_Damage_1st	DAMAGE_DATA	29600	Dooms Day	INDEX 1	ok	420	4.2	0.24	102	1.36	False
+1662	DamageEffect.lua	DamageEffect_SI_HA_ALP_DOOMS_DAY_Damage_2nd	DAMAGE_DATA	29600	Dooms Day	INDEX 2	ok	543	5.43	0.24	132	1.76	False
+1663	DamageEffect.lua	DamageEffect_SI_HA_ALP_DOOMS_DAY_Damage_3rd	DAMAGE_DATA	29600	Dooms Day	INDEX 3	ok	1206	12.06	0.24	321	4.29	False
+1669	DamageEffect.lua	DamageEffect_SI_SA_AN_Energy_Boom_Projectile	DAMAGE_DATA	29000	Energy Boom	INDEX 1	ok	1634	16.34	0.4	750	10	False
+1670	DamageEffect.lua	DamageEffect_SI_SA_AN_Neutron_Bomb_Explosion	DAMAGE_DATA	29004	Neutron Bomb	INDEX 1	ok	839	8.39	0.32	383	7.5	False
+1671	DamageEffect.lua	DamageEffect_SI_SA_AN_Neutron_Bomb_Explosion	DAMAGE_DATA_NEXT	29004	Neutron Bomb	INDEX 1	ok	839	8.39	0.32	383	7.5	False
+1672	DamageEffect.lua	DamageEffect_SI_SA_AN_Neutron_Bomb_Explosion_Big	DAMAGE_DATA	29004	Neutron Bomb	INDEX 2	ok	148	1.48	0.32	68	1.25	False
+1673	DamageEffect.lua	DamageEffect_SI_SA_AN_Neutron_Bomb_Explosion_Big	DAMAGE_DATA_NEXT	29004	Neutron Bomb	INDEX 2	ok	148	1.48	0.32	68	1.25	False

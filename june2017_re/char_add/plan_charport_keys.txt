@@ -1,0 +1,19 @@
+script: june_src_fixed/data036_kom/Add_NasodRuler.src.lua
+top-level tables: 328 (INIT_*: 6)   distinct keys: 222   key occurrences: 9142
+verdicts: june-only=8  neither=4  march-only-site=4  both=206
+june-only keys (a port item):
+  BBT_CHANGE_NOW_HP_PER_SECOND             x3     damage-data            june=plain readers=none census=implemented/unassigned
+  BFT_TIME                                 x3     damage-data            june=plain readers=none census=implemented/unassigned
+  DP_RATE_BY_FORMATION_MODE_USE_MP_3RD_LINE_SKILL x1     INIT_COMPONENT         june=xor readers=329cf870:? 
+  DP_USE_RATE_WITH_FORMATION               x1     INIT_COMPONENT         june=xor readers=329cf870:? 
+  FORCE_DYNAMIC_CAMERA_INDEX               x15    state                  june=xor readers=32057b80:CX2GUAra::ReservedSkillStart ( user hook @32057c4c ) 
+  RETAIN_CAMERA_STATE                      x1     state                  june=xor readers=32057b80:CX2GUAra::ReservedSkillStart ( user hook @32057c4c ) 
+  VOID_IMPACT_DOWN_ANGLE                   x1     INIT_COMPONENT         june=xor readers=329cf870:? 
+  VOID_IMPACT_UP_ANGLE                     x1     INIT_COMPONENT         june=xor readers=329cf870:? 
+neither (no reader found on either side):
+  CUSTOM_RENDER_STATE                      x7     state
+  DASHL_CANCEL_AFTER                       x5     state
+  HEAD_IK                                  x9     state
+  SPEED_y                                  x1     state
+note: March sites are grep-based literals; confirm the #ifdef branch with cl /P in the port phase.
+wrote june2017_re/char_add/plan_charport_keys.tsv
