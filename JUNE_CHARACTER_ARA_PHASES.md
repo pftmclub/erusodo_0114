@@ -2079,6 +2079,9 @@ Scope: the degree states and ultimate finish were CH2d2's; 27036 is unplayable w
 
 **Play-test hand-off.** In the chat of 2026-11-11 ( both units, each skill twice, the held Storm with Up / Down, the Restraints key pressed three times ). Lines to read: `[JUNE_CHAR] ARA SKILL state` ( no `BLANK` ), `ARA SKILL chain refused`, the Storm finish / landing effects, 0 `EXCEPTION`.
 
+**Play-test passed (2026-11-11 22:44-22:46, exe md5 a2e8854a).** 0 `EXCEPTION`, 0 `KEM_ERROR` / `Motion Error`, no `BLANK` state line. Storm 27036 x6: `state 49 -> 266 ( finish ) -> 267 ( landing )`, one held cast through `273` ( an aim state ) to the finish; finish and landing effect sets and `DamageEffect_SpecterOfStorm_Finish_Damage` hits. Restraints 27041: `51 -> 265` ( finish ); the chain `51 -> 155 / 156 / 157 ( Shadow Knot ) -> 158 ( end )` with `ARA SKILL chain refused: skill 27024 state 264 not registered` x2 per run ( the Sever press ), the unit back to input. Thunder 27042: `53 -> 262 -> 263` x3.
+- **Base ids not reachable at level 99.** The emulator's `[JUNE_SKILL] ACQ grant` ( on character select: `15 row(s) raised, 14 base(s) replaced` ) raised unit 136 to the enhanced ids too, so it played 27036 / 27041 / 27042 like 135. Restraints and Thunder share their states with the base ids; only the base Storm case ( 27021, CH2d's, unchanged here ) is still unplayed: the CH2d3 stage review's play-test covers it on a unit below the upgrade level. Unit 136 is kept ( now the same kit as 135 ).
+
 ### CH5 - Done (2026-11-11)
 
 Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI` (`Always.h` end; `#error` without `_ARA_LIVE` and `JUNE_UNIT_VIEWER_EFFECT_PLAYER`). Review kickoff `kickoffs/char-ara/CH5-review.md` written.

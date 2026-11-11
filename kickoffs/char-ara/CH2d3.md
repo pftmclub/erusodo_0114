@@ -61,3 +61,8 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
   gets June's case body too, inside March's case under `_SKILL`. June's chain lookup there takes the upgrade-swapped id: CH1n's head declares
   `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
 - `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).
+
+## Amended by CH2dx (2026-11-11)
+
+- **The stage review covers CH2dx too** ( `JUNE_CHARACTER_ARA_PHASES.md` "CH2dx - Done": 27036's aim / ultimate-finish states and the chain stand-in `IsStateRegistered` in `CanUseSpecialAttack` ). Its `[JUNE_CHAR] ARA SKILL state` debug line retires with `_SKILL_DEBUG`; the stand-in stays while any chain state is unported ( CH3 ).
+- **Play the base Specter of Storm ( 27021 ).** A level-99 unit never keeps it: the emulator's `ACQ grant` replaces every base id with the enhanced one on character select. Use a class-34 unit below the level at which `ACQ grant` raises 27021 ( check its log line: `14 base(s) replaced` must not include 27021 ), slot 27021, cast twice: `state <slot> -> 305-equivalent finish -> landing`, no `BLANK`.
