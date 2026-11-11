@@ -1940,6 +1940,14 @@ public:
 		RNSI_SA_ALS_SPECTER_OF_THUNDER_UPGRADE                = 27042,	// char-ara CH2d: June's Enum.lua; the enhanced Specter of Thunder
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH2d2
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_ALS_SUPPRESSION_SPECTER                       = 27025,	// char-ara CH2d2: June's Enum.lua; Suppression Specter
+		RNSI_SA_ALS_SEVER_UPGRADE                             = 27059,	// char-ara CH2d2: June's Enum.lua; the enhanced Sever
+		RNSI_SA_ALS_SUPPRESSION_SPECTER_UPGRADE               = 27060,	// char-ara CH2d2: June's Enum.lua; the enhanced Suppression Specter
+		RNSI_P_ASR_SPIRITISM_WEIRD_FOX                        = 27420,	// char-ara CH2d2: June's Enum.lua; Veritable Pandemonium reads it for the transcendence effect sets
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-11 // char-ara CH1n
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS                = 27222,	// char-ara CH1n: June's Enum.lua; its transcended slot keeps the Conversion Mana state

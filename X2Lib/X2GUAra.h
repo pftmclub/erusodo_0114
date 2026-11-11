@@ -684,6 +684,26 @@ protected:
 	void			ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMove();	// char-ara CH2dx: June 32bc0e30
 	void			ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_EventProcess();	// char-ara CH2dx: June 32ba61f0
 	bool			IsStateRegistered( const int iStateID_ ) const;	// char-ara CH2dx: stand-in, not June ( the state exists with a callback )
+	void			ASI_SA_ALS_SEVER_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d2: June 32bcea30
+	void			ASI_SA_AA_SUPPRESSION_SPECTER_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d2: June 32baac90
+	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d2: June 32bc9750
+	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d2: June 32bcec30
+	void			ASI_SA_ALS_SEVER_Init();	// char-ara CH2d2: June 32b94830
+	void			ASI_SA_AA_SUPPRESSION_SPECTER_Init();	// char-ara CH2d2: June 32b95030
+	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_Init();	// char-ara CH2d2: June 32b95120
+	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_Init();	// char-ara CH2d2: June 32b95150
+	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateEndFuture();	// char-ara CH2d2: June 32b951e0
+	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateEnd();	// char-ara CH2d2: June 32b951f0
+	void			ASI_SA_ALS_SEVER_EventProcess();	// char-ara CH2d2: June 32ba2140
+	void			ASI_SA_AA_SUPPRESSION_SPECTER_EventProcess();	// char-ara CH2d2: June 32ba3170
+	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_StateStartFuture();	// char-ara CH2d2: June 32ba3490
+	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_EventProcess();	// char-ara CH2d2: June 32ba34d0
+	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_EventProcess();	// char-ara CH2d2: June 32ba3500
+	void			ASI_SA_ALS_SEVER_FrameMove();	// char-ara CH2d2: June 32bbd640
+	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_FrameMove();	// char-ara CH2d2: June 32bbe550
+	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_FrameMove();	// char-ara CH2d2: June 32bbec00
+	void			ASI_SA_ALS_SEVER_StateEnd();	// char-ara CH2d2: June 32bc3f50
+	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateStartFuture();	// char-ara CH2d2: June 32bc5280
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2
@@ -1684,6 +1704,11 @@ protected:
 	int			m_iSpecterOfThunderTargetLine;		/// June +0x9798: the line index under it
 	float		m_fRestraintsSpecterRangeRate;		/// June +0x97b4: the MP-scaled damage rate of the force power Restraints spent ( -1 = nothing spent )
 	CX2DamageEffect::CEffectHandle	m_hRestraintsSpecterEffect;	/// June +0x97b8: the ring damage effect
+	// char-ara CH2d2: members of Sever / Veritable Pandemonium ( the two floats are written by the passives, CH4a )
+	float		m_fPandemoniumCoolTimeRate;			/// June +0x974c: Spiritual Eye's cool time rate applied to every left cool time when Veritable Pandemonium starts ( -1 = none )
+	float		m_fPandemoniumPowerRate;			/// June +0x9750: Load of Asura's multiplier of the power rate of Veritable Pandemonium's effect sets ( 1 = none )
+	CX2EffectSet::Handle	m_hSeverEffectSet;		/// June +0x97a4: Sever's damage effect set, read by its end state
+	D3DXVECTOR3	m_vSeverEndPos;						/// June +0x97a8: the spot Sever ended at, then the finish's landing spot; the black hole plays there
 	struct SStoneProtractorAim	/// June +0x9818: the held Storm's aim data
 	{
 		bool	m_bAimed;			/// +0: cleared by the start state, no reader found in June

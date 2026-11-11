@@ -2082,6 +2082,35 @@ Scope: the degree states and ultimate finish were CH2d2's; 27036 is unplayable w
 **Play-test passed (2026-11-11 22:44-22:46, exe md5 a2e8854a).** 0 `EXCEPTION`, 0 `KEM_ERROR` / `Motion Error`, no `BLANK` state line. Storm 27036 x6: `state 49 -> 266 ( finish ) -> 267 ( landing )`, one held cast through `273` ( an aim state ) to the finish; finish and landing effect sets and `DamageEffect_SpecterOfStorm_Finish_Damage` hits. Restraints 27041: `51 -> 265` ( finish ); the chain `51 -> 155 / 156 / 157 ( Shadow Knot ) -> 158 ( end )` with `ARA SKILL chain refused: skill 27024 state 264 not registered` x2 per run ( the Sever press ), the unit back to input. Thunder 27042: `53 -> 262 -> 263` x3.
 - **Base ids not reachable at level 99.** The emulator's `[JUNE_SKILL] ACQ grant` ( on character select: `15 row(s) raised, 14 base(s) replaced` ) raised unit 136 to the enhanced ids too, so it played 27036 / 27041 / 27042 like 135. Restraints and Thunder share their states with the base ids; only the base Storm case ( 27021, CH2d's, unchanged here ) is still unplayed: the CH2d3 stage review's play-test covers it on a unit below the upgrade level. Unit 136 is kept ( now the same kit as 135 ).
 
+### CH2d2 - Done (2026-11-11)
+
+Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( CH2a's, no new define; `_SKILL_DEBUG` stays on until the CH2d3 review ). No review of its own ( CH2d3's covers it ). Little Specter ( 34 ) ids 27024 / 27059 Sever, 27025 / 27060 Suppression Specter, and Veritable Pandemonium ( the chain's secret skill, states 309 / 310 ).
+All 20 class-map rows read from `charport_adis.py ara --phase CH2d2` listings and Ghidra decompiles; `32bc3f50` ( Sever end ) is uncarved, read from the listing. Every block carries `// char-ara CH2d2`. `funcmap.tsv` rows `Char Ara CH2d2` ( 20 ); `MODS.md` "Stage 7 Ara, CH2d2"; `JUNE_BUGS.md` 612.
+
+| June | `CX2GUAra::` | What it does |
+|---|---|---|
+| `32bcea30` `32baac90` `32bc9750` `32bcec30` | `ASI_SA_ALS_SEVER_` / `ASI_SA_AA_SUPPRESSION_SPECTER_` / `..._VERITABLE_PANDEMONIUM_` / `..._VERITABLE_PANDEMONIUM_FINISH_CreateState` | the four helpers: script table + callbacks. Registered in the 27024 / 27059 and 27025 / 27060 cases ( first switch ) and Sever + both Pandemonium states in `InitAquiredActiveSkillState` ( `32bd34c0` @`32bd4a54`-@`32bd4b6b`, chain lookup on the swapped id ) |
+| `32b94830` `32b95030` `32b95120` `32b95150` | `..._Init` | 11 / 19 / 2 / 11 preloads |
+| `32ba2140` `32ba3170` `32ba3500` | Sever / Suppression Specter / Pandemonium finish `EventProcess` | one body: animation end -> wait on a line, else jump down 45 lower; skill / walk / dash / attack cancels |
+| `32bbd640` `32bc3f50` | Sever `FrameMove`, `StateEnd` | 0.379 s the damage effect set ( handle kept ); the end spot = landing spot ( `CalcLockOnLandingPos` ) of the hit units' collision boxes, the first taken, later ones if no farther than the kept one; falls back to the unit position |
+| `32ba3490` `32ba34d0` `32bbe550` | Pandemonium `StateStartFuture`, `EventProcess`, `FrameMove` | learned Spiritual Eye rate cuts every left cool time ( member written by CH4a, default none ); animation end -> finish; 0.001 s start set, 0.307 s render state 2 + fade-out ( 12 / s ), 0.63 s black hole at Sever's spot ( x / z ) and the land height; Weird Fox ( 27420 ) learned + awakened -> the `_TRENSCENDENCE` sets |
+| `32bc5280` `32bbec00` `32b951e0` `32b951f0` | Pandemonium finish `StateStartFuture`, `FrameMove`, `EndFuture`, `End` | the unit moves to the nearest enabled line point to Sever's spot ( JUNE_BUGS 612 ); fade-in ( 5 / s ) ends the render state; FX1 0.001 s ( land position ), FX2 0.3 s, Damage 0.635 s, power rates x Load of Asura's member |
+
+**New names.** `X2SkillTree.h` ( `JUNE_ENUM_NAMES` ): `RNSI_SA_ALS_SUPPRESSION_SPECTER` 27025, `RNSI_SA_ALS_SEVER_UPGRADE` 27059, `RNSI_SA_ALS_SUPPRESSION_SPECTER_UPGRADE` 27060, `RNSI_P_ASR_SPIRITISM_WEIRD_FOX` 27420. Members ( `X2GUAra.h`, +0x974c / +0x9750 / +0x97a4 / +0x97a8 ): `m_fPandemoniumCoolTimeRate` ( -1 ), `m_fPandemoniumPowerRate` ( 1 ), `m_hSeverEffectSet`, `m_vSeverEndPos`. The first two are written by CH4a's passive refresher ( `32bcd9c0`: 27414 Spiritual Eye ability 148, 27412 Load of Asura ability 15 ); until then Pandemonium runs with the defaults.
+**How the secret skill starts.** The engine already does it ( `GetTriggerSecretSkillState`, `X2ComboAndSkillChainSystem.cpp` ): June's chain rows ( combo -> Restraints Specter -> Shadow Knot -> Sever, `TRIGGER_TIME_TO_SECRET_SKILL = 0.615` ) must all be chaining. A plain Sever press does not start it.
+**Chain stand-in.** CH2dx's guard stays ( CH3's chain states rely on it ); Sever is registered now, so Restraints -> Shadow Knot -> Sever runs.
+**Found, not ported.** Nothing new. Veritable Pandemonium's damage and the Suppression Specter's are script data ( effect sets / damage tables ): no `NUM` code here.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ARA_SKILL --with ..._SKILL_DEBUG --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2SkillTree.h`: `2 PASS ( +445, +25 ), 0 DEFINE, 1 OTHER ( X2SkillTree.h = JUNE_ENUM_NAMES ), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` ( the 3 files ): `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: `0 A/B row(s) remain`. `luabind.py check Ara_Martial_Artist`: `0 unbound`, ENUM `0 missing`, STATE `37 compared, 0 wrong`, `RESULT: PASS`. `skillicons.py check 27024 27025 27059 27060`: `misses 0`, PASS.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,276,352 B, 2026-11-11 23:21:59`; `DEPLOY OK: X2_offline.exe is 26,276,352 B, dated 2026-11-11 23:22:05, md5 65294f1cb3c0cee2c4fc3def3ff3c3e7, equal to X2/US_SERVICE/x2.exe (2026-11-11 23:21:59); built at main 6ff0845c + 3 uncommitted code file(s).`
+- `EXESTR OK: 2 of 2 found in X2_offline.exe, 26276352 B, md5 65294f1c` ( wide `EffectSet_SI_SA_ALS_SEVER_DAMAGE`, `..._VERITABLE_PANDEMONIUM_BLACKHOLE_TRENSCENDENCE` ).
+
+**Save.** Unit 135 `LSpecter99` ( class 34, lv 99; backup `db_backup/els_db_20261111_231517_pre_sql.sql` ): bank A slot 0 Sever 27059, slot 1 Restraints Specter 27041, slot 2 Suppression Specter 27060; Shadow Knot 27033 learned, unslotted ( chain ).
+
+**Play-test hand-off.** In the chat of 2026-11-11 ( unit 135 ). Lines to read: `[JUNE_CHAR] ARA SKILL state` ( Sever 301, Pandemonium 309 / 310, no `BLANK` ), `EffectSet_SI_SA_ALS_SEVER_DAMAGE`, 0 `EXCEPTION`.
+
 ### CH5 - Done (2026-11-11)
 
 Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI` (`Always.h` end; `#error` without `_ARA_LIVE` and `JUNE_UNIT_VIEWER_EFFECT_PLAYER`). Review kickoff `kickoffs/char-ara/CH5-review.md` written.

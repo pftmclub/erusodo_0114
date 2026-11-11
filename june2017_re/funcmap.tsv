@@ -10113,3 +10113,23 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32ba61d0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMoveFuture	PORTED	Char Ara CH2dx: new, under _SKILL: future dirDegree.z ( +0x7e0c ) = aim degree
 32bc0e30	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_FrameMove	PORTED	Char Ara CH2dx: new, under _SKILL: base finish 32bbdae0 + now dirDegree.z ( +0x80ac ) = aim past 0.4 s + SetRotateBone( Bip01, (-1,0,-1), (-1,0,aim) ) before the damage ( JUNE_BUGS 611 )
 32ba61f0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_EventProcess	PORTED	Char Ara CH2dx: new, under _SKILL: animation end -> landing 0x132, no line test
+32bcea30	CX2GUAra::ASI_SA_ALS_SEVER_CreateState	PORTED	Char Ara CH2d2: new, under _SKILL: table ASI_SA_ALS_SEVER; Init, FrameMove, EventProcess, End; registered by the 27024 / 27059 case and the second skill switch
+32baac90	CX2GUAra::ASI_SA_AA_SUPPRESSION_SPECTER_CreateState	PORTED	Char Ara CH2d2: new, under _SKILL: table ASI_SA_AA_SUPPRESSION_SPECTER; Init + EventProcess only ( the damage is the script's ); 27025 / 27060 case
+32bc9750	CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_CreateState	PORTED	Char Ara CH2d2: new, under _SKILL: Init, StartFuture, FrameMove, EventProcess; second skill switch ( 27024 / 27059 ), triggered by the chain's secret skill
+32bcec30	CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_CreateState	PORTED	Char Ara CH2d2: new, under _SKILL: Init, StartFuture, FrameMove, EventProcess, EndFuture, End; second skill switch
+32b94830	CX2GUAra::ASI_SA_ALS_SEVER_Init	PORTED	Char Ara CH2d2: new, under _SKILL: 11 preloads
+32b95030	CX2GUAra::ASI_SA_AA_SUPPRESSION_SPECTER_Init	PORTED	Char Ara CH2d2: new, under _SKILL: 19 preloads
+32b95120	CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_Init	PORTED	Char Ara CH2d2: new, under _SKILL: 2 preloads
+32b95150	CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_Init	PORTED	Char Ara CH2d2: new, under _SKILL: 11 preloads
+32b951e0	CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateEndFuture	PORTED	Char Ara CH2d2: new, under _SKILL: CommonStateEndFuture
+32b951f0	CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateEnd	PORTED	Char Ara CH2d2: new, under _SKILL: ClearCustomRenderState ( 31fc9570 ) then CommonStateEnd
+32ba2140	CX2GUAra::ASI_SA_ALS_SEVER_EventProcess	PORTED	Char Ara CH2d2: new, under _SKILL: animation end -> wait / jump down 45 lower, then the skill / walk / dash / attack cancels ( same body in 32ba3170 and 32ba3500 )
+32ba3170	CX2GUAra::ASI_SA_AA_SUPPRESSION_SPECTER_EventProcess	PORTED	Char Ara CH2d2: new, under _SKILL: the Sever body
+32ba3490	CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_StateStartFuture	PORTED	Char Ara CH2d2: new, under _SKILL: unit +0x494 ReduceLeftSkillCoolTime( +0x974c, rate ) when +0x974c >= 0 ( the Spiritual Eye passive writes it, CH4a ), then CommonStateStartFuture
+32ba34d0	CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_EventProcess	PORTED	Char Ara CH2d2: new, under _SKILL: animation end -> the finish ( 0x136 )
+32ba3500	CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_EventProcess	PORTED	Char Ara CH2d2: new, under _SKILL: the Sever body
+32bbd640	CX2GUAra::ASI_SA_ALS_SEVER_FrameMove	PORTED	Char Ara CH2d2: new, under _SKILL: at 0.379 s EffectSet_SI_SA_ALS_SEVER_DAMAGE ( power rate = GetPowerRate ), handle to +0x97a4
+32bbe550	CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FrameMove	PORTED	Char Ara CH2d2: new, under _SKILL: 0.001 s START effect set ( _TRENSCENDENCE when 27420 learned and awakened ), 0.307 s render state 2 + alpha 1 then alpha -= dt x 12, 0.63 s BLACKHOLE set at ( +0x97a8 x / z, GetLandPos y ) with power rate x +0x9750
+32bbec00	CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_FrameMove	PORTED	Char Ara CH2d2: new, under _SKILL: alpha += dt x 5 and ClearCustomRenderState at 1; FX1 0.001 s ( at the land position, power rate x +0x9750 ), FX2 0.3 s, Damage 0.635 s ( power rate x +0x9750 ); _TRENSCENDENCE sets when 27420 learned and awakened
+32bc3f50	CX2GUAra::ASI_SA_ALS_SEVER_StateEnd	PORTED	Char Ara CH2d2: new, under _SKILL ( uncarved in Ghidra, read from the listing ): the damage effect of the set ( first effect instance ), +0x97a8 = unit position, then the landing spot ( 32bc0420 ) of the hit units' collision boxes: the first taken, later ones when no farther from the unit than the kept spot; CommonStateEnd
+32bc5280	CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateStartFuture	PORTED	Char Ara CH2d2: new, under _SKILL: nearest point on any enabled non-wall non-monster line to +0x97a8 stored in +0x97a8 and set as the future position when a line qualified ( JUNE_BUGS 612 ), then CommonStateStartFuture

@@ -223,6 +223,7 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	, m_fSpecterOfStormSize( 1.f ), m_fSpecterOfStormRangeRate( -1.f ), m_hSpecterOfStormFinishEffect( INVALID_DAMAGE_EFFECT_HANDLE )	// char-ara CH2d: June ctor 32bc6bf0 +0x9774 / +0x9778 / +0x977c
 	, m_iSpecterOfThunderTargetState( -1 ), m_vSpecterOfThunderTargetPos( 0.f, 0.f, 0.f ), m_iSpecterOfThunderTargetLine( 0 )	// +0x9780 / +0x9784 / +0x9798
 	, m_fRestraintsSpecterRangeRate( -1.f ), m_hRestraintsSpecterEffect( INVALID_DAMAGE_EFFECT_HANDLE )	// +0x97b4 / +0x97b8
+	, m_fPandemoniumCoolTimeRate( -1.f ), m_fPandemoniumPowerRate( 1.f ), m_hSeverEffectSet( INVALID_EFFECTSET_HANDLE ), m_vSeverEndPos( 0.f, 0.f, 0.f )	// char-ara CH2d2: June ctor 32bc6bf0 +0x974c / +0x9750 / +0x97a4
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	, m_fMpGainPerForcePowerInFullHyperMode( 0.f ), m_iFPCancelChainCount( 0 ), m_iSnapshotForcePower( 0 )	// char-ara CH1q: June 32bc6bf0 @32bc7635 / @32bc77a3
@@ -4242,6 +4243,23 @@ void CX2GUAra::InitStateByUnitClass()
 				UserUnitStateData subStateData;
 				ASI_SA_ALS_SPECTER_OF_STORM_LANDING_UPGRADE_CreateState( subStateData, ASI_SA_ALS_SPECTER_OF_STORM_LANDING );
 				m_StateList[subStateData.stateID] = subStateData;
+			} break;
+	#pragma endregion
+	#pragma region RNSI_SA_ALS_SEVER
+		case CX2SkillTree::RNSI_SA_ALS_SEVER:	// char-ara CH2d2: June 32bd09d0 case 27024 / 27059
+		case CX2SkillTree::RNSI_SA_ALS_SEVER_UPGRADE:
+			{
+				ASI_SA_ALS_SEVER_CreateState( normalStateData, normalStateData.stateID );
+				ASI_SA_ALS_SEVER_CreateState( hyperStateData, hyperStateData.stateID );
+			} break;
+	#pragma endregion
+
+	#pragma region RNSI_SA_ALS_SUPPRESSION_SPECTER
+		case CX2SkillTree::RNSI_SA_ALS_SUPPRESSION_SPECTER:	// char-ara CH2d2: June 32bd09d0 case 27025 / 27060
+		case CX2SkillTree::RNSI_SA_ALS_SUPPRESSION_SPECTER_UPGRADE:
+			{
+				ASI_SA_AA_SUPPRESSION_SPECTER_CreateState( normalStateData, normalStateData.stateID );
+				ASI_SA_AA_SUPPRESSION_SPECTER_CreateState( hyperStateData, hyperStateData.stateID );
 			} break;
 	#pragma endregion
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
@@ -11449,6 +11467,411 @@ void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH_EventProcess()
 		StateChange( ASI_SA_ALS_SPECTER_OF_STORM_LANDING );
 
 	CommonEventProcess();
+}
+namespace _CONST_ARA_CH2D2_	// char-ara CH2d2
+{
+	const float		SEVER_DAMAGE_TIME					= 0.379f;	// June 32bbd640 @32bbd670
+	const float		PANDEMONIUM_START_EFFECT_TIME		= 0.001f;	// June 32bbe550 @32bbe58b
+	const float		PANDEMONIUM_FADE_START_TIME			= 0.307f;	// June 32bbe550 @32bbe85e
+	const double	PANDEMONIUM_FADE_OUT_SPEED			= 12.0;		// June 32bbe550 @32bbe8b8
+	const float		PANDEMONIUM_BLACK_HOLE_TIME			= 0.63f;	// June 32bbe550 @32bbe8cc
+	const double	PANDEMONIUM_FADE_IN_SPEED			= 5.0;		// June 32bbec00 @32bbec4c
+	const float		PANDEMONIUM_FINISH_FIRST_FX_TIME	= 0.001f;	// June 32bbec00 @32bbec7c
+	const float		PANDEMONIUM_FINISH_SECOND_FX_TIME	= 0.3f;		// June 32bbec00 @32bbef42
+	const float		PANDEMONIUM_FINISH_DAMAGE_TIME		= 0.635f;	// June 32bbec00 @32bbf1e6
+}
+using namespace _CONST_ARA_CH2D2_;
+
+// char-ara CH2d2: June helper 32bcea30
+void CX2GUAra::ASI_SA_ALS_SEVER_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_SEVER", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SEVER_Init );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SEVER_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SEVER_EventProcess );
+	stateData_.StateEnd        	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SEVER_StateEnd );
+}
+
+// char-ara CH2d2: June helper 32baac90
+void CX2GUAra::ASI_SA_AA_SUPPRESSION_SPECTER_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_AA_SUPPRESSION_SPECTER", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SUPPRESSION_SPECTER_Init );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SUPPRESSION_SPECTER_EventProcess );
+}
+
+// char-ara CH2d2: June helper 32bc9750
+void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_VERITABLE_PANDEMONIUM", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_VERITABLE_PANDEMONIUM_Init );
+	stateData_.StateStartFuture	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_VERITABLE_PANDEMONIUM_StateStartFuture );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_VERITABLE_PANDEMONIUM_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_VERITABLE_PANDEMONIUM_EventProcess );
+}
+
+// char-ara CH2d2: June helper 32bcec30
+void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_Init );
+	stateData_.StateStartFuture	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateStartFuture );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_EventProcess );
+	stateData_.StateEndFuture  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateEndFuture );
+	stateData_.StateEnd        	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateEnd );
+}
+
+// char-ara CH2d2: June 32b94830 ( 11 preloads )
+void CX2GUAra::ASI_SA_ALS_SEVER_Init()
+{
+	XMeshReadyInBackground( L"ALS_SHAKE_CHAOS_02.Y" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_WALK_P01.X" );
+	XSkinMeshReadyInBackground( L"ALS_TRACE_P01.X" );
+	TextureReadyInBackground( L"ColorBallRed2.dds" );
+	TextureReadyInBackground( L"Colorballgray.dds" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	TextureReadyInBackground( L"Nasod_King_Laser03.dds" );
+	TextureReadyInBackground( L"VERITABLE_PANDEMONIUM_T02.dds" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XMeshReadyInBackground( L"ALS_VERITABLE_PANDEMONIUM_P01.Y" );
+	TextureReadyInBackground( L"PET_GOLDFOX_MIHOEffect02.tga" );
+}
+
+// char-ara CH2d2: June 32b95030 ( 19 preloads )
+void CX2GUAra::ASI_SA_AA_SUPPRESSION_SPECTER_Init()
+{
+	XSkinMeshReadyInBackground( L"AA_SUPPRESSION_SPECTER_FOX.X" );
+	XMeshReadyInBackground( L"AA_SUPPRESSION_SPECTER_P01.Y" );
+	TextureReadyInBackground( L"ALS_MANA_DRAIN_P01_Y.dds" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_WALK_P01.X" );
+	XSkinMeshReadyInBackground( L"ALS_TRACE_P01.X" );
+	TextureReadyInBackground( L"ColorBallRed2.dds" );
+	TextureReadyInBackground( L"Colorballgray.dds" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XMeshReadyInBackground( L"SI_A_ALS_MANA_DRAIN_01.Y" );
+	XMeshReadyInBackground( L"SM_WaitStart.Y" );
+	TextureReadyInBackground( L"VERITABLE_PANDEMONIUM_T02.dds" );
+	XMeshReadyInBackground( L"Arme_Aging_UpLight_Mesh01.Y" );
+	XSkinMeshReadyInBackground( L"Shadow_Summon.X" );
+	XSkinMeshReadyInBackground( L"Sprriggan_AttackA.X" );
+	TextureReadyInBackground( L"Suppression.dds" );
+	TextureReadyInBackground( L"State_Stun.tga" );
+	TextureReadyInBackground( L"State_Stun2.tga" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XMeshReadyInBackground( L"AA_SUPPRESSION_SPECTER_P02.Y" );
+}
+
+// char-ara CH2d2: June 32b95120 ( 2 preloads )
+void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_Init()
+{
+	XMeshReadyInBackground( L"ALS_VERITABLE_PANDEMONIUM_P02.Y" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+}
+
+// char-ara CH2d2: June 32b95150 ( 11 preloads )
+void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_Init()
+{
+	TextureReadyInBackground( L"ALS_FOX_ARMS05.dds" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_WALK_P01.X" );
+	XSkinMeshReadyInBackground( L"ALS_TRACE_P01.X" );
+	XMeshReadyInBackground( L"ALS_VERITABLE_PANDEMONIUM_P02.Y" );
+	XMeshReadyInBackground( L"ALS_VERITABLE_PANDEMONIUM_P04.Y" );
+	XMeshReadyInBackground( L"Arme_Aging_UpLight_Mesh01.Y" );
+	TextureReadyInBackground( L"ColorBallRed2.dds" );
+	TextureReadyInBackground( L"VERITABLE_PANDEMONIUM_T01.dds" );
+	TextureReadyInBackground( L"VERITABLE_PANDEMONIUM_T02.dds" );
+	TextureReadyInBackground( L"ASL_HIT_P001.dds" );
+	XSkinMeshReadyInBackground( L"elsword_SA_rageCutter_attackSphere.X" );
+}
+
+// char-ara CH2d2: June 32ba2140 ( animation end -> wait on a line, else jump down 45 lower; then the skill, walk, dash and attack cancels )
+void CX2GUAra::ASI_SA_ALS_SEVER_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == IsOnSomethingFuture() )
+			StateChange( USI_WAIT );
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y = static_cast<float>( m_FrameDataFuture.syncData.position.y - STORM_LANDING_DROP );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d2: June 32ba3170 ( the same body as Sever's )
+void CX2GUAra::ASI_SA_AA_SUPPRESSION_SPECTER_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == IsOnSomethingFuture() )
+			StateChange( USI_WAIT );
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y = static_cast<float>( m_FrameDataFuture.syncData.position.y - STORM_LANDING_DROP );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d2: June 32ba3500 ( the same body as Sever's )
+void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == IsOnSomethingFuture() )
+			StateChange( USI_WAIT );
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y = static_cast<float>( m_FrameDataFuture.syncData.position.y - STORM_LANDING_DROP );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d2: June 32bbd640 ( at 0.379 s the damage effect set plays; its handle is kept for the end state )
+void CX2GUAra::ASI_SA_ALS_SEVER_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( SEVER_DAMAGE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+		m_hSeverEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SI_SA_ALS_SEVER_DAMAGE", this, NULL, IsHyperState(), GetPowerRate() );
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d2: June 32bc3f50 ( the end spot is the landing spot of the nearest box of the units the damage hit; none -> where the unit ended )
+void CX2GUAra::ASI_SA_ALS_SEVER_StateEnd()
+{
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		CX2EffectSet::EffectSetInstance* pInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( m_hSeverEffectSet );
+		if ( NULL != pInstance && false == pInstance->m_vecpEffectInstance.empty() )
+		{
+			CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->GetInstance( pInstance->m_vecpEffectInstance[0]->m_hDamageEffect, true );
+			if ( NULL != pDamageEffect )
+			{
+				const D3DXVECTOR3 vMyPos = GetPos();
+				m_vSeverEndPos = vMyPos;
+
+				bool bLandingFound = false;
+				const CX2DamageManager::HitUnitVector& vecHitUnit = pDamageEffect->GetDamageData().hitUnitList;
+				for ( CX2DamageManager::HitUnitVector::const_iterator itHit = vecHitUnit.begin(); itHit != vecHitUnit.end(); ++itHit )
+				{
+					CX2GameUnit* pHitUnit = ( null != itHit->optrHitGameUnit ) ? itHit->optrHitGameUnit.GetObservable() : NULL;
+					if ( NULL == pHitUnit || pHitUnit->GetNowHp() <= 0.f )
+						continue;
+
+					const CKTDXCollision::CollisionDataListSet& setCollisionList = pHitUnit->GetCollisionListSet();
+					for ( CKTDXCollision::CollisionDataListSet::const_iterator itSet = setCollisionList.begin(); itSet != setCollisionList.end(); ++itSet )
+					{
+						const CKTDXCollision::CollisionDataList* pCollisionList = *itSet;
+						for ( CKTDXCollision::CollisionDataList::const_iterator itData = pCollisionList->begin(); itData != pCollisionList->end(); ++itData )
+						{
+							const D3DXVECTOR3 vBoxPoint = (*itData)->GetPointStart();
+							D3DXVECTOR3 vLanding( 0.f, 0.f, 0.f );
+							int iLandingLine = 0;
+
+							// the first landing spot is taken whatever its distance; later ones only when no farther from the unit than the kept one
+							if ( false == bLandingFound )
+							{
+								if ( true == CalcLockOnLandingPos( vBoxPoint, &vLanding, &iLandingLine ) )
+								{
+									bLandingFound = true;
+									m_vSeverEndPos = vLanding;
+								}
+							}
+							else if ( GetDistance3Sq( vMyPos, vBoxPoint ) <= GetDistance3Sq( vMyPos, m_vSeverEndPos ) && true == CalcLockOnLandingPos( vBoxPoint, &vLanding, &iLandingLine ) )
+							{
+								m_vSeverEndPos = vLanding;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	CommonStateEnd();
+}
+
+// char-ara CH2d2: June 32ba3490 ( a learned Spiritual Eye cuts every left cool time to its rate )
+void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_StateStartFuture()
+{
+	if ( NULL != GetUnit() && 0.f <= m_fPandemoniumCoolTimeRate )
+		GetUnit()->AccessUnitData().m_UserSkillTree.ReduceLeftSkillCoolTime( m_fPandemoniumCoolTimeRate, true );
+
+	CommonStateStartFuture();
+}
+
+// char-ara CH2d2: June 32ba34d0 ( animation end -> the finish )
+void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChange( ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH );
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d2: June 32bbe550 ( start effect set, the fade-out of the unit, the black hole on the spot Sever ended at; Weird Fox learned and awakened picks the transcendence sets )
+void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FrameMove()
+{
+	const bool bTranscendenceEffect = ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASR_SPIRITISM_WEIRD_FOX ) && 0.f < GetRemainHyperModeTime() );
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( PANDEMONIUM_START_EFFECT_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		const CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet(
+			( true == bTranscendenceEffect ) ? L"EffectSet_SI_SA_ALS_VERITABLE_PANDEMONIUM_START_TRENSCENDENCE" : L"EffectSet_SI_SA_ALS_VERITABLE_PANDEMONIUM_START", this, NULL, IsHyperState() );
+		m_vecEffectSetToDeleteOnDamageReact.push_back( hEffectSet );
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( PANDEMONIUM_FADE_START_TIME ) )
+	{
+		m_iCustomRenderState = CRS_VERITABLE_PANDEMONIUM;	// stand-in: the render state is Ara's until the engine renderer phase
+		m_fRenderAlphaVeritablePandemonium = 1.f;
+	}
+
+	if ( CRS_VERITABLE_PANDEMONIUM == m_iCustomRenderState && 0.f < m_fRenderAlphaVeritablePandemonium )
+		m_fRenderAlphaVeritablePandemonium = static_cast<float>( m_fRenderAlphaVeritablePandemonium - m_fElapsedTime * PANDEMONIUM_FADE_OUT_SPEED );
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( PANDEMONIUM_BLACK_HOLE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		D3DXVECTOR3 vBlackHolePos = m_vSeverEndPos;
+		vBlackHolePos.y = GetLandPos( false ).y;
+		const float fPowerRate = GetPowerRate() * m_fPandemoniumPowerRate;
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet(
+			( true == bTranscendenceEffect ) ? L"EffectSet_SI_SA_ALS_VERITABLE_PANDEMONIUM_BLACKHOLE_TRENSCENDENCE" : L"EffectSet_SI_SA_ALS_VERITABLE_PANDEMONIUM_BLACKHOLE",
+			this, NULL, IsHyperState(), fPowerRate, -1.f, D3DXVECTOR3( 1.f, 1.f, 1.f ), true, vBlackHolePos );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d2: June 32bc5280 ( the unit moves to the nearest point on any enabled line to where Sever ended )
+void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateStartFuture()
+{
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetWorld() && NULL != g_pX2Game->GetWorld()->GetLineMap() )
+	{
+		CKTDGLineMap* pLineMap = g_pX2Game->GetWorld()->GetLineMap();
+		float fNearestDistance = NEAREST_LINE_START_DISTANCE;
+		int iNearestLine = -1;
+		D3DXVECTOR3 vNearestPoint( 0.f, 0.f, 0.f );		// June leaves it unwritten when no line qualifies ( JUNE_BUGS )
+
+		const int iLineCount = pLineMap->GetNumLineData();
+		for ( int iLine = 0; iLine < iLineCount; ++iLine )
+		{
+			const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( iLine );
+			if ( NULL == pLineData || false == pLineData->bEnable || CKTDGLineMap::LT_MONSTER_ROAD == pLineData->lineType || CKTDGLineMap::LT_WALL == pLineData->lineType )
+				continue;
+
+			const D3DXVECTOR3 vLineVec = pLineData->endPos - pLineData->startPos;
+			D3DXVECTOR3 vLineDir;
+			D3DXVec3Normalize( &vLineDir, &vLineVec );
+			const D3DXVECTOR3 vFromStart = m_vSeverEndPos - pLineData->startPos;
+			const float fAlongLine = D3DXVec3Dot( &vFromStart, &vLineDir );
+
+			D3DXVECTOR3 vPoint;
+			if ( fAlongLine <= 0.f )
+				vPoint = pLineData->startPos;
+			else if ( D3DXVec3Length( &vLineVec ) <= fAlongLine )
+				vPoint = pLineData->endPos;
+			else
+				vPoint = pLineData->startPos + vLineDir * fAlongLine;
+
+			const D3DXVECTOR3 vToPoint = vPoint - m_vSeverEndPos;
+			const float fDistance = D3DXVec3Length( &vToPoint );
+			if ( fDistance <= fNearestDistance )
+			{
+				fNearestDistance = fDistance;
+				iNearestLine = iLine;
+				vNearestPoint = vPoint;
+			}
+		}
+
+		m_vSeverEndPos = vNearestPoint;
+		if ( -1 != iNearestLine )
+			m_FrameDataFuture.syncData.position = m_vSeverEndPos;
+	}
+
+	CommonStateStartFuture();
+}
+
+// char-ara CH2d2: June 32bbec00 ( the fade-in ends the render state; the three effect sets at 0.001 / 0.3 / 0.635 s, the transcendence ones when Weird Fox is learned and awakened )
+void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_FrameMove()
+{
+	if ( CRS_VERITABLE_PANDEMONIUM == m_iCustomRenderState )
+	{
+		m_fRenderAlphaVeritablePandemonium = static_cast<float>( m_fElapsedTime * PANDEMONIUM_FADE_IN_SPEED + m_fRenderAlphaVeritablePandemonium );
+		if ( 1.f <= m_fRenderAlphaVeritablePandemonium )
+			ClearCustomRenderState();
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( PANDEMONIUM_FINISH_FIRST_FX_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		const float fPowerRate = GetPowerRate() * m_fPandemoniumPowerRate;
+		g_pX2Game->GetEffectSet()->PlayEffectSet(
+			( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASR_SPIRITISM_WEIRD_FOX ) && 0.f < GetRemainHyperModeTime() ) ? L"EffectSet_SI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_FX1_TRENSCENDENCE" : L"EffectSet_SI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_FX1",
+			this, NULL, IsHyperState(), fPowerRate, -1.f, D3DXVECTOR3( 1.f, 1.f, 1.f ), true, GetLandPos( false ) );
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( PANDEMONIUM_FINISH_SECOND_FX_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet(
+			( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASR_SPIRITISM_WEIRD_FOX ) && 0.f < GetRemainHyperModeTime() ) ? L"EffectSet_SI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_FX2_TRENSCENDENCE" : L"EffectSet_SI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_FX2",
+			this, NULL, IsHyperState() );
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( PANDEMONIUM_FINISH_DAMAGE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		const float fPowerRate = GetPowerRate() * m_fPandemoniumPowerRate;
+		g_pX2Game->GetEffectSet()->PlayEffectSet(
+			( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASR_SPIRITISM_WEIRD_FOX ) && 0.f < GetRemainHyperModeTime() ) ? L"EffectSet_SI_SA_ALS_VERITABLE_PANDEMONIUM_Damage_TRENSCENDENCE" : L"EffectSet_SI_SA_ALS_VERITABLE_PANDEMONIUM_Damage",
+			this, NULL, IsHyperState(), fPowerRate );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d2: June 32b951e0
+void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateEndFuture()
+{
+	CommonStateEndFuture();
+}
+
+// char-ara CH2d2: June 32b951f0 ( the render state goes back to normal )
+void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateEnd()
+{
+	ClearCustomRenderState();
+	CommonStateEnd();
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 // char-ara CH1q: June 32bc5bc0 ( HP by a share of the max HP, one force power, the kill effect set; the handle is not kept )
@@ -26502,6 +26925,28 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 					{
 						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH];
 						ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_CreateState( stateData, ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+					}
+				} break;
+			case CX2SkillTree::RNSI_SA_ALS_SEVER:	// char-ara CH2d2: June 32bd34c0 case 27024 / 27059 ( the chain lookup takes the swapped id )
+			case CX2SkillTree::RNSI_SA_ALS_SEVER_UPGRADE:
+				{
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALS_SEVER];
+						ASI_SA_ALS_SEVER_CreateState( stateData, ASI_SA_ALS_SEVER );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// June @32bd4a75
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALS_VERITABLE_PANDEMONIUM];
+						ASI_SA_ALS_VERITABLE_PANDEMONIUM_CreateState( stateData, ASI_SA_ALS_VERITABLE_PANDEMONIUM );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH];
+						ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_CreateState( stateData, ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH );
 						SetSkillLevelStateData( pSkillTemplet, stateData );
 					}
 				} break;
