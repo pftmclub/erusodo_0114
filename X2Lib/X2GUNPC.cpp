@@ -28518,6 +28518,15 @@ float CX2GUNPC::GetCriticalPercent( BYTE byAttackType, float fExtraCritical )
 	return fCriticalPercent;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+// char-ara CH1o: June 3275a410 ( unit vslot 0x2fc ): a summon hands its damage data to its owner
+void CX2GUNPC::DoProcessWhenDamageDataDestroyed( const CX2DamageManager::DamageData* pDamageData_ )
+{
+	CX2GameUnit* pOwner = GetOwnerGameUnit();
+	if ( NULL != pOwner )
+		pOwner->DoProcessWhenDamageDataDestroyed( pDamageData_ );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 float CX2GUNPC::GetActionSpeedUpValue()
 {
 	float fActionSpeedUpValue = 0.0f;

@@ -4796,6 +4796,19 @@ void CX2GUAra::SetEquippedSkillLevelStateData( const CX2SkillTree::SkillTemplet*
 
 void CX2GUAra::SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillTemplet_, UserUnitStateData& stateData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1o: June 3201f850 ( CX2GUUser's hoisted form, called directly by Ara ): the upgrade-swap level and the additional power rate
+	if ( NULL == pSkillTemplet_ || NULL == GetUnit() )
+		return;
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const int iSkillTempletLevel = max( 1, userSkillTree.GetSkillLevel( pSkillTemplet_->m_eID, false, 0, true ) );
+
+	stateData_.m_SPLevel	= iSkillTempletLevel;
+	stateData_.m_fPowerRate	= pSkillTemplet_->GetSkillPowerRateValue( iSkillTempletLevel );
+	stateData_.m_eSkillID	= pSkillTemplet_->m_eID;
+	stateData_.m_fPowerRate	= ( GetSkillAdditionalPowerRate( static_cast<int>( pSkillTemplet_->m_eID ) ) + 1.f ) * stateData_.m_fPowerRate;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef UPGRADE_SKILL_SYSTEM_2013 // 김태환 - 스킬 시스템 변경
 
 	if ( NULL == GetUnit() )
@@ -4816,6 +4829,7 @@ void CX2GUAra::SetSkillLevelStateData( const CX2SkillTree::SkillTemplet* pSkillT
 #endif // UPGRADE_SKILL_SYSTEM_2013
 	
 	stateData_.m_eSkillID	= pSkillTemplet_->m_eID;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 #pragma region InitComponent
@@ -5776,6 +5790,73 @@ USHORT CX2GUAra::GetReadyFPGainOfSkillHit( OUT int& iHitID_ ) const
 	return usGain;
 }
 
+// char-ara CH1o: June 32bab110 ( every entry of that hit drops its hit id; the gain of the last record that held one )
+USHORT CX2GUAra::TakeFPGainByHitID( const int iHitID_ )
+{
+	USHORT usGain = 0;
+
+	if ( -1 >= iHitID_ )
+		return usGain;
+
+	for ( vector<SkillFPGainRecord>::iterator itRecord = m_vecSkillFPGainRecord.begin(); itRecord != m_vecSkillFPGainRecord.end(); ++itRecord )
+	{
+		for ( vector<SkillFPGainEntry>::iterator itEntry = itRecord->m_vecEntry.begin(); itEntry != itRecord->m_vecEntry.end(); ++itEntry )
+		{
+			if ( itEntry->m_iGainHitID == iHitID_ )
+			{
+				usGain = itRecord->m_usGain;
+				itEntry->m_iGainHitID = -1;
+			}
+		}
+	}
+
+	return usGain;
+}
+
+// char-ara CH1o: June 32bab6b0 ( a hit of that skill's attack enables its entries; the first ready one gives the gain, then its hit id is dropped everywhere )
+USHORT CX2GUAra::TakeSkillFPGainByHit( const int iSkillID_, const int iAttackSerial_ )
+{
+	USHORT usGain = 0;
+	int iHitID = -1;
+
+	for ( vector<SkillFPGainRecord>::iterator itRecord = m_vecSkillFPGainRecord.begin(); itRecord != m_vecSkillFPGainRecord.end(); ++itRecord )
+	{
+		if ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( itRecord->m_iSkillID, iSkillID_ ) )
+		{
+			for ( vector<SkillFPGainEntry>::iterator itEntry = itRecord->m_vecEntry.begin(); itEntry != itRecord->m_vecEntry.end(); ++itEntry )
+			{
+				if ( 0 <= itEntry->m_iGainHitID && itEntry->m_iAttackSerial == iAttackSerial_ )
+				{
+					itEntry->m_bEnabled = true;
+
+					if ( true == itEntry->m_bReady )
+					{
+						usGain = itRecord->m_usGain;
+						iHitID = itEntry->m_iGainHitID;
+						break;
+					}
+				}
+			}
+		}
+
+		if ( 0 < iHitID )	// June @32bab720: a hit id of 0 does not stop the walk
+			break;
+	}
+
+	if ( -1 < iHitID )
+	{
+		for ( vector<SkillFPGainRecord>::iterator itRecord = m_vecSkillFPGainRecord.begin(); itRecord != m_vecSkillFPGainRecord.end(); ++itRecord )
+		{
+			for ( vector<SkillFPGainEntry>::iterator itEntry = itRecord->m_vecEntry.begin(); itEntry != itRecord->m_vecEntry.end(); ++itEntry )
+			{
+				if ( itEntry->m_iGainHitID == iHitID )
+					itEntry->m_iGainHitID = -1;
+			}
+		}
+	}
+
+	return usGain;
+}
 // char-ara CH1k: June 32bb1ff0 ( user vslot 0x800, step 512 ): the MP, the finality stone and the cool time of a skill use
 void CX2GUAra::SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ )
 {
@@ -23640,6 +23721,36 @@ void CX2GUAra::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, float 
 */
 /*virtual*/void CX2GUAra::GetStateIDBySecretSkillTriggerStateID( IN OUT int& iStateID_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1o: June 32ba4620 ( user vslot 0x6b4 ): the upgrade base of the slot's skill names the state ( CH1i had it as ReplaceStateIDBySkill )
+	if ( NULL == GetUnit() )
+		return;
+
+	const int iBaseSkillID = static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillIDByEquipSlotID( iStateID_ ) ) );	// June 32207210
+
+	if ( 0 == iBaseSkillID )
+		return;
+
+	switch ( iBaseSkillID )
+	{
+	case CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR:
+	case CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR_UPGRADE:
+		iStateID_ = ASI_SA_ALD_WOLF_SPEAR;
+		break;
+
+	case CX2SkillTree::RNSI_SA_AYR_STEAL_SOUL:
+		iStateID_ = ASI_A_AYR_STEAL_SOUL;
+		break;
+
+	case CX2SkillTree::RNSI_SA_ALS_SEVER:
+		iStateID_ = ASI_SA_ALS_SEVER;
+		break;
+
+	case CX2SkillTree::RNSI_SA_ASR_GET_BLOOD:
+		iStateID_ = ASI_SA_AA_GET_BLOOD;
+		break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( NULL != GetUnit() )
 	{
 		/// 스킬 슬롯 StateID에 설정되어 있는 스킬 ID를 반환 ( 스킬 슬롯 State ID가 아니라면, SI_NONE 반환 )
@@ -23665,6 +23776,7 @@ void CX2GUAra::CreateNotEnoughMPEffect( D3DXVECTOR3 vPos, float fDegreeX, float 
 			}
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -23828,8 +23940,8 @@ void CX2GUAra::MarkSkillFPGainHit( const int iSkillID_, const int iAttackSerial_
 	}
 }
 
-// char-ara CH1h: June 32bab1d0 ( user vslot 0x2fc, my unit only )
-void CX2GUAra::MarkSkillFPGainHitByDamage( const CX2DamageManager::DamageData* pDamageData_ )
+// char-ara CH1o: June 32bab1d0 ( unit vslot 0x2fc, ~DamageData calls it on the attacker; my unit only; CH1h named it MarkSkillFPGainHitByDamage )
+void CX2GUAra::DoProcessWhenDamageDataDestroyed( const CX2DamageManager::DamageData* pDamageData_ )
 {
 	if ( NULL != pDamageData_ && true == IsMyUnit() )
 		MarkSkillFPGainHit( pDamageData_->m_iAppliedSkillID, pDamageData_->m_iAttackSerial );
@@ -23841,44 +23953,12 @@ bool CX2GUAra::IsNowStateSameOrUpgradeSkill( const int iSkillID_ ) const
 	return ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( GetNowStateSkillID(), iSkillID_ ) );
 }
 
-// char-ara CH1i: June 32b956d0 ( unit vslot 0x74c, asked with a CEffect's damage trigger condition before the effect hits a user; Ara accepts every one )
+// char-ara CH1o: June 32b956d0 ( user vslot 0x74c, base 32ec5990 true too ): EffectToUnit asks the CEffect's user owner about its DAMAGE_TRIGGER_CONDITION; Ara accepts every one
 bool CX2GUAra::IsDamageTriggerConditionMet( const int iDamageTriggerCondition_ ) const
 {
 	UNREFERENCED_PARAMETER( iDamageTriggerCondition_ );
 
 	return true;
-}
-
-// char-ara CH1i: June 32ba4620 ( user vslot 0x6b4 ): the skill behind the state id ( June 32890140, March's GetSkillIDByEquipSlotID ) names the id the state is replaced by
-void CX2GUAra::ReplaceStateIDBySkill( int* pStateID_ ) const
-{
-	if ( NULL == GetUnit() )
-		return;
-
-	const int iBaseSkillID = static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillIDByEquipSlotID( *pStateID_ ) ) );	// June 32207210
-
-	if ( 0 == iBaseSkillID )
-		return;
-
-	switch ( iBaseSkillID )
-	{
-	case CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR:
-	case CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR_UPGRADE:
-		*pStateID_ = ASI_SA_ALD_WOLF_SPEAR;
-		break;
-
-	case CX2SkillTree::RNSI_SA_AYR_STEAL_SOUL:
-		*pStateID_ = ASI_A_AYR_STEAL_SOUL;
-		break;
-
-	case CX2SkillTree::RNSI_SA_ALS_SEVER:
-		*pStateID_ = ASI_SA_ALS_SEVER;
-		break;
-
-	case CX2SkillTree::RNSI_SA_ASR_GET_BLOOD:
-		*pStateID_ = ASI_SA_AA_GET_BLOOD;
-		break;
-	}
 }
 
 // char-ara CH1i: June 32ba4710 ( user vslot 0x670 ): the unit is in the job line, 1 Little Hsien / Sakra Devanam, 2 Little Devil / Yama Raja, 3 Little Specter / Asura

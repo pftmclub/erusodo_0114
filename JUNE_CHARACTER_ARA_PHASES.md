@@ -1070,6 +1070,57 @@ Fresh Ghidra decompiles of `32bd09d0`, `32bd34c0`, `32d3ed30` and `32babb50`, re
 
 **Nothing to play-test.** Next: `/x2-phase char-ara CH1o` (Opus 5.5 high).
 
+### CH1o - Done (2026-11-11)
+
+**Landed** (flag `_LIVE`, still `//#define`; `_CORE` for the two new helpers; 12 funcmap rows `Char Ara CH1o`; `JUNE_BUGS` 601; checklist L286
+`(Ara: CH1o)`; divergent row `GetStateIDBySecretSkillTriggerStateID`). Files: `X2GUAra.cpp` / `.h`, `X2GUUser.h`, `X2GameUnit.h`, `X2GUNPC.h` / `.cpp`,
+`X2DamageManager.h` / `.cpp`. Every block carries `char-ara CH1o`. Read from the exe bytes (`charport_adis.py ara`, `disasm_range.py`, `vtslot.py`, a
+`[r+slot]`-then-`call r` sweep over `dispsweep 2fc 6b4 74c`, an E8 / E9 xref scan).
+- **`SetSkillLevelStateData` = June `3201f850`** inside March's class copy under `_LIVE` (Rena's CH1o form): null templet / unit return,
+  `max( 1, GetSkillLevel( id, false, 0, true ) )`, power rate, id, x `( GetSkillAdditionalPowerRate( id ) + 1.f )`. Ara calls `3201f850` directly (no
+  0x7a8 override); CH1i's 41 `SetEquippedSkillLevel` blocks and CH1n's head reach it through `SetEquippedSkillLevelStateData`.
+- **Vslot 0x6b4 is March's `GetStateIDBySecretSkillTriggerStateID` (corrects CH1i).** Its only June caller `32d3f140 @32d3f1e3` = March's
+  `CX2ComboAndSkillChainSystem::GetTriggerSecretSkillState` (future state = ( `+0x7cb0` - `+0x7cec` ) / 100, trigger id `+0x18`, `CanTriggerToSecretSkill`
+  `32d3ff20`, the 100.0 / anim-time tests, returns `+0x14`; caller `CommonEventProcess @31fe7a46`): no code there. Ara already overrides the March virtual
+  (`X2GUAra.cpp:23641`), so CH1i's body moved inside it under `_LIVE` (March's two `SI_` cases in `#else`) and CH1i's `_CORE` duplicate
+  `ReplaceStateIDBySkill` is gone. Divergent row added in this commit.
+- **Vslot 0x2fc: June calls it from `DamageData`'s destructor.** `~DamageData` `31e9bb70` (38 callers) opens with `32610d50 @31e9bba5`: attacker handle
+  `+0xc` -> unit vslot 0x2fc( this ). Base `3208ddc0` empty (`CX2GameUnit`); the NPC vtable `334ba584` (+ `334b8380` / `8800` / `8c80`) + 0x2fc =
+  `3275a410`, which hands it to the owner (`+0x8d5c`, any unit type). Ported: `CX2GameUnit::DoProcessWhenDamageDataDestroyed` (empty, `_LIVE`),
+  `CX2GUNPC`'s owner forwarder, `DamageData::NotifyAttackerWhenDestroyed()` (declared in the struct, defined in `X2DamageManager.cpp`, called first in
+  `~DamageData`), and CH1h's `MarkSkillFPGainHitByDamage` renamed to the virtual's name (still `_CORE`, now `virtual`). Teardown: a unit's own
+  `DamageData` members die while its observable lives; base-level members dispatch to the empty base, Ara has none, and the NPC's `m_ReflectDamageData`
+  (`X2GUNPC.h:3652`) dies after `m_optrOwnerGameUnit` (`:4551`) has nulled its handle, so the forwarder finds no owner.
+- **Vslot 0x74c is asked of the effect's owner, not the defender (corrects CH1i).** `EffectToUnit @3262efa4-3262efd7`, right after the hit stores
+  impact point / defender / `reActResult`: owner `31f8b560` a user and CEffect `+0x7ac` (= its `DamageData` `+0x5ac` `m_iDamageTriggerCondition`) > -1 ->
+  owner vslot 0x74c( condition ); false -> next unit. `vtslot.py 0x74c CX2GU`: every user class keeps base `32ec5990` (`mov al,1`) except Ara, whose
+  `32b956d0` also returns true, so the gate never fires in June. Wired anyway under `_LIVE`: base `CX2GUUser::IsDamageTriggerConditionMet` (true), Ara's
+  made `virtual`, the test after `X2DamageManager.cpp:2998` with a NULL-owner test June lacks. The C5 loader's "no reader" log (`:864`) is now stale; left.
+- **`32bab110` `TakeFPGainByHitID` / `32bab6b0` `TakeSkillFPGainByHit`**: new `_CORE` on the FP-gain records (CH1h / CH1k types). Their only callers are
+  CH1q's `32bab5c0` / `32bab780`. `32bab6b0` also sets entry `+0` on every matching attack serial before testing ready; its walk keeps going on a hit
+  id of 0 (**JUNE_BUGS 601**, as 597).
+- **`32b92fa0` / `32b92fb0` = March's `GetBlockingRate` / `GetTurnigRate`** (`+0x9650` / `+0x9654`), called by `CX2GUUser::DamageReact @320474ec` /
+  `@3204756c` in the Quicken Guard block (UT_ARA, class 118), = March `X2GUUser.cpp:10310` / `:10335`: no code.
+- **No code:** 0x28 / 0x30 (written in CH1h); 0xd0 `CreateGageData` `32bc19a0` is CH1q's (class map; `ch0_fp.tsv`'s "CH1q3" means CH1q); 0x670
+  `IsInJobLine` stays a plain member (Chung / Elsword CH1o: only class code calls it); `31d29310` stale (no live caller).
+
+**Routed (scope rule).** CH4a (amendment line written): June's Quicken Guard gate `@32047441` is `attackType != AT_SPECIAL` (AT_COMMAND passes),
+March's `X2GUUser.cpp:10297` `== AT_NORMAL`.
+
+**Gates.**
+- `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --with SERV_IRUHADEV_JUNE_CHAR_ARA_CORE --worktree --files` the 8: `files: 8 PASS, 0 PASS~, 0 DEFINE, 0 OTHER,
+  0 FAIL, 0 ERROR`; `38 deleted line(s)` (all CH1h / CH1i `_CORE` lines: the 33-line `ReplaceStateIDBySkill`, its declaration, the renamed declaration
+  and definition head, one corrected comment), 0 non-ASCII, 0 EOL-mismatched, 0 `#else/#endif` without the token, 0 encoding changes; RESULT FAIL only
+  for `define: NOT FOUND` (`//#define`). numstat: X2GUAra.cpp 115 / 35, .h 4 / 3, X2DamageManager.cpp 15 / 0, .h 6 / 0, X2GUNPC.cpp 9 / 0, .h 3 / 0,
+  X2GUUser.h 3 / 0, X2GameUnit.h 3 / 0.
+- `junediverge.py --check` the 8: `allow-listed: 1`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp X2Lib/X2DamageManager.cpp X2Lib/X2GUNPC.cpp`:
+  `0 A/B row(s)`.
+- One-file probes (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH) of X2GUAra / X2DamageManager / X2GUNPC / X2GUUser `.cpp`, `_LIVE` off and on: exit 0,
+  0 errors x8; X2GUAra.cpp with `_LIVE` + `_FP` + `_SPECTER`: exit 0, 0 errors.
+- No `_DEBUG` define. Full build skipped: no play-test.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-ara CH1o review` (Opus 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

@@ -3534,6 +3534,9 @@ class CX2GUNPC : public CX2GameUnit
 		
 	
 		float						GetCriticalPercent( BYTE byAttackType, float fExtraCritical = 0.f );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+		virtual void				DoProcessWhenDamageDataDestroyed( const CX2DamageManager::DamageData* pDamageData_ );	// char-ara CH1o: June 3275a410 ( unit vslot 0x2fc: the owner's )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 		
 		float						GetActionSpeedUpValue();
 		bool						GetIsAlwaysSuperArmor();

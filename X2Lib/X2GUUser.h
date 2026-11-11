@@ -3334,6 +3334,9 @@ public:
 		/// 스킬 슬롯 스테이트 아이디에 해당하는 스테이트 아이디 반환
 		virtual void GetStateIDBySecretSkillTriggerStateID( IN OUT int& iStateID_ ) const {};
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+		virtual bool IsDamageTriggerConditionMet( const int iDamageTriggerCondition_ ) const { return true; }	// char-ara CH1o: June user vslot 0x74c ( base 32ec5990 ), asked by EffectToUnit @3262efca
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 
 #ifdef HAMEL_SECRET_DUNGEON // 김태환
 		void ApplyBuffByUseHyperMode();								/// 각성시 적용할 버프를 설정하는 함수

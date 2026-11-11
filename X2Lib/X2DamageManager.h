@@ -1796,8 +1796,14 @@ class CX2DamageManager
 			}
 #endif SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+			void NotifyAttackerWhenDestroyed() const;	// char-ara CH1o: June 32610d50 ( the attacker unit's vslot 0x2fc )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 			~DamageData()
 			{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+				NotifyAttackerWhenDestroyed();	// char-ara CH1o: June ~DamageData 31e9bb70 calls 32610d50 first
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 				hitUnitList.clear();
 			}
 

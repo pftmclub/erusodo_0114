@@ -105,7 +105,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH1o | **ready** (CH1n review passed 2026-11-11): virtuals, `SetSkillLevelStateData` term | Opus 5.5 / high, Opus review | CH1n review | `X2GUAra.*`, `X2GUUser.*` | `CH1o.md` |
+| CH1o | **review ready** (CH1o done 2026-11-11: 0x2fc / 0x6b4 / 0x74c wired, `SetSkillLevelStateData` term, two FP helpers; no play-test) | Opus 5.5 / high, Opus review | CH1n review | `X2GUAra.*`, `X2GUUser.*`, `X2GUNPC.*`, `X2DamageManager.*` | `CH1o.md`, `CH1o-review.md` |
 | CH1p | blocked (CH1o review): 7ag, hooks, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUAra.*`, `X2GUUser.*` | `CH1p.md` |
 | CH1q | blocked (CH1p review): force power + berserk rework, flag `_FP` | Opus 5.5 / high, Opus review | CH1p review | `X2GUAra.*`, `X2GUUser.*`, `X2Gage*.*`, emulator | `CH1q.md` |
 | CH1q2 | blocked (CH1q review): Specter states + tails, flag `_SPECTER` | Opus 5.5 / high, Opus review | CH1q review | `X2GUAra.*`, `X2GUUser.*` | `CH1q2.md` |

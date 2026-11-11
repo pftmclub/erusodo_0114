@@ -2760,6 +2760,14 @@ static void FxTraceCollisionDataToUnit( CKTDXCollision* pCollision_, CX2DamageMa
 #endif // SERV_IRUHADEV_JUNE_FX_DEBUG && SERV_IRUHADEV_OFFLINE
 #endif SERV_IRUHADEV_JUNE_COLLISION
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+// char-ara CH1o: June 32610d50 ( the first call of ~DamageData 31e9bb70 ): the attacker unit's vslot 0x2fc sees the damage data go
+void CX2DamageManager::DamageData::NotifyAttackerWhenDestroyed() const
+{
+	if ( null != optrAttackerGameUnit )
+		optrAttackerGameUnit->DoProcessWhenDamageDataDestroyed( this );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 {
 	bool			retval = false;
@@ -2996,6 +3004,13 @@ bool CX2DamageManager::EffectToUnit( DamageData* pDamageData )
 			pDamageData->impactPoint	= impactPos;
 			pDamageData->optrDefenderGameUnit	= pDefender;
             pDamageData->reActResult	= pDamageData->reActType;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+			// char-ara CH1o: June 3262efa4: the effect's user owner may refuse its DAMAGE_TRIGGER_CONDITION ( vslot 0x74c ); June has no NULL owner test
+			CX2GameUnit* pTriggerConditionOwner = pAttacker->GetOwnerUnit();
+			if ( NULL != pTriggerConditionOwner && CX2GameUnit::GUT_USER == pTriggerConditionOwner->GetGameUnitType() && -1 < pAttacker->GetDamageData().m_iDamageTriggerCondition
+				&& false == static_cast<CX2GUUser*>( pTriggerConditionOwner )->IsDamageTriggerConditionMet( pAttacker->GetDamageData().m_iDamageTriggerCondition ) )
+				continue;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 
 #ifdef DAMAGE_EFFECT_GROUP_DAMAGE
 

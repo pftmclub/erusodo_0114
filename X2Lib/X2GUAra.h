@@ -550,7 +550,7 @@ protected:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	bool			IsBuffHyperModeActive() const;	// char-ara CH1h: June 32bd5e60
 	void			MarkSkillFPGainHit( const int iSkillID_, const int iAttackSerial_ );	// char-ara CH1h: June 32bab160
-	void			MarkSkillFPGainHitByDamage( const CX2DamageManager::DamageData* pDamageData_ );	// char-ara CH1h: June 32bab1d0 ( user vslot 0x2fc, CH1o wires it )
+	virtual void	DoProcessWhenDamageDataDestroyed( const CX2DamageManager::DamageData* pDamageData_ );	// char-ara CH1o: June 32bab1d0 ( unit vslot 0x2fc; CH1h named it MarkSkillFPGainHitByDamage )
 	bool			IsNowStateSameOrUpgradeSkill( const int iSkillID_ ) const;	// char-ara CH1h2: June 31edf580 on the running state's skill ( no skill tree reads false )
 	float			GetNowSkillPassiveRate() const;	// char-ara CH1j: June 32ba7ec0
 	float			GetPassiveSkillRate( const int iPassiveSkillID_ ) const;	// char-ara CH1j: June 32ba7b80
@@ -566,6 +566,8 @@ protected:
 	bool			StateChangeLinkFlowerSlash( const int iSkillID_ );	// char-ara CH1k: June 32b95870
 	void			MarkNowSkillFPGainReady();	// char-ara CH1k: June 32ba62c0
 	USHORT			GetReadyFPGainOfSkillHit( OUT int& iHitID_ ) const;	// char-ara CH1k: June 32bab090
+	USHORT			TakeFPGainByHitID( const int iHitID_ );	// char-ara CH1o: June 32bab110 ( CH1q's UpForcePowerByReadySkillGain 32bab5c0 calls it )
+	USHORT			TakeSkillFPGainByHit( const int iSkillID_, const int iAttackSerial_ );	// char-ara CH1o: June 32bab6b0 ( CH1q's UpForcePowerBySkillHit 32bab780 calls it )
 	void			SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	// char-ara CH1k: June 32bb1ff0 ( user vslot 0x800 )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	void			ProcessFullHyperHitReward( CX2DamageManager::DamageData& pDamageData_ );	// char-ara CH1h2: June 32bc9a60, body in CH1q
@@ -1504,8 +1506,7 @@ protected:
 	std::vector<int>		m_vecSkillFPGainSerial;	/// June +0x9848: cleared by Init / ReInit
 	// char-ara CH1i: the CH1i functions that need the record type above
 	std::vector<SkillFPGainRecord>::iterator	FindSkillFPGainEntry( std::vector<SkillFPGainRecord>::iterator itFirst_, std::vector<SkillFPGainRecord>::iterator itLast_, const int iSkillID_ ) const;	/// June 32bd6a70: body in CH1i, CH4a calls it
-	bool		IsDamageTriggerConditionMet( const int iDamageTriggerCondition_ ) const;	/// June 32b956d0 ( unit vslot 0x74c )
-	void		ReplaceStateIDBySkill( int* pStateID_ ) const;	/// June 32ba4620 ( user vslot 0x6b4 )
+	virtual bool	IsDamageTriggerConditionMet( const int iDamageTriggerCondition_ ) const;	// char-ara CH1o: June 32b956d0 ( user vslot 0x74c )
 	// char-ara CH1h2: members of AttackResultByType ( June offsets in june2017_re/char_ara/ch1_offsets.tsv )
 	float		m_fSpecterOfThunderCoolTime;		/// June +0x979c: wait before Specter of Thunder plays its effect set again ( CH1j counts it down )
 	float		m_fSpecterOfThunderPowerRate;		/// June +0x97a0: power rate that effect set plays with

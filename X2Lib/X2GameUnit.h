@@ -4023,6 +4023,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
 		virtual void ProcessAttackResultPassive( CX2DamageManager::DamageData* pDamageData_ ) {}	/// char-rena CH1o: June unit vslot 0x1e8 ( base 3208ddc0, empty; the user's 32011b80 is Stage 2's )
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_LIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+		virtual void DoProcessWhenDamageDataDestroyed( const CX2DamageManager::DamageData* pDamageData_ ) {}	// char-ara CH1o: June unit vslot 0x2fc ( base 3208ddc0, empty ), called on the attacker by ~DamageData
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 		virtual void		ApplyWorldLightColor( OUT CKTDGXRenderer::RenderParam* pRenderParam_ ){}
 
 //-------------------------------------------------------------------------------------------------------
