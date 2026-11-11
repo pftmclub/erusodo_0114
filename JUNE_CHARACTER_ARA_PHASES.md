@@ -940,6 +940,43 @@ in CH1's play-test with a Little Hsien chain ).
 
 **Nothing to play-test** ( `_LIVE` is off ). Next: `/x2-phase char-ara CH1m review` ( Opus 5.5 high ).
 
+### CH1m - Review (2026-11-11, Opus 5.5)
+
+**Pass, no code change.** Commit `2a45acf4` read against fresh Ghidra decompiles of `32bcf4a0` / `32bca580` / `32bcced0` / `31fdd800` and raw listings.
+- **Generator.** `ch1m_gen.py` rerun: both `.inc` files = the `_LIVE` branches line for line ( only the spec's 4-5 header lines differ ); `idmap.tsv` =
+  `ch1m_idmap.tsv` ( 138 ids, no duplicate either way; id 23 is the generator's hand row `USI_HYPER_MODE`, as in the five earlier ports ).
+- **Independent simulation.** `charport_regsim` over the fresh decompiles ( scratch wrapper: Ara's `switch(uVar3)` on unit `+0x38` ): body 112 registrations,
+  per class 28 = 15, 118 = 19, 31 = 7, 119 = 9, 34 = 5, 124 = 13, 7 = 0. Every ( id, table, thunk>target ) equals `ch0_reg.tsv` ( 112 / 112, 41 / 41, no
+  extra either side ), which the generator transcribes. Shared targets: `32bbac50` / `32b9cf00` on 331 / 332 ( BRUTAL_PIERCING / _SMALL ), `32bc6720` on
+  328 / 329 ( ASR_XZZ / _XZZZ ); the C++ names each once per state.
+- **Wrapper.** Byte table `32bcfa1c` ( 125 bytes ): 0 / 7 / 28 / 31 -> 0, 118 -> 1, 119 -> 2, 124 -> 3, the other 118 -> 4; jump table `32bcfa08`: 0 ->
+  `mov [esi+0x8ac8], ebx` ( `xor ebx, ebx` @32bcf4e8 ), 1 / 2 / 3 -> literals, 4 -> `32bcf532` ( no write ); class > 0x7c skips; null unit -> index 0. Delegates
+  ( UserUnitStateData slots 2 / 6 / 8 = Start / EventProcess / End ): START `329cb6e0` -> 31ffbd70 `StartStateStart`, `329cb6f0` -> 3201b390
+  `StartEventProcess`, `329cb1b0` -> 3201b460 `StartEnd`; WIN `329cb700` -> 320004b0 `WinStateStart`, `320718d0` -> 31fcd0b0 `RandomLoseEventProcess`; LOSE
+  `329cb710` -> 320007e0 `LoseStateStart`. `PUSH 0x82` @32bcf902 with `33507130` "ASI_WAIT_STATE_CHANGE"; tail 0x690 / 0x684( ebx = 0 ) / `31fd8f00`.
+  Order: no body or per-class id lies in the event range 0x6e-0x76, so running `InitEventStates` after the per-class part changes nothing. `31fc93d0` is called
+  by June ( a bare `RET` ); no WIN2 compare.
+- **Body.** Id 23 = `31fdd490( ..., 0 )`, 155 = `31fdd800( ..., 0 )`; FrameMove `32bd5f20` -> `32adf320` ( `jmp [eax+0x600]` ) -> Ara vtable `33505314` +0x600 =
+  `32bc1a90` `HyperModeFrameMove`; End `329cc5a0` -> `329cc0e0` ( `jmp [eax+0x604]` ) -> +0x604 = `3201b8e0` = user vtable `334781f4` +0x604 ( `HyperModeEnd` );
+  Start `32bd5300` -> 32b90f20 ( Ara-range thunk of base `HyperModeStart` ). Bounding after dance 127-129, before `ASI_THROW_ITEM` ( id 70 ) = the C++. Chain
+  lookups `32d3ee60` 0xa9 / 0xb5 / 0xb6 / 0xb9 each directly before that id's registration = the C++'s four ( ZZZ, XXdownXX, DASH_COMBO_Z, DASH_COMBO_X ).
+  Left out 123-126, 127-129, 93-96 match the decompile.
+- **Per class.** One switch, 0x76 falls into 0x1c, 0x77 into 0x1f, 0x7c into 0x22, default skips; Specter lookups 0x118 / 0x11a / 0x11b / 0x145 each before
+  their own registration ( ALS_X, XXXLoopZ, DASH_JUMP_COMBO_ALS_ZX, DASH_COMBO_ALS_ZX ) = the C++.
+- **`31fdd800`.** Unit `+0xaf0` templet `[0] == 7` = `UT_ARA` ( `X2Unit.h:29` ); unit `+0x3c` = transcended; `+0x38` 0x76 / 0x77 / 0x7c -> ASD / AYR / AA. RET 0x8
+  ( hidden return + an unread argument ). `GetBerserkModeTableName` matches.
+- **`ParseCommonRandomState`.** `GetUnitClassName` ( `X2UISkillTreeNew2015.cpp:5640` / `5677` ) gives `ARA_LITTLE_SPECTER` / `ARA_ASURA`, both tables of June's
+  `INIT_COMMON_RANDOM_STATE` ( `Ara_Martial_Artist.src.lua:719` ).
+- **JUNE_BUGS 598-600.** `PUSH 0x13f` @32bcd266 ( string `33506c5c` ..._Landing; the script has `_LANDING` at 19229 ); `PUSH 0x56` @32bcc3b8 ( no `_BACK` table,
+  `_FRONT` at 7238 and 7244 ); `PUSH 0xa3` @32bcbbc7 ( `WALL_LANDING` in neither June's source nor March's `Ara_Martial_Artist.lua` ). Confirmed.
+
+Gates. `flagcheck JUNE_CHAR_ARA_LIVE --range 2a45acf4^..2a45acf4 --files X2Lib/X2GUAra.cpp`: `files: 1 PASS` ( +1163 ), `0 deleted, 0 non-ASCII inserted, 0
+EOL-mismatched, 0 #else/#endif without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only for the `//#define`. `JUNE_CHAR_ARA_CORE --files
+X2Lib/X2GUUser.h X2Lib/X2GUUser.cpp`: `files: 2 PASS`, same zeros, `RESULT: PASS`. `junediverge.py --check-all`: `allow-listed: 202`, `RESULT: PASS`.
+`enumscan.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUUser.cpp`: `0 A/B row(s)`. Probes `/c /Zs /EHsc` of `X2GUAra.cpp` ( `census.cl_cmd`, no PCH ): off, `_LIVE`,
+`_LIVE` + `_FP` + `_SPECTER`: exit 0, 0 errors each. No `_DEBUG` define to retire. Full build skipped: no play-test ( no code change ). `CH1n.md` checked.
+Nothing to play-test. Next: `/x2-phase char-ara CH1n` ( Opus 5.5 high ).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.
