@@ -1122,6 +1122,44 @@ March's `X2GUUser.cpp:10297` `== AT_NORMAL`.
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-ara CH1o review` (Opus 5.5 high).
 
+### CH1o - Review (2026-11-11): pass, no code change
+
+Read from the exe bytes (`disasm_range.py`, a linear sweep of `EffectToUnit` from `3262b6e0`, `vtslot.py`, `dispsweep.py`):
+- **`SetSkillLevelStateData`** = `3201f850`: templet / `+0x867c` null return, `32890620( id, 0, 0, 1 )` floored at 1, level byte `+4`, power rate
+  `32071720` -> `+8`, id `+0xc`, `( 3201ad10( id ) + 1.0 ) * +8`. The C++ matches; Ara's 0x7a8 is not overridden.
+- **0x6b4.** Ara 33505314 + 0x6b4 = `32ba4620`. `32d3f140 @32d3f1c4-32d3f1e3`: ( state ) / 100 (magic `imul`, `sar 5`) -> `&state` -> vslot 0x6b4 = March
+  `X2ComboAndSkillChainSystem.cpp:159`. `32ba4620`: `+0x867c` null return, `32890140` slot skill, `32207210` base, 0 return, `- 27014`, `> 0x19` out; byte
+  table `[0,4,4,4,4,4,1,4,4,4,2,4,3,4,...,4,0]` -> cases 0 / 25 = 0x106 (262), 6 = 0x10f (271), 10 = 0x12d (301), 12 = 0x137 (311) = the four `case`
+  groups (27014 / 27039, 27020, 27024, 27026). The moved body is the deleted `ReplaceStateIDBySkill` with the dereference dropped; no name is left in code;
+  divergent row 451 holds.
+- **0x2fc.** `31e9bb70` is `~DamageData` (EH frame, state 0x13, `call 32610d50 @31e9bba5` first). `32610d50`: observer `+0xc` (= `optrAttackerGameUnit`,
+  4th member) -> `-0x1a0` -> vslot 0x2fc( this ), `ret` (no args). `vtslot 0x2fc`: `CX2GameUnit` / `CX2GUUser` = `3208ddc0`; `CX2GUNPC` 334ba584 and every
+  NPC subclass = `3275a410` (owner observer `+0x8d5c`, tail `jmp`); Ara = `32bab1d0`. `[r+0x2fc]` then `call` / `jmp r` over all 271 displacement hits:
+  exactly `32610d79`, `32610d89`, `3275a43a`; no `call [r+0x2fc]` form. `GetOwnerGameUnit()` (either `X2OPTIMIZE_UNITTYPE_BUG_FIX` form) returns the
+  observable, so the upcast keeps the pointer. **Teardown: agreed.** Ara has no `DamageData` member; `CX2GUUser` / `CX2GameUnit` members die under their
+  own vptr (empty base); the NPC owner observer dies first. `MarkSkillFPGainHit` only sets `m_bHit`, so a March-only `DamageData` copy can mark a hit
+  earlier than June but never twice: a CH1q watch item once CH4a fills the table.
+- **Other 0x2fc overrides:** Rose `32aabaa0` and Lu/Ciel `32b17680` also override it. Their ports override the new `CX2GameUnit` virtual (note for
+  char-luciel CH1o and the Rose port, no change here).
+- **0x74c.** `3262ef49-3262ef9e` stores impact point, `+0x470` defender (`31e56b80`), `+0x28 = +0x24`, then `31f8b560` (CEffect owner `+0x1dc`)
+  `[+0x264] == 0`, `[edi+0x7ac] > -1`, owner vslot 0x74c( `+0x7ac` ), `je 3262f54e` = `inc esi; jmp 3262b78a` (the loop's next unit = `continue`), then
+  `cmp [edi+0xb11]` = March's `GetIsGroupDamage` block next. `GetDamageData()` returns a reference (`X2DamageEffect.h:1022`), so no extra `~DamageData`. The
+  NULL-owner test is the one addition (June dereferences). `vtslot 0x74c CX2GU`: only Ara (`32b956d0`) leaves `32ec5990`.
+- **`32bab110`:** `<= -1` -> 0; entry `+8 == id` -> gain = record word `+0`, `+8 = -1`, walk on (last match wins) = the C++. **`32bab6b0`:** `31edf580(
+  record +4, arg1 )`; entry `+8 >= 0` and `+4 == arg2` -> `+0 = 1` (the `cmp [eax+1]` sits before the store, flags kept) then `+1 == 1` -> gain, id, inner
+  break; outer `test ebp,ebp; jg` stop; `> -1` second loop clears the id; gain in the `[esp+0xc]` slot. The C++ matches; JUNE_BUGS 601 holds.
+- **`32b92fa0` / `32b92fb0`:** `fld [ecx+0x9650]` / `+0x9654`; direct calls `@320474ec` / `@3204756c` = March `X2GUUser.cpp:10310` / `:10335`; the CH4a
+  amendment (gate `@32047441`) is written.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --with SERV_IRUHADEV_JUNE_CHAR_ARA_CORE --range 238ddfcc^..238ddfcc --files` the 8: `files: 8 PASS,
+0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `38 deleted line(s)` (X2GUAra.cpp / .h only, explained in the Done note), 0 non-ASCII, 0 EOL-mismatched, 0
+`#else/#endif` without the token, 0 encoding changes; RESULT FAIL only for `define: NOT FOUND` (`//#define`). `junediverge.py --check-all`: `allow-listed:
+202`, `RESULT: PASS`. `enumscan.py --check X2GUAra.cpp X2DamageManager.cpp X2GUNPC.cpp`: `0 A/B row(s)`. Probes (`census.cl_cmd`, `/c /Zs /EHsc`, no PCH):
+X2GUAra.cpp off / `_LIVE` / `_LIVE` + `_FP` + `_SPECTER`, X2DamageManager / X2GUNPC / X2GUUser `.cpp` off / `_LIVE`: exit 0, 0 errors x9. No `_DEBUG`
+define. Full build skipped: no play-test.
+
+**Nothing to play-test.** CH1p kickoff checked (its review kickoff is written by CH1p). Next: `/x2-phase char-ara CH1p` (Opus 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.
