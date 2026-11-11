@@ -63,3 +63,8 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 ## Amended by CH1p (2026-11-11)
 
 - Energy Void: `ASI_SA_AYR_ENERGY_VOID_START_StateStartFuture` is June's whole body (`32b93bc0`) and the LOOP EventProcess's two key calls are June's `m_kSkillSlotKey` (`FollowSlotSwap` `@32b9e82a`, `IsKeyReleased` `@32b9e85e`), under `_LIVE`. The rest of `32b9e820` is this phase's: June ends the loop at charge (`+0x96c8`) `>= 5` with the key released (March: `3 <`) or `>= 10`.
+
+## Amended by CH2c0 (2026-11-11)
+
+- Open the Hell: `ASI_SA_AYR_OPEN_THE_HELL_FrameMove` is already June's whole body (`32bbb720`: March's plus the Demigod block under `_STACK`). Do not
+  transcribe it again; the state's other functions and registration stay CH3b's.

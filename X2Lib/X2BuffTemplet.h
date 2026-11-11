@@ -146,6 +146,9 @@ public:
 	void GetBehaviorPtrList( OUT vector<CX2BuffBehaviorTempletPtr>& vecBehaviorPtr_ ) const { vecBehaviorPtr_ = m_vecBehaviorPtr; }	/// June 3236c8e0
 	bool DecreaseDurationByShake();	/// June 3236c990: finalizer slot 11 on every finalizer; true when any took time off
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
+	void AddAccumulationCountNow( const int iDelta_, CX2GameUnit* pGameUnit_ );	// char-ara CH2c0: June 3236a2f0
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
 #ifdef SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER
 	void DoFinishStickShake( CX2GameUnit* pGameUnit_ );	/// June 3236a6a0: each BFT_STICK_SHAKE finalizer ends the unit's stick shake (slot 257) and bumps the buff-change counter
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_FINALIZER

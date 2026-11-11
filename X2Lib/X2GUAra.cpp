@@ -24224,6 +24224,23 @@ void CX2GUAra::ASI_SA_ALD_WOLF_BREAK_FrameMove()
 {
 	CommonFrameMove();
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
+	// char-ara CH2c0: June 32bbb050, Demigod spends one stack per energy ball ( 1.2 to 1.9 s )
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_DEMIGOD ) &&
+		 ( ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 1.2f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 1.3f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 1.4f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 1.5f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 1.6f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 1.7f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 1.8f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 1.9f ) ) ) )
+	{
+		AddBuffAccumulationCountByTempletID( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ), -1 );
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_P_AYR_GOOD_ENERGY_BALL_Wolf_Break", this, NULL, IsHyperState(), GetPowerRate() );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
+
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	if ( m_pXSkinAnim->EventTimerOneshot( 1.1f ) ||
 		 m_pXSkinAnim->EventTimerOneshot( 1.35f ) ||
@@ -24334,6 +24351,23 @@ void CX2GUAra::ASI_SA_AYR_OPEN_THE_HELL_Init()
 void CX2GUAra::ASI_SA_AYR_OPEN_THE_HELL_FrameMove()
 {
 	CommonFrameMove();
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
+	// char-ara CH2c0: June 32bbb720, Demigod spends one stack per energy ball ( 0.75 to 1.1 s )
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_DEMIGOD ) &&
+		 ( ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 0.75f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 0.8f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 0.85f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 0.9f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 0.95f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 1.f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 1.05f ) ) ||
+		   ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ) && true == m_pXSkinAnim->EventTimerOneshot( 1.1f ) ) ) )
+	{
+		AddBuffAccumulationCountByTempletID( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true ), -1 );
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_P_AYR_GOOD_ENERGY_BALL_Open_The_Hell", this, NULL, IsHyperState(), GetPowerRate() );
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
 
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.01f ) )

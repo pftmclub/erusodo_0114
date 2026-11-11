@@ -14727,6 +14727,27 @@ void CX2GameUnit::AddBuffAccumulationCount( const UINT uiBuffFactorID_, const in
 	SetBuffAccumulationCount( uiBuffFactorID_, static_cast<int>( ucCountNow ) + iDelta_, uiLevel_, iAdjustIndex_ );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
+// char-ara CH2c0: June 3229da40, the stack count of buff eBuffTempletID_ plus iDelta_; at 0 or below the buff is erased instead
+void CX2GameUnit::AddBuffAccumulationCountByTempletID( const BUFF_TEMPLET_ID eBuffTempletID_, const int iDelta_ )
+{
+	auto FindFunc
+		= [eBuffTempletID_]( CX2BuffTempletPtr ptrBuffTemplet_ ) {
+			return eBuffTempletID_ == ptrBuffTemplet_->GetBuffTempletID();
+	};
+
+	vector<CX2BuffTempletPtr>::iterator vItr
+		= std::find_if( m_vecBuffTempletPtr.begin(), m_vecBuffTempletPtr.end(), FindFunc );
+	if ( m_vecBuffTempletPtr.end() == vItr )
+		return;
+
+	if ( 0 < static_cast<int>( (*vItr)->GetAccumulationCountNow() ) + iDelta_ )
+		(*vItr)->AddAccumulationCountNow( iDelta_, this );
+	else
+		EraseBuffTempletFromGameUnitByIterator( vItr );
+}
+
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
 /** @function : OperateBuffBehaviorValue
 	@brief : June 3227c360. On the first buff with eBuffTempletID_, behavior uiBehaviorIndex_ adds (0,
 			 slot 9), multiplies (1, slot 10) or sets (2, slot 11) fValue_; any other operation does nothing.

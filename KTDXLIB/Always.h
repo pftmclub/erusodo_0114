@@ -12440,3 +12440,16 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON needs JUNE_LINEMAP_CANDOWN_SIGNATURE ( 9-arg CanDown ), JUNE_CHAR_EVE_SKILL ( GetIsNowPVPCorrectionGame ), JUNE_CHAR_ARME_CORE ( GetInvincibleByAttackTypeId ), JUNE_ENUM_NAMES, JUNE_NPC_ESCAPE_FROM_LOCK_ON and FIELD_BOSS_RAID
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LOCKON
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH2c0 - the add-N-stacks buff path ( checklist 7at ): CX2GameUnit::AddBuffAccumulationCountByTempletID
+//              ( June 3229da40 ), CX2BuffTemplet::AddAccumulationCountNow ( 3236a2f0, icon pushed with the new count ), and Demigod's energy-ball
+//              block in ASI_SA_ALD_WOLF_BREAK_FrameMove ( 32bbb050 ) and ASI_SA_AYR_OPEN_THE_HELL_FrameMove ( 32bbb720 ): one stack spent per ball.
+//              Revert: comment out the #define ( JUNE_CHAR_ARA_STACK ).
+#define SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_STACK ) && ( !defined( SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY ) || !defined( SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT ) || !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_STACK needs JUNE_BUFF_BEHAVIOR_PARITY ( stack-count setters ), JUNE_HUD_BUFF_COUNT ( PushBuff count ), JUNE_CHAR_EVE_PASSIVE ( HaveSkillBuff, GetSkillBuffTempletID ), JUNE_DIVERGE_SKILL_LEVEL_VALUE ( GetSkillLevelValue ) and JUNE_ENUM_NAMES ( RNSI_P_AYR_DEMIGOD )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
+//////////////////////////////////////////////////////////////////////////

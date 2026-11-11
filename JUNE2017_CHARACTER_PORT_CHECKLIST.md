@@ -1037,7 +1037,7 @@ at-hand case (`31f961a0`: 10 on `Dummy1_Rhand` when viewer `+0xd80` is 1, else `
 
 June `3229da40` (CX2GameUnit: add N to a buff's stack count by BTI; erase when it reaches 0) calls `3236a2f0` (count += N, displayers restart, buff icon
 pushed with the new count through `CX2GageManager::PushBuff`). Its only callers are Ara class code, `32bbb050` / `32bbb720` (the `SA_ALD_WOLF_Break` and
-`P_AYR_GOOD_ENERGY_BALL` effects). March has neither function. The Ara port brings both, and passes the count once june-hud H3 has given `PushBuff` one.
+`P_AYR_GOOD_ENERGY_BALL` effects). March has neither function. The Ara port brings both, and passes the count once june-hud H3 has given `PushBuff` one. (Ara: CH2c0)
 
 ### 7au. Ain's buff-icon text hook (from june-hud H3)
 

@@ -740,6 +740,31 @@ void CX2BuffTemplet::SetAccumulationCountNow( const int iCount_, CX2GameUnit* pG
 #endif SERV_IRUHADEV_JUNE_HUD_BUFF_COUNT
 }
 #endif SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
+// char-ara CH2c0: June 3236a2f0, the stack count plus iDelta_ (no behavior re-apply), displayers restarted, icon pushed with the count
+void CX2BuffTemplet::AddAccumulationCountNow( const int iDelta_, CX2GameUnit* pGameUnit_ )
+{
+	MAP_UN_COMMON_MEMBER::iterator mItr = m_mapUnCommonMember.find( UCM_ACCUMULATION_COUNT_NOW );
+	if ( m_mapUnCommonMember.end() == mItr )
+		return;
+
+	mItr->second += static_cast<float>( iDelta_ );
+	BOOST_FOREACH( CX2BuffDisplayerTempletPtr ptrDisplayer, m_vecDisplayerPtr )
+	{
+		if ( NULL != ptrDisplayer )
+		{
+			ptrDisplayer->StartDisplayer( pGameUnit_, this );
+			ptrDisplayer->SetStart( true );
+		}
+	}
+
+	if ( true == GetUseBuffIcon() )
+	{
+		CX2GageUI::BuffIcon kBuffIcon( GetBuffTempletID(), GetIconFileName(), GetIconKeyName(), GetBuffName(), GetBuffDesc() );
+		CX2GageManager::GetInstance()->PushBuff( pGameUnit_->GetUnitUID(), kBuffIcon, IsDeBuff(), static_cast<int>( GetAccumulationCountNow() ) );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
 #ifdef SERV_IRUHADEV_JUNE_BUFF_BEHAVIOR_PARITY
 /** @function : DecreaseDurationByShake
 	@brief : June 3236c990. Every finalizer's slot 11 (DecreaseDurationByShake) on a copy of the list; only the

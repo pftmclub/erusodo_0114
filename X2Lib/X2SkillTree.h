@@ -1911,6 +1911,11 @@ public:
 		RNSI_P_ASR_OPEN_MIND                                  = 27419,	// char-ara CH1q: June's Enum.lua; spent force power heals while hyper mode runs
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH2c0
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_P_AYR_DEMIGOD                                    = 27418,	// char-ara CH2c0: June's Enum.lua; Wolf Break and Open the Hell spend its stacks
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-11 // char-ara CH1n
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS                = 27222,	// char-ara CH1n: June's Enum.lua; its transcended slot keeps the Conversion Mana state

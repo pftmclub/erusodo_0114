@@ -25,7 +25,9 @@ whole (Ghidra, the map's addresses), inside March's case under `SERV_IRUHADEV_JU
 l.522-526); its effect closure (a name found only now is staged byte-exact and added to `ch0_assets.tsv`); its force-power gain / cost lines on CH1q's
 code. Upgrade ids reach their base through the templet's `m_iDeleteSkillIDByUpgrade` (June `32071720`): check the templet swap for every term that
 reads the id. A function the map does not settle (new mechanism, unmapped callee) is "this needs Opus": stop.
-- `SA_ALD_WOLF_Break` runs on CH2c0's add-N-stacks path.
+- `SA_ALD_WOLF_Break` runs on CH2c0's add-N-stacks path. CH2c0 already put June's whole `ASI_SA_ALD_WOLF_BREAK_FrameMove` (`32bbb050`) in place:
+  March's body plus the Demigod block under `_STACK` (amended by CH2c0, 2026-11-11). Do not transcribe that function again; only its state's other functions and
+  registration are CH2c's.
 - `NUM use` lines for these skills; March vs June damage per skill in `MODS.md`.
 - CP949: `bytepatch.py` only. Mark the ported checklist rows `(Ara: <phase>)`.
 - Hand-off: the unit and class, each skill id and its A / B slot (never slot 4 / 9 before transcendence; learn only the bank under test), each

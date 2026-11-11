@@ -1735,6 +1735,41 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's, no new define; its
 
 **Play-test (2026-11-11, run 15:40-15:42 on md5 14de03bf; user asked for the logs, on-screen cool time / MP not reported).** Unit 97: four `ARA SKILL equip` lines ( 27223 slot 0 bank A state 49, 27229 slot 1 bank A state 51, 27230 slot 0 bank B state 59, 27231 slot 1 bank B state 61 ). Casts seen: Tiger Claw x2 ( `EffectSet_Ara_ATTACK_BOX_Tiger_Claw_1st` / `_2nd`, hits on `DAMAGE_EFFECT_SI_A_ARA_Tiger_Claw_1st` / `_2nd`, second state 161 ), Rock Crash x2 ( `EffectSet_ALH_DOUBLE_COLLISION_ATTACKBOX`, hits `Rock_Crash_1` / `_2` / `Flight_Damage_02` / `Flight_Damage` ), Fall x4 ( `EffectSet_ASD_DRAGON_FALLING` then `_FINISH` state 205, hits `Dragon_Falling_UP` / `_UP_STOP` / `_DOWN` / `_DOWN_DAMAGE` / `_Explosion` ), Quick Thrust x1 seen ( `EffectSet_Ara_A_Sinsok_Attack`, 5 unit-to-unit hits ). ErrorLog: `KEM_ERROR` 0, `Motion Error` 0; the 16 `ErrorEnum(433)` face-frame lines are JUNE_BUGS 603. `NUM use` lines: none ( as CH2a / CH2b ). The `JUNE_FX unsupported APPLIED_SKILL_ID ... system absent` lines ( `X2DamageEffect.cpp:1708`, `X2EffectSet.cpp:4068` ) are the engine's old informational log for every June damage effect with that key, not this phase's. `AddGroupChainQuest` and the two `E_DISABLE_HB_CHECK_REQ` lines are not CH2b2's. Not played / not proven by the log: the FP cancel out of Tiger Claw / Rock Crash / Fall, a second Quick Thrust cast, the base ids ( not learned ).
 
+### CH2c0 - Done (2026-11-11)
+
+**What landed** (Opus 5.5; Ghidra read-only; flag `SERV_IRUHADEV_JUNE_CHAR_ARA_STACK`, defined; its `#error` guard names the five flags it needs):
+- **Plan correction.** The kickoff called `32bbb050` / `32bbb720` "both new in March". They are not: CH0's map is right, they are March's own
+  `ASI_SA_ALD_WOLF_BREAK_FrameMove` / `ASI_SA_AYR_OPEN_THE_HELL_FrameMove`. The two new functions are their callees `3229da40` and `3236a2f0`.
+- **`CX2GameUnit::AddBuffAccumulationCountByTempletID( BTI, iDelta )`** (`X2GameUnit.cpp`, after `AddBuffAccumulationCount`): June `3229da40`. It finds
+  the buff by templet id. If count + delta > 0 (signed), the templet adds the delta. Otherwise the buff is erased (`EraseBuffTempletFromGameUnitByIterator`).
+- **`CX2BuffTemplet::AddAccumulationCountNow( iDelta, pGameUnit )`** (`X2BuffTemplet.cpp`, after `SetAccumulationCountNow`): June `3236a2f0`. The stack
+  count goes up by the delta (nothing happens if the templet has no count). Every displayer starts again, and the icon is pushed through
+  `CX2GageManager::PushBuff` with the new count (june-hud H3's 4-argument overload, so `X2GageManager.*` needed no change). Unlike the set path, it does not
+  re-apply behaviors and has no icon-text hook. This is June's own shape.
+- **Demigod block in both FrameMoves** (`X2GUAra.cpp`, right after `CommonFrameMove`): June's bodies are March's plus one new block, inserted
+  under the flag (flag off = March). If `RNSI_P_AYR_DEMIGOD` (27418) is learned, then at each of eight times where `HaveSkillBuff( 27418, 0, true )` holds,
+  one stack is spent (`AddBuffAccumulationCountByTempletID( GetSkillBuffTempletID( 27418, 0, true ), -1 )`) and
+  `EffectSet_P_AYR_GOOD_ENERGY_BALL_Wolf_Break` / `_Open_The_Hell` plays at `GetPowerRate()`. Wolf Break's times are 1.2-1.9 s and Open the Hell's are
+  0.75-1.1 s (exe floats, `charport_consts.py`). The rest of both functions is byte-for-byte June's already. June has no `GetEffectSet` null test in this
+  block, so none was added. Both effect sets are in the live `data036` `EffectSet.lua`.
+- **Enum**: `RNSI_P_AYR_DEMIGOD = 27418` in `X2SkillTree.h` under `SERV_IRUHADEV_JUNE_ENUM_NAMES` (June `Enum.src.lua:15134`; March's own Ara passives
+  sit at 74xx, so the value is free).
+- funcmap rows `Char Ara CH2c0` (4). Checklist 7at marked. No `JUNE_BUGS.md` row (nothing to keep). `CH2c.md` / `CH3b.md` amended: both FrameMoves are
+  June's already, so neither phase transcribes them again.
+
+**Reach.** Nothing in the tree applies Demigod's buff yet, so `HaveSkillBuff` stays false and the new block is inert until June's passive code lands
+(CH4a / CH4b). Wolf Break is class 31's (CH2c) and Open the Hell is Yama Raja's (119, CH3b). Both already run on March's states, so their play-tests
+cover the unchanged part.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ARA_STACK --worktree` (7 files): 4 PASS, 1 PASS~ (`X2GUAra.cpp` +34, the blank line before each block), 1 DEFINE, 1 OTHER
+  (`X2SkillTree.h` = `JUNE_ENUM_NAMES`, its own flagcheck PASS); `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s),
+  0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` (7 files): `allow-listed: 5`, `RESULT: PASS`. `enumscan.py --check` the three `.cpp`: `0 A/B row(s) remain`.
+- Probes (`/c /Zs /EHsc`): `X2GUAra.cpp`, `X2GameUnit.cpp`, `X2BuffTemplet.cpp`: 0 errors each. A `cl /P` check shows both effect-set names, both new
+  function definitions and the enum member in the preprocessed output.
+- Full build skipped: no play-test.
+
 ## Phase CH3 - Skills: second jobs (118, 119, 124), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows); one Opus review at CH3d (covers CH3a-CH3d). Sub-tag `SKILL`.

@@ -3197,6 +3197,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void SetBuffAccumulationCount( const UINT uiBuffFactorID_, const int iCount_, const UINT uiLevel_, const int iAdjustIndex_ );	/// June 322a7660
 		void AddBuffAccumulationCount( const UINT uiBuffFactorID_, const int iDelta_, const UINT uiLevel_, const int iAdjustIndex_ );	/// June 322a8a70
 		void OperateBuffBehaviorValue( const int iOperation_, const BUFF_TEMPLET_ID eBuffTempletID_, const UINT uiBehaviorIndex_, const float fValue_ );	/// June 3227c360
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
+		void AddBuffAccumulationCountByTempletID( const BUFF_TEMPLET_ID eBuffTempletID_, const int iDelta_ );	// char-ara CH2c0: June 3229da40
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_STACK
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE
 		float GetBuffTimeFinalizerDuration( const BUFF_TEMPLET_ID eBuffTempletID_ );	/// June 3227bfa0
 		void SetBuffTimeFinalizerDuration( const BUFF_TEMPLET_ID eBuffTempletID_, const float fDurationTime_ );	/// June 3227c110
