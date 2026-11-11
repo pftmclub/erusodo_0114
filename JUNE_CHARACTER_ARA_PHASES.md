@@ -1770,6 +1770,28 @@ cover the unchanged part.
   function definitions and the enum member in the preprocessed output.
 - Full build skipped: no play-test.
 
+### CH2c0 - Review (2026-11-11): pass, no code change
+
+Checked against the exe bytes (`charport_adis.py ara`, `charport_consts.py --fn`, read-only). No debug define to retire.
+- **`3229da40`.** `322ae0a0( begin +0xe14, end +0xe18, BTI )` compares `[templet + 0x34]` (the templet id) only, so it uses the same predicate as the lambda.
+  `32369da0` returns an int (`fistp`, truncating), then `add ecx, eax; test ecx, ecx; jle` = signed `count + iDelta > 0`. The pass path is
+  `3236a2f0( iDelta, this )` and the fail path is `3229d320( &it )`, `RET 8`. This matches line for line, and March's `UINT` getter cast to `int` gives the same sum.
+- **`3236a2f0`.** `+0x58` size test, then the `+0x50` find with key 0, then end test `+0x54`. `fild iDelta; fadd [node+0x10]; fstp` = `+= (float)iDelta`.
+  The displayer loop calls slot 1 `( unit, this )` on each non-null entry, then `+0xc = 1`. `+0xa8 == 1` builds `BuffIcon( +0x34, &+0x68, &+0x84, +0xa0, +0xa4 )`
+  (= `GetBuffTempletID`, `GetIconFileName`, `GetIconKeyName`, `GetBuffName`, `GetBuffDesc`), then `PushBuff( unit slot 0x54 UID, icon, +0x64, GetAccumulationCountNow )`.
+  There is no behavior loop and no `0x788` call. The port matches, and it has the same shape as the reviewed `SetAccumulationCountNow` tail.
+- **`32bbb050` / `32bbb720`.** The gate is `31fceab0( 0x6b1a ) > 0` (= `GetSkillLevelValue`, the only overload while `_DIVERGE_SKILL_LEVEL_VALUE` is on). Before
+  each of the eight times: slot `0x240( 27418, 0, 1 )`. Times: `1.2`-`1.9` and `0.75`-`1.1` (`1.0` = `fld1` before a `31e4c230` call). The first three of each
+  function are inlined `EventTimerOneshot` calls (`fcom [anim+0x24c]` / `fcomp qword`), and the rest go through `31e4c230`. Then `3229a3d0( 27418, 0, 1 )` -> `3229da40( BTI, -1 )`.
+  `PlayEffectSet` is called as `( name, this, NULL, now-state +0x10 byte = IsHyperState, slot 0x204 GetPowerRate, -1.0, (1,1,1), false, 0-vec x3, 1.0 )`: the header defaults. In both functions the March
+  half is June's unchanged: Wolf Break `1.1` / `1.35` / `1.63` / `2.0`, count `+0x96e0` cases 1 -> `Break2` and 3 -> `Break3`, `+0x96d8` > random -> `_Special` with
+  `+0x96d4`, `Bip01` +-`100.0`, `landPosition.y`. Open the Hell: `0.01`, `GetEffectSet` null test, `SA_AYR_OPEN_THE_HELL_ALL`, `GetPowerRate * +0x96dc`.
+
+**Hygiene.** `flagcheck JUNE_CHAR_ARA_STACK --range 104bf253^..104bf253 --files <7>`: 4 PASS, 1 PASS~ (`X2GUAra.cpp`, 2 blank lines), 1 DEFINE, 1 OTHER
+(`X2SkillTree.h` = `JUNE_ENUM_NAMES`), 0 FAIL, 0 ERROR, 0 deleted, `RESULT: PASS`. `junediverge.py --check-all`: allow-listed 205, `RESULT: PASS`.
+`enumscan.py --check` the three `.cpp`: `0 A/B row(s) remain` (D 4 = leads). Probes (`/c /Zs /EHsc`, census `cl_cmd` defines): `X2GUAra.cpp`,
+`X2GameUnit.cpp`, `X2BuffTemplet.cpp` 0 errors. Full build skipped: no play-test.
+
 ## Phase CH3 - Skills: second jobs (118, 119, 124), hyper actives, transcendence
 
 **Run with:** as CH2 (CH3d on Opus: it carries engine rows); one Opus review at CH3d (covers CH3a-CH3d). Sub-tag `SKILL`.
