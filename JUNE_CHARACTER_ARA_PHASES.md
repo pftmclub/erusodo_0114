@@ -1290,6 +1290,42 @@ CH1 (amended: what `_FP` shows in the play-test), CHNa (gauge creation for 34 / 
 
 **Nothing to play-test.** Next: `/x2-phase char-ara CH1q review` (Opus 5.5 high).
 
+### CH1q - Review (2026-11-11): pass, debug define retired
+
+Read from the exe bytes (`charport_adis.py ara`, the jump tables through `disasm_range.load_text`) against the C++ under `_FP`:
+- **`32bb2b40` UseForcePower:** index `32bb2d1c` (base `0x6a41`) picks `32bb2b6c` (`n - 1` when `n > 0`) at 0 / 4 / 10 / 16 / 20 = 27201 / 27205 / 27211 /
+  27217 / 27221, every other index `32bb2b7b`: the five `RNSI_*` cases. `fldz; fcomp [+0x973c]; test ah,5; jp` = continue when the rate > 0, then
+  `IsFullHyperMode` (0x9c) and `UpNowMp` (0xf0) of `n x rate`. 27417: `GetSkillBuffTempletID( 27417, 0, 1 )` -> `322a0090` byte added to `+0x986c`, erase
+  `3229ea50( 27417, 0, 1 )` (vslot 0x238 factor, then erase by its BTI = `EraseBuffTempletFromGameUnit( GetSkillBuffTempletID( ... ) )`). 27419: gauge non-null,
+  decoded `+0xe8` > 0 (`GetRemainHyperModeTime` reads the same gauge), `n > 0`; SA 59, x SA 113 when `322cc1a0`; `UpNowHpWithText( max HP x n x rate )`; SA 5
+  vs `GetRandomFloat( 0 )`: `fcompp; test ah,0x41; jne` = keep the force power (`n = 0`) when SA 5 > roll. Then `SetForcePower( now - n )`. Matches.
+- **`32bc9a60` hit roll:** `dec eax; je` = `AT_SPECIAL`, `+0x24 == 7` = `RT_DUMMY_DAMAGE`, `+0x5aa` (left out, as noted), timer `test ah,0x41; jp` = return when
+  > 0, riding; `++` hit count, timer = interval. Filled Power: `GetSkillLevel( 27410, 0, 0, 1 )`, `32206450( id, 1 )` = March's one-argument `GetSkillTemplet`;
+  buff count 1 / 2 / else `IsFullHyperMode` -> `0xb1` / `0xb2` / `0xb3`; value > 0 -> count. Index `count - hits - 1` clamped at 0, then `jb` @`32bc9beb` = size - 1
+  only when size - 1 < index (unsigned, so an empty list keeps the index: `JUNE_BUGS.md` row 602 stands). Roll `32070350( list[i] x spec A +0x6c50, rand )`. Matches.
+- **`32babba0`:** used == chosen: `jns` -> `StateChange( next, 0 )`, else clear. FP cancel: `m_bFPCancel`, chosen != 0, not `31edf580( chosen, 27213 )`;
+  `0x7fc( chosen, 1 )`: `32ba6610` never reads its second argument (`[esp+0x34]` @`32ba67bf` is the first after a push), so March's one-argument call is right.
+  `vslot 0x524` before `inc [+0x9838]`, `jns` from the `inc`. Matches.
+- **`32bb22d0` / `32bb2740`:** start: 0x9c, 0x63c( 1 ), 0x634, `+0x41f8`, promotion, tail `+0x95e8`, then `+0x9744 > 0` and decoded `+0x6844 < 3` -> view list
+  `+0x8834`; else unit `+0x3c != 0` or `31fd66b0` skips only the four boosts, view list always. End: promotion + tail normal, `EffectSet_CHUNG_BERSERK_MODE_START`,
+  0xa0( 0 ), `+0x6844 := 0` only when non-zero (the `KProtectedType` changed test), show / collision / weapon, promotion; else view list; `31fd5d70` last. Matches.
+- **Gauge:** `32a34980` copies now / max, `+0x110`, `+0x112`, not `+0x111`. `32e69060`: dialog `+0x10`, `+0x111 != +0x110`, picture 0, berserk and game ->
+  `32e61a60( class, g_pData +0x68 +0x90 +0x3c )` else `31ee0de0( CIT 7, same )` (= `IsMyGageTranscended`), SetTex, size, `+0x111 := +0x110`. `32e61a60`
+  tables `32e61bd8` / `32e61c70`: transcend 1: 7 / 28 / 31 / 34 as untranscended, 118 / 119 / 124 the `TR_*_1_STATE` pieces; else 118 Texture70, 119
+  Texture77, 124 Texture82. Matches. `kom.py status`: data057 / data215 in sync with live; all 7 pieces are in the staged `.TET` files (UTF-16).
+- **Equal rows:** `32ba46c0` = `< 3 ? 0x17 : 0x9b`; `32bc5bc0`: game + effect set, `max x 0.03 + now` (`3344f248` = 0.03f widened), `+0x9644` conversion = `UpForcePower`.
+
+**Hygiene.** Range (`flagcheck _FP --range 249e437a^..249e437a --with _FP_DEBUG --files <5 code files>`): 5 PASS, 0 OTHER, 0 FAIL; 0 deleted, 0 non-ASCII,
+0 EOL; RESULT FAIL only for the commented-out `//#define`. `junediverge.py --check-all`: allow-listed 202, `RESULT: PASS`. `enumscan.py --check X2GUAra.cpp
+X2GageUI.cpp X2GageData.cpp`: 0 A/B rows (D 1, X 1 ignored). Probes (`/c /Zs /EHsc`): off, `_LIVE` + `_FP`, `_LIVE` + `_FP` + `_SPECTER`: `X2GUAra.cpp`,
+`X2GageData.cpp`, `X2GageUI.cpp` 0 errors each (9 runs). Debug retired: `//#define SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG` (`bytepatch.py`); after it `X2GUAra.cpp`
+off and `_LIVE` + `_FP` 0 errors; `flagcheck _FP_DEBUG --worktree --files Always.h`: 1 OTHER (a peer's uncommitted block, not committed here), 0 deleted
+beyond the retired line, RESULT FAIL only for the now-commented define. Full build skipped: no play-test.
+
+**Kickoff:** `CH1q2.md`'s read list named Rena's CH1q sections (template leftover); it now names this phase's Done and Review.
+
+**Nothing to play-test.** Next: `/x2-phase char-ara CH1q2` (Opus 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

@@ -12345,7 +12345,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Ara ) Phase CH1q - force power and berserk: June's bodies behind SERV_IRUHADEV_JUNE_CHAR_ARA_FP ( defined in the
 //              CH1d block, still commented out until CH1 final ); _FP_DEBUG logs [JUNE_CHAR] ARA FP lines until the CH1q review.
 //              Revert: comment out the #define ( JUNE_CHAR_ARA_FP_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_FP ) && ( !defined( SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ) || !defined( SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG ) || !defined( SERV_IRUHADEV_JUNE_TRANSCEND_UNIT ) || !defined( SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ) )
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_FP needs SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ( IsHyperModeState ), SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG ( ChangeMaxCharacterAddResource ), SERV_IRUHADEV_JUNE_TRANSCEND_UNIT ( m_iUnitClassTran ) and SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ( IsMyGageTranscended )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP

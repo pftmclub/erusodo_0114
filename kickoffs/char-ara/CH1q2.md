@@ -13,7 +13,7 @@
 
 ```sh
 python tools/docsection.py JUNE_CHARACTER_ARA_PHASES.md --no-sub "Rules" "Phase CH0 - Ara map (read-only)" "Phase CH1 - Deploy unit: June script, motions and the class core"
-python tools/docsection.py JUNE_CHARACTER_RENA_PHASES.md "CH1q - Done" "CH1q - Review"
+python tools/docsection.py JUNE_CHARACTER_ARA_PHASES.md "CH1q - Done (2026-11-11)" "CH1q - Review (2026-11-11): pass, debug define retired"
 awk -F'\t' '$7=="CH1q2"' june2017_re/char_ara/ch0_class_map.tsv
 ```
 
