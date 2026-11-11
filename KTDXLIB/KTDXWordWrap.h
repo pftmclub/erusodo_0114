@@ -25,6 +25,10 @@ class CKTDXWordWrap
 
 		/// June 31d45dd0: LINE_BREAK_TYPE dispatch. type 0 -> Color wrap, type > 0 -> ellipse wrap with type lines, type < 0 -> unchanged.
 		static std::wstring	GetStrByLineBreakByType( const WCHAR* pOrgStr, int width, int iType, int fontIndex );
+#ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+		// char-ara CHNb2: June 31d45690, a per-character colour wrap; bLineLimit_ stops at nLineNum_ lines and ends the text with "..."
+		static std::wstring	GetStrByLineBreakColorByChar( const WCHAR* pOrgStr, int width, int fontIndex, int nLineNum_, bool bLineLimit_ );
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 };
 
 #endif SERV_IRUHADEV_JUNE_UI_LINE_BREAK

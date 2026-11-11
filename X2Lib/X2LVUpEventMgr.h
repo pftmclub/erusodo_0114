@@ -120,6 +120,9 @@ class CX2LVUpEventMgr
 			void DeleteDialog();
 
 			void CheckLevel();
+#ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+			void InitClassChangeGuide( CKTDGUIDialogType pDialog_ );		// char-ara CHNb2: June 32713c10
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 		};
 
 	public:

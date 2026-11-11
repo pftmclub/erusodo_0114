@@ -2933,6 +2933,45 @@ inline int GetUnitClassByTierAndLine( int iUnitType_, int iTier_, int iLine_ )
 		return CX2Unit::UC_NONE;
 	return s_aiClassTable[ iUnitType_ ][ iTier_ ][ iLine_ ];
 }
+// char-ara CHNb2: June 31eca340, the job line 1-4 of a class ( UCL_NONE for a base class or any other class )
+inline int GetUnitClassLineByUnitClass( int iUnitClass_ )
+{
+	switch( iUnitClass_ )
+	{
+	case CX2Unit::UC_ELSWORD_KNIGHT: case CX2Unit::UC_LIRE_COMBAT_RANGER: case CX2Unit::UC_ARME_HIGH_MAGICIAN: case CX2Unit::UC_RAVEN_SOUL_TAKER:
+	case CX2Unit::UC_EVE_EXOTIC_GEAR: case CX2Unit::UC_CHUNG_FURY_GUARDIAN: case CX2Unit::UC_ARA_LITTLE_HSIEN: case CX2Unit::UC_ELESIS_SABER_KNIGHT:
+	case CX2Unit::UC_ADD_PSYCHIC_TRACER: case CX2Unit::UC_LUCIEL_CHILIARCH: case CX2Unit::UC_ROSE_HEAVY_BARREL: case CX2Unit::UC_AIN_LOFTY_EXACTER:
+	case CX2Unit::UC_ELSWORD_LORD_KNIGHT: case CX2Unit::UC_LIRE_WIND_SNEAKER: case CX2Unit::UC_ARME_ELEMENTAL_MASTER: case CX2Unit::UC_RAVEN_BLADE_MASTER:
+	case CX2Unit::UC_EVE_CODE_NEMESIS: case CX2Unit::UC_CHUNG_IRON_PALADIN: case CX2Unit::UC_ARA_SAKRA_DEVANAM: case CX2Unit::UC_ELESIS_GRAND_MASTER:
+	case CX2Unit::UC_ADD_LUNATIC_PSYKER: case CX2Unit::UC_LUCIEL_DREAD_LORD: case CX2Unit::UC_ROSE_STORM_TROOPER: case CX2Unit::UC_AIN_ARME_THAUMATURGY:
+		return CX2Unit::UCL_FIRST;
+	case CX2Unit::UC_ELSWORD_MAGIC_KNIGHT: case CX2Unit::UC_LIRE_SNIPING_RANGER: case CX2Unit::UC_ARME_DARK_MAGICIAN: case CX2Unit::UC_RAVEN_OVER_TAKER:
+	case CX2Unit::UC_EVE_ARCHITECTURE: case CX2Unit::UC_CHUNG_SHOOTING_GUARDIAN: case CX2Unit::UC_ELESIS_PYRO_KNIGHT: case CX2Unit::UC_ARA_LITTLE_DEVIL:
+	case CX2Unit::UC_ADD_ARC_TRACER: case CX2Unit::UC_LUCIEL_ROYAL_GUARD: case CX2Unit::UC_ROSE_BLOODIA: case CX2Unit::UC_AIN_LOFTY_ANPASSEN:
+	case CX2Unit::UC_ELSWORD_RUNE_SLAYER: case CX2Unit::UC_LIRE_GRAND_ARCHER: case CX2Unit::UC_ARME_VOID_PRINCESS: case CX2Unit::UC_RAVEN_RECKLESS_FIST:
+	case CX2Unit::UC_EVE_CODE_EMPRESS: case CX2Unit::UC_CHUNG_DEADLY_CHASER: case CX2Unit::UC_ARA_YAMA_RAJA: case CX2Unit::UC_ELESIS_BLAZING_HEART:
+	case CX2Unit::UC_ADD_MASTERMIND: case CX2Unit::UC_LUCIEL_NOBLESSE: case CX2Unit::UC_ROSE_CRIMSON_ROSE: case CX2Unit::UC_AIN_ERBLUHEN_EMOTION:
+		return CX2Unit::UCL_SECOND;
+	case CX2Unit::UC_ELSWORD_SHEATH_KNIGHT: case CX2Unit::UC_ARME_BATTLE_MAGICIAN: case CX2Unit::UC_LIRE_TRAPPING_RANGER: case CX2Unit::UC_RAVEN_WEAPON_TAKER:
+	case CX2Unit::UC_EVE_ELECTRA: case CX2Unit::UC_CHUNG_SHELLING_GUARDIAN: case CX2Unit::UC_ARA_LITTLE_SPECTER: case CX2Unit::UC_ELESIS_DARK_KNIGHT:
+	case CX2Unit::UC_ADD_TIME_TRACER: case CX2Unit::UC_LUCIEL_DIABLURA: case CX2Unit::UC_ROSE_VALKYRIE: case CX2Unit::UC_AIN_LOFTY_WANDERER:
+	case CX2Unit::UC_ELSWORD_INFINITY_SWORD: case CX2Unit::UC_ARME_DIMENSION_WITCH: case CX2Unit::UC_LIRE_NIGHT_WATCHER: case CX2Unit::UC_RAVEN_VETERAN_COMMANDER:
+	case CX2Unit::UC_EVE_BATTLE_SERAPH: case CX2Unit::UC_CHUNG_TACTICAL_TROOPER: case CX2Unit::UC_ARA_ASURA: case CX2Unit::UC_ELESIS_CRIMSON_AVENGER:
+	case CX2Unit::UC_ADD_DIABOLIC_ESPER: case CX2Unit::UC_LUCIEL_DEMONIO: case CX2Unit::UC_ROSE_FREYJA: case CX2Unit::UC_AIN_APOSTASIA:
+		return CX2Unit::UCL_THIRD;
+	case CX2Unit::UC_ROSE_METAL_HEART: case CX2Unit::UC_ROSE_OPTIMUS:
+		return 4;		// line 4 has no UNIT_CLASS_LINE member
+	default:
+		return CX2Unit::UCL_NONE;
+	}
+}
+// char-ara CHNb2: June 31ef05e0, the tier of a class ( classes 10-199 are first or second jobs )
+inline int GetUnitClassTierByUnitClass( int iUnitClass_ )
+{
+	if( static_cast<unsigned int>( iUnitClass_ - CX2Unit::UC_ELSWORD_KNIGHT ) < static_cast<unsigned int>( CX2Unit::UC_LUCIEL_DUO - CX2Unit::UC_ELSWORD_KNIGHT ) )
+		return ( CX2Unit::UC_ELSWORD_LORD_KNIGHT <= iUnitClass_ ) ? CX2Unit::UCT_SECOND_CLASS : CX2Unit::UCT_FIRST_CLASS;
+	return CX2Unit::UCT_BASIC_CLASS;
+}
 #endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 inline D3DXCOLOR GetUnitKeyColorByUnitType ( CX2Unit::UNIT_TYPE eUnitType_ )
 {

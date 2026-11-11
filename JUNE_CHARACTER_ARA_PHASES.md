@@ -1648,6 +1648,48 @@ Opus 5.5. New class-generic flag `SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE` (`Alway
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 26,226,688 B, dated 2026-11-11 20:06:50, md5 8b63ccc6152ffdca693c5e549025a5a1` (built at `fae707a6` + the 7 files). No new strings, so no EXESTR line.
 - **Play-test (2026-11-11, user screenshots):** 1ST guide opens with June's art (all 10 textures June-identical, `stage-june --dry-run`) but the descriptions overlap; 2ND guide opens unfilled. Both = `32713c10`, CHNb2. Job changes PASS: AraGuideMA 7 -> 34 (`/qdone 35560-35563`), AraGuideLS 34 -> 124 (`/qdone 35564-35568`, NetError 0 x5), both kept their class after a relog (save: 34 / 124); 2ND guide's Buy opened the shop on Sakra Devanam's item (line 1 until CHNb2's button rebinding); 0 EXCEPTION. `AddGroupChainQuest` unbound (ChainQuestInfo.lua) is pre-existing, backlog line 314.
 
+### CHNb2 - Done (2026-11-11)
+
+Opus 5.5. Flag `SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE` (CHNb's, class-generic), one more `Always.h` description line and four `#error` guards (`_SKILL_TREE_PANELS`,
+`_UI_LINE_BREAK`, `_TRANSCEND_UNIT`, `_SKILL_TYPE`; all ON in a `flagprobe.py` `cl` probe and `#define`d above the block). Phase tag `// char-ara CHNb2` on every block.
+- **`CX2LVUpEventMgr::LVUpEvent::InitClassChangeGuide`** (new, June `32713c10`), called in `CheckLevel` on each opened dialog right after the transcendence init
+  (June `327141e0`: 32711490 / 32710710 / 32713c10; June pushes the dialog into the event list after it, March before: no reader in between).
+  - **Event 2 (1ST guide):** `g_pStatic_String_ClassDescription` strings 0-3 re-wrapped to 180 with their own font (`31d471f0` = `CKTDXWordWrap::GetStrByLineBreak`).
+  - **Event 4 (2ND guide):** line = `31eca340( class )`, next class = `3234b390( type, 31ef05e0( class ) + 1, line )`, its templet (`32373770`), stop if none;
+    `g_pStatic_CharacterImg` picture line - 1 shown, `g_pButton_Accept_Quest1` / `g_pButton_Buy_CashItem1` mouse-up (`+0x27c`) = 1541 / 1545 + line - 1
+    (June's switch, lines 1-4), `g_pStatic_String_ClassName` string 0 = the next class's name; then, with the UI manager's skill tree (`3214f050`),
+    `LoadSkillCommandDescription( next, minor, D )` (`3220bdb0`) and `32713420`.
+  - **Event 6 (transcendence guide):** `ButtonClass_Change_X` button vslot `0x68` = `31cacc00` = `CKTDGUIButton::SetShow`, with false. March's `InitTranscendGuide`
+    only touches that button for the class popup, so it is here.
+- **`32713420`** (file-local `CreateClassSkillDescription`, `_CONST_LVUP_EVENT_CHNB2_`): `m_kSkill = m_kTranscendental` for a transcended unit (no instance-code test,
+  unlike the skill tree's `328e42d0`); `g_pStatic_ClassSkillDescription` string 1 = the description, its id as dummy int 0; per SKILL_DATA row a `MajorSkillBack_%d`
+  static (type background `32207560`) and `MajorSkillButton_%d` button (icon, dummy int = the row's string, mouse-over `+0x274` = 1551, mouse-out `+0x270` = 1552),
+  86 px apart from ( 260, 230 ), button 3 px in; string 1 wrapped (`31d45690`, 320); then ComboTree rows (`3220d4d0`) and `32712e50`.
+- **`32712e50`** (file-local `CreateClassCommandDescription`): per MAJOR_COMBO row a `MajorCommandBack_%d` button (BG_COMMAND, dummy int = the row's string, at
+  ( 262, y - 7 ); no guide text, unlike `328e5290`) and a `MajorCommand_%d` static (title `32205610` at ( 268, y + 1 ), font 2, icons from x 352, 2 px apart), rows 40 px
+  from y 360. Constants read with `charport_consts.py` (all qwords except 352 / 360 / 262 / 268 / 230 / 233 dwords).
+- **Cases 1551 / 1552** (`UICustomEventProc`, June `@32712a25` / `@32712bf6`, return true): the sender's dialog's `g_pStatic_ClassSkillDescription` string 1 = the hovered
+  icon's dummy int 0 / the description's own dummy int 0, then wrapped (`31d45690`, 320). No June Enum names: numbers with a comment. CHNb's "not ported" line now points here.
+- **`CKTDXWordWrap::GetStrByLineBreakColorByChar`** (new, June `31d45690`, KTDXLIB): March has no twin (its `CutStringWithEllipse` is a word wrap plus a cut). The KR
+  per-character colour wrap (March's non-EU `GetStrByLineBreakColorInX2Main` branch) with June's differences: the colour key goes in after the break even when the next
+  character was already `\n`, the cut test is `i + 1 <= size` (its else branch never runs), and an optional line cap ending in "..." (both callers pass it off).
+- **`X2Unit.h`:** `GetUnitClassLineByUnitClass` (`31eca340`, with `UC_*` names; Rose's 41 -> 1 / 40 -> 2 as June) and `GetUnitClassTierByUnitClass` (`31ef05e0`).
+  `X2SkillNoteManager.cpp`'s `LineOfClass` forwards to the first (as CHNb did for `ClassAt`).
+- **Stand-ins (one-line comments):** `GetControl` where June calls `GetStatic_LUA` / `GetButton_LUA`, because March's other classes' level-15 guides
+  (`DLG_Class_Change_Guide_<X>.lua`, until their CHNb) lack `g_pStatic_String_ClassDescription` and the `_LUA` getters pop a message box; the miss is logged. The
+  `3220bdb0` minor flag is June's `CX2Unit +0xe40 == 1` (Luciel's second form, not ported): false. June's extra `337676ec` test (an app global set at start-up,
+  `31c18eb6`) is left out, as the skill tree's `328e8820` port did.
+- **Not a JUNE_BUGS row:** `31d45690`'s `\n` test only while the width is not passed always holds (the width resets at each break), and the early colour key is read back by
+  the `#C` branch, so nothing shows twice.
+- **Logs (permanent, once per guide open):** `[JUNE_CHAR] CLASS GUIDE 1st: <n> class description(s) wrapped to 180` (or `no g_pStatic_String_ClassDescription`),
+  `... 2nd: class <c> line <l> -> next class <n>, buttons <accept> / <buy>`, `... 2nd skills: next class <n>, description <id>, <i> skill icon(s), <r> command row(s)`.
+- **Units:** `AraGuide2MA` (107, class 7, lv 14, exp 81600), `AraGuide2LS` (108, 34), `AraGuideLH` (109, 28), `AraGuideLD` (110, 31), all lv 34 at exp 1212400.
+- **Hygiene:** `flagcheck --worktree` (7 files): 5 PASS, 1 PASS~ (blank line), 1 DEFINE, 0 OTHER, 0 FAIL; 1 deleted line = CHNb's own "1551 / 1552 not ported"
+  comment inside the flag, replaced; 0 non-ASCII, 0 EOL, 0 token, 0 encoding. `junediverge --check` (7 files): RESULT: PASS. `enumscan --check`: 0 rows on the changed
+  lines (`X2Unit.h`'s 17 rows are its own enum definition; KTDXLIB files do not preprocess in the tool). No June `.lua` staged (luabind / skillicons n/a).
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 26,238,464 B, dated 2026-11-11 20:54:27, md5 3b0f210899f32b842e33343cfe197c3d` (built at `c8200145` + the 7 files). `EXESTR OK: 3 of 3` (the `2nd skills` log line, `g_pStatic_ClassSkillDescription`, `MajorCommandBack_%d`, wide).
+- **Play-test owed:** both guides with the units above (hand-off below).
+
 ## Phase CH2 - Skills: Martial Artist and the first jobs (classes 7, 28, 31, 34)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), one Opus review at CH2d (covers CH2a-CH2d), user play-test per phase. Flag

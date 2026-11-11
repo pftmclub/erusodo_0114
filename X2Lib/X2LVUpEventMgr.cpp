@@ -1,5 +1,9 @@
 #include "StdAfx.h"
 #include ".\x2lvupeventmgr.h"
+#ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+#include "KTDXWordWrap.h"
+#include "Offline/X2OfflineLog.h"
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 
 CX2LVUpEventMgr::CX2LVUpEventMgr(void)
 {
@@ -274,10 +278,198 @@ void CX2LVUpEventMgr::AddLevelUpEvent_LUA()
 	m_mapLVUpEvent.insert( std::make_pair( pLVUpEvent->m_EventID, pLVUpEvent ) );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+// char-ara CHNb2: what June's guide fill ( 32713c10 ) and its 1551 / 1552 cases use
+namespace _CONST_LVUP_EVENT_CHNB2_
+{
+	// June 32207560 ( the skill tree UI keeps the same switch file-local )
+	const WCHAR* GetSkillTypeBGKey( const int iSkillType_ )
+	{
+		switch ( iSkillType_ )
+		{
+		case CX2SkillTree::ST_BUFF:
+			return L"SKILL_BG_ACTIVE_BUFF";
+		case CX2SkillTree::ST_ACTIVE:
+		case CX2SkillTree::ST_RELATIONSHIP_SKILL:
+			return L"SKILL_BG_ACTIVE";
+		case CX2SkillTree::ST_SPECIAL_ACTIVE:
+		case CX2SkillTree::ST_HYPER_ACTIVE_SKILL:
+		case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_1:
+		case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_2:
+		case CX2SkillTree::ST_SPECIAL_ACTIVE_GRADE_3:
+			return L"SKILL_BG_ACTIVE_SPECIAL";
+		default:
+			return L"SKILL_BG_PASSIVE";
+		}
+	}
+
+	// June 31c94970 ( the skill tree UI keeps the same helper file-local ): a picture with no point gets one sized to its texture
+	void SetPointByTextureSize( CKTDGUIControl::CPictureData* pPicture_ )
+	{
+		if ( NULL == pPicture_ || NULL != pPicture_->pPoint || NULL == pPicture_->pTexture )
+			return;
+
+		pPicture_->pPoint = new CKTDGUIControl::UIPointData();
+		pPicture_->pPoint->pUITextureData = pPicture_->pTexture;
+		pPicture_->pPoint->SetAutoPointByTextureSize();
+		pPicture_->pos			= pPicture_->pPoint->leftTopPoint;
+		pPicture_->originalPos	= pPicture_->pos;
+		pPicture_->size			= pPicture_->pTexture->texSize;
+		pPicture_->originalSize	= pPicture_->size;
+	}
+
+	// June 31c9ddf0 + the two stores: a button point at one corner
+	CKTDGUIControl::UIPointData* NewPointAt( const float fX_, const float fY_ )
+	{
+		CKTDGUIControl::UIPointData* pPoint = new CKTDGUIControl::UIPointData();
+		pPoint->leftTopPoint = D3DXVECTOR2( fX_, fY_ );
+		return pPoint;
+	}
+
+	// June 327127a0 cases 1551 / 1552 and 32713420: string 1 of the class skill description wrapped per character to 320
+	void WrapClassSkillDescription( CKTDGUIStatic* pDescription_ )
+	{
+		CKTDGUIControl::UIStringData* pString = pDescription_->GetString( 1 );
+		if ( NULL == pString )
+			return;
+
+		const std::wstring wstrText = pString->msg;
+		pString->msg = CKTDXWordWrap::GetStrByLineBreakColorByChar( wstrText.c_str(), 320, pString->fontIndex, 0, false );
+	}
+
+	// June 32712e50: per MAJOR_COMBO row a MajorCommandBack_%d button at ( 262, y - 7 ) and a MajorCommand_%d static ( title at ( 268, y + 1 ),
+	// icons from x 352 ), rows 40 px apart from y 360
+	int CreateClassCommandDescription( CKTDGUIDialogType pDialog_, const std::vector<CX2SkillTree::ComboRow>& vecRow_ )
+	{
+		if ( NULL == pDialog_ || true == vecRow_.empty() )
+			return 0;
+
+		WCHAR buf[255] = { 0, };
+		float fX = 352.f;
+		float fY = 360.f;
+		for ( UINT i = 0; i < vecRow_.size(); ++i )
+		{
+			const CX2SkillTree::ComboRow& kRow = vecRow_[i];
+
+			CKTDGUIButton* pButton = new CKTDGUIButton();
+			StringCchPrintf( buf, 255, L"MajorCommandBack_%d", i );
+			pButton->SetName( buf );
+			pDialog_->AddControl( pButton );
+			pButton->SetNormalTex( L"DLG_UI_Common_Texture_NewSkill_02.TGA", L"BG_COMMAND" );
+			pButton->SetOverTex( L"DLG_UI_Common_Texture_NewSkill_02.TGA", L"BG_COMMAND" );
+			pButton->SetDownTex( L"DLG_UI_Common_Texture_NewSkill_02.TGA", L"BG_COMMAND" );
+			pButton->AddDummyInt( kRow.m_iStringID );
+			pButton->SetNormalPoint( NewPointAt( 262.f, fY - 7.f ) );
+			pButton->SetOverPoint( NewPointAt( 262.f, fY - 7.f ) );
+			pButton->SetDownPoint( NewPointAt( 262.f, fY - 7.f ) );
+
+			CKTDGUIStatic* pStatic = new CKTDGUIStatic();
+			StringCchPrintf( buf, 255, L"MajorCommand_%d", i );
+			pStatic->SetName( buf );
+			pDialog_->AddControl( pStatic );
+
+			CKTDGUIControl::UIStringData* pString = new CKTDGUIControl::UIStringData();
+			pStatic->AddString( pString );
+			pString->fontIndex	= 2;
+			pString->color		= D3DXCOLOR( 1.f, 1.f, 1.f, 1.f );
+			pString->msg		= GET_STRING( CX2SkillTree::GetComboTitleStringID( kRow.m_iComboType ) );
+			pString->sortFlag	= 0;
+			pString->fontStyle	= CKTDGFontManager::FS_NONE;
+			pString->pos		= D3DXVECTOR2( 268.f, fY + 1.f );
+
+			for ( UINT j = 0; j < kRow.m_vecIcon.size(); ++j )
+			{
+				if ( 0 != j )
+				{
+					CKTDGUIControl::CPictureData* pLast = pStatic->GetPicture( pStatic->GetPictureNum() - 1 );
+					if ( NULL != pLast )
+						fX = pLast->GetPos().x + pLast->GetSize().x + 2.f;
+				}
+				g_pData->GetSkillTree()->AddCommandIconPicture( kRow.m_vecIcon[j], fX, fY, pStatic );
+			}
+
+			fX = 352.f;
+			fY += 40.f;
+		}
+		return static_cast<int>( vecRow_.size() );
+	}
+
+	// June 32713420: the 2ND guide's skill icons ( SKILL_DATA, TRANSCENDENTAL_SKILL_DATA when transcended ), 86 px apart from ( 260, 230 ), then the command rows
+	void CreateClassSkillDescription( CKTDGUIDialogType pDialog_, const int iNextUnitClass_, CX2SkillTree::SkillCommandDesc& kDesc_ )
+	{
+		if ( NULL == pDialog_ || NULL == g_pData->GetSkillTree() )
+			return;
+
+		if ( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() &&
+			 0 != g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iUnitClassTran && false == kDesc_.m_kTranscendental.m_vecSkill.empty() )
+			kDesc_.m_kSkill = kDesc_.m_kTranscendental;		// unlike the skill tree's 328e42d0, June tests no instance code here
+
+		CKTDGUIStatic* pDescription = static_cast<CKTDGUIStatic*>( pDialog_->GetControl( L"g_pStatic_ClassSkillDescription" ) );
+		if ( NULL != pDescription )
+		{
+			const int iDescStringID = kDesc_.m_kSkill.m_iDescStringID;
+			pDescription->SetString( 1, GET_STRING( iDescStringID ) );
+			pDescription->AddDummyInt( iDescStringID );		// 1552 reads it back
+		}
+
+		WCHAR buf[255] = { 0, };
+		int iIconCount = 0;
+		const std::vector< std::pair<int, int> >& vecSkill = kDesc_.m_kSkill.m_vecSkill;
+		for ( UINT i = 0; i < vecSkill.size(); ++i )
+		{
+			// 32206450( id, 1 ): its level gate needs instance code 0x910 / 0x911 ( none offline ), so it is March's GetSkillTemplet( id )
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( vecSkill[i].first ) );
+			if ( NULL == pSkillTemplet )
+				continue;
+
+			CKTDGUIStatic* pStatic = new CKTDGUIStatic();
+			CKTDGUIControl::CPictureData* pPicture = new CKTDGUIControl::CPictureData();
+			CKTDGUIButton* pButton = new CKTDGUIButton();
+			pDialog_->AddControl( pStatic );
+			pDialog_->AddControl( pButton );
+			StringCchPrintf( buf, 255, L"MajorSkillBack_%d", i );
+			pStatic->SetName( buf );
+			StringCchPrintf( buf, 255, L"MajorSkillButton_%d", i );
+			pButton->SetName( buf );
+
+			pPicture->SetTex( L"DLG_UI_Common_Texture_NewSkill_02.TGA", GetSkillTypeBGKey( static_cast<int>( pSkillTemplet->m_eType ) ) );
+			pStatic->AddPicture( pPicture );
+			pButton->SetNormalTex( pSkillTemplet->m_wstrIconName.c_str(), pSkillTemplet->m_wstrIconPieceName.c_str() );
+			pButton->SetOverTex( pSkillTemplet->m_wstrIconName.c_str(), pSkillTemplet->m_wstrIconPieceName.c_str() );
+			pButton->SetDownTex( pSkillTemplet->m_wstrIconName.c_str(), pSkillTemplet->m_wstrIconPieceName.c_str() );
+			pButton->AddDummyInt( vecSkill[i].second );		// 1551 reads it
+			pButton->SetCustomMsgMouseOver( 1551 );		// June's mouse-over message; no Enum entry
+			pButton->SetCustomMsgMouseOut( 1552 );		// June's mouse-out message; no Enum entry
+
+			const float fX = static_cast<float>( i ) * 86.f + 260.f;
+			SetPointByTextureSize( pPicture );
+			pPicture->SetPos( D3DXVECTOR2( fX, 230.f ) );
+			pButton->SetNormalPoint( NewPointAt( fX + 3.f, 233.f ) );
+			pButton->SetOverPoint( NewPointAt( fX + 3.f, 233.f ) );
+			pButton->SetDownPoint( NewPointAt( fX + 3.f, 233.f ) );
+			++iIconCount;
+		}
+
+		// June also needs app global 337676ec here, set at start-up ( 31c18eb6 )
+		pDescription = static_cast<CKTDGUIStatic*>( pDialog_->GetControl( L"g_pStatic_ClassSkillDescription" ) );
+		if ( NULL != pDescription )
+			WrapClassSkillDescription( pDescription );
+
+		std::vector<CX2SkillTree::ComboRow> vecRow;
+		g_pData->GetSkillTree()->LoadMajorComboRows( &kDesc_, CX2SkillTree::GetUnitClassName( iNextUnitClass_ ), false, vecRow );
+		const int iRowCount = CreateClassCommandDescription( pDialog_, vecRow );
+
+		CX2OfflineLog::Server( L"[JUNE_CHAR] CLASS GUIDE 2nd skills: next class %d, description %d, %d skill icon(s), %d command row(s)",
+			iNextUnitClass_, kDesc_.m_kSkill.m_iDescStringID, iIconCount, iRowCount );
+	}
+}
+using namespace _CONST_LVUP_EVENT_CHNB2_;
+
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 bool CX2LVUpEventMgr::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 #ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
-	// char-ara CHNb: June 327127a0; cases 1551 / 1552 ( class skill description ) are not ported: nothing of ours sends them
+	// char-ara CHNb: June 327127a0 ( cases 1551 / 1552: char-ara CHNb2 )
 	switch( wParam )
 	{
 	case LUEMCUM_PVP_PR:
@@ -427,6 +619,34 @@ bool CX2LVUpEventMgr::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LP
 			CloseChangeClassGuides();
 			if( NULL != g_pData->GetCashShop() )
 				g_pData->GetCashShop()->OpenClassChangeGuideItem( CX2Unit::UCL_NONE );
+		} return true;
+	case 1551:		// char-ara CHNb2: a 2ND guide skill icon's mouse-over ( 32713420 binds it; no Enum entry ): the icon's text
+		{
+			CKTDGUIControl* pControl = reinterpret_cast<CKTDGUIControl*>( lParam );
+			if ( NULL != pControl && NULL != pControl->GetDialog() )
+			{
+				CKTDGUIStatic* pDescription = static_cast<CKTDGUIStatic*>( pControl->GetDialog()->GetControl( L"g_pStatic_ClassSkillDescription" ) );
+				if ( NULL != pDescription )
+				{
+					const int iStringID = pControl->GetDummyInt( 0 );
+					pDescription->SetString( 1, GET_STRING( iStringID ) );
+					WrapClassSkillDescription( pDescription );
+				}
+			}
+		} return true;
+	case 1552:		// char-ara CHNb2: its mouse-out ( no Enum entry ): the description's own text, its dummy int 0
+		{
+			CKTDGUIControl* pControl = reinterpret_cast<CKTDGUIControl*>( lParam );
+			if ( NULL != pControl && NULL != pControl->GetDialog() )
+			{
+				CKTDGUIStatic* pDescription = static_cast<CKTDGUIStatic*>( pControl->GetDialog()->GetControl( L"g_pStatic_ClassSkillDescription" ) );
+				if ( NULL != pDescription )
+				{
+					const int iStringID = pDescription->GetDummyInt( 0 );
+					pDescription->SetString( 1, GET_STRING( iStringID ) );
+					WrapClassSkillDescription( pDescription );
+				}
+			}
 		} return true;
 	}
 	return false;
@@ -633,6 +853,94 @@ void CX2LVUpEventMgr::LVUpEvent::DeleteDialog()
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+// char-ara CHNb2: June 32713c10, run on each dialog CheckLevel opens ( after the transcendence init, as June 327141e0 )
+void CX2LVUpEventMgr::LVUpEvent::InitClassChangeGuide( CKTDGUIDialogType pDialog_ )
+{
+	if ( NULL == pDialog_ )
+		return;
+
+	switch ( m_EventID )
+	{
+	case LUEI_CHANGE_CLASS_GUIDE_FIRST:
+		{
+			// stand-in: GetControl, not June's GetStatic_LUA, whose missing-control popup March's other 1ST guides would raise
+			CKTDGUIStatic* pDescription = static_cast<CKTDGUIStatic*>( pDialog_->GetControl( L"g_pStatic_String_ClassDescription" ) );
+			if ( NULL == pDescription )
+			{
+				CX2OfflineLog::Server( L"[JUNE_CHAR] CLASS GUIDE 1st: no g_pStatic_String_ClassDescription ( a March guide ), nothing wrapped" );
+				return;
+			}
+			int iWrapped = 0;
+			for ( int i = 0; i < 4; ++i )
+			{
+				CKTDGUIControl::UIStringData* pString = pDescription->GetString( i );
+				if ( NULL == pString )
+					continue;
+				const std::wstring wstrText = pString->msg;
+				pString->msg = CKTDXWordWrap::GetStrByLineBreak( wstrText.c_str(), 180, pString->fontIndex, NULL );
+				++iWrapped;
+			}
+			CX2OfflineLog::Server( L"[JUNE_CHAR] CLASS GUIDE 1st: %d class description(s) wrapped to 180", iWrapped );
+		} break;
+
+	case LUEI_CHANGE_CLASS_GUIDE_SECOND:
+		{
+			if ( NULL == g_pData->GetMyUser() || NULL == g_pData->GetMyUser()->GetSelectUnit() || NULL == g_pData->GetUnitManager() )
+				return;
+
+			const CX2Unit::UnitTemplet* pUnitTemplet = g_pData->GetMyUser()->GetSelectUnit()->GetUnitTemplet();
+			const int iUnitClass = ( NULL != pUnitTemplet ) ? static_cast<int>( pUnitTemplet->m_UnitClass ) : CX2Unit::UC_NONE;
+			const int iUnitType = ( NULL != pUnitTemplet ) ? static_cast<int>( pUnitTemplet->m_UnitType ) : CX2Unit::UT_NONE;
+			const int iLine = GetUnitClassLineByUnitClass( iUnitClass );
+			const int iNextUnitClass = GetUnitClassByTierAndLine( iUnitType, GetUnitClassTierByUnitClass( iUnitClass ) + 1, iLine );
+			const CX2Unit::UnitTemplet* pNextTemplet = g_pData->GetUnitManager()->GetUnitTemplet( static_cast<CX2Unit::UNIT_CLASS>( iNextUnitClass ) );
+			if ( NULL == pNextTemplet )
+			{
+				CX2OfflineLog::Server( L"[JUNE_CHAR] CLASS GUIDE 2nd: class %d line %d has no next class templet ( %d ), guide left as scripted", iUnitClass, iLine, iNextUnitClass );
+				return;
+			}
+
+			CKTDGUIStatic* pCharacterImage = static_cast<CKTDGUIStatic*>( pDialog_->GetControl( L"g_pStatic_CharacterImg" ) );
+			CKTDGUIButton* pAccept = static_cast<CKTDGUIButton*>( pDialog_->GetControl( L"g_pButton_Accept_Quest1" ) );
+			CKTDGUIButton* pBuy = static_cast<CKTDGUIButton*>( pDialog_->GetControl( L"g_pButton_Buy_CashItem1" ) );
+			const int iLineIndex = iLine - CX2Unit::UCL_FIRST;
+			if ( NULL != pCharacterImage && NULL != pAccept && NULL != pBuy && 0 <= iLineIndex && iLineIndex < 4 )		// June's switch: lines 1-4
+			{
+				CKTDGUIControl::CPictureData* pPicture = pCharacterImage->GetPicture( iLineIndex );
+				if ( NULL != pPicture )
+					pPicture->SetShow( true );
+				pAccept->SetCustomMsgMouseUp( LUEMCUM_CHANGE_CLASS_GUIDE_QUEST_ACCEPT_1LINE + iLineIndex );
+				pBuy->SetCustomMsgMouseUp( LUEMCUM_CHANGE_CLASS_GUIDE_BUY_CASH_ITEM_1LINE + iLineIndex );
+			}
+
+			CKTDGUIStatic* pClassName = static_cast<CKTDGUIStatic*>( pDialog_->GetControl( L"g_pStatic_String_ClassName" ) );
+			if ( NULL != pClassName && NULL != pClassName->GetString( 0 ) )
+				pClassName->GetString( 0 )->msg = pNextTemplet->m_Name;
+
+			CX2OfflineLog::Server( L"[JUNE_CHAR] CLASS GUIDE 2nd: class %d line %d -> next class %d, buttons %d / %d", iUnitClass, iLine, iNextUnitClass,
+				LUEMCUM_CHANGE_CLASS_GUIDE_QUEST_ACCEPT_1LINE + iLineIndex, LUEMCUM_CHANGE_CLASS_GUIDE_BUY_CASH_ITEM_1LINE + iLineIndex );
+
+			if ( NULL != g_pData->GetUIManager() && NULL != g_pData->GetUIManager()->GetUISkillTree() && NULL != g_pData->GetSkillTree() )
+			{
+				CX2SkillTree::SkillCommandDesc kDesc;
+				g_pData->GetSkillTree()->LoadSkillCommandDescription( iNextUnitClass, false, &kDesc );		// stand-in: June's minor flag is CX2Unit +0xe40 ( Luciel, not ported )
+				CreateClassSkillDescription( pDialog_, iNextUnitClass, kDesc );
+			}
+		} break;
+
+	case LUEI_CHANGE_CLASS_GUIDE_TRANSCENDENTAL:
+		{
+			CKTDGUIButton* pClose = static_cast<CKTDGUIButton*>( pDialog_->GetControl( L"ButtonClass_Change_X" ) );
+			if ( NULL != pClose )
+				pClose->SetShow( false );		// June button vslot 0x68 ( 31cacc00 ) with 0
+		} break;
+
+	default:
+		break;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 void CX2LVUpEventMgr::LVUpEvent::CheckLevel()
 {
 	if ( m_bCheckShow == true )
@@ -710,6 +1018,9 @@ void CX2LVUpEventMgr::LVUpEvent::CheckLevel()
 						if( CX2ClassChangePopup::IsTranscendGuideName( dialogFileName.c_str() ) )
 							CX2ClassChangePopup::InitTranscendGuide( pDialog, static_cast<int>( pUnit->GetClass() ), false, m_pTranscendImage, m_fTranscendImageTime );
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
+#ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+						InitClassChangeGuide( pDialog );		// char-ara CHNb2: June 327141e0 calls 32713c10 right after 32710710
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 					}
 
 #ifdef ADD_PLAY_SOUND //±Ë√¢«—

@@ -373,6 +373,9 @@ namespace
 	/// June2017 31eca340: UNIT_CLASS -> its job line 1-4 (0 for a base class or any other class)
 	int LineOfClass( int iUnitClass_ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+		return GetUnitClassLineByUnitClass( iUnitClass_ );		// char-ara CHNb2: the switch moved to X2Unit.h
+#else SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 		switch( iUnitClass_ )
 		{
 		case 10:  case 12:  case 14:  case 16:  case 18:  case 20:  case 28:  case 29:  case 32:  case 37:  case 41:  case 44:
@@ -389,6 +392,7 @@ namespace
 		default:
 			return 0;
 		}
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 	}
 
 	/// June2017 3234b390: the class at [ type ][ tier ][ line ] of the table at 337a1660 (BSS, filled by the static initializer

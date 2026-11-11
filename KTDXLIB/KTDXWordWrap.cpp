@@ -320,6 +320,101 @@ std::wstring CKTDXWordWrap::GetStrByLineBreakByType( const WCHAR* pOrgStr, int w
 	return pOrgStr != NULL ? std::wstring( pOrgStr ) : std::wstring( L"" );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+// char-ara CHNb2: June 31d45690 ( callers 32713420, 327127a0 cases 1551 / 1552 )
+std::wstring CKTDXWordWrap::GetStrByLineBreakColorByChar( const WCHAR* pOrgStr, int width, int fontIndex, int nLineNum_, bool bLineLimit_ )
+{
+	if ( pOrgStr == NULL )
+		return L"";
+
+	std::wstring tempText = pOrgStr;
+	const int constTextMaxLen = (int)( g_pKTDXApp->GetResolutionScaleX() * width );
+	CKTDGFontManager::CUKFont* pFont = g_pKTDXApp->GetDGManager()->GetDialogManager()->GetUKFont( fontIndex );
+	if ( pFont == NULL )
+		return tempText;
+
+	int nowTextLen = 0;
+	int iLineNum = 0;
+	std::wstring wstrPrevColorkey = L"";
+	for ( int i = 0; i < (int)tempText.size(); i++ )
+	{
+		if ( bLineLimit_ == true && iLineNum >= nLineNum_ )
+			break;
+
+		const WCHAR tmpWChar = tempText[i];
+		if ( nowTextLen <= constTextMaxLen && tmpWChar == L'\n' )		// June's width test; it always holds here ( the width resets at every break )
+		{
+			nowTextLen = 0;
+			tempText.insert( tempText.begin() + i + 1, wstrPrevColorkey.begin(), wstrPrevColorkey.end() );
+			wstrPrevColorkey = L"";
+			++iLineNum;
+			continue;
+		}
+
+		if ( tmpWChar == L'#' && i + 1 < (int)tempText.size() && ( tempText[i+1] == L'C' || tempText[i+1] == L'c' ) && i + 2 < (int)tempText.size() )
+		{
+			if ( tempText[i+2] == L'x' || tempText[i+2] == L'X' )
+			{
+				wstrPrevColorkey = L"";
+				i += 2;
+			}
+			else
+			{
+				wstrPrevColorkey = tempText.substr( i, 8 );
+				i += 7;
+			}
+			continue;
+		}
+
+		nowTextLen += pFont->GetWidth( tmpWChar );
+		if ( nowTextLen < constTextMaxLen )
+			continue;
+
+		++iLineNum;
+		if ( bLineLimit_ == true && iLineNum >= nLineNum_ )
+		{
+			const std::wstring wstrEllipse = L"...";
+			const int iCut = ( i + 1 < (int)tempText.size() ) ? i + 1 : i;
+			tempText.insert( iCut, wstrEllipse );
+			tempText.erase( iCut + wstrEllipse.size() );
+			break;
+		}
+
+		nowTextLen = 0;
+		const std::wstring wstrEnter = L"\n";
+		if ( i + 1 <= (int)tempText.size() )
+		{
+			const WCHAR wcNext = ( i + 1 < (int)tempText.size() ) ? tempText[i+1] : L'\0';
+			if ( wcNext != L'\n' )
+			{
+				tempText.insert( i + 1, wstrEnter );
+				if ( i + 2 < (int)tempText.size() && tempText[i+2] == L' ' )
+					tempText.erase( i + 2, 1 );
+			}
+			if ( false == wstrPrevColorkey.empty() )		// June carries the colour even when no line break went in
+			{
+				tempText.insert( i + 2, wstrPrevColorkey );
+				wstrPrevColorkey = L"";
+			}
+		}
+		else if ( tempText[i] != L'\n' && tempText[i] != L')' && tempText[i] != L'.' )		// June keeps this branch; i + 1 never passes the size here
+		{
+			tempText.insert( i, wstrEnter );
+			if ( false == wstrPrevColorkey.empty() )
+			{
+				tempText.insert( i + 1, wstrPrevColorkey );
+				wstrPrevColorkey = L"";
+			}
+		}
+		++i;
+
+		if ( i >= (int)tempText.size() )
+			break;
+	}
+	return tempText;
+}
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+
 // June2017 31d45f20: wraps the string again when X2Lib marked it (bRewrapPending); called from the control's OnFrameRender.
 void CKTDGUIControl::UIStringData::RewrapPending()
 {

@@ -12508,6 +12508,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              the first / second class-change guides' close ( 1540 ), quest-accept ( 1541-1544 ) and buy ( 1545-1548 ) buttons, the June
 //              classes' cash-shop links; CX2CashShop::OpenClassChangeGuideItem ( 3222a4f0 ) opens the shop on the next class's change item;
 //              June's class table ( 3234b390 ) moves to X2Unit.h. Revert: comment out the #define ( JUNE_CLASS_CHANGE_GUIDE ).
+//              char-ara CHNb2: June 32713c10 fills the guides ( 1ST descriptions wrapped, 2ND guide's next class, buttons, skills, commands; 1551 / 1552 ).
 #define SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 #if defined( SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE ) && !defined( SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE )
 #error SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE needs SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ( CloseChangeClassGuides, LUEMCUM_TRANSCENDENTAL )
@@ -12523,5 +12524,17 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 #if defined( SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE ) && !defined( PRIVATE_BANK )
 #error SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE needs PRIVATE_BANK ( SetMenuTypeCallingCashShop )
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+#if defined( SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE ) && !defined( SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS )
+#error SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE needs SERV_IRUHADEV_JUNE_SKILL_TREE_PANELS ( SkillCommandDesc, LoadMajorComboRows, AddCommandIconPicture )
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+#if defined( SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE ) && !defined( SERV_IRUHADEV_JUNE_UI_LINE_BREAK )
+#error SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE needs SERV_IRUHADEV_JUNE_UI_LINE_BREAK ( CKTDXWordWrap )
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+#if defined( SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE ) && !defined( SERV_IRUHADEV_JUNE_TRANSCEND_UNIT )
+#error SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE needs SERV_IRUHADEV_JUNE_TRANSCEND_UNIT ( m_iUnitClassTran )
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+#if defined( SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE ) && !defined( SERV_IRUHADEV_JUNE_SKILL_TYPE )
+#error SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE needs SERV_IRUHADEV_JUNE_SKILL_TYPE ( ST_SPECIAL_ACTIVE_GRADE_1..3 )
 #endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 //////////////////////////////////////////////////////////////////////////
