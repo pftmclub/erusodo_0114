@@ -1398,6 +1398,49 @@ play-test. `kickoffs/char-ara/CH1.md` "Amended by CH1q2" checked: complete (both
 
 **Nothing to play-test.** Next: `/x2-phase char-ara CH1` (Opus 5.5 high).
 
+### CH1 - Done (2026-11-11)
+
+Opus 5.5. **The deploy unit is live.** Defined in `Always.h`: `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` (:12193), `_FP` (:12216), `_SPECTER` (:12264),
+`SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE` (:12384), `SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED` (:12393). Ara now runs June's registration, state bodies,
+virtuals, skill head, pressed-slot space, force power / berserk and the tails (CH1a-CH1q2). No debug define: the `ARA FP` lines were retired by the CH1q review.
+Every `#error` guard is satisfied: the probes below compile with all five on.
+- **`[JUNE_CHAR] ARA DATA`** (`_LIVE`, end of June's `InitState`, `X2GUAra.cpp:594-597`; include `:6-8`), Rena's line: class, script, motion device,
+  state count, `wait_state_change`. Not June; stays after the review, as Rena's did.
+- **Script:** `luasrc.py adopt-june data036 Ara_Martial_Artist.lua` (dry run first): June's file replaces March's whole as `ljconv` bytecode, 250,093 B
+  sha1 `8b6d21d6`, no core-list row, no sidecar. Record `june2017_re/june_adopt_20261111_121334.tsv`, backup `kom_backup_stage_june\20261111_121334`.
+  `luabind.py check Ara_Martial_Artist`: 0 methods, 0 unbound, `RESULT: PASS`. `luasrc.py core --check` / `ledger --check`: PASS, 0 FAIL, 0 WARN.
+- **Held motions** (`ch1_held_motions.tsv`): `kom.py stage-june`: June's `Motion_Ara_LD.x` (3,162,196 B) / `_SD.x` (3,557,126 B) replace March's in data033
+  (backup `kom_backup_stage_june\20261111_121404`). **The case question is closed:** June's script plays `SI_SA_ALD_ENERGY_WAVE_START` / `_LOOP` / `_END`
+  (src.lua:14486, 14588, 14614), the names June's LD file has. The mixed-case `_Start` / `_End` were March's script's names (CH0's tsv row pointed at the
+  June line of the renamed state). No June bug, no `JUNE_BUGS.md` row. SD's dropped `ASD_FallingBlossom_*` were played only by March's script; June plays
+  `ALH_FallingBlossom_*`. `SI_SA_ASD_SUPPRESSION` sits in June's LH file, which 118 loads as `m_GameMotion1` (March's `UnitTemplet.lua` has the same slots).
+  No March C++ plays a dropped name.
+- **Packed / copied (no ask, CLAUDE.md 2026-11-10):** `PACK OK data036` (~1), `PACK OK data033` (~2);
+  `COPY OK data036 ... 14069098 bytes, 270 entries, md5 9aedbce1533e800e8767f3f2cf911030`, `COPY OK data033 ... 183744353 bytes, 165 entries, md5 263ace5f15c8da8105588f650f61eb14`.
+- **Reference log:** `data\ErrorLog_pre_CH1_ara.txt` (425,351 B, the log of the last pre-CH1 run, 2026-11-11 11:58); Ara-load lines also against
+  `ErrorLog_pre_CH0b_ara.txt`. CH0b's routed `ErrorEnum(433)` face-mesh lines are re-checked on this play-test.
+- **Scans:** `charport_keys.py Ara_Martial_Artist`: `june-only=5 neither=7 march-only-site=4 both=234` (CH0: 14 / 7 / 4 / 225). The 9 that moved to both are the
+  CH1q / CH1q2 readers: `FORCE_POWER_COUNT_AT_DUNGEON_START` / `_PVP_START`, `FULL_HYPER_MODE_ADVANTAGE_COUNT` / `_INTERVAL_TIME` / `_SOCKET_RATE`,
+  `GAIN_FORCEPOWER_USEDHYPERCOUNT`, `GAIN_MP_BY_FPCONVERSION_HYPERMODE`, `IS_SPECTER_STATE`, `TAIL_TYPE`. `charport_scan.py` (census rerun first: 26 PASS, 0 FAIL;
+  `census.tsv` / key matrix reverted after): byte-identical to `plan_charport_scan_20261110.txt` (`no NUMERICAL_DATA_INDEX` 49, `no DAMAGE table` 14). Nothing new.
+- **Skills** still go through March's id switch below June's head (CH1n) until CH2a. `ReservedSkillStart` (CH1k) is live, so the two-cast check is in
+  the hand-off as a light check; a skill that misbehaves goes to CH2a (Rena's precedent).
+- **Checklist:** `(Ara: CH1 ...)` at l.16, 212, 423, 427, 509, 548, 592, 674, and `(Ara: CH0b / CH1 ...)` at l.760.
+- `MODS.md`: "Stage 7 Ara, CH1" (flags, the two replaced assets and their backups, the revert order).
+
+Hygiene: `flagcheck.py JUNE_CHAR_ARA_LIVE --with JUNE_CHAR_ARA_FP JUNE_CHAR_ARA_SPECTER JUNE_CHAR_SPECTER_STATE JUNE_CHAR_CHAIN_ANIM_SPEED JUNE_CHAR_ARA_SKILL
+JUNE_CHAR_ARA_FP_DEBUG --worktree --files X2Lib/X2GUAra.cpp KTDXLIB/Always.h`: `1 PASS, 0 PASS~, 1 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `RESULT: PASS`. The 5 deleted lines
+are the five `//#define` lines. Without `--with`, `Always.h` is an ERROR: the `#if defined( _FP ) && !defined( _LIVE )` guards cannot be evaluated with `_LIVE`
+stripped alone. `_FP` / `_SPECTER` alone: `2 OTHER, 0 FAIL`, `RESULT: PASS`. `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2GUUser.cpp
+X2Lib/X2GUUser.h KTDXLIB/Always.h`: `allow-listed: 10`, `RESULT: PASS` (no new `GT_PVP` hit now that `_LIVE` is on). `enumscan.py --check X2Lib/X2GUAra.cpp`: `0 A/B row(s)`.
+Probes (`/c /Zs /EHsc`, all five on): `X2GUAra.cpp`, `X2GUUser.cpp` exit 0, 0 errors.
+Build (`--pch force`): `DEPLOY OK: X2_offline.exe is 26,225,152 B, dated 2026-11-11 12:23:18, md5 328d70d53527873f2764a9296ae0493a, equal to X2/US_SERVICE/x2.exe (2026-11-11 12:23:11); built at main f3450220 + 2 uncommitted code file(s).`
+`EXESTR OK: 1 of 1 found in X2_offline.exe, 26225152 B, dated 2026-11-11 12:23:18, md5 328d70d53527873f2764a9296ae0493a` (`[JUNE_CHAR] ARA DATA` wide x1).
+
+**Play-test (user) is the gate:** units 96 (7), 97 (28), 99 / 38 (31), 98 (118), 48 / 24 (119), none transcended, skills in slots 0-3 only.
+Check: `ARA DATA` per class, combos, dash, jump, double jump, damage / stand-up, riding, force power and berserk (visual), tails, the chain speed on 98, and
+ErrorLog against the references. The review is `kickoffs/char-ara/CH1-review.md`.
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

@@ -12190,7 +12190,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Ara ) Phase CH1a - Ara runs on June's class core: June's bodies inside March's own CX2GUAra functions.
 //              Stays commented out until CH1's final sub-phase ships it with June's Ara_Martial_Artist.lua and motions ( one deploy unit ).
 //              Revert: comment out the #define ( JUNE_CHAR_ARA_LIVE ).
-//#define SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+#define SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifndef SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_BUFF_AWAKE_LOCK ( IsAwakeImpossible, IsQuickSlotSpecialItemWaiting )
@@ -12213,7 +12213,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Ara ) Phase CH1d - the force-power lines inside June's combo states that call a piece CH1q has not written
 //              ( the +0x9621 FP-cancel probe byte ). Stays commented out until CH1q.
 //              Revert: comment out the #define ( JUNE_CHAR_ARA_FP ).
-//#define SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+#define SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_FP ) && !defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE )
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_FP needs SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
@@ -12261,7 +12261,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Ara ) Phase CH1h2 - the Specter of Thunder block of June's AttackResultByType 32bceca0 ( reads the state's IS_SPECTER_STATE
 //              byte, CH1q2 writes it ). Stays commented out until CH1q2.
 //              Revert: comment out the #define ( JUNE_CHAR_ARA_SPECTER ).
-//#define SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
+#define SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER ) && !defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE )
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER needs SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
@@ -12381,7 +12381,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Ara ) Phase CH1q2 - IS_SPECTER_STATE: StateParam::bSpecterState, loaded by CX2GUUser::CommonStateStartFuture and
 //              CommonStateStart ( June 320506f0 @320523c2 / 32057b80 @3205866c ). Class-agnostic; Ara's readers sit under _SPECTER. Commented out until CH1 final.
 //              Revert: comment out the #define ( JUNE_CHAR_SPECTER_STATE ).
-//#define SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
+#define SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
 //////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////
@@ -12390,7 +12390,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: June character port ( Ara ) Phase CH1q2 - chain skill animation speed: CX2GUUser::m_fNowSkillPassiveRate ( June +0x8908, 1.0 in the ctor ) multiplies
 //              the future animation speed once while a combo / skill chain runs, then returns to 1.0 ( 320506f0 @32051bef ). Ara's CommonStateStartFuture writes it
 //              ( CH1j ). Class-agnostic. Commented out until CH1 final. Revert: comment out the #define ( JUNE_CHAR_CHAIN_ANIM_SPEED ).
-//#define SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
+#define SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER ) && !defined( SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE )
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER needs SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE ( StateParam::bSpecterState )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
