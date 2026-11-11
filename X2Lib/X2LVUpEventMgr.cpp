@@ -276,6 +276,161 @@ void CX2LVUpEventMgr::AddLevelUpEvent_LUA()
 
 bool CX2LVUpEventMgr::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
+#ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+	// char-ara CHNb: June 327127a0; cases 1551 / 1552 ( class skill description ) are not ported: nothing of ours sends them
+	switch( wParam )
+	{
+	case LUEMCUM_PVP_PR:
+		{
+			CX2LVUpEventMgr::LVUpEvent* pLVUpEvent = GetLVUpEvent( LUEI_PVP_PR );
+			if ( pLVUpEvent != NULL )
+				pLVUpEvent->DeleteDialog();
+		} break;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_FIRST:
+		{
+			CX2LVUpEventMgr::LVUpEvent* pLVUpEvent = GetLVUpEvent( LUEI_CHANGE_CLASS_GUIDE_FIRST );
+			if ( pLVUpEvent != NULL )
+				pLVUpEvent->DeleteDialog();
+		} break;
+	case LUEMCUM_10LV_PR:
+		{
+			CX2LVUpEventMgr::LVUpEvent* pLVUpEvent = GetLVUpEvent( LUEI_LEVEL_10 );
+			if ( pLVUpEvent != NULL )
+				pLVUpEvent->DeleteDialog();
+		} break;
+	case LUEMCUM_ELSWORD_SWORD_KNIGHT:
+	case LUEMCUM_ELSWORD_MAGIC_KNIGHT:
+	case LUEMCUM_AISHA_HIGH_MAGICIAN:
+	case LUEMCUM_AISHA_DARK_MAGICIAN:
+	case LUEMCUM_RENA_SNIPING_RANGER:
+	case LUEMCUM_RENA_COMBAT_RANGER:
+	case LUEMCUM_RAVEN_SWORD_TAKER:
+	case LUEMCUM_RAVEN_OVER_TAKER:
+	case LUEMCUM_EVE_CODE_EXOTIC:
+	case LUEMCUM_EVE_CODE_ARCHITECTURE:
+	case LUEMCUM_CHUNG_FURY_GUARDIAN:
+	case LUEMCUM_CHUNG_SHOOTING_GUARDIAN:
+	case LUEMCUM_ELSWORD_SHEATH_KNIGHT:
+	case LUEMCUM_ARME_BATTLE_MAGICIAN:
+	case LUEMCUM_LIRE_TRAPPING_RANGER:
+	case LUEMCUM_RAVEN_WEAPON_TAKER:
+	case LUEMCUM_EVE_ELECTRA:
+	case LUEMCUM_CHUNG_SHELLING_GUARDIAN:
+	case LUEMCUM_ARA_LITTLE_HSIEN:
+	case LUEMCUM_ARA_LITTLE_DEVIL:
+	case LUEMCUM_ELESIS_SABER_KNIGHT:
+	case LUEMCUM_ELESIS_PYRO_KNIGHT:
+	case LUEMCUM_ADD_PSYCHIC_TRACER:
+	case LUEMCUM_ADD_ARC_TRACER:
+	case LUEMCUM_ARA_LITTLE_SPECTER:
+	case LUEMCUM_ELESIS_DARK_KNIGHT:
+	case LUEMCUM_ADD_TIME_TRACER:
+	case LUEMCUM_LUCIEL_CHILIARCH:
+	case LUEMCUM_LUCIEL_ROYAL_GUARD:
+	case LUEMCUM_ROSE_HEAVYBARREL:
+	case LUEMCUM_ROSE_BLOODIA:
+	case LUEMCUM_ROSE_VALKYRY:
+	case LUEMCUM_ROSE_METALHEART:
+	case LUEMCUM_LUCIEL_DIABLURA:
+	case LUEMCUM_AIN_LOFTY_EXACTER:
+	case LUEMCUM_AIN_LOFTY_ANPASSEN:
+		{
+			CX2LVUpEventMgr::LVUpEvent* pLVUpEvent = GetLVUpEvent( LUEI_CHANGE_CLASS_GUIDE_FIRST );
+			if ( pLVUpEvent != NULL )
+				pLVUpEvent->DeleteDialog();
+
+			// June calls the now state's ToggleCashShop ( vslot 0xac ) with no state test
+			CX2StateMenu* pStateMenu = static_cast< CX2StateMenu* >( g_pMain->GetNowState() );
+			if( NULL != pStateMenu )
+			{
+				if( NULL != g_pTFieldGame )
+					g_pTFieldGame->CloseFieldName( 0.0f );
+
+				g_pData->GetCashShop()->SetMenuTypeCallingCashShop( (int)wParam );
+				pStateMenu->ToggleCashShop();
+			}
+		} break;
+	case LUEMCUM_SECRET_DUNGEON_OPEN_GUIDE:
+		{
+			CX2LVUpEventMgr::LVUpEvent* pLVUpEvent = GetLVUpEvent( LUEI_SECRET_DUNGEON_OPEN_GUIDE );
+			if ( pLVUpEvent != NULL )
+				pLVUpEvent->DeleteDialog();
+		} break;
+	case LUEMCUM_TRANSCENDENTAL:
+		{
+			CX2LVUpEventMgr::LVUpEvent* pLVUpEvent = GetLVUpEvent( LUEI_CHANGE_CLASS_GUIDE_TRANSCENDENTAL );
+			if ( pLVUpEvent != NULL )
+				pLVUpEvent->DeleteDialog();
+		} break;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_SECOND:
+		{
+			CX2LVUpEventMgr::LVUpEvent* pLVUpEvent = GetLVUpEvent( LUEI_CHANGE_CLASS_GUIDE_SECOND );
+			if ( pLVUpEvent != NULL )
+				pLVUpEvent->DeleteDialog();
+		} return true;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_QUEST_ACCEPT_1LINE:
+		{
+			CloseChangeClassGuides();
+			if( NULL != g_pData->GetQuestManager() )
+				g_pData->GetQuestManager()->GuideAcceptClassUpQuest( CX2QuestManager::QT_CHANGE_JOB, CX2QuestManager::CJT_JOB_FIRST );
+		} return true;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_QUEST_ACCEPT_2LINE:
+		{
+			CloseChangeClassGuides();
+			if( NULL != g_pData->GetQuestManager() )
+				g_pData->GetQuestManager()->GuideAcceptClassUpQuest( CX2QuestManager::QT_CHANGE_JOB, CX2QuestManager::CJT_JOB_SECOND );
+		} return true;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_QUEST_ACCEPT_3LINE:
+		{
+			CloseChangeClassGuides();
+			if( NULL != g_pData->GetQuestManager() )
+				g_pData->GetQuestManager()->GuideAcceptClassUpQuest( CX2QuestManager::QT_CHANGE_JOB, CX2QuestManager::CJT_JOB_THIRD );
+		} return true;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_QUEST_ACCEPT_4LINE:
+		{
+			CloseChangeClassGuides();
+			if( NULL != g_pData->GetQuestManager() )
+				g_pData->GetQuestManager()->GuideAcceptClassUpQuest( CX2QuestManager::QT_CHANGE_JOB, CX2QuestManager::CJT_JOB_FOURTH );
+		} return true;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_BUY_CASH_ITEM_1LINE:
+		{
+			CloseChangeClassGuides();
+			if( NULL != g_pData->GetCashShop() )
+				g_pData->GetCashShop()->OpenClassChangeGuideItem( CX2Unit::UCL_FIRST );
+		} return true;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_BUY_CASH_ITEM_2LINE:
+		{
+			CloseChangeClassGuides();
+			if( NULL != g_pData->GetCashShop() )
+				g_pData->GetCashShop()->OpenClassChangeGuideItem( CX2Unit::UCL_SECOND );
+		} return true;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_BUY_CASH_ITEM_3LINE:
+		{
+			CloseChangeClassGuides();
+			if( NULL != g_pData->GetCashShop() )
+				g_pData->GetCashShop()->OpenClassChangeGuideItem( CX2Unit::UCL_THIRD );
+		} return true;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_BUY_CASH_ITEM_4LINE:
+		{
+			CloseChangeClassGuides();
+			if( NULL != g_pData->GetCashShop() )
+				g_pData->GetCashShop()->OpenClassChangeGuideItem( 4 );		// line 4 ( Rose / Ain ): UNIT_CLASS_LINE has no member for it
+		} return true;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_QUEST_ACCEPT_TRANCENDENTAL:
+		{
+			CloseChangeClassGuides();
+			if( NULL != g_pData->GetQuestManager() )
+				g_pData->GetQuestManager()->GuideAcceptClassUpQuest( CX2QuestManager::QT_CHANGE_TRANSCENDENTAL_CLASS, CX2QuestManager::CJT_JOB_NONE );
+		} return true;
+	case LUEMCUM_CHANGE_CLASS_GUIDE_BUY_CASH_ITEM_TRANCENDENTAL:
+		{
+			CloseChangeClassGuides();
+			if( NULL != g_pData->GetCashShop() )
+				g_pData->GetCashShop()->OpenClassChangeGuideItem( CX2Unit::UCL_NONE );
+		} return true;
+	}
+	return false;
+#else SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 	switch( wParam )
 	{
 	case LUEMCUM_PVP_PR:
@@ -390,6 +545,7 @@ bool CX2LVUpEventMgr::UICustomEventProc( HWND hWnd, UINT uMsg, WPARAM wParam, LP
 #endif SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE
 	}
 	return false;
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 }
 
 #ifdef SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE

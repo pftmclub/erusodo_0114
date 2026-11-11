@@ -1613,6 +1613,38 @@ all at `Always.h` end, `#error` without `SERV_IRUHADEV_JUNE_ENUM_NAMES`. Review 
 - **Change:** `SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS_DEBUG` commented out (`Always.h:12501`; it also drops the `X2OfflineLog.h` include in `X2GageManager.cpp`). Build started, not awaited (2026-11-03 rule).
 - **Kickoffs:** `CHNb.md` amended (debug define retired; `createchar.py` already makes 7 / 34 units; `GetClassLevel` = June).
 
+### CHNb - Done (2026-11-11)
+
+Opus 5.5. New class-generic flag `SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE` (`Always.h` end; `#error` without `_TRANSCEND_CHANGE`, `_SKILL_CASH_OPEN_ITEM`, `_QUEST_LOAD`,
+`_ENUM_NAMES`, `PRIVATE_BANK`, all confirmed defined by a `cl /EP` probe). Review kickoff `kickoffs/char-ara/CHNb-review.md` written.
+- **Quest route (no change):** the shipped `FieldQuest.lua` is June's: 35560-35563 (class 7, level 15, `CJT_JOB_THIRD`, 35563 rewards `UC_ARA_LITTLE_SPECTER`) and
+  35564-35568 (class 34, level 35, 35568 rewards `UC_ARA_ASURA`); `Handlers_Quest.cpp` turn-in takes any class (CH0 row). Proven by the play-test.
+- **Level-up guides (data036 `LevelUpEvent.lua`, core-list source):** level 15 now opens `DLG_1ST_Class_Change_Guide_Ara.lua` (was March's `DLG_Class_Change_Guide_Ara.lua`),
+  level 35 lists 28 / 31 / 34 and opens `DLG_2ND_Class_Change_Guide_Ara.lua` (had no dialog) = June `LevelUpEvent.src.lua:119-135, :338-355`. The level-70 row stays CH3d's.
+  `luasrc.py refresh` done; `ledger --check` / `core --check` PASS.
+- **The guides' buttons were dead in March:** they send June-only messages 1540-1548. `luabind.py check` on the two guides found 6 + 3 `ENUM MISSING NAME`
+  (`LUEMCUM_CHANGE_CLASS_GUIDE_*`). data036 `Enum.lua` gains June's 24 missing `LV_UP_EVENT_MGR_CUSTOM_UI_MSG` members (values checked against June's table);
+  `luabind.py check` on the four dialogs (1ST / 2ND guide, `DLG_Class_Change_Ara_LS` / `_AS`): 0 unbound, ENUM 0 / 0, RESULT: PASS.
+- **`CX2LVUpEventMgr::UICustomEventProc` = June's whole switch** (`327127a0`, the T2 note's `32712790` is padding before it), March's in `#else`: closes events 1-6, the
+  cash-shop links for every June class (1503-1539, 1553: `CloseFieldName( 0 )`, menu type = wParam, now state's `ToggleCashShop`, no state test, as June), 1540 closes
+  the second guide, 1541-1544 `GuideAcceptClassUpQuest( QT_CHANGE_JOB, CJT_JOB_FIRST..FOURTH )`, 1545-1548 the shop on line 1-4's next class, 1549 / 1550 the
+  transcendence pair (now through the same shop function). Returns: 1540-1550 true, the rest false (June's `AL`). 24 `LUEMCUM_*` + `LUEI_SECRET_DUNGEON_OPEN_GUIDE` (5)
+  registered in `X2LVUpEventMgr.h` with June's values. Divergence row `CX2LVUpEventMgr::UICustomEventProc` added (ported).
+- **`CX2CashShop::OpenClassChangeGuideItem( line )`** (new, June `3222a4f0`): menu type 0x1d; line 0 = 288319 (transcendence); otherwise the unit templet's tier,
+  `GetUnitClassByTierAndLine( type, tier + 1, line )` and June's class -> change-item map (`3379fcf8`, 74 pairs read from `32230020`'s disassembly; 34 -> 252801,
+  124 -> 252802), pushed to the open-at list (June's `+0x334`, carried by `+0x338` as the T2 port does); then `ToggleCashShop` outside June's non-menu states.
+- **`GetUnitClassByTierAndLine`** (`X2Unit.h`, June `3234b390`): the CHNa-reviewed `ClassAt` table with `UC_*` names; `X2SkillNoteManager.cpp`'s `ClassAt` forwards to it.
+- **Not ported (routed):** cases 1551 / 1552 (June fills `g_pStatic_ClassSkillDescription` on them); nothing in March or the staged guides sends them. Owner: Stage 9 UI sweep
+  (class-change guide skill description), together with the 34 / 124 cash-shop class-change items (`UNIT_CLASS_CHANGE_*` maps `3379fce8` / `fd08` / `fd18`, the offline
+  `X2OfflineClassChangeSeed.h` ROWS / PARENT_ROWS for 252801 / 252802; CH0 row "cash route"). `PARENT_ROWS` left as is: the quest route does not read it.
+- **June bug kept:** JUNE_BUGS 607 (the 2ND guide's single buy button always looks up line 1, so a Little Specter is offered Sakra Devanam's item).
+- **Data:** `kom.py pack data036` + `copy`: PACK OK / COPY OK (md5 `ac431479`, `Enum.lua` + `LevelUpEvent.lua` changed); data034 / data217 in sync (CH0b staged the dialogs).
+- **Units:** `AraGuideMA` (uid 105, class 7, level 14, exp 81600 = 100 below 15) and `AraGuideLS` (uid 106, class 34, level 34, exp 1212400 = 100 below 35).
+- **Hygiene:** `flagcheck --worktree` (7 files): 6 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL, 0 token, 0 encoding. `junediverge --check` (7 files): RESULT: PASS.
+  `enumscan --check`: 0 rows on the changed lines.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 26,226,688 B, dated 2026-11-11 20:06:50, md5 8b63ccc6152ffdca693c5e549025a5a1` (built at `fae707a6` + the 7 files). No new strings, so no EXESTR line.
+- **Play-test:** hand-off in the conversation; results go here.
+
 ## Phase CH2 - Skills: Martial Artist and the first jobs (classes 7, 28, 31, 34)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), one Opus review at CH2d (covers CH2a-CH2d), user play-test per phase. Flag

@@ -811,6 +811,9 @@ class CX2CashShop : public CX2ItemSlotManager
 		/// June 321cd390: push an item id into the open-at-item list ( June +0x338 ); the callers push before ToggleCashShop
 		void	PushOpenAtItemID( int iItemID ) { m_vecOpenAtItemID.push_back( iItemID ); }
 		void	OpenAtItemList();	/// June 3224a5d0, called from SetOpen( true )
+#ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+		void	OpenClassChangeGuideItem( int iGuideLine_ );	// char-ara CHNb: June 3222a4f0, the class-change guide's buy buttons ( UCL_NONE = transcendence )
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 #endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
 #endif	PRIVATE_BANK
 		//}} kimhc // 2009-08-10 // UI에서 캐시샵의 특정탭으로 바로 가기 위해 추가

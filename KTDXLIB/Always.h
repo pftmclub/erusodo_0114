@@ -12500,3 +12500,28 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: char-ara CHNa debug: logs [JUNE_CHAR] ARA CLASS gauge class <c> when a 34 / 124 gets Ara's gauge. The CHNa review retires it.
 //#define SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June class-change guide ( char-ara CHNb; class-generic ): CX2LVUpEventMgr::UICustomEventProc is June's whole body ( 327127a0 ):
+//              the first / second class-change guides' close ( 1540 ), quest-accept ( 1541-1544 ) and buy ( 1545-1548 ) buttons, the June
+//              classes' cash-shop links; CX2CashShop::OpenClassChangeGuideItem ( 3222a4f0 ) opens the shop on the next class's change item;
+//              June's class table ( 3234b390 ) moves to X2Unit.h. Revert: comment out the #define ( JUNE_CLASS_CHANGE_GUIDE ).
+#define SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+#if defined( SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE ) && !defined( SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE )
+#error SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE needs SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ( CloseChangeClassGuides, LUEMCUM_TRANSCENDENTAL )
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+#if defined( SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE ) && !defined( SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM )
+#error SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE needs SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM ( PushOpenAtItemID )
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+#if defined( SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE ) && !defined( SERV_IRUHADEV_JUNE_QUEST_LOAD )
+#error SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE needs SERV_IRUHADEV_JUNE_QUEST_LOAD ( CJT_JOB_FOURTH, QT_CHANGE_TRANSCENDENTAL_CLASS )
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+#if defined( SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE ) && !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES )
+#error SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE needs SERV_IRUHADEV_JUNE_ENUM_NAMES ( UC_ARA_LITTLE_SPECTER .. UC_AIN_ANGEL )
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+#if defined( SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE ) && !defined( PRIVATE_BANK )
+#error SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE needs PRIVATE_BANK ( SetMenuTypeCallingCashShop )
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+//////////////////////////////////////////////////////////////////////////

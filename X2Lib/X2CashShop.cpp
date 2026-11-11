@@ -2636,6 +2636,142 @@ void CX2CashShop::OpenAtItemList()
 	m_vecOpenAtItemID.clear();
 }
 #endif SERV_IRUHADEV_JUNE_SKILL_CASH_OPEN_ITEM
+#ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+// char-ara CHNb: June 32230020's class -> class-change item map ( 3379fcf8 )
+namespace _CONST_CASH_SHOP_CHNB_
+{
+	struct SClassChangeItem
+	{
+		int m_iUnitClass;
+		int m_iItemID;
+	};
+	const SClassChangeItem CLASS_CHANGE_ITEM[] =
+	{
+		{ CX2Unit::UC_ELSWORD_KNIGHT, 214410 },
+		{ CX2Unit::UC_ELSWORD_MAGIC_KNIGHT, 214420 },
+		{ CX2Unit::UC_ELSWORD_SHEATH_KNIGHT, 242310 },
+		{ CX2Unit::UC_ARME_HIGH_MAGICIAN, 214430 },
+		{ CX2Unit::UC_ARME_DARK_MAGICIAN, 214440 },
+		{ CX2Unit::UC_ARME_BATTLE_MAGICIAN, 242320 },
+		{ CX2Unit::UC_LIRE_COMBAT_RANGER, 214450 },
+		{ CX2Unit::UC_LIRE_SNIPING_RANGER, 214460 },
+		{ CX2Unit::UC_LIRE_TRAPPING_RANGER, 242330 },
+		{ CX2Unit::UC_RAVEN_SOUL_TAKER, 214470 },
+		{ CX2Unit::UC_RAVEN_OVER_TAKER, 214480 },
+		{ CX2Unit::UC_RAVEN_WEAPON_TAKER, 242340 },
+		{ CX2Unit::UC_EVE_EXOTIC_GEAR, 214490 },
+		{ CX2Unit::UC_EVE_ARCHITECTURE, 214500 },
+		{ CX2Unit::UC_EVE_ELECTRA, 242350 },
+		{ CX2Unit::UC_CHUNG_FURY_GUARDIAN, 229460 },
+		{ CX2Unit::UC_CHUNG_SHOOTING_GUARDIAN, 229470 },
+		{ CX2Unit::UC_CHUNG_SHELLING_GUARDIAN, 242360 },
+		{ CX2Unit::UC_ARA_LITTLE_HSIEN, 264380 },
+		{ CX2Unit::UC_ARA_LITTLE_DEVIL, 264393 },
+		{ CX2Unit::UC_ARA_LITTLE_SPECTER, 252801 },
+		{ CX2Unit::UC_ELESIS_SABER_KNIGHT, 264391 },
+		{ CX2Unit::UC_ELESIS_PYRO_KNIGHT, 264392 },
+		{ CX2Unit::UC_ELESIS_DARK_KNIGHT, 252804 },
+		{ CX2Unit::UC_ADD_PSYCHIC_TRACER, 272810 },
+		{ CX2Unit::UC_ADD_ARC_TRACER, 273862 },
+		{ CX2Unit::UC_ADD_TIME_TRACER, 276353 },
+		{ CX2Unit::UC_LUCIEL_CHILIARCH, 242371 },
+		{ CX2Unit::UC_LUCIEL_ROYAL_GUARD, 242372 },
+		{ CX2Unit::UC_ROSE_BLOODIA, 277085 },
+		{ CX2Unit::UC_ROSE_HEAVY_BARREL, 277089 },
+		{ CX2Unit::UC_ROSE_METAL_HEART, 277101 },
+		{ CX2Unit::UC_ROSE_VALKYRIE, 277093 },
+		{ CX2Unit::UC_ELSWORD_LORD_KNIGHT, 216420 },
+		{ CX2Unit::UC_ELSWORD_RUNE_SLAYER, 216430 },
+		{ CX2Unit::UC_ELSWORD_INFINITY_SWORD, 252640 },
+		{ CX2Unit::UC_ARME_ELEMENTAL_MASTER, 217920 },
+		{ CX2Unit::UC_ARME_VOID_PRINCESS, 217930 },
+		{ CX2Unit::UC_ARME_DIMENSION_WITCH, 252650 },
+		{ CX2Unit::UC_LIRE_WIND_SNEAKER, 217850 },
+		{ CX2Unit::UC_LIRE_GRAND_ARCHER, 217860 },
+		{ CX2Unit::UC_LIRE_NIGHT_WATCHER, 252660 },
+		{ CX2Unit::UC_RAVEN_BLADE_MASTER, 217950 },
+		{ CX2Unit::UC_RAVEN_RECKLESS_FIST, 217960 },
+		{ CX2Unit::UC_RAVEN_VETERAN_COMMANDER, 252670 },
+		{ CX2Unit::UC_EVE_CODE_NEMESIS, 217970 },
+		{ CX2Unit::UC_EVE_CODE_EMPRESS, 217980 },
+		{ CX2Unit::UC_EVE_BATTLE_SERAPH, 252680 },
+		{ CX2Unit::UC_CHUNG_IRON_PALADIN, 235120 },
+		{ CX2Unit::UC_CHUNG_DEADLY_CHASER, 235130 },
+		{ CX2Unit::UC_CHUNG_TACTICAL_TROOPER, 252690 },
+		{ CX2Unit::UC_ARA_SAKRA_DEVANAM, 264390 },
+		{ CX2Unit::UC_ARA_YAMA_RAJA, 264394 },
+		{ CX2Unit::UC_ARA_ASURA, 252802 },
+		{ CX2Unit::UC_ELESIS_GRAND_MASTER, 272169 },
+		{ CX2Unit::UC_ELESIS_BLAZING_HEART, 272170 },
+		{ CX2Unit::UC_ELESIS_CRIMSON_AVENGER, 252805 },
+		{ CX2Unit::UC_ADD_LUNATIC_PSYKER, 273232 },
+		{ CX2Unit::UC_ADD_MASTERMIND, 273860 },
+		{ CX2Unit::UC_ADD_DIABOLIC_ESPER, 276354 },
+		{ CX2Unit::UC_LUCIEL_DREAD_LORD, 242373 },
+		{ CX2Unit::UC_LUCIEL_NOBLESSE, 242374 },
+		{ CX2Unit::UC_ROSE_CRIMSON_ROSE, 277087 },
+		{ CX2Unit::UC_ROSE_STORM_TROOPER, 277091 },
+		{ CX2Unit::UC_ROSE_OPTIMUS, 277103 },
+		{ CX2Unit::UC_ROSE_FREYJA, 277095 },
+		{ CX2Unit::UC_LUCIEL_DIABLURA, 277105 },
+		{ CX2Unit::UC_LUCIEL_DEMONIO, 277107 },
+		{ CX2Unit::UC_AIN_LOFTY_EXACTER, 277138 },
+		{ CX2Unit::UC_AIN_ARME_THAUMATURGY, 277140 },
+		{ CX2Unit::UC_AIN_LOFTY_ANPASSEN, 291760 },
+		{ CX2Unit::UC_AIN_ERBLUHEN_EMOTION, 291761 },
+		{ CX2Unit::UC_AIN_LOFTY_WANDERER, 291762 },
+		{ CX2Unit::UC_AIN_APOSTASIA, 291763 },
+	};
+}
+using namespace _CONST_CASH_SHOP_CHNB_;
+
+// char-ara CHNb: June 3222a4f0; June writes the item to +0x334, March's open-at list ( +0x338 ) carries it as in the transcendence port
+void CX2CashShop::OpenClassChangeGuideItem( int iGuideLine_ )
+{
+	SetMenuTypeCallingCashShop( 0x1d );		// June menu type 0x1d ( no Enum entry )
+	if( NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() )
+	{
+		int iItemID = 0;
+		if( CX2Unit::UCL_NONE == iGuideLine_ )
+		{
+			iItemID = 288319;
+		}
+		else
+		{
+			const CX2Unit::UnitTemplet* pUnitTemplet = g_pData->GetMyUser()->GetSelectUnit()->GetUnitTemplet();
+			const int iUnitClass = ( NULL != pUnitTemplet ) ? static_cast<int>( pUnitTemplet->m_UnitClass ) : 0;
+			const int iUnitType = ( NULL != pUnitTemplet ) ? static_cast<int>( pUnitTemplet->m_UnitType ) : 0;
+			const int iTier = ( CX2Unit::UC_ELSWORD_KNIGHT <= iUnitClass && iUnitClass < CX2Unit::UC_LUCIEL_DUO ) ? ( ( CX2Unit::UC_ELSWORD_LORD_KNIGHT <= iUnitClass ) ? 2 : 1 ) : 0;
+			const int iNextClass = GetUnitClassByTierAndLine( iUnitType, iTier + 1, iGuideLine_ );
+			for( UINT i = 0; i < sizeof( CLASS_CHANGE_ITEM ) / sizeof( CLASS_CHANGE_ITEM[0] ); ++i )
+			{
+				if( CLASS_CHANGE_ITEM[i].m_iUnitClass == iNextClass )
+				{
+					iItemID = CLASS_CHANGE_ITEM[i].m_iItemID;
+					break;
+				}
+			}
+		}
+		if( 0 != iItemID )
+			PushOpenAtItemID( iItemID );
+	}
+
+	switch( g_pMain->GetNowStateID() )		// June's non-menu states; TRAINING / ARCADE_RESULT are March's other ones
+	{
+	case CX2Main::XS_START_UP: case CX2Main::XS_LOGIN: case CX2Main::XS_JOIN: case CX2Main::XS_LOADING:
+	case CX2Main::XS_SERVER_SELECT: case CX2Main::XS_CREATE_UNIT: case CX2Main::XS_PVP_GAME:
+	case CX2Main::XS_PVP_RESULT: case CX2Main::XS_DUNGEON_RESULT:
+	case CX2Main::XS_TRAINING_RESULT: case CX2Main::XS_ARCADE_RESULT:
+		break;
+	default:
+		{
+			CX2StateMenu* pStateMenu = static_cast< CX2StateMenu* >( g_pMain->GetNowState() );
+			if( NULL != pStateMenu )
+				pStateMenu->ToggleCashShop();
+		} break;
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 void CX2CashShop::SetOpen( bool bOpen )
 {
 #ifdef FIX_MISSING_MAIL

@@ -395,6 +395,9 @@ namespace
 	/// @3234afb5-3234b389; read out of its stores). Tier 0 base, 1 first job, 2 second job; entries the initializer never writes are 0.
 	int ClassAt( int iUnitType_, int iTier_, int iLine_ )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
+		return GetUnitClassByTierAndLine( iUnitType_, iTier_, iLine_ );		// char-ara CHNb: the table moved to X2Unit.h
+#else SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 		static const int s_aiClassTable[13][4][5] =
 		{
 			{ { 0, 0,   0,   0,   0   }, { 0, 0,   0,   0,   0   }, { 0, 0,   0,   0,   0   }, { 0 } },
@@ -414,6 +417,7 @@ namespace
 		if( iUnitType_ < 0 || 13 <= iUnitType_ || iTier_ < 0 || 4 <= iTier_ || iLine_ < 0 || 5 <= iLine_ )
 			return 0;
 		return s_aiClassTable[ iUnitType_ ][ iTier_ ][ iLine_ ];
+#endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 	}
 
 	/// June2017 32207210 (g_pData skill tree present): an [Enhanced] id reads as the base it replaces
