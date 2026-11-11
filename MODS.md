@@ -6442,3 +6442,9 @@ Follow-up the same day (user: the party window's dungeon picture was still March
 **In game.** Enchant Break and Pointed Stiletto now take their skill-level damage numbers (NUMERICAL_DATA_INDEX needs APPLIED_SKILL_ID); Armor Break with Fight God learned and Endurance up adds June's Fight God debuff; Fury Guardian can guard out of X X front Z (0-0.9 s); Aisha's Z combo hits trigger Open Mind on a transcended Dimension Witch.
 **Save.** Units 25 / 26 / 49 skill slots changed for the play-test (backup `db_backup/els_db_20261111_130831_pre_sql.sql`).
 **Revert.** Restore data036 from the backup (`kom.py copy`); comment out the `#define`; `python tools/build.py --deploy`.
+
+### StatTable.lua: one flat base-stat curve for every class (2026-11-11)
+**What.** `KncWX2Server/ServerResource/US/StatTable.lua` has the same rows for all 123 class ids of June's `UNIT_CLASS` (levels 1-99): Atk = 320 + 9 per level, Def = floor(80 + 2.25 (L-1) + 0.5), HP = 10000 + 1500 (L-1); level 99 = 1202 / 1202 / 301 / 301 / 157000 (June `UT_AIN` row, `tools/statflat.py`). Per-class base differences now come only from equipment.
+**In game.** A bare level-99 character of any class shows 1202 / 1202 / 301 / 301 / 157000; classes that had no rows (Add, Lu/Ciel, Rose, Ain, third jobs) no longer fall back to the synthetic curve.
+**Packed.** Compiled to luajit bytecode, `data036.kom` md5 `ad79cd998b7876b4a48b660d7063578a`; the old bytecode is in `kom_contents_bytecode/data036_kom/StatTable.lua`.
+**Revert.** `python tools/statflat.py restore` (per-class rows are in git at `85ff0434`), compile, `kom.py pack data036`, `kom.py copy data036`.
