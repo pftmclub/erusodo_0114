@@ -1585,6 +1585,12 @@ all at `Always.h` end, `#error` without `SERV_IRUHADEV_JUNE_ENUM_NAMES`. Review 
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 26,225,664 B, dated 2026-11-11 18:19:44, md5 82393388935ba52ba03c227714bb9f84`.
   `EXESTR OK: 6 of 6` (wide: the `ARA CLASS gauge class` tag, `L_SPECTER_STATE`, `ASURA_PARTY`, `list_ARA_L_SPECTER`, `HQ_Dungeon_Clear_Ara_Asura_Normal.tga`, `CLASS_A`).
 - **Play-test hand-off:** see the session reply. Log tag `[JUNE_CHAR]` (`ARA CLASS`).
+- **Play-test (user, 2026-11-11 19:23-19:28, exe `82393388`).** Creation screen (user screenshot): Little Specter / Asura select, model, costume and the speed / range / difficulty chart work; the class name showed March's Korean
+  placeholder ("1-3...") and the story text, radar chart and job text were blank. Cause: all four are pieces of `DLG_UI_Common_Texture_GUI_character_info_07` (`name_class_*_3`, `text_class_2_3`, `star_graph_class_2_3`,
+  `text_class_under_2_3`), and March's copy differs from June's. `stage-june` replaced its `.tga` + `.TET` (backup `kom_backup_stage_june/20261111_192614`), `PACK OK` + `COPY OK data057` md5 `f0d9482f6467e1dba00db7bf3126841f`
+  (backup `kom_backup_tools/data057.kom.20261111_192841`); re-check on the creation screen owed (no rebuild). Logs: `ARA CLASS gauge class 34` x1, `124` x2 (LSpecter20, Asura40 / Asura99 loaded), EXCEPTION 0, KEM_ERROR 0.
+  `ErrorEnum(433) Anim Frame 80, Mesh Frame 81, MESH_ARA_AA_BASIC_FACE_BERSERK_SORTED.X` x16 and the misspelt `MESH_ARA_AA_CASH_BERSERK_FACE*.TGA` texture names: the mesh and `Motion_Ara_AA.x` are June's byte-exact
+  (`stage-june --dry-run`: identical), so this is June's own data (Asura berserk face, cosmetic), not a port gap. `OpenXET` misses are the usual optional-file probe (non-Ara names too). Not mine: 4 `E_DISABLE_HB_CHECK_REQ`, `AddGroupChainQuest`, `Add_Skill_Page_ED`.
 
 ## Phase CH2 - Skills: Martial Artist and the first jobs (classes 7, 28, 31, 34)
 
