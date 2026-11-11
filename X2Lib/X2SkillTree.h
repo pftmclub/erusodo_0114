@@ -1925,6 +1925,14 @@ public:
 		RNSI_P_AYR_DEMIGOD                                    = 27418,	// char-ara CH2c0: June's Enum.lua; Wolf Break and Open the Hell spend its stacks
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH2c2
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_A_ALD_WOLF_CLAW_UPGRADE                          = 27224,	// char-ara CH2c2: June's Enum.lua; the enhanced Wolf Claw
+		RNSI_A_ALD_FINGER_BULLET_UPGRADE                      = 27234,	// char-ara CH2c2: June's Enum.lua; the enhanced Finger Bullet
+		RNSI_A_ALD_CONVERSION_HEALTH_UPGRADE                  = 27235,	// char-ara CH2c2: June's Enum.lua; the enhanced Conversion Health
+		RNSI_A_ALD_FORCE_SPEAR_UPGRADE                        = 27236,	// char-ara CH2c2: June's Enum.lua; the enhanced Force Spear
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-11 // char-ara CH1n
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS                = 27222,	// char-ara CH1n: June's Enum.lua; its transcended slot keeps the Conversion Mana state

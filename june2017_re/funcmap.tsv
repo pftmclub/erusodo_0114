@@ -10021,3 +10021,28 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32bc2900	CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_FIRE_FrameMove	PORTED	Char Ara CH2c: new, under _SKILL: at 0.01 s EffectSet_SA_AHD_ENERGY_WAVE_PROJECTILE ( _Devided with RNSI_P_AYR_DEMIGOD learned ) at ( SA_DAMAGE_REL + 1 ) x GetPowerRate, scale 1 + SA_PROJECTILE_SIZE ( abilities 0xf / 0x20 of the state's skill, 32007b10 ), then CommonFrameMove
 32bc9350	ASI_SA_ALD_WOLF_BREAK registration helper	confirmed	Char Ara CH2c: = March ( Init, Start, FrameMove, EventProcess ); registered in the second skill switch as in March
 32bce770	CX2GUAra::ASI_SA_ALD_ENERGY_WAVE_FIRE_CreateState	PORTED	Char Ara CH2c: new, under _SKILL: FrameMove ( 32bd84d0 ) and EventProcess ( 32bd6730 ) only; registered as a sub-state of Energy Wave ( June @32bd1903 )
+32b923a0	ASI_A_ARA_FORCE_SPEAR.Init	confirmed	Char Ara CH2c2: = March, no code ( Init preload list compared by script )
+32b930b0	ASI_A_ALD_WOLF_CLAW.Init	confirmed	Char Ara CH2c2: = March, no code ( Init preload list compared by script )
+32b93170	ASI_A_ALD_WOLF_CLAW.Start	confirmed	Char Ara CH2c2: = March, no code ( CommonStateStart, m_usBeforeForceGainCount = m_usForceGainCount )
+32b93240	ASI_A_ALD_CONVERSION_HEALTH.Init	confirmed	Char Ara CH2c2: = March, no code ( Init preload list compared by script )
+32b932b0	ASI_A_ALD_CONVERSION_MANA.Init	confirmed	Char Ara CH2c2: = March, no code ( Init preload list compared by script )
+32b93860	ASI_SA_ALD_FINGER_BULLET.Init	confirmed	Char Ara CH2c2: = March, no code ( Init preload list compared by script )
+32b93910	ASI_SA_ALD_FINGER_BULLET_FINISH.Init	confirmed	Char Ara CH2c2: = March, no code ( Init preload list compared by script )
+32b9b7e0	CX2GUAra::ASI_A_ARA_FORCE_SPEAR_EventProcess	confirmed	Char Ara CH2c2: = March, no code ( animation end -> jump down / wait; +0x7e1c is IsOnSomethingFuture )
+32b9d6d0	CX2GUAra::ASI_A_ALD_WOLF_CLAW_FINISH_EventProcess	PORTED	Char Ara CH2c2: inside, under _SKILL: skill cancel as March, walk and dash cancels need the foot on a line ( WALK_ / DASH_CANCEL_AFTER_ON_LINE_ )
+32b9d8f0	CX2GUAra::ASI_A_ALD_CONVERSION_HEALTH_EventProcess	PORTED	Char Ara CH2c2: inside, under _SKILL: walk and dash cancels need the foot on a line
+32b9da00	CX2GUAra::ASI_A_ALD_CONVERSION_MANA_EventProcess	PORTED	Char Ara CH2c2: inside, under _SKILL: walk and dash cancels need the foot on a line
+32b9e3b0	CX2GUAra::ASI_SA_ALD_FINGER_BULLET_FINISH_EventProcess	PORTED	Char Ara CH2c2: inside, under _SKILL: walk and dash cancels need the foot on a line
+32baa640	ASI_A_ALD_WOLF_CLAW_FINISH registration helper	confirmed	Char Ara CH2c2: = March, no code ( only OnEventProcess; March's CreateState sets it twice, the first store is overwritten )
+32baa680	CX2GUAra::ASI_A_ALD_CONVERSION_MANA_FrameMove	PORTED	Char Ara CH2c2: inside, under _SKILL: skill = GetTranscendenceMemoSkillID( GetNowStateSkillID() ), level = Conversion Health's ( 27210 ), force power = SA_EFFECTIVE_COUNT, UpForcePower then the Open Mind buff; no MP spent ( March took SA_MP_CONSUME_REL )
+32babb50	ASI_A_ALD_CONVERSION_MANA registration helper	confirmed	Char Ara CH2c2: = March, no code ( Init, FrameMove, EventProcess; the memo exit in the slot head is CH1n's )
+32bac880	CX2GUAra::ASI_A_ALD_WOLF_CLAW_EventProcess	PORTED	Char Ara CH2c2: inside, under _SKILL: animation end -> StateChangeOrFPCancel( ASI_A_ALD_WOLF_CLAW_FINISH ), the FP-cancel probe window ( +0x9621 ), no cancels
+32bac910	CX2GUAra::ASI_A_ALD_CONVERSION_HEALTH_FrameMove	PORTED	Char Ara CH2c2: inside, under _SKILL: FP_GAIN_COUNT ( +0.0005, truncated ) and HP_CONSUME_REL x max HP from GetSkillNumericalByName( 27210 ); the level read at the start is discarded; UpForcePower then the Open Mind buff
+32bace40	CX2GUAra::ASI_SA_ALD_FINGER_BULLET_EventProcess	PORTED	Char Ara CH2c2: inside, under _SKILL: animation end -> StateChangeOrFPCancel( ..._FINISH ), the probe window, then on-line walk / dash cancels
+32bae890	ASI_A_ALD_WOLF_CLAW registration helper	confirmed	Char Ara CH2c2: = March, no code ( Init, Start, EventProcess ); labels 27208 / 27224 added to March's case
+32bae8e0	ASI_A_ALD_CONVERSION_HEALTH registration helper	confirmed	Char Ara CH2c2: = March, no code ( Init, FrameMove, EventProcess ); labels 27210 / 27235 added to March's case
+32baf3e0	ASI_SA_ALD_FINGER_BULLET.Start	confirmed	Char Ara CH2c2: = March, no code ( CommonStateStart, m_vecHitUnitPointer.clear(), m_usBeforeForceGainCount = m_usForceGainCount )
+32baf450	CX2GUAra::ASI_SA_ALD_FINGER_BULLET_FINISH_FrameMove	PORTED	Char Ara CH2c2: inside, under _SKILL: March's loop plus AttackResult() ( vslot 0x64 ) after each pulled unit's DamageReact
+32bb0650	ASI_SA_ALD_FINGER_BULLET registration helper	confirmed	Char Ara CH2c2: = March, no code ( Init, Start, EventProcess ); labels 27209 / 27234 added to March's case
+32bb06a0	ASI_SA_ALD_FINGER_BULLET_FINISH registration helper	confirmed	Char Ara CH2c2: = March, no code ( Init, FrameMove, EventProcess )
+32bb77b0	CX2GUAra::ASI_A_ARA_FORCE_SPEAR_FrameMove	PORTED	Char Ara CH2c2: inside, under _SKILL: no UseForcePower ( the script's USE_FORCE_POWER row ), Demigod ( 27418 ) picks the effect set and the damage effect, offset 40 not 25, piercing from 27211's SA_PROJECTILE_PIERCING; the memo branches are June's always-false stub

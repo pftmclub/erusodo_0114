@@ -3914,6 +3914,10 @@ void CX2GUAra::InitStateByUnitClass()
 	#pragma region SI_A_ARA_FORCE_SPEAR
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 		case CX2SkillTree::SI_A_AM_FORCE_SPEAR:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_A_ALD_FORCE_SPEAR:	// char-ara CH2c2: June 32bd09d0 case 27211 / 27236
+		case CX2SkillTree::RNSI_A_ALD_FORCE_SPEAR_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #else //UPGRADE_SKILL_SYSTEM_2013
 		case CX2SkillTree::SI_A_ARA_FORCE_SPEAR:
 #endif //UPGRADE_SKILL_SYSTEM_2013
@@ -4083,6 +4087,10 @@ void CX2GUAra::InitStateByUnitClass()
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // ±èÅÂÈ¯
 	#pragma region SI_A_ALD_WOLF_CLAW
 	case CX2SkillTree::SI_A_ALD_WOLF_CLAW:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	case CX2SkillTree::RNSI_A_ALD_WOLF_CLAW:	// char-ara CH2c2: June 32bd09d0 case 27208 / 27224
+	case CX2SkillTree::RNSI_A_ALD_WOLF_CLAW_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		{
 			ASI_A_ALD_WOLF_CLAW_CreateState( normalStateData, normalStateData.stateID );
 			ASI_A_ALD_WOLF_CLAW_CreateState( hyperStateData, hyperStateData.stateID );
@@ -4095,6 +4103,10 @@ void CX2GUAra::InitStateByUnitClass()
 
 	#pragma region SI_A_ALD_CONVERSION_HEALTH
 		case CX2SkillTree::SI_A_ALD_CONVERSION_HEALTH:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_A_ALD_CONVERSION_HEALTH:	// char-ara CH2c2: June 32bd09d0 case 27210 / 27235
+		case CX2SkillTree::RNSI_A_ALD_CONVERSION_HEALTH_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		{
 			ASI_A_ALD_CONVERSION_HEALTH_CreateState( normalStateData, normalStateData.stateID );
 			ASI_A_ALD_CONVERSION_HEALTH_CreateState( hyperStateData, hyperStateData.stateID );
@@ -4174,6 +4186,10 @@ void CX2GUAra::InitStateByUnitClass()
 
 	#pragma region SI_SA_ALD_FINGER_BULLET
 		case CX2SkillTree::SI_SA_ALD_FINGER_BULLET:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_A_ALD_FINGER_BULLET:	// char-ara CH2c2: June 32bd09d0 case 27209 / 27234
+		case CX2SkillTree::RNSI_A_ALD_FINGER_BULLET_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			{
 				ASI_SA_ALD_FINGER_BULLET_CreateState( normalStateData, normalStateData.stateID );
 				ASI_SA_ALD_FINGER_BULLET_CreateState( hyperStateData, hyperStateData.stateID );
@@ -18479,6 +18495,43 @@ void CX2GUAra::ASI_A_ARA_FORCE_SPEAR_Init()
 */
 void CX2GUAra::ASI_A_ARA_FORCE_SPEAR_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c2: June 32bb77b0 ( no UseForcePower here, the script's USE_FORCE_POWER row spends it; June's memo tests are the always-false stub 31fca9e0 )
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.198f ) && CanUseForcePower() )
+	{
+		const bool bDemigodLearned = ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_DEMIGOD ) );
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( true == bDemigodLearned ? L"EffectSet_Force_Spear_With_Demigod" : L"EffectSet_Force_Spear", this );
+
+		D3DXVECTOR3 vPos = GetWeaponBonePos( 0, L"Dummy3_Weapon", 0 );
+
+		if ( true == GetIsRight() )
+			vPos = vPos - GetDirVector() * 40.f;
+		else
+			vPos = vPos + GetDirVector() * 40.f;
+
+		vPos.y -= 25.f;
+
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_ALD_FORCE_SPEAR, true );
+		if ( NULL != pSkillTemplet )
+		{
+			if ( NULL == GetUnit() )
+				return;	// June @32bb7bda: leaves without the CommonFrameMove below
+
+			const int iSkillTempletLevel = max( 1, GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_ALD_FORCE_SPEAR, false, 0, true ) );
+			const USHORT usForceSpearPiercing = static_cast<USHORT>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_PIERCING, iSkillTempletLevel, false ) );
+
+			CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( (CX2GameUnit*) this,
+				true == bDemigodLearned ? L"DamageEffect_Force_Spear_With_Demigod" : L"DAMAGE_ARA_FORCE_SPEAR", GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree(),
+				m_FrameDataNow.unitCondition.landPosition.y );
+
+			if ( NULL != pDamageEffect && 0 < usForceSpearPiercing )
+				pDamageEffect->SetDamageTime( pDamageEffect->GetDamageTime() + usForceSpearPiercing );
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 if( true == m_pXSkinAnim->EventTimerOneshot( 0.198f ) && CanUseForcePower() )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -18572,6 +18625,7 @@ if( true == m_pXSkinAnim->EventTimerOneshot( 0.198f ) && CanUseForcePower() )
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function 	: ASI_A_ARA_FORCE_SPEAR_EventProcess
@@ -22549,6 +22603,21 @@ void CX2GUAra::ASI_A_ALD_WOLF_CLAW_StateStart()
 */
 void CX2GUAra::ASI_A_ALD_WOLF_CLAW_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c2: June 32bac880 ( animation end -> FP cancel or the finish state; no cancels )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_A_ALD_WOLF_CLAW_FINISH );
+
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )	// June vslot 0x7f8 ( true = ASUT_GROUND )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 #ifdef BALANCE_PATCH_20131107					// ±èÁ¾ÈÆ / 13-10-16, 2013³â ÈÄ¹Ý±â ¹ë·±½º °³Æí
@@ -22572,6 +22641,7 @@ void CX2GUAra::ASI_A_ALD_WOLF_CLAW_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function	: ASI_A_ALD_WOLF_CLAW_CreateState
@@ -22613,6 +22683,25 @@ void CX2GUAra::ASI_A_ALD_WOLF_CLAW_FINISH_Init()
 */
 void CX2GUAra::ASI_A_ALD_WOLF_CLAW_FINISH_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c2: June 32b9d6d0 ( the walk and dash cancels need the foot on a line )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		if ( false == IsOnSomethingFuture() )
@@ -22629,6 +22718,7 @@ void CX2GUAra::ASI_A_ALD_WOLF_CLAW_FINISH_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 #pragma endregion ³¶¾Æ 3½Ä - ´Á´ë¹ßÅé
 
@@ -22668,6 +22758,29 @@ void CX2GUAra::ASI_A_ALD_CONVERSION_HEALTH_Init()
 */
 void CX2GUAra::ASI_A_ALD_CONVERSION_HEALTH_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c2: June 32bac910 ( the amounts are the skill's named numerical values, the level read is discarded; the Open Mind buff follows the gain )
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
+	{
+		if ( NULL != g_pData->GetSkillTree() && NULL != GetUnit() )
+		{
+			if ( NULL != g_pData->GetSkillTree()->GetSkillTemplet( GetNowStateSkillID() ) )
+			{
+				const int iAddForcePower = static_cast<int>( static_cast<double>( GetSkillNumericalByName( L"FP_GAIN_COUNT", CX2SkillTree::RNSI_A_ALD_CONVERSION_HEALTH, true ) ) + static_cast<double>( 0.0005f ) );
+				const float fHPRate = GetMaxHp() * GetSkillNumericalByName( L"HP_CONSUME_REL", CX2SkillTree::RNSI_A_ALD_CONVERSION_HEALTH, true );
+
+				SetNowHp( GetNowHp() - fHPRate );
+
+				UpForcePower( iAddForcePower );
+
+				if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+					SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+			}
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -22699,6 +22812,7 @@ void CX2GUAra::ASI_A_ALD_CONVERSION_HEALTH_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function	: ASI_A_ALD_CONVERSION_HEALTH_EventProcess
@@ -22706,6 +22820,24 @@ void CX2GUAra::ASI_A_ALD_CONVERSION_HEALTH_FrameMove()
 */
 void CX2GUAra::ASI_A_ALD_CONVERSION_HEALTH_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c2: June 32b9d8f0 ( the walk and dash cancels need the foot on a line )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		if ( false == IsOnSomethingFuture() )
@@ -22721,6 +22853,7 @@ void CX2GUAra::ASI_A_ALD_CONVERSION_HEALTH_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 #pragma endregion ÀÌÇ÷°ø
 
@@ -22760,6 +22893,27 @@ void CX2GUAra::ASI_A_ALD_CONVERSION_MANA_Init()
 */
 void CX2GUAra::ASI_A_ALD_CONVERSION_MANA_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c2: June 32baa680 ( the skill is the memo-swapped one of the now state, its level is Conversion Health's; June spends no MP here )
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
+	{
+		if ( NULL != g_pData->GetSkillTree() && NULL != GetUnit() )
+		{
+			const int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_ALD_CONVERSION_HEALTH, false, 0, true );
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( GetTranscendenceMemoSkillID( GetNowStateSkillID() ) ) );
+
+			if ( NULL != pSkillTemplet )
+			{
+				UpForcePower( static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_COUNT, iSkillLevel, false ) ) );
+
+				if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+					SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+			}
+		}
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.2f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -22791,6 +22945,7 @@ void CX2GUAra::ASI_A_ALD_CONVERSION_MANA_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function	: ASI_A_ALD_CONVERSION_MANA_EventProcess
@@ -22798,6 +22953,24 @@ void CX2GUAra::ASI_A_ALD_CONVERSION_MANA_FrameMove()
 */
 void CX2GUAra::ASI_A_ALD_CONVERSION_MANA_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c2: June 32b9da00 ( the walk and dash cancels need the foot on a line )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		if ( false == IsOnSomethingFuture() )
@@ -22813,6 +22986,7 @@ void CX2GUAra::ASI_A_ALD_CONVERSION_MANA_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 #pragma endregion ÀÌ±â°ø
 
@@ -23441,6 +23615,25 @@ void CX2GUAra::ASI_SA_ALD_FINGER_BULLET_StateStart()
 */
 void CX2GUAra::ASI_SA_ALD_FINGER_BULLET_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c2: June 32bace40 ( animation end -> FP cancel or the finish state; the walk and dash cancels need the foot on a line )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_SA_ALD_FINGER_BULLET_FINISH );
+
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+	const bool bStartFPCancel = ( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() );	// June vslot 0x7f8 ( true = ASUT_GROUND )
+	m_bFPCancelProbe = false;
+
+	if ( true == bStartFPCancel )
+	{
+		m_bFPCancel = true;
+	}
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 #ifdef BALANCE_PATCH_20131107					// ±èÁ¾ÈÆ / 13-10-16, 2013³â ÈÄ¹Ý±â ¹ë·±½º °³Æí
@@ -23467,6 +23660,7 @@ void CX2GUAra::ASI_SA_ALD_FINGER_BULLET_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function	: ASI_SA_ALD_FINGER_BULLET_FINISH_CreateState
@@ -23497,6 +23691,30 @@ void CX2GUAra::ASI_SA_ALD_FINGER_BULLET_FINISH_Init()
 */
 void CX2GUAra::ASI_SA_ALD_FINGER_BULLET_FINISH_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c2: June 32baf450 ( AttackResult follows each pulled unit's DamageReact )
+	if( true == m_pXSkinAnim->EventTimerOneshot( m_fEventTime[0].keyInputStart ) )
+	{
+		BOOST_FOREACH( CX2GameUnitoPtr pGameUnit, m_vecHitUnitPointer )
+		{
+			if ( null != pGameUnit && 0 < pGameUnit->GetNowHp() )
+			{
+				m_DamageData.reActResult = CX2DamageManager::RT_DOWN;
+				m_DamageData.optrDefenderGameUnit = pGameUnit;
+
+				pGameUnit->DamageReact( &m_DamageData );
+
+				AttackResult();
+
+				EraseBuffTempletFromGameUnit( BTI_DEBUFF_NEVER_MOVE );
+			}
+		}
+
+		m_vecHitUnitPointer.clear();
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 if( true == m_pXSkinAnim->EventTimerOneshot( m_fEventTime[0].keyInputStart ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -23526,6 +23744,7 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fEventTime[0].keyInputStart ) )
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function	: ASI_SA_ALD_FINGER_BULLET_FINISH_EventProcess
@@ -23533,6 +23752,24 @@ if( true == m_pXSkinAnim->EventTimerOneshot( m_fEventTime[0].keyInputStart ) )
 */
 void CX2GUAra::ASI_SA_ALD_FINGER_BULLET_FINISH_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2c2: June 32b9e3b0 ( the walk and dash cancels need the foot on a line )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= LINE_RADIUS * _CONST_ARA_::MAGIC_NUMBER_MULTIPLY_LINE_RADIUS;
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 		if ( false == IsOnSomethingFuture() )
@@ -23548,6 +23785,7 @@ void CX2GUAra::ASI_SA_ALD_FINGER_BULLET_FINISH_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 #pragma endregion ³ªÂû 1½Ä - ÈíÈ¥
 
@@ -25029,13 +25267,21 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 
 				} break;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+			case CX2SkillTree::RNSI_A_ALD_WOLF_CLAW:	// char-ara CH2c2: June 32bd34c0 case 27208 / 27224 ( the chain lookup takes the swapped id )
+			case CX2SkillTree::RNSI_A_ALD_WOLF_CLAW_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			case CX2SkillTree::SI_A_ALD_WOLF_CLAW:			/// ¾Æ¶ó 1Â÷ ÀüÁ÷ ¼Ò¸¶ - ³¶¾Æ 3½Ä ´Á´ë¹ßÅé
 				{
 					{
 						UserUnitStateData&	stateData = m_StateList[ASI_A_ALD_WOLF_CLAW];
 						ASI_A_ALD_WOLF_CLAW_CreateState( stateData, ASI_A_ALD_WOLF_CLAW );
 						SetSkillLevelStateData( pSkillTemplet, stateData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// char-ara CH2c2: June 32bd34c0 @32bd4128
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( iSkillID_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 					}
 
 					{
@@ -25080,13 +25326,21 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 					}
 				} break;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+			case CX2SkillTree::RNSI_A_ALD_FINGER_BULLET:	// char-ara CH2c2: June 32bd34c0 case 27209 / 27234 ( the chain lookup takes the swapped id )
+			case CX2SkillTree::RNSI_A_ALD_FINGER_BULLET_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			case CX2SkillTree::SI_SA_ALD_FINGER_BULLET:		/// ¾Æ¶ó 1Â÷ ÀüÁ÷ ¼Ò¸¶ - ³ªÂû 1½Ä ÈíÈ¥
 				{
 					{
 						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALD_FINGER_BULLET];
 						ASI_SA_ALD_FINGER_BULLET_CreateState( stateData, ASI_SA_ALD_FINGER_BULLET );
 						SetSkillLevelStateData( pSkillTemplet, stateData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// char-ara CH2c2: June 32bd34c0 @32bd437d
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( iSkillID_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 					}
 
 					{

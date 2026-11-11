@@ -6461,6 +6461,27 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's; no new define). Plan `JUNE_CHA
 - **Save.** Unit 99 `LittleDevil99` ( class 31, lv 99 ) slots changed for the play-test ( backup `db_backup/els_db_20261111_162910_pre_sql.sql` ).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( every Ara skill falls back to the Wind Wedge default ), `python tools/build.py --deploy`.
 
+## Stage 7 Ara, CH2c2: Little Devil (class 31) actives, ids from 27200 (2026-11-11)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's; no new define). Plan `JUNE_CHARACTER_ARA_PHASES.md` "CH2c2 - Done". The `RNSI_*` base and enhanced ids join March's `SetEquippedSkillFuncBySkillSlotIndex` cases ( Wolf Claw 27208 / 27224, Finger Bullet 27209 / 27234, Conversion Health 27210 / 27235, Force Spear 27211 / 27236 ) and Wolf Claw's and Finger Bullet's `InitAquiredActiveSkillState` cases ( their chain lookups take the upgrade-swapped id ). `X2SkillTree.h` gains four names ( 27224, 27234, 27235, 27236 ).
+- **Differs from March.**
+  - **Force Spear** no longer spends a force power in C++ ( the script's `USE_FORCE_POWER { 0.3, 1 }` does ); with Demigod ( 27418 ) learned it plays `EffectSet_Force_Spear_With_Demigod` and fires `DamageEffect_Force_Spear_With_Demigod`; the spear spawns 40 units behind the weapon ( March 25 ); the piercing and the damage come from Little Devil's own 27211 ( the memo-size branch is June's always-false stub ).
+  - **Wolf Claw** and **Finger Bullet** ( first states ): the animation end calls `StateChangeOrFPCancel` and the FP-cancel probe window runs ( as CH2b2's Rock Crash ); Wolf Claw has no cancels, Finger Bullet has the walk and dash cancels.
+  - **Walk and dash cancels need the foot on a line:** Wolf Claw's finish ( skill cancel as March ), Conversion Health, Conversion Mana, Finger Bullet's first and finish states.
+  - **Conversion Health** reads its two amounts as named numerical values of 27210 ( `FP_GAIN_COUNT`, `HP_CONSUME_REL` x max HP ) instead of the templet abilities, then raises the Open Mind buff ( 27417 ) after the gain. **Conversion Mana** ( only the transcended memo of Conversion Health reaches it ) takes the force power from the memo-swapped skill's `SA_EFFECTIVE_COUNT` at Conversion Health's level and spends no MP ( March took `SA_MP_CONSUME_REL` ).
+  - **Finger Bullet finish:** each pulled unit also runs `AttackResult()` after its `DamageReact`. The hit-unit list itself is filled by CH4a's `SetAttackResultDelegate` ( March's still tests the March ids ), so until CH4a the pull-down finds no unit.
+- **Damage ( level-1 multiplier, x0.01 of the NUMERICAL_DATA row; March = the same-named damage effects the shipped tables carry ).**
+
+| Skill ( June id ) | March damage | June damage |
+|---|---|---|
+| Wolf Claw ( 27208 / 27224 ) | the `WOLF_CLAW_IMPACT` damage effect tables | 3.84 ( impact ) |
+| Finger Bullet ( 27209 / 27234 ) | the `FINGER_BULLET` damage effect tables | 12.29 ( attack ), 5.53 ( success ) |
+| Conversion Health ( 27210 / 27235 ) | the `CONVERSION_HEALTH` damage effect tables | 7.69 ( health ), 6.73 ( mana ) |
+| Force Spear ( 27211 / 27236 ) | the `DAMAGE_ARA_FORCE_SPEAR` damage effect tables | 4.95 |
+
+- **Save.** Unit 99 `LittleDevil99` ( class 31, lv 99 ): slots changed for the play-test, Conversion Health 27210 / 27235 learned ( backup `db_backup/els_db_20261111_170102_pre_sql.sql` ).
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( every Ara skill falls back to the Wind Wedge default ), `python tools/build.py --deploy`.
+
 ## BUG_REPORT 2026-11-08, items 1-5 (fixed 2026-11-11)
 
 **1. Underground Waterway boss room froze the player (data only).** The merged data037 `NPCTemplet.lua` kept March's row for `NUI_BENDERS_NASOD` (`LUA_FILE_NAME = "Benders_Nasword.lua"`), while June's dungeon cutscene NPC (`Event_NPC_Benders_Elder.lua`) starts state `BENDERS_NASOD_START`, which only June's `BENDERS_NASOD.LUA` has. The boss stayed hidden in its start state and `STOP_AT_START_STATE` kept input off. The row now carries June's `MOTION` / `LUA_FILE_NAME` (the old values are in the comment above it); June's `Motion_Benders_Nasword.xet` staged into data006 (March's copy under `kom_backup_stage_june\20261111_105336`). `luabind.py check BENDERS_NASOD Event_NPC_Benders_Elder` PASS, `npc_anim_census.py` 0 missing anims. Revert: restore the two values in the row, `luasrc.py refresh data037 NPCTemplet.lua`, repack data037.
