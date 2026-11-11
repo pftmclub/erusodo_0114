@@ -12342,6 +12342,30 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //////////////////////////////////////////////////////////////////////////
 // Author: Iruha
 // Date: 2026-11-11
+// Description: Offline ( BUG_REPORT 3 ): a job-change quest pushes the unit's whole acquired skill list, so the new class's
+//              skills the seed already learned ( level passed ) reach the client at once instead of at the next select.
+//              Log: [JUNE_SKILL] ACQ push (job change). Revert: comment out, touch X2Lib/stdafx.cpp, build.py --deploy.
+#define SERV_IRUHADEV_OFFLINE_JOB_CHANGE_SKILL_PUSH
+#if defined( SERV_IRUHADEV_OFFLINE_JOB_CHANGE_SKILL_PUSH ) && !defined( SERV_IRUHADEV_JUNE_SKILL_ACQUIRE )
+#error SERV_IRUHADEV_OFFLINE_JOB_CHANGE_SKILL_PUSH needs SERV_IRUHADEV_JUNE_SKILL_ACQUIRE ( PushSkillGrant )
+#endif SERV_IRUHADEV_OFFLINE_JOB_CHANGE_SKILL_PUSH
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: GFx event scene ( BUG_REPORT 4 / 5, port gap, not June ): a scene swf that was unloaded stays alive in this Scaleform
+//              build and keeps calling endEventScene ( on ESC ) and its voice lines. Calls from an older scene instance, or with no
+//              scene playing, are dropped. Log: [JUNE_GFX] SCENE STALE ( first 30 ). Revert: comment out, build.py --deploy.
+#define SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
+#if defined( SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE ) && !defined( SERV_IRUHADEV_JUNE_GFX_EVENTSCENE )
+#error SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE needs SERV_IRUHADEV_JUNE_GFX_EVENTSCENE ( CKTDGGFXEventSceneBridge, CX2GFXEventScene )
+#endif SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
 // Description: June character port ( Ara ) Phase CH1q - force power and berserk: June's bodies behind SERV_IRUHADEV_JUNE_CHAR_ARA_FP ( defined in the
 //              CH1d block, still commented out until CH1 final ); _FP_DEBUG logs [JUNE_CHAR] ARA FP lines until the CH1q review.
 //              Revert: comment out the #define ( JUNE_CHAR_ARA_FP_DEBUG ).

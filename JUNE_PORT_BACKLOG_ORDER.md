@@ -1187,6 +1187,11 @@ ones became their own plan: `JUNE_DUNGEONS_PHASES.md`, kickoffs `kickoffs/june-d
   `UpdateDungeonClearStars` (`32936b00`: a Bestera branch in place of Valentine 41120), `GetLocalMapID` (`324f25f0`: map 0x271b), the boss-raid
   field test `GetIsBossRaidCurrentField` (`32482650`: field type 2..4) and `Handler_EGS_DUNGEON_SUB_STAGE_GO_NEXT_REQ` (`327d0370`: one-byte
   packet). Rows in `tools/data/june_march_divergent.tsv` (owner Stage 22).
+- **NPC registry reconciliation** *(from BUG_REPORT 1, 2026-11-11)*: 153 rows of the merged data037 `NPCTemplet.lua` still name March's `MOTION` /
+  `LUA_FILE_NAME` where June's row names another file (Besma, Altera, Feita, Velder, Sander monsters; `NUI_BENDERS_NASOD` was the 154th and froze
+  Underground Waterway's boss room, fixed). June's dungeon and event scripts are live, so a row whose script June replaced can miss a state another
+  script starts. A scan of every cross-script `StateChange` found only the Banthus case. To do: per row, stage June's mesh closure
+  (`npc_mesh_census.py`, `npc_anim_census.py`), then take June's row. Not started.
 
 **Depends on:** june-effect C3x-C3z-6 (done). Stage 14/15 for C3z-1b only.
 
@@ -1285,6 +1290,11 @@ June's `EventScene.lua` / `EventSceneObject.lua` (data036) parse with March's tw
 `325b0020`; 113 uses) and `OBJECT_TEXT_TAG_NAME_DUO_TYPE` (`325b0c70`; 17 uses), which March ignores. So the files are adopted together with the DUO keys,
 never alone. No quest plays a Lua scene (Q0b, re-proved by Q5b), so this is not the quest plan's. Brief: `kickoffs/june-backlog/stage27-plan.md`.
 Planning: `/x2-phase new-plan june-lua-scenes`. Not started.
+- **GFx scene swf survives its unload** *(from BUG_REPORT 4 / 5, 2026-11-11; GFx runtime, not Lua scenes)*: after `unloadUserWidget( 0x2711 )` a
+  quest scene's swf keeps its stage `KEY_DOWN` listener in this Scaleform build (4.2.22) and still calls `endEventScene` / its voice lines. June's
+  C++ is the same (`3226b6c0`, `32269f20`, `31c43890`, `31c44670` re-read), so June's runtime must drop the instance. The calls are filtered under
+  `SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE`; the instances themselves still leak (one per played scene). To do: find why
+  `REMOVED_FROM_STAGE` cleanup does not run here (loader unload semantics of the SDK), then drop the filter.
 
 ### Stage 28: June party-manager handlers (added 2026-10-19, quest-system Q10b)
 

@@ -610,7 +610,12 @@ int CX2OfflineServer::CompleteOneQuest( KOfflineSession& kSes,
 #endif SERV_IRUHADEV_JUNE_SKILL_REFORM_AUTOLEARN
 #ifdef SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 		// June skill system S7: the new class's level-earned skills (stand-in grant), pushed now.
+#ifdef SERV_IRUHADEV_OFFLINE_JOB_CHANGE_SKILL_PUSH
+		// BUG_REPORT 3: the seed above already holds the level-passed rows, so the grant alone names none of them
+		PushSkillGrant( kSes, kRow.m_nUnitUID, iNewClass, kRow.m_iLevel, true, L"job change" );
+#else SERV_IRUHADEV_OFFLINE_JOB_CHANGE_SKILL_PUSH
 		PushSkillGrant( kSes, kRow.m_nUnitUID, iNewClass, kRow.m_iLevel, false, L"job change" );
+#endif SERV_IRUHADEV_OFFLINE_JOB_CHANGE_SKILL_PUSH
 #endif SERV_IRUHADEV_JUNE_SKILL_ACQUIRE
 
 		bChangedJob = true;
@@ -1450,6 +1455,13 @@ void CX2OfflineServer::SendTranscendNot( KOfflineSession& kSes, int iUnitClassTr
 	Reply( kSes, EGS_CHANGE_TRANSCENDENTAL_CLASS_NOT, kNot );
 
 	CX2OfflineLog::Server( L"[JUNE_TRANSCEND] CHANGE NOT sent: unit %I64d transcendence %d", (__int64)kSes.m_nSelectedUnitUID, iUnitClassTran );
+
+#ifdef SERV_IRUHADEV_OFFLINE_JOB_CHANGE_SKILL_PUSH
+	// BUG_REPORT 3 ( stand-in ): the hyper-class rows the level already passed are granted and pushed now, not at the next select
+	KOfflineUnitRow kRow;
+	if( 0 != iUnitClassTran && true == CX2OfflineDB::Instance()->LoadUnit( kSes.m_nSelectedUnitUID, kRow ) )
+		PushSkillGrant( kSes, kRow.m_nUnitUID, kRow.m_iUnitClass, kRow.m_iLevel, false, L"transcend" );
+#endif SERV_IRUHADEV_OFFLINE_JOB_CHANGE_SKILL_PUSH
 }
 
 /// 0x594 ( /tc, 31d809c0 ): the argument is % 1000 on the client. Non-zero transcends the selected unit, with the checks above; zero clears it ( stand-in: June's

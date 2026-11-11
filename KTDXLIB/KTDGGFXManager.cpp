@@ -1841,6 +1841,9 @@ public:
 			m_pAdapter->AddBinding( JGES_BINDING_EXACT_FIT, JGBK_BOOL );						// @32e59d2a: the 0xc B bool object, false
 		}
 		GfxSceneLog( "bridge: %s", m_pAdapter ? "listener + 2 bindings on the root movie's adapter" : "no root movie ( GFx scenes cannot play )" );
+#ifdef SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
+		m_iSceneInstance = 0;
+#endif SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
 	}
 
 	~CImpl()
@@ -1869,13 +1872,26 @@ public:
 			return true;
 
 		SFG::Value kObject( pArgs[0] );
+#ifdef SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
+		bool bNewInstance = false;
+#endif SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
 		for ( int i = 0; i < 4; ++i )
 		{
 			SFG::Value kCurrent;
 			kObject.GetMember( s_aszFunction[ i ], &kCurrent );
 			if ( kCurrent.IsObject() == false && kCurrent.IsArray() == false && kCurrent.IsDisplayObject() == false )		// @32e59a20: types 8 / 9 / 10 are left alone
 			{
+#ifdef SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
+				// BUG_REPORT 4 / 5, not June: each scene swf registers once, its handlers carry its number above the two id bits
+				if ( bNewInstance == false )
+				{
+					bNewInstance = true;
+					++m_iSceneInstance;
+				}
+				SF::Ptr< CGfxFunctionHandler > pHandler = *new CGfxFunctionHandler( m_pLink.GetPtr(), &CImpl::OnFunction, i | ( m_iSceneInstance << 2 ) );
+#else SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
 				SF::Ptr< CGfxFunctionHandler > pHandler = *new CGfxFunctionHandler( m_pLink.GetPtr(), &CImpl::OnFunction, i );
+#endif SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
 				SFG::Value kFunction;
 				pMovie->CreateFunction( &kFunction, pHandler );
 				kObject.SetMember( s_aszFunction[ i ], kFunction );
@@ -1908,6 +1924,20 @@ private:
 
 	void DoFunction( int iID, const SFG::FunctionHandler::Params& kParams )
 	{
+#ifdef SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
+		// BUG_REPORT 4 / 5, not June: an unloaded scene swf keeps its key listener here and still calls in; only the newest instance is heard
+		if ( ( iID >> 2 ) != m_iSceneInstance )
+		{
+			static int s_iStaleLines = 0;
+			if ( s_iStaleLines < 30 )
+			{
+				++s_iStaleLines;
+				GfxSceneLog( "STALE call %d from scene instance %d dropped ( current %d )", iID & 3, iID >> 2, m_iSceneInstance );
+			}
+			return;
+		}
+		iID &= 3;
+#endif SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
 		switch ( iID )
 		{
 		case 0:		// endEventScene 32e597e0
@@ -2015,6 +2045,9 @@ private:
 	IGfxEventSceneHost*				m_pHost;
 	SF::Ptr< CGfxOwnerLink >		m_pLink;
 	SF::Ptr< CLIKDataBindingAdapter >	m_pAdapter;
+#ifdef SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
+	int								m_iSceneInstance;	// BUG_REPORT 4 / 5: the number of the scene swf that registered last
+#endif SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
 };
 
 CKTDGGFXEventSceneBridge::CKTDGGFXEventSceneBridge( CKTDGGFXManager* pManager, IGfxEventSceneHost* pHost )

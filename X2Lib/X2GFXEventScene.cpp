@@ -553,13 +553,41 @@ bool CX2GFXEventScene::MsgProc( HWND /*hWnd*/, UINT uMsg, WPARAM /*wParam*/, LPA
 // ---------------------------------------------------------------------------------------------------------------------------------------
 // IJuneGfxEventSceneHost
 // ---------------------------------------------------------------------------------------------------------------------------------------
+#ifdef SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
+/// BUG_REPORT 4 / 5: a dropped call is logged, the first 30 only ( a stale scene calls on every ESC )
+static void GfxSceneStaleLog( const char* szWhat )
+{
+	static int s_iLines = 0;
+	if ( s_iLines >= 30 )
+		return;
+	++s_iLines;
+	GfxSceneLog( "STALE %s with no scene playing: dropped", szWhat );
+}
+#endif SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
+
 void CX2GFXEventScene::OnSceneAsEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
+	// BUG_REPORT 4, not June: an unloaded scene swf still takes ESC and ends "the scene", which unhid the result screen's UI
+	if ( m_bPlaying == false )
+	{
+		GfxSceneStaleLog( "endEventScene" );
+		return;
+	}
+#endif SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
 	End( false );
 }
 
 void CX2GFXEventScene::OnSceneAsPlaySound( const std::wstring& wstrKey )
 {
+#ifdef SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
+	// BUG_REPORT 5, not June: the same stale swf played its voice lines after the scene was closed
+	if ( m_bPlaying == false )
+	{
+		GfxSceneStaleLog( "playEventSceneSound" );
+		return;
+	}
+#endif SERV_IRUHADEV_JUNE_GFX_SCENE_STALE_INSTANCE
 	PlaySound( wstrKey );
 }
 
