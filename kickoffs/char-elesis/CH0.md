@@ -60,3 +60,8 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by char-ara CH1 (2026-11-11): the enum gate in the map
+
+Run `python tools/luabind.py check ELESIS_KNIGHT` and list every `ENUM` / `STATE` failure in the CH0 note with its owner (CH1 adds June's members
+to `Enum.lua`; a missing C++ state-enum member goes to the phase that adds the class's enum names). Ara found hers only at CH1's play-test.

@@ -40,3 +40,13 @@ Run `python tools/junediverge.py --list` before transcribing; a newly found dive
 
 - **Checklist rows** (`ch0_checklist_rows.tsv` col 5): §5 L184-188 per-character parser census; §7h L421 EFFECT_SET_LIST variants; §7h L423 SOUND_PLAY_EX x5, CUSTOM_STATE_DELETE_SOUND x5, STATE_SOUND_PLAY x0; §7h L424 USEFUL_VALUE0..4 rows and getters; §7o L506-507 SET_LIMIT_MAX_G_SPEED -4000 in <prefix>DAMAGE_BOUNDING_DOWN (13 tables; Lu and C; §7p L545 TIME_STOP_IMMUNE_STATE = TRUE in the class script; §7t L586-589 SHOW_HYPER_CUT_IN_TIME in the class script; §7x L664 combo hits carry June AT_COMMAND tag; adopt the script with its tags.
 - Adopt `DLG_LUCIEL_BOUNDING_KEY.lua` (data034) with the scripts: Init 0x40 `32b1e8e0` loads it at `32b1ea23`. `luabind.py check` all three.
+
+## Amended by char-ara CH1 (2026-11-11): the enum gate
+
+`luabind.py check <script>` now also runs the ENUM and STATE gates (tool docstring). Ara's CH1 shipped with her June script reading
+names the merged data036 `Enum.lua` lacked: the file died at load (`can't find 'CRS_INVISIBLE' class variable`) and her `CHAIN_SYSTEM`
+popped `StateID` on every field entry. The check must print `RESULT: PASS` **before** the pack. Fix every `ENUM MISSING TABLE / NAME` by adding
+June's member to `Enum.lua` (core-list source, `-- char-luciel CH1` one-line comment, then `luasrc.py refresh data036 Enum.lua`), and every
+`STATE MISMATCH / NO C++ MEMBER` so the Lua value equals the C++ enum (add the C++ member first when it is missing). `enum nil in June` lines
+are June's own nils: leave them.
+Run of 2026-11-11 (pre-port): `DUO_TYPE.DT_BOTH` / `DT_KEEP` and `SKILL_ID.RNSI_A_LLD_BLUFF` missing.

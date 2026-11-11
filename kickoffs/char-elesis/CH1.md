@@ -44,3 +44,14 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by char-ara CH1 (2026-11-11): the enum gate
+
+`luabind.py check <script>` now also runs the ENUM and STATE gates (tool docstring). Ara's CH1 shipped with her June script reading
+names the merged data036 `Enum.lua` lacked: the file died at load (`can't find 'CRS_INVISIBLE' class variable`) and her `CHAIN_SYSTEM`
+popped `StateID` on every field entry. The check must print `RESULT: PASS` **before** the pack. Fix every `ENUM MISSING TABLE / NAME` by adding
+June's member to `Enum.lua` (core-list source, `-- char-elesis CH1` one-line comment, then `luasrc.py refresh data036 Enum.lua`), and every
+`STATE MISMATCH / NO C++ MEMBER` so the Lua value equals the C++ enum (add the C++ member first when it is missing). `enum nil in June` lines
+are June's own nils: leave them.
+CH0's run (2026-11-11, pre-port): 4 `SKILL_ID` names missing (`RNSI_A_SCA_BLOOD_STING`, `RNSI_A_SGM_UPPER_SLASH`, `RNSI_P_SBH_BLAZE_ABSOLU`,
+`RNSI_SA_SCA_CHASING_SWORD`).

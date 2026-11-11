@@ -128,7 +128,9 @@ step needs the answer, otherwise let it run). The user has authorised this for O
    **Lua binder gate (user, 2026-10-27):** for every June `.lua` the phase stages or depends on (an NPC / summon / dungeon script,
    a class script), run `python tools/luabind.py check <NAME ...>`: every method it calls must be bound in March. An unbound
    name is bound whole from June's function (address in the funcmap) or added to `tools/data/lua_unbound_known.tsv` with the
-   reason; otherwise the script dies at that line in game (Oberon's slash, 2026-10-27). The hand-off then lists the log lines
+   reason; otherwise the script dies at that line in game (Oberon's slash, 2026-10-27). The same run is the **enum gate** (char-ara CH1,
+   2026-11-11): every `ENUM MISSING TABLE / NAME` gets June's member in data036 `Enum.lua` and every `STATE MISMATCH / NO C++ MEMBER` is fixed
+   so Lua equals the C++ enum, before the pack (Ara's script died at load and her `CHAIN_SYSTEM` read nil ids). A char port's CH0 lists them. The hand-off then lists the log lines
    the user's test must produce (`ES_CREATE <effect set>`, the summon's state lines), and "check logs" confirms each by name.
    **Skill icon gate (user, 2026-10-28):** a character-port phase that adds or registers skills (CH0b, CH2-CH3, transcendence
    rows, CH6) runs `python tools/skillicons.py check <the class's skill-id range>`. It must PASS, or the phase stages the files

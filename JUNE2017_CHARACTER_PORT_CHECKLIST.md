@@ -210,6 +210,9 @@ values, before loading the script. Otherwise **every state after the first refer
    appeared. If the port must edit the script, first add the core-list row
    (`luasrc.py core --add <kom> <Class>.lua --origin june --why "edit: <phase> <what>"`, no question), then `adopt-june --source`
    (see `LUA_SOURCE_PHASES.md` Rule 2, skill `x2-adopt-june`). Never copy from `june_src_fixed/` or compile by hand. (Ara: CH1, `adopt-june data036 Ara_Martial_Artist.lua`, dry run first; scans rerun)
+   **Before packing, `python tools/luabind.py check <Class>` must PASS, its enum gate included** (char-ara CH1, 2026-11-11): every name the
+   script reads from June's `Enum.lua` must exist in the merged data036 `Enum.lua`, and every state id it reads must equal the C++ enum. A missing
+   table kills the script at load; a missing or wrong state id breaks `CHAIN_SYSTEM` (Ara: `StateID` popup) and anything else that hands ids back to C++.
 
 - **Standing check for every class port (user, 2026-11-05).** The class overrides `ReservedSkillStart` ( June `32057b80` @32057c4c-cb2: `SpecialAttackCooldown` + `SkillMemoMpRefund`, as Eve / Chung / Elsword ) and extends the `X2GUUser.h` / `.cpp` chain; without it every state-change skill has no cool time and no MP cost. Its `InitPassiveSkillState` reads June's `RNSI_*` skill ids for members a skill's motion needs ( Elsword's Rolling stood still on March's `SI_A_ES_ROLLING` ). The play-test hand-off asks for two casts of each skill: the slot icon shows the cool time and the MP bar drops. Memory: `char-port-reserved-skill-start-hook`. (Ara: CH1k - `CX2GUAra::ReservedSkillStart` written under `_LIVE` ( `SpecialAttackCooldown` + `SkillMemoMpRefund` ), the `X2GUUser` hook chain widened with Ara's `_LIVE`.)
 

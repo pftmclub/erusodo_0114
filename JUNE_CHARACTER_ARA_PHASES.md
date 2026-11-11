@@ -1460,6 +1460,15 @@ merged data036 `Enum.lua` (core-list source) missing June members that June's sc
   .. 180`, after CH1i's last name). Their owners are unchanged (CH2d3, CH2d3, CH2d, CH3c2, CH3c). June's own ids (288 / 291 / 302 / 294 / 315) would
   land on C++ ids that other Ara states already hold. `flagcheck JUNE_CHAR_ARA_CORE --worktree --files X2Lib/X2GUAra.h`: `1 PASS, 0 FAIL`, `RESULT:
   PASS`; `junediverge --check` PASS; `enumscan --check X2Lib/X2GUAra.h` 0 A/B. Probe `X2GUAra.cpp`: 0 errors.
+- **Guard for later ports (user, 2026-11-11: "make sure this dont happen on future char ports"):** `tools/luabind.py check` now runs an
+  ENUM gate (every `TABLE.NAME` from June's `Enum.lua` resolves in the staged `Enum.lua`) and a STATE gate (every `*_STATE_ID` value equals
+  the C++ enum, `/Zs` probe, ~15 s; `--no-cpp` skips it). Against the pre-fix `Enum.lua` it reports Ara's whole failure (1 table, 14 names,
+  24 wrong state ids); on the fixed one: `STATE: 37 ... 0 wrong`, `RESULT: PASS`. Wired into the x2-phase Lua binder gate, the checklist (§6),
+  `tools/README.md`, and amendments to `kickoffs/char-elesis/CH0.md` / `CH1.md` and `kickoffs/char-luciel/CH1.md`.
+- **Found in the ported classes, not fixed here (scope rule):** `luabind.py check` over the June class scripts lists silent nils:
+  Elsword `SKILL_ID.RNSI_A_ERS_ENCHANT_BREAK` / `RNSI_P_ELK_FIGHT_GOD`, Raven `SKILL_ID.RNSI_A_RBM_POINTED_STILETTO` (all three have C++ members),
+  Chung `CHUNG_STATE_ID.CSI_CFG_COMBO_XXFRONTZ` (C++ `USI_END + 168`), Aisha `DAMAGE_TRIGGER_TYPE.DTT_AISHA_STICK_ATTACK` (June 17, no C++ member).
+  Asked of the user in the CH1 hand-off: fix now, or route.
   `DEPLOY OK: X2_offline.exe is 26,225,152 B, dated 2026-11-11 12:51:03, md5 0909cda31c6bbad805e34fb4193375fa, equal to X2/US_SERVICE/x2.exe (2026-11-11 12:50:55); built at main d98916f0 + 1 uncommitted code file(s).`
 
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
