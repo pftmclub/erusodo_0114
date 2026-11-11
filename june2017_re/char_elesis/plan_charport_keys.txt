@@ -1,0 +1,17 @@
+script: june_src_fixed/data036_kom/ELESIS_KNIGHT.src.lua
+top-level tables: 311 (INIT_*: 6)   distinct keys: 248   key occurrences: 10982
+verdicts: june-only=9  neither=1  march-only-site=4  both=234
+june-only keys (a port item):
+  BBT_CHANGE_NOW_HP_PER_SECOND             x4     damage-data            june=plain readers=none census=implemented/unassigned
+  BBT_FROZEN                               x2     damage-data            june=plain readers=none census=implemented/unassigned
+  BBT_NEVER_MOVE                           x2     damage-data            june=plain readers=none census=implemented/unassigned
+  BBT_STUN                                 x1     damage-data            june=plain readers=none census=implemented/unassigned
+  BFT_HITTED_COUNT                         x1     damage-data            june=plain readers=none census=implemented/unassigned
+  BFT_TIME                                 x7     damage-data            june=plain readers=none census=implemented/unassigned
+  FORCE_DYNAMIC_CAMERA_INDEX               x15    state                  june=xor readers=32057b80:CX2GUAra::ReservedSkillStart ( user hook @32057c4c ) 
+  IMMUNITY_EDT_LIST_AT_THIS_STATE          x4     state                  june=plain readers=none 
+  RETAIN_CAMERA_STATE                      x1     state                  june=xor readers=32057b80:CX2GUAra::ReservedSkillStart ( user hook @32057c4c ) 
+neither (no reader found on either side):
+  HEAD_IK                                  x9     state
+note: March sites are grep-based literals; confirm the #ifdef branch with cl /P in the port phase.
+wrote char_elesis/plan_charport_keys.tsv

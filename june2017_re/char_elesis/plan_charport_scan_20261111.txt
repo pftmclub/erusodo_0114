@@ -1,0 +1,57 @@
+KEYS (exact sub-path under DAMAGE_DATA*)
+KEYS-BYNAME (bytecode, any table; leads only)
+NUMERIC (DAMAGE_DATA* tables)
+  Ara_Martial_Artist           {'no NUMERICAL_DATA_INDEX': 49, 'no DAMAGE table': 14}
+  Arme_VioletMage              {'no NUMERICAL_DATA_INDEX': 36, 'no DAMAGE table': 1}
+  Chung_Iron_Cannon            {'no NUMERICAL_DATA_INDEX': 74, 'no DAMAGE table': 15}
+  ELESIS_KNIGHT                {'no NUMERICAL_DATA_INDEX': 69, 'no DAMAGE table': 20}
+  Elsword_SwordMan             {'no NUMERICAL_DATA_INDEX': 87, 'no DAMAGE table': 20}
+  Eve_Nasod                    {'no NUMERICAL_DATA_INDEX': 25, 'no DAMAGE table': 3}
+  Lire_ElvenRanger             {'no NUMERICAL_DATA_INDEX': 65, 'no DAMAGE table': 12}
+  Luciel_Demonio               {'no NUMERICAL_DATA_INDEX': 11, 'no DAMAGE table': 2}
+  Luciel_Duo                   {'no NUMERICAL_DATA_INDEX': 67, 'no DAMAGE table': 15}
+  RAVEN_FIGHTER                {'no NUMERICAL_DATA_INDEX': 70, 'no DAMAGE table': 25}
+  Rose_Freyja                  {'no NUMERICAL_DATA_INDEX': 2, 'no DAMAGE table': 2}
+  Rose_Gunner                  {'no NUMERICAL_DATA_INDEX': 17, 'no DAMAGE table': 2}
+  Rose_StormTrooper            {'no NUMERICAL_DATA_INDEX': 4, 'no DAMAGE table': 1}
+ENUM (June-only Enum.lua tables indexed)
+  AchievementConditionData     {'ACHIEVEMENT_CONDITION_TYPE': 243, 'PROFESSION_TYPE': 15}
+  AchievementData              {'ACHIEVEMENT_CATEGORY': 243}
+  Add_NasodRuler               {'CUSTOM_RENDER_STATE': 7}
+  Ain_Apostasia                {'MOTION_CHANGE_CONDITION': 1, 'CUSTOM_RENDER_STATE': 1}
+  Ain_Erbluhen_Emotion         {'CUSTOM_RENDER_STATE': 1}
+  AnimationNameTable           {'UNIT_VIEWER_UI_MOTION_TYPE': 384}
+  Ara_Martial_Artist           {'CUSTOM_RENDER_STATE': 1}
+  BattleFieldData              {'BATTLE_FIELD_TYPE': 10}
+  ChainCashItem                {'CHAIN_CASH_ITEM_CATEGORY': 1}
+  CharCustomData               {'CUSTOM_MOTION_EFFECT_TYPE': 1087, 'CUSTOM_HYPER_EFFECT_TYPE': 15}
+  DefaultBoneInfo              {'CHARACTER_ID': 13, 'MODIFY_BONE_STYLE': 125}
+  DivisionItemTemplet          {'READ_TYPE': 24, 'DIVISION_ITEM_TEMPLET_TYPE': 24}
+  DungeonClearMovieTemplet     {'SCENARIO_MOVIE_CATEGORY': 13}
+  ElResonanceTable             {'EL_RESONANCE_TYPE': 15}
+  EmotionData                  {'CHANGE_EMOTION_CONDITION': 20}
+  EnchantItemInfoNew           {'ENCHANT_TALISMAN_USE_TYPE': 32}
+  EventButtonIconInfo          {'X2_STATE': 122, 'CUSTOM_EVENT_CUSTOM_MSG': 2}
+  FieldSubQuest                {'PVP_TOURNAMENT_TYPE': 1}
+  GuildAgitShopItem            {'GUILD_AGIT_SHOP_SALE_TAB_ID': 2}
+  Luciel_Demonio               {'CUSTOM_RENDER_STATE': 3}
+  MagicalClosetFilterInfo      {'AVATAR_TICKET_SET_ID': 13}
+  ManufactureItem              {'PROFESSION_TYPE': 29}
+  MediaInfoScript              {'MEDIA_TYPE': 24}
+  PetInteractionData           {'PET_INTERACTION_TYPE': 24, 'PET_ACTION_COMMAND': 21}
+  ProfessionTemplet            {'PROFESSION_TYPE': 3, 'ACHIEVEMENT_GRADE_TYPE': 4, 'PROFESSION_ACHIEVEMENT_TYPE': 13}
+  RenderDivisionItemTemplet    {'READ_TYPE': 113, 'DIVISION_ITEM_TEMPLET_TYPE': 113, 'CONDITION_EQUIP_PLAY_EFFECT_SET': 5}
+  Rose_Freyja                  {'ROSE_WEAPON_TYPE': 10}
+  Rose_Gunner                  {'ROSE_WEAPON_TYPE': 17}
+  Rose_Mechanic                {'ROSE_WEAPON_TYPE': 4}
+  Rose_Ranger                  {'ROSE_WEAPON_TYPE': 11, 'CUSTOM_RENDER_STATE': 1}
+  Rose_StormTrooper            {'ROSE_WEAPON_TYPE': 4}
+  SelectVoiceTable             {'SOUND_PLAY_TYPE': 400}
+  ShareMotionInfoData          {'APPLYING_SHARE_BONE_DATA_TYPE': 134}
+  SkillNoteTemplet             {'MEMO_ID': 1155}
+  SubTitleMission              {'BATTLE_FIELD_ID': 2}
+  SubTitleMission_LA           {'BATTLE_FIELD_ID': 2}
+  UserUnitBoneSetting          {'USER_UNIT_BONE_SETTING_TYPE': 10, 'USER_UNIT_BONE_SETTING_CONDITION': 1}
+  WorldTourInfoData            {'WORLD_TOUR_SLOT_TYPE': 38}
+SKIPPED ['AccountQuest', 'AccountQuest_LA', 'FieldQuest', 'FieldQuest_LA', 'FieldSubQuest_LA', 'GuildQuest', 'GuildQuest_LA', 'NewSkillTempletVer2', 'NewSkillTempletVer2_LA', 'OptionItemData', 'OptionItemData_LA', 'PetTemplet', 'PetTemplet_LA', 'TitleTable', 'TitleTable_LA']
+SRC/BYTECODE MISMATCH (not path-checked) []
