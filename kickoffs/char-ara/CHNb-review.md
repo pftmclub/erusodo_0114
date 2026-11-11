@@ -1,17 +1,17 @@
-# June character Ara (Stage 7) - Phase CHNb review
+# June character Ara (Stage 7) - Phase CHNb review (covers CHNb + CHNb2)
 
 | | |
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-ara CHNb review` |
 | Plan doc | `JUNE_CHARACTER_ARA_PHASES.md` (branch `main`) |
-| Depends on | CHNb done (its Done note, commit and the user's play-test) |
+| Depends on | CHNb and CHNb2 done (their Done notes, commits and the user's play-test of CHNb2) |
 | Flag | `SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE` (class-generic; `KTDXLIB/Always.h` end, `#error` without `_TRANSCEND_CHANGE`, `_SKILL_CASH_OPEN_ITEM`, `_QUEST_LOAD`, `_ENUM_NAMES`, `PRIVATE_BANK`). No debug define. |
 | Log tag | `[JUNE_CHAR]`, `[JUNE_SKILL] HUD shop open-at-item`, `[ADMIN_CHEAT]` |
 
 ## Read first
 
 ```sh
-python tools/docsection.py JUNE_CHARACTER_ARA_PHASES.md "Rules" "CHNb - Done (2026-11-11)"
+python tools/docsection.py JUNE_CHARACTER_ARA_PHASES.md "Rules" "CHNb - Done (2026-11-11)" "CHNb2 - Done"
 awk -F'\t' '$7 ~ /CHNb/' june2017_re/char_ara/ch0_classn.tsv
 ```
 
@@ -29,7 +29,7 @@ Check CHNb against June from the exe bytes (Ghidra read-only). Spot-check at lea
   `ClassAt` forwards to it.
 - **Data** `LevelUpEvent.lua` (data036, core list): level 15 -> `DLG_1ST_Class_Change_Guide_Ara.lua`, level 35 { 28, 31, 34 } -> `DLG_2ND_Class_Change_Guide_Ara.lua`
   = June `LevelUpEvent.src.lua`; the level-70 transcendence row stays CH3d's. `luabind.py check` on the four dialogs: PASS.
-- **JUNE_BUGS 607** (the 2ND guide's buy button always looks up line 1): confirm from `3222a4f0` and the dialog.
+- **CHNb2:** `32713c10` events 2 / 4 / 6 against the port (wrap, line picture, the `+0x27c` button rebinding to 1541 / 1545 + line - 1, name, skill / command lists).
 
 Hygiene: `flagcheck.py SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE --range <CHNb commit>^..<CHNb commit>`, `junediverge.py --check-all`, `enumscan.py --check` on the changed
 lines, `luasrc.py ledger --check`. Read the user's play-test logs (`python tools/logs.py --tag ADMIN_CHEAT`, `--grep "HUD shop open-at-item"`, the class-change lines).

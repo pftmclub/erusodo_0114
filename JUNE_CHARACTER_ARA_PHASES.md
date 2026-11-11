@@ -1637,13 +1637,16 @@ Opus 5.5. New class-generic flag `SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE` (`Alway
 - **Not ported (routed):** cases 1551 / 1552 (June fills `g_pStatic_ClassSkillDescription` on them); nothing in March or the staged guides sends them. Owner: Stage 9 UI sweep
   (class-change guide skill description), together with the 34 / 124 cash-shop class-change items (`UNIT_CLASS_CHANGE_*` maps `3379fce8` / `fd08` / `fd18`, the offline
   `X2OfflineClassChangeSeed.h` ROWS / PARENT_ROWS for 252801 / 252802; CH0 row "cash route"). `PARENT_ROWS` left as is: the quest route does not read it.
-- **June bug kept:** JUNE_BUGS 607 (the 2ND guide's single buy button always looks up line 1, so a Little Specter is offered Sakra Devanam's item).
+- **Found at play-test (routed to CHNb2):** June's `CheckLevel` (`327141e0`) calls `32713c10` on every guide it opens: event 2 word-wraps the three class descriptions
+  (the 1ST guide's overlapping text), event 4 fills the 2ND guide for my class (name, portrait of my line, buttons rebound to 1541 / 1545 + line - 1, skill / command lists
+  via `32713420`), event 6 a control call. Missing here, so the 2ND guide shows its script placeholders ("Psychic Tracer", "Primary Skill"). The JUNE_BUGS row this note
+  first carried (buy button on line 1) was wrong (event 4 rebinds the buttons) and is withdrawn.
 - **Data:** `kom.py pack data036` + `copy`: PACK OK / COPY OK (md5 `ac431479`, `Enum.lua` + `LevelUpEvent.lua` changed); data034 / data217 in sync (CH0b staged the dialogs).
 - **Units:** `AraGuideMA` (uid 105, class 7, level 14, exp 81600 = 100 below 15) and `AraGuideLS` (uid 106, class 34, level 34, exp 1212400 = 100 below 35).
 - **Hygiene:** `flagcheck --worktree` (7 files): 6 PASS, 1 DEFINE, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL, 0 token, 0 encoding. `junediverge --check` (7 files): RESULT: PASS.
   `enumscan --check`: 0 rows on the changed lines.
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 26,226,688 B, dated 2026-11-11 20:06:50, md5 8b63ccc6152ffdca693c5e549025a5a1` (built at `fae707a6` + the 7 files). No new strings, so no EXESTR line.
-- **Play-test:** hand-off in the conversation; results go here.
+- **Play-test (2026-11-11, user screenshots):** 1ST guide opens with June's art (all 10 textures June-identical, `stage-june --dry-run`) but the descriptions overlap; 2ND guide opens unfilled. Both = `32713c10`, CHNb2.
 
 ## Phase CH2 - Skills: Martial Artist and the first jobs (classes 7, 28, 31, 34)
 

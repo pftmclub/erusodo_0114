@@ -105,7 +105,8 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CHNb | **play-test owed** (2026-11-11): June level-up guides 15 / 35 + their buttons (`_CLASS_CHANGE_GUIDE`), data036 packed + copied, DEPLOY OK; then CHNb review | Opus 5.5 / high, Opus review, user play-test | CHNa review | `X2LVUpEventMgr.*`, `X2CashShop.*`, `X2Unit.h`, `LevelUpEvent.lua`, `Enum.lua` | `CHNb.md`, `CHNb-review.md` |
+| CHNb | **done 2026-11-11** (guides open, buttons wired; play-test found the unfilled 2ND guide -> CHNb2); review after CHNb2 | Opus 5.5 / high, user play-test | CHNa review | `X2LVUpEventMgr.*`, `X2CashShop.*`, `X2Unit.h`, `LevelUpEvent.lua`, `Enum.lua` | `CHNb.md` |
+| CHNb2 | **ready**: June `32713c10` guide fill (1ST descriptions wrap, 2ND guide name / portrait / buttons / skill + command lists via `32713420`); CHNb + CHNb2 review after | Opus 5.5 / high, Opus review, user play-test | CHNb | `X2LVUpEventMgr.*`, `X2StateClassChange.*` | `CHNb2.md`, `CHNb-review.md` |
 | CH2a | **done 2026-11-11** (play-test logs clean, 7 skills cast; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3); no review of its own | Sonnet 5.5 / high, user play-test | CH1 review | `X2GUAra.*` | `CH2a.md` |
 | CH2b | **done 2026-11-11** (play-test logs clean, 5 skills cast; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3): Little Hsien (28) SA-tier skills; no review of its own | Sonnet 5.5 / high, user play-test | CH2a, CH2b0 review | `X2GUAra.*` | `CH2b.md` |
 | CH2b2 | **done 2026-11-11** (play-test logs clean, 4 skills cast; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3): Little Hsien (28) A-tier skills; no review of its own | Sonnet 5.5 / high, user play-test | CH2b | `X2GUAra.*` | `CH2b2.md` |
