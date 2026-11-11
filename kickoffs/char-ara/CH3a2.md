@@ -61,3 +61,11 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
   gets June's case body too, inside March's case under `_SKILL`. June's chain lookup there takes the upgrade-swapped id: CH1n's head declares
   `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
 - `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).
+
+## Amended by CH3a (2026-11-12)
+
+- **Void Break play-test lands here.** CH3a ported `ASI_SA_ASD_VOID_BREAK` (state 249) but cannot reach it: it is the secret skill of the Turbulent Wave chain
+  (`Ara_Martial_Artist` `CHAIN_SYSTEM` chain 1: Rock Crash 27202, Tiger Claw, Low Brandish 27206, Turbulent Wave 27010; trigger = the loop state past 0.45 s). Low Brandish
+  is this phase's, so the hand-off chains all four on unit 98 (118) and reads `[JUNE_CHAR] ARA SKILL state 249` plus `DAMAGE_EFFECT_VOID_BREAK_BUFF` / `EffectSet_ASD_Void_Break`.
+- `_SKILL_DEBUG` is defined (CH3a turned it back on); the CH3d review retires it. Swallow Assault, Turbulent Wave and Void Break are done: do not re-port them.
+- Unit 98 `SakraDevanamT` (118, lv 99): CH3a left bank A slot 0 Turbulent Wave Enhanced 27051, slot 1 Swallow Assault Enhanced 27052, slot 2 Pulling Pierce Enhanced 27030, slot 3 Falling Dragon Enhanced 27031.

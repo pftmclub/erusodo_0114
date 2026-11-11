@@ -105,8 +105,8 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH3a | **ready** (CH2d3 review passed 2026-11-12; turns `_SKILL_DEBUG` back on): Sakra Devanam (118) skills, smallest id < 27012 (incl. Swallow Assault on CH2b0's lock-on) | Sonnet 5.5 / high, user play-test | CH2d3 review | `X2GUAra.*` | `CH3a.md` |
-| CH3a2 | blocked (CH3a): Sakra Devanam (118) remaining skills (CH0 split) | Sonnet 5.5 / high, user play-test | CH3a | `X2GUAra.*` | `CH3a2.md` |
+| CH3a | **play-test owed** (code + build 2026-11-12, `_SKILL_DEBUG` on): unit 98, Turbulent Wave / Swallow Assault Enhanced then bases; Void Break's test moves to CH3a2 | Sonnet 5.5 / high, user play-test | CH2d3 review | `X2GUAra.*` | `CH3a.md` |
+| CH3a2 | blocked (CH3a play-test): Sakra Devanam (118) remaining skills (CH0 split), then the Void Break chain test | Sonnet 5.5 / high, user play-test | CH3a | `X2GUAra.*` | `CH3a2.md` |
 | CH3b | blocked (CH3a2): Yama Raja (119) skills | Sonnet 5.5 / high, user play-test | CH3a2 | `X2GUAra.*` | `CH3b.md` |
 | CH3c | blocked (CH3b): Asura (124) SA-tier skills, Fox Phantom render stand-in (7w) | Sonnet 5.5 / high, user play-test | CH3b, CHNb review | `X2GUAra.*` | `CH3c.md` |
 | CH3c2 | blocked (CH3c): Asura (124) A-tier skills (CH0 split) | Sonnet 5.5 / high, user play-test | CH3c | `X2GUAra.*` | `CH3c2.md` |

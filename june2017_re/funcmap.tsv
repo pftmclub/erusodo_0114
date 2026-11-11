@@ -10162,3 +10162,39 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32bce8c0	CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_CreateState	PORTED	Char Ara CH2d3: new, under _SKILL: table ASI_A_ALS_SHAKE_CHAOS + Init, StateStart, FrameMove, EventProcess; skill slot and 291 in the second switch with the chain lookup
 32bce920	CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_REPEAT_CreateState	PORTED	Char Ara CH2d3: new, under _SKILL: the same table, StateStart = the counting start, FrameMove, EventProcess, no Init; June id 333 ( member ASI_A_ALS_SHAKE_CHAOS_REPEAT, unnamed in June ), both switches
 32bce9c0	CX2GUAra::ASI_A_ALS_MANA_DRAIN_CreateState	PORTED	Char Ara CH2d3: new, under _SKILL: table ASI_A_ALS_MANA_DRAIN + Init, StateStart, FrameMove, EventProcess, StateEnd; skill slot ( normal + hyper ), no second-switch case
+32b91ff0	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Ready_Init	PORTED	Char Ara CH3a: = March ( 9 preloads, same order ): no code
+32b92070	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Ready_StateEnd	PORTED	Char Ara CH3a: = March ( CommonStateEnd ): no code
+32b92080	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_Init	PORTED	Char Ara CH3a: = March ( 23 preloads ): no code
+32b921a0	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_StateStart	PORTED	Char Ara CH3a: = March ( CommonStateStart ): no code
+32b921b0	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_StateEnd	PORTED	Char Ara CH3a: = March ( SetInvisibility( false ), CommonStateEnd ): no code
+32b921d0	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Finish_Init	PORTED	Char Ara CH3a: = March ( 17 preloads ): no code
+32b92620	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_Init	PORTED	Char Ara CH3a: = March ( 13 preloads ): no code
+32b926d0	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_Start	PORTED	Char Ara CH3a: = March ( CommonStateStart, m_usBeforeForceGainCount = m_usForceGainCount ): no code
+32b926f0	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_END_Init	PORTED	Char Ara CH3a: = March ( 3 preloads ): no code
+32b92be0	CX2GUAra::ASI_SA_ASD_VOID_BREAK_Init	PORTED	Char Ara CH3a: = March ( 8 preloads ): no code
+32b9b3c0	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Ready_StateStart	PORTED	Char Ara CH3a: June body under _SKILL in March's function: facing line range 99999, lock-on ranges 1800 ( PvE ) / 900 ( PvP ), safe position, ProcessLockOn, attack count 0 ( +0x9710 ); March in #else
+32b9b440	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Ready_EventProcess	PORTED	Char Ara CH3a: = March ( animation end: lock-on unit -> Attack, else visible + Finish ): no code
+32b9b490	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Finish_FrameMove	PORTED	Char Ara CH3a: June body under _SKILL: at 0.001 s only SetInvisibility( false ), no Finish / Attack effect set; March in #else
+32b9b4e0	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Finish_EventProcess	PORTED	Char Ara CH3a: June body under _SKILL: animation end -> wait on a line else jump down; skill cancel, then the on-line walk and dash cancels ( WALK / DASH_CANCEL_AFTER_ON_LINE_ ); March in #else
+32b9b6f0	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Escape_EventProcess	PORTED	Char Ara CH3a: = March ( end -> jump down / wait; on a line -> wait ): no code
+32b9c0c0	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_EventProcess	PORTED	Char Ara CH3a: = March ( animation end -> the loop state ): no code
+32b9c0f0	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_END_EventProcess	PORTED	Char Ara CH3a: = March ( after 0.974 s off a line -> jump down, animation end -> wait ): no code
+32b9c610	CX2GUAra::ASI_SA_ASD_VOID_BREAK_EventProcess	PORTED	Char Ara CH3a: June body under _SKILL: as March's with the on-line walk and dash cancels, order walk, dash, skill; March in #else
+32bac550	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_LOOP_EventProcess	PORTED	Char Ara CH3a: June body under _SKILL: animation end -> StateChangeOrFPCancel( end state ), then the FP-cancel probe window ( +0x9621 ); March's own force-power restore is in #else
+32bae7a0	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Ready_FrameMove	PORTED	Char Ara CH3a: June body under _SKILL: no UseForcePower and no Ready effect set at 0.001 s; invisibility and alpha fade between 0.818 s and 1.020 s as March; March in #else
+32bb6950	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_FrameMove	PORTED	Char Ara CH3a: = March plus, under _SKILL at 0.198 s: the first attack of a use ( count <= 0, handle unset ) plays Effectset_Swallow_Assault_Attack_First into m_hSwallowAssaultFirstEffectSet ( +0x9718 ); the count ( +0x9710 ) rises on every attack
+32bb7010	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Finish_StateStart	PORTED	Char Ara CH3a: June body under _SKILL: CommonStateStart, then the safe-position test with June's CanDown( pos, LINE_RADIUS, NULL, NULL, &lineIndex, false, false, true, false ) @32bb70ff; March in #else
+32bb8850	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_FrameMove	PORTED	Char Ara CH3a: = March ( UpForcePower( 1 ) is June's inlined gain with the overflow-to-MP rule ) plus, under _SKILL, Open Mind's buff factors set again after the gain ( SetSkillBuffFactors( RNSI_P_AYR_OPEN_MIND, 0, true ) @32bb8953 )
+32bb9040	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_End	PORTED	Char Ara CH3a: = March ( CommonStateEnd, stop the effect set when the animation did not end ): no code
+32bb90a0	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_LOOP_FrameMove	PORTED	Char Ara CH3a: = March ( on a line: Effectset_Turbulent_Wave_Stream at 0.051 / 0.251 / 0.451 s ): no code
+32bb94c0	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_LOOP_End	PORTED	Char Ara CH3a: = March ( CommonStateEnd, stop the effect set ): no code
+32bb9510	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_END_FrameMove	PORTED	Char Ara CH3a: = March ( on a line at 0.001 s: Effectset_Turbulent_Wave_End ): no code
+32bc1f30	CX2GUAra::ASI_SA_ALH_SWALLOW_ASSAULT_Attack_EventProcess	PORTED	Char Ara CH3a: June body under _SKILL: animation end: FP cancel ( not into Reflection ) -> safe-position test with June's CanDown @32bc204c, MoveAraSafePosition, then StateChangeSpecialAttack( chosen skill ); else with force power: ProcessLockOn, UseForcePower( 1 ) + Attack, or visible + Finish; no force power: Finish; then the probe window; March in #else
+32bc9000	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_START_CreateState	PORTED	Char Ara CH3a: = March's CreateState ( Init, Start, FrameMove, End, EventProcess ); the case labels 27010 / 27051 are added
+32bc9070	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_LOOP_CreateState	PORTED	Char Ara CH3a: = March's CreateState ( FrameMove, EventProcess, End )
+32bc90c0	CX2GUAra::ASI_SA_ASD_TURBULENT_WAVE_END_CreateState	PORTED	Char Ara CH3a: = March's CreateState ( Init, FrameMove, EventProcess )
+32bd2ec0	CX2GUAra::ASI_SA_ASD_VOID_BREAK_FrameMove	PORTED	Char Ara CH3a: June body under _SKILL: power rate x SA_DAMAGE_REL of Power of Tiger ( and of Valor Devotion when its buff is on ) scales m_DamageData physic, DAMAGE_EFFECT_VOID_BREAK_BUFF and the effect set; buff factor 2 of Valor Devotion else factor 0 of Power of Tiger; March in #else
+32bd3470	CX2GUAra::ASI_SA_ASD_VOID_BREAK_CreateState	PORTED	Char Ara CH3a: = March's CreateState ( Init, FrameMove, EventProcess ); registered by the second switch under 27010 / 27051 ( state 249 )
+32bd6a20	CX2GUAra::MoveAraSafePosition	PORTED	Char Ara CH3a: June's new StateChangeSwallowAssaultEscape = March's MoveAraSafePosition ( safe position, y + 45 = LINE_RADIUS x 1.5, StateChange( ESCAPE ) ): no new function
+32bd09d0 (CH3a)	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex	PORTED	Char Ara CH3a: RNSI labels 27010 / 27051 ( Turbulent Wave ) and 27011 / 27052 ( Swallow Assault ) added to March's cases; the callbacks are the same
+32bd34c0 (CH3a)	CX2GUAra::InitAquiredActiveSkillState	PORTED	Char Ara CH3a: RNSI labels 27010 / 27051 added to March's Turbulent Wave case ( START, LOOP, END, Void Break ); the three chain lookups take eUpgradeSwappedSkillID; Swallow Assault has no case in June's second switch

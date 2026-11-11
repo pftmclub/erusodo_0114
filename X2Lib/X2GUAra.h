@@ -589,7 +589,7 @@ protected:
 	void			UpdateOpenMindBuffByForcePower();	// char-ara CH1j: June 32ba7cf0
 	void			UpdateValorDevotionTimer();	// char-ara CH1j: June 32ba7da0
 	void			CreateTranscendenceDamageEffectByTimer();	// char-ara CH1j: June 32bc13c0
-	void			StopKillEnemyEffectSet();	// char-ara CH1j: June 32bc5ea0
+	void			StopSwallowAssaultFirstEffectSet();	// char-ara CH1j: June 32bc5ea0 ( renamed in CH3a: the set is Swallow Assault's first-attack one )
 	void			CleanupSkillFPGainTable();	// char-ara CH1j: June 32bc6aa0
 	bool			IsReflectionSkill( const CX2SkillTree::SkillTemplet* pSkillTemplet_ ) const;	// char-ara CH1k: June 32b95590
 	bool			StateChangeLinkFlowerSlash( const int iSkillID_ );	// char-ara CH1k: June 32b95870
@@ -1689,7 +1689,10 @@ protected:
 #else SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
 	float		m_fNowSkillPassiveRate;				/// June CX2GUUser +0x8908: stand-in held by Ara, the base reader 32051bef ( state power rate x it, then 1 ) is CH1q2's
 #endif SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
-	CX2EffectSet::Handle	m_hKillEnemyEffectSet;	/// June +0x9718: the KILL_ENEMY effect set of the berserk kill reward ( CH1q starts it )
+	CX2EffectSet::Handle	m_hSwallowAssaultFirstEffectSet;	/// June +0x9718: Swallow Assault's first-attack effect set ( char-ara CH3a: CH1j took it for the kill reward's ), ends with the next state
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	int			m_iSwallowAssaultAttackCount;		/// June +0x9710: attacks played in this Swallow Assault use, cleared by its Ready state ( char-ara CH3a )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	float		m_fNecromancyFoxCoolTime;			/// June +0x9768: wait before Necromancy's fox effect set plays again
 	float		m_fNecromancyFoxPowerRate;			/// June +0x976c: power rate that effect set plays with ( the Necromancy state sets it )
 	float		m_fValorDevotionTimer;				/// June +0x9868: counts down; Valor Devotion's buff is dropped once force power runs out while it is above 0

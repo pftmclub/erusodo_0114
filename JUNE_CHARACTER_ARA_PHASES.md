@@ -2221,6 +2221,40 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI` (`Always.h` end; `#error` with
 slots A-5 / B-5 work, the transcended picture and cut-in show; `python tools/skillicons.py check <Ara's skill-id range>` = PASS after the
 transcendence rows.
 
+### CH3a - Done (2026-11-12)
+
+Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( CH2a's, no new define ); `_SKILL_DEBUG` is defined again ( `Always.h`, the CH3d review retires it ). Sakra Devanam ( 118 ): Turbulent Wave 27010 / 27051, Swallow Assault 27011 / 27052, and Void Break ( state 249, no skill id ). All 34 class-map rows read from `charport_adis.py ara --phase CH3a` listings ( Ghidra decompile beside them; `32bd34c0` read from its raw listing ). **25 rows are June = March ( no code ), 8 got June bodies under the flag ( March in `#else` ), 1 is the registration, and the "new" `32bd6a20` is March's `MoveAraSafePosition` ( no new function ).** Every block carries `// char-ara CH3a`. `funcmap.tsv` rows `Char Ara CH3a` ( 36 ); `MODS.md` "Stage 7 Ara, CH3a"; no JUNE_BUGS row.
+
+| June | `CX2GUAra::` | June differs from March |
+|---|---|---|
+| `32b9b3c0` | Swallow Assault Ready `StateStart` | lock-on facing range 99999, ranges 1800 / 900 ( March 1200 / 700 ), attack count 0 ( `+0x9710` ) |
+| `32bae7a0` | Ready `FrameMove` | no `UseForcePower( 1 )` and no `Effectset_Swallow_Assault_Ready` at 0.001 s; the 0.818-1.020 s fade is March's |
+| `32bb6950` | Attack `FrameMove` | = March plus the first attack of a use plays `Effectset_Swallow_Assault_Attack_First` into the handle ( `+0x9718` ); the count rises every attack |
+| `32bc1f30` | Attack `EventProcess` | FP cancel ( not into Reflection ): June's `CanDown` ( `@32bc204c` ), `MoveAraSafePosition` off a normal line, then `StateChangeSpecialAttack`; else `ProcessLockOn` / Attack / Finish as March; probe window ( `+0x9621` ) |
+| `32bb7010` | Finish `StateStart` | the same safe-position test with June's `CanDown` ( `@32bb70ff` ) |
+| `32b9b490` `32b9b4e0` | Finish `FrameMove` / `EventProcess` | `FrameMove`: only `SetInvisibility( false )`, no Finish / Attack effect set; `EventProcess`: skill cancel, then the on-line walk and dash cancels |
+| `32bb8850` | Turbulent Wave start `FrameMove` | = March ( `UpForcePower( 1 )` is June's inlined gain ) plus Open Mind's buff factors set again after it ( `@32bb8953` ) |
+| `32bac550` | Turbulent Wave loop `EventProcess` | end through `StateChangeOrFPCancel` and the probe window ( March restored the force power itself ) |
+| `32bd2ec0` `32b9c610` | Void Break `FrameMove` / `EventProcess` | `FrameMove`: rate x `SA_DAMAGE_REL` of Power of Tiger ( and Valor Devotion's buff ) scales `m_DamageData` physic, the buff damage effect and the effect set; buff factor 2 of Valor Devotion else factor 0 of Power of Tiger. `EventProcess`: on-line walk and dash cancels |
+| = March | 25 functions | the 6 `Init` preload lists ( every call and string compared one by one: same calls, same order ), Ready / Attack `StateEnd` / `StateStart`, Ready `EventProcess`, Escape, the Turbulent Wave `Start` / `End` / loop `FrameMove` / `End` / end `FrameMove` / `EventProcess` ( start, end ) |
+
+**Registration.** First switch ( `32bd09d0` ): RNSI labels added to March's Turbulent Wave ( 27010 / 27051 ) and Swallow Assault ( 27011 / 27052 ) cases; the callbacks are the same as March's `CreateState`. Second switch ( `32bd34c0` ): labels on March's Turbulent Wave case ( START 240, LOOP 241, END 242, Void Break 249 ); the three chain lookups take `eUpgradeSwappedSkillID` ( June: START / LOOP / END have one, Void Break none ); Swallow Assault has no case in June's second switch. `X2SkillTree.h`: `RNSI_SA_ASD_TURBULENT_WAVE_UPGRADE` 27051, `RNSI_SA_ASD_SWALLOW_ASSAULT_UPGRADE` 27052 ( probe-checked against 27051 / 27052, `SA_DAMAGE_REL` = 15 and the passive ids 27403 / 27416 / 27417 / 27213 ). The readers of the base ids ( `SetEquippedSkillLevel`, the passive-rate groups ) were June's since CH1i / CH1j and read the upgrade through its base.
+**Amended by CH1q done here.** `m_hKillEnemyEffectSet` / `StopKillEnemyEffectSet` are renamed `m_hSwallowAssaultFirstEffectSet` / `StopSwallowAssaultFirstEffectSet` ( both `.h` / `.cpp` sites, 6 lines ); the new `m_iSwallowAssaultAttackCount` ( `+0x9710` ) is under `_SKILL`. June's `32bd6a20` ( `StateChangeSwallowAssaultEscape` ) is March's `MoveAraSafePosition`: it is called by name.
+**Checklist** `(Ara: CH3a ...)`: §1 l.55 / §2 l.116 / l.117 ( the Turbulent Wave tables, the Swallow Assault / Void Break effects run through the engine ), l.121 ( `BUFF_FACTOR_ID_ULTIMATE`: re-checked, **live**: `SERV_IRUHADEV_JUNE_SKILL_TEMPLET` makes `IsUpgradedSkillLearned( 27010 )` swap to 27051, so the three lists are read for an Enhanced Turbulent Wave; no code ), §4 l.178 ( 2 names ), §7ae l.728 / l.732 ( 4 ids ), §7ac l.775-777 ( both `CanDown` calls ). Not in this phase: the FP rows for Suppression, Low Brandish and Falling Blossom in `ch0_fp.tsv` ( `proposed CH3a` is the generic "state phase" label; their states are CH2b / CH3a2's ).
+**Used-force-power count.** June's Attack `EventProcess` does `UseForcePower( 1 )` and `++ +0x9614`; March's `UseForcePower` already adds `iCount_` to the count ( CH1q ), so the increment is not written twice.
+**Found, not ported.** Void Break ( state 249 ) is the secret skill of the Turbulent Wave chain ( Rock Crash, Tiger Claw, Low Brandish, Turbulent Wave; the loop state past 0.45 s ): Low Brandish is CH3a2's, so its play-test goes to CH3a2 ( kickoff amended ). Swallow Assault's Finish plays no effect set from C++ in June ( the state script may ): watch the log line list below.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ARA_SKILL --with ..._SKILL_DEBUG --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2SkillTree.h KTDXLIB/Always.h`: `0 PASS, 1 DEFINE ( Always.h ), 3 OTHER ( X2GUAra.cpp / .h: CH1j / CH1q2's `_CORE` / `_LIVE` lines the rename touches; X2SkillTree.h = JUNE_ENUM_NAMES ), 0 FAIL, 0 ERROR`; `1 deleted line ( the //#define turned into #define ) in this flag's files, 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`. The other 7 deleted lines are the rename ( `git diff -U0`: ctor x2, one call, the function head / its test / its stop, the `.h` declaration and member ).
+- `junediverge.py --check` ( the 4 files ): `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: `0 A/B row(s) remain ( C 0, D 1, X 0 ignored )`. `skillicons.py check 27010-27011` and `27051-27052`: `misses 0`, PASS. `luabind.py check Ara_Martial_Artist`: `0 unbound`, ENUM `0 missing`, STATE `37 compared, 0 wrong`, `RESULT: PASS`.
+- `/Zs` probe of `X2GUAra.cpp` ( `census.cl_cmd`, no PCH ): 0 errors; the enum probe file: 0 errors.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,286,080 B, 2026-11-12 05:48:17`; `DEPLOY OK: X2_offline.exe is 26,286,080 B, dated 2026-11-12 05:48:24, md5 53283239777b9fd8d56d9ae651adb588, equal to X2/US_SERVICE/x2.exe (2026-11-12 05:48:17); built at main 5e8c42e1 + 4 uncommitted code file(s).`
+- `EXESTR OK: 2 of 2 found in X2_offline.exe, 26286080 B, md5 53283239` ( wide `Effectset_Swallow_Assault_Attack_First`, `ARA SKILL state %d skill` ).
+
+**Save.** Unit 98 `SakraDevanamT` ( class 118, lv 99, not transcended; backup `db_backup/els_db_20261112_053735_pre_sql.sql` ): bank A slot 0 Turbulent Wave Enhanced 27051, slot 1 Swallow Assault Enhanced 27052, slot 2 Pulling Pierce Enhanced 27030, slot 3 Falling Dragon Enhanced 27031; the bases 27010 / 27011 are level 0 ( set 2 below ).
+
+**Play-test hand-off.** In the chat of 2026-11-12 ( unit 98; set 2 on "swap" ). Lines to read: `[JUNE_CHAR] ARA SKILL equip` ( 27051, 27052 ), `ARA SKILL state` ( Turbulent Wave 240 / 241 / 242, Swallow Assault 243 ... 246; no `BLANK` ), `Effectset_Swallow_Assault_Attack_First`, `Effectset_Turbulent_Wave_Stream`, `[JUNE_SKILL] NUM use`, 0 `EXCEPTION`.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, one Opus review at CH4b (covers CH4a-CH4b), user play-test (two engine pieces, planned as two from the start; CH0

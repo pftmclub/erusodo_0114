@@ -1900,6 +1900,8 @@ public:
 		RNSI_SA_ALH_LINK_FLOWER_UPGRADE                       = 27038,	// char-ara CH2b: June's Enum.lua; the enhanced Fire Lotus
 		RNSI_SA_ALH_MOONLIGHT_SLASH_UPGRADE                   = 27049,	// char-ara CH2b: June's Enum.lua; the enhanced Moonlight Slash
 		RNSI_SA_ALH_SUPPRESSION_UPGRADE                       = 27050,	// char-ara CH2b: June's Enum.lua; the enhanced Suppression
+		RNSI_SA_ASD_TURBULENT_WAVE_UPGRADE                    = 27051,	// char-ara CH3a: June's Enum.lua; the enhanced Turbulent Wave
+		RNSI_SA_ASD_SWALLOW_ASSAULT_UPGRADE                   = 27052,	// char-ara CH3a: June's Enum.lua; the enhanced Swallow Assault
 		RNSI_A_ALH_TIGER_CLAW_UPGRADE                         = 27229,	// char-ara CH2b2: June's Enum.lua; the enhanced Tiger Claw
 		RNSI_A_ALH_DRAGON_FALLING_UPGRADE                     = 27230,	// char-ara CH2b2: June's Enum.lua; the enhanced Fall
 		RNSI_A_ALH_QUICK_STAB_UPGRADE                         = 27231,	// char-ara CH2b2: June's Enum.lua; the enhanced Quick Thrust
