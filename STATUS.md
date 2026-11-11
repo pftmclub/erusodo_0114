@@ -108,7 +108,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | CH5 | **ready**: 5 `UnitTemplet` rows + 34 / 124 rows, cut-in table, orb handles | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, `X2GUAra.cpp` cut-ins, `X2UnitViewerUI.*` | `CH5.md` |
 | CHNa | blocked (CH5 review): 34 / 124 load and play (`UC_END`, gauge, switches, stat rows, units) | Opus 5.5 / high, Opus review, user play-test | CH5 review | `X2Unit.h`, `X2SocketItem.cpp`, `X2GageManager.cpp`, `X2GUUser.cpp`, emulator, `StatTable.lua` (user packs) | `CHNa.md` |
 | CHNb | blocked (CHNa review): job change to 34 / 124 (quests 35560-35568, seeds, dialogs) | Opus 5.5 / high, Opus review, user play-test | CHNa review | `FieldQuest.lua`, `Handlers_Quest.cpp`, `X2OfflineClassChangeSeed.h` | `CHNb.md` |
-| CH2a | **built 2026-11-11, play-test owed** (unit 96 `MartialArtistT`, 7 skills; `_SKILL` + `_SKILL_DEBUG` on); no review of its own (CH2d3 covers it) | Sonnet 5.5 / high, user play-test | CH1 review | `X2GUAra.*` | `CH2a.md` |
+| CH2a | **done 2026-11-11** (play-test logs clean, 7 skills cast; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3); no review of its own | Sonnet 5.5 / high, user play-test | CH1 review | `X2GUAra.*` | `CH2a.md` |
 | CH2b0 | **ready**: lock-on `ProcessLockOn` `3200fa20`, flag `_LOCKON`; amends char-luciel CH3c20 | Opus 5.5 / high, Opus review | CH1 review | `X2GUAra.*`, `kickoffs/char-luciel/CH3c20.md` | `CH2b0.md` |
 | CH2b | blocked (CH2a, CH2b0 review): Little Hsien (28) SA-tier skills | Sonnet 5.5 / high, user play-test | CH2a, CH2b0 review | `X2GUAra.*` | `CH2b.md` |
 | CH2b2 | blocked (CH2b): Little Hsien (28) A-tier skills (CH0 split) | Sonnet 5.5 / high, user play-test | CH2b | `X2GUAra.*` | `CH2b2.md` |

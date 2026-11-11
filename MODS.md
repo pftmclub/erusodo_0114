@@ -6403,7 +6403,7 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (`Always.h`, defined now; its `#error` 
 | Wind Wedge (27003 / 27032) | the `WIND_WEDGE` damage effect tables | 3.80 (1st), 4.69 (final) |
 | Shadow Knot (27004 / 27033) | `SHADOW_KNOT_WEAPON` / `Shadow_knot_Final` | 4.79 (weapon), 10.31 (final) |
 | Gain Force (27200 / 27220) | `GAIN_FORCE` damage effect | 7.21 (the intake effect carries the MP drain rate) |
-| Shoulder Blow (27201 / 27221) | the `Effectset_A_ARA_SHOULDER_BLOW` tables | the state script's effect set (memo impact 7.56 / 6.67 never plays: June's memo stub) |
+| Shoulder Blow (27201 / 27221) | the `Effectset_A_ARA_SHOULDER_BLOW` tables | the state script's effect sets (the memo effect set and its impact 7.56 / 6.67 played in the play-test: the script, not C++, gates them) |
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (every Ara skill falls back to the Wind Wedge default), `python tools/build.py --deploy`.
 
