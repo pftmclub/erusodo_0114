@@ -1360,6 +1360,8 @@ RESULT FAIL only for the commented-out `//#define`s. `junediverge.py --check <6 
 X2GUUser.cpp`: 0 A/B rows. Probes (`/c /Zs /EHsc`, `X2GUAra.cpp` and `X2GUUser.cpp`): off, the two user flags, `_LIVE` + `CHAIN_ANIM_SPEED`, `_LIVE` + `_FP` +
 `_SPECTER` + both user flags: 0 errors (8 runs); `_LIVE` alone and `_SPECTER` without `SPECTER_STATE`: the new guards fire (C1189), as meant. Full build
 skipped: no play-test.
+Range (`41127c94^..41127c94`, same `--with` set and 6 files): `SPECTER_STATE` primary 2 PASS, 3 OTHER, 0 FAIL, 1 ERROR (`Always.h`, as above); `CHAIN_ANIM_SPEED`
+primary 4 PASS, 1 OTHER, 0 FAIL, 1 ERROR; 0 deleted, 0 non-ASCII, 0 EOL; RESULT FAIL only for the commented-out `//#define`s.
 
 **Routed.** CH1 (amended): define both user flags with `_LIVE` / `_SPECTER`; tail check in the play-test. CHNa (amended): the Specter checks on 34 / 124.
 
