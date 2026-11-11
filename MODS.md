@@ -6371,3 +6371,13 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE` (defined: `IsBuffHyperModeActive`, `Mar
 **Correction to CH1g.** `m_fBuffHyperModeDamageRate` starts at -1.0 (June's constructor), not 0; both mean "buff hyper rate off".
 
 **Revert.** Leave `_LIVE` commented out; to drop the new functions and members undefine `SERV_IRUHADEV_JUNE_CHAR_ARA_CORE` (after `_LIVE`).
+
+## Stage 7 Ara, CH1q: force power and berserk under `_FP` (inert, 2026-11-11)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_FP` (still commented out; CH1 final turns it on with `_LIVE`) and `SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG` (defined, `[JUNE_CHAR] ARA FP` lines, retired by the CH1q review). June's bodies of `IsFullHyperMode`, `SetFullHyperMode`, `ApplyHyperModeBuff`, `HyperModeBuffEffectStart` / `End`, `UseForcePower` (with `ConsumeForcePower` merged in), `SetForcePower`, `DoProcessWhenKillEnemy`, `ResetForcePowerWhenRebirthInPVPGame`, `UpNowForcePowerHitOthers`, `GetAvailableFPCancel`; new `UpForcePowerByHyperModeBuffCount`, `ChangeMaxCharacterAddResource`, `UpForcePowerByReadySkillGain`, `UpForcePowerBySkillHit`, `StateChangeOrFPCancel`, `GainFullHyperKillReward`, `ProcessFullHyperHitReward`, `StoreGageSnapshot` / `RestoreGageSnapshot`, `IsHyperModeState`; the gauge's `CX2AraGageData::UpdateDataFromGameUnit` / `SetMyPlayStatusFromPacket` and `CX2AraMyGageUI::UpdateCharacterImage` / `GetBerserkModeMyStateImage` (`X2GageData.cpp`, `X2GageUI.cpp` / `.h`). Enum names `RNSI_P_ALS_FILLED_POWER` 27410 and `RNSI_P_ASR_OPEN_MIND` 27419 (`X2SkillTree.h`, `JUNE_ENUM_NAMES`).
+
+**Data.** June's `DLG_UI_Common_Texture77_NEW.tga` / `.TET` replace March's (data057); June's `Texture82_NEW` (data057) and `Texture102_NEW` (data215) are new: the berserk portraits of classes 34 / 124 and of transcended 118 / 119 / 124 (`kom.py stage-june`, backup `kom_backup_stage_june\20261111_104850`; packed and copied).
+
+**Damage numbers.** None changed (`_FP` is off). Once on: spent force power gives MP (spent x 20 x specialization B), berserk hits roll a kill reward (HP 3 percent, force power 1) every FULL_HYPER_MODE_ADVANTAGE_COUNT hits or by the socket rate, hyper counts used give 3 / 6 / 10 force power, and the two Open Mind passives read each spend.
+
+**Revert.** Leave `_FP` commented out (it needs `_LIVE`); comment out `_FP_DEBUG` to drop the log lines. The textures stay (byte-exact June files; restore from the backup folder if needed).

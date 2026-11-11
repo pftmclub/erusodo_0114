@@ -970,7 +970,9 @@ bool CX2AraGageData::IsEmptyForcePower() const
 		SetMaxForcePower( pAraGageData->GetMaxForcePower() );
 	
 		SetBerserkMode( pAraGageData->GetBerserkMode() );
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARA_FP	// char-ara CH1q: June 32a34980 leaves the changed byte to the gauge UI ( its last shown berserk byte )
 		SetBerserkModeChanged( pAraGageData->GetBerserkModeChanged() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 		SetForcePowerChanged( pAraGageData->GetForcePowerChanged() );
 #ifdef GAGEDATA_NULLCHECK
 	}
@@ -1006,14 +1008,25 @@ bool CX2AraGageData::IsEmptyForcePower() const
 /** @function 	: SetMyPlayStatusFromPacket
 	@brief 		: 패킷에 나의 플레이 상태 설정
 */
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+namespace _CONST_ARA_GAGE_DATA_CH1Q_
+{
+	const int ARA_MAX_FORCE_POWER = 10;	// char-ara CH1q: June 32a34a10 push 0xa ( no Enum entry )
+}
+using namespace _CONST_ARA_GAGE_DATA_CH1Q_;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 /*virtual*/ void CX2AraGageData::SetMyPlayStatusFromPacket( IN const KGamePlayStatus& kGamePlayStatus )
 {
 	CX2GageData::SetMyPlayStatusFromPacket( kGamePlayStatus );
 
 	const int iForcePower = kGamePlayStatus.GetForcePower();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	SetMaxForcePower( ARA_MAX_FORCE_POWER );	// char-ara CH1q: June 32a34a10 pushes 10, not the level formula
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	const int iLevel = g_pData->GetMyUser()->GetSelectUnit()->GetPrevLevel();
 	
 	SetMaxForcePower( min( iLevel / 10, 6 ) + 4 );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	SetNowForcePower( iForcePower );
 	SetForcePowerChanged( true );
 }

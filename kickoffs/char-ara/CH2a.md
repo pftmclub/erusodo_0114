@@ -61,3 +61,7 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
   gets June's case body too, inside March's case under `_SKILL`. June's chain lookup there takes the upgrade-swapped id: CH1n's head declares
   `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
 - `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).
+
+## Amended by CH1q (2026-11-11)
+
+- `StateChangeOrFPCancel( iNextStateID_ )` is June's `32babba0` (written under `_FP`): call it where June's EventProcess calls `32babba0` after the animation-end test; a negative state id means "no state change" (read each caller's push). It does the FP-cancel gain (`MarkNowSkillFPGainReady`, `UpForcePowerByReadySkillGain`) and `StateChangeSpecialAttack` itself: do not inline March's `GetAvailableFPCancel` block beside it.

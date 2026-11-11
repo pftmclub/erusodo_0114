@@ -60,3 +60,7 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
   gets June's case body too, inside March's case under `_SKILL`. June's chain lookup there takes the upgrade-swapped id: CH1n's head declares
   `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
 - `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).
+
+## Amended by CH1q (2026-11-11)
+
+- `m_hKillEnemyEffectSet` (`+0x9718`, CH1j) is misnamed: June's berserk kill reward `32bc5bc0` keeps no handle; the only writer is @`32bb6f8c` in `ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK` FrameMove `32bb6950` (reader @`32bb6eb2`), and `StopKillEnemyEffectSet` `32bc5ea0` skips the stop while that state runs. Rename the member and its stop for what Swallow Assault plays (bytepatch, both `.h` / `.cpp` sites) and write it in that FrameMove.

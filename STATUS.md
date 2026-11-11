@@ -105,7 +105,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH1q | **ready**: force power + berserk rework, flag `_FP` | Opus 5.5 / high, Opus review | CH1p review | `X2GUAra.*`, `X2GUUser.*`, `X2Gage*.*`, emulator | `CH1q.md` |
+| CH1q | **review ready**: done 2026-11-11, force power + berserk under `_FP` (off), gauge pieces, 3 textures packed + copied; no play-test, full build skipped | Opus 5.5 / high, Opus review | CH1p review | `X2GUAra.*`, `X2GUUser.*`, `X2Gage*.*`, emulator | `CH1q.md`, `CH1q-review.md` |
 | CH1q2 | blocked (CH1q review): Specter states + tails, flag `_SPECTER` | Opus 5.5 / high, Opus review | CH1q review | `X2GUAra.*`, `X2GUUser.*` | `CH1q2.md` |
 | CH1 | blocked (CH1q2 review, CH0b): `_LIVE` on, June script, play-test on 7 / 28 / 31 / 118 / 119 | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036, motion koms | `CH1.md` |
 | CH5 | blocked (CH1 review): 5 `UnitTemplet` rows + 34 / 124 rows, cut-in table, orb handles | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, `X2GUAra.cpp` cut-ins, `X2UnitViewerUI.*` | `CH5.md` |

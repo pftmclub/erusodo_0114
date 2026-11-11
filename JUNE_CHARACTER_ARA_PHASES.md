@@ -1233,6 +1233,61 @@ X2GUAra.cpp X2GUUser.cpp`: `0 A/B row(s)`. Probes (`census.cl_cmd`, `/c /Zs /EHs
 
 **Nothing to play-test.** CH1q kickoff checked. Next: `/x2-phase char-ara CH1q` (Opus 5.5 high).
 
+### CH1q - Done (2026-11-11)
+
+**Landed** (flag `SERV_IRUHADEV_JUNE_CHAR_ARA_FP`, still `//#define`: it needs `_LIVE`; `SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG` defined for the `[JUNE_CHAR] ARA FP`
+lines; every block tagged `char-ara CH1q`; 31 funcmap rows `Char Ara CH1q`; per-row verdicts `june2017_re/char_ara/ch1q_fp_outcome.tsv`). Files: `X2GUAra.cpp` / `.h`,
+`X2GageData.cpp`, `X2GageUI.cpp` / `.h`, `X2SkillTree.h`, `KTDXLIB/Always.h` (CH1q block: `_FP_DEBUG` and the `_FP` guard). No split: CH1q3 not needed.
+- **June bodies inside March's functions (March in `#else`):** `IsFullHyperMode` `32ba6cc0` (buff hyper mode active -> buff hyper count > 0, else the gage
+  byte), `SetFullHyperMode` `32b96a00` (+ hit count 0), `ApplyHyperModeBuff` `32bab210`, `HyperModeBuffEffectStart` / `End` `32bb22d0` / `32bb2740` (tail
+  equips `+0x95e8` with the promotion list; view list again while the buff rate is on and count < 3; a transcended unit or an awakening set skips only the
+  boosts; the end clears the buff hyper count and calls the base last), `UseForcePower` `32bb2b40` (n - 1 for an FP cancel into 27201 / 27205 / 27211 / 27217 /
+  27221; berserk MP per force power; 27417 Hell Ghost count + buff erase; 27419 heal in hyper time and its keep-the-force-power roll; `ConsumeForcePower`
+  merged in), `SetForcePower` `32ba6ef0` (my unit: spent x 20.0 x `GetCharacterSpecializationB()` -> `UpNowMpWithText`), `DoProcessWhenKillEnemy` `32bc8be0`,
+  `ResetForcePowerWhenRebirthInPVPGame` `32ba6f80` (`+0x9611`), `UpNowForcePowerHitOthers` `32baad30`, `GetAvailableFPCancel` `32b95c30` (June ids, .cpp body).
+- **New under `_FP`:** `UpForcePowerByHyperModeBuffCount` `32baae50` (list `[ last - now hyper count - 1 ]`, over-max x max MP x `+0x9730`),
+  `ChangeMaxCharacterAddResource` `32baafc0`, `UpForcePowerByReadySkillGain` `32bab5c0`, `UpForcePowerBySkillHit` `32bab780`, `StateChangeOrFPCancel` `32babba0`
+  (no caller yet: the CH2-CH3 skill states), `GainFullHyperKillReward` `32bc5bc0` (max HP x 0.03 + now, force power + 1, the kill effect set),
+  `ProcessFullHyperHitReward` `32bc9a60`, `StoreGageSnapshot` / `RestoreGageSnapshot` `32ba4840` / `32ba7b50` (stand-ins: bases not ported, unreferenced, as
+  Rena / Chung), `IsHyperModeState` `32bd85f0` (also picks the berserk sound set, checklist l.613). Members `m_fMpGainPerForcePowerInFullHyperMode` (`+0x973c`),
+  `m_iFPCancelChainCount` (`+0x9838`), `m_iSnapshotForcePower` (`+0x92bc`), ctor 0. Namespace `_CONST_ARA_CH1Q_` (20.0, 0.03).
+- **Dropped under `_FP` (June has none):** `CForcePowerSystem m_ForcePowerSystem` and its reset in `CommonStateStart` (CH1j had kept it), `m_ucBasicForcePower` with
+  `Get` / `SetBasicForcePower`, `ConsumeForcePower`.
+- **= March:** `UpForcePower` (June inlines it 7 times with the same `+0x9644` conversion; the Open Mind 27417 refresh after it is each caller's, as CH1h2 / CH1j
+  wrote), `GetHypetMpdeStateID` `32ba46c0` (0x17 / 0x9b = 155), `CreateGageData` `32bc19a0`, `SetFPCancel` `32b95c70`, `CX2AraMyGageUI::InitWakeOrb`
+  `32e5b550` (6 / 4 / 3 / 2 = `PGUWO_ORB_EVE` / `_RAVEN` / `_CHUNG` / `ORB3`), the "same" gauge rows; emulator `CAC_FORCE_POWER` (`X2OfflineStatTable.cpp:306`) = June.
+  CH1h's Init / ReInit / InitComponent `_FP` lines and `SetSpecificValueByBuffTempletID` hyper cases checked: they stand.
+- **Gauge:** `CX2AraGageData::UpdateDataFromGameUnit` `32a34980` no longer copies the changed byte `+0x111`; `SetMyPlayStatusFromPacket` `32a34a10` sets max 10;
+  `CX2AraMyGageUI::UpdateCharacterImage` `32e69060` refreshes only when `+0x111 != +0x110`, then stores `+0x110` into `+0x111`; `GetBerserkModeMyStateImage`
+  `32e61a60` takes my unit's transcend value (== 1: `TR_*_1_STATE` on `DLG_UI_Common_Texture102_NEW` for 118 / 119 / 124) and adds 34 / 124.
+  **The kickoff's portrait check: no June bug.** The UI reads the manager's gage copy, whose `+0x111` only the UI writes (the copy never takes it), so it holds
+  the last shown berserk byte; `SetFullHyperMode` writing both bytes on the unit's own gage does not matter.
+- **Enum names** (`X2SkillTree.h`, `JUNE_ENUM_NAMES`): `RNSI_P_ALS_FILLED_POWER` 27410, `RNSI_P_ASR_OPEN_MIND` 27419. SA 59 / 113 / 177-179 are March's
+  `SA_HP_GAIN_REL_MAX_HP`, `HP_CONSUME_REL`, `SA_HIT_COUNT_1-3` (`s0a_templet_keys.tsv`).
+- **Data (asset rule):** `kom.py stage-june`: June's `DLG_UI_Common_Texture77_NEW.tga` / `.TET` replace March's (data057), `Texture82_NEW` (data057) and
+  `Texture102_NEW` (data215) new; backup `kom_backup_stage_june\20261111_104850`. `PACK OK data057`, `PACK OK data215`; `COPY OK data057` (70,521,896 B, 936
+  entries, md5 237bf2b54fafd6536f2715c56637190c), `COPY OK data215` (21,506,102 B, 174 entries, md5 06d0000fa45d6b50b11d11b0b39dd474). `MODS.md` entry.
+- **Found:** DamageData `+0x5aa` (the hit roll skips a hit with it set) is zeroed by June's DamageData init (@`31f8f340`) and copied, never set: not ported,
+  one-line comment. `+0x9718` is Swallow Assault's handle, not the kill reward's (CH3a amended). `+0x973c` / `+0x9744` are written only by
+  `InitPassiveSkillState` (CH4a amended). Checklist l.961: Ara's hyper-effect start does not return for a transcended unit (only the boosts are skipped).
+- **Divergence rows:** `IsFullHyperMode` / `SetFullHyperMode` (Ara arm noted ported), new `GetAvailableFPCancel` and `CX2AraMyGageUI::GetBerserkModeMyStateImage`
+  (both replaced here). `JUNE_BUGS.md` row 602 (the unsigned socket-rate index). Checklist rows l.184, 236, 237, 257, 258, 278, 293, 603, 613, 945, 961, 980
+  marked `(Ara: CH1q)`.
+
+**Hygiene.** `flagcheck _FP --worktree --files <6 code files>`: 4 PASS, 2 OTHER (`Always.h`: this phase's block plus a peer's uncommitted
+`OFFLINE_JOB_CHANGE_SKILL_PUSH` block; `X2GUAra.cpp`: the `_FP_DEBUG` lines nested in `_FP`), 0 FAIL; 0 deleted, 0 non-ASCII inserted, 0 EOL mismatches; RESULT
+FAIL only for the commented-out `//#define`. `flagcheck _FP_DEBUG` (same files): `RESULT: PASS`. `flagcheck JUNE_ENUM_NAMES --files X2SkillTree.h`: `RESULT: PASS`.
+`junediverge.py --check` (6 files): allow-listed 5, `RESULT: PASS`. `enumscan.py --check X2GUAra.cpp X2GageUI.cpp X2GageData.cpp`: 0 A/B rows.
+Probes (`/c /Zs /EHsc`): off: `X2GUAra.cpp`, `X2GageData.cpp`, `X2GageUI.cpp` 0 errors; `_LIVE`: `X2GUAra.cpp` 0; `_LIVE` + `_FP`: `X2GUAra.cpp`, `X2GageData.cpp`,
+`X2GageUI.cpp`, `X2GUUser.cpp`, `X2BuffBehaviorTemplet.cpp` 0 errors (the new `Always.h` guard did not fire: its four flags are defined); `_FP` alone: C1189 at
+`Always.h(12218)`. `cl /P` with `_LIVE` + `_FP`: the new bodies present, `m_ForcePowerSystem` / `GetBasicForcePower` / `ConsumeForcePower` 0 in `X2GUAra.i`,
+`TR_ASURA_1_STATE` 1 in `X2GageUI.i`. Full build skipped: no play-test.
+
+**Routed.** CH2a (callers of `StateChangeOrFPCancel`), CH3a (`+0x9718` rename and writer), CH4a (the `+0x973c` / `+0x9744` writers, the `+0x9838` reader),
+CH1 (amended: what `_FP` shows in the play-test), CHNa (gauge creation for 34 / 124, unchanged). Debug define stays until the CH1q review.
+
+**Nothing to play-test.** Next: `/x2-phase char-ara CH1q review` (Opus 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

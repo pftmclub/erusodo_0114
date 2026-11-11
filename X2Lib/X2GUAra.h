@@ -573,6 +573,13 @@ protected:
 	void			ProcessFullHyperHitReward( CX2DamageManager::DamageData& pDamageData_ );	// char-ara CH1h2: June 32bc9a60, body in CH1q
 	void			UpForcePowerBySkillHit( CX2DamageManager::DamageData& pDamageData_ );	// char-ara CH1h2: June 32bab780, body in CH1q
 	void			UpForcePowerByReadySkillGain();	// char-ara CH1j: June 32bab5c0, body in CH1q
+	void			UpForcePowerByHyperModeBuffCount();	// char-ara CH1q: June 32baae50 ( ApplyHyperModeBuff's tail )
+	void			StateChangeOrFPCancel( const int iNextStateID_ );	// char-ara CH1q: June 32babba0 ( the skill states call it at animation end )
+	void			GainFullHyperKillReward();	// char-ara CH1q: June 32bc5bc0
+	void			StoreGageSnapshot();	// char-ara CH1q: June 32ba4840 ( user vslot 0x740, base 32009780 Crest of Time snapshot not ported )
+	void			RestoreGageSnapshot();	// char-ara CH1q: June 32ba7b50 ( user vslot 0x744, base 3204da60 Crest of Time restore not ported )
+	virtual void	ChangeMaxCharacterAddResource( const float fRate_ );	// char-ara CH1q: June 32baafc0 ( unit vslot 0x324 )
+	virtual bool	IsHyperModeState() const;	// char-ara CH1q: June 32bd85f0 ( user vslot 0x51c )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2
@@ -605,13 +612,17 @@ protected:
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
 	
 	void	UseForcePower( int iCount_ );
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARA_FP	// char-ara CH1q: June merges it into UseForcePower 32bb2b40
 	void	ConsumeForcePower( int iCount_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 
 	void	SetForcePower( int iForcePower_ );
 	void	SetMaxForcePower( int iMaxForcePower_ )  { GetAraGageData()->SetMaxForcePower( iMaxForcePower_ ); };
 
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARA_FP	// char-ara CH1q: June has no basic force power, INIT_COMPONENT's start counts replace it
 	UCHAR	GetBasicForcePower() const { return m_ucBasicForcePower; }
 	void	SetBasicForcePower( UCHAR ucBasicForcePower_ ) { m_ucBasicForcePower = ucBasicForcePower_; }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 
 	void	ResetForcePowerWhenRebirthInPVPGame( int iNumOfMyTeamKill_, int iNumOfEnmyTeamKill_ );
 
@@ -791,10 +802,14 @@ public:
 
 #ifdef BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 	// FP Cancel 이 가능한지 여부, 종전 boolean 값 쓰던 부분에 Skill ID 체크하는 부분을 추가함
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	bool GetAvailableFPCancel( const CX2SkillTree::SKILL_ID eSkillID_ ) const;	// char-ara CH1q: June 32b95c30
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	bool GetAvailableFPCancel ( CX2SkillTree::SKILL_ID m_eSkillID ) const 
 	{
 		return ( true == m_bFPCancel && CX2SkillTree::SI_NONE != m_eSkillID && CX2SkillTree::SI_A_ALD_REFLECTION != m_eSkillID );	
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 #endif // BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
 
 protected:
@@ -1531,10 +1546,18 @@ protected:
 	USHORT		m_usSkillFPConsumption;				/// June +0x9626: the force power the skill being checked needs, stored by the lookup
 	int			m_iFPCancelSkillID;					/// June +0x970c: the skill being used while m_bFPCancel is set, else 0 ( UseForcePower reads it, CH1q )
 	int			m_iUsedSkillID;						/// June +0x971c: the skill the last use started
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	// char-ara CH1q: members of the force-power functions ( June offsets in june2017_re/char_ara/ch1_offsets.tsv )
+	float		m_fMpGainPerForcePowerInFullHyperMode;	/// June +0x973c: MP per force power spent in berserk ( InitPassiveSkillState writes it, CH4a )
+	int			m_iFPCancelChainCount;				/// June +0x9838: skills reached by an FP cancel ( the 0x780 hook reads it, CH4a )
+	int			m_iSnapshotForcePower;				/// June +0x92bc ( CX2GUUser snapshot region, ctor 0 ): the force power StoreGageSnapshot keeps
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARA_FP	// char-ara CH1q: June keeps neither the basic force power nor the used-force-power counter
 	UCHAR		m_ucBasicForcePower;		/// 기본 기력치
 	CForcePowerSystem	m_ForcePowerSystem;	/// 기력 시스템
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	D3DXVECTOR2	m_vFPCancel;				/// 기력 취소 시간
 	bool		m_bFPCancel;				/// 기력으로 취소
 	USHORT		m_usForceGainCount;			/// 스킬 캔슬을 통한 기력 획득량

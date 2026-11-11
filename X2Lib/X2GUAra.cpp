@@ -1,5 +1,8 @@
 #include "StdAfx.h"
 #include "X2GUAra.h"
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG
+#include "Offline/X2OfflineLog.h"	// char-ara CH1q
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG
 
 /**
 	@file	X2GUAra.cpp
@@ -198,6 +201,9 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	, m_bFPCancelProbe( false )	// char-ara CH1d
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	, m_fMpGainPerForcePowerInFullHyperMode( 0.f ), m_iFPCancelChainCount( 0 ), m_iSnapshotForcePower( 0 )	// char-ara CH1q: June 32bc6bf0 @32bc7635 / @32bc77a3
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	, m_hComboXXdownXZBlackHole( INVALID_EFFECTSET_HANDLE ), m_iComboXXdownXZLoopCount( 0 ), m_fBuffHyperModeDamageRate( -1.f )	// char-ara CH1h: June 32bc6bf0 stores -1.0 ( CH1g wrote 0 )
@@ -5421,7 +5427,9 @@ void CX2GUAra::CommonStateStart()
 	if ( true == m_DamageData.m_bMeleeAttack && true == m_bBrutalPiercing && NULL != m_pBrutalPiercingBuffFactor )
 		m_DamageData.PushBuffFactor( m_pBrutalPiercingBuffFactor );
 
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARA_FP	// char-ara CH1q: June CommonStateStart 32bd2a40 keeps no used-force-power counter
 	m_ForcePowerSystem.SetUsedForcePowerAtThisState( 0 );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	// char-ara CH1j: June 32bd2c74, Necromancy's fox attack: an effect set of a unit in a Specter state
@@ -8970,13 +8978,33 @@ void CX2GUAra::DeleteMinorParticle()
 }
 #pragma endregion
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+namespace _CONST_ARA_CH1Q_
+{
+	const float FORCE_POWER_SPEND_MP_RATE = 20.f;	// char-ara CH1q: June 32ba6ef0 [334307f0], MP per force power spent before specialization B ( no Enum entry )
+	const float FULL_HYPER_KILL_HP_RATE = 0.03f;	// char-ara CH1q: June 32bc5bc0 [3344f248], max HP share of the berserk reward ( no Enum entry )
+}
+using namespace _CONST_ARA_CH1Q_;
+namespace _CONST_ARA_CH1C_
+{
+	bool AraAwakeningEffectSetPresent();	// char-ara CH1q: declared for HyperModeBuffEffectStart, defined beside RidingHyperModeFrameMove
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 #pragma region IsFullHyperMode
 /** @function 	: IsFullHyperMode
 	@brief 		: 3각성 여부
 */
 /*virtual*/bool CX2GUAra::IsFullHyperMode() const
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	// char-ara CH1q: June 32ba6cc0 ( while the buff hyper mode runs, the buff's hyper count decides )
+	if ( true == IsBuffHyperModeActive() )
+		return 0 < GetHyperModeCountByBuff();
+
 	return GetAraGageData()->GetBerserkMode();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	return GetAraGageData()->GetBerserkMode();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 }
 #pragma endregion
 
@@ -8986,8 +9014,15 @@ void CX2GUAra::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUAra::SetFullHyperMode( const bool bBerserkMode_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	// char-ara CH1q: June 32b96a00 ( also restarts the berserk hit count )
 	GetAraGageData()->SetBerserkModeChanged( true );
 	GetAraGageData()->SetBerserkMode( bBerserkMode_ );
+	m_iFullHyperModeAdvantageHitCount = 0;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	GetAraGageData()->SetBerserkModeChanged( true );
+	GetAraGageData()->SetBerserkMode( bBerserkMode_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 }
 #pragma endregion
 
@@ -8997,10 +9032,16 @@ void CX2GUAra::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUAra::ApplyHyperModeBuff()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	// char-ara CH1q: June 32bab210 ( its tail is the force power gain by used hyper count )
+	CX2GameUnit::ApplyHyperModeBuff();
+	UpForcePowerByHyperModeBuffCount();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	CX2GameUnit::ApplyHyperModeBuff();
 
 	//if ( IsFullHyperMode() )	/// 풀각성 시작시 나오는 이펙트
 		//g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ARA_BERSERK_MODE_START", this );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 }
 #pragma endregion
 
@@ -9010,6 +9051,55 @@ void CX2GUAra::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUAra::HyperModeBuffEffectStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	// char-ara CH1q: June 32bb22d0 ( no hyper boost for a transcended unit or an awakening effect set; berserk also changes the tails )
+	if ( IsFullHyperMode() )
+	{
+		SetShowViewList( true );
+		UpdateEquipCollisionData();
+		SetNeedToUpdateWeaponEffect( true );
+
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+		{
+			pEquipPtr->ChangeHyperMode();
+		}
+
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipTailPtr, m_vecPromotionEquipTailList )
+		{
+			pEquipTailPtr->ChangeHyperMode();
+		}
+
+		if ( 0.f < m_fBuffHyperModeDamageRate && GetHyperModeCountByBuff() < 3 )
+		{
+			BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_ViewEqipList )
+			{
+				pEquipPtr->ChangeHyperMode();
+			}
+		}
+	}
+	else
+	{
+		if ( ( NULL == GetUnit() || 0 == GetUnit()->GetUnitData().m_iUnitClassTran ) && false == _CONST_ARA_CH1C_::AraAwakeningEffectSetPresent() )
+		{
+			if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRFoot )
+				m_hHyperBoostRFoot = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightOrange",	0, 0, 0, 0, 0);
+
+			if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLFoot )
+				m_hHyperBoostLFoot = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftOrange",	0, 0, 0, 0, 0);
+
+			if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostRArm )
+				m_hHyperBoostRArm = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostRightOrange",	0, 0, 0, 0, 0);
+
+			if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_hHyperBoostLArm )
+				m_hHyperBoostLArm = g_pX2Game->GetMinorParticle()->CreateSequenceHandle( (CKTDGObject*) this,  L"HyperBoostLeftOrange",	0, 0, 0, 0, 0);
+		}
+
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_ViewEqipList )
+		{
+			pEquipPtr->ChangeHyperMode();
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	// 광폭화
 	if ( IsFullHyperMode() )
 	{
@@ -9043,6 +9133,7 @@ void CX2GUAra::DeleteMinorParticle()
 			pEquipPtr->ChangeHyperMode();
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 }
 #pragma endregion
 
@@ -9052,6 +9143,45 @@ void CX2GUAra::DeleteMinorParticle()
 */
 /*virtual*/ void CX2GUAra::HyperModeBuffEffectEnd()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	// char-ara CH1q: June 32bb2740 ( the base runs last; the berserk end also clears the buff hyper count and the tails )
+	if ( IsFullHyperMode() )
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+		{
+			pEquipPtr->ChangeNormalMode();
+		}
+
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipTailPtr, m_vecPromotionEquipTailList )
+		{
+			pEquipTailPtr->ChangeNormalMode();
+		}
+
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_CHUNG_BERSERK_MODE_START", this );
+
+		SetFullHyperMode( false );
+		if ( 0 != GetHyperModeCountByBuff() )
+			SetHyperModeCountByBuff( 0 );
+
+		SetShowViewList( true );
+		UpdateEquipCollisionData();
+		SetNeedToUpdateWeaponEffect( true );
+
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_vecPromotionEquipList )
+		{
+			pEquipPtr->ChangeNormalMode();
+		}
+	}
+	else
+	{
+		BOOST_TEST_FOREACH( CX2EqipPtr, pEquipPtr, m_ViewEqipList )
+		{
+			pEquipPtr->ChangeNormalMode();
+		}
+	}
+
+	CX2GUUser::HyperModeBuffEffectEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	CX2GUUser::HyperModeBuffEffectEnd();
 
 	// 광폭화 모드인데, 각성시간이 다 되었으면
@@ -9081,6 +9211,7 @@ void CX2GUAra::DeleteMinorParticle()
 			pEquipPtr->ChangeNormalMode();
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 }
 #pragma endregion
 
@@ -9535,25 +9666,83 @@ void CX2GUAra::UseForcePowerAtThisAnimationTime( float fAnimationTimeNeededToUse
 */
 void CX2GUAra::UseForcePower( int iCount_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	// char-ara CH1q: June 32bb2b40 ( ConsumeForcePower merged in; an FP cancel into five skills costs one less; the two Open Mind passives read the spend )
+	switch ( static_cast<int>( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( m_iFPCancelSkillID ) ) ) )
+	{
+	case CX2SkillTree::RNSI_A_ARA_SHOULDER_BLOW:
+	case CX2SkillTree::RNSI_A_ALH_QUICK_STAB:
+	case CX2SkillTree::RNSI_A_ALD_FORCE_SPEAR:
+	case CX2SkillTree::RNSI_A_ALS_QUICK_PIERCING:
+	case CX2SkillTree::RNSI_A_ARA_SHOULDER_BLOW_UPGRADE:
+		if ( 0 < iCount_ )
+			--iCount_;
+		break;
+
+	default:
+		break;
+	}
+
+	if ( 0.f < m_fMpGainPerForcePowerInFullHyperMode && true == IsFullHyperMode() )
+		UpNowMp( static_cast<float>( iCount_ ) * m_fMpGainPerForcePowerInFullHyperMode );
+
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+	{
+		m_usHellGhostCount = static_cast<USHORT>( m_usHellGhostCount + GetBuffAccumulationCountNowInFactor( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true ) ) );
+		EraseBuffTempletFromGameUnit( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true ) );	// June 3229ea50
+	}
+
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASR_OPEN_MIND ) && NULL != m_pGageData && 0.f < GetRemainHyperModeTime() && 0 < iCount_ )
+	{
+		float fHpGainRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_HP_GAIN_REL_MAX_HP, CX2SkillTree::RNSI_P_ASR_OPEN_MIND );
+		if ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() )
+			fHpGainRate = GetLearnedSkillAbilityValue( CX2SkillTree::HP_CONSUME_REL, CX2SkillTree::RNSI_P_ASR_OPEN_MIND ) * fHpGainRate;
+
+		UpNowHpWithText( static_cast<float>( iCount_ ) * fHpGainRate * GetMaxHp() );
+
+		if ( GetRandomFloat( 0 ) < GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_P_ASR_OPEN_MIND ) )
+			iCount_ = 0;
+	}
+
+	SetForcePower( GetForcePower() - iCount_ );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	ConsumeForcePower( iCount_ );
 	m_ForcePowerSystem.SetUsedForcePowerAtThisState( m_ForcePowerSystem.GetUsedForcePowerAtThisState() + iCount_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 }
 
 /** @function 	: ConsumeForcePower
 	@brief 		: 기력을 소모함
 */
+#ifndef SERV_IRUHADEV_JUNE_CHAR_ARA_FP	// char-ara CH1q: June merges it into UseForcePower 32bb2b40
 void CX2GUAra::ConsumeForcePower( int iCount_ )
 {
 	SetForcePower( GetForcePower() - iCount_ );
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 
 /** @function 	: SetForcePower
 	@brief 		: 기력을 설정
 */
 void CX2GUAra::SetForcePower( int iForcePower_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	// char-ara CH1q: June 32ba6ef0 ( my unit turns the force power it spends into MP by specialization B )
+	if ( true == IsMyUnit() && iForcePower_ < GetForcePower() )
+	{
+		const float fMpGain = static_cast<float>( GetForcePower() - iForcePower_ ) * FORCE_POWER_SPEND_MP_RATE * GetCharacterSpecializationB();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARA FP spend: %d -> %d, MP +%.2f ( specialization B %.4f )", GetForcePower(), iForcePower_, fMpGain, GetCharacterSpecializationB() );	// char-ara CH1q
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG
+		UpNowMpWithText( fMpGain );
+	}
+
+	GetAraGageData()->SetForcePowerChanged( true );
+	GetAraGageData()->SetNowForcePower( iForcePower_ );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	GetAraGageData()->SetForcePowerChanged( true );
 	GetAraGageData()->SetNowForcePower( iForcePower_ ); 
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 }
 
 /** @function	: GetForcePower
@@ -9577,6 +9766,11 @@ __forceinline int CX2GUAra::GetMaxForcePower()
 */
 void CX2GUAra::DoProcessWhenKillEnemy( const CX2GameUnit* pDefender_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	// char-ara CH1q: June 32bc8be0 ( unit vslot 0x318 )
+	if ( true == IsFullHyperMode() )
+		GainFullHyperKillReward();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	if ( NULL != g_pX2Game && IsFullHyperMode() )	/// 3각성 일때 적을 죽였으면
 	{
 		SetNowHp( GetNowHp() + GetMaxHp() * 0.03f );	/// HP 채우고z
@@ -9585,6 +9779,7 @@ void CX2GUAra::DoProcessWhenKillEnemy( const CX2GameUnit* pDefender_ )
 		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_KILL_ENEMY_WHEN_FULL_HYPER_MODE", this );
 
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 }
 
 /** @function 	: ResetForcePowerWhenRebirthInPVPGame
@@ -9592,6 +9787,13 @@ void CX2GUAra::DoProcessWhenKillEnemy( const CX2GameUnit* pDefender_ )
 */
 void CX2GUAra::ResetForcePowerWhenRebirthInPVPGame( int iNumOfMyTeamKill_, int iNumOfEnmyTeamKill_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	// char-ara CH1q: June 32ba6f80 ( INIT_COMPONENT's PvP start count in place of the basic force power )
+	if ( iNumOfEnmyTeamKill_ < iNumOfMyTeamKill_ )
+		SetForcePower( static_cast<int>( m_ucForcePowerCountAtPvpStart ) );
+	else if ( GetForcePower() < static_cast<int>( m_ucForcePowerCountAtPvpStart ) )
+		SetForcePower( static_cast<int>( m_ucForcePowerCountAtPvpStart ) );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	// 대전에서 죽었다가 부활하는 경우
 	// 비기거나 지고 있고
 	if ( iNumOfMyTeamKill_ <= iNumOfEnmyTeamKill_ )
@@ -9606,9 +9808,224 @@ void CX2GUAra::ResetForcePowerWhenRebirthInPVPGame( int iNumOfMyTeamKill_, int i
 	}
 
 	// 이기고 있는데 기본 갯수보다 많으면 그냥 놔둠
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 }
 #pragma endregion 기력 관련 함수
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+// char-ara CH1q: June 32baae50 ( GAIN_FORCEPOWER_USEDHYPERCOUNT's force power by hyper counts used; what passes the gauge also gives MP )
+void CX2GUAra::UpForcePowerByHyperModeBuffCount()
+{
+	if ( true == m_vecGainForcePowerByUsedHyperCount.empty() )
+		return;
+
+	const int iUsedHyperModeCount = GetLastStateHyperModeCount() - GetHyperModeCount();
+	if ( iUsedHyperModeCount <= 0 )
+		return;
+
+	const int iGainForcePower = m_vecGainForcePowerByUsedHyperCount[iUsedHyperModeCount - 1];	// June reads it unchecked ( three entries, three hyper counts at most )
+	const float fMpPerForcePower = GetMaxMp() * m_fGainMpByForcePowerConversionHyperMode;
+	const int iOverForcePower = iGainForcePower + GetForcePower() - GetMaxForcePower();
+	if ( 0 < iOverForcePower )
+		UpNowMp( static_cast<float>( iOverForcePower ) * fMpPerForcePower );
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ARA FP hyper count used %d: force power %d + %d ( max %d ), MP per force power over %.2f", iUsedHyperModeCount, GetForcePower(), iGainForcePower, GetMaxForcePower(), fMpPerForcePower );	// char-ara CH1q
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG
+	UpForcePower( iGainForcePower );
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+}
+
+// char-ara CH1q: June 32baafc0 ( a share of the gauge's maximum as force power, unit vslot 0x324 )
+/*virtual*/ void CX2GUAra::ChangeMaxCharacterAddResource( const float fRate_ )
+{
+	UpForcePower( static_cast<int>( static_cast<float>( GetMaxForcePower() ) * fRate_ ) );
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+}
+
+// char-ara CH1q: June 32bab5c0 ( the ready entry's force power, once until the lock clears; the entry is used up either way )
+void CX2GUAra::UpForcePowerByReadySkillGain()
+{
+	int iHitID = 0;
+	const USHORT usGainForcePower = GetReadyFPGainOfSkillHit( iHitID );
+	TakeFPGainByHitID( iHitID );
+
+	if ( true == m_bSkillFPGainLocked || 0 == usGainForcePower )
+		return;
+
+	UpForcePower( static_cast<int>( usGainForcePower ) );
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+
+	m_bSkillFPGainLocked = true;
+}
+
+// char-ara CH1q: June 32bab780 ( my unit's skill hit gives the force power recorded for it; a tracked skill locks further gains )
+void CX2GUAra::UpForcePowerBySkillHit( CX2DamageManager::DamageData& pDamageData_ )
+{
+	if ( false == IsMyUnit() || true == m_bSkillFPGainLocked )
+		return;
+
+	const int iHitSkillID = ( 0 != pDamageData_.m_iAppliedSkillID ) ? pDamageData_.m_iAppliedSkillID : static_cast<int>( pDamageData_.m_eUsedSkillID );
+	const USHORT usGainForcePower = TakeSkillFPGainByHit( iHitSkillID, pDamageData_.m_iAttackSerial );
+	if ( 0 == usGainForcePower )
+		return;
+
+	UpForcePower( static_cast<int>( usGainForcePower ) );
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+
+	if ( 0 != m_iSkillFPGainSkillID )
+		m_bSkillFPGainLocked = true;
+}
+
+// char-ara CH1q: June 32babba0 ( an FP cancel into the chosen skill, else the next state; a negative state id changes nothing )
+void CX2GUAra::StateChangeOrFPCancel( const int iNextStateID_ )
+{
+	if ( m_iUsedSkillID == m_iChosenSkillID )
+	{
+		if ( 0 > iNextStateID_ )
+		{
+			m_iUsedSkillID = 0;
+			return;
+		}
+	}
+	else
+	{
+		if ( true == m_bFPCancel && 0 != m_iChosenSkillID &&
+			false == ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( m_iChosenSkillID, CX2SkillTree::RNSI_A_AYR_REFLECTION ) ) )
+		{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ARA FP cancel into skill %d ( force power %d )", m_iChosenSkillID, GetForcePower() );	// char-ara CH1q
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG
+			MarkNowSkillFPGainReady();
+			UpForcePowerByReadySkillGain();
+			StateChangeSpecialAttack( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );	// June vslot 0x7fc ( skill, true )
+
+			if ( true == m_bSpecialAttackEventProcessedAtThisFrame )
+			{
+				m_iFPGainStateSkillID = GetNowStateSkillID();
+				++m_iFPCancelChainCount;
+				if ( 0 > m_iFPCancelChainCount )
+					m_iFPCancelChainCount = 0;
+			}
+			return;
+		}
+
+		if ( 0 > iNextStateID_ )
+			return;
+	}
+
+	StateChange( iNextStateID_ );
+}
+
+// char-ara CH1q: June 32bc5bc0 ( HP by a share of the max HP, one force power, the kill effect set; the handle is not kept )
+void CX2GUAra::GainFullHyperKillReward()
+{
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetEffectSet() )
+		return;
+
+	SetNowHp( GetMaxHp() * FULL_HYPER_KILL_HP_RATE + GetNowHp() );
+
+	UpForcePower( 1 );
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ARA FP berserk reward: force power %d / %d, HP %.0f / %.0f", GetForcePower(), GetMaxForcePower(), GetNowHp(), GetMaxHp() );	// char-ara CH1q
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP_DEBUG
+	g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_KILL_ENEMY_WHEN_FULL_HYPER_MODE", this );
+}
+
+// char-ara CH1q: June 32bc9a60 ( berserk hit roll; June also skips a hit whose DamageData +0x5aa byte is set, which nothing in June sets )
+void CX2GUAra::ProcessFullHyperHitReward( CX2DamageManager::DamageData& pDamageData_ )
+{
+	if ( false == IsFullHyperMode() )
+		return;
+
+	if ( CX2DamageManager::AT_SPECIAL == pDamageData_.attackType || CX2DamageManager::RT_DUMMY_DAMAGE == pDamageData_.reActType )
+		return;
+
+	if ( 0.f < m_fFullHyperModeAdvantageTimer || true == GetRidingOn() )
+		return;
+
+	++m_iFullHyperModeAdvantageHitCount;
+	m_fFullHyperModeAdvantageTimer = m_fFullHyperModeAdvantageIntervalTime;
+
+	int iRewardHitCount = m_iFullHyperModeAdvantageCount;
+	if ( true == IsBuffHyperModeActive() )
+	{
+		const int iFilledPowerLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ALS_FILLED_POWER, false, 0, true );
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = ( 0 < iFilledPowerLevel && NULL != g_pData->GetSkillTree() ) ? g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_ALS_FILLED_POWER ) : NULL;
+		if ( NULL != pSkillTemplet )
+		{
+			bool bHitCountAbility = true;
+			CX2SkillTree::SKILL_ABILITY_TYPE eHitCountAbility = CX2SkillTree::SA_HIT_COUNT_3;
+			if ( 1 == GetHyperModeCountByBuff() )
+				eHitCountAbility = CX2SkillTree::SA_HIT_COUNT_1;
+			else if ( 2 == GetHyperModeCountByBuff() )
+				eHitCountAbility = CX2SkillTree::SA_HIT_COUNT_2;
+			else if ( false == IsFullHyperMode() )
+				bHitCountAbility = false;
+
+			if ( true == bHitCountAbility )
+			{
+				const float fRewardHitCount = pSkillTemplet->GetSkillAbilityValue( eHitCountAbility, iFilledPowerLevel, false );
+				if ( 0.f < fRewardHitCount )
+					iRewardHitCount = static_cast<int>( fRewardHitCount );
+			}
+		}
+	}
+
+	const int iRemainHitCount = m_iFullHyperModeAdvantageCount - m_iFullHyperModeAdvantageHitCount - 1;
+	const UINT uiClampedRemainHitCount = static_cast<UINT>( 0 > iRemainHitCount ? 0 : iRemainHitCount );
+	UINT uiSocketRateIndex = static_cast<UINT>( m_vecFullHyperModeAdvantageSocketRate.size() ) - 1;	// June compares unsigned: an empty list reads past its end ( JUNE_BUGS )
+	if ( uiSocketRateIndex >= uiClampedRemainHitCount )
+		uiSocketRateIndex = uiClampedRemainHitCount;
+
+	if ( m_iFullHyperModeAdvantageHitCount < iRewardHitCount )
+	{
+		if ( false == ( m_vecFullHyperModeAdvantageSocketRate[uiSocketRateIndex] * GetCharacterSpecializationA() > GetRandomFloat( 0 ) ) )
+			return;
+	}
+
+	m_iFullHyperModeAdvantageHitCount = 0;
+	GainFullHyperKillReward();
+}
+
+// char-ara CH1q: June 32ba4840 ( keeps the force power; stand-in: the base 32009780 Crest of Time HP / MP snapshot is not ported )
+void CX2GUAra::StoreGageSnapshot()
+{
+	if ( false == IsMyUnit() )
+		return;
+
+	m_iSnapshotForcePower = GetForcePower();
+}
+
+// char-ara CH1q: June 32ba7b50 ( gives the kept force power back; stand-in: the base 3204da60 Crest of Time restore is not ported )
+void CX2GUAra::RestoreGageSnapshot()
+{
+	if ( false == IsMyUnit() )
+		return;
+
+	SetForcePower( m_iSnapshotForcePower );
+}
+
+// char-ara CH1q: June 32bd85f0 ( the berserk awakening state counts too, so it picks the berserk sound set )
+/*virtual*/ bool CX2GUAra::IsHyperModeState() const
+{
+	return USI_HYPER_MODE == GetNowStateID() || ASI_BERSERK_MODE == GetNowStateID();
+}
+
+// char-ara CH1q: June 32b95c30 ( June's ids: Yama Raja's Reflection and its upgrade are never cancelled into )
+bool CX2GUAra::GetAvailableFPCancel( const CX2SkillTree::SKILL_ID eSkillID_ ) const
+{
+	return ( true == m_bFPCancel && 0 != eSkillID_ &&
+		false == ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( eSkillID_, CX2SkillTree::RNSI_A_AYR_REFLECTION ) ) );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 #pragma region ShouldResetNotBusyTimer
 /** @function 	: ShouldResetNotBusyTimer
 	@brief 		: 광폭화 모드일 때 바쁜 상태아니도록 수정
@@ -23626,6 +24043,19 @@ void CX2GUAra::SetAttackResultDelegate()
 */
 void CX2GUAra::UpNowForcePowerHitOthers( const CX2DamageManager::DamageData& damageData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	// char-ara CH1q: June 32baad30 ( the gain is cut at the gauge first, so UpForcePower's MP conversion never runs here; kept as June )
+	if ( 0 >= damageData_.m_iHitAddForcePower )
+		return;
+
+	int iAddForcePower = damageData_.m_iHitAddForcePower;
+	if ( GetMaxForcePower() < iAddForcePower + GetForcePower() )
+		iAddForcePower = GetMaxForcePower() - GetForcePower();
+
+	UpForcePower( iAddForcePower );
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	/// 기력 습득량이 설정되어 있지 않다면, 패스
 	if ( 0 >=  damageData_.m_iHitAddForcePower )
 		return;
@@ -23639,6 +24069,7 @@ void CX2GUAra::UpNowForcePowerHitOthers( const CX2DamageManager::DamageData& dam
 		iAddForcePower = iMaxForcePower - iNowForcePower;
 
 	SetForcePower( iNowForcePower + iAddForcePower );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 }		
 #pragma endregion
 

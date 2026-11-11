@@ -4229,6 +4229,29 @@ void CX2AraMyGageUI::InitForcePowerUI()
 */
 void CX2AraMyGageUI::UpdateCharacterImage()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	// char-ara CH1q: June 32e69060 ( the portrait changes only when the berserk byte differs from the one it last showed )
+	CX2AraGageData* pAraGageData = static_cast<CX2AraGageData*>( m_pGageData );
+	if ( NULL == m_pDLGMyUnit || pAraGageData->GetBerserkModeChanged() == pAraGageData->GetBerserkMode() )
+		return;
+
+	CKTDGUIStatic* pStaticCharPictures = static_cast<CKTDGUIStatic*>( m_pDLGMyUnit->GetControl( L"StaticPVPGameMyChar" ) );
+	if ( NULL == pStaticCharPictures->GetPicture( 0 ) )
+		return;
+
+	const int iMyUnitClassTran = ( NULL != g_pData && NULL != g_pData->GetMyUser() && NULL != g_pData->GetMyUser()->GetSelectUnit() ) ? g_pData->GetMyUser()->GetSelectUnit()->GetUnitData().m_iUnitClassTran : 0;
+	wstring wstrFileName;
+	wstring wstrPieceName;
+	if ( true == pAraGageData->GetBerserkMode() && NULL != g_pX2Game )
+		GetBerserkModeMyStateImage( wstrFileName, wstrPieceName, GetOwnerUnitClass(), iMyUnitClassTran );
+	else
+		CX2Data::GetCharacterImageName( wstrFileName, wstrPieceName, GetOwnerUnitClass(), CX2Data::CIT_MyGage, IsMyGageTranscended() );
+
+	pStaticCharPictures->GetPicture( 0 )->SetTex( wstrFileName.c_str(), wstrPieceName.c_str() );
+	pStaticCharPictures->GetPicture( 0 )->SetSizeAsTextureSize();
+
+	pAraGageData->SetBerserkModeChanged( pAraGageData->GetBerserkMode() );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	CX2AraGageData* pAraGageData = static_cast<CX2AraGageData*>( m_pGageData );
 	CKTDGUIStatic* pStaticCharPictures = static_cast<CKTDGUIStatic*>( m_pDLGMyUnit->GetControl( L"StaticPVPGameMyChar" ) );
 
@@ -4258,6 +4281,7 @@ void CX2AraMyGageUI::UpdateCharacterImage()
 
 		pAraGageData->SetBerserkModeChanged( false );
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 }
 #pragma endregion 캐릭터 이미지 갱신
 
@@ -4332,6 +4356,66 @@ void CX2AraMyGageUI::UpdateForcePowerUI()
 /** @function 	: GetBerserkModeMyStateImage
 	@brief 		: 광폭화 모드 이미지 얻기
 */
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+// char-ara CH1q: June 32e61a60 ( a transcended unit's second jobs take the TR_ pieces; adds classes 34 and 124 )
+void CX2AraMyGageUI::GetBerserkModeMyStateImage( OUT wstring& wstrFileName, OUT wstring& wstrPieceName, IN const CX2Unit::UNIT_CLASS eClassType, IN const int iUnitClassTran_ )
+{
+	if ( 1 == iUnitClassTran_ )
+	{
+		switch ( eClassType )
+		{
+		case CX2Unit::UC_ARA_SAKRA_DEVANAM:
+			wstrFileName	= L"DLG_UI_Common_Texture102_NEW.tga";
+			wstrPieceName	= L"TR_S_DEVANAM_1_STATE";
+			return;
+		case CX2Unit::UC_ARA_YAMA_RAJA:
+			wstrFileName	= L"DLG_UI_Common_Texture102_NEW.tga";
+			wstrPieceName	= L"TR_Y_RAJA_1_STATE";
+			return;
+		case CX2Unit::UC_ARA_ASURA:
+			wstrFileName	= L"DLG_UI_Common_Texture102_NEW.tga";
+			wstrPieceName	= L"TR_ASURA_1_STATE";
+			return;
+		default:
+			break;
+		}
+	}
+
+	switch ( eClassType )
+	{
+	case CX2Unit::UC_ARA_MARTIAL_ARTIST:
+		wstrFileName	= L"DLG_UI_Common_Texture68_NEW.tga";
+		wstrPieceName	= L"ARA_FACE_RAGE";
+		break;
+	case CX2Unit::UC_ARA_LITTLE_HSIEN:
+		wstrFileName	= L"DLG_UI_Common_Texture68_NEW.tga";
+		wstrPieceName	= L"ARA_LH_FACE_RAGE";
+		break;
+	case CX2Unit::UC_ARA_LITTLE_DEVIL:
+		wstrFileName	= L"DLG_UI_Common_Texture77_NEW.tga";
+		wstrPieceName	= L"L_DEVIL_STATE_RAGE";
+		break;
+	case CX2Unit::UC_ARA_LITTLE_SPECTER:
+		wstrFileName	= L"DLG_UI_Common_Texture77_NEW.tga";
+		wstrPieceName	= L"L_SPECTER_STATE_RAGE";
+		break;
+	case CX2Unit::UC_ARA_SAKRA_DEVANAM:
+		wstrFileName	= L"DLG_UI_Common_Texture70_NEW.tga";
+		wstrPieceName	= L"ARA_SD_FACE_RAGE";
+		break;
+	case CX2Unit::UC_ARA_YAMA_RAJA:
+		wstrFileName	= L"DLG_UI_Common_Texture77_NEW.tga";
+		wstrPieceName	= L"Y_RAJA_STATE_RAGE";
+		break;
+	case CX2Unit::UC_ARA_ASURA:
+		wstrFileName	= L"DLG_UI_Common_Texture82_NEW.tga";
+		wstrPieceName	= L"ASURA_STATE_RAGE";
+		break;
+	default:
+		break;
+	}
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 void CX2AraMyGageUI::GetBerserkModeMyStateImage( OUT wstring& wstrFileName, OUT wstring& wstrPieceName
 												 , IN const CX2Unit::UNIT_CLASS eClassType  )
 {
@@ -4365,6 +4449,7 @@ void CX2AraMyGageUI::GetBerserkModeMyStateImage( OUT wstring& wstrFileName, OUT 
 		break;
 	} // switch
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 #pragma endregion 광폭화 모드 이미지 얻기
 
 #pragma endregion 클래스

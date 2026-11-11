@@ -1894,6 +1894,12 @@ public:
 		RNSI_P_AYR_RESURRECTION                               = 27409,	// char-ara CH1k: June's Enum.lua; its heal action sets the protection debuff at its level
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH1q
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_P_ALS_FILLED_POWER                               = 27410,	// char-ara CH1q: June's Enum.lua; its hit-count abilities set the berserk reward count
+		RNSI_P_ASR_OPEN_MIND                                  = 27419,	// char-ara CH1q: June's Enum.lua; spent force power heals while hyper mode runs
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-11 // char-ara CH1n
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS                = 27222,	// char-ara CH1n: June's Enum.lua; its transcended slot keeps the Conversion Mana state

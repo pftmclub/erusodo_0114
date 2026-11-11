@@ -766,7 +766,11 @@ public:
 	void	UpdateForcePowerUI();
 		
 protected:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	void	GetBerserkModeMyStateImage( OUT wstring& wstrFileName, OUT wstring& wstrPieceName, IN const CX2Unit::UNIT_CLASS eClassType, IN const int iUnitClassTran_ );	// char-ara CH1q: June 32e61a60
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	void	GetBerserkModeMyStateImage( OUT wstring& wstrFileName, OUT wstring& wstrPieceName, IN const CX2Unit::UNIT_CLASS eClassType );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 };
 #pragma endregion Å¬·¡½º
 

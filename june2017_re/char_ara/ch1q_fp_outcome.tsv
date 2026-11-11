@@ -1,0 +1,55 @@
+june_va_or_row	subject	verdict	where	note
+32b95c30	CX2GUAra::GetAvailableFPCancel	PORTED	funcmap	see funcmap row
+32b95c70	CX2GUAra::SetFPCancel	= March	funcmap	see funcmap row
+32b96a00	CX2GUAra::SetFullHyperMode	PORTED	funcmap	see funcmap row
+32ba46c0	CX2GUAra::GetHypetMpdeStateID	= March	funcmap	see funcmap row
+32ba4840	CX2GUAra::StoreGageSnapshot	PORTED	funcmap	see funcmap row
+32ba6cc0	CX2GUAra::IsFullHyperMode	PORTED	funcmap	see funcmap row
+32ba6ef0	CX2GUAra::SetForcePower	PORTED	funcmap	see funcmap row
+32ba6f80	CX2GUAra::ResetForcePowerWhenRebirthInPVPGame	PORTED	funcmap	see funcmap row
+32ba7b50	CX2GUAra::RestoreGageSnapshot	PORTED	funcmap	see funcmap row
+32baad30	CX2GUAra::UpNowForcePowerHitOthers	PORTED	funcmap	see funcmap row
+32baae50	CX2GUAra::UpForcePowerByHyperModeBuffCount	PORTED	funcmap	see funcmap row
+32baafc0	CX2GUAra::ChangeMaxCharacterAddResource	PORTED	funcmap	see funcmap row
+32bab210	CX2GUAra::ApplyHyperModeBuff	PORTED	funcmap	see funcmap row
+32bab5c0	CX2GUAra::UpForcePowerByReadySkillGain	PORTED	funcmap	see funcmap row
+32bab780	CX2GUAra::UpForcePowerBySkillHit	PORTED	funcmap	see funcmap row
+32babba0	CX2GUAra::StateChangeOrFPCancel	PORTED	funcmap	see funcmap row
+32bb22d0	CX2GUAra::HyperModeBuffEffectStart	PORTED	funcmap	see funcmap row
+32bb2740	CX2GUAra::HyperModeBuffEffectEnd	PORTED	funcmap	see funcmap row
+32bb2b40	CX2GUAra::UseForcePower	PORTED	funcmap	see funcmap row
+32bc19a0	CX2GUAra::CreateGageData	= March	funcmap	see funcmap row
+32bc5bc0	CX2GUAra::GainFullHyperKillReward	PORTED	funcmap	see funcmap row
+32bc8be0	CX2GUAra::DoProcessWhenKillEnemy	PORTED	funcmap	see funcmap row
+32bc9a60	CX2GUAra::ProcessFullHyperHitReward	PORTED	funcmap	see funcmap row
+32bd5e80	CX2GUAra force-power getter thunk	n/a	funcmap	see funcmap row
+32bd6c80	CX2GUAra::UpNowForcePowerHitOthers thunk	n/a	funcmap	see funcmap row
+32bd85f0	CX2GUAra::IsHyperModeState	PORTED	funcmap	see funcmap row
+32a34980	CX2AraGageData::UpdateDataFromGameUnit	PORTED	funcmap	see funcmap row
+32a34a10	CX2AraGageData::SetMyPlayStatusFromPacket	PORTED	funcmap	see funcmap row
+32e69060	CX2AraMyGageUI::UpdateCharacterImage	PORTED	funcmap	see funcmap row
+32e61a60	CX2AraMyGageUI::GetBerserkModeMyStateImage	PORTED	funcmap	see funcmap row
+32e5b550	CX2AraMyGageUI::InitWakeOrb	= March	funcmap	see funcmap row
+fp 2	CForcePowerSystem / m_ForcePowerSystem	dropped under _FP	X2GUAra.h member, CommonStateStart reset	June keeps no counter
+fp 3	m_ucBasicForcePower / Get / SetBasicForcePower	dropped under _FP	X2GUAra.h	INIT_COMPONENT start counts replace it ( CH1h reads them )
+fp 4-5	Init / ReInit FP lines	= CH1h ( value 10 confirmed )	X2GUAra.cpp Init / ReInit	MAX_FORCE_POWER 10 = June push 0xa
+fp 7-13	7 INIT_COMPONENT keys	consumers ported	ProcessFullHyperHitReward, UpForcePowerByHyperModeBuffCount, ReInit, ResetForcePowerWhenRebirthInPVPGame	members by CH1h
+fp 15	UpForcePower	= March	X2GUAra.cpp	June inlines it at 7 sites; the Open Mind refresh after it is each caller's
+fp 16	CanUse / IsEmpty / IsFull / Get / GetMaxForcePower	= March	X2GUAra.cpp	gage getters
+fp 17	Up / UseForcePowerAtThisAnimationTime	= CH1j	CommonFrameMove	June CommonFrameMove 32bce2e0 calls UseForcePower; add-at-time 32baa0d0 already ported
+fp 19	ConsumeForcePower	dropped under _FP	X2GUAra.h / .cpp	merged into UseForcePower 32bb2b40
+fp 29	SetSpecificValueByBuffTempletID hyper cases	= CH1h	X2GUAra.cpp	BTI 5 / 0x336 -> BFI 660 / 661 / 156 already under _LIVE
+fp 34	FP passive handlers 32ba7cf0 / 32ba7da0 / 32ba6440	CH4a	-	passives
+fp 36	GetActualFPConsume / GainCount table	CH1p / CH4a	-	table filled by CH4a
+fp 37	+0x9621 probe	= CH1d	m_bFPCancelProbe	member and the three combo sites
+fp 39-41	SpecialAttackEventProcess / CanUseSpecialAttack / StateChangeSpecialAttack FP parts	= CH1k	X2GUAra.cpp	-
+fp 42	FP-cancel-or-StateChange helper	ported	StateChangeOrFPCancel	the skill states call it from CH2a on
+fp 44	CommonStateStartFuture FP gain	= CH1j + this phase	UpForcePowerByReadySkillGain body	-
+fp 48	gauge snapshot 0x740 / 0x744	ported ( stand-in bases )	StoreGageSnapshot / RestoreGageSnapshot	unreferenced, as Rena / Chung
+fp 49-58, 60, 62	CX2AraGageData / CX2AraMyGageUI same rows	= March	X2GageData.cpp / X2GageUI.cpp	vtables 3349b124 / 3353351c
+fp 52, 55, 61	UpdateDataFromGameUnit / SetMyPlayStatusFromPacket / UpdateCharacterImage	ported	X2GageData.cpp / X2GageUI.cpp	see funcmap
+fp 59	InitWakeOrb	= March	X2GageUI.cpp	6 / 4 / 3 / 2
+fp 63	CX2GageManager switch 34 / 124	CHNa	-	class path
+fp 64	emulator CAC_FORCE_POWER	= June	X2OfflineStatTable.cpp:306	UT_ARA -> CAC_FORCE_POWER ( 3 )
+open check	berserk portrait refresh +0x111 vs +0x110	no June bug	UpdateCharacterImage	the UI's gage copy keeps the last shown byte in +0x111 ( UpdateDataFromGameUnit never copies it ), so entering and leaving berserk both refresh
+CH1j note	+0x9718 m_hKillEnemyEffectSet	misnamed	routed CH3a	only writer 32bb6f8c ( ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK FrameMove ); the kill reward keeps no handle
