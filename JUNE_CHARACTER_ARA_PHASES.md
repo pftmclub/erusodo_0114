@@ -2111,6 +2111,8 @@ All 20 class-map rows read from `charport_adis.py ara --phase CH2d2` listings an
 
 **Play-test hand-off.** In the chat of 2026-11-11 ( unit 135 ). Lines to read: `[JUNE_CHAR] ARA SKILL state` ( Sever 301, Pandemonium 309 / 310, no `BLANK` ), `EffectSet_SI_SA_ALS_SEVER_DAMAGE`, 0 `EXCEPTION`.
 
+**Play-test passed (2026-11-11 23:24-23:26, exe md5 65294f1c, unit 135).** 0 `EXCEPTION`, 0 `KEM_ERROR` / `Motion Error`, no `BLANK` state line. Sever 27059 x5 ( state 49: `SEVER_FX1` / `FX2`, `SEVER_DAMAGE` at +0.4 s, `DamageEffect_SI_SA_ALS_SEVER_Damage` hits ). Suppression Specter 27060 x2 ( state 53: `FX1`, `FX2`, `Damage` + a hit, `_TARGET` set on the enemy ). Restraints 27041 -> Shadow Knot ( 155 / 156 / 157 ) -> Sever ( 49 ) x5; once the chain ran through, **Veritable Pandemonium started 0.615 s into Sever** ( state 269: `_START` at +0.1 s, `_BLACKHOLE` 0.64 s after the state start; then 270: `FINISH_FX1` / `FX2` / `Damage` at +0.0 / +0.29 / +0.62 s ) x2. The chain's Sever step runs in the skill's own slot state ( 49 ), not the registered 301. `ErrorLog.txt`: 6 `OpenXET` lines for the new meshes ( `ALS_VERITABLE_PANDEMONIUM_P01 / P02 / P04`, `AA_SUPPRESSION_SPECTER_FOX / P01 / P02` ): the same line every June mesh preload gets ( 305 in the run ), the files are in data132. Cool time and MP are not in the logs; not reported wrong by the user. `AddGroupChainQuest` unbound and 2 `E_DISABLE_HB_CHECK_REQ` UNHANDLED are not this phase's.
+
 ### CH5 - Done (2026-11-11)
 
 Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI` (`Always.h` end; `#error` without `_ARA_LIVE` and `JUNE_UNIT_VIEWER_EFFECT_PLAYER`). Review kickoff `kickoffs/char-ara/CH5-review.md` written.
