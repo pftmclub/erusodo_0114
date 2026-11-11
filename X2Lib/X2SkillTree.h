@@ -1895,6 +1895,11 @@ public:
 		RNSI_SA_ARA_FALLING_DRAGON                            = 27002,	// char-ara CH2a: June's Enum.lua; Falling Dragon's registration label
 		RNSI_SA_ARA_TEMPEST_DANCE_UPGRADE                     = 27029,	// char-ara CH2a: June's Enum.lua; the enhanced Tempest Dance
 		RNSI_SA_ARA_FALLING_DRAGON_UPGRADE                    = 27031,	// char-ara CH2a: June's Enum.lua; the enhanced Falling Dragon
+		RNSI_SA_ALH_LINK_FLOWER                               = 27007,	// char-ara CH2b: June's Enum.lua; Fire Lotus
+		RNSI_SA_ALH_WHITE_TIGER_UPGRADE                       = 27034,	// char-ara CH2b: June's Enum.lua; the enhanced White Tiger
+		RNSI_SA_ALH_LINK_FLOWER_UPGRADE                       = 27038,	// char-ara CH2b: June's Enum.lua; the enhanced Fire Lotus
+		RNSI_SA_ALH_MOONLIGHT_SLASH_UPGRADE                   = 27049,	// char-ara CH2b: June's Enum.lua; the enhanced Moonlight Slash
+		RNSI_SA_ALH_SUPPRESSION_UPGRADE                       = 27050,	// char-ara CH2b: June's Enum.lua; the enhanced Suppression
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 //{{ Iruha : 2026-11-11 // char-ara CH1q

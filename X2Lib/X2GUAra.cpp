@@ -3636,6 +3636,10 @@ void CX2GUAra::InitStateByUnitClass()
 #else //UPGRADE_SKILL_SYSTEM_2013
 		case CX2SkillTree::SI_SA_ALH_DOUBLE_COLLISION: //¿ë¾Æ 3½Ä - ÆÈ±¥Àå
 #endif //UPGRADE_SKILL_SYSTEM_2013
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_SA_ALH_DOUBLE_COLLISION:	// char-ara CH2b: June 32bd09d0 case 27006 / 27037
+		case CX2SkillTree::RNSI_SA_ALH_DOUBLE_COLLISION_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		{
 			ASI_SA_ALH_DOUBLE_COLLISION_START_CreateState( normalStateData, normalStateData.stateID );
 			ASI_SA_ALH_DOUBLE_COLLISION_START_CreateState( hyperStateData, hyperStateData.stateID );
@@ -3674,6 +3678,10 @@ void CX2GUAra::InitStateByUnitClass()
 
 	#pragma region SI_SA_ASD_SUPPRESSION
 	case CX2SkillTree::SI_SA_ASD_SUPPRESSION: // ¾Æ¶ó 2Â÷ ÀüÁ÷ Á¦Ãµ - Á¦¾Ð
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	case CX2SkillTree::RNSI_SA_ALH_SUPPRESSION:	// char-ara CH2b: June 32bd09d0 case 27009 / 27050
+	case CX2SkillTree::RNSI_SA_ALH_SUPPRESSION_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		{
 			m_LuaManager.MakeTableReference( "ASI_SA_ASD_SUPPRESSION", normalStateData.stateID );
 			normalStateData.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASD_SUPPRESSION_Init );
@@ -3689,8 +3697,20 @@ void CX2GUAra::InitStateByUnitClass()
 		} break;
 	#pragma endregion
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	case CX2SkillTree::RNSI_SA_ALH_LINK_FLOWER:	// char-ara CH2b: June 32bd09d0 case 27007 / 27038, helper 32baae10 fills both states
+	case CX2SkillTree::RNSI_SA_ALH_LINK_FLOWER_UPGRADE:
+		{
+			ASI_SA_ALH_LINK_FLOWER_CreateState( normalStateData, normalStateData.stateID );
+			ASI_SA_ALH_LINK_FLOWER_CreateState( hyperStateData, hyperStateData.stateID );
+		} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	#pragma region SI_SA_ALH_MOONLIGHT_SLASH
 	case CX2SkillTree::SI_SA_ALH_MOONLIGHT_SLASH:	// ´Þºû º£±â
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	case CX2SkillTree::RNSI_SA_ALH_MOONLIGHT_SLASH:	// char-ara CH2b: June 32bd09d0 case 27008 / 27049
+	case CX2SkillTree::RNSI_SA_ALH_MOONLIGHT_SLASH_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		{
 			ASI_SA_ALH_MOONLIGHT_SLASH_READY_CreateState( normalStateData, normalStateData.stateID );
 			ASI_SA_ALH_MOONLIGHT_SLASH_READY_CreateState( hyperStateData, hyperStateData.stateID );
@@ -3717,6 +3737,10 @@ void CX2GUAra::InitStateByUnitClass()
 	#pragma endregion
 
 		case CX2SkillTree::SI_SA_ALH_WHITE_TIGER: // ¸ÍÈ£°Ý
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_SA_ALH_WHITE_TIGER:	// char-ara CH2b: June 32bd09d0 case 27005 / 27034
+		case CX2SkillTree::RNSI_SA_ALH_WHITE_TIGER_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		{
 			m_LuaManager.MakeTableReference( "ASI_SA_ALH_POWER_OF_WHITER_TIGER", normalStateData.stateID );
 			normalStateData.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_ALH_POWER_OF_WHITER_TIGER_Init );
@@ -17009,6 +17033,21 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_Init()
 */
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32baa2d0 ( the Open Mind buff is set after the force power gain )
+	CommonStateStart();
+
+	if ( NULL != m_sMoonRightSlashDataPtr )
+	{
+		m_pXSkinAnim->SetPlaySpeed( m_fCurrentSpeed );
+
+		m_sMoonRightSlashDataPtr->SetChargingTime( 0.f );
+		m_sMoonRightSlashDataPtr->SetPowerRate( 0.f );
+		UpForcePower( m_usForceGainCount );
+		if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+			SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	CommonStateStart();
 
 	if ( NULL != m_sMoonRightSlashDataPtr )
@@ -17023,6 +17062,7 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_StateStart()
 		UpForcePower( m_usForceGainCount );
 #endif //FIX_ARA_SKILL_BUG
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function 	: ASI_SA_ALH_MOONLIGHT_SLASH_Ready_StateStartFuture
@@ -17030,6 +17070,62 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_StateStart()
 */
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32b9ac40 ( the transcendence slots 5 / B5 have their charge keys now )
+	CommonStateStartFuture();
+
+	m_pXSkinAnimFuture->SetPlaySpeed( m_fCurrentSpeed );
+
+	if ( NULL != m_sMoonRightSlashDataPtr )
+	{
+		switch ( m_sMoonRightSlashDataPtr->GetSlotID() )
+		{
+		case USI_SPECIAL_ATTACK_1:
+			m_sMoonRightSlashDataPtr->SetChargeKey( &m_InputData.pureA );
+			break;
+
+		case USI_SPECIAL_ATTACK_2:
+			m_sMoonRightSlashDataPtr->SetChargeKey( &m_InputData.pureS );
+			break;
+
+		case USI_SPECIAL_ATTACK_3:
+			m_sMoonRightSlashDataPtr->SetChargeKey( &m_InputData.pureD );
+			break;
+
+		case USI_SPECIAL_ATTACK_4:
+			m_sMoonRightSlashDataPtr->SetChargeKey( &m_InputData.pureC );
+			break;
+
+		case USI_SPECIAL_ATTACK_5:
+			m_sMoonRightSlashDataPtr->SetChargeKey( &m_InputData.pureSkill5 );
+			break;
+
+		case USI_SPECIAL_ATTACK_SLOTB_1:
+			m_sMoonRightSlashDataPtr->SetChargeKey( &m_InputData.pureQ );
+			break;
+
+		case USI_SPECIAL_ATTACK_SLOTB_2:
+			m_sMoonRightSlashDataPtr->SetChargeKey( &m_InputData.pureW );
+			break;
+
+		case USI_SPECIAL_ATTACK_SLOTB_3:
+			m_sMoonRightSlashDataPtr->SetChargeKey( &m_InputData.pureE );
+			break;
+
+		case USI_SPECIAL_ATTACK_SLOTB_4:
+			m_sMoonRightSlashDataPtr->SetChargeKey( &m_InputData.pureR );
+			break;
+
+		case USI_SPECIAL_ATTACK_SLOTB_5:
+			m_sMoonRightSlashDataPtr->SetChargeKey( &m_InputData.pureSkillEx5 );
+			break;
+
+		default:
+			m_sMoonRightSlashDataPtr->SetChargeKey( NULL );
+			break;
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	CommonStateStartFuture();
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
@@ -17079,6 +17175,7 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_StateStartFuture()
 			break;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function 	: ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_FrameMove
@@ -17086,6 +17183,34 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_StateStartFuture()
 */
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32bb5bb0 ( the full-moon effect time follows the skill's SA_EFFECTIVE_RATE )
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		if ( NULL != m_sMoonRightSlashDataPtr )
+			m_sMoonRightSlashDataPtr->SetHandleEffectSet( g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_MoonLight_Slash_Charge", this ) );
+	}
+
+	float fFullMoonTime = 1.5f;
+	if ( NULL != m_sMoonRightSlashDataPtr )
+		fFullMoonTime = static_cast<float>( m_sMoonRightSlashDataPtr->GetEffectiveRate() * 1.5 );
+
+	if ( m_pXSkinAnim->EventTimerOneshot( fFullMoonTime ) )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_MoonLight_Slash_2Second", this );
+	}
+
+	if ( NULL != m_sMoonRightSlashDataPtr )
+	{
+		const float fElapsedAnimationTime = m_pXSkinAnim->GetNowAnimationTime() - m_pXSkinAnim->GetBeforeAnimationTime();
+		m_sMoonRightSlashDataPtr->SetChargingTime( m_sMoonRightSlashDataPtr->GetChargingTime() + fElapsedAnimationTime );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	ChangeWorldColorByHyperMode();
 	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
 
@@ -17119,6 +17244,7 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_FrameMove()
 #endif //BALANCE_PATCH_20131107
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function 	: ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_EventProcess
@@ -17126,6 +17252,22 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_FrameMove()
 */
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32b9ad90 ( the full-moon charge time is 1.5 x SA_EFFECTIVE_RATE )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE );
+	}
+	else if ( NULL != m_sMoonRightSlashDataPtr && 0.66 <= m_sMoonRightSlashDataPtr->GetChargingTime() && false == m_sMoonRightSlashDataPtr->GetChargeKey() )
+	{
+		if ( m_sMoonRightSlashDataPtr->GetChargingTime() < static_cast<float>( m_sMoonRightSlashDataPtr->GetEffectiveRate() * 1.5 ) )
+			StateChange( ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK );
+		else
+			StateChange( ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK );
+	}
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		StateChange( ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE );
@@ -17142,6 +17284,7 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_READY_EventProcess()
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
@@ -17176,6 +17319,23 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_Init()
 */
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32b9ae20 ( the end test reads the now animation; March read the future one )
+	CommonFrameMove();
+
+	if ( NULL != m_sMoonRightSlashDataPtr )
+	{
+		if( true == m_pXSkinAnim->IsAnimationEnd() )
+		{
+			m_sMoonRightSlashDataPtr->SetChargingTime( m_sMoonRightSlashDataPtr->GetChargingTime() + m_fElapsedTime );
+		}
+		else
+		{
+			const float fElapsedAnimationTime = m_pXSkinAnim->GetNowAnimationTime() - m_pXSkinAnim->GetBeforeAnimationTime();
+			m_sMoonRightSlashDataPtr->SetChargingTime( m_sMoonRightSlashDataPtr->GetChargingTime() + fElapsedAnimationTime );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	CommonFrameMove();
 
 	if ( NULL != m_sMoonRightSlashDataPtr )
@@ -17195,6 +17355,7 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_FrameMove()
 		m_sMoonRightSlashDataPtr->SetChargingTime( m_sMoonRightSlashDataPtr->GetChargingTime() + m_fElapsedTime );
 #endif //BALANCE_PATCH_20131107
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function 	: ASI_SA_ALH_MOONLIGHT_SLASH_Charge_EventProcess
@@ -17202,6 +17363,18 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_FrameMove()
 */
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32b9ae80 ( the longest charge is 5 x SA_EFFECTIVE_RATE )
+	CommonEventProcess();
+
+	if ( NULL != m_sMoonRightSlashDataPtr )
+	{
+		if ( static_cast<float>( m_sMoonRightSlashDataPtr->GetEffectiveRate() * 5.0 ) <= m_sMoonRightSlashDataPtr->GetChargingTime() || false == m_sMoonRightSlashDataPtr->GetChargeKey() )
+		{
+			StateChange( ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK );
+		}
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	CommonEventProcess();
 
 	if ( NULL != m_sMoonRightSlashDataPtr )
@@ -17211,6 +17384,7 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_EventProcess()
 			StateChange( ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK );
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 
@@ -17250,10 +17424,21 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_Init()
 */
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32b9aee0 ( the charge counts in steps of SA_EFFECTIVE_RATE )
+	CommonStateStart();
+
+	if( NULL != m_sMoonRightSlashDataPtr )
+	{
+		const float fChargeCount = m_sMoonRightSlashDataPtr->GetChargingTime() * ( 1.f / m_sMoonRightSlashDataPtr->GetEffectiveRate() );
+		m_sMoonRightSlashDataPtr->SetPowerRate( floor( fChargeCount ) * 0.1f );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	CommonStateStart();
 
 	if( NULL != m_sMoonRightSlashDataPtr )
 		m_sMoonRightSlashDataPtr->SetPowerRate( floor( m_sMoonRightSlashDataPtr->GetChargingTime() ) * 0.1f );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function 	: ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_FrameMove
@@ -17261,6 +17446,37 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_StateStart()
 */
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32bb5f40 ( the power rate is GetPowerRate() x ( 1 + POWER_RATE_MUL x charge rate ); the memo test is June's always-false stub )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_MoonLight_Slash_New", this );
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.12f ) )
+	{
+		if ( NULL != m_sMoonRightSlashDataPtr )
+		{
+			const float fChargePowerRate = m_sMoonRightSlashDataPtr->GetPowerRateMul() * m_sMoonRightSlashDataPtr->GetPowerRate();
+			const float fPowerRate = static_cast<float>( GetPowerRate() * ( fChargePowerRate + 1.0 ) );
+
+			if ( m_bMoonSlash )
+				m_sMoonRightSlashDataPtr->SetHandleEffectSet(
+					g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_MoonLight_Slash_Crescent_Attack_FullMoon", this, NULL, false, fPowerRate ) );
+			else
+				m_sMoonRightSlashDataPtr->SetHandleEffectSet(
+					g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_MoonLight_Slash_Crescent_Attack", this, NULL, false, fPowerRate ) );
+		}
+	}
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.275f ) )
+	{
+		if ( NULL != m_sMoonRightSlashDataPtr )
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_sMoonRightSlashDataPtr->GetHandleReferenceEffectSet() );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -17318,6 +17534,7 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function 	: ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_StateEnd
@@ -17339,6 +17556,21 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_StateEnd()
 */
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32b9af60 ( walk and dash cancels need the foot on a line )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -17351,6 +17583,7 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_EventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
@@ -17389,10 +17622,21 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_Init()
 */
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_StateStart()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32b9b160 ( the charge counts in steps of SA_EFFECTIVE_RATE )
+	CommonStateStart();
+
+	if( NULL != m_sMoonRightSlashDataPtr )
+	{
+		const float fChargeCount = m_sMoonRightSlashDataPtr->GetChargingTime() * ( 1.f / m_sMoonRightSlashDataPtr->GetEffectiveRate() ) - 2.f;
+		m_sMoonRightSlashDataPtr->SetPowerRate( floor( fChargeCount ) * 0.1f );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	CommonStateStart();
 
 	if( NULL != m_sMoonRightSlashDataPtr )
 		m_sMoonRightSlashDataPtr->SetPowerRate( floor( m_sMoonRightSlashDataPtr->GetChargingTime() - 2.f ) * 0.1f );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function 	: ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_FrameMove
@@ -17400,6 +17644,37 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_StateStart()
 */
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32bb6410 ( the power rate is GetPowerRate() x ( 1 + POWER_RATE_MUL x charge rate ); the memo test is June's always-false stub )
+	if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_MoonLight_Slash_Full", this );
+	}
+
+	if( m_pXSkinAnim->EventTimerOneshot( 0.033f ) )
+	{
+		if ( NULL != m_sMoonRightSlashDataPtr )
+		{
+			const float fChargePowerRate = m_sMoonRightSlashDataPtr->GetPowerRateMul() * m_sMoonRightSlashDataPtr->GetPowerRate();
+			const float fPowerRate = static_cast<float>( GetPowerRate() * ( fChargePowerRate + 1.0 ) );
+
+			if ( m_bMoonSlash )
+				m_sMoonRightSlashDataPtr->SetHandleEffectSet(
+					g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_MoonLight_Slash_Fullmoon_Attack_FullMoon", this, NULL, false, fPowerRate ) );
+			else
+				m_sMoonRightSlashDataPtr->SetHandleEffectSet(
+					g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_MoonLight_Slash_Fullmoon_Attack", this, NULL, false, fPowerRate ) );
+		}
+	}
+
+	if ( m_pXSkinAnim->EventTimerOneshot( 0.300f ) )
+	{
+		if ( NULL != m_sMoonRightSlashDataPtr )
+			g_pX2Game->GetEffectSet()->StopEffectSet( m_sMoonRightSlashDataPtr->GetHandleReferenceEffectSet() );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -17461,6 +17736,7 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function 	: ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_StateEnd
@@ -17484,6 +17760,21 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_StateEnd()
 */
 void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32b9b1c0 ( walk and dash cancels need the foot on a line )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -17496,6 +17787,7 @@ void CX2GUAra::ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_EventProcess()
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 #pragma endregion ´Þºû º£±â
 
@@ -18644,7 +18936,11 @@ void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_START_CreateState( UserUnitStateData&
 	m_LuaManager.MakeTableReference( "ASI_SA_ALH_DOUBLE_COLLISION_START", stateData_.stateID );
 	stateData_.StateStart		= SET_CB_FUNC( CX2GUAra, ASI_SA_ALH_DOUBLE_COLLISION_START_Start );
 	stateData_.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_ALH_DOUBLE_COLLISION_START_Init );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32bae840 sets no FrameMove ( the effect sets and the force power cost are the state script's )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	stateData_.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_ALH_DOUBLE_COLLISION_START_FrameMove );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALH_DOUBLE_COLLISION_START_EventProcess );
 }
 
@@ -18665,9 +18961,19 @@ void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_START_Init() //ÆÈ±¥Àå_START
 }
 void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_START_Start() //ÆÈ±¥Àå_START
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32baa460 ( the skill's one force power is gained at the start, the FrameMove is gone )
 	CommonStateStart();
 
 	m_usBeforeForceGainCount = m_usForceGainCount;
+	UpForcePower( 1 );
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	CommonStateStart();
+
+	m_usBeforeForceGainCount = m_usForceGainCount;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_START_FrameMove() //ÆÈ±¥Àå_START
 {
@@ -18708,6 +19014,21 @@ void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_START_FrameMove() //ÆÈ±¥Àå_START
 }
 void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_START_EventProcess() //ÆÈ±¥Àå_START
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32bac4c0
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_SA_ALH_DOUBLE_COLLISION_END );
+
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )	// June vslot 0x7f8 ( true = ASUT_GROUND )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 #ifdef FIX_SKILL_CANCEL_ARA
@@ -18740,6 +19061,7 @@ void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_START_EventProcess() //ÆÈ±¥Àå_START
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_END_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
@@ -18747,7 +19069,11 @@ void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_END_CreateState( UserUnitStateData& s
 	stateData_.Init();
 	stateData_.stateID			= iStateId_;
 	m_LuaManager.MakeTableReference( "ASI_SA_ALH_DOUBLE_COLLISION_END", stateData_.stateID );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32baa520 sets no FrameMove ( the effect sets are the state script's )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	stateData_.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_ALH_DOUBLE_COLLISION_END_FrameMove );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALH_DOUBLE_COLLISION_END_EventProcess );
 }
 void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_END_FrameMove() //ÆÈ±¥Àå_END
@@ -18773,6 +19099,20 @@ void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_END_FrameMove() //ÆÈ±¥Àå_END
 }
 void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_END_EventProcess() //ÆÈ±¥Àå_END
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32b9bee0 ( walk and dash cancels need the foot on a line )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		if( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -18784,6 +19124,7 @@ void CX2GUAra::ASI_SA_ALH_DOUBLE_COLLISION_END_EventProcess() //ÆÈ±¥Àå_END
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 //¾Æ¶ó 2Â÷ ÀüÁ÷ - Á¦Ãµ(Sakra Devanam)
@@ -20057,6 +20398,21 @@ void CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_Init()
 }
 void CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_FrameMove() // ¸ÍÈ£°Ý
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32bb96d0 ( the start / black hole effect sets and the force power cost are the state script's now )
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
+
+	if( true == m_pXSkinAnim->EventTimerOneshot( 1.f ) )
+	{
+		if( true == GetIsRight() )
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_Power_of_WhiteTiger_Face", this );
+		else
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_Power_of_WhiteTiger_Face_Left", this );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	ChangeWorldColorByHyperMode();
 	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
 
@@ -20090,6 +20446,7 @@ void CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_FrameMove() // ¸ÍÈ£°Ý
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 void CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_EventProcess() // ¸ÍÈ£°Ý
 {
@@ -20102,13 +20459,37 @@ void CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_EventProcess() // ¸ÍÈ£°Ý
 }
 void CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_End()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32b928d0 ( the black hole effect set is the script's, deleted at state end )
+	CommonStateEnd();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	CommonStateEnd();
 
 	if ( INVALID_EFFECTSET_HANDLE != m_hTempEffectSet )
 		g_pX2Game->GetEffectSet()->StopEffectSet( m_hTempEffectSet );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 void CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING_FrameMove() // ¸ÍÈ£°Ý
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32bb99d0
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_Power_of_WhiteTiger_Landing", this, NULL, false, GetPowerRate() );
+
+		if( true == GetIsRight() )
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_Power_of_WhiteTiger_Face", this );
+		else
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"Effectset_Power_of_WhiteTiger_Face_Left", this );
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DAMAGE_EFFECT_ALH_POWER_OF_WHITE_TIGER_BUFF",
+			GetPowerRate(), GetBonePos(L"Bip01"), GetRotateDegree(), GetRotateDegree(),
+			m_FrameDataNow.unitCondition.landPosition.y );
+		// June's memo test ( 32bb99d0 ) is its always-false stub: no memo debuff effect, and the skill's buff factor is no longer pushed here
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -20162,15 +20543,29 @@ void CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING_FrameMove() // ¸ÍÈ£°Ý
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 void CX2GUAra::ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING_EventProcess() // ¸ÍÈ£°Ý
 {	
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32b9c1d0 ( the landing takes walk, skill and dash cancels now; March had none )
+	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
+	{
+		StateChange( USI_WAIT );
+	}
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		StateChange( USI_WAIT );
 	}
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 void CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_START_Init() // ¹«½ÖÂü
@@ -20401,6 +20796,9 @@ void CX2GUAra::ASI_SA_ALH_DESCENT_DRAGON_CreateState( UserUnitStateData& stateDa
 	stateData_.stateID			= iStateId_;
 	m_LuaManager.MakeTableReference( "ASI_SA_ALH_DESCENT_DRAGON", stateData_.stateID );
 	stateData_.StateInit			= SET_CB_FUNC( CX2GUAra, ASI_SA_ALH_DESCENT_DRAGON_Init );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	stateData_.StateStart		= SET_CB_FUNC( CX2GUAra, ASI_SA_ALH_DESCENT_DRAGON_StateStart );	// char-ara CH2b: June 32bc9110
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	stateData_.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_ALH_DESCENT_DRAGON_FrameMove );
 	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALH_DESCENT_DRAGON_EventProcess );
 }
@@ -20417,6 +20815,36 @@ void CX2GUAra::ASI_SA_ALH_DESCENT_DRAGON_Init() /// ¿ë¾Æ ÃÖÁ¾¿ÀÀÇ - Æø¼â
 }
 void CX2GUAra::ASI_SA_ALH_DESCENT_DRAGON_FrameMove() /// ¿ë¾Æ ÃÖÁ¾¿ÀÀÇ - Æø¼â
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2b: June 32bb9ec0 ( the full moon slash passive scales the power rate )
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
+
+	if( true == m_pXSkinAnim->EventTimerOneshot( 0.001f ) )
+	{
+		float fPowerRate = GetPowerRate();
+		if ( true == m_bMoonSlash )
+			fPowerRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, CX2SkillTree::RNSI_P_ASD_FULLMOON_SLASH ) * fPowerRate;
+
+		if ( true == GetIsRight() )
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ALH_Descent_Dragon", this, NULL, IsHyperState(), fPowerRate, -1.f );
+		else
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_ALH_Descent_Dragon", this, NULL, IsHyperState(), fPowerRate, -1.f,
+				GetVec3ScaleByUnit(), true, GetPos(), GetRotateDegree() + D3DXVECTOR3( 0, 180, 0 ), GetDirVector() );
+	}
+	else if( true == m_pXSkinAnim->EventTimerOneshot( 0.725f ) )
+	{
+		float fPowerRate = GetPowerRate();
+		if ( true == m_bMoonSlash )
+			fPowerRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, CX2SkillTree::RNSI_P_ASD_FULLMOON_SLASH ) * fPowerRate;
+
+		g_pX2Game->GetDamageEffect()->CreateInstance( (CX2GameUnit*)this, L"DAMAGE_EFFECT_ALH_DESCENT_DRAGON",
+			fPowerRate, GetBonePos(L"Bip01"), GetRotateDegree(), GetRotateDegree(),
+			m_FrameDataNow.unitCondition.landPosition.y );
+	}
+
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	ChangeWorldColorByHyperMode();
 	ShowActiveSkillCutInAndLightByBerserkMode( 0.001f );
 
@@ -20450,6 +20878,7 @@ void CX2GUAra::ASI_SA_ALH_DESCENT_DRAGON_FrameMove() /// ¿ë¾Æ ÃÖÁ¾¿ÀÀÇ - Æø¼â
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 void CX2GUAra::ASI_SA_ALH_DESCENT_DRAGON_EventProcess() /// ¿ë¾Æ ÃÖÁ¾¿ÀÀÇ - Æø¼â
 {
@@ -20460,6 +20889,37 @@ void CX2GUAra::ASI_SA_ALH_DESCENT_DRAGON_EventProcess() /// ¿ë¾Æ ÃÖÁ¾¿ÀÀÇ - Æø¼â
 	CommonEventProcess();
 }
 #endif //ARA_CHANGE_CLASS_FIRST
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+// char-ara CH2b: June 32b92a50
+void CX2GUAra::ASI_SA_ALH_DESCENT_DRAGON_StateStart()
+{
+	CommonStateStart();
+}
+
+// char-ara CH2b: June 32baae10
+void CX2GUAra::ASI_SA_ALH_LINK_FLOWER_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALH_LINK_FLOWER", stateData_.stateID );
+	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALH_LINK_FLOWER_EventProcess );
+}
+
+// char-ara CH2b: June 32ba5870 ( the walk, back walk and dash cancels need the foot on a line )
+void CX2GUAra::ASI_SA_ALH_LINK_FLOWER_EventProcess()
+{
+	if( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		StateChange( USI_WAIT );
+	}
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+
+	CommonEventProcess();
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 
 #ifdef ARA_CHANGE_CLASS_FIRST
 #pragma region ROCK_CRASH
@@ -23908,6 +24368,85 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 					}
 				} break;
 
+			case CX2SkillTree::RNSI_SA_ALH_DOUBLE_COLLISION:	// char-ara CH2b: June 32bd34c0 case 27006 / 27037
+			case CX2SkillTree::RNSI_SA_ALH_DOUBLE_COLLISION_UPGRADE:
+				{
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALH_DOUBLE_COLLISION_START];
+						ASI_SA_ALH_DOUBLE_COLLISION_START_CreateState( stateData, ASI_SA_ALH_DOUBLE_COLLISION_START );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALH_DOUBLE_COLLISION_END];
+						ASI_SA_ALH_DOUBLE_COLLISION_END_CreateState( stateData, ASI_SA_ALH_DOUBLE_COLLISION_END );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+					}
+				} break;
+
+			case CX2SkillTree::RNSI_SA_ALH_MOONLIGHT_SLASH:	// char-ara CH2b: June 32bd34c0 case 27008 / 27049
+			case CX2SkillTree::RNSI_SA_ALH_MOONLIGHT_SLASH_UPGRADE:
+				{
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALH_MOONLIGHT_SLASH_READY];
+						ASI_SA_ALH_MOONLIGHT_SLASH_READY_CreateState( stateData, ASI_SA_ALH_MOONLIGHT_SLASH_READY );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE];
+						ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE_CreateState( stateData, ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK];
+						ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK_CreateState( stateData, ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK];
+						ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK_CreateState( stateData, ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALH_DESCENT_DRAGON];
+						ASI_SA_ALH_DESCENT_DRAGON_CreateState( stateData, ASI_SA_ALH_DESCENT_DRAGON );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+					}
+
+					if ( NULL != m_sMoonRightSlashDataPtr )
+						m_sMoonRightSlashDataPtr.reset();
+
+					m_sMoonRightSlashDataPtr = sMoonLightSlashData::CreateMoonLightSlashData();
+					if ( NULL != m_sMoonRightSlashDataPtr )
+					{
+						m_sMoonRightSlashDataPtr->SetSlotID( ASI_SA_ALH_MOONLIGHT_SLASH_READY );
+						m_sMoonRightSlashDataPtr->SetSlotB( false );
+
+						float fEffectiveRate = 1.f;
+						pSkillTemplet->TryGetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, userSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true ), false, fEffectiveRate );
+						m_sMoonRightSlashDataPtr->SetEffectiveRate( fEffectiveRate );
+
+						if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASD_FULLMOON_SLASH ) )
+							m_sMoonRightSlashDataPtr->SetPowerRateMul( GetSkillNumericalByName( L"POWER_RATE_MUL", CX2SkillTree::RNSI_P_ASD_FULLMOON_SLASH, true ) );
+					}
+				} break;
+
+			case CX2SkillTree::RNSI_SA_ALH_LINK_FLOWER:	// char-ara CH2b: June 32bd34c0 case 27007 ( the enhanced id 27038 has no case in June, JUNE_BUGS )
+				{
+					UserUnitStateData&	stateData = m_StateList[ASI_SA_ALH_LINK_FLOWER];
+					ASI_SA_ALH_LINK_FLOWER_CreateState( stateData, ASI_SA_ALH_LINK_FLOWER );
+					SetSkillLevelStateData( pSkillTemplet, stateData );
+					stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );
+				} break;
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			case CX2SkillTree::SI_A_ALH_ROCK_CRASH:
 				{

@@ -6407,6 +6407,23 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (`Always.h`, defined now; its `#error` 
 
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (every Ara skill falls back to the Wind Wedge default), `python tools/build.py --deploy`.
 
+## Stage 7 Ara, CH2b: Little Hsien (class 28) special actives, ids below 27200 (2026-11-11)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's; no new define). Plan `JUNE_CHARACTER_ARA_PHASES.md` "CH2b - Done". `RNSI_*` base and enhanced ids join March's `SetEquippedSkillFuncBySkillSlotIndex` cases ( White Tiger 27005 / 27034, Double Collision 27006 / 27037, Moonlight Slash 27008 / 27049, Suppression 27009 / 27050 ) and `InitAquiredActiveSkillState` gets June's cases for Double Collision and Moonlight Slash; Fire Lotus ( Link Flower, 27007 / 27038 ) is a new state ( `ASI_SA_ALH_LINK_FLOWER`, EventProcess only ).
+- **Differs from March.** Moonlight Slash: the charge key of the transcendence slots 5 / B5 ( `pureSkill5` / `pureSkillEx5` ); the 1.5 s / 5 s charge thresholds and the 1 / rate charge steps follow the skill's `SA_EFFECTIVE_RATE`; Crescent / Full Moon attacks use `GetPowerRate() x ( 1 + POWER_RATE_MUL x charge rate )` ( `POWER_RATE_MUL` from the Full Moon Slash passive 27402, 1.0 without it ); Start adds the Open Mind buff; walk / dash cancels need the foot on a line. Double Collision: June registers no FrameMove ( the effect sets and `ADD_FORCE_POWER` are the state script's ), the one force power is gained in Start, START ends through `StateChangeOrFPCancel`. White Tiger: the Start / black hole effect sets and the force power change ( `USE_FORCE_POWER` ) are the script's, only the face effect set stays in C++; the landing takes walk / skill / dash cancels and no longer pushes the skill's buff factor ( the damage effect carries it ). Descent Dragon ( Moonlight Slash's secret skill ): a Start, and the Full Moon Slash passive scales its power rate. Suppression: June = March, only the ids are new.
+- **Damage ( level-1 multiplier; June = the damage effects' NUMERICAL_DATA through the engine, x0.01; March = the same-named damage effects the shipped tables carry ).**
+
+| Skill ( June id ) | March damage | June damage |
+|---|---|---|
+| Fierce Tiger Strike / White Tiger ( 27005 / 27034 ) | the `POWER_OF_WHITE_TIGER` damage effect tables | 1.51 ( buff effect ), 22.00 ( shock wave ) |
+| Eight Trigram Palm / Double Collision ( 27006 / 27037 ) | the `DOUBLE_COLLISION` damage effect tables | 9.13 ( start ), 3.25 ( flight ) |
+| Fire Lotus ( 27007 / 27038 ) | no state in March | `NUM use` lines: state `ASI_SA_ALH_LINK_FLOWER` tables 1 / 2 ( the script carries only NUMERICAL_DATA_INDEX ); projectile 3.65, explosion 3.18 |
+| Moonlight Slash ( 27008 / 27049 ) | the `MoonLight_Slash_*` damage effect tables | Crescent 30.06 ( 33.06 with the passive ), Full Moon 33.05 ( 42.96 with the passive ), x ( 1 + charge steps x 0.1 x POWER_RATE_MUL ); Descent Dragon 65.66 |
+| Suppression ( 27009 / 27050 ) | the `ASD_SUPPRESSION_DOWN_FORCE` damage effect | 4.94 x the force power spent |
+
+- **Save.** Unit 97 `LittleHsienT` slots changed for the play-test ( backup `db_backup/els_db_20261111_145422_pre_sql.sql` ).
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( every Ara skill falls back to the Wind Wedge default ), `python tools/build.py --deploy`.
+
 ## BUG_REPORT 2026-11-08, items 1-5 (fixed 2026-11-11)
 
 **1. Underground Waterway boss room froze the player (data only).** The merged data037 `NPCTemplet.lua` kept March's row for `NUI_BENDERS_NASOD` (`LUA_FILE_NAME = "Benders_Nasword.lua"`), while June's dungeon cutscene NPC (`Event_NPC_Benders_Elder.lua`) starts state `BENDERS_NASOD_START`, which only June's `BENDERS_NASOD.LUA` has. The boss stayed hidden in its start state and `STOP_AT_START_STATE` kept input off. The row now carries June's `MOTION` / `LUA_FILE_NAME` (the old values are in the comment above it); June's `Motion_Benders_Nasword.xet` staged into data006 (March's copy under `kom_backup_stage_june\20261111_105336`). `luabind.py check BENDERS_NASOD Event_NPC_Benders_Elder` PASS, `npc_anim_census.py` 0 missing anims. Revert: restore the two values in the row, `luasrc.py refresh data037 NPCTemplet.lua`, repack data037.

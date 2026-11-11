@@ -9909,3 +9909,47 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 320701e0	GetDistanceFromDirLineXZ( linePos, lineDir, pos ) (KTDXCommonFunc.h)	PORTED	Char Ara CH2b0: cdecl; |sin( ( GetDirVecToDegree( P1 - P3 ).y - ( GetDirVecToDegree( -dir ).y + 180.0 [33438080] ) ) * 0.017453292f [33441c58] ) * xz |P3 - P1||, all xz (y = 0), float stores between steps; callers 3200fa20, 32295cc0 @3229611b (game target query, unported), 32b7ad80 @32b7af5a (Elesis range, unported); flag _LOCKON (later users widen the #if)
 32757e60	CX2GUNPC::IsUnitID( id ) (March X2GUNPC.cpp:29581)	confirmed	Char Ara CH2b0: templet (+0x85f8) +0 m_nNPCUnitID == id; same as March
 327a0fa0 @327abb70	CX2GUNPC::InitComponent: INIT key ESCAPE_FROM_LOCK_ON -> +0x8fb6	PORTED	Char Ara CH2b0: m_bEscapeFromLockOn / GetEscapeFromLockOn under SERV_IRUHADEV_JUNE_NPC_ESCAPE_FROM_LOCK_ON (default false, ctor 32762670 @327633f2 clears); 17 June NPC scripts set it. Other June readers (cmp byte +0x8fb6,1): 322d0f70, 322d1240, 322d4a10, 322d7670, 322daa10, 322dadd0, 32771b80, 32773cd0, 32774750, 32b7ad80 - not wired (X2Game.cpp:16010 stand-in), routed to backlog Stage 2
+32b91d90	ASI_SA_ALH_MOONLIGHT_SLASH_READY.Init	confirmed	Char Ara CH2b: = March, no code ( Init preload list compared by script )
+32b91e20	ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE.Init	confirmed	Char Ara CH2b: = March, no code ( Init preload list compared by script )
+32b91eb0	ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK.Init	confirmed	Char Ara CH2b: = March, no code ( Init preload list compared by script )
+32b91f50	ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK.Init	confirmed	Char Ara CH2b: = March, no code ( Init preload list compared by script )
+32b92590	ASI_SA_ALH_DOUBLE_COLLISION_START.Init	confirmed	Char Ara CH2b: = March, no code ( Init preload list compared by script )
+32b92720	ASI_SA_ASD_SUPPRESSION.Init	confirmed	Char Ara CH2b: = March, no code ( Init preload list compared by script )
+32b92820	ASI_SA_ALH_POWER_OF_WHITER_TIGER.Init ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING.Init	confirmed	Char Ara CH2b: = March, no code ( Init preload list compared by script )
+32b929f0	ASI_SA_ALH_DESCENT_DRAGON.Init	confirmed	Char Ara CH2b: = March, no code ( Init preload list compared by script )
+32b92810	ASI_SA_ASD_SUPPRESSION.Start	confirmed	Char Ara CH2b: = March, no code ( CommonStateStart only )
+32b9c140	ASI_SA_ASD_SUPPRESSION.EventProcess	confirmed	Char Ara CH2b: = March, no code ( anim end -> WAIT / JUMP_DOWN with the position.y drop, CommonEventProcess )
+32bc2190	ASI_SA_ASD_SUPPRESSION.FrameMove	confirmed	Char Ara CH2b: = March, no code ( the used-force-power counter add at +0x9614 is June's only, CH1q removed the member: not written )
+32b9c190	ASI_SA_ALH_POWER_OF_WHITER_TIGER.EventProcess	confirmed	Char Ara CH2b: = March, no code ( anim end and foot on line -> LANDING )
+32b9af30	ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK.End	confirmed	Char Ara CH2b: = March, no code ( charging time and power rate cleared, CommonStateEnd )
+32bb68e0	ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK.End	confirmed	Char Ara CH2b: = March, no code ( effect set stopped, charging time and power rate cleared, CommonStateEnd )
+32baa2d0	ASI_SA_ALH_MOONLIGHT_SLASH_READY.Start	PORTED	Char Ara CH2b: inside, under _SKILL: SetPlaySpeed, charge reset, UpForcePower( m_usForceGainCount ) and the Open Mind buff
+32b9ac40	ASI_SA_ALH_MOONLIGHT_SLASH_READY.StartFuture	PORTED	Char Ara CH2b: inside, under _SKILL: charge key per slot, now also slot 5 / B5 ( pureSkill5 / pureSkillEx5 )
+32bb5bb0	ASI_SA_ALH_MOONLIGHT_SLASH_READY.FrameMove	PORTED	Char Ara CH2b: inside, under _SKILL: the 2 second effect set at 1.5 x SA_EFFECTIVE_RATE
+32b9ad90	ASI_SA_ALH_MOONLIGHT_SLASH_READY.EventProcess	PORTED	Char Ara CH2b: inside, under _SKILL: full moon threshold 1.5 x SA_EFFECTIVE_RATE
+32b9ae20	ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE.FrameMove	PORTED	Char Ara CH2b: inside, under _SKILL: the animation end test reads the now animation
+32b9ae80	ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE.EventProcess	PORTED	Char Ara CH2b: inside, under _SKILL: longest charge 5 x SA_EFFECTIVE_RATE
+32b9aee0	ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK.Start	PORTED	Char Ara CH2b: inside, under _SKILL: power rate floor( charge x ( 1 / SA_EFFECTIVE_RATE ) ) x 0.1
+32bb5f40	ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK.FrameMove	PORTED	Char Ara CH2b: inside, under _SKILL: power rate GetPowerRate() x ( 1 + POWER_RATE_MUL x charge rate ); memo test is the stub
+32b9af60	ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK.EventProcess	PORTED	Char Ara CH2b: inside, under _SKILL: WALK_ / DASH_CANCEL_AFTER_ON_LINE_
+32b9b160	ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK.Start	PORTED	Char Ara CH2b: inside, under _SKILL: power rate floor( charge x ( 1 / SA_EFFECTIVE_RATE ) - 2 ) x 0.1
+32bb6410	ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK.FrameMove	PORTED	Char Ara CH2b: inside, under _SKILL: power rate GetPowerRate() x ( 1 + POWER_RATE_MUL x charge rate ); memo test is the stub
+32b9b1c0	ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK.EventProcess	PORTED	Char Ara CH2b: inside, under _SKILL: WALK_ / DASH_CANCEL_AFTER_ON_LINE_
+32baa460	ASI_SA_ALH_DOUBLE_COLLISION_START.Start	PORTED	Char Ara CH2b: inside, under _SKILL: the force power gain moved here from FrameMove, Open Mind buff
+32bac4c0	ASI_SA_ALH_DOUBLE_COLLISION_START.EventProcess	PORTED	Char Ara CH2b: inside, under _SKILL: StateChangeOrFPCancel and the FP-cancel probe window
+32b9bee0	ASI_SA_ALH_DOUBLE_COLLISION_END.EventProcess	PORTED	Char Ara CH2b: inside, under _SKILL: WALK_ / DASH_CANCEL_AFTER_ON_LINE_
+32bb96d0	ASI_SA_ALH_POWER_OF_WHITER_TIGER.FrameMove	PORTED	Char Ara CH2b: inside, under _SKILL: only the face effect set at 1.0 s; the rest is the state script's
+32b928d0	ASI_SA_ALH_POWER_OF_WHITER_TIGER.End ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING.End	PORTED	Char Ara CH2b: inside, under _SKILL: CommonStateEnd only ( the black hole effect set is the script's )
+32bb99d0	ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING.FrameMove	PORTED	Char Ara CH2b: inside, under _SKILL: no buff factor push, memo test is the stub
+32b9c1d0	ASI_SA_ALH_POWER_OF_WHITER_TIGER_LANDING.EventProcess	PORTED	Char Ara CH2b: inside, under _SKILL: walk, skill and dash cancels
+32bb9ec0	ASI_SA_ALH_DESCENT_DRAGON.FrameMove	PORTED	Char Ara CH2b: inside, under _SKILL: power rate scaled by SA_DAMAGE_REL of the Full Moon Slash passive when m_bMoonSlash
+32b92a50	ASI_SA_ALH_DESCENT_DRAGON.Start	PORTED	Char Ara CH2b: new under _SKILL: ASI_SA_ALH_DESCENT_DRAGON_StateStart ( CommonStateStart )
+32ba5870	ASI_SA_ALH_LINK_FLOWER.EventProcess	PORTED	Char Ara CH2b: new under _SKILL: ASI_SA_ALH_LINK_FLOWER_EventProcess ( anim end -> WAIT, walk / back walk / dash on line, skill cancel )
+32baa410	state registration helper of ASI_SA_ALH_MOONLIGHT_SLASH_CHARGE	confirmed	Char Ara CH2b: = March's _CreateState, no code
+32bc8df0	state registration helper of ASI_SA_ALH_MOONLIGHT_SLASH_READY	confirmed	Char Ara CH2b: = March's _CreateState, no code
+32bc8e60	state registration helper of ASI_SA_ALH_MOONLIGHT_SLASH_CRESCENT_ATTACK	confirmed	Char Ara CH2b: = March's _CreateState, no code
+32bc8ed0	state registration helper of ASI_SA_ALH_MOONLIGHT_SLASH_FULLMOON_ATTACK	confirmed	Char Ara CH2b: = March's _CreateState, no code
+32bae840	state registration helper of ASI_SA_ALH_DOUBLE_COLLISION_START	PORTED	Char Ara CH2b: inside, under _SKILL: ASI_SA_ALH_DOUBLE_COLLISION_START_CreateState sets no OnFrameMove
+32baa520	state registration helper of ASI_SA_ALH_DOUBLE_COLLISION_END	PORTED	Char Ara CH2b: inside, under _SKILL: ASI_SA_ALH_DOUBLE_COLLISION_END_CreateState sets no OnFrameMove
+32baae10	state registration helper of ASI_SA_ALH_LINK_FLOWER	PORTED	Char Ara CH2b: new under _SKILL: ASI_SA_ALH_LINK_FLOWER_CreateState ( table + EventProcess ), used by SetEquipped ( normal and hyper ) and InitAquiredActiveSkillState ( 27007 )
+32bc9110	state registration helper of ASI_SA_ALH_DESCENT_DRAGON	PORTED	Char Ara CH2b: inside, under _SKILL: ASI_SA_ALH_DESCENT_DRAGON_CreateState gains StateStart

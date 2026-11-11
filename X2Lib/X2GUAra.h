@@ -303,6 +303,9 @@ public:
 		ASI_SA_ALS_RESTRAINTS_SPECTER,	/// char-ara CH1: June id 302, named by June's CHAIN_SYSTEM ( CH2d owns the state )
 		ASI_A_AA_RAID,	/// char-ara CH1: June id 294, named by June's CHAIN_SYSTEM ( CH3c2 owns the state )
 		ASI_SA_AA_SMASH,	/// char-ara CH1: June id 315, named by June's CHAIN_SYSTEM ( CH3c owns the state )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		ASI_SA_ALH_LINK_FLOWER,	/// char-ara CH2b: June id 330, named by June's script table ( Little Hsien's Fire Lotus )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	#pragma endregion 2-1, 2-2Â÷ ÀüÁ÷
 
@@ -394,6 +397,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 		float	m_fEffectiveRate;		/// char-ara CH1k review: June +0x20 ( 1.0 ), the skill's SA_EFFECTIVE_RATE stored by CanUseSpecialAttack @32bd08c5
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		float	m_fPowerRateMul;		/// char-ara CH2b: June +0x24 ( 1.0 ), the Full Moon Slash passive's POWER_RATE_MUL, read by the Crescent / Full Moon attacks
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		sMoonLightSlashData() : m_fChargingTime( 0.f ), m_fPowerRate( 0.f ), m_bSlotB( false ),
 			m_pChargeKey( NULL ), m_iSlotID( 0 ),
 			m_hChargeEffect( INVALID_EFFECTSET_HANDLE ), m_hNewAttackBox( INVALID_MESH_INSTANCE_HANDLE )
@@ -403,6 +409,9 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 			, m_fEffectiveRate( 1.f )	// char-ara CH1k review: June 32bd6eb4
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+			, m_fPowerRateMul( 1.f )	// char-ara CH2b: June 32bd6eb7
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		{}
 		
 	public:
@@ -425,6 +434,10 @@ public:
 		float	GetEffectiveRate() const { return m_fEffectiveRate; }
 		void	SetEffectiveRate( float fEffectiveRate_ ) { m_fEffectiveRate = fEffectiveRate_; }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		float	GetPowerRateMul() const { return m_fPowerRateMul; }	// char-ara CH2b
+		void	SetPowerRateMul( float fPowerRateMul_ ) { m_fPowerRateMul = fPowerRateMul_; }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 
 		bool	GetChargeKey() const { return (NULL != m_pChargeKey ? *m_pChargeKey : false); }
 		void	SetChargeKey( bool* pChargeKey_ ) { m_pChargeKey = pChargeKey_; }
@@ -601,6 +614,9 @@ protected:
 	void			ASI_SA_ARA_SHADOW_KNOT_WAIT_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2a: June 32bc8d90
 	void			ASI_SA_ARA_SHADOW_KNOT_CATCH_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2a: June 32bae750
 	void			ASI_SA_ARA_SHADOW_KNOT_END_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2a: June 32baa280
+	void			ASI_SA_ALH_DESCENT_DRAGON_StateStart();	// char-ara CH2b: June 32b92a50
+	void			ASI_SA_ALH_LINK_FLOWER_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2b: June 32baae10
+	void			ASI_SA_ALH_LINK_FLOWER_EventProcess();	// char-ara CH2b: June 32ba5870
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2
