@@ -1688,7 +1688,7 @@ Opus 5.5. Flag `SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE` (CHNb's, class-generic), 
   comment inside the flag, replaced; 0 non-ASCII, 0 EOL, 0 token, 0 encoding. `junediverge --check` (7 files): RESULT: PASS. `enumscan --check`: 0 rows on the changed
   lines (`X2Unit.h`'s 17 rows are its own enum definition; KTDXLIB files do not preprocess in the tool). No June `.lua` staged (luabind / skillicons n/a).
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 26,238,464 B, dated 2026-11-11 20:54:27, md5 3b0f210899f32b842e33343cfe197c3d` (built at `c8200145` + the 7 files). `EXESTR OK: 3 of 3` (the `2nd skills` log line, `g_pStatic_ClassSkillDescription`, `MajorCommandBack_%d`, wide).
-- **Play-test owed:** both guides with the units above (hand-off below).
+- **Play-test (2026-11-11): PASS.** `1st: 3 class description(s) wrapped to 180`; `2nd: class 34 line 3 -> next class 124, buttons 1543 / 1547` (skills: description 36200, 4 icons, 3 rows), 28 -> 118 ( 1541 / 1545, 36164 ), 31 -> 119 ( 1542 / 1546, 36182 ); Accept on the Asura guide sent `EGS_NEW_QUEST_REQ`; Buy opened 264390 (Hsien) / 264394 (Devil); 0 EXCEPTION. The other six March characters' guides: new plan `class-guides` G1 (user request).
 
 ## Phase CH2 - Skills: Martial Artist and the first jobs (classes 7, 28, 31, 34)
 

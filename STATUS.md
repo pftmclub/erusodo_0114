@@ -106,7 +106,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
 | CHNb | **done 2026-11-11** (play-test: both job changes + relog PASS, guides open, buttons wired; unfilled 2ND guide -> CHNb2); review after CHNb2 | Opus 5.5 / high, user play-test | CHNa review | `X2LVUpEventMgr.*`, `X2CashShop.*`, `X2Unit.h`, `LevelUpEvent.lua`, `Enum.lua` | `CHNb.md` |
-| CHNb2 | **done 2026-11-11**, play-test owed: June `32713c10` guide fill (1ST wrap, 2ND next class / buttons / skill icons / commands, 1551 / 1552); CHNb + CHNb2 review after | Opus 5.5 / high, Opus review, user play-test | CHNb | `X2LVUpEventMgr.*`, `X2Unit.h`, `X2SkillNoteManager.cpp`, `KTDXWordWrap.*` | `CHNb2.md`, `CHNb-review.md` |
+| CHNb2 | **done 2026-11-11** (play-test PASS: 1ST wrap, 2ND guides of 34 / 28 / 31 filled, accept + buy on my line, 0 EXCEPTION); CHNb + CHNb2 review next | Opus 5.5 / high, Opus review, user play-test | CHNb | `X2LVUpEventMgr.*`, `X2Unit.h`, `X2SkillNoteManager.cpp`, `KTDXWordWrap.*` | `CHNb2.md`, `CHNb-review.md` |
 | CH2a | **done 2026-11-11** (play-test logs clean, 7 skills cast; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3); no review of its own | Sonnet 5.5 / high, user play-test | CH1 review | `X2GUAra.*` | `CH2a.md` |
 | CH2b | **done 2026-11-11** (play-test logs clean, 5 skills cast; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3): Little Hsien (28) SA-tier skills; no review of its own | Sonnet 5.5 / high, user play-test | CH2a, CH2b0 review | `X2GUAra.*` | `CH2b.md` |
 | CH2b2 | **done 2026-11-11** (play-test logs clean, 4 skills cast; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3): Little Hsien (28) A-tier skills; no review of its own | Sonnet 5.5 / high, user play-test | CH2b | `X2GUAra.*` | `CH2b2.md` |
@@ -227,6 +227,14 @@ Plan `JUNE_CHARACTER_ADD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Z | blocked (CH6): close-out, `MODS.md`, template paragraph, **closes Stage 7** (unparks char-luciel) | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
 Decision answered 2026-11-11 (plan "Open decisions"): 1 stat rows for all seven Add classes are derived (class 9 from June's `UT_ADD` row by Lu/Ciel's formula; first jobs = 9; second jobs = 9 with their own level 1); CH0c writes 9 / 32 / 122, CHNa the rest; the user packs `StatTable.lua`.
+
+## class-guides - June class-change guides for the March characters
+
+**Scope:** June's level-15 / level-35 job-advancement guides for Elsword, Aisha, Rena, Raven, Eve and Chung (data on char-ara CHNb / CHNb2's class-generic code). Doc `CLASS_GUIDES_PHASES.md`, flag `SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE`, log `[JUNE_CHAR] CLASS GUIDE`. Elesis / Add: their CHNb; Lu/Ciel, Rose, Ain: their ports.
+
+| Phase | State | Model / effort | Depends | Touches | Kickoff |
+|---|---|---|---|---|---|
+| G1 | blocked (char-ara CHNb review): stage June 1ST / 2ND guides for the six March characters, their LevelUpEvent rows, luabind, pack | Sonnet 5.5 / high, user play-test | char-ara CHNb review | data034 dialogs, data036 `LevelUpEvent.lua` / `Enum.lua` | `G1.md` |
 
 ## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.
