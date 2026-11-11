@@ -1532,7 +1532,11 @@ protected:
 	float		m_fManaDrainRetakeMp;				/// June +0x97cc: MP the Mana Drain hits have given back so far
 	USHORT		m_usManaDrainHitCount;				/// June +0x97d0: Mana Drain hits so far
 	// char-ara CH1j: members of the CH1j functions ( June offsets in june2017_re/char_ara/ch1_offsets.tsv )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
+	// char-ara CH1q2: m_fNowSkillPassiveRate is CX2GUUser's ( June +0x8908 )
+#else SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
 	float		m_fNowSkillPassiveRate;				/// June CX2GUUser +0x8908: stand-in held by Ara, the base reader 32051bef ( state power rate x it, then 1 ) is CH1q2's
+#endif SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
 	CX2EffectSet::Handle	m_hKillEnemyEffectSet;	/// June +0x9718: the KILL_ENEMY effect set of the berserk kill reward ( CH1q starts it )
 	float		m_fNecromancyFoxCoolTime;			/// June +0x9768: wait before Necromancy's fox effect set plays again
 	float		m_fNecromancyFoxPowerRate;			/// June +0x976c: power rate that effect set plays with ( the Necromancy state sets it )

@@ -1326,6 +1326,45 @@ beyond the retired line, RESULT FAIL only for the now-commented define. Full bui
 
 **Nothing to play-test.** Next: `/x2-phase char-ara CH1q2` (Opus 5.5 high).
 
+### CH1q2 - Done (2026-11-11)
+
+**Landed** (every block tagged `char-ara CH1q2`; all three flags `//#define` until CH1 final; no `_SPECTER_DEBUG`: nothing runs before CH1, and a review
+would retire it unrun). Files: `KTDXLIB/Always.h`, `X2GameUnit.h`, `X2GUUser.h` / `.cpp`, `X2GUAra.h` / `.cpp`. 4 funcmap rows `Char Ara CH1q2`.
+- **`SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE` (new, class-agnostic):** `StateParam::bSpecterState` (June StateParam +0x95, right after `bAttackState` +0x94;
+  June's +0x96 is `USE_CHANGED_DISPARATE_FORCE`, +0x97 `bNoChangSpectro`), copied in `operator=`, false in `Init`; loaded false-default from `IS_SPECTER_STATE`
+  by `CX2GUUser::CommonStateStartFuture` (`320506f0` @`320523c2`, future copy, after `APPLY_ANIM_MOVE` as June) and `CommonStateStart` (`32057b80` @`3205866c`,
+  now copy, after `IS_ATTACK_STATE`).
+- **`SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED` (new, class-agnostic; the CH1j amendment):** `CX2GUUser::m_fNowSkillPassiveRate` (+0x8908, ctor 1.0 @`320425c2`).
+  **Correction to CH1j:** +0x8900 is `m_fAnimSpeedFuture`, not a power rate. June 320506f0 @`32051bef`: after `APPLY_ANIM_SPEED_BY_ITEM_ABILITY`'s add, while
+  `m_ComboAndSkillChainSystem.GetPtrNowUseChainInfo()` is set, the future anim speed x= the rate and the rate goes back to 1.0, then `ResetAnimSpeed`. Only
+  writers (`dispsweep 8908`): the ctor, this reader and Ara's `CommonStateStartFuture` `32bc8380` (CH1j, base last). Ara's stand-in member and its ctor init
+  sit in `#else`. CH1j's comment on `GetNowSkillPassiveRate` ("power rate") is left as written (old comments are not rewritten).
+- **`_SPECTER` (Ara):** `IsSpecterState()` body = `GetStateparam( false ).bSpecterState` (June inlines vslot 0x128( 0 ) byte +0x95 at both class readers,
+  `32bcee1c` Specter of Thunder and `32bd2c74` Necromancy fox: both read the now copy, as CH1h2 / CH1j wrote them). `UpdateEquipCollisionData` `32baf270`
+  inside March's: berserk -> base `UpdateNotRenderingOtherEquipList` when `m_fBuffHyperModeDamageRate > 0` and the buff hyper count < 3, else Ara's (vslot
+  0x630); collision from a copy of `m_vecPromotionEquipList` plus `m_ptrPromotionEquipTail` (the base skips a null entry); else March's three base calls; the
+  three attack boxes off after both.
+- **Already ported, checked, no change:** `TAIL_TYPE` load (`LoadPromotionItemID` `32bab890`), tail equips (`InitPromotionEquipList` `32baec10`), tail show
+  by count (`32badd50` / `32bae120` = `SetShowPromotionEquips` / `SetShowOriginalViewList`), tail anim (`ChangeAnimTail` = March), BTI 423 / 424 cases and
+  enum names (`X2BuffFactor.h:545-546`), +0x979c / +0x9768 countdowns: CH1h / CH1h2 / CH1j. `EffectSet_SpecterOfThunder_Buff_Damage` is in the live
+  `data036_kom/EffectSet.lua` (2 hits); `Motion_Ara_Tail_03.x` / `_06.x` are in `data131_kom` (CH0b).
+- **Found, not ported:** June also loads `IS_ATTACK_STATE` into the future copy (@`32052269`, +0x7da8); `dispsweep 7da8` finds no reader but the loader, so
+  nothing to port (a `GetStateparam( true )` read would not show in the sweep: CH6's scans recheck).
+- Checklist l.184 marked `(Ara: CH1q2)`.
+
+**Hygiene.** `flagcheck JUNE_CHAR_SPECTER_STATE --worktree --with JUNE_CHAR_CHAIN_ANIM_SPEED JUNE_CHAR_ARA_SPECTER JUNE_CHAR_ARA_LIVE --files <6 files>`: 2 PASS
+(`X2GUUser.cpp`, `X2GameUnit.h`), 3 OTHER (`X2GUAra.*`, `X2GUUser.h`: the sibling flags), 0 FAIL, 1 ERROR; the same with `CHAIN_ANIM_SPEED` primary: 4 PASS, 1
+OTHER, 0 FAIL, 1 ERROR; `_SPECTER --with CHAIN_ANIM_SPEED --files X2GUAra.*`: 2 PASS. The ERROR is `Always.h`: the tool cannot evaluate an older compound guard
+(`_FP && !_LIVE`, line 12217) once `_LIVE` is in the set; the hunk is 24 inserted lines, 0 deleted (`git diff`). 0 deleted, 0 non-ASCII, 0 EOL in every run;
+RESULT FAIL only for the commented-out `//#define`s. `junediverge.py --check <6 files>`: allow-listed 7, `RESULT: PASS`. `enumscan.py --check X2GUAra.cpp
+X2GUUser.cpp`: 0 A/B rows. Probes (`/c /Zs /EHsc`, `X2GUAra.cpp` and `X2GUUser.cpp`): off, the two user flags, `_LIVE` + `CHAIN_ANIM_SPEED`, `_LIVE` + `_FP` +
+`_SPECTER` + both user flags: 0 errors (8 runs); `_LIVE` alone and `_SPECTER` without `SPECTER_STATE`: the new guards fire (C1189), as meant. Full build
+skipped: no play-test.
+
+**Routed.** CH1 (amended): define both user flags with `_LIVE` / `_SPECTER`; tail check in the play-test. CHNa (amended): the Specter checks on 34 / 124.
+
+**Nothing to play-test.** Next: `/x2-phase char-ara CH1q2 review` (Opus 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

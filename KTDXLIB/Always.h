@@ -12374,3 +12374,27 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_FP needs SERV_IRUHADEV_JUNE_HYPER_CUT_IN_TIME ( IsHyperModeState ), SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG ( ChangeMaxCharacterAddResource ), SERV_IRUHADEV_JUNE_TRANSCEND_UNIT ( m_iUnitClassTran ) and SERV_IRUHADEV_JUNE_TRANSCEND_CHANGE ( IsMyGageTranscended )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH1q2 - IS_SPECTER_STATE: StateParam::bSpecterState, loaded by CX2GUUser::CommonStateStartFuture and
+//              CommonStateStart ( June 320506f0 @320523c2 / 32057b80 @3205866c ). Class-agnostic; Ara's readers sit under _SPECTER. Commented out until CH1 final.
+//              Revert: comment out the #define ( JUNE_CHAR_SPECTER_STATE ).
+//#define SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH1q2 - chain skill animation speed: CX2GUUser::m_fNowSkillPassiveRate ( June +0x8908, 1.0 in the ctor ) multiplies
+//              the future animation speed once while a combo / skill chain runs, then returns to 1.0 ( 320506f0 @32051bef ). Ara's CommonStateStartFuture writes it
+//              ( CH1j ). Class-agnostic. Commented out until CH1 final. Revert: comment out the #define ( JUNE_CHAR_CHAIN_ANIM_SPEED ).
+//#define SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER ) && !defined( SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER needs SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE ( StateParam::bSpecterState )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ) && !defined( SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED ( CX2GUUser::m_fNowSkillPassiveRate and its reader )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+//////////////////////////////////////////////////////////////////////////

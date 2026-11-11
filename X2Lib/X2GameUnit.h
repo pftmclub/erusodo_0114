@@ -766,6 +766,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
             bool                    bSuperArmorNotRed;		/// 슈퍼 아머일 때 붉은색을로 나타내지 않음
             int                     fGuardDefence;			/// 방어
 			bool					bAttackState;			/// 지금 상태가 공격상태인지, m_AttackTimeList가 empty가 아니거나 이 변수가 설정되어 있다면 공격상태임
+#ifdef SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
+			bool					bSpecterState;			/// char-ara CH1q2: June StateParam +0x95, the state's IS_SPECTER_STATE
+#endif SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
 #ifdef SERV_EVE_BATTLE_SERAPH
 			bool					bNoChangSpectro;		/// 스킬 중에서 역장이 변하지 않아야 되는 스킬 구분
 #endif
@@ -852,6 +855,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
                 fGuardDefence           = data.fGuardDefence;
 				bAttackState			= data.bAttackState;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
+				bSpecterState			= data.bSpecterState;	// char-ara CH1q2
+#endif SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
 #ifdef SERV_EVE_BATTLE_SERAPH
 				bNoChangSpectro			= data.bNoChangSpectro;
 #endif
@@ -914,6 +920,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 #endif SERV_IRUHADEV_JUNE_SUPER_ARMOR_CONDITION
                 fGuardDefence           = 0;
 				bAttackState			= false;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
+				bSpecterState			= false;	// char-ara CH1q2
+#endif SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
 #ifdef SERV_EVE_BATTLE_SERAPH
 				bNoChangSpectro			= false;
 #endif

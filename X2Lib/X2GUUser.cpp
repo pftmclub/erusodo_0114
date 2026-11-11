@@ -1079,6 +1079,9 @@ CX2GUUser::CX2GUUser( int unitIndex, int teamNum,
 #ifdef ADD_ANIM_SPEED_FUTURE
 	m_fAnimSpeedFuture = 1.f;
 #endif // ADD_ANIM_SPEED_FUTURE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
+	m_fNowSkillPassiveRate = 1.f;	// char-ara CH1q2: June ctor @320425c2
+#endif SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
 	m_bColdSlowApplied = false;
 	m_bFrozenSlowApplied = false;
 
@@ -16422,6 +16425,14 @@ void CX2GUUser::CommonStateStartFuture()
 	} // if
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
+	// char-ara CH1q2: June 320506f0 @32051bef
+	if ( NULL != m_ComboAndSkillChainSystem.GetPtrNowUseChainInfo() )
+	{
+		m_fAnimSpeedFuture *= m_fNowSkillPassiveRate;
+		m_fNowSkillPassiveRate = 1.f;
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
 	ResetAnimSpeed( m_fAnimSpeedFuture, bApplyAnimSpeedByItemAbility, true );
 
 #else	ADD_ANIM_SPEED_FUTURE
@@ -16449,6 +16460,9 @@ void CX2GUUser::CommonStateStartFuture()
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	LUA_GET_VALUE( m_LuaManager, "APPLY_ANIM_MOVE", m_FrameDataFuture.stateParam.bApplyAnimMove, true );
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
+	LUA_GET_VALUE( m_LuaManager, "IS_SPECTER_STATE", m_FrameDataFuture.stateParam.bSpecterState, false );	// char-ara CH1q2: June 320506f0 @320523c2
+#endif SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
 
 #ifdef RAVEN_SECOND_CLASS_CHANGE	
 	index = 0;
@@ -17002,6 +17016,9 @@ void CX2GUUser::CommonStateStart()
 #endif //SKILLSTRING_IN_SKILLTEMPLET
 
 	LUA_GET_VALUE( m_LuaManager, "IS_ATTACK_STATE",			m_FrameDataNow.stateParam.bAttackState,			false );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
+	LUA_GET_VALUE( m_LuaManager, "IS_SPECTER_STATE",		m_FrameDataNow.stateParam.bSpecterState,		false );	// char-ara CH1q2: June 32057b80 @3205866c
+#endif SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE
 
 
 	//{{ dmlee 2008.12.13 이브 소환 필살기 사용하면 tech point 주기 위해서

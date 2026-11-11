@@ -52,3 +52,9 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 
 - Turning on `_FP` brings June's force-power rework (CH1q Done note): the play-test checks force power filling on hits (`m_iHitAddForcePower`), dropping when a skill spends it (and MP rising by the spend x 20 x specialization B), the hyper-count gain (3 / 6 / 10 by orbs used), berserk at three orbs (portrait changes to the rage picture and back), and the berserk kill reward (HP + 3 percent, force power + 1, `EffectSet_KILL_ENEMY_WHEN_FULL_HYPER_MODE`). The `[JUNE_CHAR] ARA FP` log lines are retired by the CH1q review, so these checks are visual.
 - Max force power is 10 for every level (June's push `0xa`), not March's level formula.
+
+## Amended by CH1q2 (2026-11-11)
+
+- Define the two class-agnostic `CX2GUUser` flags with Ara's: `SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE` (needed by `_SPECTER`) and `SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED` (needed by `_LIVE`); the `Always.h` guards stop the build if either is missing. They touch `StateParam` (`X2GameUnit.h`), so the build takes `--pch force`.
+- Tail check (`_SPECTER`, CH1q2 Done note): in berserk the tail that matches the buff hyper count shows (`Motion_Ara_Tail_03.x` / `_06.x` / the 41580 tail), with no stray attack box on Rfoot / Lfoot / Lhand2; leaving berserk shows the normal view list again. `IS_SPECTER_STATE` itself only shows on 34 / 124 (CHNa).
+- Chain anim speed (`CHAIN_ANIM_SPEED`): on a 118 with Fullmoon Slash / Valor Devotion learned, a chained skill plays faster than the same skill cast on its own. Optional if no such save exists; say so in the hand-off.

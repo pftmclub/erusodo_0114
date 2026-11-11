@@ -213,7 +213,11 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	, m_bSkillFPGainLocked( false ), m_iSkillFPGainSerial( -1 ), m_iSkillFPGainSkillID( 0 )	// char-ara CH1j: renamed, June +0x9844 is a skill id
 	, m_fSpecterOfThunderCoolTime( 0.f ), m_fSpecterOfThunderPowerRate( 1.f ), m_hGetBloodEffect( INVALID_DAMAGE_EFFECT_HANDLE ), m_iGetBloodHitUnitCount( 0 ), m_bRaidHit( false )	// char-ara CH1h2: June 32bc6bf0
 	, m_hManaDrainEffect( INVALID_DAMAGE_EFFECT_HANDLE ), m_fManaDrainRetakeMp( -1.f ), m_usManaDrainHitCount( 0 )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
+	, m_hKillEnemyEffectSet( INVALID_EFFECTSET_HANDLE ), m_fNecromancyFoxCoolTime( 0.f ), m_fNecromancyFoxPowerRate( 1.f )	// char-ara CH1q2: m_fNowSkillPassiveRate is CX2GUUser's
+#else SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
 	, m_fNowSkillPassiveRate( 1.f ), m_hKillEnemyEffectSet( INVALID_EFFECTSET_HANDLE ), m_fNecromancyFoxCoolTime( 0.f ), m_fNecromancyFoxPowerRate( 1.f )	// char-ara CH1j: June 32bc6bf0
+#endif SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
 	, m_fValorDevotionTimer( 0.f ), m_usHellGhostCount( 0 ), m_dwHellGhostTime( timeGetTime() ), m_fLinkFlowerSlashTime( 0.f ), m_iFPGainStateSkillID( 0 )
 	, m_iLinkFlowerSlashStateID( 0 ), m_usSkillFPConsumption( 0 ), m_iFPCancelSkillID( 0 ), m_iUsedSkillID( 0 )	// char-ara CH1k: June 32bc6bf0
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
@@ -7582,6 +7586,26 @@ void CX2GUAra::ReplaceWeapon( CX2EqipPtr pWeaponPtr_ )
 */
 /*virtual*/ void CX2GUAra::UpdateEquipCollisionData()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
+	// char-ara CH1q2: June 32baf270 ( the active tail joins the berserk collision list )
+	if ( IsFullHyperMode() )
+	{
+		if ( 0.f < m_fBuffHyperModeDamageRate && GetHyperModeCountByBuff() < 3 )
+			CX2GUUser::UpdateNotRenderingOtherEquipList();
+		else
+			UpdateNotRenderingOtherEquipList();
+
+		vector<CX2EqipPtr> vecCollisionEquipList( m_vecPromotionEquipList );
+		vecCollisionEquipList.push_back( m_ptrPromotionEquipTail );
+		CX2GUUser::UpdateEquipCollisionData( vecCollisionEquipList );
+	}
+	else
+	{
+		CX2GUUser::SetShowViewList( true );
+		CX2GUUser::UpdateNotRenderingOtherEquipList();
+		CX2GUUser::UpdateEquipCollisionData( m_ViewEqipList );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	// ±¤ÆøÈ­ ¸ðµå ÀÌ¸é
 	if ( IsFullHyperMode() )
 	{
@@ -7597,6 +7621,7 @@ void CX2GUAra::ReplaceWeapon( CX2EqipPtr pWeaponPtr_ )
 	}
 
 	////// ¾îÅÃ ¹Ú½º ¿Ö ²ø±î?
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	SetEnableAttackBox( L"Rfoot", false );
 	SetEnableAttackBox( L"Lfoot", false );
 	SetEnableAttackBox( L"Lhand2", false );		
@@ -24437,6 +24462,13 @@ std::vector<CX2GUAra::SkillFPGainRecord>::iterator CX2GUAra::FindSkillFPGainEntr
 	return itFirst_;
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
+// char-ara CH1q2: June reads GetStateparam( false ) byte +0x95 inline ( 32bcee1c, 32bd2c74 )
+bool CX2GUAra::IsSpecterState() const
+{
+	return GetStateparam( false ).bSpecterState;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 // char-ara CH1j: June 32ba7ec0 ( stored by CommonStateStartFuture; the base multiplies it into the state's power rate, CH1q2 ports that reader )
 float CX2GUAra::GetNowSkillPassiveRate() const

@@ -4651,6 +4651,9 @@ public:
 		float											m_fAnimSpeedFuture;			/// 스크립트에 지정된 각 상태별 애니메이션 속도, default = 1.f, used in future state
 #endif // ADD_ANIM_SPEED_FUTURE
 		bool											m_bColdSlowApplied;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
+		float											m_fNowSkillPassiveRate;		/// char-ara CH1q2: June +0x8908, a chain skill's animation speed rate, used once by CommonStateStartFuture
+#endif SERV_IRUHADEV_JUNE_CHAR_CHAIN_ANIM_SPEED
 		bool											m_bFrozenSlowApplied;
 
 
