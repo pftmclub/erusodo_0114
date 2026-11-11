@@ -2143,6 +2143,8 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( CH2a's, no new define; `_
 
 **Play-test hand-off.** In the chat of 2026-11-11 ( units 137 and 138 ). Lines to read: `[JUNE_CHAR] ARA SKILL state` ( View Between 288 / 289, Shake Chaos 291 / 292, Mana Drain, Quick Piercing, Storm 27021's states; no `BLANK` ), the `DamageEffect_VIEW_BETWEEN*` / `SHAKE_CHAOS*` / `MANA_DRAIN_MP` effects, `[JUNE_SKILL] NUM use`, `ARA SKILL chain refused` ( at Raid ), 0 `EXCEPTION`.
 
+**Play-test (2026-11-12, run 04:53-04:56 on md5 3279ce85; unit 137 only).** Base Storm 27021: states 50 -> 266 -> 267 twice, no `BLANK` ( the CH2dx test owed to this phase passes ). View Between 27214 ( state 52 ): chained into Shake Chaos ( 54 -> finish 259 ) three times, alone once ( 52 -> finish 258, the finish damage effect created ); `DamageEffect_VIEW_BETWEEN_Damage` hit. Shake Chaos: `Damage1` / `Damage2` / `FINISH_Damage` hit. Mana Drain 27216 ( state 56 ) x2: `MANA_DRAIN_MP_Damage` then `MANA_DRAIN_Damage` hit ( MP give-back popup is on-screen only, not reported ). Quick Piercing 27217 ( bank B, state 60 ) x3. ErrorLog: `KEM_ERROR` 0, `Motion Error` 0, packets `EXCEPTION` 0; the `OpenXET` lines for `ALS_VIEW_BETWEEN_H1/H2*` and `SI_A_ALS_MANA_DRAIN_01` are the engine's companion-file lookup ( the meshes are in data132 ), as the `MOTION_ARA_*` lines. `NUM use`: none ( as CH2a ). **Not played:** unit 138 ( upgrade ids 27225 / 27239 / 27240 / 27241, second-switch registration ) and `chain refused` at Raid ( 0 lines ): both go to the review.
+
 ### CH5 - Done (2026-11-11)
 
 Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI` (`Always.h` end; `#error` without `_ARA_LIVE` and `JUNE_UNIT_VIEWER_EFFECT_PLAYER`). Review kickoff `kickoffs/char-ara/CH5-review.md` written.
