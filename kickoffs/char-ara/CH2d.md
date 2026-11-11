@@ -61,3 +61,7 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
   gets June's case body too, inside March's case under `_SKILL`. June's chain lookup there takes the upgrade-swapped id: CH1n's head declares
   `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
 - `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).
+
+## Amended by CH1p (2026-11-11)
+
+- Specter of Storm's held key is `CX2GUUser::m_kSkillSlotKey` (June `+0x8b58`): StartFuture `32ba7c20` `Set( m_iNowSpecialAttack - 1 )` (`@32ba7c33`), EventProcess `32bc9c70` `FollowSlotSwap` `@32bc9c7b` and `IsKeyReleased` `@32bc9ca4`. Never March's `CurrentSkillKeyManager` (4 + 4).

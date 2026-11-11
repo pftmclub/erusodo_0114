@@ -12329,3 +12329,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_SKILL_TYPE ( ST_SPECIAL_ACTIVE_GRADE_1-3 ), SERV_IRUHADEV_JUNE_SKILL_NOTE and SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION ( GetTranscendenceMemoSkillID ), SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( GetUpgradeSwappedSkillID, GetUpgradedSkillID )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH1p - guard only ( no new flag ): June's GetPressedSkillState and Ara's pressed index read five-entry slot state tables
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ) && !defined( SERV_IRUHADEV_JUNE_SKILL_SLOT_10 )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_SKILL_SLOT_10 ( five-entry slot state tables )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+//////////////////////////////////////////////////////////////////////////

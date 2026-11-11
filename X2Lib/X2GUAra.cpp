@@ -6076,7 +6076,7 @@ bool CX2GUAra::CanUseSpecialAttack( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eAc
 	m_fChosenSkillMp = GetActualMPConsume( pSkillTemplet->m_eID, iSkillTempletLevel );
 	float fCoolTimeLeft = ShownSkillCoolTime( pSkillSlotData->m_fCoolTimeLeft, pSkillTemplet->m_eID );
 
-	// June's pressed index space: five slots a bank ( the base CommonSpecialAttackEventProcess hands Ara March's until CH1p )
+	// char-ara CH1p: June's pressed index space, five slots a bank ( A 0-4, B 5-9 )
 	const bool bSlotB = iPressedSkillSlotIndex >= 5;
 	const int iSlotIndex = ( true == bSlotB ) ? iPressedSkillSlotIndex - 5 : iPressedSkillSlotIndex;
 
@@ -22276,7 +22276,11 @@ void CX2GUAra::ASI_SA_AYR_ENERGY_VOID_START_Init()
 void CX2GUAra::ASI_SA_AYR_ENERGY_VOID_START_StateStartFuture()
 {
 	/// 키 입력 제어 객체 초기화
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 );	// char-ara CH1p: June 32b93bc0: the held key follows the slot the skill was cast from ( 0-9 )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	m_sCurrentSkillKeyManager.InitCurrentSkillKeyManager( m_iNowSpecialAttack - 1 );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 
 	CommonStateStartFuture();
 }
@@ -22416,14 +22420,22 @@ void CX2GUAra::ASI_SA_AYR_ENERGY_VOID_LOOP_StateStart()
 void CX2GUAra::ASI_SA_AYR_ENERGY_VOID_LOOP_EventProcess()
 {
 	/// 키 입력 제어 객체에서 슬롯이 변경 되어 있는지 검사
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	m_kSkillSlotKey.FollowSlotSwap();	// char-ara CH1p: June 32b9e820 @32b9e82a
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	m_sCurrentSkillKeyManager.CheckSkillSlotSwap();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 
 	/// 모션이 반복 시점을 넘었을 때
 	if ( 0.4f <= m_pXSkinAnimFuture->GetNowAnimationTime() )
 	{
 		/// 차지 4단계 이상이고 키 입력을 해제 하였거나, 최대 반복 횟수에 도달되었다면 스테이트로 전환
 		if ( ( 3 < m_iEnergeVoidChargeValue &&
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+			   true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) ) ||	// char-ara CH1p: June @32b9e85e ( the charge test is CH3b's )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 			   true == m_sCurrentSkillKeyManager.IsUnpressedCurrentSkillKey( m_InputData ) ) || 
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 			 _CONST_ARA_::ENERGY_VOID_MAX_CHARGE_VALUE <= m_iEnergeVoidChargeValue )
 		{
 			StateChange( ASI_SA_AYR_ENERGY_VOID_END );

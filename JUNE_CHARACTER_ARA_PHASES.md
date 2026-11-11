@@ -1160,6 +1160,49 @@ define. Full build skipped: no play-test.
 
 **Nothing to play-test.** CH1p kickoff checked (its review kickoff is written by CH1p). Next: `/x2-phase char-ara CH1p` (Opus 5.5 high).
 
+### CH1p - Done (2026-11-11)
+
+**Three readers moved to June's pressed index, one `CX2GUUser` function replaced, no new flag.** All under `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` (still `//#define`),
+March's code in `#else`; every block tagged `// char-ara CH1p`. Read from the exe bytes (`funcdis.py`, `dispsweep.py 8ac0 8b58 88bc 8ea0 8ea4 8ea8` over
+`32b90b70-32bd86e0`) and `cl /P` of both files, `_LIVE` off / on.
+
+**7ag, the pressed-index space.**
+- **Class side: June's already (CH1k).** `CanUseSpecialAttack`'s lookup decodes `>= 5` / `- 5` and stores `m_iChosenSkillSlotIndex` (`+0x8ea4`, `@32bd0812`);
+  `SpecialAttackCooldown` marks the slot 0-9 (`@32bb201a`); `m_iNowSpecialAttack = slot + 1` (`+0x88bc`, `@32b90cf2`). March's 4 + 4 decode and `CountUsedSkill`
+  sit only in `#else` (`_LIVE` `.i`: `iPressedSkillSlotIndex > 3` 0 / off 4, `>= 5` 1 / 0). June never touches `+0x8ac0` in her range. The stale "until CH1p"
+  comment in the lookup now says A 0-4 / B 5-9 (the one deleted line).
+- **Shared reader.** `CommonSpecialAttackEventProcess` (June `31fcadd0`): `UT_ARA` joins the June set (`X2GUUser.cpp`, a new outer `_LIVE` level over Rena's chain;
+  stand-in comment now names Elesis, Add). `.i`: `UT_ARA != ...` 1 with `_LIVE`, 0 off.
+- **`GetPressedSkillState` replaced** (divergent row, June `31fd3360`): June's body inside March's: hyper test, then `> 4` / `- 5` over the four tables
+  (`33472040` normal A 50-58, `33472054` hyper A, `33472068` normal B 60-68, `3347207c` hyper B; read from `.rdata`). Its only callers are Ara's lookup (June body)
+  and her March body in `#else`. The CH0 allow row for `CX2GUAra::CanUseSpecialAttack` is dropped; the divergent row says "ported under ...". Guard added in
+  `Always.h`: `_LIVE` needs `SERV_IRUHADEV_JUNE_SKILL_SLOT_10` (5-entry tables; the `_LIVE` probe proves it is defined there).
+- **`CurrentSkillKeyManager` (March 4 + 4) fed June's 0-9: fixed for Energy Void.** June's `+0x8b58` is `CX2GUUser::m_kSkillSlotKey` (Eve CH1j20). Energy Void
+  START StartFuture is June's whole body (`32b93bc0`: `Set( m_iNowSpecialAttack - 1 )` `31fce6d0`, then `CommonStateStartFuture`); the LOOP EventProcess takes
+  June's two key calls (`FollowSlotSwap` `@32b9e82a`, `IsKeyReleased` `@32b9e85e`). Its charge test (June `>= 5` / `>= 10`, March `3 <`) stays for **CH3b**
+  (kickoff amended). June's other `+0x8b58` users are new states: Energy Wave `32b93540` / `32b9dd20` (**CH2c**), Specter of Storm `32ba7c20` / `32bc9c70`
+  (**CH2d**) and its DEGREE pair `32ba5b50` / `32ba5e90` (**CH2d2**); kickoffs amended. `32b93590` is dead (CH0).
+- Checklist 7ag gets an Ara paragraph.
+
+**Hooks 7h / 7l / 7o / 7p / 7x.** 7h `InitWaitStateChange( "ASI_WAIT_STATE_CHANGE" )` (`X2GUAra.cpp:576`) and 7l `InitBoundingStates( "ASI_" )` (`:1021`) are
+CH1m's (rows marked). 7o `SET_LIMIT_MAX_G_SPEED` (June script x1; reader `X2GUUser.cpp:16566`), 7p `TIME_STOP_IMMUNE_STATE` (x3; `:18203`), 7x `AT_COMMAND` x36 /
+`AT_SPECIAL` x8 are script data that `Ara_Martial_Artist.lua` brings in CH1 final; their readers are done.
+
+**The script keys CH0 gave this phase** (`ch0_keys.tsv`: all five are "both", March reads them too). `USE_FORCE_POWER` / `ADD_FORCE_POWER` / `FP_CANCEL`: loaded by
+CH1j inside `CommonStateStart` (`32bd2a40`); consumers are CH1q's. `BERSERK` x40 / `USE_BERSERK_SOUND`: the engine's `SOUND_SET` sub-table (C3t-2, done); Ara's
+inputs `IsFullHyperMode` (0x9c) and `IsHyperModeState` (`32bd85f0`) are CH1q's. `APPLY_MEMO` / `EFFECT_SET_LIST_EX_MEMO` x2: only in the unregistered
+`ASI_SA_ALS_SPECTER_OF_BLADE` / `_FINISH` tables (CH0, june-dead-data), n/a. §5 rows marked.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUUser.cpp`: `X2GUAra.cpp` PASS +13 -1, `X2GUUser.cpp` PASS +23;
+`files: 2 PASS, 0 PASS~, 0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `1 deleted line(s), 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif without the flag token,
+0 encoding change(s)`; RESULT FAIL only for `define: NOT FOUND` (`//#define`). `Always.h`: +9, a pure insertion (guard only).
+`junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2GUUser.cpp`: `allow-listed: 7`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp
+X2Lib/X2GUUser.cpp`: `0 A/B row(s)`. One-file `/c /Zs /EHsc` probes (`census.cl_cmd`): `X2GUAra.cpp` and `X2GUUser.cpp` off, `_LIVE`, `_LIVE` + `_FP` + `_SPECTER`
++ `_SKILL`: exit 0, 0 errors, 38 / 39 warnings each (unchanged). Full build skipped: no play-test. No `_DEBUG` define. Funcmap: `31fd3360` PORTED, `32b93bc0`
+PORTED, `32b9e820` routed (`Char Ara CH1p`). No `JUNE_BUGS` row.
+
+**Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-ara CH1p review` (Opus 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.

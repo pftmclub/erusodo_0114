@@ -19,5 +19,4 @@ X2GUChung.cpp	CX2GUChung::GetRemoteMortarMaxCount	GT_PVP	June 32c0a500: game vsl
 X2GUElsword_SwordMan.cpp	CX2GUElsword_SwordMan::ReInit	GT_PVP	June 32d1a920 @32d1a9d9: vslot 0x10c, dec eax / je (type 1 only)
 X2GULire_ElvenRanger.cpp	CX2GULire_ElvenRanger::ReInit	GT_PVP	June 32ca4a40 @32ca4ac9: vslot 0x10c, cmp eax 1 / jz (type 1 only)
 X2GULire_ElvenRanger.cpp	CX2GULire_ElvenRanger::InitComponent	GT_PVP	June 32c895b0 @32c895f4: vslot 0x10c, dec eax / jnz (type 1 only)
-X2GUAra.cpp	CX2GUAra::CanUseSpecialAttack	GetPressedSkillState	June 32bcfaa0 calls 31fd3360; the replace row goes to char-ara CH1p (7ag), after CH1k transcribes the caller: drop this row in CH1p
 X2GUAra.cpp	CX2GUAra::ReInit	GT_PVP	June 32bc8030 @32bc80aa: vslot 0x10c, dec eax / je (type 1 only; char-ara CH1k review)

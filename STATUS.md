@@ -105,7 +105,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH1p | **ready** (CH1o review passed 2026-11-11): 7ag, hooks, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUAra.*`, `X2GUUser.*` | `CH1p.md` |
+| CH1p | done 2026-11-11, **review ready**: June pressed index (`GetPressedSkillState`, shared reader, Energy Void key); keys owned; full build skipped | Opus 5.5 / high, Opus review | CH1o review | `X2GUAra.*`, `X2GUUser.*` | `CH1p.md`, `CH1p-review.md` |
 | CH1q | blocked (CH1p review): force power + berserk rework, flag `_FP` | Opus 5.5 / high, Opus review | CH1p review | `X2GUAra.*`, `X2GUUser.*`, `X2Gage*.*`, emulator | `CH1q.md` |
 | CH1q2 | blocked (CH1q review): Specter states + tails, flag `_SPECTER` | Opus 5.5 / high, Opus review | CH1q review | `X2GUAra.*`, `X2GUUser.*` | `CH1q2.md` |
 | CH1 | blocked (CH1q2 review, CH0b): `_LIVE` on, June script, play-test on 7 / 28 / 31 / 118 / 119 | Opus 5.5 / high, Opus review, user play-test | CH1q2 review, CH0b | Always.h, data036, motion koms | `CH1.md` |
