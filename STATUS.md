@@ -163,7 +163,7 @@ Plan `JUNE_CHARACTER_ELESIS_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]`
 | CH1q | blocked (CH1p review): Way of the Sword class side + gauge twins, flag `_WOS` | Opus 5.5 / high, Opus review | CH1p review | `X2GUEL.*`, `X2GageData.*`, `X2GageUI.*`, `X2GUUser.cpp`, `X2DamageEffect.cpp` | `CH1q.md` |
 | CH1 | blocked (CH1q review, CH0b): `_LIVE` on, June script, play-test on 8 / 29 / 30 / 120 / 121 | Opus 5.5 / high, Opus review, user play-test | CH1q review, CH0b | Always.h, data036, motion koms | `CH1.md` |
 | CH5 | blocked (CH1 review): `UnitTemplet` rows, cut-in table, creation screen (Grand Master, Blazing Heart) | Sonnet 5.5 / high, Opus review, user play-test | CH1 review | `UnitTemplet.lua`, `X2GUEL.cpp` cut-ins, `X2StateCreateUnit.*`, `X2UnitViewerUI.*`, data034 | `CH5.md` |
-| CHNa | blocked (CH5 review, char-ara CHNa review, decision 1): 35 / 125 load and play, gauge arms, creation screen third line | Opus 5.5 / high, Opus review, user play-test | CH5 review, char-ara CHNa review | `X2GageManager.cpp`, `X2Unit.h`, `X2GUEL.cpp`, `X2StateCreateUnit.cpp`, emulator, `createchar.py` | `CHNa.md` |
+| CHNa | blocked (CH5 review, char-ara CHNa review): 35 / 125 load and play, gauge arms, stat rows, creation screen third line | Opus 5.5 / high, Opus review, user play-test | CH5 review, char-ara CHNa review | `X2GageManager.cpp`, `X2Unit.h`, `X2GUEL.cpp`, `X2StateCreateUnit.cpp`, emulator, `createchar.py`, `StatTable.lua` (user packs) | `CHNa.md` |
 | CHNb | blocked (CHNa review): job change to 35 / 125 (quests 35569-35577) + level-15 / level-35 class-change dialogs | Opus 5.5 / high, Opus review, user play-test | CHNa review | `LevelUpEvent.lua`, `Handlers_Quest.cpp`, dialogs | `CHNb.md` |
 | CH2a | blocked (CH1 review): Knight (8) skills; no review of its own | Sonnet 5.5 / high, user play-test | CH1 review | `X2GUEL.*` | `CH2a.md` |
 | CH2b | blocked (CH2a): Saber Knight (29) skills | Sonnet 5.5 / high, user play-test | CH2a | `X2GUEL.*` | `CH2b.md` |
@@ -180,7 +180,7 @@ Plan `JUNE_CHARACTER_ELESIS_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]`
 | CH6 | blocked (CH4c review, CH5 review, CHNb review): scans rerun + user walk incl. both job changes, the creation screen and the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH4c, CH5, CHNb reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template paragraph, `stage7-plan` -> `char-add` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Open decision (plan "Open decisions"): 1 stat rows for 35 / 125 (and 120 / 121, which have none today): asked 2026-11-11, gates CHNa.
+Decision answered 2026-11-11 (plan "Open decisions"): 1 stat rows for 35 / 120 / 121 / 125 follow Ara's rule (CHNa writes, user packs).
 
 ## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.
