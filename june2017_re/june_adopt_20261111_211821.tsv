@@ -1,0 +1,15 @@
+# adopt-june --bytecode run 2026-11-11 (LUA_SOURCE_PHASES.md L3)
+# mode bytecode = ljconv(June bytecode), shipped_sha1 is its sha1; mode source = BOM + decompile proven at `tier`, shipped_sha1 is the staged file's
+name	kom	state	june_koms	size	shipped_sha1	mode	tier	note
+DLG_1ST_Class_Change_Guide_Aisha.lua	data034	replace	data034	8477	08318c30c50d8ccfeff343d82aec51341239accc	bytecode		ljconv
+DLG_1ST_Class_Change_Guide_Chung.lua	data034	replace	data034	8479	c1fa850e7e2e5f2ce8bd1a954555a6f600a2188f	bytecode		ljconv
+DLG_1ST_Class_Change_Guide_Elsword.lua	data034	replace	data034	8470	05b15a185247fcabf96bc67498cb601984882420	bytecode		ljconv
+DLG_1ST_Class_Change_Guide_Eve.lua	data034	replace	data034	8471	ccc7f001601a062f6d5831781ca9785a68ea01e3	bytecode		ljconv
+DLG_1ST_Class_Change_Guide_Lena.lua	data034	replace	data034	8474	aac1d3a1b499dafa863cff3058a001a6e6298ecf	bytecode		ljconv
+DLG_1ST_Class_Change_Guide_Raven.lua	data034	replace	data034	8477	3e70104fbd92ef72640d97a224e46fe0e40df55c	bytecode		ljconv
+DLG_2ND_Class_Change_Guide_Aisha.lua	data034	replace	data034	7022	80615969a1cff6e74797dcd24b967a8c5c595e8f	bytecode		ljconv
+DLG_2ND_Class_Change_Guide_Chung.lua	data034	replace	data034	7022	a114035247eb5fca69bd312b3d631b2174afef80	bytecode		ljconv
+DLG_2ND_Class_Change_Guide_Elsword.lua	data034	replace	data034	7028	e24c6bd634f0e1b566d19d67791b12cc3453987f	bytecode		ljconv
+DLG_2ND_Class_Change_Guide_Eve.lua	data034	replace	data034	7016	010f30fcb944074cf19f3a35cbc9fd4291289e33	bytecode		ljconv
+DLG_2ND_Class_Change_Guide_Lena.lua	data034	replace	data034	7019	b1b3be9ea6502cfa54988e3ccd721e047f7ffa42	bytecode		ljconv
+DLG_2ND_Class_Change_Guide_Raven.lua	data034	replace	data034	7022	4a8a7b622fafcd3563282475ff6dc84a49d5ed89	bytecode		ljconv
