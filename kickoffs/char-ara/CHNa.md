@@ -57,3 +57,10 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 ## Amended by CH1q2 (2026-11-11)
 
 - CH1q2's Specter checks (both need `_SPECTER` + `SERV_IRUHADEV_JUNE_CHAR_SPECTER_STATE`, defined by CH1): on a 34 with Specter of Thunder (`RNSI_SA_ALS_SPECTER_OF_THUNDER` 27023) cast, so `BTI_BUFF_SPECTEROFTHUNDER` runs, basic-combo / dash / jump-attack hits (the 40 `IS_SPECTER_STATE` tables) now and then play `EffectSet_SpecterOfThunder_Buff_Damage` behind the hit point, at most once per 0.5 s; once the buff ends they stop. On a 124 with Necromancy (`RNSI_SA_ASR_NECROMANCY` 27028, `BTI_BUFF_NECROMANCY`), starting those states now and then plays the fox effect set (1 s cool time). Visual checks; no log line.
+
+## Amended by CH5 review (2026-11-11)
+
+CH5 routed three 34 / 124 UI items here (plan "CH5 - Done", "Routed"); `ch0_classn.tsv` still names other owners for them, so they are listed here:
+- `CX2StateCreateUnit::GetUnitStatInfomationChart` (`X2StateCreateUnit.cpp:3856-3868`): June `3254ee40` gives 34 / 124 = 3,1,1 (`case 0x22` / `0x7c`); March has no arm. Add it under `_CLASS` with the creation-screen entries.
+- `CX2Data::GetCharacterImageName` (`X2Data.cpp:2776-2910`, classn row 30): 34 / 124 return false today (no select / clear / party portrait). Read June `31ee0de0`'s rows for 34 / 124 and port them.
+- `CX2Data::RotateYSelectCharacterType` (`X2Data.cpp:3534-3791`, classn row 31): June `31edf260` reads the templet's `m_fLobbyRotationY` (CH5 wrote it: 34 = 1, 124 = 40 in June's rows) before its constant table. Port the reader under `_CLASS_PATH` (class-generic; Lu/Ciel NU4 then reuses it) or, if it is not needed for 34 / 124 to show, say so in the Done note and leave it to Lu/Ciel NU4 (funcmap l.6859).
