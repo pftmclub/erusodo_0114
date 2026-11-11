@@ -134,6 +134,13 @@ Done: CH0 (2026-11-10), CH0b (2026-11-10), CH1a (2026-11-10; no play-test, full 
 
 Decisions answered 2026-11-10 (plan "Open decisions"): 1 stat rows for 34 / 124 follow Ara's own rule (CHNa writes, user packs); 2 the lobby orb handles are retired (CH5).
 
+## enum-gate-fix - Enum.lua gaps the enum gate found in the ported classes
+Plan `ENUM_GATE_FIX_PHASES.md` · branch `main` · log tag none (`ErrorLog.txt` `[LUA_SRC]`) · flag `SERV_IRUHADEV_ENUM_GATE_AISHA_TRIGGER` · kickoffs `kickoffs/enum-gate-fix/` · created 2026-11-11 (char-ara CH1).
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| F1 | **ready**: 5 silent nils (Elsword x2, Raven, Chung `CSI_CFG_COMBO_XXFRONTZ`, Aisha `DTT_AISHA_STICK_ATTACK`); runs beside char-ara | Opus 5.5 / high, user play-test | - | data036 `Enum.lua`, `X2DamageManager.h`, Always.h | `F1.md` |
+
 ## char-elesis - June character port, Stage 7: Elesis (CH-N reused from Ara)
 Plan `JUNE_CHARACTER_ELESIS_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `ELESIS <sub>`: `DATA`, `CORE`, `WOS`, `CLASS`, `SUMMON`, `SKILL`, `PASSIVE`, `BLOOD`, `UI`, `NUM`) · flags `SERV_IRUHADEV_JUNE_CHAR_ELESIS_*` (`_CORE`, `_LIVE`, `_WOS`, `_CLASS`, `_SUMMON`, `_SKILL`, `_TRANSCEND`, `_PASSIVE`, `_BLOOD`, `_UI`, + `_DEBUG`), class-generic `SERV_IRUHADEV_JUNE_CLASS_PATH` (Ara's CHNa) · kickoffs `kickoffs/char-elesis/` · backlog Stage 7 · created 2026-11-11.
 
