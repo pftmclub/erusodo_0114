@@ -6388,6 +6388,25 @@ Flags `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE`, `_FP`, `_SPECTER` and the class-agnost
 
 **Play-test fix (same day).** data036 `Enum.lua` (core-list source): `USER_STATE_ID` now carries the client's C++ values (the four slot-5 states `SKILL_SLOT_10` added were missing, so every value from `USI_SPECIAL_ATTACK_SLOTB_1` on, and every class state table built on `USI_END`, read 2-4 low, for every class); `ARA_STATE_ID` gains the 13 names June's `CHAIN_SYSTEM` reads; `SKILL_ID.RNSI_A_ASR_RAID_UPGRADE`; June's `CUSTOM_RENDER_STATE` table. `X2GUAra.h` appends five `ARA_STATE_ID` names under `_CORE` (ids `USI_END + 176 .. 180`). Pre-edit copy of `Enum.lua` in the live-kom backup `kom_backup_tools/data036.kom.20261111_124036`. **Revert:** restore `Enum.lua` from that backup, `luasrc.py refresh data036 Enum.lua`, pack + copy data036; the five names are inert without the states.
 
+## Stage 7 Ara, CH2a: Martial Artist (class 7) skills (2026-11-11)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (`Always.h`, defined now; its `#error` adds `..._ARA_FP`) and the temporary `..._SKILL_DEBUG` (`[JUNE_CHAR] ARA SKILL equip` lines, retired by the CH2d3 review). Plan `JUNE_CHARACTER_ARA_PHASES.md` "CH2a - Done". Defining `_SKILL` also turns on CH1h2's three skill-passive blocks in `AttackResultByType` (Get Blood, Raid, Mana Drain), which only fire for skills later phases port.
+- **What changes in game.** Ara's seven class-7 skills run June's registrations in `SetEquippedSkillFuncBySkillSlotIndex` (before this every id fell into the Wind Wedge default): Tempest Dance (27000 / 27029), Pulling Pierce (27001 / 27030), Falling Dragon (27002 / 27031), Wind Wedge (27003 / 27032, June's `default:` too), Shadow Knot (27004 / 27033), Gain Force (27200 / 27220) and Shoulder Blow (27201 / 27221). `InitAquiredActiveSkillState` binds Pulling Pierce, Wind Wedge and Shadow Knot to their skill level and chain (June's chain lookup takes the upgrade-swapped id).
+- **Differs from March.** The states lose their FrameMove effect sets, attack boxes and force power costs (the state's script plays the effect sets, `USE_FORCE_POWER` spends the cost); Pulling Pierce, Wind Wedge, Tempest Dance and Shadow Knot end through `StateChangeOrFPCancel` with the FP-cancel probe; Falling Dragon spends all force power at 0.001 s and scales by `( FP - 5 ) x 0.2 + 1`; Shadow Knot's weapon mesh comes at 0.385 s ( March 0.667 s ) and its hyper state also gets `StateInit`; Gain Force reads the skill level with the upgrade swap and ends its cancels on a line; Shoulder Blow preloads 16 names ( March 5 ) and its cancels need the foot on a line. Every June memo test here is the always-false stub `31fca9e0`, so no memo branch is written.
+- **Damage (level-1 multiplier; June = the damage effects' NUMERICAL_DATA through the engine, x0.01; March = the same-named damage effects the shipped tables carry).**
+
+| Skill (June id) | March damage | June damage |
+|---|---|---|
+| Tempest Dance (27000 / 27029) | the `TEMPEST_DANCE` damage effect tables | 4.09 (1st), 4.09 (2nd), 8.87 (final) |
+| Pulling Pierce (27001 / 27030) | the `PULLING_PIERCE` damage effect tables | 12.23 (pushing), 4.49 (pulling) |
+| Falling Dragon (27002 / 27031) | `FALLING_DRAGON` damage effect x the FP scale | 24.27 x the FP scale |
+| Wind Wedge (27003 / 27032) | the `WIND_WEDGE` damage effect tables | 3.80 (1st), 4.69 (final) |
+| Shadow Knot (27004 / 27033) | `SHADOW_KNOT_WEAPON` / `Shadow_knot_Final` | 4.79 (weapon), 10.31 (final) |
+| Gain Force (27200 / 27220) | `GAIN_FORCE` damage effect | 7.21 (the intake effect carries the MP drain rate) |
+| Shoulder Blow (27201 / 27221) | the `Effectset_A_ARA_SHOULDER_BLOW` tables | the state script's effect set (memo impact 7.56 / 6.67 never plays: June's memo stub) |
+
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (every Ara skill falls back to the Wind Wedge default), `python tools/build.py --deploy`.
+
 ## BUG_REPORT 2026-11-08, items 1-5 (fixed 2026-11-11)
 
 **1. Underground Waterway boss room froze the player (data only).** The merged data037 `NPCTemplet.lua` kept March's row for `NUI_BENDERS_NASOD` (`LUA_FILE_NAME = "Benders_Nasword.lua"`), while June's dungeon cutscene NPC (`Event_NPC_Benders_Elder.lua`) starts state `BENDERS_NASOD_START`, which only June's `BENDERS_NASOD.LUA` has. The boss stayed hidden in its start state and `STOP_AT_START_STATE` kept input off. The row now carries June's `MOTION` / `LUA_FILE_NAME` (the old values are in the comment above it); June's `Motion_Benders_Nasword.xet` staged into data006 (March's copy under `kom_backup_stage_june\20261111_105336`). `luabind.py check BENDERS_NASOD Event_NPC_Benders_Elder` PASS, `npc_anim_census.py` 0 missing anims. Revert: restore the two values in the row, `luasrc.py refresh data037 NPCTemplet.lua`, repack data037.

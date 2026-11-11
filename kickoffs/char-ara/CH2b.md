@@ -65,3 +65,9 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
   gets June's case body too, inside March's case under `_SKILL`. June's chain lookup there takes the upgrade-swapped id: CH1n's head declares
   `eUpgradeSwappedSkillID` (under `_LIVE`) for it; March's cases still pass `iSkillID_`.
 - `GetSkillChainInfoPtrBySkillID` is June's under `_LIVE` (CH1n, `32d3ed30`: it also matches the chain skill's enhanced id).
+
+## Amended by CH2a (2026-11-11)
+
+- **The shape CH2a used** (copy it): add the skill's RNSI base and upgrade ids as extra `case` labels on March's registration case under `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (the registration is usually March's already: compare June's `32bd09d0` case with it), June's `InitAquiredActiveSkillState` case beside March's, then each state function wrapped `#ifdef _SKILL` June `#else` March `#endif`. A June function that is only `CommonFrameMove` / the anim-end WAIT-or-JUMP_DOWN test is March's body or a one-liner.
+- **Recurring June differences:** the effect sets, attack boxes and `UseForcePower` / `UpForcePower` of March's FrameMove are the state script's now (`EFFECT_SET_LIST_EX`, `USE_FORCE_POWER`); the EventProcess ends with `StateChangeOrFPCancel( next )` plus the FP-cancel window inside the `m_bFPCancelProbe` bracket; walk and dash cancels are `WALK_` / `DASH_CANCEL_AFTER_ON_LINE_`; every `GetEqippedSkillMemo( ... )` is June's always-false stub `31fca9e0` (write nothing for its branch).
+- **Registration helpers** (`32bce710` ...) March lacks get a `_CreateState` function in the class's own pattern (CH2a wrote the four Shadow Knot ones next to `StateChangeOrFPCancel`).

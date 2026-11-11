@@ -586,6 +586,12 @@ protected:
 	virtual void	ChangeMaxCharacterAddResource( const float fRate_ );	// char-ara CH1q: June 32baafc0 ( unit vslot 0x324 )
 	virtual bool	IsHyperModeState() const;	// char-ara CH1q: June 32bd85f0 ( user vslot 0x51c )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	void			ASI_SA_ARA_SHADOW_KNOT_START_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2a: June 32bce710
+	void			ASI_SA_ARA_SHADOW_KNOT_WAIT_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2a: June 32bc8d90
+	void			ASI_SA_ARA_SHADOW_KNOT_CATCH_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2a: June 32bae750
+	void			ASI_SA_ARA_SHADOW_KNOT_END_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2a: June 32baa280
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER

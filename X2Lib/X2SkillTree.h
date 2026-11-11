@@ -1892,6 +1892,9 @@ public:
 		RNSI_A_ARA_SHOULDER_BLOW_UPGRADE                      = 27221,	// char-ara CH1k: June's Enum.lua; an FP cancel into it costs one force power less
 		RNSI_A_AYR_REFLECTION_UPGRADE                         = 27238,	// char-ara CH1k: June's Enum.lua; the enhanced Reflection
 		RNSI_P_AYR_RESURRECTION                               = 27409,	// char-ara CH1k: June's Enum.lua; its heal action sets the protection debuff at its level
+		RNSI_SA_ARA_FALLING_DRAGON                            = 27002,	// char-ara CH2a: June's Enum.lua; Falling Dragon's registration label
+		RNSI_SA_ARA_TEMPEST_DANCE_UPGRADE                     = 27029,	// char-ara CH2a: June's Enum.lua; the enhanced Tempest Dance
+		RNSI_SA_ARA_FALLING_DRAGON_UPGRADE                    = 27031,	// char-ara CH2a: June's Enum.lua; the enhanced Falling Dragon
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 //{{ Iruha : 2026-11-11 // char-ara CH1q
