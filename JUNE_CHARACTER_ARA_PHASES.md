@@ -2257,6 +2257,40 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( CH2a's, no new define ); 
 
 **Play-test (2026-11-12, runs 05:51-05:53 and 05:55-05:56 on md5 53283239; unit 98).** Set 1 ( Enhanced ids ): equip lines 27051 / 27052 / 27030 / 27031 ( states 49 / 51 / 53 / 55 ); Turbulent Wave 49 -> 195 -> 196 twice, stream and final damage effects hit; Swallow Assault 51 -> 198 x5 -> 199 twice, `Effectset_Swallow_Assault_Attack_First` once per use ( the later attacks play the Shadow sets ), its damage effect hit; Pulling Pierce 53 / 152 twice, Falling Dragon 55. Set 2: Swallow Assault base 27011 ( 51 -> 198 x7 -> 199, then x5 ) with `Attack_First` once per use. **Base Turbulent Wave 27010 was not reached:** the emulator's `SeedAutoLearn` ( X2OfflineSkill.cpp:645, at character select ) learned 27051 again and the slot went back to it ( `SLOT sent` 27010 at 05:55:30, 27051 at 05:55:34 ), so June's upgrade swap ran for the base id; both ids share one case. 0 `BLANK` / `EXCEPTION` / `KEM_ERROR` / `Motion Error`; `OpenXET` misses are the companion-file lookup; `OpenXMesh ALH_SWALLOW_ASSAULT_BASE.Y` is June's dangling preload ( **JUNE_BUGS 613**, kept ) and `ARA_SWALLOWASSAULT3.OGG` gives sound error 47 on each attack ( sound only, not chased ). No `NUM use` lines ( the numerical debug is retired ). The user reports the checks looked normal ( cool time, MP bar, Pulling Pierce chain by eye ). Void Break was not reachable ( CH3a2 ).
 
+### CH3a2 - Done (2026-11-12)
+
+Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DEBUG` stays on, the CH3d stage review retires it ). Sakra Devanam ( 118 ): 27012 / 27053 Peerlessness Slash, 27043 Link Flower Slash, 27044 Continuity Strike Throwing, 27064 Advent Dragon, 27206 / 27232 Low Brandish, 27207 / 27233 Breaking, 27226 Swallow Assault Teeth. All 35 class-map rows read from `charport_adis.py ara --phase CH3a2` listings. **11 new functions, 9 bodies changed under the flag ( March in `#else` ), 15 rows are June = March ( no code ).** Every block carries `// char-ara CH3a2`. `funcmap.tsv` rows `Char Ara CH3a2` ( 37 ); `MODS.md` "Stage 7 Ara, CH3a2"; `JUNE_BUGS.md` 614.
+
+| June | `CX2GUAra::` | June differs from March |
+|---|---|---|
+| `32b92480` `32b92530` | Breaking attack / avoidance `StateStart` ( new ) | Valor Devotion's buff set 1 when learned ( vslot 0x23c ), then the enhanced Breaking's ( 27233, exact id ) factor list ( vslot 0x228 ) |
+| `32bb8680` | Breaking attack `FrameMove` | memo buff factor with June's 7ai arguments ( `1, NULL, 0, false` ) |
+| `32b9bd00` `32b9bde0` `32b9c510` | Breaking / Breaking attack / Low Brandish kick `EventProcess` | walk and dash cancels need the foot on a line ( `_ON_LINE_` macros ) |
+| `32bb03d0` | Peerlessness start `FrameMove` | 0.55 s hides the unit ( invisible, alpha 0, pre-scale kept ), 1.532 s shows it; no force gain, no 0.01 shrink, no effect sets ( the script's ) |
+| `32bac5e0` | Peerlessness start `EventProcess` | end through `StateChangeOrFPCancel( 234 )`; FP cancel tried on the ground ( + foot ), then in the air |
+| `32b929e0` | Peerlessness end `FrameMove` | `CommonFrameMove` only ( March plays Slash_End / Last_Attack ) |
+| `32bba8f0` | Low Brandish slide `FrameMove` | effect set only: the templet lookup's result is dropped ( JUNE_BUGS 614 ) |
+| `32bac760` | Low Brandish slide `EventProcess` | end through `StateChangeOrFPCancel( 248 )`, probe window |
+| `32ba3ea0` `32ba40a0` `32ba42a0` `32bab370` `32bab3c0` `32b952a0` | Link Flower Slash 1st / 2nd / last ( new ) | `EventProcess` ×3 ( same body ), `StartFuture` ( window 3.0 / 0, running state id = `GetFutureStateID()` ), `EndFuture` ( window 3.0 ) |
+| `32bad910` `32badac0` | Continuity Strike Throwing / Teeth start `EventProcess` ( new ) | end through `StateChangeOrFPCancel( 339 / 342 )`, probe window |
+| `32b952c0` | Advent Dragon `Init` ( new ) | 13 preloads |
+| = March | 15 functions | the `Init` lists, Peerlessness `Start` / `End` / end `EventProcess`, Low Brandish slide `Start` / `End`, Breaking `FrameMove` / `EndFuture`, kick `FrameMove`, the two `CreateState` helpers `32bc9230` / `32bc92a0` |
+
+**Registration** ( `32bd09d0` ): RNSI labels on March's Peerlessness ( 27012 / 27053 ), Breaking ( 27207 / 27233 ) and Low Brandish ( 27206 / 27232 ) cases; Breaking's attack and avoidance states gain `StateStart`. New cases: 27043 ( the three chain states only, as June ), 27044 and 27226 ( normal `EventProcess`, hyper = `CopyStateCallbacks`, end state with `GenericActiveSkillEventProcess` = June `329cba60` ), 27064 ( `Init` + `GenericSpecialActiveSkillEventProcess` = `329cbfc0` ). Second switch ( `32bd34c0` ): labels 27206 / 27232 on Low Brandish, chain lookup takes `eUpgradeSwappedSkillID`. `X2SkillTree.h`: 27053, 27064, 27232, 27233.
+**Checklist** `(Ara: CH3a2 ...)`: §1 l.55, §2 l.116 / l.117 ( 3 tables through the engine ), §4 l.178 ( 4 names ), §7ai ( Breaking attack BFI 0xb5 behind the false memo stub ). No 7u / 7h / power-rate rows in these functions.
+**Found, not ported.** `SetCanAvoidance( 0 < GetSkillLevel( SI_A_ALH_BREAKING ) )` reads March's id 7209: Breaking's avoidance stays off until CH4a ( kickoffs CH4a / CH3b amended ).
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ARA_SKILL --with ..._SKILL_DEBUG --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2SkillTree.h`: `2 PASS, 1 OTHER ( X2SkillTree.h = JUNE_ENUM_NAMES ), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` ( the 3 files ): `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: `0 A/B row(s) remain`. `skillicons.py check` ( the 10 ids ): `misses 0`, PASS. `luabind.py check Ara_Martial_Artist`: `0 unbound`, ENUM `0 missing`, STATE `37 compared, 0 wrong`, PASS.
+- `/Zs` probe of `X2GUAra.cpp`: 0 errors.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,287,616 B, 2026-11-12 06:24:54`; `DEPLOY OK: X2_offline.exe is 26,287,616 B, dated 2026-11-12 06:25:01, md5 6b58b2fc580988b1f8828d14eb0d7cc6, equal to X2/US_SERVICE/x2.exe (2026-11-12 06:24:54); built at main c585fab8 + 3 uncommitted code file(s).`
+- `EXESTR OK: 2 of 2 found` ( wide `ASD_Dragon_Head.Y`, `SI_SA_SBH_WALL_OF_PROMINENCE_01.X` ) and `3 of 3` ( narrow `ASI_SA_ASD_ADVENT_DRAGON`, `ASI_A_ASD_SWALLOW_ASSAULT_TEETH_END`, `ASI_SA_ASD_CONTINUITY_STRIKE_THROWING_END` ), md5 6b58b2fc.
+
+**Save.** Unit 98 `SakraDevanamT` ( 118, lv 99; backup `db_backup/els_db_20261112_061728_pre_sql.sql` ), set 1, all Enhanced ids ( already learned ): bank A slot 0 Rock Crash 27223, 1 Tiger Claw 27229, 2 Low Brandish 27232, 3 Turbulent Wave 27051; bank B slot 5 Breaking 27233, 6 Swallow Assault Teeth 27226, 7 Peerlessness Slash 27053, 8 Link Flower Slash 27043.
+
+**Play-test hand-off.** In the chat of 2026-11-12. Logs: `[JUNE_CHAR] ARA SKILL state <n> skill <id>` ( one per state entered, no `BLANK` ), 0 `EXCEPTION` / `Motion Error`.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, one Opus review at CH4b (covers CH4a-CH4b), user play-test (two engine pieces, planned as two from the start; CH0

@@ -10198,3 +10198,40 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32bd6a20	CX2GUAra::MoveAraSafePosition	PORTED	Char Ara CH3a: June's new StateChangeSwallowAssaultEscape = March's MoveAraSafePosition ( safe position, y + 45 = LINE_RADIUS x 1.5, StateChange( ESCAPE ) ): no new function
 32bd09d0 (CH3a)	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex	PORTED	Char Ara CH3a: RNSI labels 27010 / 27051 ( Turbulent Wave ) and 27011 / 27052 ( Swallow Assault ) added to March's cases; the callbacks are the same
 32bd34c0 (CH3a)	CX2GUAra::InitAquiredActiveSkillState	PORTED	Char Ara CH3a: RNSI labels 27010 / 27051 added to March's Turbulent Wave case ( START, LOOP, END, Void Break ); the three chain lookups take eUpgradeSwappedSkillID; Swallow Assault has no case in June's second switch
+32b92460	CX2GUAra::ASI_A_ALH_BREAKING_Init	PORTED	Char Ara CH3a2: = March ( 1 preload ): no code
+32b92480	CX2GUAra::ASI_A_ALH_BREAKING_ATTACK_StateStart	PORTED	Char Ara CH3a2: new ( _SKILL ): CommonStateStart, then Valor Devotion's buff factors with index 1 when it is learned ( vslot 0x23c ), then the enhanced Breaking's ( 27233, exact id ) factor list through vslot 0x228
+32b924e0	CX2GUAra::ASI_A_ALH_BREAKING_ATTACK_Init	PORTED	Char Ara CH3a2: = March ( 3 preloads, same order ): no code
+32b92510	CX2GUAra::ASI_A_ALH_BREAKING_ATTACK_EndFuture	PORTED	Char Ara CH3a2: = March ( CommonStateEndFuture, bIsRight flipped ): no code
+32b92530	CX2GUAra::ASI_A_ALH_BREAKING_AVOIDANCE_StateStart	PORTED	Char Ara CH3a2: new ( _SKILL ): the same body as 32b92480
+32b928e0	CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_START_Init	PORTED	Char Ara CH3a2: = March ( 17 preloads, same order ): no code
+32b929c0	CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_START_Start	PORTED	Char Ara CH3a2: = March ( CommonStateStart, the force gain count saved ): no code
+32b929e0	CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_END_FrameMove	PORTED	Char Ara CH3a2: June is CommonFrameMove only ( March plays Slash_End at 0.001 s and Last_Attack at 0.138 s: the state script plays them ); _SKILL hunk
+32b92b20	CX2GUAra::ASI_A_ASD_LOW_BRANDISH_SLIDING_Init	PORTED	Char Ara CH3a2: = March ( 5 preloads, same order ): no code
+32b92b70	CX2GUAra::ASI_A_ASD_LOW_BRANDISH_SLIDING_StateStart	PORTED	Char Ara CH3a2: = March ( CommonStateStart, the force gain count saved ): no code
+32b92b90	CX2GUAra::ASI_A_ASD_LOW_BRANDISH_SLIDING_StateEnd	PORTED	Char Ara CH3a2: = March ( CommonStateEnd ): no code
+32b92ba0	CX2GUAra::ASI_A_ASD_LOW_BRANDISH_KICK_Init	PORTED	Char Ara CH3a2: = March ( 4 preloads, same order ): no code
+32b952a0	CX2GUAra::ASI_SA_ASD_LINK_FLOWER_SLASH_1st_StateEndFuture	PORTED	Char Ara CH3a2: new ( _SKILL ): CommonStateEndFuture, then the chain window ( m_fLinkFlowerSlashTime ) = 3.0; shared by the 1st and 2nd states
+32b952c0	CX2GUAra::ASI_SA_ASD_ADVENT_DRAGON_Init	PORTED	Char Ara CH3a2: new ( _SKILL ): 13 preloads ( Dragon_Head, two attack boxes, ancient fire, leaf, ring, crimson break, blaze wing, wall of prominence, the textures )
+32b9bd00	CX2GUAra::ASI_A_ALH_BREAKING_EventProcess	PORTED	Char Ara CH3a2: = March but the walk and dash cancels need the foot on a line ( WALK / DASH_CANCEL_AFTER_ON_LINE_ ); _SKILL hunk
+32b9bde0	CX2GUAra::ASI_A_ALH_BREAKING_ATTACK_EventProcess	PORTED	Char Ara CH3a2: = March but the walk and dash cancels need the foot on a line ( _ON_LINE_ ); _SKILL hunk
+32b9c3b0	CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_END_EventProcess	PORTED	Char Ara CH3a2: = March ( animation end -> JUMP_DOWN, CommonEventProcess ): no code
+32b9c510	CX2GUAra::ASI_A_ASD_LOW_BRANDISH_KICK_EventProcess	PORTED	Char Ara CH3a2: = March but the walk and dash cancels need the foot on a line ( _ON_LINE_ ); _SKILL hunk
+32ba3ea0	CX2GUAra::ASI_SA_ASD_LINK_FLOWER_SLASH_1st_EventProcess	PORTED	Char Ara CH3a2: new ( _SKILL ): end -> JUMP_DOWN / WAIT, on-line walk and dash cancels, skill cancel ( ground ), then the hyper cancel; the three states have the same body
+32ba40a0	CX2GUAra::ASI_SA_ASD_LINK_FLOWER_SLASH_2nd_EventProcess	PORTED	Char Ara CH3a2: new ( _SKILL ): the same body as 32ba3ea0
+32ba42a0	CX2GUAra::ASI_SA_ASD_LINK_FLOWER_SLASH_LAST_EventProcess	PORTED	Char Ara CH3a2: new ( _SKILL ): the same body as 32ba3ea0
+32ba7ad0	CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_START_End	PORTED	Char Ara CH3a2: = March ( CommonStateEnd, visible again, alpha 1, scale back ): no code
+32bab370	CX2GUAra::ASI_SA_ASD_LINK_FLOWER_SLASH_1st_StateStartFuture	PORTED	Char Ara CH3a2: new ( _SKILL ): CommonStateStartFuture, the chain window = 3.0, m_iLinkFlowerSlashStateID = the future state id ( the inlined iterator index ); shared by the 1st and 2nd states
+32bab3c0	CX2GUAra::ASI_SA_ASD_LINK_FLOWER_SLASH_LAST_StateStartFuture	PORTED	Char Ara CH3a2: new ( _SKILL ): the same with the chain window = 0
+32bac5e0	CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_START_EventProcess	PORTED	Char Ara CH3a2: the end goes through StateChangeOrFPCancel( 234 = END ); probe window; FP cancel tried on the ground ( ASUT_GROUND and the foot on a line ), then in the air ( ASUT_AIR ); _SKILL hunk
+32bac760	CX2GUAra::ASI_A_ASD_LOW_BRANDISH_SLIDING_EventProcess	PORTED	Char Ara CH3a2: the end goes through StateChangeOrFPCancel( 248 = KICK ); probe window; one FP cancel test ( ground ); _SKILL hunk
+32bad910	CX2GUAra::ASI_SA_ASD_CONTINUITY_STRIKE_THROWING_START_EventProcess	PORTED	Char Ara CH3a2: new ( _SKILL ): the end goes through StateChangeOrFPCancel( 339 = END ); probe window; one FP cancel test
+32badac0	CX2GUAra::ASI_A_ASD_SWALLOW_ASSAULT_TEETH_START_EventProcess	PORTED	Char Ara CH3a2: new ( _SKILL ): the same with 342 = END
+32bb03d0	CX2GUAra::ASI_SA_ALH_PEERLESSNESS_SLASH_START_FrameMove	PORTED	Char Ara CH3a2: the 0.55 s step hides the unit ( SetInvisibility, alpha 0, the pre-scale kept ) without the 0.01 shrink; the 1.532 s step shows it again; no force power gain and no effect sets ( the state script's ); _SKILL hunk
+32bb84e0	CX2GUAra::ASI_A_ALH_BREAKING_FrameMove	PORTED	Char Ara CH3a2: = March ( EffectSet_Ara_Breaking at 0.001 s ): no code
+32bb8680	CX2GUAra::ASI_A_ALH_BREAKING_ATTACK_FrameMove	PORTED	Char Ara CH3a2: = March ( 0.23 s effect set, the memo buff factor ) with June's 7ai arguments ( BFI 181, level 1, no creator, no adjust, skip false ); _SKILL hunk
+32bba8f0	CX2GUAra::ASI_A_ASD_LOW_BRANDISH_SLIDING_FrameMove	PORTED	Char Ara CH3a2: the effect set only; June looks 27206 up and drops it, so March's SetBuffFactorToGameUnit( templet, 0 ) is not made ( JUNE_BUGS 614 ); _SKILL hunk
+32bbaab0	CX2GUAra::ASI_A_ASD_LOW_BRANDISH_KICK_FrameMove	PORTED	Char Ara CH3a2: = March ( Effectset_Low_Brandish_Kick at 0.001 s ): no code
+32bc9230	CX2GUAra::ASI_A_ASD_LOW_BRANDISH_SLIDING_CreateState	PORTED	Char Ara CH3a2: = March's CreateState ( table SLICE, Init / Start / FrameMove / EventProcess / End ): no code; the two switch cases take the RNSI labels 27206 / 27232
+32bc92a0	CX2GUAra::ASI_A_ASD_LOW_BRANDISH_KICK_CreateState	PORTED	Char Ara CH3a2: = March's CreateState ( table KICK, Init / FrameMove / EventProcess ): no code
+32bd09d0 (CH3a2)	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex	PORTED	Char Ara CH3a2: RNSI labels 27012 / 27053 ( Peerlessness Slash ), 27207 / 27233 ( Breaking ), 27206 / 27232 ( Low Brandish ) added to March's cases; new cases 27043 ( the three chain states only ), 27044 and 27226 ( normal EventProcess, hyper = CopyStateCallbacks, END state with the shared GenericActiveSkillEventProcess ), 27064 ( Init + GenericSpecialActiveSkillEventProcess ); Breaking's attack / avoidance states gain StateStart
+32bd34c0 (CH3a2)	CX2GUAra::InitAquiredActiveSkillState	PORTED	Char Ara CH3a2: RNSI labels 27206 / 27232 added to March's Low Brandish case ( SLICE 247, KICK 248 ); the chain lookup takes the swapped id

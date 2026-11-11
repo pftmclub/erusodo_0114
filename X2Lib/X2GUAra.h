@@ -732,6 +732,17 @@ protected:
 	void			ASI_A_ALS_SHAKE_CHAOS_FINISH_FrameMove();	// char-ara CH2d3: June 32bbd240
 	void			ASI_A_ALS_MANA_DRAIN_FrameMove();	// char-ara CH2d3: June 32bc3bc0
 	void			ASI_A_ALS_MANA_DRAIN_StateEnd();	// char-ara CH2d3: June 32bc3e40
+	void			ASI_A_ALH_BREAKING_ATTACK_StateStart();	// char-ara CH3a2: June 32b92480
+	void			ASI_A_ALH_BREAKING_AVOIDANCE_StateStart();	// char-ara CH3a2: June 32b92530
+	void			ASI_SA_ASD_LINK_FLOWER_SLASH_1st_StateStartFuture();	// char-ara CH3a2: June 32bab370 ( the 2nd state shares it )
+	void			ASI_SA_ASD_LINK_FLOWER_SLASH_LAST_StateStartFuture();	// char-ara CH3a2: June 32bab3c0
+	void			ASI_SA_ASD_LINK_FLOWER_SLASH_1st_StateEndFuture();	// char-ara CH3a2: June 32b952a0 ( the 2nd state shares it )
+	void			ASI_SA_ASD_LINK_FLOWER_SLASH_1st_EventProcess();	// char-ara CH3a2: June 32ba3ea0
+	void			ASI_SA_ASD_LINK_FLOWER_SLASH_2nd_EventProcess();	// char-ara CH3a2: June 32ba40a0
+	void			ASI_SA_ASD_LINK_FLOWER_SLASH_LAST_EventProcess();	// char-ara CH3a2: June 32ba42a0
+	void			ASI_SA_ASD_CONTINUITY_STRIKE_THROWING_START_EventProcess();	// char-ara CH3a2: June 32bad910
+	void			ASI_A_ASD_SWALLOW_ASSAULT_TEETH_START_EventProcess();	// char-ara CH3a2: June 32badac0
+	void			ASI_SA_ASD_ADVENT_DRAGON_Init();	// char-ara CH3a2: June 32b952c0
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2

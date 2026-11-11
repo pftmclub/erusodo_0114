@@ -105,7 +105,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH3a2 | **ready** (CH3a done 2026-11-12): Sakra Devanam (118) remaining skills (CH0 split), then the Void Break chain test | Sonnet 5.5 / high, user play-test | CH3a | `X2GUAra.*` | `CH3a2.md` |
+| CH3a2 | **built 2026-11-12, user play-test owed** (unit 98 set 1; then "check logs"): Sakra Devanam (118) remaining skills (CH0 split) + the Void Break chain test | Sonnet 5.5 / high, user play-test | CH3a | `X2GUAra.*` | `CH3a2.md` |
 | CH3b | blocked (CH3a2): Yama Raja (119) skills | Sonnet 5.5 / high, user play-test | CH3a2 | `X2GUAra.*` | `CH3b.md` |
 | CH3c | blocked (CH3b): Asura (124) SA-tier skills, Fox Phantom render stand-in (7w) | Sonnet 5.5 / high, user play-test | CH3b, CHNb review | `X2GUAra.*` | `CH3c.md` |
 | CH3c2 | blocked (CH3c): Asura (124) A-tier skills (CH0 split) | Sonnet 5.5 / high, user play-test | CH3c | `X2GUAra.*` | `CH3c2.md` |

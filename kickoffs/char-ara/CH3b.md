@@ -68,3 +68,13 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 
 - Open the Hell: `ASI_SA_AYR_OPEN_THE_HELL_FrameMove` is already June's whole body (`32bbb720`: March's plus the Demigod block under `_STACK`). Do not
   transcribe it again; the state's other functions and registration stay CH3b's.
+
+## Amended by CH3a2 (2026-11-12)
+
+- **Patterns written in CH3a2 to copy** (all in `X2GUAra.cpp`, grep `char-ara CH3a2`): a June case with no March block is a new `case CX2SkillTree::RNSI_...:` before `#pragma region SI_SA_ALH_SWALLOW_ASSAULT`
+  (normal `EventProcess`, hyper = `CopyStateCallbacks( hyperStateData, normalStateData )`, a sub-state with `SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess )`
+  for June's `329cba60`, `GenericSpecialActiveSkillEventProcess` for `329cbfc0`). A start state that ends through June's FP-cancel block is the `m_bFPCancelProbe` skeleton of
+  `ASI_SA_ASD_CONTINUITY_STRIKE_THROWING_START_EventProcess`; the two-test version (ground, then air) is Peerlessness Slash's. `WALK_CANCEL_AFTER_ON_LINE_` /
+  `DASH_CANCEL_AFTER_ON_LINE_` exist for June's on-line cancels. The inlined `(iterator - begin) / 100` of June's `StartFuture` is `GetFutureStateID()`.
+- **Found, not ported (CH4a's passive init):** March's `SetCanAvoidance( 0 < GetSkillLevel( SI_A_ALH_BREAKING ) )` (`X2GUAra.cpp`, passive init) reads March's id 7209, so Breaking's
+  avoidance (`ASI_A_ALH_BREAKING_AVOIDANCE`, entered from `DamageReactStateChange`) stays off until CH4a gives it June's `RNSI_A_ASD_BREAKING` / `_UPGRADE`.

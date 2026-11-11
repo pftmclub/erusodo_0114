@@ -1905,6 +1905,10 @@ public:
 		RNSI_A_ALH_TIGER_CLAW_UPGRADE                         = 27229,	// char-ara CH2b2: June's Enum.lua; the enhanced Tiger Claw
 		RNSI_A_ALH_DRAGON_FALLING_UPGRADE                     = 27230,	// char-ara CH2b2: June's Enum.lua; the enhanced Fall
 		RNSI_A_ALH_QUICK_STAB_UPGRADE                         = 27231,	// char-ara CH2b2: June's Enum.lua; the enhanced Quick Thrust
+		RNSI_SA_ASD_PEERLESSNESS_SLASH_UPGRADE                = 27053,	// char-ara CH3a2: June's Enum.lua; the enhanced Peerlessness Slash
+		RNSI_SA_ASD_ADVENT_DRAGON                             = 27064,	// char-ara CH3a2: June's Enum.lua; Advent Dragon
+		RNSI_A_ASD_LOW_BRANDISH_UPGRADE                       = 27232,	// char-ara CH3a2: June's Enum.lua; the enhanced Low Brandish
+		RNSI_A_ASD_BREAKING_UPGRADE                           = 27233,	// char-ara CH3a2: June's Enum.lua; the enhanced Breaking
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 //{{ Iruha : 2026-11-11 // char-ara CH1q

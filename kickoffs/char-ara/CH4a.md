@@ -57,3 +57,7 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - `InitPassiveSkillState` `32bcd9c0` is the only writer of two members CH1q reads: `m_fMpGainPerForcePowerInFullHyperMode` (`+0x973c`, @`32bce0d8` / @`32bce132`; `UseForcePower` gives MP per spent force power in berserk while it is above 0) and `m_fBuffHyperModeDamageRate` (`+0x9744`, @`32bce142` / @`32bce182`; `IsFullHyperMode` / `IsBuffHyperModeActive` and the Specter / Asura combo rates read it). Write both from June's passive cases there.
 - `m_iGainMpByFpConversion` is June's protected `+0x9644` (written in `InitPassiveSkillState`, @`32bcdc6f`): March's member, read by `UpForcePower` as before.
 - The 0x780 hook `32bca010` reads `+0x9838` (@`32bca47e` / `32bca4c4` / `32bca4f5`): CH1q named it `m_iFPCancelChainCount` (FP cancels counted by `StateChangeOrFPCancel` `32babba0`; `32bad670` / `32bc9c70` add to it too): confirm the name from the hook.
+
+## Amended by CH3a2 (2026-11-12)
+
+- The passive init's `SetCanAvoidance( 0 < GetSkillLevel( SI_A_ALH_BREAKING ) )` ( `X2GUAra.cpp`, near `SI_P_ALH_FILLED_POWER` ) reads March's id 7209: Breaking's avoidance state is registered by CH3a2 but unreachable until this phase reads June's `RNSI_A_ASD_BREAKING` 27207 / `_UPGRADE` 27233 there ( test it: hit Ara while the Breaking is learned ).
