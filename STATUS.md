@@ -105,7 +105,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH1m | **ready** (CH1k review done 2026-11-11): registration, CH1i's 27 state names, berserk table `31fdd800` | Opus 5.5 / high, Opus review | CH1k review | `X2GUAra.*`, `X2GUUser.*` | `CH1m.md` |
+| CH1m | **review next** (done 2026-11-11: 3 registrars inside under `_LIVE`, `GetBerserkModeTableName`, JUNE_BUGS 598-600; probes 0 errors, full build skipped: no play-test) | Opus 5.5 / high, Opus review | CH1k review | `X2GUAra.*`, `X2GUUser.*` | `CH1m.md`, `CH1m-review.md` |
 | CH1n | blocked (CH1m review): base callbacks, slot head `32bd09d0`, dev gate | Opus 5.5 / high, Opus review | CH1m review | `X2GUAra.*`, `X2GUUser.*` | `CH1n.md` |
 | CH1o | blocked (CH1n review): virtuals, `SetSkillLevelStateData` term | Opus 5.5 / high, Opus review | CH1n review | `X2GUAra.*`, `X2GUUser.*` | `CH1o.md` |
 | CH1p | blocked (CH1o review): 7ag, hooks, June-only keys | Opus 5.5 / high, Opus review | CH1o review | `X2GUAra.*`, `X2GUUser.*` | `CH1p.md` |

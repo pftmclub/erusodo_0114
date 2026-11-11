@@ -784,8 +784,8 @@ june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carve
 32bc9f50	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_FINISH	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d2	called by 32bd1f54	y
 32bc9fc0	helper	state registration helper of ASI_SA_ALS_SPECTER_OF_STORM_LANDING	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2d	called by 32bd1f76	y
 32bca010	override 0x780	?	- (name unsettled)	new	DamageExceptionClassHook	CH4a	the 0x780 hook (base 33093ad0); name: named (high): vslot 0x780; X2GUUser.h:3144 names it (base 33093ad0, (DamageData*, float& fPowerRate)); body fills the FP-gain table (27415 / 27417 blocks)	y
-32bca580	registrar	InitState body (112 registrations + the hyper row id 23 + the berserk row id 155; called by the wrapper 32bcf4a0 @32bcf53e)	X2GUAra.cpp InitState	inside	-	CH1m		y
-32bcced0	registrar	InitState per-class part (41 registrations of the combo / quick-stand / brutal-piercing states)	X2GUAra.cpp InitState	inside	-	CH1m		y
+32bca580	registrar	InitState body (112 registrations + the hyper row id 23 + the berserk row id 155; called by the wrapper 32bcf4a0 @32bcf53e)	X2GUAra.cpp InitStateCommon	inside	-	CH1m		y
+32bcced0	registrar	InitState per-class part (41 registrations of the combo / quick-stand / brutal-piercing states)	X2GUAra.cpp InitStateByUnitClass	inside	-	CH1m		y
 32bcd9c0	override 0x690	InitPassiveSkillState	X2GUAra.h:463 virtual void InitPassiveSkillState();	inside	-	CH4a	InitPassiveSkillState (vslot 0x690): registers no state	y
 32bce2e0	override 0x7cc	CommonFrameMove	X2GUAra.h:474 virtual void CommonFrameMove();	inside	-	CH1j	base 32063650	y
 32bce710	helper	state registration helper of ASI_SA_ARA_SHADOW_KNOT_START	X2GUAra.cpp SetEquippedSkillFuncBySkillSlotIndex (case body outlined into a helper)	inside	-	CH2a	called by 32bd0d7d 32bd0d86 32bd4832	y

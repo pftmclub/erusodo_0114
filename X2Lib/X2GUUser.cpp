@@ -34197,6 +34197,29 @@ std::string CX2GUUser::GetHyperModeTableName( IN bool bCiel_ ) const
 	return strName;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+// char-ara CH1m: June 31fdd800, Ara's berserk table by unit type, then by class for a transcended unit
+std::string CX2GUUser::GetBerserkModeTableName() const
+{
+	std::string strName;
+	CX2Unit* pUnit = GetUnit();
+	if( NULL != pUnit && NULL != pUnit->GetUnitTemplet() && CX2Unit::UT_ARA == pUnit->GetUnitTemplet()->m_UnitType )
+		strName = "ASI_BERSERK_MODE";
+
+	if( NULL != pUnit && true == IsUnitTranscended( pUnit ) )
+	{
+		switch( pUnit->GetUnitData().m_UnitClass )
+		{
+		case CX2Unit::UC_ARA_SAKRA_DEVANAM:	strName = "ASI_ASD_BERSERK_MODE";	break;
+		case CX2Unit::UC_ARA_YAMA_RAJA:		strName = "ASI_AYR_BERSERK_MODE";	break;
+		case CX2Unit::UC_ARA_ASURA:			strName = "ASI_AA_BERSERK_MODE";	break;
+		default:	break;
+		}
+	}
+	return strName;
+}
+
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 // June 31fc7f50
 void CX2GUUser::DashJumpStartFuture()
 {

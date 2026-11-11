@@ -2548,6 +2548,9 @@ public:
 		void DamageSmallEventProcess();	/// June 31fcbed0
 		void DamageBigEventProcess();	/// June 31fcbf80
 		void StartStateStart();			/// June 31ffbd70
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+		std::string GetBerserkModeTableName() const;	// char-ara CH1m: June 31fdd800 ( RET 0x8: its second argument is never read )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 #endif SERV_IRUHADEV_JUNE_CHAR_ARME_CORE
 #ifdef SERV_IRUHADEV_JUNE_EVENT_STATES
 		/// C9h-4h: June's "Heavenly Combat Support Kit" event states ( USI_EVENT_SNIPER_INIT .. USI_EVENT_GUN_DANCE_INIT ), registered for every class ( June 3202b110 ).

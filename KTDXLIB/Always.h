@@ -12308,3 +12308,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME and SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH1m - guards only ( no new flag ): the registration calls the shared registrars ( GetHyperModeTableName, StartStateStart, InitEventStates, RandomLoseEventProcess, InitWaitStateChange, InitBoundingStates ) and GetBerserkModeTableName reads IsUnitTranscended
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_CORE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_CORE ) || !defined( HYPER_MODE_FIX ) || !defined( SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE ) || !defined( SERV_IRUHADEV_JUNE_EVENT_STATES ) || !defined( SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE ) || !defined( SERV_IRUHADEV_JUNE_BOUNDING_STATE ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_CHAR_ARME_CORE, SERV_IRUHADEV_JUNE_CHAR_ARME_LIVE ( ParseCommonRandomStateByUnitClass ), SERV_IRUHADEV_JUNE_CHAR_EVE_CORE, HYPER_MODE_FIX, SERV_IRUHADEV_JUNE_COMMON_RANDOM_STATE, SERV_IRUHADEV_JUNE_EVENT_STATES, SERV_IRUHADEV_JUNE_WAIT_STATE_CHANGE and SERV_IRUHADEV_JUNE_BOUNDING_STATE
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_CORE ) && !defined( SERV_IRUHADEV_JUNE_CHAR_ARME_CORE )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_CORE needs SERV_IRUHADEV_JUNE_CHAR_ARME_CORE ( IsUnitTranscended, GetBerserkModeTableName sits in its block )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+//////////////////////////////////////////////////////////////////////////

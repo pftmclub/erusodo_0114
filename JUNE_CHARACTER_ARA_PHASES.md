@@ -880,6 +880,63 @@ Next: `/x2-phase char-ara CH1h` (Sonnet 5.5 high). Its kickoff was checked and a
 
 **Nothing to play-test.** Next: `/x2-phase char-ara CH1m` ( Opus 5.5 high ).
 
+### CH1m - Done (2026-11-11)
+
+All three class-map rows are `inside`, under `SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE` ( still `//#define` ) with March's bodies in the `#else`: wrapper `32bcf4a0`
+-> `InitState`, body `32bca580` -> `InitStateCommon`, per-class part `32bcced0` -> `InitStateByUnitClass`. Class map corrected ( CH0 had both registrars as
+"InitState" ). New in `CX2GUUser` ( `_CORE` ): `GetBerserkModeTableName` = June `31fdd800` whole ( checklist l.979 ).
+
+**How it was derived.** `june2017_re/char_ara/ch1m_gen.py` ( Rena's generator, Ara's names ) writes the C++ from CH0's listing-checked `ch0_reg.tsv`;
+`ch1m_spec.py` makes the bytepatch spec. Fresh decompiles of `32bcf4a0` / `32bca580` / `32bcced0` / `31fdd800` / `31fdd490` read against it.
+Ids: the `June script id N` member, else March's registration of the table, else the member of that name: **138 June ids, one member each, both ways**
+( `ch1m_idmap.tsv` ). Callbacks: 333 resolved, all equal to CH0's inside / proposed / shared pair except three shared targets ( `32bbac50`, `32b9cf00`,
+`32bc6720`: two June states share one function, written once by CH1e / CH1g ).
+
+**InitState `32bcf4a0`:** cut-in from the byte table `32bcfa1c`: 0 / 7 / 28 / 31 -> 0, 118 -> 1, 119 -> 2, 124 -> 3; **34 and every other class keep the
+index** ( no write; cut-ins are CH5's ). `+0x4088` = 0xd = March `InitStateID`; `31fc93d0` ( empty stub ) not called. Then `InitStateCommon`,
+`InitStateByUnitClass`, `InitStateCommonRandom` ( June runs `InitEventStates` 3202b110 between the two registrars; the ids do not meet ), START
+( Start / EventProcess / End ), WIN ( `WinStateStart`, `RandomLoseEventProcess` ), LOSE, `InitWaitStateChange( "ASI_WAIT_STATE_CHANGE" )` @32bcf90d ( 7h ),
+vslot 0x690 `InitPassiveSkillState`, 0x684( 0 ), `31fd8f00`. No WIN2-style compare in Ara's.
+
+**InitStateCommon `32bca580`** ( no class test, 98 registrations ): hyper id 23 = `GetHyperModeTableName( false )`, berserk id 155 = `ASI_BERSERK_MODE` with
+`GetBerserkModeTableName()`, both with June's hyper callbacks ( FrameMove = Ara vslot 0x600 `32bc1a90`, End = base 0x604 `3201b8e0`, Ara vtable `33505314` ).
+Bounding = `InitBoundingStates( "ASI_" )` at June's place ( 7l ). Skill-chain lookups `32d3ee60` -> `m_ptrComboAndSkillChainInfo` on ids 169 / 181 / 182 / 185
+( = March's four ). Left out, a comment line each: phoenix run 123-126 ( PvP ), dance 127-129 ( Stage 10 ), riding 93-96 ( Stage 17 ); empty slots `3202a7d0`
+( die end, `StateChange` ) and `32002f70` ( Stage 17 ).
+
+**InitStateByUnitClass `32bcced0`:** one fall-through switch, as June: 118 -> 28 ( 4 + 15 ), 119 -> 31 ( 2 + 7 ), 124 -> 34 ( 8 + 5 ); 7 registers nothing.
+March's `ASI_P_ASD_QUICKEN_GUARD` / `_SMALL` are not registered ( June registers `ASI_P_ASD_BRUTAL_PIERCING` / `_SMALL` there ). Chain lookups on 280 / 282 / 283 / 325.
+
+**`ParseCommonRandomState`** ( CH-N row ): under `_LIVE` it calls `ParseCommonRandomStateByUnitClass()` ( June `31feaac0` by class name, as Arme / Eve ), so
+34 / 124 get their `ARA_LITTLE_SPECTER` / `ARA_ASURA` START / WIN / LOSE tables. `LoadPromotionItemID`'s CH-N row was CH1h's ( done ).
+
+**CH1i's routed item.** The 27 June-only skill states are not registered by InitState in June: their cases in `32bd09d0` / `32bd34c0` do it ( CH2 / CH3,
+owner on each member ). Their names are June script tables except `ASI_SA_ALS_SPECTER_OF_STORM_DEGREE` ( exe string, no script table: CH2d2 checks it ).
+
+**JUNE_BUGS 598-600:** 598 `ASI_COMBO_ALH_XXXZX_Landing` ( exe ) vs the script's `_LANDING`: case-sensitive lookup, the state keeps no table; 599
+`ASI_RIDING_DAMAGE_BACK` has no table, `_FRONT` is defined twice ( Rena's 571 ); 600 `ASI_WALL_LANDING` has no table in June's or March's script. All verbatim.
+
+**Always.h:** +12, guards only: `_LIVE` needs `ARME_CORE`, `ARME_LIVE` ( `ParseCommonRandomStateByUnitClass` ), `EVE_CORE`, `HYPER_MODE_FIX`,
+`JUNE_COMMON_RANDOM_STATE`, `JUNE_EVENT_STATES`, `JUNE_WAIT_STATE_CHANGE`, `JUNE_BOUNDING_STATE`; `_CORE` needs `ARME_CORE` ( `IsUnitTranscended`; the
+helper sits in its block ). The `_LIVE` probe passes them. Checklist l.178 / 428 / 472 / 957 / 979 marked `(Ara: CH1m)`; funcmap rows updated.
+
+**Checks.**
+- One-file `/c /Zs /EHsc` probes ( `census.cl_cmd`, no PCH ): `X2GUAra.cpp` off, `-D_LIVE`, `_LIVE` + `_FP` + `_SPECTER`: exit 0, 0 errors each;
+  `X2GUUser.cpp` off and `_LIVE`: 0 errors.
+- `cl /P` off / `_LIVE`: `InitWaitStateChange( "ASI_WAIT_STATE_CHANGE" )` 0 / 1, `InitBoundingStates( "ASI_" )` 0 / 1, `"ASI_COMBO_ALH_XXXZX_Landing"` 0 / 1,
+  `GetSkillChainInfoPtrByStateID( stateData.stateID )` 0 / 8, `m_iSkillCutInSetIndex = 3` 0 / 1, `"ASI_P_ASD_QUICKEN_GUARD"` 1 / 0.
+- `git diff --patience --numstat`: `X2GUAra.cpp` 1163 / 0, `X2GUUser.cpp` 23 / 0, `X2GUUser.h` 3 / 0, `Always.h` 12 / 0; encodings and high-byte counts unchanged.
+- `flagcheck JUNE_CHAR_ARA_LIVE --worktree --files X2Lib/X2GUAra.cpp`: `files: 1 PASS`, `0 deleted, 0 non-ASCII inserted, 0 EOL-mismatched, 0 #else/#endif
+  without the flag token, 0 encoding change(s)`; `RESULT: FAIL` only for the `//#define`. `JUNE_CHAR_ARA_CORE --files X2Lib/X2GUUser.h X2Lib/X2GUUser.cpp`:
+  `files: 2 PASS`, `RESULT: PASS`. `Always.h`: the tool cannot evaluate it ( an earlier `#if` ); a pure insertion.
+- `junediverge.py --check X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2GUUser.cpp X2Lib/X2GUUser.h KTDXLIB/Always.h`: `RESULT: PASS`. `enumscan --check`: `0 A/B row(s)`.
+- Full build skipped: no play-test.
+
+**For CH1 final:** June's chain table keys come from the script's `ASI_` values; the C++ passes the member, so `Enum.lua` must give the C++ values ( check
+in CH1's play-test with a Little Hsien chain ).
+
+**Nothing to play-test** ( `_LIVE` is off ). Next: `/x2-phase char-ara CH1m review` ( Opus 5.5 high ).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.
