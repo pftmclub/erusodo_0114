@@ -1948,6 +1948,14 @@ public:
 		RNSI_P_ASR_SPIRITISM_WEIRD_FOX                        = 27420,	// char-ara CH2d2: June's Enum.lua; Veritable Pandemonium reads it for the transcendence effect sets
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH2d3
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_A_ALS_VIEW_BETWEEN_UPGRADE                       = 27225,	// char-ara CH2d3: June's Enum.lua; the enhanced View Between
+		RNSI_A_ALS_SHAKE_CHAOS_UPGRADE                        = 27239,	// char-ara CH2d3: June's Enum.lua; the enhanced Shake Chaos
+		RNSI_A_ALS_MANA_DRAIN_UPGRADE                         = 27240,	// char-ara CH2d3: June's Enum.lua; the enhanced Mana Drain
+		RNSI_A_ALS_QUICK_PIERCING_UPGRADE                     = 27241,	// char-ara CH2d3: June's Enum.lua; the enhanced Quick Piercing
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-11 // char-ara CH1n
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS                = 27222,	// char-ara CH1n: June's Enum.lua; its transcended slot keeps the Conversion Mana state

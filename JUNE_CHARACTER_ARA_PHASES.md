@@ -2113,6 +2113,36 @@ All 20 class-map rows read from `charport_adis.py ara --phase CH2d2` listings an
 
 **Play-test passed (2026-11-11 23:24-23:26, exe md5 65294f1c, unit 135).** 0 `EXCEPTION`, 0 `KEM_ERROR` / `Motion Error`, no `BLANK` state line. Sever 27059 x5 ( state 49: `SEVER_FX1` / `FX2`, `SEVER_DAMAGE` at +0.4 s, `DamageEffect_SI_SA_ALS_SEVER_Damage` hits ). Suppression Specter 27060 x2 ( state 53: `FX1`, `FX2`, `Damage` + a hit, `_TARGET` set on the enemy ). Restraints 27041 -> Shadow Knot ( 155 / 156 / 157 ) -> Sever ( 49 ) x5; once the chain ran through, **Veritable Pandemonium started 0.615 s into Sever** ( state 269: `_START` at +0.1 s, `_BLACKHOLE` 0.64 s after the state start; then 270: `FINISH_FX1` / `FX2` / `Damage` at +0.0 / +0.29 / +0.62 s ) x2. The chain's Sever step runs in the skill's own slot state ( 49 ), not the registered 301. `ErrorLog.txt`: 6 `OpenXET` lines for the new meshes ( `ALS_VERITABLE_PANDEMONIUM_P01 / P02 / P04`, `AA_SUPPRESSION_SPECTER_FOX / P01 / P02` ): the same line every June mesh preload gets ( 305 in the run ), the files are in data132. Cool time and MP are not in the logs; not reported wrong by the user. `AddGroupChainQuest` unbound and 2 `E_DISABLE_HB_CHECK_REQ` UNHANDLED are not this phase's.
 
+### CH2d3 - Done (2026-11-11)
+
+Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( CH2a's, no new define; `_SKILL_DEBUG` stays on until the CH2d3 stage review ). Little Specter ( 34 ) A tier: View Between 27214 / 27225, Shake Chaos 27215 / 27239, Mana Drain 27216 / 27240, Quick Piercing 27217 / 27241. All 29 class-map rows read from `charport_adis.py ara --phase CH2d3` listings ( Ghidra decompile beside them; `32bc3e40`, `32ba1370`, `32ba0cc0`, `32ba0680` are uncarved ). Every block carries `// char-ara CH2d3`. `funcmap.tsv` rows `Char Ara CH2d3` ( 29 ); `MODS.md` "Stage 7 Ara, CH2d3"; no JUNE_BUGS row.
+
+| June | `CX2GUAra::` | What it does |
+|---|---|---|
+| `32bce810` `32bc9400` `32bce8c0` `32bce920` `32bc9450` `32bce9c0` | `ASI_A_ALS_VIEW_BETWEEN_` / `_FINISH_` / `SHAKE_CHAOS_` / `_REPEAT_` / `_FINISH_` / `MANA_DRAIN_CreateState` | the six helpers: table + callbacks. First switch ( 32bd09d0 ): 27214 / 27225 + finish 289, 27215 / 27239 + repeat 333 + finish 292, 27216 / 27240. Second switch ( 32bd34c0 ): View Between 288 + 289, Shake Chaos 291 + 333 + 292, with the chain lookup on the swapped id |
+| `32b92c50` `32b940d0` `32b94150` `32b94290` `32b94360` `32b94580` | `..._Init` | 3 / 9 / 9 / 9 / 9 / 9 preloads |
+| `32bc3190` `32b94310` `32b94340` `32ba1340` | `..._StateStart` | View Between: up to one force power -> `GetMpScaledPowerRate`; Shake Chaos: repeat count 0 ( the repeat state counts +1 ); Mana Drain: handle / retake MP / hit count cleared |
+| `32bad3c0` `32bad450` | View Between / Shake Chaos `EventProcess` | end -> `StateChangeOrFPCancel( finish )`, FP-cancel probe window |
+| `32ba0680` `32ba0cc0` `32ba1370` | finish / Mana Drain `EventProcess` | the plain skill-end body, equal to Sever's `32ba2140` after address normalisation |
+| `32bbcdc0` `32bbcff0` | View Between `FrameMove` ( start, finish ) | 0.338 s / 0.266 s damage effect 65 / 220 in front of the hip ( behind when facing left ), `ScaleDamageByRate( rate )` |
+| `32bc3260` `32bbd240` | Shake Chaos `FrameMove` ( run, finish ) | 0.135 s first run spends 1 force power into the rate, Damage1; 0.309 s Damage2; repeat runs at half power; finish 0.01 s |
+| `32bc3bc0` `32bc3e40` | Mana Drain `FrameMove`, `StateEnd` | 0.3 s the drain effect ( handle kept ); 0.65 s and at the end the MP taken is given back with the +MP popup |
+| `32b92c80` `32b9c810` | Quick Piercing `FrameMove`, `EventProcess` | inside March's functions ( March in `#else` ): FrameMove = thunk to `CommonFrameMove`; EventProcess = wait on a line else jump down, on-line walk / dash cancels. Case: table `_TRENSCENDENCE` when Weird Fox ( 27420 ) is learned, Init on the normal state only |
+
+**New names.** `X2SkillTree.h`: `RNSI_A_ALS_VIEW_BETWEEN_UPGRADE` 27225, `_SHAKE_CHAOS_UPGRADE` 27239, `_MANA_DRAIN_UPGRADE` 27240, `_QUICK_PIERCING_UPGRADE` 27241. `X2GUAra.h`: `ASI_A_ALS_SHAKE_CHAOS_REPEAT` at the end of `ARA_STATE_ID` ( June id 333, unnamed in June ), members `m_fViewBetweenRangeRate` ( +0x9758 ), `m_fShakeChaosRangeRate` ( +0x975c ), `m_usShakeChaosCount` ( +0x9760 ).
+**Stub, not ported.** June's memo tests ( View Between's `_MEMO_` effect name and 0.15 rate lift, Shake Chaos' repeat at 0.5 s with memo 0x94342 ) go through `31fca9e0`, which never holds a memo ( as CH2d's 0x9433c ): the repeat state is registered and never entered. The `+0x9614` used-force-power increments have no reader: not kept. The chain View Between -> Shake Chaos runs; the step into Raid ( CH3c2 ) is refused by CH2dx's guard.
+**Found, not ported.** Nothing new. Weird Fox's table choice for Quick Piercing is Asura-only in play ( transcendence passive ): not reachable on class 34.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ARA_SKILL --with ..._SKILL_DEBUG --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2SkillTree.h`: `2 PASS ( +534, +32 ), 0 DEFINE, 1 OTHER ( X2SkillTree.h = JUNE_ENUM_NAMES ), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` ( the 3 files ): `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: `0 A/B row(s) remain`. `luabind.py check Ara_Martial_Artist`: `0 unbound`, ENUM `0 missing`, STATE `37 compared, 0 wrong`, `RESULT: PASS`. `skillicons.py check` ( 8 ids ): `misses 0`, PASS. `/Zs` probe `X2GUAra.cpp`: 0 errors.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,287,616 B, 2026-11-11 23:54:13`; `DEPLOY OK: X2_offline.exe is 26,287,616 B, dated 2026-11-11 23:54:20, md5 3279ce854d85edd8b6b43ffb803a96d0, equal to X2/US_SERVICE/x2.exe (2026-11-11 23:54:13); built at main c0cc6b8f + 3 uncommitted code file(s).`
+- `EXESTR OK: 2 of 2 found in X2_offline.exe, 26287616 B, md5 3279ce85` ( wide `DamageEffect_VIEW_BETWEEN_FINISH_Damage`, `DamageEffect_MANA_DRAIN_MP_Damage` ); `EXESTR OK: 2 of 2` ( narrow `ASI_A_ARA_QUICK_PIERCING_TRENSCENDENCE`, `ASI_A_ALS_SHAKE_CHAOS_FINISH` ).
+
+**Save.** Unit 137 `LSpecBase45` ( class 34, lv 45; backup `db_backup/els_db_20261111_234821_pre_createchar.sql` ): bank A 0 Storm 27021, 1 View Between 27214, 2 Shake Chaos 27215, 3 Mana Drain 27216; bank B slot 5 Quick Piercing 27217. Unit 138 `LSpecUp99` ( lv 99 ): bank A 0 View Between 27225, 1 Shake Chaos 27239, 2 Mana Drain 27240, 3 Quick Piercing 27241.
+
+**Play-test hand-off.** In the chat of 2026-11-11 ( units 137 and 138 ). Lines to read: `[JUNE_CHAR] ARA SKILL state` ( View Between 288 / 289, Shake Chaos 291 / 292, Mana Drain, Quick Piercing, Storm 27021's states; no `BLANK` ), the `DamageEffect_VIEW_BETWEEN*` / `SHAKE_CHAOS*` / `MANA_DRAIN_MP` effects, `[JUNE_SKILL] NUM use`, `ARA SKILL chain refused` ( at Raid ), 0 `EXCEPTION`.
+
 ### CH5 - Done (2026-11-11)
 
 Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI` (`Always.h` end; `#error` without `_ARA_LIVE` and `JUNE_UNIT_VIEWER_EFFECT_PLAYER`). Review kickoff `kickoffs/char-ara/CH5-review.md` written.

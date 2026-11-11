@@ -224,6 +224,7 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	, m_iSpecterOfThunderTargetState( -1 ), m_vSpecterOfThunderTargetPos( 0.f, 0.f, 0.f ), m_iSpecterOfThunderTargetLine( 0 )	// +0x9780 / +0x9784 / +0x9798
 	, m_fRestraintsSpecterRangeRate( -1.f ), m_hRestraintsSpecterEffect( INVALID_DAMAGE_EFFECT_HANDLE )	// +0x97b4 / +0x97b8
 	, m_fPandemoniumCoolTimeRate( -1.f ), m_fPandemoniumPowerRate( 1.f ), m_hSeverEffectSet( INVALID_EFFECTSET_HANDLE ), m_vSeverEndPos( 0.f, 0.f, 0.f )	// char-ara CH2d2: June ctor 32bc6bf0 +0x974c / +0x9750 / +0x97a4
+	, m_fViewBetweenRangeRate( 1.f ), m_fShakeChaosRangeRate( 1.f ), m_usShakeChaosCount( 0 )	// char-ara CH2d3: June ctor 32bc6bf0 +0x9758 / +0x975c ( +0x9760 is set by the start state )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	, m_fMpGainPerForcePowerInFullHyperMode( 0.f ), m_iFPCancelChainCount( 0 ), m_iSnapshotForcePower( 0 )	// char-ara CH1q: June 32bc6bf0 @32bc7635 / @32bc77a3
@@ -4019,8 +4020,25 @@ void CX2GUAra::InitStateByUnitClass()
 
 #ifdef UPGRADE_SKILL_SYSTEM_2013 //JHKang
 	#pragma region SI_A_ARA_QUICK_PIERCING
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	case CX2SkillTree::RNSI_A_ALS_QUICK_PIERCING:	// char-ara CH2d3: June 32bd09d0 case 27217 / 27241
+	case CX2SkillTree::RNSI_A_ALS_QUICK_PIERCING_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	case CX2SkillTree::SI_A_AM_QUICK_PIERCING:
 		{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+			// char-ara CH2d3: June 32bd09d0 @32bd2017 ( Weird Fox learned: the transcendence table; the preload is on the normal state only )
+			const char* const pszStateTable = ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASR_SPIRITISM_WEIRD_FOX ) ) ? "ASI_A_ARA_QUICK_PIERCING_TRENSCENDENCE" : "ASI_A_ARA_QUICK_PIERCING";
+			m_LuaManager.MakeTableReference( pszStateTable, normalStateData.stateID );
+			normalStateData.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_A_ARA_Quick_Piercing_Init );
+			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_A_ARA_Quick_Piercing_EventProcess );
+			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_A_ARA_Quick_Piercing_FrameMove );
+
+			m_LuaManager.MakeTableReference( pszStateTable, hyperStateData.stateID );
+			hyperStateData.m_bHyperState	= true;
+			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
+			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			m_LuaManager.MakeTableReference( "ASI_A_ARA_QUICK_PIERCING", normalStateData.stateID );
 			normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_A_ARA_Quick_Piercing_EventProcess );
 			normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_A_ARA_Quick_Piercing_FrameMove );
@@ -4029,6 +4047,7 @@ void CX2GUAra::InitStateByUnitClass()
 			hyperStateData.m_bHyperState	= true;
 			hyperStateData.OnEventProcess	= normalStateData.OnEventProcess;
 			hyperStateData.OnFrameMove		= normalStateData.OnFrameMove;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		} break;
 	#pragma endregion 신속
 
@@ -4260,6 +4279,43 @@ void CX2GUAra::InitStateByUnitClass()
 			{
 				ASI_SA_AA_SUPPRESSION_SPECTER_CreateState( normalStateData, normalStateData.stateID );
 				ASI_SA_AA_SUPPRESSION_SPECTER_CreateState( hyperStateData, hyperStateData.stateID );
+			} break;
+	#pragma endregion
+
+	#pragma region RNSI_A_ALS_VIEW_BETWEEN
+		case CX2SkillTree::RNSI_A_ALS_VIEW_BETWEEN:	// char-ara CH2d3: June 32bd09d0 case 27214 / 27225
+		case CX2SkillTree::RNSI_A_ALS_VIEW_BETWEEN_UPGRADE:
+			{
+				ASI_A_ALS_VIEW_BETWEEN_CreateState( normalStateData, normalStateData.stateID );
+				ASI_A_ALS_VIEW_BETWEEN_CreateState( hyperStateData, hyperStateData.stateID );
+
+				UserUnitStateData subStateData;
+				ASI_A_ALS_VIEW_BETWEEN_FINISH_CreateState( subStateData, ASI_A_ALS_VIEW_BETWEEN_FINISH );
+				m_StateList[subStateData.stateID] = subStateData;
+			} break;
+	#pragma endregion
+
+	#pragma region RNSI_A_ALS_SHAKE_CHAOS
+		case CX2SkillTree::RNSI_A_ALS_SHAKE_CHAOS:	// char-ara CH2d3: June 32bd09d0 case 27215 / 27239
+		case CX2SkillTree::RNSI_A_ALS_SHAKE_CHAOS_UPGRADE:
+			{
+				ASI_A_ALS_SHAKE_CHAOS_CreateState( normalStateData, normalStateData.stateID );
+				ASI_A_ALS_SHAKE_CHAOS_CreateState( hyperStateData, hyperStateData.stateID );
+
+				UserUnitStateData subStateData;
+				ASI_A_ALS_SHAKE_CHAOS_REPEAT_CreateState( subStateData, ASI_A_ALS_SHAKE_CHAOS_REPEAT );
+				m_StateList[subStateData.stateID] = subStateData;
+				ASI_A_ALS_SHAKE_CHAOS_FINISH_CreateState( subStateData, ASI_A_ALS_SHAKE_CHAOS_FINISH );
+				m_StateList[subStateData.stateID] = subStateData;
+			} break;
+	#pragma endregion
+
+	#pragma region RNSI_A_ALS_MANA_DRAIN
+		case CX2SkillTree::RNSI_A_ALS_MANA_DRAIN:	// char-ara CH2d3: June 32bd09d0 case 27216 / 27240
+		case CX2SkillTree::RNSI_A_ALS_MANA_DRAIN_UPGRADE:
+			{
+				ASI_A_ALS_MANA_DRAIN_CreateState( normalStateData, normalStateData.stateID );
+				ASI_A_ALS_MANA_DRAIN_CreateState( hyperStateData, hyperStateData.stateID );
 			} break;
 	#pragma endregion
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
@@ -11871,6 +11927,425 @@ void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateEndFuture()
 void CX2GUAra::ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateEnd()
 {
 	ClearCustomRenderState();
+	CommonStateEnd();
+}
+namespace _CONST_ARA_CH2D3_	// char-ara CH2d3
+{
+	const float		VIEW_BETWEEN_DAMAGE_TIME			= 0.338f;	// June 32bbcdc0 @32bbcdce
+	const float		VIEW_BETWEEN_DAMAGE_DISTANCE		= 65.f;		// June 32bbcdc0 @32bbce20
+	const float		VIEW_BETWEEN_FINISH_DAMAGE_TIME		= 0.266f;	// June 32bbcff0 @32bbcffe
+	const float		VIEW_BETWEEN_FINISH_DAMAGE_DISTANCE	= 220.f;	// June 32bbcff0 @32bbd050
+	const float		SHAKE_CHAOS_FIRST_DAMAGE_TIME		= 0.135f;	// June 32bc3260 @32bc326e
+	const float		SHAKE_CHAOS_SECOND_DAMAGE_TIME		= 0.309f;	// June 32bc3260 @32bc340f
+	const float		SHAKE_CHAOS_REPEAT_POWER_RATE		= 0.5f;		// June 32bc3260 @32bc32f6
+	const float		SHAKE_CHAOS_FINISH_DAMAGE_TIME		= 0.01f;	// June 32bbd240 @32bbd24e
+	const float		MANA_DRAIN_DAMAGE_TIME				= 0.3f;		// June 32bc3bc0 @32bc3bce
+	const float		MANA_DRAIN_RETAKE_MP_TIME			= 0.65f;	// June 32bc3bc0 @32bc3cff
+}
+using namespace _CONST_ARA_CH2D3_;
+
+// char-ara CH2d3: June helper 32bce810
+void CX2GUAra::ASI_A_ALS_VIEW_BETWEEN_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_A_ALS_VIEW_BETWEEN", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_VIEW_BETWEEN_Init );
+	stateData_.StateStart      	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_VIEW_BETWEEN_StateStart );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_VIEW_BETWEEN_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_VIEW_BETWEEN_EventProcess );
+}
+
+// char-ara CH2d3: June helper 32bc9400
+void CX2GUAra::ASI_A_ALS_VIEW_BETWEEN_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_A_ALS_VIEW_BETWEEN_FINISH", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_VIEW_BETWEEN_FINISH_Init );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_VIEW_BETWEEN_FINISH_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_VIEW_BETWEEN_FINISH_EventProcess );
+}
+
+// char-ara CH2d3: June helper 32bce8c0
+void CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_A_ALS_SHAKE_CHAOS", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SHAKE_CHAOS_Init );
+	stateData_.StateStart      	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SHAKE_CHAOS_StateStart );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SHAKE_CHAOS_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SHAKE_CHAOS_EventProcess );
+}
+
+// char-ara CH2d3: June helper 32bce920 ( the repeat state: the same table, no preload, its own start )
+void CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_REPEAT_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_A_ALS_SHAKE_CHAOS", stateData_.stateID );
+	stateData_.StateStart      	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SHAKE_CHAOS_REPEAT_StateStart );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SHAKE_CHAOS_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SHAKE_CHAOS_EventProcess );
+}
+
+// char-ara CH2d3: June helper 32bc9450
+void CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_A_ALS_SHAKE_CHAOS_FINISH", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SHAKE_CHAOS_FINISH_Init );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SHAKE_CHAOS_FINISH_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SHAKE_CHAOS_FINISH_EventProcess );
+}
+
+// char-ara CH2d3: June helper 32bce9c0
+void CX2GUAra::ASI_A_ALS_MANA_DRAIN_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_A_ALS_MANA_DRAIN", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_MANA_DRAIN_Init );
+	stateData_.StateStart      	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_MANA_DRAIN_StateStart );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_MANA_DRAIN_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_MANA_DRAIN_EventProcess );
+	stateData_.StateEnd        	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_MANA_DRAIN_StateEnd );
+}
+
+// char-ara CH2d3: June 32b92c50 ( 3 preloads )
+void CX2GUAra::ASI_A_ARA_Quick_Piercing_Init()
+{
+	XSkinMeshReadyInBackground( L"SI_A_ARA_GAIN_FORCE_KNOT.X" );
+	XSkinMeshReadyInBackground( L"SI_A_SBH_SCALET_ROSE_attackSphere.X" );
+	XMeshReadyInBackground( L"QUICK_PIERCING_Weapon.Y" );
+}
+
+// char-ara CH2d3: June 32b940d0 ( 9 preloads )
+void CX2GUAra::ASI_A_ALS_VIEW_BETWEEN_Init()
+{
+	XSkinMeshReadyInBackground( L"ALS_VIEW_BETWEEN_H1.X" );
+	XSkinMeshReadyInBackground( L"ALS_VIEW_BETWEEN_H1_TRACE.X" );
+	XSkinMeshReadyInBackground( L"ALS_VIEW_BETWEEN_H1_TRACE01.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_smoke.dds" );
+}
+
+// char-ara CH2d3: June 32b94150 ( 9 preloads )
+void CX2GUAra::ASI_A_ALS_VIEW_BETWEEN_FINISH_Init()
+{
+	XSkinMeshReadyInBackground( L"ALS_VIEW_BETWEEN_H2.X" );
+	XSkinMeshReadyInBackground( L"ALS_VIEW_BETWEEN_H2_TRACE01.X" );
+	XSkinMeshReadyInBackground( L"ALS_VIEW_BETWEEN_H2_TRACE02.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_smoke.dds" );
+}
+
+// char-ara CH2d3: June 32b94290 ( 9 preloads )
+void CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_Init()
+{
+	XMeshReadyInBackground( L"ALS_SHAKE_CHAOS_01.Y" );
+	XMeshReadyInBackground( L"ALS_SHAKE_CHAOS_02.Y" );
+	TextureReadyInBackground( L"ALS_SLICER_01.dds" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_smoke.dds" );
+}
+
+// char-ara CH2d3: June 32b94360 ( the same 9 preloads as 32b94290 )
+void CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_FINISH_Init()
+{
+	XMeshReadyInBackground( L"ALS_SHAKE_CHAOS_01.Y" );
+	XMeshReadyInBackground( L"ALS_SHAKE_CHAOS_02.Y" );
+	TextureReadyInBackground( L"ALS_SLICER_01.dds" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_smoke.dds" );
+}
+
+// char-ara CH2d3: June 32b94580 ( 9 preloads )
+void CX2GUAra::ASI_A_ALS_MANA_DRAIN_Init()
+{
+	XMeshReadyInBackground( L"AA_SUPPRESSION_SPECTER_P01.Y" );
+	XSkinMeshReadyInBackground( L"ALS_TRACE_P01.X" );
+	TextureReadyInBackground( L"Colorballgray.dds" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	TextureReadyInBackground( L"Nasod_King_Laser03.dds" );
+	XMeshReadyInBackground( L"SI_A_ALS_MANA_DRAIN_01.Y" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"VERITABLE_PANDEMONIUM_T02.dds" );
+	TextureReadyInBackground( L"ALS_MANA_DRAIN_P01.dds" );
+}
+
+// char-ara CH2d3: June 32bc3190 ( up to one force power turns into the damage rate; June +0x9614 counts it, no reader )
+void CX2GUAra::ASI_A_ALS_VIEW_BETWEEN_StateStart()
+{
+	CommonStateStart();
+	m_fViewBetweenRangeRate = -1.f;
+	m_usBeforeForceGainCount = m_usForceGainCount;
+
+	if ( 0 < GetForcePower() )
+	{
+		m_fViewBetweenRangeRate = GetMpScaledPowerRate( 1, CX2SkillTree::RNSI_A_ALS_VIEW_BETWEEN, true );
+		UseForcePower( 1 );
+	}
+}
+
+// char-ara CH2d3: June 32b94310
+void CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_StateStart()
+{
+	CommonStateStart();
+	m_usBeforeForceGainCount = m_usForceGainCount;
+	m_usShakeChaosCount = 0;
+}
+
+// char-ara CH2d3: June 32b94340 ( the repeat state counts itself )
+void CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_REPEAT_StateStart()
+{
+	CommonStateStart();
+	++m_usShakeChaosCount;
+}
+
+// char-ara CH2d3: June 32ba1340
+void CX2GUAra::ASI_A_ALS_MANA_DRAIN_StateStart()
+{
+	CommonStateStart();
+	m_hManaDrainEffect = INVALID_DAMAGE_EFFECT_HANDLE;
+	m_fManaDrainRetakeMp = 0.f;
+	m_usManaDrainHitCount = 0;
+}
+
+// char-ara CH2d3: June 32bad3c0 ( animation end -> FP cancel or the finish state; the probe window, no cancel )
+void CX2GUAra::ASI_A_ALS_VIEW_BETWEEN_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_A_ALS_VIEW_BETWEEN_FINISH );
+
+	m_bFPCancelProbe = true;	// June +0x9621, as the Restraints Specter
+	if ( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d3: June 32bad450 ( as the view between; June's repeat at 0.5 s needs the memo 0x94342, which the stub 31fca9e0 never holds )
+void CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_A_ALS_SHAKE_CHAOS_FINISH );
+
+	m_bFPCancelProbe = true;
+	if ( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d3: June 32ba0680 ( animation end -> wait on a line, else jump down 45 lower; then the skill, walk, dash and attack cancels )
+void CX2GUAra::ASI_A_ALS_VIEW_BETWEEN_FINISH_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == IsOnSomethingFuture() )
+			StateChange( USI_WAIT );
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y = static_cast<float>( m_FrameDataFuture.syncData.position.y - STORM_LANDING_DROP );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d3: June 32ba0cc0 ( the same body as the view between finish )
+void CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_FINISH_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == IsOnSomethingFuture() )
+			StateChange( USI_WAIT );
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y = static_cast<float>( m_FrameDataFuture.syncData.position.y - STORM_LANDING_DROP );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d3: June 32ba1370 ( the same body as the view between finish )
+void CX2GUAra::ASI_A_ALS_MANA_DRAIN_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == IsOnSomethingFuture() )
+			StateChange( USI_WAIT );
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y = static_cast<float>( m_FrameDataFuture.syncData.position.y - STORM_LANDING_DROP );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d3: June 32bbcdc0 ( at 0.338 s the damage effect appears 65 in front of the hip, behind it when facing left; June's memo 0x94340 set is never chosen: the stub 31fca9e0 never holds it )
+void CX2GUAra::ASI_A_ALS_VIEW_BETWEEN_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( VIEW_BETWEEN_DAMAGE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		const D3DXVECTOR3 vOffset = GetDirVector() * VIEW_BETWEEN_DAMAGE_DISTANCE;
+		const D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01" );
+		const D3DXVECTOR3 vPos = ( true == GetIsRight() ) ? ( vBonePos + vOffset ) : ( vBonePos - vOffset );
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_VIEW_BETWEEN_Damage", GetPowerRate(),
+			vPos, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+			pDamageEffect->ScaleDamageByRate( m_fViewBetweenRangeRate );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d3: June 32bbcff0 ( at 0.266 s the finish damage 220 in front of the hip, behind it when facing left, at the rate the start set )
+void CX2GUAra::ASI_A_ALS_VIEW_BETWEEN_FINISH_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( VIEW_BETWEEN_FINISH_DAMAGE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		const D3DXVECTOR3 vOffset = GetDirVector() * VIEW_BETWEEN_FINISH_DAMAGE_DISTANCE;
+		const D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01" );
+		const D3DXVECTOR3 vPos = ( true == GetIsRight() ) ? ( vBonePos + vOffset ) : ( vBonePos - vOffset );
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_VIEW_BETWEEN_FINISH_Damage", GetPowerRate(),
+			vPos, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+			pDamageEffect->ScaleDamageByRate( m_fViewBetweenRangeRate );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d3: June 32bc3260 ( 0.135 s: the first run spends one force power into the rate; both damage effects of a repeat run at half power )
+void CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( SHAKE_CHAOS_FIRST_DAMAGE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		m_fShakeChaosRangeRate = -1.f;
+		if ( 0 < GetForcePower() && 0 == m_usShakeChaosCount )
+		{
+			m_fShakeChaosRangeRate = GetMpScaledPowerRate( 1, CX2SkillTree::RNSI_A_ALS_SHAKE_CHAOS, true );
+			UseForcePower( 1 );
+		}
+
+		const float fPowerRate = ( 0 == m_usShakeChaosCount ) ? 1.f : SHAKE_CHAOS_REPEAT_POWER_RATE;
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_SHAKE_CHAOS_Damage1", GetPowerRate() * fPowerRate,
+			GetBonePos( L"Bip01" ), GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+			pDamageEffect->ScaleDamageByRate( m_fShakeChaosRangeRate );
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( SHAKE_CHAOS_SECOND_DAMAGE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		const float fPowerRate = ( 0 == m_usShakeChaosCount ) ? 1.f : SHAKE_CHAOS_REPEAT_POWER_RATE;
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_SHAKE_CHAOS_Damage2", GetPowerRate() * fPowerRate,
+			GetBonePos( L"Bip01" ), GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+			pDamageEffect->ScaleDamageByRate( m_fShakeChaosRangeRate );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d3: June 32bbd240 ( at 0.01 s the finish damage at the hip, at the rate the first run set )
+void CX2GUAra::ASI_A_ALS_SHAKE_CHAOS_FINISH_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( SHAKE_CHAOS_FINISH_DAMAGE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_SHAKE_CHAOS_FINISH_Damage", GetPowerRate(),
+			GetBonePos( L"Bip01" ), GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+			pDamageEffect->ScaleDamageByRate( m_fShakeChaosRangeRate );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d3: June 32bc3bc0 ( 0.3 s the drain damage effect, its handle kept for the hit counter; 0.65 s the MP it took is given back )
+void CX2GUAra::ASI_A_ALS_MANA_DRAIN_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( MANA_DRAIN_DAMAGE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_MANA_DRAIN_MP_Damage", GetPowerRate(),
+			GetBonePos( L"Bip01" ), GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+			m_hManaDrainEffect = pDamageEffect->GetHandle();
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( MANA_DRAIN_RETAKE_MP_TIME ) && 0.f < m_fManaDrainRetakeMp )
+	{
+		UpNowMp( m_fManaDrainRetakeMp );
+		if ( NULL != g_pX2Game )
+			g_pX2Game->DisplayAddMPInformation( m_fManaDrainRetakeMp, GetPos(), GetDirVector() );
+
+		m_fManaDrainRetakeMp = 0.f;
+		m_usManaDrainHitCount = 0;
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d3: June 32bc3e40 ( what is still owed to the unit is given back when the state ends )
+void CX2GUAra::ASI_A_ALS_MANA_DRAIN_StateEnd()
+{
+	if ( 0.f < m_fManaDrainRetakeMp )
+	{
+		UpNowMp( m_fManaDrainRetakeMp );
+		if ( NULL != g_pX2Game )
+			g_pX2Game->DisplayAddMPInformation( m_fManaDrainRetakeMp, GetPos(), GetDirVector() );
+
+		m_fManaDrainRetakeMp = 0.f;
+		m_usManaDrainHitCount = 0;
+	}
+
 	CommonStateEnd();
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
@@ -23233,6 +23708,20 @@ void CX2GUAra::ASI_SA_ASD_VOID_BREAK_EventProcess()
 */
 void CX2GUAra::ASI_A_ARA_Quick_Piercing_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2d3: June 32b9c810 ( animation end -> wait on a line, else jump down; the on-line walk and dash cancels, no skill cancel )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == IsOnSomethingFuture() )
+			StateChange( USI_WAIT );
+		else
+			StateChange( USI_JUMP_DOWN );
+	}
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if( m_pXSkinAnimFuture->IsAnimationEnd() == true )
 	{
 		if( false == IsOnSomethingFuture() )
@@ -23244,10 +23733,15 @@ void CX2GUAra::ASI_A_ARA_Quick_Piercing_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 void CX2GUAra::ASI_A_ARA_Quick_Piercing_FrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH2d3: June 32b92c80 ( a thunk to CommonFrameMove: the damage swap is the engine's, from DAMAGE_DATA_CHANGE_TIME )
+	CommonFrameMove();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
     if( true == m_pXSkinAnim->EventTimerOneshot( m_fDamageDataChangeTime ) )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -23274,6 +23768,7 @@ void CX2GUAra::ASI_A_ARA_Quick_Piercing_FrameMove()
 	}
 
 	CommonFrameMove();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 #pragma endregion 천격
 
@@ -26947,6 +27442,45 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 					{
 						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH];
 						ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_CreateState( stateData, ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+					}
+				} break;
+			case CX2SkillTree::RNSI_A_ALS_VIEW_BETWEEN:	// char-ara CH2d3: June 32bd34c0 case 27214 / 27225 ( the chain lookup takes the swapped id )
+			case CX2SkillTree::RNSI_A_ALS_VIEW_BETWEEN_UPGRADE:
+				{
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_A_ALS_VIEW_BETWEEN];
+						ASI_A_ALS_VIEW_BETWEEN_CreateState( stateData, ASI_A_ALS_VIEW_BETWEEN );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// June @32bd4bbb
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_A_ALS_VIEW_BETWEEN_FINISH];
+						ASI_A_ALS_VIEW_BETWEEN_FINISH_CreateState( stateData, ASI_A_ALS_VIEW_BETWEEN_FINISH );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+					}
+				} break;
+			case CX2SkillTree::RNSI_A_ALS_SHAKE_CHAOS:	// char-ara CH2d3: June 32bd34c0 case 27215 / 27239 ( the chain lookup takes the swapped id )
+			case CX2SkillTree::RNSI_A_ALS_SHAKE_CHAOS_UPGRADE:
+				{
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_A_ALS_SHAKE_CHAOS];
+						ASI_A_ALS_SHAKE_CHAOS_CreateState( stateData, ASI_A_ALS_SHAKE_CHAOS );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// June @32bd4cab
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_A_ALS_SHAKE_CHAOS_REPEAT];
+						ASI_A_ALS_SHAKE_CHAOS_REPEAT_CreateState( stateData, ASI_A_ALS_SHAKE_CHAOS_REPEAT );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// June @32bd4d42
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_A_ALS_SHAKE_CHAOS_FINISH];
+						ASI_A_ALS_SHAKE_CHAOS_FINISH_CreateState( stateData, ASI_A_ALS_SHAKE_CHAOS_FINISH );
 						SetSkillLevelStateData( pSkillTemplet, stateData );
 					}
 				} break;

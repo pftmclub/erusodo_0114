@@ -305,6 +305,7 @@ public:
 		ASI_SA_AA_SMASH,	/// char-ara CH1: June id 315, named by June's CHAIN_SYSTEM ( CH3c owns the state )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		ASI_SA_ALH_LINK_FLOWER,	/// char-ara CH2b: June id 330, named by June's script table ( Little Hsien's Fire Lotus )
+		ASI_A_ALS_SHAKE_CHAOS_REPEAT,	/// char-ara CH2d3: June id 333, unnamed in June's Enum.lua; the repeat state Shake Chaos' memo starts ( same Lua table )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	#pragma endregion 2-1, 2-2Â÷ ÀüÁ÷
@@ -704,6 +705,33 @@ protected:
 	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_FrameMove();	// char-ara CH2d2: June 32bbec00
 	void			ASI_SA_ALS_SEVER_StateEnd();	// char-ara CH2d2: June 32bc3f50
 	void			ASI_SA_ALS_VERITABLE_PANDEMONIUM_FINISH_StateStartFuture();	// char-ara CH2d2: June 32bc5280
+	void			ASI_A_ALS_VIEW_BETWEEN_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d3: June 32bce810
+	void			ASI_A_ALS_VIEW_BETWEEN_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d3: June 32bc9400
+	void			ASI_A_ALS_SHAKE_CHAOS_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d3: June 32bce8c0
+	void			ASI_A_ALS_SHAKE_CHAOS_REPEAT_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d3: June 32bce920
+	void			ASI_A_ALS_SHAKE_CHAOS_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d3: June 32bc9450
+	void			ASI_A_ALS_MANA_DRAIN_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d3: June 32bce9c0
+	void			ASI_A_ARA_Quick_Piercing_Init();	// char-ara CH2d3: June 32b92c50
+	void			ASI_A_ALS_VIEW_BETWEEN_Init();	// char-ara CH2d3: June 32b940d0
+	void			ASI_A_ALS_VIEW_BETWEEN_FINISH_Init();	// char-ara CH2d3: June 32b94150
+	void			ASI_A_ALS_SHAKE_CHAOS_Init();	// char-ara CH2d3: June 32b94290
+	void			ASI_A_ALS_SHAKE_CHAOS_FINISH_Init();	// char-ara CH2d3: June 32b94360
+	void			ASI_A_ALS_MANA_DRAIN_Init();	// char-ara CH2d3: June 32b94580
+	void			ASI_A_ALS_VIEW_BETWEEN_StateStart();	// char-ara CH2d3: June 32bc3190
+	void			ASI_A_ALS_SHAKE_CHAOS_StateStart();	// char-ara CH2d3: June 32b94310
+	void			ASI_A_ALS_SHAKE_CHAOS_REPEAT_StateStart();	// char-ara CH2d3: June 32b94340
+	void			ASI_A_ALS_MANA_DRAIN_StateStart();	// char-ara CH2d3: June 32ba1340
+	void			ASI_A_ALS_VIEW_BETWEEN_EventProcess();	// char-ara CH2d3: June 32bad3c0
+	void			ASI_A_ALS_SHAKE_CHAOS_EventProcess();	// char-ara CH2d3: June 32bad450
+	void			ASI_A_ALS_VIEW_BETWEEN_FINISH_EventProcess();	// char-ara CH2d3: June 32ba0680
+	void			ASI_A_ALS_SHAKE_CHAOS_FINISH_EventProcess();	// char-ara CH2d3: June 32ba0cc0
+	void			ASI_A_ALS_MANA_DRAIN_EventProcess();	// char-ara CH2d3: June 32ba1370
+	void			ASI_A_ALS_VIEW_BETWEEN_FrameMove();	// char-ara CH2d3: June 32bbcdc0
+	void			ASI_A_ALS_VIEW_BETWEEN_FINISH_FrameMove();	// char-ara CH2d3: June 32bbcff0
+	void			ASI_A_ALS_SHAKE_CHAOS_FrameMove();	// char-ara CH2d3: June 32bc3260
+	void			ASI_A_ALS_SHAKE_CHAOS_FINISH_FrameMove();	// char-ara CH2d3: June 32bbd240
+	void			ASI_A_ALS_MANA_DRAIN_FrameMove();	// char-ara CH2d3: June 32bc3bc0
+	void			ASI_A_ALS_MANA_DRAIN_StateEnd();	// char-ara CH2d3: June 32bc3e40
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2
@@ -1709,6 +1737,10 @@ protected:
 	float		m_fPandemoniumPowerRate;			/// June +0x9750: Load of Asura's multiplier of the power rate of Veritable Pandemonium's effect sets ( 1 = none )
 	CX2EffectSet::Handle	m_hSeverEffectSet;		/// June +0x97a4: Sever's damage effect set, read by its end state
 	D3DXVECTOR3	m_vSeverEndPos;						/// June +0x97a8: the spot Sever ended at, then the finish's landing spot; the black hole plays there
+	// char-ara CH2d3: members of View Between / Shake Chaos ( June offsets in june2017_re/char_ara/ch1_offsets.tsv )
+	float		m_fViewBetweenRangeRate;			/// June +0x9758: the MP-scaled damage rate of the force power View Between spent ( -1 = nothing spent )
+	float		m_fShakeChaosRangeRate;				/// June +0x975c: the same for Shake Chaos' first run, read by its finish
+	USHORT		m_usShakeChaosCount;				/// June +0x9760: repeats of Shake Chaos so far ( 0 in the first run )
 	struct SStoneProtractorAim	/// June +0x9818: the held Storm's aim data
 	{
 		bool	m_bAimed;			/// +0: cleared by the start state, no reader found in June
