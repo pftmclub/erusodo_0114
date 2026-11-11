@@ -12296,3 +12296,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_CORE needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE, SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS, SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE and SERV_IRUHADEV_JUNE_ENUM_NAMES ( RNSI_ names )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH1k - guards only ( no new flag ): the skill-use functions call the shared skill-use helpers ( m_iChosenSkillID, ReserveSkillUse ), the cool time and random mission hooks ( ApplySkillCoolTimeRateByBuff, OnSkillUse ), ShownSkillCoolTime and the named skill numerical ( GetSkillNumericalByName )
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_CORE ) && ( !defined( SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS ) || !defined( SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL ) || !defined( SERV_IRUHADEV_JUNE_RANDOM_MISSION ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_CORE needs SERV_IRUHADEV_JUNE_USER_SKILL_USE_HELPERS, SERV_IRUHADEV_JUNE_BUFF_NEW_SKILL and SERV_IRUHADEV_JUNE_RANDOM_MISSION
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ) && ( !defined( SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME ) || !defined( SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE needs SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME and SERV_IRUHADEV_JUNE_USER_NUMERICAL_BY_NAME
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+//////////////////////////////////////////////////////////////////////////

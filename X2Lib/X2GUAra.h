@@ -551,6 +551,11 @@ protected:
 	void			CreateTranscendenceDamageEffectByTimer();	// char-ara CH1j: June 32bc13c0
 	void			StopKillEnemyEffectSet();	// char-ara CH1j: June 32bc5ea0
 	void			CleanupSkillFPGainTable();	// char-ara CH1j: June 32bc6aa0
+	bool			IsReflectionSkill( const CX2SkillTree::SkillTemplet* pSkillTemplet_ ) const;	// char-ara CH1k: June 32b95590
+	bool			StateChangeLinkFlowerSlash( const int iSkillID_ );	// char-ara CH1k: June 32b95870
+	void			MarkNowSkillFPGainReady();	// char-ara CH1k: June 32ba62c0
+	USHORT			GetReadyFPGainOfSkillHit( OUT int& iHitID_ ) const;	// char-ara CH1k: June 32bab090
+	void			SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ );	// char-ara CH1k: June 32bb1ff0 ( user vslot 0x800 )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	void			ProcessFullHyperHitReward( CX2DamageManager::DamageData& pDamageData_ );	// char-ara CH1h2: June 32bc9a60, body in CH1q
 	void			UpForcePowerBySkillHit( CX2DamageManager::DamageData& pDamageData_ );	// char-ara CH1h2: June 32bab780, body in CH1q
@@ -561,6 +566,10 @@ protected:
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	virtual bool	IsNotCommonMoveState();	// char-ara CH1k: June 32bab220 ( user vslot 0x828 )
+	virtual void	ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	// char-ara CH1k: June 32057b80 @32057c4c
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	void			ShowActiveSkillCutInAndLightByBerserkMode( float fTimeToShow_, bool bOnlyLight_ = false );
 
 	virtual CX2GageData*	CreateGageData();
@@ -711,7 +720,11 @@ public:
 
 #ifdef ADD_ARA_MEMO	// 적용날짜: 2013-03-22
 	float			GetSkillCoolTimeValue( const CX2SkillTree::SKILL_ID eSkillID_, const float fCoolTimeLeft_ );	/// 메모 등으로 인한 쿨타임 변경값 설정 함수
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	USHORT			GetActualFPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const USHORT usForceGainValue_, const bool bFPCancelProbe_ = false );	// char-ara CH1k: June 32ba44e0 ( third argument )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	USHORT			GetActualFPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const USHORT usForceGainValue_ );	/// 메모 등으로 인한 기력 소비량 설정 함수
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	USHORT			GetActualFPGainCount( const CX2SkillTree::SKILL_ID eSkillID_, const USHORT usForceGainValue_ );	/// 메모 등으로 인한 기력 전환량 설정 함수
 #endif // ADD_ARA_MEMO
 
@@ -1461,14 +1474,15 @@ protected:
 	std::vector<CX2EqipPtr>	m_vecPromotionEquipTailList;	/// June +0x95e8: the tail equips, one per buff hyper count
 	struct SkillFPGainEntry		/// June 12-byte entry of SkillFPGainRecord's list
 	{
-		USHORT	m_usGain;			/// +0
+		bool	m_bEnabled;			/// +0: char-ara CH1k: a ready entry needs it ( GetReadyFPGainOfSkillHit ), CH4a fills the table
+		bool	m_bReady;			/// +1: set by MarkNowSkillFPGainReady
 		bool	m_bHit;				/// +2: set by MarkSkillFPGainHit
 		int		m_iAttackSerial;	/// +4
-		int		m_iUnread;			/// +8: CleanupSkillFPGainTable ( CH1j ) drops an entry once it is negative
+		int		m_iGainHitID;		/// +8: the hit that gives the gain ( the space of m_iSkillFPGainSerial ); CleanupSkillFPGainTable ( CH1j ) drops an entry once it is negative
 	};
 	struct SkillFPGainRecord	/// June 0x18-byte record of the vector at +0x9858
 	{
-		USHORT	m_usUnread;			/// +0
+		USHORT	m_usGain;			/// +0: char-ara CH1k: the force power one ready entry of the record gives
 		int		m_iSkillID;			/// +4
 		std::vector<SkillFPGainEntry>	m_vecEntry;	/// +8
 	};
@@ -1500,6 +1514,11 @@ protected:
 	DWORD		m_dwHellGhostTime;					/// June +0x9870: tick of the last Hell Ghost damage effect
 	float		m_fLinkFlowerSlashTime;				/// June +0x987c: counted down here, set by the Link Flower Slash states ( CH3a2 )
 	int			m_iFPGainStateSkillID;				/// June +0x9834: set from the state skill at state change by the FP-gain helpers ( CH1q ), zeroed when a state has no skill
+	// char-ara CH1k: members of the CH1k functions ( June offsets in june2017_re/char_ara/ch1_offsets.tsv )
+	int			m_iLinkFlowerSlashStateID;			/// June +0x9878: the Link Flower Slash state that runs ( 1st / 2nd ), set by those states ( CH3a2 )
+	USHORT		m_usSkillFPConsumption;				/// June +0x9626: the force power the skill being checked needs, stored by the lookup
+	int			m_iFPCancelSkillID;					/// June +0x970c: the skill being used while m_bFPCancel is set, else 0 ( UseForcePower reads it, CH1q )
+	int			m_iUsedSkillID;						/// June +0x971c: the skill the last use started
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 	UCHAR		m_ucBasicForcePower;		/// 기본 기력치

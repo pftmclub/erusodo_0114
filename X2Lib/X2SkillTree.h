@@ -1882,6 +1882,16 @@ public:
 		RNSI_P_ASR_LOAD_OF_ASURA                              = 27412,	// June's Enum.lua; Ara's passive rate of the Shadow Knot group
 		RNSI_P_ASR_FOX_SMILE                                  = 27413,	// June's Enum.lua; Ara's passive rate of the Get Blood group
 		RNSI_P_ASD_OPEN_MIND                                  = 27415,	// June's Enum.lua; its buff follows Ara's force power
+		RNSI_SA_ARA_WIND_WEDGE_UPGRADE                        = 27032,	// char-ara CH1k: June's Enum.lua; the enhanced Wind Wedge
+		RNSI_SA_ARA_SHADOW_KNOT_UPGRADE                       = 27033,	// char-ara CH1k: June's Enum.lua; the enhanced Shadow Knot
+		RNSI_A_ARA_SHOULDER_BLOW                              = 27201,	// char-ara CH1k: June's Enum.lua; an FP cancel into it costs one force power less
+		RNSI_A_ALH_QUICK_STAB                                 = 27205,	// char-ara CH1k: June's Enum.lua; an FP cancel into it costs one force power less
+		RNSI_A_ALD_CONVERSION_HEALTH                          = 27210,	// char-ara CH1k: June's Enum.lua; its HP limit is a named numerical value
+		RNSI_A_ALD_FORCE_SPEAR                                = 27211,	// char-ara CH1k: June's Enum.lua; an FP cancel into it costs one force power less
+		RNSI_A_ALS_QUICK_PIERCING                             = 27217,	// char-ara CH1k: June's Enum.lua; an FP cancel into it costs one force power less
+		RNSI_A_ARA_SHOULDER_BLOW_UPGRADE                      = 27221,	// char-ara CH1k: June's Enum.lua; an FP cancel into it costs one force power less
+		RNSI_A_AYR_REFLECTION_UPGRADE                         = 27238,	// char-ara CH1k: June's Enum.lua; the enhanced Reflection
+		RNSI_P_AYR_RESURRECTION                               = 27409,	// char-ara CH1k: June's Enum.lua; its heal action sets the protection debuff at its level
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 //{{ Iruha : 2026-11-09 // char-rena CH1i

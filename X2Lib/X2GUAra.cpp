@@ -209,6 +209,7 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	, m_hManaDrainEffect( INVALID_DAMAGE_EFFECT_HANDLE ), m_fManaDrainRetakeMp( -1.f ), m_usManaDrainHitCount( 0 )
 	, m_fNowSkillPassiveRate( 1.f ), m_hKillEnemyEffectSet( INVALID_EFFECTSET_HANDLE ), m_fNecromancyFoxCoolTime( 0.f ), m_fNecromancyFoxPowerRate( 1.f )	// char-ara CH1j: June 32bc6bf0
 	, m_fValorDevotionTimer( 0.f ), m_usHellGhostCount( 0 ), m_dwHellGhostTime( timeGetTime() ), m_fLinkFlowerSlashTime( 0.f ), m_iFPGainStateSkillID( 0 )
+	, m_iLinkFlowerSlashStateID( 0 ), m_usSkillFPConsumption( 0 ), m_iFPCancelSkillID( 0 ), m_iUsedSkillID( 0 )	// char-ara CH1k: June 32bc6bf0
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	, m_usForceGainCount( 0 ), m_usBeforeForceGainCount( 0 ), m_pSkillTemplet( NULL ), m_iPressedSkillSlotIndex( -1 )
 	, m_fMPConsume( 0.f )	
@@ -4440,6 +4441,185 @@ RENDER_HINT CX2GUAra::CommonRender_Prepare()
 }
 #pragma endregion
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+namespace _CONST_ARA_CH1K_
+{
+	/// char-ara CH1k: June's pop-up line: font 3, white text with a black outline, centred
+	void PushInfoText( const int iStringID_ )
+	{
+		g_pX2Game->GetInfoTextManager().PushText( XUF_DODUM_20_BOLD, GET_STRING( iStringID_ ), D3DXCOLOR(1,1,1,1), D3DXCOLOR(0,0,0,1), DT_CENTER, 1.f, 1.f );
+	}
+
+	/// June 31fd0570: training game ( 0x12 ) or the photo zone ( 0x1a, June-only ); the photo zone has no March state
+	bool IsTrainingOrPhotozone()
+	{
+		return CX2Main::XS_TRAINING_GAME == g_pMain->GetNowStateID();
+	}
+
+	/// June user action id with no March enumerator ( CX2GUUser::USER_ACTION_ID ): the Resurrection passive's heal, shown by every client
+	const int UAI_RESURRECTION_HEAL = 0x27;
+}
+using namespace _CONST_ARA_CH1K_;
+
+// char-ara CH1k: June 32b95590 ( Reflection and its upgrade )
+bool CX2GUAra::IsReflectionSkill( const CX2SkillTree::SkillTemplet* pSkillTemplet_ ) const
+{
+	if ( NULL == pSkillTemplet_ )
+		return false;
+
+	return CX2SkillTree::RNSI_A_AYR_REFLECTION == pSkillTemplet_->m_eID || CX2SkillTree::RNSI_A_AYR_REFLECTION_UPGRADE == pSkillTemplet_->m_eID;
+}
+
+// char-ara CH1k: June 32b95870 ( Link Flower Slash chains its three states while its timer runs; false for any other skill )
+bool CX2GUAra::StateChangeLinkFlowerSlash( const int iSkillID_ )
+{
+	if ( CX2SkillTree::RNSI_SA_ASD_LINK_FLOWER_SLASH != iSkillID_ )
+		return false;
+
+	if ( 0.f < m_fLinkFlowerSlashTime )
+	{
+		if ( ASI_SA_ASD_LINK_FLOWER_SLASH_1st == m_iLinkFlowerSlashStateID )
+		{
+			StateChange( ASI_SA_ASD_LINK_FLOWER_SLASH_2nd );
+			return true;
+		}
+		else if ( ASI_SA_ASD_LINK_FLOWER_SLASH_2nd == m_iLinkFlowerSlashStateID )
+		{
+			StateChange( ASI_SA_ASD_LINK_FLOWER_SLASH_LAST );
+			return true;
+		}
+	}
+
+	StateChange( ASI_SA_ASD_LINK_FLOWER_SLASH_1st );
+	return true;
+}
+
+// char-ara CH1k: June 32ba62c0 ( the entries of the running state's skill that match a recorded hit are marked ready )
+void CX2GUAra::MarkNowSkillFPGainReady()
+{
+	if ( m_iSkillFPGainSkillID <= 0 )
+		return;
+
+	for ( vector<SkillFPGainRecord>::iterator itRecord = m_vecSkillFPGainRecord.begin(); itRecord != m_vecSkillFPGainRecord.end(); ++itRecord )
+	{
+		if ( NULL == g_pData || NULL == g_pData->GetSkillTree() || false == CX2UISkillTreeNew::IsSameOrUpgradeSkill( itRecord->m_iSkillID, m_iSkillFPGainSkillID ) )
+			continue;
+
+		for ( size_t uiSerial = 0; uiSerial < m_vecSkillFPGainSerial.size(); ++uiSerial )
+		{
+			for ( vector<SkillFPGainEntry>::iterator itEntry = itRecord->m_vecEntry.begin(); itEntry != itRecord->m_vecEntry.end(); ++itEntry )
+			{
+				if ( itEntry->m_iAttackSerial == m_vecSkillFPGainSerial[uiSerial] && itEntry->m_iGainHitID == m_iSkillFPGainSerial )
+					itEntry->m_bReady = true;
+			}
+		}
+	}
+}
+
+// char-ara CH1k: June 32bab090 ( the first ready entry: its record's gain, and its hit id out; -1 when none )
+USHORT CX2GUAra::GetReadyFPGainOfSkillHit( OUT int& iHitID_ ) const
+{
+	iHitID_ = -1;
+	USHORT usGain = 0;
+
+	for ( vector<SkillFPGainRecord>::const_iterator itRecord = m_vecSkillFPGainRecord.begin(); itRecord != m_vecSkillFPGainRecord.end(); ++itRecord )
+	{
+		for ( vector<SkillFPGainEntry>::const_iterator itEntry = itRecord->m_vecEntry.begin(); itEntry != itRecord->m_vecEntry.end(); ++itEntry )
+		{
+			if ( 0 <= itEntry->m_iGainHitID && true == itEntry->m_bReady && true == itEntry->m_bEnabled )
+			{
+				iHitID_ = itEntry->m_iGainHitID;
+				usGain = itRecord->m_usGain;
+				break;
+			}
+		}
+
+		if ( 0 < iHitID_ )	// June @32bab0e0: a hit id of 0 does not stop the walk
+			break;
+	}
+
+	return usGain;
+}
+
+// char-ara CH1k: June 32bb1ff0 ( user vslot 0x800, step 512 ): the MP, the finality stone and the cool time of a skill use
+void CX2GUAra::SpecialAttackCooldown( const int iSkillID_, const float fMpConsume_ )
+{
+	if ( false == IsMyUnit() )
+		return;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+
+	MarkSkillSlotUsed( m_iChosenSkillSlotIndex, false );
+	UpNowMp( -fMpConsume_ );
+
+	// Sakra Devanam's Open Mind gives force power back when a skill left the gauge empty ( Yama Raja's also sets its buff factors )
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASD_OPEN_MIND ) && GetForcePower() <= 0 && true == IsSamef( m_fUseForcePowerTime, -1.f ) )
+	{
+		UpForcePower( static_cast<int>( GetLearnedSkillAbilityValue( CX2SkillTree::SA_FP_UP_ABS, CX2SkillTree::RNSI_P_ASD_OPEN_MIND ) ) );
+
+		if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+			SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+	}
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ), true );
+	if ( NULL == pSkillTemplet )
+		return;
+
+	if ( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && CX2Main::XS_TRAINING_GAME != g_pMain->GetNowStateID() )
+	{
+		CX2Item* pItem = g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE );
+		if ( NULL != pItem )
+			g_pX2Game->Handler_EGS_USE_FINALITY_SKILL_REQ( pItem->GetItemData().m_ItemUID );
+	}
+
+	int iSkillLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if ( iSkillLevel < 1 )
+		iSkillLevel = 1;
+
+	accessUserSkillTree.SetSkillCoolTimeLeft( pSkillTemplet->m_eID, GetActualCoolTime( pSkillTemplet, iSkillLevel ) );
+
+	CX2RandomMissionManager::GetInstance()->OnSkillUse( pSkillTemplet->m_eID );
+	GetUnit()->ApplySkillCoolTimeRateByBuff( pSkillTemplet->m_eID );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+/// char-ara CH1k: June 337adb40 / 337adb70: the cut-ins of code event 0x8b3 ( GFx names without extension; the cut-in sets are CH5 )
+static const CX2GUUser::SkillCutIn s_SkillCutInSetEvent8b3[] =
+{
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_CASH_21"),
+	CX2GUUser::SkillCutIn( L"HQ_CutIn_Ara_CASH_22"),
+};
+
+// char-ara CH1k: June 32bab220 ( user vslot 0x828 ): the base test less the hyper wait ( future ), the dash jump power landing, the airial dash and the two double jump states ( now )
+bool CX2GUAra::IsNotCommonMoveState()
+{
+	if ( false == CX2GUUser::IsNotCommonMoveState() )	// June 31fd7640
+		return false;
+
+	if ( ASI_HYPER_WAIT == m_FrameDataFuture.syncData.nowState )
+		return false;
+
+	const int iNowStateID = GetNowStateID();
+	return ASI_DASH_JUMP_POWER_LANDING != iNowStateID && ASI_AIRIAL_DASH != iNowStateID && ASI_DOUBLE_JUMP_FRONT != iNowStateID && ASI_DOUBLE_JUMP_UP != iNowStateID;
+}
+
+// char-ara CH1k: June 32057b80 @32057c4c-cb2: the reserved skill's state starts, so step 512 spends its MP and sets the cool time, and 0x764 refunds the memo share
+/*virtual*/ void CX2GUAra::ReservedSkillStart( const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
+{
+	const int iNowStateID = GetNowStateID();
+	bool bSkillSlotState = false;	// June's state-data byte +0x11
+	for ( int i = 0; i < ARRAY_SIZE( _CONST_GUUSER_::aNormalSkillStateID ); ++i )
+	{
+		if ( _CONST_GUUSER_::aNormalSkillStateID[i] == iNowStateID || _CONST_GUUSER_::aHyperSkillStateID[i] == iNowStateID ||
+			_CONST_GUUSER_::aNormalSkillStateIDSlotB[i] == iNowStateID || _CONST_GUUSER_::aHyperSkillStateIDSlotB[i] == iNowStateID )
+			bSkillSlotState = true;
+	}
+
+	const int iSkillID = static_cast<int>( pSkillTemplet_->m_eID );
+	SpecialAttackCooldown( iSkillID, m_fReservedSkillMp );
+	SkillMemoMpRefund( iSkillID, bSkillSlotState, m_fReservedSkillMp );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #pragma region SepcialAttackEventProcess
 /** @function	: SepcialAttackEventProcess
 	@brief		: 스킬이 정상적으로 사용될 수 있는 지 판단, 스킬사용에 필요한 처리 및 스테이트 변경
@@ -4448,6 +4628,45 @@ RENDER_HINT CX2GUAra::CommonRender_Prepare()
 */
 /*virtual*/ bool CX2GUAra::SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1k: June 32b90c20 ( user vslot 0x7f4 ): the lookup, then the use; a skill of use condition 3 / 5 gives the chosen values back
+	const float fSavedReservedMp = m_fReservedSkillMp;
+	const int iSavedSlotIndex = m_iChosenSkillSlotIndex;
+	const int iSavedSkillID = m_iChosenSkillID;
+	const USHORT usSavedForceGainCount = m_usForceGainCount;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	const bool bSavedFPCancelProbe = m_bFPCancelProbe;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+
+	bool bUsed = false;
+	if ( true == CanUseSpecialAttack( eActiveSkillUseCondition ) && 0 != m_iChosenSkillID )
+	{
+		bUsed = true;
+		StateChangeSpecialAttack( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );
+		Send_SKILL_USE_REQ( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );
+	}
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ), true );
+	if ( NULL != pSkillTemplet && ( CX2SkillTree::ASUT_ANYTIME == pSkillTemplet->m_eActiveSkillUseCondtion || CX2SkillTree::ASUT_ANYTIME_EXCEPT_AIR == pSkillTemplet->m_eActiveSkillUseCondtion ) )
+	{
+		m_fReservedSkillMp = fSavedReservedMp;
+		m_iChosenSkillID = iSavedSkillID;
+		m_iChosenSkillSlotIndex = iSavedSlotIndex;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+		m_bFPCancelProbe = bSavedFPCancelProbe;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+		m_usForceGainCount = usSavedForceGainCount;
+	}
+
+	if ( true == bUsed )
+	{
+		m_iNowSpecialAttack = m_iChosenSkillSlotIndex + 1;
+		return true;
+	}
+
+	m_iChosenSkillID = iSavedSkillID;
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	if ( false == CanUseSpecialAttack( eActiveSkillUseCondition ) )
 		return false;
 #ifdef FIX_SKILL_CANCEL_ARA
@@ -4463,6 +4682,7 @@ RENDER_HINT CX2GUAra::CommonRender_Prepare()
 #endif SERV_SKILL_USE_SUBQUEST
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -4472,6 +4692,197 @@ RENDER_HINT CX2GUAra::CommonRender_Prepare()
 */
 bool CX2GUAra::CanUseSpecialAttack( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition /*= CX2SkillTree::ASUT_ONLY_ON_LINE*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1k: June 32bcfaa0 ( user vslot 0x7f8, step 510 ): chooses the skill of the pressed slot and checks that it can be used now
+	if ( true == IsQuickSlotSpecialItemWaiting() )
+		return false;
+
+	CX2UserSkillTree& accessUserSkillTree = GetUnit()->AccessUnitData().m_UserSkillTree;
+	const CX2UserSkillTree::SkillSlotData* pSkillSlotData = NULL;
+	int iPressedSkillSlotIndex = -1;
+
+	if ( false == CommonSpecialAttackEventProcess( accessUserSkillTree, pSkillSlotData, iPressedSkillSlotIndex ) )
+		return false;
+
+	if ( NULL == pSkillSlotData )
+		return false;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( pSkillSlotData->m_eID, true );
+	if ( NULL == pSkillTemplet )
+		return false;
+
+	if ( pSkillTemplet->m_eID != pSkillSlotData->m_eID )
+	{
+		PushInfoText( 0x8bae );
+		return false;
+	}
+
+	m_iChosenSkillID = pSkillTemplet->m_eID;
+
+	if ( false == CheckSkillUseCondition( eActiveSkillUseCondition, pSkillTemplet->m_eActiveSkillUseCondtion ) )
+		return false;
+
+	if ( false == CheckSummonSpecialAttack( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUsePVPOfficial( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUseNotPve( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( false == CheckSkillUseNotDungeon( pSkillTemplet->m_eID ) )
+		return false;
+
+	if ( true == IsRidingKeySkillWaiting() )
+		return false;
+
+	if ( NULL == GetUnit() )
+		return false;
+
+	int iSkillTempletLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+	if ( iSkillTempletLevel < 1 )
+		iSkillTempletLevel = 1;
+
+	// Conversion Health is refused with an HP message when the HP is not above its limit
+	if ( 0 == GetTranscendenceMemoSkillID( pSkillTemplet->m_eID ) && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( pSkillTemplet->m_eID, CX2SkillTree::RNSI_A_ALD_CONVERSION_HEALTH )
+		&& false == CanUseConversionHealth( pSkillTemplet, iSkillTempletLevel ) )
+	{
+		PushInfoText( 0x68f4 );
+		return false;
+	}
+
+	bool bFPCancelProbe = false;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	bFPCancelProbe = m_bFPCancelProbe;	// June +0x9621, read at @32bcff69 / @32bd0186 / @32bd04bf
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+
+	m_fChosenSkillMp = GetActualMPConsume( pSkillTemplet->m_eID, iSkillTempletLevel );
+	float fCoolTimeLeft = ShownSkillCoolTime( pSkillSlotData->m_fCoolTimeLeft, pSkillTemplet->m_eID );
+
+	// June's pressed index space: five slots a bank ( the base CommonSpecialAttackEventProcess hands Ara March's until CH1p )
+	const bool bSlotB = iPressedSkillSlotIndex >= 5;
+	const int iSlotIndex = ( true == bSlotB ) ? iPressedSkillSlotIndex - 5 : iPressedSkillSlotIndex;
+
+	USHORT usFPConsumptionNeeded = GetActualFPConsume( pSkillTemplet->m_eID, accessUserSkillTree.GetFPConsumption( iSlotIndex, bSlotB ), bFPCancelProbe );
+	m_usForceGainCount = ( true == IsReflectionSkill( pSkillTemplet ) ) ? 0 : GetActualFPGainCount( pSkillTemplet->m_eID, accessUserSkillTree.GetFPGainCount( iSlotIndex, bSlotB ) );
+
+	m_ComboAndSkillChainSystem.ResetPtrNowUseChainInfo();
+
+	const UserUnitStateData& stateDataPressed = GetPressedSkillState( iPressedSkillSlotIndex );
+	if ( NULL != stateDataPressed.m_ptrComboAndSkillChainInfo && true == stateDataPressed.m_ptrComboAndSkillChainInfo->GetChaining() )
+	{
+		CX2ComboAndSkillChainInfoPtr ptrInfo = stateDataPressed.m_ptrComboAndSkillChainInfo->GetNotYetChainedInfo();
+
+		if ( NULL != ptrInfo )
+		{
+			if ( CASCT_SKILL != ptrInfo->GetComboAndSkillChainType() )
+			{
+				m_ComboAndSkillChainSystem.ResetChaining();
+			}
+			else
+			{
+				const CX2SkillTree::SKILL_ID eSkillIdChained = static_cast<CX2SkillTree::SKILL_ID>( ptrInfo->GetSkillID() );
+				pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillIdChained, true );
+				if ( NULL == pSkillTemplet )
+					return false;
+
+				pSkillSlotData = accessUserSkillTree.GetSkillSlot( pSkillTemplet->m_eID );
+				if ( NULL != pSkillSlotData )
+				{
+					m_fChosenSkillMp = GetActualMPConsume( pSkillTemplet->m_eID, iSkillTempletLevel );
+					fCoolTimeLeft = pSkillSlotData->m_fCoolTimeLeft;
+				}
+				else
+				{
+					if ( NULL == GetUnit() )
+						return false;
+
+					int iChainedSkillLevel = accessUserSkillTree.GetSkillLevel( pSkillTemplet->m_eID, false, 0, true );
+					if ( iChainedSkillLevel < 1 )
+						iChainedSkillLevel = 1;
+
+					m_fChosenSkillMp = GetActualMPConsume( pSkillTemplet->m_eID, iChainedSkillLevel );
+					fCoolTimeLeft = 0.f;
+				}
+
+				usFPConsumptionNeeded = pSkillTemplet->m_usFPConsumtion;
+				m_usForceGainCount = pSkillTemplet->m_usFPGainCount;
+				m_ComboAndSkillChainSystem.SetPtrNowUseChainInfo( ptrInfo );
+			}
+		}
+	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+	else if ( true == bFPCancelProbe && m_iChosenSkillID == GetFutureStateSkillID() )
+	{
+		return false;
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+
+	m_usSkillFPConsumption = usFPConsumptionNeeded;
+
+#ifdef SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	if ( false == IsDevUnlimitedSkillUse() )	// June vslot 0x82c answers false ( event code 10 )
+#endif SERV_IRUHADEV_JUNE_DEV_UNLIMITED_SKILL
+	{
+		if ( 0.f < fCoolTimeLeft )
+		{
+			PushInfoText( 226 );
+			return false;
+		}
+
+		if ( m_fReservedSkillMp + m_fChosenSkillMp > GetNowMp() )
+		{
+			PushInfoText( 2549 );
+			return false;
+		}
+
+		USHORT usForcePowerNow = static_cast<USHORT>( GetForcePower() );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+		if ( true == bFPCancelProbe )
+		{
+			int iReadyHitID = -1;
+			MarkNowSkillFPGainReady();
+			usForcePowerNow += GetReadyFPGainOfSkillHit( iReadyHitID );
+		}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+
+		if ( usForcePowerNow < usFPConsumptionNeeded )
+		{
+			PushInfoText( 21303 );
+			return false;
+		}
+
+		if ( CX2SkillTree::ST_HYPER_ACTIVE_SKILL == pSkillTemplet->m_eType && false == IsTrainingOrPhotozone() )
+		{
+			if ( g_pData->GetMyUser()->GetSelectUnit()->GetInventory().GetNumItemByTID( CX2EnchantItem::ATI_HYPER_SKILL_STONE ) <= 0
+				&& false == g_pData->GetMyUser()->GetSelectUnit()->IsInfinityElEssence() )
+			{
+				PushInfoText( 26119 );
+				return false;
+			}
+		}
+	}
+
+	m_iChosenSkillID = pSkillTemplet->m_eID;
+	m_iChosenSkillSlotIndex = iPressedSkillSlotIndex;
+
+	if ( true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( pSkillTemplet->m_eID, CX2SkillTree::RNSI_SA_ALH_MOONLIGHT_SLASH ) )
+	{
+		if ( NULL == m_sMoonRightSlashDataPtr )
+			m_sMoonRightSlashDataPtr = sMoonLightSlashData::CreateMoonLightSlashData();
+
+		if ( NULL != m_sMoonRightSlashDataPtr )
+		{
+			const int iNormalStateID = ( false == bSlotB ? _CONST_GUUSER_::aNormalSkillStateID[iSlotIndex] : _CONST_GUUSER_::aNormalSkillStateIDSlotB[iSlotIndex] );
+
+			m_sMoonRightSlashDataPtr->SetSlotID( iNormalStateID );
+			m_sMoonRightSlashDataPtr->SetSlotB( bSlotB );
+		}
+	}
+
+	return true;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef SERV_IRUHADEV_JUNE_BUFF_QUICKSLOT_ITEM
 	/// June buff port Phase 7d (moved here by the 7e review): June Ara slot 510 32bcfaa0 = this function, which starts with
 	/// "if +0x8d78 > 0 return false" (@32bcfae1-f0): no skill while a quick-slot special item waits. Its callers are
@@ -4793,6 +5204,7 @@ bool CX2GUAra::CanUseSpecialAttack( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eAc
 	}
 
 	return true;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -4803,6 +5215,43 @@ bool CX2GUAra::CanUseSpecialAttack( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eAc
 #ifdef FIX_SKILL_CANCEL_ARA
 void CX2GUAra::StateChangeSpecialAttack( IN const CX2SkillTree::SKILL_ID eSkillId_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1k: June 32ba6610 ( user vslot 0x7fc, step 511 ): the use of the skill the lookup chose; June's second argument is not read
+	m_iUsedSkillID = eSkillId_;
+	m_iFPCancelSkillID = ( true == m_bFPCancel ) ? eSkillId_ : 0;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillId_, true );
+	if ( NULL == pSkillTemplet )
+		return;
+
+	if ( NULL != m_ComboAndSkillChainSystem.GetPtrNowUseChainInfo() )
+	{
+		ReserveSkillUse( pSkillTemplet->m_eID );
+
+		CX2ComboAndSkillChainInfoPtr ptrInfo = m_ComboAndSkillChainSystem.GetPtrNowUseChainInfo();
+
+		if ( GetRemainHyperModeTime() <= 0.f )
+			StateChange( ( 0 != ptrInfo->GetStateIdMatchedToChain() ? ptrInfo->GetStateIdMatchedToChain() : ptrInfo->GetStateIdChained() ) );
+		else
+			StateChange( ( 0 != ptrInfo->GetHyperStateIdMatchedToChain() ? ptrInfo->GetHyperStateIdMatchedToChain() : ptrInfo->GetStateIdChained() ) );
+	}
+	else if ( true == SpecialAttackNoStageChange( pSkillTemplet ) )
+	{
+		SpecialAttackCooldown( pSkillTemplet->m_eID, m_fChosenSkillMp );
+		SkillMemoMpRefund( eSkillId_, true, m_fChosenSkillMp );
+		m_fChosenSkillMp = 0.0f;
+	}
+	else
+	{
+		ReserveSkillUse( pSkillTemplet->m_eID );
+
+		if ( false == StateChangeLinkFlowerSlash( pSkillTemplet->m_eID ) )
+			StateChangeBySkillSlot( m_iChosenSkillSlotIndex );
+	}
+
+	m_bSpecialAttackEventProcessedAtThisFrame = true;
+	m_bFPCancel = false;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	DXUTTRACE( L"stateChange %d\n", eSkillId_ );
 
 
@@ -4894,6 +5343,7 @@ void CX2GUAra::StateChangeSpecialAttack( IN const CX2SkillTree::SKILL_ID eSkillI
 		//오현빈//2013-01-21//일부 기력 전환 스킬 사용 시, 기력 중첩 회복 되는 경우가 있어서 초기화 추가
 		m_bFPCancel = false;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #else
 void CX2GUAra::StateChangeSpecialAttack( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
@@ -4965,6 +5415,14 @@ void CX2GUAra::StateChangeSpecialAttack( IN const CX2SkillTree::SkillTemplet* pS
 */
 /*virtual*/ bool CX2GUAra::SpecialAttackNoStageChange( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1k: June 32baf980 ( user vslot 0x810 ): Reflection and its upgrade set their action, nothing else does
+	if ( false == IsReflectionSkill( pSkillTemplet_ ) )
+		return false;
+
+	m_FrameDataFuture.syncData.nowAction = UAI_REFLECTION;
+	return true;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	switch( pSkillTemplet_->m_eID )
 	{
 
@@ -4983,6 +5441,7 @@ void CX2GUAra::StateChangeSpecialAttack( IN const CX2SkillTree::SkillTemplet* pS
 
 	}
 	return true;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -5167,6 +5626,22 @@ void CX2GUAra::InitPromotionEquipList()
 */
 /*virtual*/ void CX2GUAra::ShowActiveSkillCutInAndLightByBerserkMode( float fTimeToShow_, bool bOnlyLight_ /*= false*/ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1k: June 32bae3d0 ( 32baea70 ShowActiveSkillCutInAndLightByScript jumps here )
+	if ( true == m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) && true == GetShowCutInAndChangeWorldColor() && true == GetShowActiveSkillShow() )
+	{
+		SkillCutIn cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[0];
+
+		// not ported: the cut-in item override ( 31fd8a50, CX2CustomizeManager: backlog Stage 12 )
+		if ( true == IsFullHyperMode() && GetHyperModeCountByBuff() >= 3 )
+			cutIn = s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[1];
+
+		IF_EVENT_ENABLED( 0x8b3 )
+			cutIn = s_SkillCutInSetEvent8b3[ ( 0 == ( rand() & 1 ) ) ? 0 : 1 ];	// even rand() -> CASH_21
+
+		ActiveSkillShow( L"Dummy2_Lhand", cutIn.fileName.c_str(), cutIn.vSize, cutIn.vPosition, IsHyperState(), bOnlyLight_ );
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 if( m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) == true )
 #else   X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
@@ -5198,6 +5673,7 @@ if( m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) == true )
 								 s_SkillCutInSet[m_iSkillCutInSetIndex].cutIn[0].vPosition, IsHyperState(), bOnlyLight_ );
 		}
 	}	
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -5207,6 +5683,60 @@ if( m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) == true )
 */
 /*virtual*/ void CX2GUAra::NoStateChangeActionFrameMove()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1k: June 32bc84b0 ( user vslot 0x80c )
+	UserNoStateChangeActionFrameMove();
+
+	switch ( m_FrameDataNow.syncData.nowAction )
+	{
+	case UAI_REFLECTION:
+		{
+			if ( NULL != GetUnit() && NULL != g_pX2Game->GetEffectSet() && false == GetRidingOn() )
+			{
+				const int iSkillLevel = max( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_AYR_REFLECTION, false, 0, true ), 1 );
+
+				SetBuffFactorToGameUnitByBuffFactorID( BFI_BUFF_SI_A_ALD_REFLECTION, iSkillLevel, NULL, CX2SkillTree::RNSI_A_AYR_REFLECTION, false );	// 7ai arguments
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_A_ALD_REFLECTION", this );
+				PlaySound( L"Elsword_Endurance.ogg" );
+
+				const CX2SkillTree::SkillTemplet* pReflectionTemplet = GetEquippedActiveSkillTemplet( CX2SkillTree::RNSI_A_AYR_REFLECTION, true );
+				const int iForcePowerToUse = ( NULL != pReflectionTemplet ) ? pReflectionTemplet->m_usFPConsumtion : 2;
+
+				UseForcePower( iForcePowerToUse );	// June adds it to the used count here ( +0x9614 ): March's UseForcePower does
+				ShowSkillNameStateString( CX2SkillTree::RNSI_A_AYR_REFLECTION );
+			}
+		} break;
+
+	case UAI_RESURRECTION_HEAL:
+		{
+			if ( NULL != g_pX2Game->GetEffectSet() )
+				g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_AYR_HEAL_FX", this );
+
+			if ( NULL != g_pData->GetPicCharGreen() )
+			{
+				D3DXVECTOR3 pos = GetPos();
+				pos.y += 50.0f;
+
+				WCHAR wszBuf[256] = {0,};
+				StringCchPrintf( wszBuf, 256, L"HP +%d", static_cast<int>( GetNowHp() ) );
+
+				g_pData->GetPicCharGreen()->DrawText( wszBuf, pos, GetDirVector(), CKTDGPicChar::AT_CENTER );
+			}
+
+			SetBuffFactorToGameUnitByBuffFactorID( BFI_DEBUFF_SELF_PROTECTION_FORTITUDE, GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_RESURRECTION ), NULL, 0, false );	// 7ai arguments
+
+			vector<CX2BuffFinalizerTempletPtr> vecFinalizerPtr;
+			GetBuffFinalizerTempletPtrList( BTI_DEBUFF_SELF_PROTECTION_FORTITUDE, vecFinalizerPtr );
+			if ( false == vecFinalizerPtr.empty() )
+			{
+				CX2BuffTimeFinalizerTemplet* pTimeFinalizer = dynamic_cast<CX2BuffTimeFinalizerTemplet*>( vecFinalizerPtr[0].get() );
+				if ( NULL != pTimeFinalizer )
+					pTimeFinalizer->SetDurationTime( m_fResurrectionCoolTime );
+			}
+			ChangeBuffFinalizerTempletPtrList( BTI_DEBUFF_SELF_PROTECTION_FORTITUDE, vecFinalizerPtr );
+		} break;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // 김태환
 	switch( m_FrameDataNow.syncData.nowAction )
 	{
@@ -5240,6 +5770,7 @@ if( m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) == true )
 		} break;
 	}
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -12215,14 +12746,14 @@ void CX2GUAra::ComboXXdownXXEventProcess()
 	else if ( true == m_bFPCancel && 0 != m_iChosenSkillID &&
 		false == ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( m_iChosenSkillID, CX2SkillTree::RNSI_A_AYR_REFLECTION ) ) )
 	{
-		StateChangeSpecialAttack( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );	// stand-in: June vslot 0x7fc ( skill, true ) is CH1k's
+		StateChangeSpecialAttack( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );	// char-ara CH1k: June vslot 0x7fc ( skill, true )
 	}
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
-		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )	// stand-in: June vslot 0x7f8 takes ( true ), CH1k's
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )	// char-ara CH1k: June vslot 0x7f8 ( true = ASUT_GROUND )
 	{
 		m_bFPCancel = true;
 	}
@@ -12587,14 +13118,14 @@ void CX2GUAra::ComboDashXEventProcess()
 	else if ( true == m_bFPCancel && 0 != m_iChosenSkillID &&
 		false == ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( m_iChosenSkillID, CX2SkillTree::RNSI_A_AYR_REFLECTION ) ) )
 	{
-		StateChangeSpecialAttack( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );	// stand-in: June vslot 0x7fc ( skill, true ) is CH1k's
+		StateChangeSpecialAttack( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );	// char-ara CH1k: June vslot 0x7fc ( skill, true )
 	}
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
-		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )	// stand-in: June vslot 0x7f8 takes ( true ), CH1k's
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )	// char-ara CH1k: June vslot 0x7f8 ( true = ASUT_GROUND )
 	{
 		m_bFPCancel = true;
 	}
@@ -16357,14 +16888,14 @@ void CX2GUAra::ASI_DASH_COMBO_ALS_X_EventProcess()
 	else if ( true == m_bFPCancel && 0 != m_iChosenSkillID &&
 		false == ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( m_iChosenSkillID, CX2SkillTree::RNSI_A_AYR_REFLECTION ) ) )
 	{
-		StateChangeSpecialAttack( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );	// stand-in: June vslot 0x7fc ( skill, true ) is CH1k's
+		StateChangeSpecialAttack( static_cast<CX2SkillTree::SKILL_ID>( m_iChosenSkillID ) );	// char-ara CH1k: June vslot 0x7fc ( skill, true )
 	}
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
-		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )	// stand-in: June vslot 0x7f8 takes ( true ), CH1k's
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )	// char-ara CH1k: June vslot 0x7f8 ( true = ASUT_GROUND )
 	{
 		m_bFPCancel = true;
 	}
@@ -21370,8 +21901,54 @@ float CX2GUAra::GetSkillCoolTimeValue( const CX2SkillTree::SKILL_ID eSkillID_, c
 	@param		: 설정할 스킬 아이디, 설정할 스킬의 디폴트 기력량
 	@return		: 적용 시킬 최종 소비 기력량
 */
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+USHORT CX2GUAra::GetActualFPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const USHORT usForceGainValue_, const bool bFPCancelProbe_ /*= false*/ )	// char-ara CH1k: June 32ba44e0 ( third argument )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 USHORT CX2GUAra::GetActualFPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const USHORT usForceGainValue_ )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1k: June 32ba44e0 ( the memo tests read false: June has no memos )
+	int iForcePower = usForceGainValue_;
+
+	switch ( eSkillID_ )
+	{
+	case CX2SkillTree::RNSI_SA_ARA_WIND_WEDGE:
+	case CX2SkillTree::RNSI_SA_ARA_WIND_WEDGE_UPGRADE:
+		{
+			if ( true == GetEqippedSkillMemo( CX2SkillTree::SMI_ARA_MEMO2 ) )
+				iForcePower = 1;
+		} break;
+
+	case CX2SkillTree::RNSI_SA_ARA_SHADOW_KNOT:
+	case CX2SkillTree::RNSI_SA_ARA_SHADOW_KNOT_UPGRADE:
+		{
+			if ( true == GetEqippedSkillMemo( CX2SkillTree::SMI_ARA_MEMO5 ) )
+				iForcePower = 2;
+		} break;
+	}
+
+	if ( true == bFPCancelProbe_ )
+	{
+		// an FP cancel into one of these costs one force power less
+		switch ( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( eSkillID_ ) )
+		{
+		case CX2SkillTree::RNSI_A_ARA_SHOULDER_BLOW:
+		case CX2SkillTree::RNSI_A_ALH_QUICK_STAB:
+		case CX2SkillTree::RNSI_A_ALD_FORCE_SPEAR:
+		case CX2SkillTree::RNSI_A_ALS_QUICK_PIERCING:
+		case CX2SkillTree::RNSI_A_ARA_SHOULDER_BLOW_UPGRADE:
+			{
+				if ( 0 < iForcePower )
+					--iForcePower;
+			} break;
+		}
+
+		return static_cast<USHORT>( ( iForcePower <= 0 ) ? 0 : iForcePower );
+	}
+
+	return static_cast<USHORT>( iForcePower );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	USHORT usForceGainValue = usForceGainValue_;
 
 	switch( eSkillID_ )
@@ -21399,6 +21976,7 @@ USHORT CX2GUAra::GetActualFPConsume( const CX2SkillTree::SKILL_ID eSkillID_, con
 	}
 
 	return usForceGainValue;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 /** @function	: GetActualFPGainCount
@@ -21408,6 +21986,13 @@ USHORT CX2GUAra::GetActualFPConsume( const CX2SkillTree::SKILL_ID eSkillID_, con
 */
 USHORT CX2GUAra::GetActualFPGainCount( const CX2SkillTree::SKILL_ID eSkillID_, const USHORT usForceGainValue_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1k: June 32b95560 ( Wind Wedge only, not its upgrade; the memo test reads false )
+	if ( CX2SkillTree::RNSI_SA_ARA_WIND_WEDGE == eSkillID_ && true == GetEqippedSkillMemo( CX2SkillTree::SMI_ARA_MEMO2 ) )
+		return 1;
+
+	return usForceGainValue_;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	USHORT usForceGainValue = usForceGainValue_;
 
 	switch( eSkillID_ )
@@ -21425,6 +22010,7 @@ USHORT CX2GUAra::GetActualFPGainCount( const CX2SkillTree::SKILL_ID eSkillID_, c
 	}
 
 	return usForceGainValue;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 
 #endif // ADD_ARA_MEMO
@@ -21654,12 +22240,19 @@ bool CX2GUAra::CanUseConversionHealth( IN const CX2SkillTree::SkillTemplet* pSki
 	if ( NULL == pSkillTemplet_ )
 		return false;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1k: June 32badb50 ( the limit is the named numerical value; the level argument is not read )
+	const float fLimitHPValue = GetSkillNumericalByName( L"HP_CONSUME_REL", CX2SkillTree::RNSI_A_ALD_CONVERSION_HEALTH, true ) * GetMaxHp();
+
+	return fLimitHPValue < GetNowHp();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	const float fLimitHPValue = GetMaxHp() * pSkillTemplet_->GetSkillAbilityValue( CX2SkillTree::SA_HP_REL_TO_MP_ABS_1, iSkillLevel_ );
 
 	if ( fLimitHPValue < GetNowHp()  )
 		return true;
 
 	return false;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -22251,7 +22844,7 @@ void CX2GUAra::CleanupSkillFPGainTable()
 	{
 		for ( vector<SkillFPGainEntry>::iterator itEntry = itRecord->m_vecEntry.begin(); itEntry != itRecord->m_vecEntry.end(); )
 		{
-			if ( true == itEntry->m_bHit || itEntry->m_iUnread < 0 )
+			if ( true == itEntry->m_bHit || itEntry->m_iGainHitID < 0 )
 				itEntry = itRecord->m_vecEntry.erase( itEntry );
 			else
 				++itEntry;
