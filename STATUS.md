@@ -133,13 +133,6 @@ Done: CH0 (2026-11-10), CH0b (2026-11-10), CH1a (2026-11-10; no play-test, full 
 
 Decisions answered 2026-11-10 (plan "Open decisions"): 1 stat rows for 34 / 124 follow Ara's own rule (CHNa writes, user packs); 2 the lobby orb handles are retired (CH5).
 
-## enum-gate-fix - Enum.lua gaps the enum gate found in the ported classes
-Plan `ENUM_GATE_FIX_PHASES.md` · branch `main` · log tag none (`ErrorLog.txt` `[LUA_SRC]`) · flag `SERV_IRUHADEV_ENUM_GATE_AISHA_TRIGGER` · kickoffs `kickoffs/enum-gate-fix/` · created 2026-11-11 (char-ara CH1).
-
-| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
-|---|---|---|---|---|---|
-| F1 | **play-test**: 5 Enum.lua members + `DTT_AISHA_STICK_ATTACK` (reader already ported, literal named); gate PASS, PACK/COPY data036, DEPLOY OK 5d3ea84f; user play-tests | Opus 5.5 / high, user play-test | - | data036 `Enum.lua`, `X2DamageManager.h`, `X2GUArme_VioletMage.cpp`, Always.h | `F1.md` |
-
 ## char-elesis - June character port, Stage 7: Elesis (CH-N reused from Ara)
 Plan `JUNE_CHARACTER_ELESIS_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `ELESIS <sub>`: `DATA`, `CORE`, `WOS`, `CLASS`, `SUMMON`, `SKILL`, `PASSIVE`, `BLOOD`, `UI`, `NUM`) · flags `SERV_IRUHADEV_JUNE_CHAR_ELESIS_*` (`_CORE`, `_LIVE`, `_WOS`, `_CLASS`, `_SUMMON`, `_SKILL`, `_TRANSCEND`, `_PASSIVE`, `_BLOOD`, `_UI`, + `_DEBUG`), class-generic `SERV_IRUHADEV_JUNE_CLASS_PATH` (Ara's CHNa) · kickoffs `kickoffs/char-elesis/` · backlog Stage 7 · created 2026-11-11.
 
@@ -340,6 +333,7 @@ Full rows in `STATUS_ARCHIVE.md`.
 | Plan | Doc | Leftovers (owned elsewhere or parked) |
 |---|---|---|
 | june-buff | `JUNE_BUFF_PORT_PHASES.md` | - |
+| enum-gate-fix | `ENUM_GATE_FIX_PHASES.md` | - (God of War / Enchant Breaker effects checked in code only: no visible marker) |
 | june-effect | `JUNE2017_EFFECT_COMPLETION_PHASES.md` | C3z-4s-pvp parked (no PvP offline); C1b / C8c / C10b-3 handed to the checklist / Stage 9 |
 | offline-grade | `OFFLINE_MONSTER_GRADE_PHASES.md` | - |
 | june-hud | `JUNE_HUD_PHASES.md` | Amusement / `SetShowUI` / PC-room stubs -> Stage 9; PvP item bar parked (no PvP offline) |

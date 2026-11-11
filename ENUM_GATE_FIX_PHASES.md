@@ -93,3 +93,13 @@ debuff icon on the target; ChungFury X X front Z can be cancelled into guard; Ar
 `[JUNE_CHAR] ARME SKILL open mind ( unit 53: level 1, buff factor to ... )` per hit. No new `[LUA_SRC]` line in ErrorLog.
 
 **Not ported / routed.** Nothing: all five gaps closed in this phase. MODS.md section added.
+
+**Play-test PASSED (user, 2026-11-11; logs 13:20-13:26 on md5 `5d3ea84f`, 0 EXCEPTION, known `E_DISABLE_HB_CHECK_REQ` UNHANDLED, `AddGroupChainQuest` = quests, no new `[LUA_SRC]` line).**
+- Aisha: 16 `[JUNE_CHAR] ARME SKILL open mind ( unit 53: level 1, buff factor to ... )` lines from ArmeDW's Z combo, several targets.
+- Raven: Rend (= `RNSI_A_RBM_POINTED_STILETTO`; the hand-off used June's name) cast 4 times, damage normal (user).
+- Chung: ChungFury blocks when hit during X X front Z (user): the guard-on-hit list now holds the state.
+- Elsword: no buff icon is expected on a monster (`CX2GageManager::PushBuff` draws only my / party / PvP-team gauges). Enchant Breaker's
+  `BTI_DEBUFF_ERS_ELEMENTA_BRAKE` has no displayer; God of War's `BTI_DEBUFF_ARMOR_BREAK_OF_FIGHT_GOD` shows `EffectSet_ARMOR_BREAK`, the same
+  set as plain Armor Break's debuff, logged on monster 1000016 at 13:23:00 one second after Enhanced Iron Body (21218). The user declined a
+  debug line: both checked in code only. The hand-off's base Iron Body (21201) row on unit 25 was redundant (21218 learned) and was removed.
+- Side note: `ARMOR_BREAK_IMPACT01.XET` fails to open on Armor Break; June has no such file (`stage-june` dry run: not in any June kom).
