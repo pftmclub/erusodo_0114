@@ -1,5 +1,8 @@
 #	include "stdafx.h"
 #include ".\x2gagemanager.h"
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS_DEBUG
+#include "Offline/X2OfflineLog.h"	// char-ara CHNa: the ARA CLASS gauge line
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS_DEBUG
 
 
 CX2GageManager* CX2GageManager::m_pGageManager = NULL;
@@ -186,9 +189,17 @@ void CX2GageManager::CreateMyGageUI( const CX2Unit::UNIT_CLASS eGameUnitClass_, 
 	case CX2Unit::UC_ARA_LITTLE_DEVIL:
 	case CX2Unit::UC_ARA_YAMA_RAJA:
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+	// char-ara CHNa: June 3248e290 gives 34 / 124 Ara's gauge
+	case CX2Unit::UC_ARA_LITTLE_SPECTER:
+	case CX2Unit::UC_ARA_ASURA:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 		{
 			pGageData = new CX2AraGageData();
 			pGageUI = new CX2AraMyGageUI( pGageData, eGameUnitClass_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ARA CLASS gauge class %d -> CX2AraGageData", static_cast<int>( eGameUnitClass_ ) );	// char-ara CHNa
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS_DEBUG
 		} break;
 #endif
 #ifdef NEW_CHARACTER_EL

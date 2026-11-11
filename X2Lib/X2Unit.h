@@ -2052,6 +2052,34 @@ inline bool GetX2UnitClassCompatibility( CX2Unit::UNIT_CLASS unitClass, CX2Unit:
 		}
 		break;
 #endif //SERV_ARA_CHANGE_CLASS_SECOND
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+	// char-ara CHNa: June 31ed6500 case 0x22 / 0x7c
+	case CX2Unit::UC_ARA_LITTLE_SPECTER:
+		{
+			switch ( stuffClass )
+			{
+			case CX2Unit::UC_ARA_MARTIAL_ARTIST:
+			case CX2Unit::UC_ARA_LITTLE_SPECTER:
+				{
+					return true;
+				} break;
+			}
+		} break;
+
+	case CX2Unit::UC_ARA_ASURA:
+		{
+			switch ( stuffClass )
+			{
+			case CX2Unit::UC_ARA_MARTIAL_ARTIST:
+			case CX2Unit::UC_ARA_LITTLE_SPECTER:
+			case CX2Unit::UC_ARA_ASURA:
+				{
+					return true;
+				} break;
+			}
+		}
+		break;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 #pragma endregion 
 
 #ifdef NEW_CHARACTER_EL
@@ -2646,6 +2674,25 @@ inline CX2Unit::UNIT_CLASS GetSecondLineAraClassTypeByUnitClassType ( CX2Unit::U
 	return CX2Unit::UC_NONE;
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+// char-ara CHNa: June 3234b390 table 337a1660 ( filled by 3234afb0 ): Ara's third line is 7 / 34 / 124
+inline CX2Unit::UNIT_CLASS GetThirdLineAraClassTypeByUnitClassType ( CX2Unit::UNIT_CLASS_TYPE eUnitClassType_ )
+{
+	switch ( eUnitClassType_ )
+	{
+	case CX2Unit::UCT_BASIC_CLASS :
+		return CX2Unit::UC_ARA_MARTIAL_ARTIST;
+	case CX2Unit::UCT_FIRST_CLASS :
+		return CX2Unit::UC_ARA_LITTLE_SPECTER;
+	case CX2Unit::UCT_SECOND_CLASS :
+		return CX2Unit::UC_ARA_ASURA;
+	default:
+		break;
+	}
+	ASSERT ( !L"Wrong Unit Type" );
+	return CX2Unit::UC_NONE;
+}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 inline CX2Unit::UNIT_CLASS GetThirdLineAraClassTypeByUnitClassType ( CX2Unit::UNIT_CLASS_TYPE eUnitClassType_ )
 {
 	switch ( eUnitClassType_ )
@@ -2660,6 +2707,7 @@ inline CX2Unit::UNIT_CLASS GetThirdLineAraClassTypeByUnitClassType ( CX2Unit::UN
 	return CX2Unit::UC_NONE;
 }
 
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 inline CX2Unit::UNIT_CLASS GetAraClassByUnitClassTypeAndLineType ( CX2Unit::UNIT_CLASS_TYPE eUnitClassType_, CX2Unit::UNIT_CLASS_LINE eUnitClassLine_ )
 {
 	switch ( eUnitClassLine_ )

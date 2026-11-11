@@ -1553,6 +1553,39 @@ here: every fix is class-generic unless June's own code is Ara-only. Flag `SERV_
 **Done gate:** a 34 and a 124 reached both by job change and by `createchar.py` load, fight and relog; the socket and stat paths log no refusal; no
 other class changed (a select-screen pass of all nine March characters).
 
+### CHNa - Done (2026-11-11)
+
+Opus 5.5. Flags `SERV_IRUHADEV_JUNE_CLASS_PATH` (class-generic, reused by Elesis / Add) and `SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS` (Ara rows), + `_CHAR_ARA_CLASS_DEBUG` (the review retires it);
+all at `Always.h` end, `#error` without `SERV_IRUHADEV_JUNE_ENUM_NAMES`. Review kickoff `kickoffs/char-ara/CHNa-review.md` written.
+- **Gauge (crash fix):** `X2GageManager.cpp` Ara arm gains 34 / 124 (June `3248e290`), so `CX2GUAra`'s static_cast to `CX2AraGageData` is no longer a smaller object. Log `[JUNE_CHAR] ARA CLASS gauge class <c> -> CX2AraGageData` (debug).
+- **Items:** `GetX2UnitClassCompatibility` 34 -> {7, 34}, 124 -> {7, 34, 124} (June `31ed6500`; spot-checked lines 174 / 463).
+- **Creation screen:** `GetThirdLineAraClassTypeByUnitClassType` = June's table (`3234b390` reads `337a1660`, filled by `3234afb0`: Ara block 7 / 0x22 / 0x7c), March's all-`UC_NONE` body in `#else`;
+  the June third-line buttons CH5 adopted now select Little Specter / Asura. Everything after is templet-driven (`SelectUpperClass`): promotion costume, `Movie_Create_Ara_AA.avi` (CH5's rows),
+  `text_class_2_3` / `name_class_*_3` keys present in `..._character_info_07.TET`. Stat chart (`GetUnitStatInfomationChart`, CH5-routed): 34 / 124 = (HIGH, LOW, LOW) = June `3254ee40` 3,1,1.
+- **Portraits (CH5-routed, `GetCharacterImageName`):** index 55 / 56 appended to all nine March arrays + the switch, from June `31ee0de0` rows 0x39 / 0x3a (decoded from the nine static initializers;
+  the decoder reproduces March's 48 / 49 Little Devil / Yama Raja rows exactly in every table): `L_SPECTER_*` in Texture77, `ASURA_*` in Texture82, `HQ_Dungeon_Clear_Ara_Little_Specter / _Asura_Normal.tga`,
+  `CLASS_L` / `CLASS_A`, `list_ARA_L_SPECTER` / `list_ARA_ASURA` (the gray slot adds `_GRAY`, both present). Every piece checked in the March TETs.
+- **Portrait assets (user, mid-phase: "replace the portrait asset with june's"):** `kom.py stage-june` on the 22 portrait files: 18 already June's byte-exact, 4 new (`DLG_UI_Common_Texture101_NEW` / `_GRAY` `.tga` + `.TET`, the
+  transcended pairs, data215). `PACK OK` + `COPY OK data215` md5 `4c7d003e67256dc9ce5a7b51e81a97ab` (backup `kom_backup_tools/data215.kom.20261111_175929`).
+- **Class path:** `X2SocketItem.cpp` SkillLevelUpSocketGroup bound `> UC_AIN_ANGEL` (June `3271a810`: class 1..202) instead of `>= UC_END`: the 996 dropped rows (Asura 75, every class >= 124) now load.
+  `CX2Unit::GetClassLevel` = June `3234c170` (34 = 1, 124 = 2, outside 10-199 = 0; no caller tests March's -1). Divergence rows added: `GetClassLevel`, `GetThirdLineAraClassTypeByUnitClassType`, `AddSkillLevelUpSocketGroup_LUA`.
+- **Data:** `CorrelateUnitClassTemplet.lua` = June's bytecode (`adopt-june data036`, record `june2017_re/june_adopt_20261111_180551.tsv`; loader reads up to 3 ids per row, no bound test; `luabind` PASS).
+  `PACK OK` + `COPY OK data036` md5 `cb3fa6093b0e16adc7a6f6ab4041bec0` (1 changed; backup `kom_backup_tools/data036.kom.20261111_180610`).
+- **Stat rows: none written.** Superseded by the user's 2026-11-11 flat StatTable (one curve for all 123 ids): `statflat.py check` = `STATFLAT OK: 12177 rows, 123 classes`, 34 / 124 included, already in the live data036.
+  So Open decision 1's per-class rows and the type-fallback log are moot (the fallback path is not reached).
+- **Tool:** `createchar.py` CLASSES + PARENT gain 34 (-> 7) / 124 (-> 34). Units (backup `db_backup/els_db_20261111_180530_pre_manual.sql`): 102 `LSpecter20` (34, L20), 103 `Asura40` (124, L40), 104 `Asura99` (124, L99);
+  slots 0-3 = Gain Force 27200 / Tempest Dance 27000 / Pulling Pierce 27001 / Falling Dragon 27002; slot 5 = Specter of Thunder 27023 (102, 104), slot 6 = Necromancy 27028 (104) (backup `..._181001_pre_sql.sql`).
+- **Checked, not needed:** `RotateYSelectCharacterType` (June `31edf260` reads the templet's `m_fLobbyRotationY`; March's templet has no such field, so 34 / 124 rotate at the default 10: shows fine; the reader stays Lu/Ciel NU4).
+  `X2GUUser.cpp:534-545`, `X2OfflineLuaEnumSeed.h`, the log-only `X2ItemManager_Preprocessing.cpp:688` / dev `X2GameEdit.cpp:1643` (no June test to copy) per CH0.
+- **Routed:** the transcended 124 portrait pair (`TR_ASURA_*`, five-argument overload's prefix switch) -> CH3d; job change -> CHNb; 34 / 124 skills -> CH2d / CH3c. A skill-level socket on an Asura weapon
+  is not observable without such an item: the bound fix is proven by code (June's test), not by the play-test.
+- **Hygiene:** each changed file PASSes under its own flag: `_CLASS_PATH` (`X2SocketItem.cpp`, `X2Unit.cpp`), `_CHAR_ARA_CLASS` (`X2Data.cpp`, `X2StateCreateUnit.cpp`, `X2Unit.h`), `_CHAR_ARA_CLASS --with _CLASS_DEBUG`
+  (`X2GageManager.cpp`); 0 deleted, 0 non-ASCII, 0 EOL mismatch, 0 untokened. The single ERROR per run is the pre-existing `#if defined( SERV_BALANCE_FINALITY_SKILL_EVENT ) || defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_COOL_TIME_RATE )`
+  in `X2Unit.cpp:5842` / `X2Unit.h:1252`, reported on the file that does not carry that run's flag (tool limit, not this phase's code). `junediverge --check` (6 files): allow-listed 9, RESULT: PASS. `enumscan --check`: 0 rows on the changed lines.
+- **Deploy:** `DEPLOY OK: X2_offline.exe is 26,225,664 B, dated 2026-11-11 18:19:44, md5 82393388935ba52ba03c227714bb9f84`.
+  `EXESTR OK: 6 of 6` (wide: the `ARA CLASS gauge class` tag, `L_SPECTER_STATE`, `ASURA_PARTY`, `list_ARA_L_SPECTER`, `HQ_Dungeon_Clear_Ara_Asura_Normal.tga`, `CLASS_A`).
+- **Play-test hand-off:** see the session reply. Log tag `[JUNE_CHAR]` (`ARA CLASS`).
+
 ## Phase CH2 - Skills: Martial Artist and the first jobs (classes 7, 28, 31, 34)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), one Opus review at CH2d (covers CH2a-CH2d), user play-test per phase. Flag

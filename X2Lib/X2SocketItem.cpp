@@ -2894,7 +2894,12 @@ void CX2SocketItem::AddSkillLevelUpSocketGroup_LUA( int iGroupID_, 	CX2Unit::UNI
 		return;
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CLASS_PATH
+	// char-ara CHNa: June 3271a810 accepts class 1..202 ( ( class - 1 ) < 0xca ), not < UC_END
+	if( eUnitClass_ <= CX2Unit::UC_NONE || eUnitClass_ > CX2Unit::UC_AIN_ANGEL )
+#else SERV_IRUHADEV_JUNE_CLASS_PATH
 	if( eUnitClass_ <= CX2Unit::UC_NONE || eUnitClass_ >= CX2Unit::UC_END)
+#endif SERV_IRUHADEV_JUNE_CLASS_PATH
 	{
 		ASSERT(!"SkillLevelUpSocketGroup.lua UNIT_CLASS Error");
 		return;

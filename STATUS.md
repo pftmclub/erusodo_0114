@@ -105,7 +105,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CHNa | **ready** (CH5 review passed 2026-11-11): 34 / 124 load and play, creation-screen entries + CH5's routed UI rows (`UC_END`, gauge, switches, stat rows, units) | Opus 5.5 / high, Opus review, user play-test | CH5 review | `X2Unit.h`, `X2SocketItem.cpp`, `X2GageManager.cpp`, `X2GUUser.cpp`, emulator, `StatTable.lua` (user packs) | `CHNa.md` |
+| CHNa | **play-test owed** (2026-11-11): 34 / 124 gauge, items, creation-screen third line, portraits, socket bound, class level; data036 + data215 copied; CHNa review after the play-test | Opus 5.5 / high, Opus review, user play-test | CH5 review | `X2Unit.h`, `X2SocketItem.cpp`, `X2GageManager.cpp`, `X2Data.cpp`, `X2StateCreateUnit.cpp` | `CHNa.md` |
 | CHNb | blocked (CHNa review): job change to 34 / 124 (quests 35560-35568, seeds, dialogs) | Opus 5.5 / high, Opus review, user play-test | CHNa review | `FieldQuest.lua`, `Handlers_Quest.cpp`, `X2OfflineClassChangeSeed.h` | `CHNb.md` |
 | CH2a | **done 2026-11-11** (play-test logs clean, 7 skills cast; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3); no review of its own | Sonnet 5.5 / high, user play-test | CH1 review | `X2GUAra.*` | `CH2a.md` |
 | CH2b | **done 2026-11-11** (play-test logs clean, 5 skills cast; `_SKILL` + `_SKILL_DEBUG` stay on until CH2d3): Little Hsien (28) SA-tier skills; no review of its own | Sonnet 5.5 / high, user play-test | CH2a, CH2b0 review | `X2GUAra.*` | `CH2b.md` |

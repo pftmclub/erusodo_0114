@@ -48,6 +48,8 @@ CLASSES = {
     114: 'LIRE_NIGHT_WATCHER', 115: 'RAVEN_VETERAN_COMMANDER', 116: 'EVE_BATTLE_SERAPH',
     117: 'CHUNG_TACTICAL_TROOPER', 118: 'ARA_SAKRA_DEVANAM', 119: 'ARA_YAMA_RAJA',
     120: 'ELESIS_GRAND_MASTER', 121: 'ELESIS_BLAZING_HEART', 122: 'ADD_LUNATIC_PSYKER',
+    # June-only classes (X2Unit.h SERV_IRUHADEV_JUNE_ENUM_NAMES), added by their char port's class-path phase.
+    34: 'ARA_LITTLE_SPECTER', 124: 'ARA_ASURA',
 }
 
 
@@ -136,7 +138,7 @@ PARENT = {
     16: 4, 17: 4, 25: 4, 106: 16, 107: 17, 115: 25,
     18: 5, 19: 5, 26: 5, 108: 18, 109: 19, 116: 26,
     20: 6, 21: 6, 27: 6, 110: 20, 111: 21, 117: 27,
-    28: 7, 31: 7, 118: 28, 119: 31,
+    28: 7, 31: 7, 34: 7, 118: 28, 119: 31, 124: 34,
     29: 8, 30: 8, 120: 29, 121: 30,
     32: 9, 122: 32,
 }

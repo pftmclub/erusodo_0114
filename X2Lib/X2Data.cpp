@@ -133,6 +133,11 @@ static const CharacterImageName s_CharacterImageNameMyGage[] =
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	CharacterImageName( L"DLG_UI_Common_Texture81_NEW.tga",		L"ADD_ALP_FACE"	),	//54 애드 루나틱 사이커
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+	// char-ara CHNa: June 31ee0de0 type 7 rows 0x39 / 0x3a
+	CharacterImageName( L"DLG_UI_Common_Texture77_NEW.tga",		L"L_SPECTER_STATE"	),	//55
+	CharacterImageName( L"DLG_UI_Common_Texture82_NEW.tga",		L"ASURA_STATE"	),	//56
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 
 };
 #pragma endregion 유저 Gage UI
@@ -227,6 +232,11 @@ static const CharacterImageName s_CharacterImageName160[] =
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	CharacterImageName( L"DLG_UI_Common_Texture81_NEW.tga",		L"ADD_ALP_LARGE"	),	//54 애드 루나틱 사이커
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+	// char-ara CHNa: June 31ee0de0 type 2 rows 0x39 / 0x3a
+	CharacterImageName( L"DLG_UI_Common_Texture77_NEW.tga",		L"L_SPECTER_LARGE"	),	//55
+	CharacterImageName( L"DLG_UI_Common_Texture82_NEW.tga",		L"ASURA_LARGE"	),	//56
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 
 };
 	#pragma endregion 큰 초상화 이미지_160x160
@@ -322,6 +332,11 @@ static const CharacterImageName s_CharacterImageName160Gray[] =
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	CharacterImageName( L"DLG_UI_Common_Texture81_NEW.tga",		L"ADD_ALP_GRAY"	),	//54 애드 루나틱 사이커
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+	// char-ara CHNa: June 31ee0de0 type 3 rows 0x39 / 0x3a
+	CharacterImageName( L"DLG_UI_Common_Texture77_NEW.tga",		L"L_SPECTER_LARGE_GRAY"	),	//55
+	CharacterImageName( L"DLG_UI_Common_Texture82_NEW.tga",		L"ASURA_LARGE_GRAY"	),	//56
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 
 };
 #pragma endregion 큰 초상화 회색 이미지_160x160
@@ -415,6 +430,11 @@ static const CharacterImageName s_CharacterImageName50[] =
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	CharacterImageName( L"DLG_UI_Common_Texture81_NEW.tga",		L"ADD_ALP_MEDIUM"	),	//54 애드 루나틱 사이커
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+	// char-ara CHNa: June 31ee0de0 type 4 rows 0x39 / 0x3a
+	CharacterImageName( L"DLG_UI_Common_Texture77_NEW.tga",		L"L_SPECTER_MEDIUM"	),	//55
+	CharacterImageName( L"DLG_UI_Common_Texture82_NEW.tga",		L"ASURA_MEDIUM"	),	//56
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 
 };
 #pragma endregion 중간 초상화 회색 이미지_50x50
@@ -508,6 +528,11 @@ static const CharacterImageName s_CharacterImageName20[] =
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	CharacterImageName( L"DLG_UI_Common_Texture81_NEW.tga",		L"ADD_ALP_ICON"	),	//54 애드 루나틱 사이커
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+	// char-ara CHNa: June 31ee0de0 type 5 rows 0x39 / 0x3a
+	CharacterImageName( L"DLG_UI_Common_Texture77_NEW.tga",		L"L_SPECTER_ICON"	),	//55
+	CharacterImageName( L"DLG_UI_Common_Texture82_NEW.tga",		L"ASURA_ICON"	),	//56
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 
 };
 #pragma endregion 작인 초상화 이미지_20x20
@@ -603,6 +628,11 @@ CharacterImageName s_CharacterImageNameDungeonClear[] =
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	CharacterImageName( L"HQ_Dungeon_Clear_Add_ALP.tga",	L""		),	 //54 애드 루나틱 사이커
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+	// char-ara CHNa: June 31ee0de0 type 1 rows 0x39 / 0x3a
+	CharacterImageName( L"HQ_Dungeon_Clear_Ara_Little_Specter_Normal.tga",	L""	),	//55
+	CharacterImageName( L"HQ_Dungeon_Clear_Ara_Asura_Normal.tga",	L""	),	//56
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 
 };
 #pragma endregion 던전 클리어 이미지
@@ -694,6 +724,11 @@ CharacterImageName s_CharacterImageNameInitial[] =
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	CharacterImageName( L"DLG_UI_Common_Texture11.tga",		L"CLASS_L" 	),	 //54 애드 루나틱 사이커
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+	// char-ara CHNa: June 31ee0de0 type 6 rows 0x39 / 0x3a
+	CharacterImageName( L"DLG_UI_Common_Texture11.tga",		L"CLASS_L"	),	//55
+	CharacterImageName( L"DLG_UI_Common_Texture11.tga",		L"CLASS_A"	),	//56
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 
 };
 #pragma endregion 직업 관련 글자
@@ -788,6 +823,11 @@ static const CharacterImageName s_CharacterImageNameParty[] =
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	CharacterImageName( L"DLG_UI_Common_Texture81_NEW.tga",		L"ADD_ALP_PARTY"	), //54 애드 루나틱 사이커
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+	// char-ara CHNa: June 31ee0de0 type 8 rows 0x39 / 0x3a
+	CharacterImageName( L"DLG_UI_Common_Texture77_NEW.tga",		L"L_SPECTER_PARTY"	),	//55
+	CharacterImageName( L"DLG_UI_Common_Texture82_NEW.tga",		L"ASURA_PARTY"	),	//56
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 
 };
 #pragma endregion 파티원 이미지
@@ -883,6 +923,11 @@ static const CharacterImageName s_CharacterImageUnitSlot[] =
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	CharacterImageName( L"DLG_UI_Common_Texture_GUI_character_01.tga",		L"list_ADD_ALP"), //54 애드 루나틱 사이커
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+	// char-ara CHNa: June 31ee0de0 type 9 rows 0x39 / 0x3a
+	CharacterImageName( L"DLG_UI_Common_Texture_GUI_character_01.tga",		L"list_ARA_L_SPECTER"	),	//55
+	CharacterImageName( L"DLG_UI_Common_Texture_GUI_character_01.tga",		L"list_ARA_ASURA"	),	//56
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 
 };
 #pragma endregion 유닛 슬롯 이미지
@@ -2899,6 +2944,11 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 #ifdef SERV_ADD_LUNATIC_PSYKER // 김태환
 	case CX2Unit::UC_ADD_LUNATIC_PSYKER:				iImageIndex = 54;		break; // 애드 루나틱 사이커
 #endif //SERV_ADD_LUNATIC_PSYKER
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+	// char-ara CHNa: June 31ee0de0 class 0x22 -> row 0x39, 0x7c -> 0x3a ( here 55 / 56 )
+	case CX2Unit::UC_ARA_LITTLE_SPECTER:				iImageIndex = 55;		break;
+	case CX2Unit::UC_ARA_ASURA:							iImageIndex = 56;		break;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
 
 	default:
 		break;

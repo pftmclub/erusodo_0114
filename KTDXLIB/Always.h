@@ -12467,3 +12467,36 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_UI needs SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ( the cut-in reader ) and SERV_IRUHADEV_JUNE_UNIT_VIEWER_EFFECT_PLAYER ( the lobby orb row )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_UI
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June class path ( char-ara CHNa; class-generic, reused by Elesis and Add ): the SkillLevelUpSocketGroup loader takes June's class
+//              range 1..202 ( 3271a810 ) instead of < UC_END ( 124, which dropped every Asura and later-class row ), and CX2Unit::GetClassLevel
+//              is June's arithmetic ( 3234c170: ids 10-199 are jobs, 100 and up second jobs, anything else 0 ).
+//              Revert: comment out the #define ( JUNE_CLASS_PATH ).
+#define SERV_IRUHADEV_JUNE_CLASS_PATH
+#if defined( SERV_IRUHADEV_JUNE_CLASS_PATH ) && !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES )
+#error SERV_IRUHADEV_JUNE_CLASS_PATH needs SERV_IRUHADEV_JUNE_ENUM_NAMES ( UC_AIN_ANGEL )
+#endif SERV_IRUHADEV_JUNE_CLASS_PATH
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CHNa - Little Specter ( 34 ) and Asura ( 124 ) load and play: Ara's force-power gauge for both
+//              ( 3248e290 ), their item-class compatibility ( 31ed6500 ), the creation screen's third Ara line 7 / 34 / 124 ( 3234b390 ) and its
+//              stat chart ( 3254ee40 ), and their portraits in all nine picture tables ( 31ee0de0 rows 0x39 / 0x3a ).
+//              Revert: comment out the #define ( JUNE_CHAR_ARA_CLASS ).
+#define SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS ) && !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS needs SERV_IRUHADEV_JUNE_ENUM_NAMES ( UC_ARA_LITTLE_SPECTER / UC_ARA_ASURA )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: char-ara CHNa debug: logs [JUNE_CHAR] ARA CLASS gauge class <c> when a 34 / 124 gets Ara's gauge. The CHNa review retires it.
+#define SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS_DEBUG
+//////////////////////////////////////////////////////////////////////////

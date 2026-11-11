@@ -3020,6 +3020,13 @@ void CX2Unit::GetSetIDNPartsNum( map<int,int>& mapSetIDNPartsNum )
 // 1차 전직이면 1을 return, 2차 전직이면 2를 return, 
 int CX2Unit::GetClassLevel()
 {
+#ifdef SERV_IRUHADEV_JUNE_CLASS_PATH
+	// char-ara CHNa: June 3234c170: ids 10-199 are jobs ( 100 and up second jobs ), anything else 0
+	const int iClass = static_cast<int>( m_UnitData.m_UnitClass );
+	if( static_cast<unsigned int>( iClass - 10 ) < 190 )
+		return ( iClass > 99 ) ? 2 : 1;
+	return 0;
+#else SERV_IRUHADEV_JUNE_CLASS_PATH
 	switch( m_UnitData.m_UnitClass )
 	{
 	case UC_ELSWORD_SWORDMAN:		
@@ -3157,6 +3164,7 @@ int CX2Unit::GetClassLevel()
 
 
 	return -1;
+#endif SERV_IRUHADEV_JUNE_CLASS_PATH
 }
 
 //{{ kimhc // 2010-01-04 // 기존의 EGS_SELECT_UNIT_ACK에 인벤정보가 포함되어 오던 것 분할
