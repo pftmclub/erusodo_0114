@@ -953,6 +953,9 @@ class CX2DamageEffect
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 				void			SetLockOnUnitUID( UidType unitUID ){ m_LockOnData.m_LockOnUnitUID = unitUID; }
 				void			SetLockOnNPCUID( int NPCUID ){ m_LockOnData.m_LockOnNPCUID = NPCUID; }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+				void			ScaleDamageByRate( const float fRate_ );	/// char-ara CH2d: June 32bb09f0
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 				void			SetLockOnPos( D3DXVECTOR3 vPos ) { m_LockOnData.m_LockOnPos = vPos; }
 				void			SetLockOnRandomSeed( int iSeed ) { m_LockOnData.m_iRandomSeed = iSeed; }
 	#ifdef BALANCE_GRAND_ARCHER_20121213

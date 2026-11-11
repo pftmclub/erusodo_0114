@@ -6482,6 +6482,25 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's; no new define). Plan `JUNE_CHA
 - **Save.** Unit 99 `LittleDevil99` ( class 31, lv 99 ): slots changed for the play-test, Conversion Health 27210 / 27235 learned ( backup `db_backup/els_db_20261111_170102_pre_sql.sql` ).
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( every Ara skill falls back to the Wind Wedge default ), `python tools/build.py --deploy`.
 
+## Stage 7 Ara, CH2d: Little Specter (class 34) actives, ids below 27024 (2026-11-11)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (CH2a's; no new define). Plan `JUNE_CHARACTER_ARA_PHASES.md` "CH2d - Done". The `RNSI_*` ids of Specter of Storm ( 27021 / 27036 ), Restraints Specter ( 27022 / 27041 ) and Specter of Thunder ( 27023 / 27042 ) get their own cases in `SetEquippedSkillFuncBySkillSlotIndex`; Restraints also joins `InitAquiredActiveSkillState`. Little Specter is a June-only class: there is no March skill to compare with.
+- **New states ( all June-only ).**
+  - **Specter of Thunder** ( 27023 / 27042 ): the cast looks for the nearest landing spot among the enemy hit boxes within the skill's range ( `SA_SCOPE_ABS`, PvP `_PVP` ) and turns round when it lies behind. With a spot, the animation hands over at 0.69 s to the find state ( the unit fades out ), then the landing state ( the unit is placed on the spot, passes through units for one physic step, fades back in ); without one it is a plain skill state with its cancels.
+  - **Restraints Specter** ( 27022 / 27041 ): at 0.395 s up to 3 force power are spent and turn into a damage rate ( `n x 30 / MP cost + 1` ); `DamageEffect_RESTRAINTS_SPECTER_Damage` appears at the hip. The finish state, at 0.2 s, gives every living unit that ring hit `DamageEffect_RESTRAINTS_SPECTER_Finish_Damage` locked on to it.
+  - **Specter of Storm** ( 27021 ): at 0.01 s up to 4 force power size the effect set ( 1 + 0.1 per force power ) and the damage; the damage effect comes at 0.25 s ahead of the unit; the finish state adds the finish effect set and `DamageEffect_SpecterOfStorm_Finish_Damage` at 0.49 s; the landing state follows on a line.
+  - **Enhanced Storm** ( 27036 ): the held form. The key slot it was cast from is tracked, the hold time ( `SA_EFFECTIVE_TIME` ) counts down, and at each animation end the unit finishes when the key lets go or the time ends; Up / Down inside the key window raise the stone protractor ring and aim arrow particles and start the degree states ( **CH2d2**: degree, ultimate degree, ultimate finish ). Only its main state and landing state are registered here.
+- **New engine pieces.** `CX2DamageEffect::CEffect::ScaleDamageByRate` ( June `32bb09f0`: the effect's damage by type, rate modifier and tech point ( x the truncated rate ), and its next tables', times the rate; keeps the rate in `+0xb18` ); `CX2GUAra::GetMpScaledPowerRate`, `ClearCustomRenderState`, `CalcLockOnLandingPos`, `FindSpecterOfThunderLockOnTarget`, `CreateStoneProtractorAimArrow`, `SetStoneProtractorAimArrowRotate`.
+- **Damage ( level-1 multiplier, x0.01 of the NUMERICAL_DATA row ).** Only Restraints carries numerical-only rows; Thunder and Storm read their effect tables through the engine.
+
+| Skill ( June id ) | March damage | June damage |
+|---|---|---|
+| Restraints Specter ( 27022 / 27041 ) | none ( June-only class ) | 7.83 ( ring ), 4.51 ( finish ) |
+| Specter of Thunder ( 27023 / 27042 ), Specter of Storm ( 27021 / 27036 ) | none ( June-only class ) | the `SpecterOfThunder` / `SpecterOfStorm` damage effect tables |
+
+- **Save.** New unit 135 `LSpecter99` ( class 34, lv 99 ): slot A0 Specter of Storm 27021, A1 Restraints Specter 27022, A2 Specter of Thunder 27023 ( backups `db_backup/els_db_20261111_215943_pre_ch2d_pre_addchar.sql`, `_220003_pre_sql.sql` ).
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( every Ara skill falls back to the Wind Wedge default ), `python tools/build.py --deploy`.
+
 ## BUG_REPORT 2026-11-08, items 1-5 (fixed 2026-11-11)
 
 **1. Underground Waterway boss room froze the player (data only).** The merged data037 `NPCTemplet.lua` kept March's row for `NUI_BENDERS_NASOD` (`LUA_FILE_NAME = "Benders_Nasword.lua"`), while June's dungeon cutscene NPC (`Event_NPC_Benders_Elder.lua`) starts state `BENDERS_NASOD_START`, which only June's `BENDERS_NASOD.LUA` has. The boss stayed hidden in its start state and `STOP_AT_START_STATE` kept input off. The row now carries June's `MOTION` / `LUA_FILE_NAME` (the old values are in the comment above it); June's `Motion_Benders_Nasword.xet` staged into data006 (March's copy under `kom_backup_stage_june\20261111_105336`). `luabind.py check BENDERS_NASOD Event_NPC_Benders_Elder` PASS, `npc_anim_census.py` 0 missing anims. Revert: restore the two values in the row, `luasrc.py refresh data037 NPCTemplet.lua`, repack data037.

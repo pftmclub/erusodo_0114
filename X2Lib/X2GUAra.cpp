@@ -219,6 +219,11 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	, m_fEnergyWaveChargeTime( 0.f )	// char-ara CH2c: June ctor 32bc6bf0 +0x9714
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	, m_fSpecterOfStormSize( 1.f ), m_fSpecterOfStormRangeRate( -1.f ), m_hSpecterOfStormFinishEffect( INVALID_DAMAGE_EFFECT_HANDLE )	// char-ara CH2d: June ctor 32bc6bf0 +0x9774 / +0x9778 / +0x977c
+	, m_iSpecterOfThunderTargetState( -1 ), m_vSpecterOfThunderTargetPos( 0.f, 0.f, 0.f ), m_iSpecterOfThunderTargetLine( 0 )	// +0x9780 / +0x9784 / +0x9798
+	, m_fRestraintsSpecterRangeRate( -1.f ), m_hRestraintsSpecterEffect( INVALID_DAMAGE_EFFECT_HANDLE )	// +0x97b4 / +0x97b8
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	, m_fMpGainPerForcePowerInFullHyperMode( 0.f ), m_iFPCancelChainCount( 0 ), m_iSnapshotForcePower( 0 )	// char-ara CH1q: June 32bc6bf0 @32bc7635 / @32bc77a3
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
@@ -4163,6 +4168,73 @@ void CX2GUAra::InitStateByUnitClass()
 			} break;
 	#pragma endregion ±â°øÆÄ
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	#pragma region RNSI_SA_ALS_SPECTER_OF_THUNDER
+		case CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_THUNDER:	// char-ara CH2d: June 32bd09d0 case 27023 / 27042
+		case CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_THUNDER_UPGRADE:
+			{
+				ASI_SA_AA_SPECTER_OF_THUNDER_CreateState( normalStateData, normalStateData.stateID );
+				ASI_SA_AA_SPECTER_OF_THUNDER_CreateState( hyperStateData, hyperStateData.stateID );
+
+				{
+					UserUnitStateData subStateData;
+					ASI_SA_AA_SPECTER_OF_THUNDER_FIND_CreateState( subStateData, ASI_SA_AA_SPECTER_OF_THUNDER_FIND );
+					m_StateList[subStateData.stateID] = subStateData;
+				}
+
+				{
+					UserUnitStateData subStateData;
+					ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_CreateState( subStateData, ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING );
+					m_StateList[subStateData.stateID] = subStateData;
+				}
+
+				m_fSpecterOfThunderRate = -1.f;	// June @32bd1df1
+			} break;
+	#pragma endregion
+
+	#pragma region RNSI_SA_ALS_RESTRAINTS_SPECTER
+		case CX2SkillTree::RNSI_SA_ALS_RESTRAINTS_SPECTER:	// char-ara CH2d: June 32bd09d0 case 27022 / 27041
+		case CX2SkillTree::RNSI_SA_ALS_RESTRAINTS_SPECTER_UPGRADE:
+			{
+				ASI_SA_ALS_RESTRAINTS_SPECTER_CreateState( normalStateData, normalStateData.stateID );
+				ASI_SA_ALS_RESTRAINTS_SPECTER_CreateState( hyperStateData, hyperStateData.stateID );
+
+				UserUnitStateData subStateData;
+				ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_CreateState( subStateData, ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH );
+				m_StateList[subStateData.stateID] = subStateData;
+			} break;
+	#pragma endregion
+
+	#pragma region RNSI_SA_ALS_SPECTER_OF_STORM
+		case CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_STORM:	// char-ara CH2d: June 32bd09d0 case 27021
+			{
+				ASI_SA_ALS_SPECTER_OF_STORM_CreateState( normalStateData, normalStateData.stateID );
+				ASI_SA_ALS_SPECTER_OF_STORM_CreateState( hyperStateData, hyperStateData.stateID );
+
+				{
+					UserUnitStateData subStateData;
+					ASI_SA_ALS_SPECTER_OF_STORM_FINISH_CreateState( subStateData, ASI_SA_ALS_SPECTER_OF_STORM_FINISH );
+					m_StateList[subStateData.stateID] = subStateData;
+				}
+
+				{
+					UserUnitStateData subStateData;
+					ASI_SA_ALS_SPECTER_OF_STORM_LANDING_CreateState( subStateData, ASI_SA_ALS_SPECTER_OF_STORM_LANDING );
+					m_StateList[subStateData.stateID] = subStateData;
+				}
+			} break;
+
+		case CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_STORM_UPGRADE:	// char-ara CH2d: June 32bd09d0 case 27036 ( the degree states and the ultimate finish are CH2d2's )
+			{
+				ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_CreateState( normalStateData, normalStateData.stateID );
+				ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_CreateState( hyperStateData, hyperStateData.stateID );
+
+				UserUnitStateData subStateData;
+				ASI_SA_ALS_SPECTER_OF_STORM_LANDING_UPGRADE_CreateState( subStateData, ASI_SA_ALS_SPECTER_OF_STORM_LANDING );
+				m_StateList[subStateData.stateID] = subStateData;
+			} break;
+	#pragma endregion
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	#pragma region SI_SA_ALD_HELL_OF_TORNADO
 		case CX2SkillTree::SI_SA_ALD_HELL_OF_TORNADO:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
@@ -10243,6 +10315,940 @@ void CX2GUAra::ASI_SA_ARA_SHADOW_KNOT_END_CreateState( UserUnitStateData& stateD
 	stateData_.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_ARA_SHADOW_KNOT_END_FrameMove );
 	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_ARA_SHADOW_KNOT_END_EventProcess );
 }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+namespace _CONST_ARA_CH2D_
+{
+	const float		LANDING_SEARCH_RADIUS				= 30.f;		// June 32bc0420 @32bc04f1
+	const float		NEAREST_LINE_START_DISTANCE			= 9999999.f;	// June 32bc0420 @32bc0542
+	const float		THUNDER_FIND_START_TIME				= 0.69f;	// June 32ba19b0 @32ba1cc6
+	const float		THUNDER_FADE_START_TIME				= 0.001f;	// June 32ba1d00 @32ba1d06
+	const float		THUNDER_LANDING_FADE_END_TIME		= 0.769f;	// June 32ba1db0 @32ba1ded
+	const double	THUNDER_FADE_OUT_SPEED				= 3.0;		// June 32ba1d00 @32ba1d54
+	const float		THUNDER_FADE_IN_SPEED				= 2.f;		// June 32ba1db0 @32ba1e26
+	const float		THUNDER_LANDING_FALL_SPEED			= -700.f;	// June 32bb0790 @32bb08a8
+	const float		AIM_ARROW_LEFT_DEGREE				= 180.f;	// June 32bc12e0 @32bc133a
+	const float		RESTRAINTS_DAMAGE_TIME				= 0.395f;	// June 32bc4410 @32bc4441
+	const int		RESTRAINTS_MAX_FORCE_POWER			= 3;		// June 32bc4410 @32bc44bf
+	const float		RESTRAINTS_FINISH_DAMAGE_TIME		= 0.2f;		// June 32bbd840 @32bbd866
+	const float		STORM_EFFECT_TIME					= 0.01f;	// June 32bc4670 @32bc46a5
+	const float		STORM_DAMAGE_TIME					= 0.25f;	// June 32bc4670 @32bc4927
+	const float		STORM_FINISH_DAMAGE_TIME			= 0.49f;	// June 32bbdae0 @32bbdd2b
+	const int		STORM_MAX_FORCE_POWER				= 4;		// June 32bc4670 @32bc4709
+	const double	STORM_SIZE_PER_FORCE_POWER			= 0.1f;		// June 32bc4670 @32bc4736 ( the float 0.1 widened )
+	const double	STORM_DAMAGE_OFFSET					= 100.0;	// June 32bc4670 @32bc496d
+	const double	MP_SCALED_POWER_RATE_PER_COUNT		= 30.0;		// June 32ba4760 @32ba47c0
+	const double	STORM_LANDING_DROP					= 45.0;		// June 32ba6220 @32ba624c
+}
+using namespace _CONST_ARA_CH2D_;
+
+// char-ara CH2d: the ZX cancel of June's skill end states ( oneZ / oneX on a line ), the walk and dash ones are CH1d's
+#define ZX_CANCEL_AFTER_EX_ON_LINE_( time ) \
+	else if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && true == IsOnSomethingFuture() && true == m_InputData.oneZ ) \
+	{ StateChange( GetComboZStateID() ); } \
+	else if( (time) >= 0.f && m_pXSkinAnimFuture->GetNowAnimationTime() > (time) && true == IsOnSomethingFuture() && true == m_InputData.oneX ) \
+	{ StateChange( GetComboXStateID() ); }
+
+// char-ara CH2d: June 31fc9570 ( colour alpha, custom render state, outline alpha and blend back to normal )
+void CX2GUAra::ClearCustomRenderState()
+{
+	m_RenderParam.color.a			= 1.f;
+	m_iCustomRenderState			= 0;
+	m_RenderParam.outLineColor.a	= 1.f;
+	m_RenderParam.bAlphaBlend		= false;
+}
+
+// char-ara CH2d: June 32ba4760 ( count x 30 / the MP the skill costs at its level, plus 1 )
+float CX2GUAra::GetMpScaledPowerRate( const int iCount_, const CX2SkillTree::SKILL_ID eSkillID_, const bool bUpgradeSwap_ )
+{
+	if ( NULL == GetUnit() )
+		return 1.f;		// stand-in: June reads the unit's skill tree without a test
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const CX2SkillTree::SKILL_ID eSwappedSkillID = ( true == bUpgradeSwap_ ) ? userSkillTree.GetUpgradeSwappedSkillID( eSkillID_ ) : eSkillID_;
+	const int iSkillLevel = ( userSkillTree.GetSkillLevel( eSwappedSkillID, false, 0, true ) < 1 ) ? 1 : userSkillTree.GetSkillLevel( eSwappedSkillID, false, 0, true );
+
+	return static_cast<float>( static_cast<double>( iCount_ ) * MP_SCALED_POWER_RATE_PER_COUNT / CX2GUUser::GetActualMPConsume( eSwappedSkillID, iSkillLevel, true ) + 1.0 );	// the base's 3 argument one: June slot 424
+}
+
+// char-ara CH2d: June 32bc0420 ( the line under a position, else the nearest point on any enabled line; true on a normal enabled line )
+bool CX2GUAra::CalcLockOnLandingPos( const D3DXVECTOR3& vPos_, D3DXVECTOR3* pOutPos_, int* pOutLineIndex_ )
+{
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetWorld() || NULL == g_pX2Game->GetWorld()->GetLineMap() || NULL == pOutPos_ || NULL == pOutLineIndex_ )
+		return false;
+
+	CKTDGLineMap* pLineMap = g_pX2Game->GetWorld()->GetLineMap();
+	if ( false == pLineMap->CanDown( vPos_, LANDING_SEARCH_RADIUS, pOutPos_, NULL, pOutLineIndex_, false, false, true, false ) )
+	{
+		float fNearestDistance = NEAREST_LINE_START_DISTANCE;
+		int iNearestLine = -1;
+		D3DXVECTOR3 vNearestPoint( 0.f, 0.f, 0.f );
+
+		const int iLineCount = pLineMap->GetNumLineData();
+		for ( int iLine = 0; iLine < iLineCount; ++iLine )
+		{
+			const CKTDGLineMap::LineData* pLineData = pLineMap->GetLineData( iLine );
+			if ( NULL == pLineData || false == pLineData->bEnable || CKTDGLineMap::LT_MONSTER_ROAD == pLineData->lineType || CKTDGLineMap::LT_WALL == pLineData->lineType )
+				continue;
+
+			const D3DXVECTOR3 vLineVec = pLineData->endPos - pLineData->startPos;
+			D3DXVECTOR3 vLineDir;
+			D3DXVec3Normalize( &vLineDir, &vLineVec );
+			const D3DXVECTOR3 vFromStart = vPos_ - pLineData->startPos;
+			const float fAlongLine = D3DXVec3Dot( &vFromStart, &vLineDir );
+
+			D3DXVECTOR3 vPoint;
+			if ( fAlongLine <= 0.f )
+				vPoint = pLineData->startPos;
+			else if ( D3DXVec3Length( &vLineVec ) <= fAlongLine )
+				vPoint = pLineData->endPos;
+			else
+				vPoint = pLineData->startPos + vLineDir * fAlongLine;
+
+			const D3DXVECTOR3 vToPoint = vPoint - vPos_;
+			const float fDistance = D3DXVec3Length( &vToPoint );
+			if ( fDistance <= fNearestDistance )
+			{
+				fNearestDistance = fDistance;
+				iNearestLine = iLine;
+				vNearestPoint = vPoint;
+			}
+		}
+
+		*pOutPos_ = vNearestPoint;
+		*pOutLineIndex_ = iNearestLine;
+	}
+
+	const CKTDGLineMap::LineData* pLandingLine = pLineMap->GetLineData( *pOutLineIndex_ );
+	return ( NULL != pLandingLine && CKTDGLineMap::LT_NORMAL == pLandingLine->lineType && true == pLandingLine->bEnable );
+}
+
+// char-ara CH2d: June 32bc5f80 ( the nearest landing spot among the enemy hit boxes in range; false when it lies behind the unit )
+bool CX2GUAra::FindSpecterOfThunderLockOnTarget()
+{
+	m_iSpecterOfThunderTargetLine = 0;
+	m_vSpecterOfThunderTargetPos = GetPos();
+
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetWorld() || NULL == g_pX2Game->GetWorld()->GetLineMap() )
+	{
+		m_iSpecterOfThunderTargetState = 1;
+		return true;
+	}
+
+	const CX2SkillTree::SKILL_ID eSwappedSkillID = GetUpgradeSwappedSkillID( CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_THUNDER );
+	const float fRange = GetLearnedSkillAbilityValue( ( true == g_pX2Game->GetIsNowPVPCorrectionGame() ) ? CX2SkillTree::SA_SCOPE_ABS_PVP : CX2SkillTree::SA_SCOPE_ABS, eSwappedSkillID );
+	const float fRangeSq = fRange * fRange;
+
+	bool bTargetFound = false;	// June [esp+0x12]
+	bool bTargetInFront = true;	// June [esp+0x13]
+	for ( int iUnit = 0; iUnit < g_pX2Game->GetUnitNum(); ++iUnit )
+	{
+		CX2GameUnit* pUnit = g_pX2Game->GetUnit( iUnit );
+		if ( NULL == pUnit || true != g_pX2Game->IsValidUnit( pUnit ) || pUnit->GetTeam() == GetTeam() )
+			continue;
+
+		if ( NULL != pUnit->GetGageData() && pUnit->GetNowHp() <= 0.f )
+			continue;
+
+		if ( CX2GameUnit::GUT_NPC == pUnit->GetGameUnitType() )
+		{
+			CX2GUNPC* pNPC = static_cast<CX2GUNPC*>( pUnit );
+			if ( CX2UnitManager::NCT_BASIC != pNPC->GetNPCTemplet().m_ClassType || true == pNPC->GetInvincibleByAttackTypeId( CX2DamageManager::AT_SPECIAL ) )
+				continue;
+		}
+
+		const D3DXVECTOR3 vMyPos = GetPos();
+		bool bUnitHasLanding = false;
+		D3DXVECTOR3 vUnitLanding( 0.f, 0.f, 0.f );
+		int iUnitLandingLine = 0;
+
+		const CKTDXCollision::CollisionDataListSet& setCollisionList = pUnit->GetCollisionListSet();
+		for ( CKTDXCollision::CollisionDataListSet::const_iterator itSet = setCollisionList.begin(); itSet != setCollisionList.end(); ++itSet )
+		{
+			const CKTDXCollision::CollisionDataList* pCollisionList = *itSet;
+			for ( CKTDXCollision::CollisionDataList::const_iterator itData = pCollisionList->begin(); itData != pCollisionList->end(); ++itData )
+			{
+				const D3DXVECTOR3 vBoxPoint = (*itData)->GetPointStart();
+				if ( false == bUnitHasLanding )
+				{
+					if ( fRangeSq < GetDistance3Sq( vMyPos, vBoxPoint ) )
+						continue;
+
+					bUnitHasLanding = CalcLockOnLandingPos( vBoxPoint, &vUnitLanding, &iUnitLandingLine );
+				}
+				else
+				{
+					D3DXVECTOR3 vCandidate( 0.f, 0.f, 0.f );
+					int iCandidateLine = 0;
+					if ( GetDistance3Sq( vMyPos, vBoxPoint ) <= GetDistance3Sq( vMyPos, vUnitLanding ) && true == CalcLockOnLandingPos( vBoxPoint, &vCandidate, &iCandidateLine ) )
+					{
+						vUnitLanding = vCandidate;
+						iUnitLandingLine = iCandidateLine;
+					}
+				}
+			}
+		}
+
+		if ( false == bUnitHasLanding )
+			continue;
+
+		const bool bUnitInFront = ( true == IsPosAlongLastTouchLine( vUnitLanding ) ) ? GetIsRight() : ( false == GetIsRight() );
+		m_iSpecterOfThunderTargetState = 0;
+		if ( false == bTargetFound )
+		{
+			m_vSpecterOfThunderTargetPos = vUnitLanding;
+			bTargetInFront = bUnitInFront;
+			bTargetFound = true;
+			m_iSpecterOfThunderTargetLine = iUnitLandingLine;
+		}
+		else if ( GetDistance3Sq( vMyPos, vUnitLanding ) <= GetDistance3Sq( vMyPos, m_vSpecterOfThunderTargetPos ) )
+		{
+			m_vSpecterOfThunderTargetPos = vUnitLanding;
+			m_iSpecterOfThunderTargetLine = iUnitLandingLine;
+			bTargetInFront = bUnitInFront;
+		}
+	}
+
+	if ( false == bTargetFound )
+		m_iSpecterOfThunderTargetState = 1;
+
+	return bTargetInFront;
+}
+
+// char-ara CH2d: June 32bc12e0 ( the aim arrow particle turns with the facing, its z rotation is the aim degree )
+void CX2GUAra::SetStoneProtractorAimArrowRotate( const bool bRight_ )
+{
+	CKTDGParticleSystem::CParticle* pParticle = g_pX2Game->GetMajorParticle()->GetParticle( m_StoneProtractorAim.m_hAimArrowParticle );
+	if ( NULL == pParticle )
+	{
+		m_StoneProtractorAim.m_hAimArrowParticle = INVALID_PARTICLE_HANDLE;
+		return;
+	}
+
+	const D3DXVECTOR3 vRotate( 0.f, ( true == bRight_ ) ? 0.f : AIM_ARROW_LEFT_DEGREE, m_StoneProtractorAim.m_fAimDegree );
+	pParticle->SetAxisRotateDegree( vRotate );		// June +0x100
+	pParticle->SetRotate( vRotate );				// June +0x10c
+	if ( CKTDGParticleSystem::CParticleEventSequence* pMasterSeq = pParticle->GetMasterSequence() )
+	{
+		pMasterSeq->SetAddRotate( vRotate );		// June +0x3e0
+		pMasterSeq->SetAxisAngle( vRotate );		// June +0x404
+	}
+}
+
+// char-ara CH2d: June 32bc6820 ( the protractor ring and the aim arrow particles around the unit; true once both exist )
+bool CX2GUAra::CreateStoneProtractorAimArrow()
+{
+	CKTDGParticleSystem* pMajorParticle = g_pX2Game->GetMajorParticle();
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_StoneProtractorAim.m_hProtractor )
+	{
+		const D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01" );
+		const WCHAR* pwszProtractorName = ( true == GetIsRight() ) ? L"Ara_StomeProtractor01_R" : L"Ara_StomeProtractor01_L";
+		CKTDGParticleSystem::CParticleEventSequence* pSeq = pMajorParticle->CreateSequence( (CKTDGObject*) this, pwszProtractorName, vBonePos );
+		m_StoneProtractorAim.m_hProtractor = ( NULL != pSeq ) ? pSeq->GetHandle() : INVALID_PARTICLE_SEQUENCE_HANDLE;
+
+		if ( CKTDGParticleSystem::CParticleEventSequence* pProtractorSeq = pMajorParticle->GetInstanceSequence( m_StoneProtractorAim.m_hProtractor, true ) )
+			pProtractorSeq->CreateNewParticle( vBonePos );
+	}
+
+	if ( INVALID_PARTICLE_SEQUENCE_HANDLE == m_StoneProtractorAim.m_hAimArrowSeq )
+	{
+		const D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01" );
+		CKTDGParticleSystem::CParticleEventSequence* pAimArrowSeq = pMajorParticle->CreateSequence( (CKTDGObject*) this, L"Ara_StomeProtractor_AimArrow", vBonePos );
+		if ( NULL != pAimArrowSeq )
+		{
+			m_StoneProtractorAim.m_hAimArrowSeq = pAimArrowSeq->GetHandle();
+			m_StoneProtractorAim.m_hAimArrowParticle = pAimArrowSeq->CreateNewParticleHandle( vBonePos );
+			SetStoneProtractorAimArrowRotate( GetIsRight() );
+		}
+	}
+
+	return ( INVALID_PARTICLE_SEQUENCE_HANDLE != m_StoneProtractorAim.m_hProtractor && INVALID_PARTICLE_SEQUENCE_HANDLE != m_StoneProtractorAim.m_hAimArrowSeq );
+}
+
+// char-ara CH2d: June 31e4c4c0 with the memo scale ( the instance scale is the size, times the set's memo scale; the damage follows it )
+void CX2GUAra::SetSpecterOfStormEffectSetScale( const CX2EffectSet::Handle hEffectSet_ )
+{
+	CX2EffectSet::EffectSetInstance* pInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffectSet_ );
+	if ( NULL == pInstance )
+		return;
+
+	pInstance->SetEffectScale( D3DXVECTOR3( m_fSpecterOfStormSize, m_fSpecterOfStormSize, m_fSpecterOfStormSize ), true );
+	pInstance->m_vScale.x *= pInstance->m_vMemoScale.x;
+	pInstance->m_vScale.y *= pInstance->m_vMemoScale.y;
+	pInstance->m_vScale.z *= pInstance->m_vMemoScale.z;
+}
+
+// char-ara CH2d: June 32b94750 ( the power rate the Specter of Thunder effect set plays with )
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_StateStart()
+{
+	CommonStateStart();
+	m_fSpecterOfThunderPowerRate = GetPowerRate();
+}
+
+// char-ara CH2d: June 32bc94f0 ( look for the landing spot; turn round when it lies behind )
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_StateStartFuture()
+{
+	CommonStateStartFuture();
+	m_iSpecterOfThunderTargetState = -1;
+
+	if ( false == FindSpecterOfThunderLockOnTarget() )
+	{
+		m_FrameDataFuture.syncData.bIsRight = ( false == m_FrameDataFuture.syncData.bIsRight );
+		m_FrameDataFuture.unitCondition.dirDegree.y += 180.f;
+	}
+}
+
+// char-ara CH2d: June 32ba19b0 ( with a landing spot the find state starts at 0.69 s; without, a plain skill state with its cancels )
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_EventProcess()
+{
+	if ( 0 == m_iSpecterOfThunderTargetState )
+	{
+		if ( THUNDER_FIND_START_TIME <= m_pXSkinAnimFuture->GetNowAnimationTime() )
+			StateChange( ASI_SA_AA_SPECTER_OF_THUNDER_FIND );
+	}
+	else if ( 1 == m_iSpecterOfThunderTargetState )
+	{
+		if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+			StateChange( USI_WAIT );
+		SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+		WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+		BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+		DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+		ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d: June 32ba1d00 ( the unit fades out )
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( THUNDER_FADE_START_TIME ) )
+	{
+		m_iCustomRenderState = CRS_SPECTOR_OF_THUNDER;
+		m_fRenderAlphaSpecterOfThunder = 1.f;
+	}
+
+	if ( CRS_SPECTOR_OF_THUNDER == m_iCustomRenderState )
+		m_fRenderAlphaSpecterOfThunder = static_cast<float>( m_fRenderAlphaSpecterOfThunder - m_fElapsedTime * THUNDER_FADE_OUT_SPEED );
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d: June 32ba1d70 ( at the animation end on a line the landing state follows )
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() && true == IsOnSomethingFuture() )
+		StateChange( ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING );
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d: June 32bb0790 ( the unit lands on the spot, falls through the units, and faces it )
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_StateStartFuture()
+{
+	CommonStateStartFuture();
+
+	m_FrameDataFuture.syncData.position = m_vSpecterOfThunderTargetPos;
+
+	m_FrameDataFuture.stateParam.bCanPushUnit = false;
+	m_FrameDataFuture.stateParam.bCanPassUnit = true;
+	m_PhysicParam.nowSpeed.x = THUNDER_LANDING_FALL_SPEED;	// June writes x ( JUNE_BUGS )
+	PhysicProcess();
+	m_FrameDataFuture.stateParam.bCanPushUnit = true;
+	m_FrameDataFuture.stateParam.bCanPassUnit = false;
+
+	if ( true == IsPosAlongLastTouchLine( m_vSpecterOfThunderTargetPos ) && false == GetIsRight() )
+	{
+		m_FrameDataFuture.syncData.bIsRight = ( false == m_FrameDataFuture.syncData.bIsRight );
+		m_FrameDataFuture.unitCondition.dirDegree.y += 180.f;
+	}
+}
+
+// char-ara CH2d: June 32ba1db0 ( the unit fades back in )
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( THUNDER_FADE_START_TIME ) )
+		m_iCustomRenderState = CRS_SPECTOR_OF_THUNDER;
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( THUNDER_LANDING_FADE_END_TIME ) )
+		ClearCustomRenderState();
+
+	m_fRenderAlphaSpecterOfThunder += m_fElapsedTime * THUNDER_FADE_IN_SPEED;
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d: June 32ba1e40 ( animation end -> wait, the cancels as the plain skill state )
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChange( USI_WAIT );
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d: June 32b94810
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_StateEnd()
+{
+	ClearCustomRenderState();
+	CommonStateEnd();
+}
+
+// char-ara CH2d: June 32b94990 / 32b94b60
+void CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_StateStart()
+{
+	CommonStateStart();
+	m_usBeforeForceGainCount = m_usForceGainCount;
+}
+
+// char-ara CH2d: June 32bc4410 ( at 0.395 s up to 3 force power turn into the damage rate; the ring of damage appears at the hip )
+void CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( RESTRAINTS_DAMAGE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		m_fRestraintsSpecterRangeRate = -1.f;
+		if ( 0 < GetForcePower() )
+		{
+			// June's memo 0x9433c lowers the cap to 2 ( the stub 31fca9e0 never holds it )
+			const int iUseForcePower = ( GetForcePower() <= RESTRAINTS_MAX_FORCE_POWER ) ? GetForcePower() : RESTRAINTS_MAX_FORCE_POWER;
+			m_fRestraintsSpecterRangeRate = GetMpScaledPowerRate( iUseForcePower, CX2SkillTree::RNSI_SA_ALS_RESTRAINTS_SPECTER, true );
+			UseForcePower( iUseForcePower );
+		}
+
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RESTRAINTS_SPECTER_Damage", GetPowerRate(),
+			GetBonePos( L"Bip01" ), GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+		{
+			pDamageEffect->ScaleDamageByRate( m_fRestraintsSpecterRangeRate );
+			m_hRestraintsSpecterEffect = pDamageEffect->GetHandle();
+		}
+		else
+			m_hRestraintsSpecterEffect = INVALID_DAMAGE_EFFECT_HANDLE;
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d: June 32bad5e0 ( animation end -> FP cancel or the finish state; the probe window, no cancel )
+void CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH );
+
+	m_bFPCancelProbe = true;	// June +0x9621, as the Wolf Spear end
+	if ( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d: June 32bbd840 ( at 0.2 s every living unit the ring hit gets the finish damage, locked on to it; the ring's handle is released )
+void CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( RESTRAINTS_FINISH_DAMAGE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		CX2DamageEffect::CEffect* pRingEffect = g_pX2Game->GetDamageEffect()->GetInstance( m_hRestraintsSpecterEffect, true );
+		if ( NULL != pRingEffect )
+		{
+			const CX2DamageManager::HitUnitVector& vecHitUnit = pRingEffect->GetDamageData().hitUnitList;
+			for ( CX2DamageManager::HitUnitVector::const_iterator it = vecHitUnit.begin(); it != vecHitUnit.end(); ++it )
+			{
+				CX2GameUnit* pHitUnit = ( null != it->optrHitGameUnit ) ? it->optrHitGameUnit.GetObservable() : NULL;
+				if ( NULL == pHitUnit || pHitUnit->GetNowHp() <= 0.f )
+					continue;
+
+				// June's memo 0x9433c raises the rate to 1.1 ( the stub 31fca9e0 never holds it )
+				CX2DamageEffect::CEffect* pFinishEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_RESTRAINTS_SPECTER_Finish_Damage", GetPowerRate(),
+					pRingEffect->GetDamageData().impactPoint, GetRotateDegree(), GetRotateDegree() );
+				if ( NULL == pFinishEffect )
+					continue;
+
+				pFinishEffect->ScaleDamageByRate( m_fRestraintsSpecterRangeRate );
+				if ( CX2GameUnit::GUT_USER == pHitUnit->GetGameUnitType() )
+					pFinishEffect->SetLockOnUnitUID( pHitUnit->GetUnitUID() );
+				else if ( CX2GameUnit::GUT_NPC == pHitUnit->GetGameUnitType() )
+					pFinishEffect->SetLockOnNPCUID( static_cast<int>( pHitUnit->GetUnitUID() ) );
+			}
+		}
+
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hRestraintsSpecterEffect, false );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d: June 32ba2460 ( animation end -> wait, the cancels as the plain skill state )
+void CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChange( USI_WAIT );
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d: June helper 32bd0900
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_AA_SPECTER_OF_THUNDER", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SPECTER_OF_THUNDER_Init );
+	stateData_.StateStartFuture	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SPECTER_OF_THUNDER_StateStartFuture );
+	stateData_.StateStart      	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SPECTER_OF_THUNDER_StateStart );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SPECTER_OF_THUNDER_EventProcess );
+}
+
+// char-ara CH2d: June helper 32baac40
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_AA_SPECTER_OF_THUNDER_FIND", stateData_.stateID );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SPECTER_OF_THUNDER_FIND_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SPECTER_OF_THUNDER_FIND_EventProcess );
+}
+
+// char-ara CH2d: June helper 32bbd5d0
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_Init );
+	stateData_.StateStartFuture	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_StateStartFuture );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_EventProcess );
+	stateData_.StateEnd        	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_StateEnd );
+}
+
+// char-ara CH2d: June helper 32bcea90
+void CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_RESTRAINTS_SPECTER", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_RESTRAINTS_SPECTER_Init );
+	stateData_.StateStart      	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_RESTRAINTS_SPECTER_StateStart );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_RESTRAINTS_SPECTER_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_RESTRAINTS_SPECTER_EventProcess );
+}
+
+// char-ara CH2d: June helper 32bc9540
+void CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_Init );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_EventProcess );
+}
+
+// char-ara CH2d: June helper 32bceaf0
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_SPECTER_OF_STORM", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_Init );
+	stateData_.StateStart      	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_StateStart );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_EventProcess );
+	stateData_.StateEnd        	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_StateEnd );
+}
+
+// char-ara CH2d: June helper 32bd0960
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_SPECTER_OF_STORM", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_Init );
+	stateData_.StateStartFuture	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_StateStartFuture );
+	stateData_.StateStart      	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_StateStart );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_EventProcess );
+}
+
+// char-ara CH2d: June helper 32bc9590
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_SPECTER_OF_STORM_FINISH", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_FINISH_Init );
+	stateData_.OnFrameMove     	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_FINISH_FrameMove );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_FINISH_EventProcess );
+}
+
+// char-ara CH2d: June helper 32bc95e0
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_SPECTER_OF_STORM_LANDING", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_LANDING_Init );
+	stateData_.StateStart      	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_LANDING_StateStart );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_LANDING_EventProcess );
+}
+
+// char-ara CH2d: June helper 32bc9fc0
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_UPGRADE_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_ALS_SPECTER_OF_STORM_LANDING", stateData_.stateID );
+	stateData_.StateInit       	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_LANDING_Init );
+	stateData_.StateStart      	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_LANDING_StateStart );
+	stateData_.OnEventProcess  	= SET_CB_FUNC( CX2GUAra, ASI_SA_ALS_SPECTER_OF_STORM_LANDING_UPGRADE_EventProcess );
+}
+
+// char-ara CH2d: June 32b946c0 ( 10 preloads )
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_Init()
+{
+	XMeshReadyInBackground( L"ADD_DOOMS_DAY_Grow01.Y" );
+	XMeshReadyInBackground( L"ADD_QUICKSILVER_FRENZY_SPARK01.Y" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_STORM_AttackBox.X" );
+	XMeshReadyInBackground( L"ALS_SPECTER_OF_THUNDER_P02.Y" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_THUNDER_P04.X" );
+	TextureReadyInBackground( L"ColorBallRed2.dds" );
+	XMeshReadyInBackground( L"ELK_WIND_SLICER_M02.Y" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XMeshReadyInBackground( L"Lire_Uplight01.Y" );
+	TextureReadyInBackground( L"Nasod_King_Laser03.dds" );
+}
+
+// char-ara CH2d: June 32b94780 ( 10 preloads )
+void CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_Init()
+{
+	XMeshReadyInBackground( L"ADD_DOOMS_DAY_Grow01.Y" );
+	XMeshReadyInBackground( L"ADD_QUICKSILVER_FRENZY_SPARK01.Y" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_STORM_AttackBox.X" );
+	XMeshReadyInBackground( L"ALS_SPECTER_OF_THUNDER_P02.Y" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_THUNDER_P04.X" );
+	TextureReadyInBackground( L"ColorBallRed2.dds" );
+	XMeshReadyInBackground( L"ELK_WIND_SLICER_M02.Y" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XMeshReadyInBackground( L"Lire_Uplight01.Y" );
+	TextureReadyInBackground( L"Nasod_King_Laser03.dds" );
+}
+
+// char-ara CH2d: June 32b948c0 ( 16 preloads )
+void CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_Init()
+{
+	XSkinMeshReadyInBackground( L"ALS_RESTRAINTS_SPECTER_HAND01.X" );
+	XMeshReadyInBackground( L"ALS_RESTRAINTS_SPECTER_TRACE04.Y" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_WALK_P01.X" );
+	XSkinMeshReadyInBackground( L"ALS_TRACE_P01.X" );
+	TextureReadyInBackground( L"ColorBallRed2.dds" );
+	TextureReadyInBackground( L"VERITABLE_PANDEMONIUM_T02.dds" );
+	TextureReadyInBackground( L"secretVelder_alchemystBoss_magicAttackA_dust.dds" );
+	XMeshReadyInBackground( L"Arme_Aging_UpLight_Mesh01.Y" );
+	XSkinMeshReadyInBackground( L"Shadow_Summon.X" );
+	XSkinMeshReadyInBackground( L"Sprriggan_AttackA.X" );
+	XSkinMeshReadyInBackground( L"ELK_WIND_SLICER_ATTACKBOX_01.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_smoke.dds" );
+}
+
+// char-ara CH2d: June 32b949b0 ( 18 preloads )
+void CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_Init()
+{
+	XSkinMeshReadyInBackground( L"ALS_RESTRAINTS_SPECTER_TRACE01.X" );
+	XSkinMeshReadyInBackground( L"ALS_RESTRAINTS_SPECTER_TRACE02.X" );
+	XSkinMeshReadyInBackground( L"ALS_RESTRAINTS_SPECTER_TRACE03.X" );
+	XSkinMeshReadyInBackground( L"ALS_TRACE_P01.X" );
+	XMeshReadyInBackground( L"ALS_VERITABLE_PANDEMONIUM_P01.Y" );
+	TextureReadyInBackground( L"ColorBallRed2.dds" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	TextureReadyInBackground( L"VERITABLE_PANDEMONIUM_T02.dds" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_smoke.dds" );
+	XSkinMeshReadyInBackground( L"Shadow_Summon.X" );
+	XMeshReadyInBackground( L"Arme_Aging_UpLight_Mesh01.Y" );
+	TextureReadyInBackground( L"PET_GOLDFOX_MIHOEffect02.tga" );
+	TextureReadyInBackground( L"Colorballgray.dds" );
+}
+
+// char-ara CH2d: June 32b94aa0 ( 15 preloads )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_Init()
+{
+	XMeshReadyInBackground( L"ADD_DOOMS_DAY_Grow01.Y" );
+	XMeshReadyInBackground( L"ALS_SPECTER_OF_STORM.Y" );
+	XMeshReadyInBackground( L"ALS_SPECTER_OF_STORM01.Y" );
+	XMeshReadyInBackground( L"ALS_SPECTER_OF_STORM03.Y" );
+	XMeshReadyInBackground( L"ALS_SPECTER_OF_THUNDER_P02.Y" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XMeshReadyInBackground( L"Lire_Uplight01.Y" );
+	TextureReadyInBackground( L"Nasod_King_Laser03.dds" );
+	XMeshReadyInBackground( L"SM_WaitStart.Y" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_STORM_AttackBox.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_smoke.dds" );
+}
+
+// char-ara CH2d: June 32b94bc0 ( 17 preloads )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_FINISH_Init()
+{
+	XMeshReadyInBackground( L"ALS_SPECTER_OF_STORM.Y" );
+	XMeshReadyInBackground( L"ALS_SPECTER_OF_STORM01.Y" );
+	XMeshReadyInBackground( L"ALS_SPECTER_OF_STORM02.Y" );
+	XMeshReadyInBackground( L"ALS_SPECTER_OF_STORM03.Y" );
+	XMeshReadyInBackground( L"ALS_SPECTER_OF_STORM04.Y" );
+	TextureReadyInBackground( L"Colorballgray.dds" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XMeshReadyInBackground( L"Lire_Uplight01.Y" );
+	TextureReadyInBackground( L"Nasod_King_Laser03.dds" );
+	XMeshReadyInBackground( L"SM_WaitStart.Y" );
+	XSkinMeshReadyInBackground( L"elsword_SA_SwordBlastiong_slash.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_100x50x50_center.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_smoke.dds" );
+}
+
+// char-ara CH2d: June 32b94ca0 ( 3 preloads )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_Init()
+{
+	XMeshReadyInBackground( L"ALS_SPECTER_OF_STORM01.Y" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XMeshReadyInBackground( L"SM_WaitStart.Y" );
+}
+
+// char-ara CH2d: June 32b94b60
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_StateStart()
+{
+	CommonStateStart();
+	m_usBeforeForceGainCount = m_usForceGainCount;
+}
+
+// char-ara CH2d: June 32ba5ab0 ( the held Storm: hold time and aim range from the skill's values, the aim data cleared )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_StateStart()
+{
+	CommonStateStart();
+	m_usBeforeForceGainCount = m_usForceGainCount;
+
+	m_StoneProtractorAim.m_fHoldTime = 0.f;
+	m_StoneProtractorAim.m_fAimDegree = 0.f;
+	m_StoneProtractorAim.m_fScopeY = 0.f;
+	m_StoneProtractorAim.m_bAimed = false;
+
+	float fValue = 0.f;
+	if ( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_EFFECTIVE_TIME, GetNowStateSkillID(), false, fValue ) )
+		m_StoneProtractorAim.m_fHoldTime = fValue;
+
+	if ( true == TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_SCOPE_ABS_Y, GetNowStateSkillID(), false, fValue ) )
+		m_StoneProtractorAim.m_fScopeY = fValue;
+}
+
+// char-ara CH2d: June 32ba7c20 ( the held key is the slot the skill was cast from; the ring and arrow particles of an earlier cast go )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_StateStartFuture()
+{
+	m_kSkillSlotKey.Set( m_iNowSpecialAttack - 1 );
+
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_StoneProtractorAim.m_hAimArrowSeq );
+	g_pX2Game->GetMajorParticle()->DestroyInstanceHandle( m_StoneProtractorAim.m_hProtractor );
+	m_StoneProtractorAim.m_hAimArrowSeq = INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_StoneProtractorAim.m_hProtractor = INVALID_PARTICLE_SEQUENCE_HANDLE;
+	m_StoneProtractorAim.m_hAimArrowParticle = INVALID_PARTICLE_HANDLE;
+
+	CommonStateStartFuture();
+}
+
+// char-ara CH2d: June 32bc4670 ( up to 4 force power at 0.01 s size the effect set and the damage; the damage effect comes at 0.25 s; the hold time runs down )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( STORM_EFFECT_TIME ) )
+	{
+		m_fSpecterOfStormSize = 1.f;
+		m_fSpecterOfStormRangeRate = -1.f;
+		if ( 0 < GetForcePower() )
+		{
+			const int iUseForcePower = ( GetForcePower() <= STORM_MAX_FORCE_POWER ) ? GetForcePower() : STORM_MAX_FORCE_POWER;
+			m_fSpecterOfStormSize = static_cast<float>( iUseForcePower * STORM_SIZE_PER_FORCE_POWER + 1.0 );
+			m_fSpecterOfStormRangeRate = GetMpScaledPowerRate( iUseForcePower, CX2SkillTree::RNSI_SA_ALS_SPECTER_OF_STORM, true );
+			UseForcePower( iUseForcePower );
+		}
+
+		SetSpecterOfStormEffectSetScale( g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SI_SA_ALS_SPECTER_OF_STORM", this, NULL, IsHyperState(), GetPowerRate() ) );
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( STORM_DAMAGE_TIME ) && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		const D3DXVECTOR3 vDir = GetDirVector();
+		const D3DXVECTOR3 vOffset( static_cast<float>( vDir.x * STORM_DAMAGE_OFFSET ), static_cast<float>( vDir.y * STORM_DAMAGE_OFFSET ), static_cast<float>( vDir.z * STORM_DAMAGE_OFFSET ) );
+		const D3DXVECTOR3 vFootPos = GetBonePos( L"Bip01_Footsteps" );
+		const D3DXVECTOR3 vPos = ( true == GetIsRight() ) ? vFootPos + vOffset : vFootPos - vOffset;
+
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_SpecterOfStorm_Damage", GetPowerRate(),
+			vPos, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+		{
+			pDamageEffect->SetScale( D3DXVECTOR3( m_fSpecterOfStormSize, m_fSpecterOfStormSize, m_fSpecterOfStormSize ) );
+			pDamageEffect->ScaleDamageByRate( m_fSpecterOfStormRangeRate );
+		}
+	}
+
+	if ( 0.f < m_StoneProtractorAim.m_fHoldTime )
+		m_StoneProtractorAim.m_fHoldTime -= m_fElapsedTime;
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d: June 32bad670 ( animation end -> the finish state; the FP cancel into the chosen skill; the probe window )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChange( ASI_SA_ALS_SPECTER_OF_STORM_FINISH );
+
+	StateChangeOrFPCancel( -1 );	// June @32bad69b: the same block, no next state
+
+	m_bFPCancelProbe = true;
+	if ( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d: June 32bc9c70 ( at each animation end: the held key lets go or the hold time ends -> finish; Up / Down within the key window start the degree states )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_EventProcess()
+{
+	m_kSkillSlotKey.FollowSlotSwap();
+
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) || false == ( 0.f < m_StoneProtractorAim.m_fHoldTime ) )
+			StateChange( ASI_SA_ALS_SPECTER_OF_STORM_FINISH );
+		ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 0, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+			( true == CreateStoneProtractorAimArrow() && true == m_InputData.pureUp ), ASI_SA_ALS_SPECTER_OF_STORM_DEGREE )
+		ELSE_IF_STATE_CHANGE_ON_EX_OR_ANIMATION_END_( 1, m_fEventTime[0].keyInputStart, m_fEventTime[0].keyInputEnd, m_fEventTime[0].stateChange,
+			( true == CreateStoneProtractorAimArrow() && true == m_InputData.pureDown ), ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE )
+	}
+
+	StateChangeOrFPCancel( -1 );	// June @32bc9e4e: the same block, no next state
+
+	m_bFPCancelProbe = true;
+	if ( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d: June 32b94b80 ( June's memo 0x9433d is the stub 31fca9e0, so its buff factor 0x24f is never set )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_StateEnd()
+{
+	CommonStateEnd();
+}
+
+// char-ara CH2d: June 32bbdae0 ( the finish effect set at 0.01 s, the finish damage at 0.49 s, both sized by the force power the Storm spent )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_FINISH_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( STORM_EFFECT_TIME ) )
+	{
+		const CX2EffectSet::Handle hEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SI_SA_ALS_SPECTER_OF_STORM_FINISH", this, NULL, IsHyperState(), GetPowerRate() );
+		SetSpecterOfStormEffectSetScale( hEffectSet );
+		m_vecEffectSetToDeleteOnStateEnd.push_back( hEffectSet );
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( STORM_FINISH_DAMAGE_TIME ) && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_SpecterOfStorm_Finish_Damage", GetPowerRate(),
+			GetBonePos( L"Bip01" ), GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+		{
+			pDamageEffect->SetScale( D3DXVECTOR3( m_fSpecterOfStormSize, m_fSpecterOfStormSize, m_fSpecterOfStormSize ) );
+			m_hSpecterOfStormFinishEffect = pDamageEffect->GetHandle();
+			pDamageEffect->ScaleDamageByRate( m_fSpecterOfStormRangeRate );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH2d: June 32ba2760 ( at the animation end on a line the landing state follows )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_FINISH_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() && true == IsOnSomethingFuture() )
+		StateChange( ASI_SA_ALS_SPECTER_OF_STORM_LANDING );
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d: June 32bbdeb0 ( the finish damage effect of the Storm before is let go )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_StateStart()
+{
+	if ( NULL != g_pX2Game->GetDamageEffect() )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hSpecterOfStormFinishEffect, false );
+
+	CommonStateStart();
+}
+
+// char-ara CH2d: June 32ba27a0 ( animation end -> wait, the cancels as the plain skill state )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChange( USI_WAIT );
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH2d: June 32ba6220 ( the enhanced Storm's landing: animation end -> wait on a line, else jump down 45 lower )
+void CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_UPGRADE_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == IsOnSomethingFuture() )
+			StateChange( USI_WAIT );
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y = static_cast<float>( m_FrameDataFuture.syncData.position.y - STORM_LANDING_DROP );
+		}
+	}
+
+	CommonEventProcess();
+}
+
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 // char-ara CH1q: June 32bc5bc0 ( HP by a share of the max HP, one force power, the kill effect set; the handle is not kept )
 void CX2GUAra::GainFullHyperKillReward()
@@ -25281,6 +26287,24 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 
 				} break;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+			case CX2SkillTree::RNSI_SA_ALS_RESTRAINTS_SPECTER:	// char-ara CH2d: June 32bd34c0 case 27022 / 27041 ( the chain lookup takes the swapped id )
+			case CX2SkillTree::RNSI_SA_ALS_RESTRAINTS_SPECTER_UPGRADE:
+				{
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALS_RESTRAINTS_SPECTER];
+						ASI_SA_ALS_RESTRAINTS_SPECTER_CreateState( stateData, ASI_SA_ALS_RESTRAINTS_SPECTER );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// June @32bd476f
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH];
+						ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_CreateState( stateData, ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+					}
+				} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			case CX2SkillTree::RNSI_A_ALD_WOLF_CLAW:	// char-ara CH2c2: June 32bd34c0 case 27208 / 27224 ( the chain lookup takes the swapped id )
 			case CX2SkillTree::RNSI_A_ALD_WOLF_CLAW_UPGRADE:

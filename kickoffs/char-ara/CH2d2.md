@@ -65,3 +65,14 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 ## Amended by CH1p (2026-11-11)
 
 - The two Specter of Storm DEGREE EventProcesses (`32ba5b50`, `32ba5e90`) use `CX2GUUser::m_kSkillSlotKey` (June `+0x8b58`): `FollowSlotSwap` `@32ba5b5b` / `@32ba5e9b`, `IsKeyReleased` `@32ba5b93` / `@32ba5ed3`. Never March's `CurrentSkillKeyManager` (4 + 4).
+
+## Amended by CH2d (2026-11-11)
+
+- **The enhanced Storm's case is half registered.** CH2d wrote 27036's case in `SetEquippedSkillFuncBySkillSlotIndex` with its main state (`ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_CreateState`: June helper
+  `32bd0960`) and its landing state (`..._LANDING_UPGRADE_CreateState`, `32bc9fc0`) only. This phase adds the rest of June's body there: `ASI_SA_ALS_SPECTER_OF_STORM_DEGREE` ( helper `32bcf400` ),
+  `ASI_SA_ALS_SPECTER_OF_STORM_ULTIMATE_DEGREE` ( `32bcf450` ) and the ultimate finish on `ASI_SA_ALS_SPECTER_OF_STORM_FINISH` ( helper `32bc9f50`, June `@32bd1f48` ). Until it lands the
+  enhanced Storm's event process ( `ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_EventProcess` ) changes to those unregistered states and to `_FINISH`: do not learn or slot 27036 before this phase.
+- **Members and helpers CH2d left for you.** `m_StoneProtractorAim` ( `m_fAimDegree` +8, `m_fScopeY` +0xc: the degree states write them ), `m_fSpecterOfStormSize` / `m_fSpecterOfStormRangeRate` / `m_hSpecterOfStormFinishEffect`,
+  `CX2DamageEffect::CEffect::ScaleDamageByRate` ( June `32bb09f0` ), `CreateStoneProtractorAimArrow`, `SetStoneProtractorAimArrowRotate`, `GetMpScaledPowerRate`, `SetSpecterOfStormEffectSetScale` exist; the
+  degree and ultimate states call them. The second skill switch ( `InitAquiredActiveSkillState` ) has no Storm case in June: nothing to add there.
+- Restraints Specter's second-switch case ( 27022 / 27041 ) is CH2d's; the Sever state of 27024 ( `ASI_SA_ALS_SEVER` ) is yours.

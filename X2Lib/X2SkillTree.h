@@ -1933,6 +1933,13 @@ public:
 		RNSI_A_ALD_FORCE_SPEAR_UPGRADE                        = 27236,	// char-ara CH2c2: June's Enum.lua; the enhanced Force Spear
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH2d
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_ALS_SPECTER_OF_STORM_UPGRADE                  = 27036,	// char-ara CH2d: June's Enum.lua; the enhanced Specter of Storm
+		RNSI_SA_ALS_RESTRAINTS_SPECTER_UPGRADE                = 27041,	// char-ara CH2d: June's Enum.lua; the enhanced Restraints Specter
+		RNSI_SA_ALS_SPECTER_OF_THUNDER_UPGRADE                = 27042,	// char-ara CH2d: June's Enum.lua; the enhanced Specter of Thunder
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-11 // char-ara CH1n
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS                = 27222,	// char-ara CH1n: June's Enum.lua; its transcended slot keeps the Conversion Mana state

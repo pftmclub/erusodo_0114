@@ -622,6 +622,56 @@ protected:
 	void			ASI_SA_ALD_ENERGY_WAVE_FIRE_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2c: June 32bce770
 	void			ASI_SA_ALD_ENERGY_WAVE_FIRE_FrameMove();	// char-ara CH2c: June 32bc2900
 	void			ASI_SA_ALD_ENERGY_WAVE_FIRE_EventProcess();	// char-ara CH2c: June 32b9dd60
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_Init();	// char-ara CH2d: June 32b946c0
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_Init();	// char-ara CH2d: June 32b94780
+	void			ASI_SA_ALS_RESTRAINTS_SPECTER_Init();	// char-ara CH2d: June 32b948c0
+	void			ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_Init();	// char-ara CH2d: June 32b949b0
+	void			ASI_SA_ALS_SPECTER_OF_STORM_Init();	// char-ara CH2d: June 32b94aa0
+	void			ASI_SA_ALS_SPECTER_OF_STORM_FINISH_Init();	// char-ara CH2d: June 32b94bc0
+	void			ASI_SA_ALS_SPECTER_OF_STORM_LANDING_Init();	// char-ara CH2d: June 32b94ca0
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d: June 32bd0900
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_FIND_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d: June 32baac40
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d: June 32bbd5d0
+	void			ASI_SA_ALS_RESTRAINTS_SPECTER_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d: June 32bcea90
+	void			ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d: June 32bc9540
+	void			ASI_SA_ALS_SPECTER_OF_STORM_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d: June 32bceaf0
+	void			ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d: June 32bd0960
+	void			ASI_SA_ALS_SPECTER_OF_STORM_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d: June 32bc9590
+	void			ASI_SA_ALS_SPECTER_OF_STORM_LANDING_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d: June 32bc95e0
+	void			ASI_SA_ALS_SPECTER_OF_STORM_LANDING_UPGRADE_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH2d: June 32bc9fc0
+	void			ClearCustomRenderState();	// char-ara CH2d: June 31fc9570
+	float		GetMpScaledPowerRate( const int iCount_, const CX2SkillTree::SKILL_ID eSkillID_, const bool bUpgradeSwap_ );	// char-ara CH2d: June 32ba4760
+	bool			CalcLockOnLandingPos( const D3DXVECTOR3& vPos_, D3DXVECTOR3* pOutPos_, int* pOutLineIndex_ );	// char-ara CH2d: June 32bc0420
+	bool			FindSpecterOfThunderLockOnTarget();	// char-ara CH2d: June 32bc5f80
+	void			SetStoneProtractorAimArrowRotate( const bool bRight_ );	// char-ara CH2d: June 32bc12e0
+	bool			CreateStoneProtractorAimArrow();	// char-ara CH2d: June 32bc6820
+	void			SetSpecterOfStormEffectSetScale( const CX2EffectSet::Handle hEffectSet_ );	// char-ara CH2d: June 31e4c4c0
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_StateStart();	// char-ara CH2d: June 32b94750
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_StateStartFuture();	// char-ara CH2d: June 32bc94f0
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_EventProcess();	// char-ara CH2d: June 32ba19b0
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_FIND_FrameMove();	// char-ara CH2d: June 32ba1d00
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_FIND_EventProcess();	// char-ara CH2d: June 32ba1d70
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_StateStartFuture();	// char-ara CH2d: June 32bb0790
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_FrameMove();	// char-ara CH2d: June 32ba1db0
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_EventProcess();	// char-ara CH2d: June 32ba1e40
+	void			ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_StateEnd();	// char-ara CH2d: June 32b94810
+	void			ASI_SA_ALS_RESTRAINTS_SPECTER_StateStart();	// char-ara CH2d: June 32b94990
+	void			ASI_SA_ALS_RESTRAINTS_SPECTER_FrameMove();	// char-ara CH2d: June 32bc4410
+	void			ASI_SA_ALS_RESTRAINTS_SPECTER_EventProcess();	// char-ara CH2d: June 32bad5e0
+	void			ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_FrameMove();	// char-ara CH2d: June 32bbd840
+	void			ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_EventProcess();	// char-ara CH2d: June 32ba2460
+	void			ASI_SA_ALS_SPECTER_OF_STORM_StateStart();	// char-ara CH2d: June 32b94b60
+	void			ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_StateStart();	// char-ara CH2d: June 32ba5ab0
+	void			ASI_SA_ALS_SPECTER_OF_STORM_StateStartFuture();	// char-ara CH2d: June 32ba7c20
+	void			ASI_SA_ALS_SPECTER_OF_STORM_FrameMove();	// char-ara CH2d: June 32bc4670
+	void			ASI_SA_ALS_SPECTER_OF_STORM_EventProcess();	// char-ara CH2d: June 32bad670
+	void			ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_EventProcess();	// char-ara CH2d: June 32bc9c70
+	void			ASI_SA_ALS_SPECTER_OF_STORM_StateEnd();	// char-ara CH2d: June 32b94b80
+	void			ASI_SA_ALS_SPECTER_OF_STORM_FINISH_FrameMove();	// char-ara CH2d: June 32bbdae0
+	void			ASI_SA_ALS_SPECTER_OF_STORM_FINISH_EventProcess();	// char-ara CH2d: June 32ba2760
+	void			ASI_SA_ALS_SPECTER_OF_STORM_LANDING_StateStart();	// char-ara CH2d: June 32bbdeb0
+	void			ASI_SA_ALS_SPECTER_OF_STORM_LANDING_EventProcess();	// char-ara CH2d: June 32ba27a0
+	void			ASI_SA_ALS_SPECTER_OF_STORM_LANDING_UPGRADE_EventProcess();	// char-ara CH2d: June 32ba6220
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2
@@ -1613,6 +1663,28 @@ protected:
 	int		m_iPressedSkillSlotIndex;
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	float	m_fEnergyWaveChargeTime;	/// char-ara CH2c: June +0x9714, Energy Wave's start zeroes it; only June's unregistered charge state reads it
+	// char-ara CH2d: members of the Specter skills ( June offsets in june2017_re/char_ara/ch1_offsets.tsv )
+	float		m_fSpecterOfStormSize;				/// June +0x9774: 1 + 0.1 per force power the Storm spent
+	float		m_fSpecterOfStormRangeRate;			/// June +0x9778: the MP-scaled damage rate of that spend ( -1 = nothing spent )
+	CX2DamageEffect::CEffectHandle	m_hSpecterOfStormFinishEffect;	/// June +0x977c: the finish damage effect, let go by the landing state
+	int			m_iSpecterOfThunderTargetState;		/// June +0x9780: -1 on start, 0 a landing spot was found, 1 none
+	D3DXVECTOR3	m_vSpecterOfThunderTargetPos;		/// June +0x9784: the landing spot
+	int			m_iSpecterOfThunderTargetLine;		/// June +0x9798: the line index under it
+	float		m_fRestraintsSpecterRangeRate;		/// June +0x97b4: the MP-scaled damage rate of the force power Restraints spent ( -1 = nothing spent )
+	CX2DamageEffect::CEffectHandle	m_hRestraintsSpecterEffect;	/// June +0x97b8: the ring damage effect
+	struct SStoneProtractorAim	/// June +0x9818: the held Storm's aim data
+	{
+		bool	m_bAimed;			/// +0: cleared by the start state, no reader found in June
+		float	m_fHoldTime;		/// +4: SA_EFFECTIVE_TIME, counted down by the FrameMove, the hold ends at 0
+		float	m_fAimDegree;		/// +8: the aim arrow's z rotation
+		float	m_fScopeY;			/// +0xc: SA_SCOPE_ABS_Y
+		CKTDGParticleSystem::CParticleEventSequenceHandle	m_hProtractor;			/// +0x10
+		CKTDGParticleSystem::CParticleEventSequenceHandle	m_hAimArrowSeq;			/// +0x14
+		CKTDGParticleSystem::CParticleHandle				m_hAimArrowParticle;	/// +0x18
+		SStoneProtractorAim() : m_bAimed( false ), m_fHoldTime( 0.f ), m_fAimDegree( 0.f ), m_fScopeY( 0.f )
+			, m_hProtractor( INVALID_PARTICLE_SEQUENCE_HANDLE ), m_hAimArrowSeq( INVALID_PARTICLE_SEQUENCE_HANDLE ), m_hAimArrowParticle( INVALID_PARTICLE_HANDLE ) {}
+	};
+	SStoneProtractorAim	m_StoneProtractorAim;
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	float	m_fMPConsume;
 

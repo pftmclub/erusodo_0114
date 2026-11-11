@@ -10051,3 +10051,54 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 3254e2b0	CX2StateCreateUnit::GetViewerUnitByUnitType	confirmed	Char Ara CH5: = March: type 7 returns the same dummy member as type 5 ( the Eve dummy ); no code
 3254ee40	CX2StateCreateUnit::GetUnitStatInfomationChart	confirmed	Char Ara CH5: classes 7 / 28 / 118 / 31 / 119 = 3,1,2 / 3,2,2 / 3,2,2 / 3,3,3 / 3,3,3 = March; 34 ( 0x22 ) and 124 ( 0x7c ) rows are CHNa's; no code
 325506e0	CX2StateCreateUnit::GetUnitClassCreateInfoTextureNameByUnitType	confirmed	Char Ara CH5: type 7 = DLG_UI_Common_Texture_GUI_character_info_07.tga = March; no code
+32b946c0	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_Init	PORTED	Char Ara CH2d: new, under _SKILL: the preload list, generated from the listing
+32b94750	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_StateStart	PORTED	Char Ara CH2d: new, under _SKILL
+32b94780	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_Init	PORTED	Char Ara CH2d: new, under _SKILL: the preload list, generated from the listing
+32b94810	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_StateEnd	PORTED	Char Ara CH2d: new, under _SKILL
+32b948c0	CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_Init	PORTED	Char Ara CH2d: new, under _SKILL: the preload list, generated from the listing
+32b94990	CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_StateStart	PORTED	Char Ara CH2d: new, under _SKILL
+32b949b0	CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_Init	PORTED	Char Ara CH2d: new, under _SKILL: the preload list, generated from the listing
+32b94aa0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_Init	PORTED	Char Ara CH2d: new, under _SKILL: the preload list, generated from the listing
+32b94b60	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_StateStart	PORTED	Char Ara CH2d: new, under _SKILL
+32b94b80	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_StateEnd	PORTED	Char Ara CH2d: new, under _SKILL
+32b94bc0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_FINISH_Init	PORTED	Char Ara CH2d: new, under _SKILL: the preload list, generated from the listing
+32b94ca0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_Init	PORTED	Char Ara CH2d: new, under _SKILL: the preload list, generated from the listing
+32ba19b0	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_EventProcess	PORTED	Char Ara CH2d: new, under _SKILL
+32ba1d00	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_FrameMove	PORTED	Char Ara CH2d: new, under _SKILL
+32ba1d70	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_EventProcess	PORTED	Char Ara CH2d: new, under _SKILL
+32ba1db0	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_FrameMove	PORTED	Char Ara CH2d: new, under _SKILL
+32ba1e40	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_EventProcess	PORTED	Char Ara CH2d: new, under _SKILL
+32ba2460	CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_EventProcess	PORTED	Char Ara CH2d: new, under _SKILL
+32ba2760	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_FINISH_EventProcess	PORTED	Char Ara CH2d: new, under _SKILL
+32ba27a0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_EventProcess	PORTED	Char Ara CH2d: new, under _SKILL
+32ba4760	CX2GUAra::GetMpScaledPowerRate	PORTED	Char Ara CH2d: new, under _SKILL: count x 30 / the MP the skill costs at its level ( upgrade-swapped id when asked ), plus 1; Restraints, Storm and the Thunder caller use it
+32ba5ab0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_StateStart	PORTED	Char Ara CH2d: new, under _SKILL
+32ba6220	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_UPGRADE_EventProcess	PORTED	Char Ara CH2d: new, under _SKILL
+32ba7c20	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_StateStartFuture	PORTED	Char Ara CH2d: new, under _SKILL
+32baac40	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_CreateState	PORTED	Char Ara CH2d: new, under _SKILL: the registration helper ( callbacks as June's thunks )
+32bad5e0	CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_EventProcess	PORTED	Char Ara CH2d: new, under _SKILL
+32bad670	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_EventProcess	PORTED	Char Ara CH2d: new, under _SKILL
+32bb0790	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_StateStartFuture	PORTED	Char Ara CH2d: new, under _SKILL
+32bb09f0	CX2DamageEffect::CEffect::ScaleDamageByRate	PORTED	Char Ara CH2d: CX2DamageEffect::CEffect::ScaleDamageByRate ( X2DamageEffect.cpp ): rate above 0 scales the effect and its next tables ( damage by type, rate modifier, tech point by the truncated rate ) and keeps the rate in +0xb18
+32bbd5d0	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_FIND_LANDING_CreateState	PORTED	Char Ara CH2d: new, under _SKILL: the registration helper ( callbacks as June's thunks )
+32bbd840	CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_FrameMove	PORTED	Char Ara CH2d: new, under _SKILL
+32bbdae0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_FINISH_FrameMove	PORTED	Char Ara CH2d: new, under _SKILL
+32bbdeb0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_StateStart	PORTED	Char Ara CH2d: new, under _SKILL
+32bc0420	CX2GUAra::CalcLockOnLandingPos	PORTED	Char Ara CH2d: new, under _SKILL: the line under a spot ( CanDown radius 30 ), else the nearest point on any enabled non-wall non-monster line; true on a normal enabled line
+32bc12e0	CX2GUAra::SetStoneProtractorAimArrowRotate	PORTED	Char Ara CH2d: new, under _SKILL: the aim arrow particle ( the CParticle at +0x18 ): axis rotate, rotate, and its sequence AddRotate / AxisAngle = ( 0, facing right ? 0 : 180, aim degree ); CH0 named it Fade
+32bc4410	CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_FrameMove	PORTED	Char Ara CH2d: new, under _SKILL
+32bc4670	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_FrameMove	PORTED	Char Ara CH2d: new, under _SKILL
+32bc5f80	CX2GUAra::FindSpecterOfThunderLockOnTarget	PORTED	Char Ara CH2d: new, under _SKILL: every living enemy unit ( NPCs: basic class, not invincible to AT_SPECIAL ): its collision points within SA_SCOPE_ABS ( PvP _PVP ) of 27023 -> the nearest landing spot; false when the spot is behind
+32bc6820	CX2GUAra::CreateStoneProtractorAimArrow	PORTED	Char Ara CH2d: new, under _SKILL: the protractor ring sequence ( Ara_StomeProtractor01_R / _L ) and the aim arrow sequence + particle at the unit; true once both handles exist
+32bc94f0	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_StateStartFuture	PORTED	Char Ara CH2d: new, under _SKILL
+32bc9540	CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_FINISH_CreateState	PORTED	Char Ara CH2d: new, under _SKILL: the registration helper ( callbacks as June's thunks )
+32bc9590	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_FINISH_CreateState	PORTED	Char Ara CH2d: new, under _SKILL: the registration helper ( callbacks as June's thunks )
+32bc95e0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_CreateState	PORTED	Char Ara CH2d: new, under _SKILL: the registration helper ( callbacks as June's thunks )
+32bc9c70	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_EventProcess	PORTED	Char Ara CH2d: new, under _SKILL
+32bc9fc0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_LANDING_UPGRADE_CreateState	PORTED	Char Ara CH2d: new, under _SKILL: the registration helper ( callbacks as June's thunks )
+32bcea90	CX2GUAra::ASI_SA_ALS_RESTRAINTS_SPECTER_CreateState	PORTED	Char Ara CH2d: new, under _SKILL: the registration helper ( callbacks as June's thunks )
+32bceaf0	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_CreateState	PORTED	Char Ara CH2d: new, under _SKILL: the registration helper ( callbacks as June's thunks )
+32bd0900	CX2GUAra::ASI_SA_AA_SPECTER_OF_THUNDER_CreateState	PORTED	Char Ara CH2d: new, under _SKILL: the registration helper ( callbacks as June's thunks )
+32bd0960	CX2GUAra::ASI_SA_ALS_SPECTER_OF_STORM_UPGRADE_CreateState	PORTED	Char Ara CH2d: new, under _SKILL: the registration helper ( callbacks as June's thunks )
+31fc9570	CX2GUAra::ClearCustomRenderState	PORTED	Char Ara CH2d: new, under _SKILL: colour alpha 1, custom render state 0, outline alpha 1, blend off ( Raven names the same four stores )
+31e4c4c0	CX2GUAra::SetSpecterOfStormEffectSetScale	PORTED	Char Ara CH2d: new, under _SKILL: June inlines SetEffectScale( size, true, memo ) in the Storm FrameMove / finish FrameMove; March spelled out as SetEffectScale then x m_vMemoScale

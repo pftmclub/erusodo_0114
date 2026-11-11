@@ -10400,6 +10400,39 @@ void CX2DamageEffect::CEffect::SetDamageDataNextByChainIndex( CX2DamageManager::
 }
 #endif SERV_IRUHADEV_JUNE_DAMAGEEFFECT_RUNTIME
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+// char-ara CH2d: June 32bb09f0 ( rate above 0: this effect's damage, tech point and rate modifier, and its next tables', times the rate; the rate is kept for what it creates )
+void CX2DamageEffect::CEffect::ScaleDamageByRate( const float fRate_ )
+{
+	if ( fRate_ <= 0.f )
+		return;
+
+	const int iTechPointRate = static_cast<int>( fRate_ );	// June _ftol2
+
+	std::vector<CX2DamageManager::DamageData*> vecDamageData;
+	vecDamageData.push_back( &m_DamageData );
+	if ( NULL != m_DamageEffectDataInLua.m_pDamageDataNext )
+		vecDamageData.push_back( m_DamageEffectDataInLua.m_pDamageDataNext );
+	vecDamageData.insert( vecDamageData.end(), m_DamageEffectDataInLua.m_vecDamageDataNextChain.begin(), m_DamageEffectDataInLua.m_vecDamageDataNextChain.end() );
+
+	for ( size_t iData = 0; iData < vecDamageData.size(); ++iData )
+	{
+		CX2DamageManager::DamageData* pDamageData = vecDamageData[iData];
+		if ( NULL == pDamageData )
+			continue;
+
+		if ( CX2DamageManager::DT_PHYSIC == pDamageData->damageType )
+			pDamageData->damage.fPhysic *= fRate_;
+		else if ( CX2DamageManager::DT_MAGIC == pDamageData->damageType )
+			pDamageData->damage.fMagic *= fRate_;
+
+		pDamageData->m_fRateModifier *= fRate_;
+		pDamageData->techPoint *= iTechPointRate;
+	}
+
+	m_fCreateDamageEffectRate = fRate_;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_SPAWN_INHERIT
 //////////////////////////////////////////////////////////////////////////
 // June2017 effect completion C6b: the spawner tail (funcmap rows tagged Effect C6a). June keeps every DAMAGE_DATA_NEXT table in one vector (+0xd8)
