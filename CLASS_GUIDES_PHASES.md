@@ -26,7 +26,7 @@ The Ara Done notes, `JUNE_CHARACTER_ARA_PHASES.md` "CHNb - Done (2026-11-11)" an
 
 ## Phase G1 - June guides for Elsword, Aisha, Rena, Raven, Eve and Chung
 
-**Run with:** Sonnet 5.5 high, user play-test. **Depends on:** char-ara CHNb review.
+**Run with:** Sonnet 5.5 high, user play-test. **Depends on:** - (may run beside the char-ara CHNb review).
 
 **Scope:** stage June's 1ST / 2ND guide dialogs for Elsword, Aisha (`Aisha`), Rena (`Lena`), Raven, Eve and Chung, plus their textures
 (`stage-june --dry-run` first; Rena's and Raven's dialogs are already in data034). Transcribe June's level-15 and level-35 `LevelUpEvent` rows

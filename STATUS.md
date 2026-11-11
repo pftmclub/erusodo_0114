@@ -234,7 +234,7 @@ Decision answered 2026-11-11 (plan "Open decisions"): 1 stat rows for all seven 
 
 | Phase | State | Model / effort | Depends | Touches | Kickoff |
 |---|---|---|---|---|---|
-| G1 | blocked (char-ara CHNb review): stage June 1ST / 2ND guides for the six March characters, their LevelUpEvent rows, luabind, pack | Sonnet 5.5 / high, user play-test | char-ara CHNb review | data034 dialogs, data036 `LevelUpEvent.lua` / `Enum.lua` | `G1.md` |
+| G1 | **ready** (may run beside the char-ara CHNb review; redo its play-test if the review changes guide code): stage June 1ST / 2ND guides for the six March characters, their LevelUpEvent rows, luabind, pack | Sonnet 5.5 / high, user play-test | - | data034 dialogs, data036 `LevelUpEvent.lua` / `Enum.lua` | `G1.md` |
 
 ## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.
