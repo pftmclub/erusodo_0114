@@ -1690,6 +1690,41 @@ Opus 5.5. Flag `SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE` (CHNb's, class-generic), 
 - **Deploy:** `DEPLOY OK: X2_offline.exe is 26,238,464 B, dated 2026-11-11 20:54:27, md5 3b0f210899f32b842e33343cfe197c3d` (built at `c8200145` + the 7 files). `EXESTR OK: 3 of 3` (the `2nd skills` log line, `g_pStatic_ClassSkillDescription`, `MajorCommandBack_%d`, wide).
 - **Play-test (2026-11-11): PASS.** `1st: 3 class description(s) wrapped to 180`; `2nd: class 34 line 3 -> next class 124, buttons 1543 / 1547` (skills: description 36200, 4 icons, 3 rows), 28 -> 118 ( 1541 / 1545, 36164 ), 31 -> 119 ( 1542 / 1546, 36182 ); Accept on the Asura guide sent `EGS_NEW_QUEST_REQ`; Buy opened 264390 (Hsien) / 264394 (Devil); 0 EXCEPTION. The other six March characters' guides: new plan `class-guides` G1 (user request).
 
+### CHNb - Review (2026-11-11): pass, no code change (covers CHNb `db3bf791` + CHNb2 `c54b64bb`)
+
+Opus 5.5, Ghidra read-only. Every check below was re-read from the exe bytes; nothing was taken from the Done notes.
+- **`UICustomEventProc` = `327127a0`:** the range test `wParam - 1500 <= 0x35` and the byte map. 1500 / 1501 / 1502 close events 1 / 2 / 3, 1532 closes 5, 1537 closes 6, 1540 closes 4.
+  The 36 cash links (1503-1531, 1533-1536, 1538, 1539, 1553) close event 2, then run `CloseFieldName( 0 )` if `g_pTFieldGame`, set `+0x31c` = wParam and call the now state's vslot `0xac`.
+  1541-1544 run `32710b60` + `32344ab0( 2, 3..6 )`, 1549 runs `( 9, 0 )`, 1545-1548 run `3222a4f0( 1..4 )` and 1550 runs `( 0 )`. All of these equal the port.
+  Returns: `MOV AL,1` on 1540-1552 and `XOR AL,AL` on the rest, the same as the port.
+  1551 reads the hovered control's dummy int 0 (ESI = lParam), and 1552 reads the description static's own (ESI overwritten @`32712c19`). Both wrap with `31d45690( 320 )`, and both return true even when the static is missing.
+- **Enums:** a script diff of the 52 `LUEMCUM_*` in C++ against June's `Enum.src.lua` and the live data036 `Enum.lua` finds 0 mismatches.
+  `QT_CHANGE_JOB` 2, `CJT_JOB_FIRST..FOURTH` 3-6 and `QT_CHANGE_TRANSCENDENTAL_CLASS` 9 equal June. June's `Enum.lua` has no `UCL_` table, so the line-4 literal correctly stays a number.
+- **`OpenClassChangeGuideItem` = `3222a4f0`:** menu 0x1d, line 0 -> 288319, and the templet tier test (class 10-199, then `> 99`) equal the port.
+  The map `3379fcf8` was re-parsed from `32230020`'s disassembly (key stores at both `[ESP+4]` and `[ESP+8]`): 74 pairs, 0 differences against the port's 74 (scored with June's `UC_*` values).
+  June stores 0 when the lookup misses. The port skips the push, which gives the same result: the open-at vector is cleared after every open.
+  The state list is June's 1-6, 9, 12, 13. Its 24-26 (PVE / photozone) do not exist in March, and the port excludes TRAINING_RESULT / ARCADE_RESULT instead.
+  That stand-in is correct: both derive from `CX2StateDungeonResult`, not `CX2StateMenu`, so calling `ToggleCashShop` there would hit a foreign vtable slot.
+- **Class tables:** `3234b390` indexes `[ type ][ tier ][ line ]` in steps of 0x14 / 4, which the port's `[13][4][5]` matches (bounds check added).
+  `GetUnitClassLineByUnitClass` against `31eca340`'s switch: 74 / 74 classes, 0 differences (Rose 41 / 133 -> 4). `GetUnitClassTierByUnitClass` = `31ef05e0`.
+- **`InitClassChangeGuide` = `32713c10`:** the dispatch (2 / 4 / 6) and event 2's strings 0-3 wrapped by `31d471f0( 0xb4, font )` match.
+  Event 4 matches: the user / unit / `+0x38` gate, line, tier + 1, templet, picture line - 1 shown, `+0x27c` = 0x605 + n / 0x609 + n, name from templet `+8`, skill tree `+0x2cc` -> `3214f050`, then `3220bdb0` on `g_pData +0x50`.
+  Event 6 is vslot `0x68` with 0. The call site comes right after `InitTranscendGuide`.
+- **`32713420` / `32712e50`:** the transcended swap (unit `+0x3c`, transcendental list not empty), the description string and dummy int, and the per-row static / picture / button creation order.
+  The icon / piece textures, the dummy int (row second) and `+0x274` / `+0x270` = 0x60f / 0x610 also match. `charport_consts.py` gives 352 / 360 / 262 / 7 / 268 / 1 / 2 / 40 and 86 / 260 / 230 / 3 / 233, all as ported.
+  Neither function reads its incoming ECX except as a dead tag argument, so making them file-local is sound.
+- **`31d45690`:** a branch-by-branch read matches the port: the `\n` width test, the `#C` / `#Cx` skip of 7 / 2, `>= width` breaks, the limit path that inserts "..." at i + 1 and erases the rest, the `\n` insert with the next-space erase, the colour key at i + 2 and the dead `size < i + 1` branch.
+- **Stand-ins:** (1) `GetControl` in place of the `_LUA` getters is kept: March's other 1ST guides lack the control, and the miss is logged.
+  (2) The `+0xe40` minor flag stays false (no second form until char-luciel). Handed to `kickoffs/char-luciel/DU5.md` as a reader of the form byte.
+  (3) The left-out `337676ec` test is June's behaviour: an object `31c17ed0` allocates at start-up (`@31c18eb6`), set for the whole run.
+  (4) June's string-id debug format (`31c31060 +0x40`, `"%S_1_%2"`) is not ported: a dev display, as the skill-tree port left it.
+- **Data:** `LevelUpEvent.lua` rows as in the CHNb note. `luabind.py check` on the four dialogs: 0 unbound, ENUM 0 / 0, RESULT: PASS.
+- **Hygiene:** `flagcheck --range db3bf791^..db3bf791`: 6 PASS, 1 DEFINE, 0 OTHER, 0 FAIL, 0 deleted, RESULT: PASS.
+  `--range c54b64bb^..c54b64bb`: 5 PASS, 1 PASS~, 1 DEFINE, 0 FAIL, 1 deleted (CHNb's own comment inside the flag), RESULT: PASS. No later code commit touches the flag.
+  `junediverge --check-all`: RESULT: PASS (206 allow-listed). `enumscan --check` (5 files): 0 rows inside the flag. `luasrc.py ledger --check` / `core --check`: PASS.
+- **Logs (CHNb2 play-test):** all 7 `CLASS GUIDE` lines are present; `HUD shop open-at-item` first 264390 / 264394; 0 EXCEPTION. `AddGroupChainQuest` unbound x1 is pre-existing (backlog line 314).
+- **No debug define; full build skipped: no play-test.** CH2d is unblocked. CH6's walk now also opens both guides on its fresh units (kickoff amended).
+
 ## Phase CH2 - Skills: Martial Artist and the first jobs (classes 7, 28, 31, 34)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), one Opus review at CH2d (covers CH2a-CH2d), user play-test per phase. Flag

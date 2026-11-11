@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-ara CH2d` |
 | Plan doc | `JUNE_CHARACTER_ARA_PHASES.md` (branch `main`) |
-| Depends on | CH2c2, CHNb review (the 34 unit). One at a time with CH1-CH4: they all edit `X2GUAra.*` |
+| Depends on | CH2c2, CHNb review (the 34 unit; both done 2026-11-11). One at a time with CH1-CH4: they all edit `X2GUAra.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`ARA SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
 | Review | none of its own: the CH2d3 review covers it (its `_DEBUG` define stays on) |

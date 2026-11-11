@@ -47,6 +47,7 @@ NU0 (2026-11-02), `nu0_equip_nesi.tsv` rows `DU5`, `nu0_duo_engine.tsv` rows `DU
 - **Guild agit is not reachable offline** (no agit state, village, house, events or `X2Lib/Offline` handler): `0x4fd` / `0x4fe` are dropped.
 - **Unit form byte** `+0xe40`: `3234b8c0` (SetForm) is the only plain writer; the other readers sit in `3234f...`, `3236....`, `323fad80`,
   `3291....`. 50 rows tagged `out-of-scope "other struct?"`: re-check each (viewer / UI members, stack locals).
+  Also `32713c10 @32713eaa` (2ND class-change guide, minor flag to `3220bdb0`): `X2LVUpEventMgr.cpp` `InitClassChangeGuide` passes `false` as a stand-in (char-ara CHNb review, 2026-11-11).
 - **Viewer** `+0xd80` duo flag, `+0xd7c` minor skin: `X2UnitViewerUI.cpp:960` (`31f93050`), `:6255` (`31f961a0` case 10), `:8681` (also unit
   `+0xe40`); `:7938` is dead (live June body has a stand-in). Square unit `X2SquareUnit.cpp:220`: June's 24-name mesh table `31ee3470` (array
   `3372c1e8`) by form (`Mesh_Lu_Base_SD.X` / `Mesh_Ciel_Base_SD.X`): June's body, not a new case.

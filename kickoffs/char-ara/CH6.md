@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, medium** effort, then type `/x2-phase char-ara CH6` |
 | Plan doc | `JUNE_CHARACTER_ARA_PHASES.md` (branch `main`) |
-| Depends on | CH4b review, CH5 review, CHNb review |
+| Depends on | CH4b review, CH5 review, CHNb review (CH5 and CHNb reviews done 2026-11-11) |
 | Flag | none (a defect goes back to its phase's flag) |
 | Log tag | `[JUNE_CHAR]` (`ARA *`) |
 | Review | none (the user's walk is the check) |
@@ -21,7 +21,7 @@ python tools/docsection.py JUNE_CHARACTER_AISHA_PHASES.md "Template for Stage 7"
 Do "Phase CH6": back up the save; units of 7 / 28 / 31 / 34 / 118 / 119 / 124 and one transcended per second job. Re-run `census.py`,
 `charport_scan.py`, `charport_keys.py Ara_Martial_Artist` and `s3_no_state.py --family X2GUAra.cpp --preprocess`; before / after numbers in the Done note
 (0 unexplained `no_state`). Hand the user the walk: every skill in an A and a B slot (each cast twice), a hyper, force power (fill, spend, FP cancel,
-gauge) and berserk, a Specter state on 34 / 124, the passives, one dungeon per job, both job changes on fresh units (CHNb's quests), then leave the game
+gauge) and berserk, a Specter state on 34 / 124, the passives, one dungeon per job, both job changes on fresh units (CHNb's quests; the level-15 and level-35 guides open filled: `CLASS GUIDE 1st` / `2nd` / `2nd skills`), then leave the game
 and return to the village; **the becoming-transcended transition** on un-transcended 118 / 119 / 124 by `/tc 1`, `/qdone 42030`, `/additem 288493 1`
 (guide popup with the class picture, new skill-tree rows, HUD portrait, relog).
 
