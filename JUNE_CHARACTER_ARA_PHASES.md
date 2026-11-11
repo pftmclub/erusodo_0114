@@ -2291,6 +2291,8 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DE
 
 **Play-test hand-off.** In the chat of 2026-11-12. Logs: `[JUNE_CHAR] ARA SKILL state <n> skill <id>` ( one per state entered, no `BLANK` ), 0 `EXCEPTION` / `Motion Error`.
 
+**Play-test (2026-11-12, runs 06:30-06:33 and 06:35-06:37 on md5 6b58b2fc; unit 98).** Set 1: equip lines for the 8 Enhanced ids; Void Break chain 49 -> 51 -> 53 -> 55 -> 195 -> 203 ( `DAMAGE_EFFECT_VOID_BREAK_BUFF` hit ) x3; Low Brandish slide effect set; Peerlessness Slash 63 -> 188 with Start / Attack_Effect / Attack / End / Last_Attack from the script only; Link Flower Slash 275 -> 276 -> 277 ( chain window works ); Swallow Assault Teeth 61 -> 281; Breaking 59 -> 175. Set 2: Continuity Strike Throwing 49 -> 278 x3 ( start / projectile effect sets and damage effects hit ), Advent Dragon ( ready, attack and explosion damage effects hit ). 0 `BLANK` / `EXCEPTION` / `KEM_ERROR` / `Motion Error`; the `OpenXET` misses are the companion-file lookup. The user reported set 1 all fine. **Not reached:** Low Brandish's kick state ( the slide was always chained on into Turbulent Wave; the kick body = March plus on-line cancels ), Breaking's avoidance ( CH4a ), the base ids 27206 / 27207 / 27012 ( only the Enhanced ids are learned in the save ). Unit 98 now holds set 2 ( 27044, 27064, 27232, 27051, 27233, 27226, 27053, 27043 ).
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, one Opus review at CH4b (covers CH4a-CH4b), user play-test (two engine pieces, planned as two from the start; CH0
