@@ -1282,6 +1282,8 @@ Probes (`/c /Zs /EHsc`): off: `X2GUAra.cpp`, `X2GageData.cpp`, `X2GageUI.cpp` 0 
 `X2GageUI.cpp`, `X2GUUser.cpp`, `X2BuffBehaviorTemplet.cpp` 0 errors (the new `Always.h` guard did not fire: its four flags are defined); `_FP` alone: C1189 at
 `Always.h(12218)`. `cl /P` with `_LIVE` + `_FP`: the new bodies present, `m_ForcePowerSystem` / `GetBasicForcePower` / `ConsumeForcePower` 0 in `X2GUAra.i`,
 `TR_ASURA_1_STATE` 1 in `X2GageUI.i`. Full build skipped: no play-test.
+Range (`flagcheck _FP --range 249e437a^..249e437a --with _FP_DEBUG --files <5 code files>`): 5 PASS, 0 OTHER, 0 FAIL; 0 deleted, 0 non-ASCII, 0 EOL; RESULT FAIL
+only for the commented-out `//#define`.
 
 **Routed.** CH2a (callers of `StateChangeOrFPCancel`), CH3a (`+0x9718` rename and writer), CH4a (the `+0x973c` / `+0x9744` writers, the `+0x9838` reader),
 CH1 (amended: what `_FP` shows in the play-test), CHNa (gauge creation for 34 / 124, unchanged). Debug define stays until the CH1q review.
