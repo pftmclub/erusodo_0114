@@ -54,3 +54,7 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - **Force-power rows: 10** (`awk -F'\t' '$7 ~ /(^| )CH2b( |$)/' june2017_re/char_ara/ch0_fp.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count; col 5 relation: differs 3, unchecked 7).
 - **Identified callees first needed here: 1** (`awk -F'\t' '$8 ~ /(^| )CH2b( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `32fe2c36`.
 - **Swallow Assault is not here:** June has it as a Sakra Devanam skill (`RNSI_SA_ASD_SWALLOW_ASSAULT` 27011; March's `SI_SA_ALH_SWALLOW_ASSAULT` 7007): CH3a. June moved several skills across lines (`ch0_passive_ids.tsv` "tag-mapped" rows): the line in June's tree decides the phase, not March's name. `CalcLockOnLandingPos` `32bc0420` is not the lock-on's: CH2d. Split: CH2b = SA tier (ids < 27200), CH2b2 = A tier.
+
+## Amended by the CH1k review (2026-11-11)
+
+- **Moonlight Slash data grew in June** (0x28 bytes, ctor `32bd6e80`): +0x20 and +0x24 are new floats, both 1.0. The CH1k review added +0x20 as `sMoonLightSlashData::m_fEffectiveRate` (`_CORE`, `GetEffectiveRate` / `SetEffectiveRate`); `CanUseSpecialAttack` stores the skill's `SA_EFFECTIVE_RATE` there (June @32bd08c5). The Moonlight Slash states read it; +0x24 is not declared yet: name and declare it from the state that writes / reads it.

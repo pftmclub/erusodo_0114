@@ -51,3 +51,8 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - **Identified callees first needed here: 1** (`awk -F'\t' '$8 ~ /(^| )CH1m( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `32d3ee60`.
 - `ch0_reg.tsv` 162 rows (`charport_states.py init 32bca580 32bcf4a0 3202b110 32bcced0`); `ch0c_listing_check.py` 162 / 162. Five std::string rows checked by hand: 23 `USI_HYPER_MODE` (`31fdd490`), 155 `ASI_BERSERK_MODE` (`31fdd800`), 9 / 11 / 12 START / WIN / LOSE roll (`31fe22d0`, base callbacks).
 - June's `USI_END` is 152, March's 100: every one of the 105 shared `ASI_` names differs by 52. Register by June's id (`ch0_state_enum_names.tsv`, 350 rows; 138 June registration names are not in the C++ enum). June registers `ASI_A_ALS_SHAKE_CHAOS`'s table at both 291 (its Enum value) and 333 (`32bd1c95`, `32bd4d7c`, no Enum name): 333 stays a number with a one-line comment.
+
+## Amended by the CH1k review (2026-11-11)
+
+- **CH1i's routed item lands here:** register the 27 June-only `ARA_STATE_ID` members CH1i declared (`X2GUAra.h`, the `_CORE` tail, `ASI_SA_ASR_SHADOW_RISING_LANDING` 195 ... `ASI_A_ASD_SWALLOW_ASSAULT_TEETH_END` 342) by their June script names; three June states keep March's member (223, 250, 251: CH1i Done note) and state 305 uses its first June name.
+- `tools/data/june_diverge_allow.tsv` now has `CX2GUAra::ReInit` `GT_PVP` (June `32bc8030` @32bc80aa tests type 1 only), so `junediverge --check-all` stays PASS when `_LIVE` goes on.

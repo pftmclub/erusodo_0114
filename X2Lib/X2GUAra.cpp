@@ -4878,6 +4878,10 @@ bool CX2GUAra::CanUseSpecialAttack( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eAc
 
 			m_sMoonRightSlashDataPtr->SetSlotID( iNormalStateID );
 			m_sMoonRightSlashDataPtr->SetSlotB( bSlotB );
+
+			float fEffectiveRate = 1.f;	// char-ara CH1k review: June @32bd08a6-c5 stores the skill's SA_EFFECTIVE_RATE ( 1.0 when it has none )
+			pSkillTemplet->TryGetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillTempletLevel, false, fEffectiveRate );
+			m_sMoonRightSlashDataPtr->SetEffectiveRate( fEffectiveRate );
 		}
 	}
 

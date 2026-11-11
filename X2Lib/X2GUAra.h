@@ -386,12 +386,18 @@ public:
 		CX2EffectSet::Handle	m_hChargeEffect;	/// 충전 시 발생하는 이펙트
 		CKTDGXMeshPlayer::CXMeshInstanceHandle	m_hNewAttackBox;		/// 무기 Attack라인 변경
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+		float	m_fEffectiveRate;		/// char-ara CH1k review: June +0x20 ( 1.0 ), the skill's SA_EFFECTIVE_RATE stored by CanUseSpecialAttack @32bd08c5
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 		sMoonLightSlashData() : m_fChargingTime( 0.f ), m_fPowerRate( 0.f ), m_bSlotB( false ),
 			m_pChargeKey( NULL ), m_iSlotID( 0 ),
 			m_hChargeEffect( INVALID_EFFECTSET_HANDLE ), m_hNewAttackBox( INVALID_MESH_INSTANCE_HANDLE )
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
             , m_uRefCount(0)
 #endif  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+			, m_fEffectiveRate( 1.f )	// char-ara CH1k review: June 32bd6eb4
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 		{}
 		
 	public:
@@ -409,6 +415,11 @@ public:
 
 		bool	GetSlotB() const { return m_bSlotB; }
 		void	SetSlotB( bool bSlotB_ ) { m_bSlotB = bSlotB_; }
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+		// char-ara CH1k review: June Moonlight data +0x20 ( the Moonlight Slash states read it: CH2b )
+		float	GetEffectiveRate() const { return m_fEffectiveRate; }
+		void	SetEffectiveRate( float fEffectiveRate_ ) { m_fEffectiveRate = fEffectiveRate_; }
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 		bool	GetChargeKey() const { return (NULL != m_pChargeKey ? *m_pChargeKey : false); }
 		void	SetChargeKey( bool* pChargeKey_ ) { m_pChargeKey = pChargeKey_; }
