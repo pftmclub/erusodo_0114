@@ -298,6 +298,11 @@ public:
 		ASI_SA_AYR_RESTRICTION_ENERGY_END,	/// char-ara CH1i: June script id 340 ( CH3b owns the state; CH1m maps )
 		ASI_SA_AYR_REVERSE_GRAVITY_FIELD_END,	/// char-ara CH1i: June script id 341 ( CH3b owns the state; CH1m maps )
 		ASI_A_ASD_SWALLOW_ASSAULT_TEETH_END,	/// char-ara CH1i: June script id 342 ( CH3a2 owns the state; CH1m maps )
+		ASI_A_ALS_VIEW_BETWEEN,	/// char-ara CH1: June id 288, named by June's CHAIN_SYSTEM ( CH2d3 owns the state )
+		ASI_A_ALS_SHAKE_CHAOS,	/// char-ara CH1: June id 291, named by June's CHAIN_SYSTEM ( CH2d3 owns the state )
+		ASI_SA_ALS_RESTRAINTS_SPECTER,	/// char-ara CH1: June id 302, named by June's CHAIN_SYSTEM ( CH2d owns the state )
+		ASI_A_AA_RAID,	/// char-ara CH1: June id 294, named by June's CHAIN_SYSTEM ( CH3c2 owns the state )
+		ASI_SA_AA_SMASH,	/// char-ara CH1: June id 315, named by June's CHAIN_SYSTEM ( CH3c owns the state )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	#pragma endregion 2-1, 2-2Â÷ ÀüÁ÷
 

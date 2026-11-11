@@ -1441,6 +1441,27 @@ Build (`--pch force`): `DEPLOY OK: X2_offline.exe is 26,225,152 B, dated 2026-11
 Check: `ARA DATA` per class, combos, dash, jump, double jump, damage / stand-up, riding, force power and berserk (visual), tails, the chain speed on 98, and
 ErrorLog against the references. The review is `kickoffs/char-ara/CH1-review.md`.
 
+**Play-test fix (2026-11-11, first run 12:28-12:30).** Entering a field showed two popups, `StateID` then `ComboAndSkillChainSystem Parsing
+Error`, and ErrorLog had `lua error while loading ARA_MARTIAL_ARTIST.LUA: can't find 'CRS_INVISIBLE' class variable`. Both come from the
+merged data036 `Enum.lua` (core-list source) missing June members that June's script reads:
+- **`CHAIN_SYSTEM`** (script top, read by `CX2ComboAndSkillChainSystem::CreateComboAndSkillChain`, `X2ComboAndSkillChainSystem.cpp:40`): 13 of its
+  37 `ARA_STATE_ID` names were absent, so slot [1] read nil. **The 24 present names were also wrong:** `Enum.lua`'s `USER_STATE_ID` stopped
+  following the C++ when `SKILL_SLOT_10` added `USI_SPECIAL_ATTACK_5` / `_HYPER_5` / `_SLOTB_5` / `_SLOTB_HYPER_5`, so from `SLOTB_1` on every
+  `USI_` value and every class state table built on `USI_END` read 2 or 4 low (`enumprobe.py`: C++ `USI_END` = `GUSI_END + 101`, Lua `+ 97`). Ara's
+  chain table is the only Lua that hands these ids back to C++, so she shows it first. The training-dungeon scripts read them too, and are now right.
+- **Fix (data):** `USER_STATE_ID` = the C++ values for all 97 names plus the 4 slot-5 names (46 values changed); `ARA_STATE_ID` gains the 13 names at
+  their C++ values; `SKILL_ID.RNSI_A_ASR_RAID_UPGRADE = 27242` (June's; the script's `RELATE_SKILL_ID`); June's `CUSTOM_RENDER_STATE` table
+  verbatim (`Enum.src.lua:17473`; Asura's Fox Phantom state at src.lua:21006, also June's `Add_NasodRuler.lua`; no C++ reader yet). Each block
+  carries a one-line `-- char-ara CH1` comment. `luasrc.py refresh data036 Enum.lua`; `core --check` / `ledger --check` PASS. Every enum
+  reference in the script now resolves except `CAMERA_TYPE.CT_PARTS_LOOK_TRACKINGT` (absent from June's own `Enum.lua` too; it reads nil in June).
+  `PACK OK data036`, `COPY OK data036 ... 14069630 bytes, 270 entries, md5 45b061dc523c59bd03f55d2f5e62a253`.
+- **Fix (C++):** 5 of the 13 had no C++ member (34 / 124 skill states): `ASI_A_ALS_VIEW_BETWEEN`, `ASI_A_ALS_SHAKE_CHAOS`,
+  `ASI_SA_ALS_RESTRAINTS_SPECTER`, `ASI_A_AA_RAID`, `ASI_SA_AA_SMASH` are appended to `ARA_STATE_ID` under `_CORE` (`X2GUAra.h`, `USI_END + 176
+  .. 180`, after CH1i's last name). Their owners are unchanged (CH2d3, CH2d3, CH2d, CH3c2, CH3c). June's own ids (288 / 291 / 302 / 294 / 315) would
+  land on C++ ids that other Ara states already hold. `flagcheck JUNE_CHAR_ARA_CORE --worktree --files X2Lib/X2GUAra.h`: `1 PASS, 0 FAIL`, `RESULT:
+  PASS`; `junediverge --check` PASS; `enumscan --check X2Lib/X2GUAra.h` 0 A/B. Probe `X2GUAra.cpp`: 0 errors.
+  `DEPLOY OK: X2_offline.exe is 26,225,152 B, dated 2026-11-11 12:51:03, md5 0909cda31c6bbad805e34fb4193375fa, equal to X2/US_SERVICE/x2.exe (2026-11-11 12:50:55); built at main d98916f0 + 1 uncommitted code file(s).`
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.
