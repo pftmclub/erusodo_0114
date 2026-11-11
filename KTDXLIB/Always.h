@@ -12498,5 +12498,5 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Author: Iruha
 // Date: 2026-11-11
 // Description: char-ara CHNa debug: logs [JUNE_CHAR] ARA CLASS gauge class <c> when a 34 / 124 gets Ara's gauge. The CHNa review retires it.
-#define SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS_DEBUG
 //////////////////////////////////////////////////////////////////////////

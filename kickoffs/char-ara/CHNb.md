@@ -5,7 +5,7 @@
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-ara CHNb` |
 | Plan doc | `JUNE_CHARACTER_ARA_PHASES.md` (branch `main`) |
 | Depends on | CHNa review |
-| Flag | `SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS` (+ `..._CLASS_DEBUG`) |
+| Flag | `SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS` (+ `..._CLASS_DEBUG`: commented out by the CHNa review; re-enable it only if this phase adds a debug line, and the CHNb review retires it again) |
 | Log tag | `[JUNE_CHAR]` (`ARA CLASS`), `[ADMIN_CHEAT]` |
 | Review | `kickoffs/char-ara/CHNb-review.md` (Opus 5.5 high; the phase writes it when done) |
 
@@ -48,3 +48,9 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - The quest route is already in place: the shipped `FieldQuest.lua` is June's; 35560-35563 (`CJT_JOB_THIRD`, class 7, level 15; 35563 rewards `UC_ARA_LITTLE_SPECTER`), 35564-35568 (class 34, level 35; 35568 rewards `UC_ARA_ASURA`); `Handlers_Quest.cpp:586-620` accepts any class; auto-learn has 14 / 23 rows.
 - 41794 / 41796 / 41803 / 41805 are Eun-mode hair / face costume pieces (PROMOTION_ITEM_ID_LIST), not class-change items. `X2OfflineClassChangeSeed.h` is cash-item only: PARENT_ROWS 34 -> 7, 124 -> 34 optional (generated file: regenerate, never hand-edit).
 - Left for this phase: the two `LevelUpEvent.lua` rows (level 15 -> `DLG_1ST_Class_Change_Guide_Ara`; level 35 adds 34 and the 2ND dialog), the dialogs (staged in CH0b), `luabind.py check`, the play-test. Small: may fold into one session.
+
+## Amended by the CHNa review (2026-11-11)
+
+- `tools/createchar.py` already makes 34 / 124 (CLASSES + PARENT): create the fresh level-15 Martial Artist (7) and level-35 Little Specter (34) for the play-test with it.
+- `CX2Unit::GetClassLevel` is June's (`3234c170`, flag `SERV_IRUHADEV_JUNE_CLASS_PATH`): 34 = 1, 124 = 2, so the class-level gates after each job change need no edit.
+- The `[JUNE_CHAR] ARA CLASS gauge class <c>` line is off with the debug define; a 34 / 124 after the job change shows its force-power gauge in game instead.

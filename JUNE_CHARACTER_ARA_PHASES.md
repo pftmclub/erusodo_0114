@@ -1592,6 +1592,27 @@ all at `Always.h` end, `#error` without `SERV_IRUHADEV_JUNE_ENUM_NAMES`. Review 
   `ErrorEnum(433) Anim Frame 80, Mesh Frame 81, MESH_ARA_AA_BASIC_FACE_BERSERK_SORTED.X` x16 and the misspelt `MESH_ARA_AA_CASH_BERSERK_FACE*.TGA` texture names: the mesh and `Motion_Ara_AA.x` are June's byte-exact
   (`stage-june --dry-run`: identical), so this is June's own data (Asura berserk face, cosmetic), not a port gap. `OpenXET` misses are the usual optional-file probe (non-Ara names too). Not mine: 4 `E_DISABLE_HB_CHECK_REQ`, `AddGroupChainQuest`, `Add_Skill_Page_ED`.
 
+### CHNa - Review (2026-11-11, Opus 5.5): PASS, one change (debug define retired)
+
+- **Gauge** `3248e290` (Ghidra): Ara arm cases 7, 0x1c, 0x1f, 0x22, 0x76, 0x77, 0x7c (`new` 300 B gauge data, `32e64700` UI) = March's five + the port's 34 / 124 (`X2GageManager.cpp:192-196`).
+- **Compatibility** `31ed6500`: case 0x22 -> 7 or 0x22; case 0x7c -> 7, 0x22 or 0x7c = the two arms (`X2Unit.h:2055-2082`).
+- **Creation screen:** `3234b390` = `337a1660[ unitType ][ classType ][ line ]` (`(line + type * 4) ... ` strides 0x14 / 4); `3234afb0` writes Ara (`+0x230`) basic `1894/1898/189c` = 7 (lines 1-3), first `18a8/18ac/18b0` = 0x1c / 0x1f / 0x22,
+  second `18bc/18c0/18c4` = 0x76 / 0x77 / 0x7c. Line 3 (`UCL_THIRD` = 3) = 7 / 34 / 124 = the port's function; `UCT_*` 0 / 1 / 2 match. `3254ee40` case 0x22 / 0x7c writes 3, 1, 1 in the struct's order = (`USICL_HIGH`, `USICL_LOW`, `USICL_LOW`).
+- **Portraits** `31ee0de0`: class 0x22 -> row 0x39, 0x7c -> 0x3a; type 1..9 bases = March's `CIT_DungeonClear` .. `CIT_UnitSlot` order (type 10 = `CIT_UnitSlotGray`, already June's). Read from the type-7 (`CIT_MyGage`) initializer `3336f3e0`:
+  row 0x39 (`33784ed0`) = `DLG_UI_Common_Texture77_NEW.tga` / `L_SPECTER_STATE`, empty transcended pair; row 0x3a (`33784f40`) = `Texture82_NEW` / `ASURA_STATE` + the `TR_ASURA_STATE` pair (CH3d) = the port's 55 / 56.
+  Positional check: each of the nine arrays has 57 entry lines, no `#else`, guards only `SERV_ARA_CHANGE_CLASS_SECOND`, `SERV_ELESIS_SECOND_CLASS_CHANGE`, `SERV_9TH_NEW_CHARACTER`, `SERV_ADD_LUNATIC_PSYKER`, `_CHAR_ARA_CLASS`;
+  the four March groups' X2Data-only pieces are in the deployed exe (`EXESTR OK: 4 of 4`: `Y_RAJA_STATE`, `EL_SBH_FACE`, `ADD_APT_FACE`, `ADD_ALP_FACE`, md5 `82393388`), so 0..54 are compiled and 55 / 56 land on their rows.
+- **Class path:** `3271a810` `( 0 < group ) && ( 0 < skill ) && ( class - 1U < 0xca )`; `UC_AIN_ANGEL` = 202 (`X2Unit.h:193`) so `> UC_AIN_ANGEL` refuses the same set. `3234c170` `( class - 10U < 0xbe ) ? 1 + ( 99 < class ) : 0` = `X2Unit.cpp:3023-3029`.
+  The three `june_march_divergent.tsv` rows are present and say the replacement landed.
+- **Data:** `CorrelateUnitClassTemplet.lua` adopt record (data036, 2914 B bytecode, ljconv); `luabind.py check CorrelateUnitClassTemplet` PASS (ENUM 0 / 0). `stage-june --dry-run`: `DLG_UI_Common_Texture101_NEW` and `Texture101_GRAY` (`.tga` + `.TET`, data215) and
+  `..._GUI_character_info_07` (data057) are all June's, identical (the kickoff's "_NEW / _GRAY" is these two names; no `Texture101_NEW_GRAY` exists). `kom.py status data215`: in sync. `createchar.py` CLASSES 34 / 124, PARENT 34 -> 7, 124 -> 34.
+- **Hygiene:** `flagcheck --range d7f0e948^..d7f0e948`: `_CLASS_PATH` 2 PASS (`X2SocketItem.cpp`, `X2Unit.cpp`), `_CHAR_ARA_CLASS` 3 PASS (`X2Data.cpp`, `X2StateCreateUnit.cpp`, `X2Unit.h`), `--with _CLASS_DEBUG` 4 PASS (+ `X2GageManager.cpp`); 0 FAIL,
+  0 deleted, 0 non-ASCII, 0 EOL, 0 token, 0 encoding; the one ERROR per run is the known compound `#if` (`X2Unit.cpp:5842` / `X2Unit.h:1252`) on the file outside that run's flag. `junediverge --check-all`: allow-listed 205, RESULT: PASS.
+  `enumscan --check` (6 files): 0 rows on the changed lines (210 pre-existing elsewhere).
+- **Logs:** the last run (19:33, exe `82393388`) is the user's creation-screen re-check after the data057 copy: no unit loaded, 0 EXCEPTION, no `ARA CLASS` line (none expected); the gauge lines (34 x1, 124 x2) are the 19:23 run's, recorded above.
+- **Change:** `SERV_IRUHADEV_JUNE_CHAR_ARA_CLASS_DEBUG` commented out (`Always.h:12501`; it also drops the `X2OfflineLog.h` include in `X2GageManager.cpp`). Build started, not awaited (2026-11-03 rule).
+- **Kickoffs:** `CHNb.md` amended (debug define retired; `createchar.py` already makes 7 / 34 units; `GetClassLevel` = June).
+
 ## Phase CH2 - Skills: Martial Artist and the first jobs (classes 7, 28, 31, 34)
 
 **Run with:** Sonnet 5.5 high (transcription from CH0's map), one Opus review at CH2d (covers CH2a-CH2d), user play-test per phase. Flag
