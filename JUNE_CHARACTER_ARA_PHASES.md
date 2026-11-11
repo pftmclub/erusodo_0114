@@ -1205,6 +1205,34 @@ PORTED, `32b9e820` routed (`Char Ara CH1p`). No `JUNE_BUGS` row.
 
 **Nothing to play-test** (`_LIVE` is off). Next: `/x2-phase char-ara CH1p review` (Opus 5.5 high).
 
+### CH1p - Review (2026-11-11): pass, no code change
+
+Read from the exe bytes (`funcdis.py --func`, `dispsweep.py`, the `.rdata` words through the PE section table) and the `.i` of both files, `_LIVE` off / on:
+- **`31fd3360`:** gauge `+0xc04` null -> normal; else `fldz; fcomp [+0xe8 protected]; test ah,1; jne` = 0 < remaining time -> hyper (NaN also hyper, as
+  `<= 0.f` false in C++). `cmp 4; jle`: normal A `[i*4 + 33472040]`, normal B `[i*4 + 33472054]` (- 5 folded = `33472068`), hyper A `33472054`, hyper B
+  `[i*4 + 33472068]` (= `3347207c`); `movzx word`, `* 0x64 + [+0x7cec]` = `m_StateList[]`. `.rdata`: 50-58 / 51-59 / 60-68 / 61-69 step 2 = the
+  `_CONST_GUUSER_` tables under `JUNE_SKILL_SLOT_10` (`X2GUUser.h:5400-5420`, `1, H1, ..., 5, H5, SLOTB_1` layout). `GetRemainHyperModeTime()` returns 0
+  with no gauge (`X2GameUnit.h:2333`). The C++ matches. Sibling `31fd32e0` (StateChange by `+0x8ea4`, same tables) is the earlier port at `X2GUUser.cpp:44741`.
+- **Shared reader:** `guuser_live.i` `bMarchSlotIndex` ends `&& CX2Unit::UT_ARA != ...`; `guuser_off.i` has no `UT_ARA`. Every earlier class `_LIVE`
+  (Arme, Eve, Chung, Elsword, Raven, Rena) is `#define`d, so the new outer level drops no class.
+- **Sweep** (`dispsweep 8ac0 8b58 88bc 8ea0 8ea4 8ea8`, `32b90b70-32bd86e0`): `+0x8ac0` none; `+0x8b58` = `32b93540` / `32b9dd20` (CH2c), `32b93590`
+  (dead, `ch0_class_map.tsv`), `32b93bc0` / `32b9e820` (here), `32ba5b50` / `32ba5e90` (CH2d2), `32ba7c20` / `32bc9c70` (CH2d); `+0x88bc` = `32b90c20`
+  (CH1k write) + the three StartFutures; `+0x8ea4` = `32b90c20`, `32bb1ff0`, `32bcfaa0` (CH1k). `+0x8ea0` hits are the chosen skill, not the index. `ara_live.i`:
+  `iPressedSkillSlotIndex > 3` 0 (off 4), `- 4 ]` 0 (off 2); `CurrentSkillKeyManager` / `SAKP_` left only as the header enum, struct and member: no 4 + 4 user.
+- **Energy Void:** `32b93bc0` = `Set( [+0x88bc] - 1 )` on `+0x8b58` (`31fce6d0`), tail `jmp` vslot 0x7c0 = the C++. `32b9e820`: `FollowSlotSwap @32b9e82a`,
+  `IsKeyReleased( +0x86da = m_InputData ) @32b9e85e` after the charge test (same short-circuit order); `fcomp [33487220]` = 0.4 (double of 0.4f),
+  `+0x96c8 >= 5` / `>= 10` (`ENERGY_VOID_MAX_CHARGE_VALUE` 10), else 0x113 LOOP, `+0x96d0` -> 0x114 END: the CH3b amendment's numbers hold.
+- **Keys:** `USE_FORCE_POWER` / `ADD_FORCE_POWER` / `FP_CANCEL` in CH1j's `CommonStateStart` (`X2GUAra.cpp:5377-5396`), `USE_BERSERK_SOUND` / `"BERSERK"`
+  in the `SOUND_SET` reader (`X2GUUser.cpp:17793`), Specter of Blade tables dead (`ch0_keys.tsv`). Agreed.
+
+**Hygiene.** `flagcheck SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE --range e291386c^..e291386c --files X2Lib/X2GUAra.cpp X2Lib/X2GUUser.cpp`: `files: 2 PASS, 0 PASS~,
+0 DEFINE, 0 OTHER, 0 FAIL, 0 ERROR`, `1 deleted line(s)` (the stale comment), 0 non-ASCII, 0 EOL-mismatched, 0 `#else/#endif` without the token, 0 encoding
+changes; RESULT FAIL only for `define: NOT FOUND` (`//#define`). `junediverge.py --check-all`: `allow-listed: 202`, `RESULT: PASS`. `enumscan.py --check
+X2GUAra.cpp X2GUUser.cpp`: `0 A/B row(s)`. Probes (`census.cl_cmd`, `/c /Zs /EHsc`): both files off / `_LIVE` / `_LIVE` + `_FP` + `_SPECTER` + `_SKILL`: exit 0,
+0 errors x6 (38 / 39 warnings, unchanged). No `_DEBUG` define. Full build skipped: no play-test.
+
+**Nothing to play-test.** CH1q kickoff checked. Next: `/x2-phase char-ara CH1q` (Opus 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.
