@@ -1367,6 +1367,37 @@ primary 4 PASS, 1 OTHER, 0 FAIL, 1 ERROR; 0 deleted, 0 non-ASCII, 0 EOL; RESULT 
 
 **Nothing to play-test.** Next: `/x2-phase char-ara CH1q2 review` (Opus 5.5 high).
 
+### CH1q2 - Review (2026-11-11): pass, no code change
+
+Checked against the exe bytes (`disasm_range.py`, `charport_adis.py`, `dispsweep.py`, raw vtable reads; Ghidra not needed). No debug define to retire.
+- **Loaders.** `xorstrings.tsv`: `320506f0` loads `APPLY_ANIM_MOVE` @`3205210b`, `IS_ATTACK_STATE` @`32052269`, `IS_SPECTER_STATE` @`320523c2`, then
+  `USE_CHANGED_DISPARATE_FORCE`; the C++ load sits after `APPLY_ANIM_MOVE` (March has no future `IS_ATTACK_STATE`), same order. @`320524a6`-`320524e4`: `push 1`,
+  `lea ebx,[esi+0x7da9]`, `call 32fe9e40`, `test al,al; jne; mov [ebx],al` = false when missing. `32057b80` @`3205874f`-`3205878e`: same shape into
+  `[edi+0x8049]`, right after `IS_ATTACK_STATE` (`[edi+0x8048]` @`320585f6`) and before `TECH_POINT`: matches. `StateParam` +0x95: June `operator=` `32081a30`
+  copies byte +0x95 @`32081eb8` between +0x94 and +0x96; June `Init` `320820e0` clears it with the dword store `[esi+0x94] = ebx` (0, `xor ebx,ebx` @`3208210a`)
+  @`320824ad`. The C++ copies it in `operator=` and sets false in `Init`: matches.
+- **Chain anim speed.** `32051b78`-`32051bc1`: `APPLY_ANIM_SPEED_BY_ITEM_ABILITY` (default true) then `+0x9134` added to `+0x8900` under it (March's
+  `GetAddAnimSpeedFactor` block); `+0x8900` is the `ResetAnimSpeed` first argument @`32051c14`, so `m_fAnimSpeedFuture` is right. Chain test `32071930`
+  `GetPtrNowUseChainInfo` non-null -> `fld [+0x8908]; fmul [+0x8900]; fstp [+0x8900]; fld1; fstp [+0x8908]`, then `ResetAnimSpeed`: matches. Ctor
+  @`320425c2` stores the `fld1` @`32042580` (1.0). `dispsweep 8908`: ctor, the two reader lines, and Ara `32bc8380` only. `ADD_ANIM_SPEED_FUTURE` is defined
+  (probe), so the block is in the live branch.
+- **`32baf270`.** vslot 0x9c = Ara `IsFullHyperMode` `32ba6cc0` (vtable `33505314`). `fldz; fcomp [+0x9744]; test ah,5; jp` falls through when 0 < rate;
+  the protected int `+0x6844` = `GetHyperModeCountByBuff()` (`X2GameUnit.h:3269`) `cmp 3; jge` -> base `3201c3a0` when < 3, else vslot 0x630 = Ara
+  `UpdateNotRenderingOtherEquipList` `32ba83d0`. `32bd7780` copy-constructs the local from `+0x95a4`, `+0x95b4` pushed, base `31fd8c00`. Else branch: direct
+  `31fd5b80( 1 )` (= base `SetShowViewList`, vslot 0x63c), `3201c3a0`, `31fd8c00( +0x8834 )`. The three `SetEnableAttackBox` calls follow both: matches.
+- **`IsSpecterState`.** `32bcee1c` and `32bd2c74` both call vslot 0x128 with `push 0` (now copy), `cmp byte [eax+0x95],1`. Body = `GetStateparam( false )
+  .bSpecterState`: matches. Guard chain closed: `_SPECTER` -> `_LIVE` -> `_CORE` (header decl), `_SPECTER` -> `SPECTER_STATE`; `m_fBuffHyperModeDamageRate`
+  is `_CORE`.
+
+**Hygiene.** `flagcheck JUNE_CHAR_SPECTER_STATE --range 41127c94^..41127c94 --with JUNE_CHAR_CHAIN_ANIM_SPEED JUNE_CHAR_ARA_SPECTER JUNE_CHAR_ARA_LIVE --files <6>`:
+2 PASS, 3 OTHER, 0 FAIL, 1 ERROR; `CHAIN_ANIM_SPEED` primary: 4 PASS, 1 OTHER, 0 FAIL, 1 ERROR; 0 deleted, 0 non-ASCII, 0 EOL, 0 bare `#else`/`#endif`, 0
+encoding changes; RESULT FAIL only for the commented-out `//#define`s; the ERROR is the older `_FP && !_LIVE` guard (`Always.h:12217`), as in the Done note.
+`junediverge.py --check-all`: allow-listed 202, `RESULT: PASS`. `enumscan.py --check X2GUAra.cpp X2GUUser.cpp`: 0 A/B rows. Probes (`/c /Zs /EHsc`):
+`X2GUAra.cpp`, `X2GUUser.cpp` off and with `_LIVE` + `_FP` + `_SPECTER` + `SPECTER_STATE` + `CHAIN_ANIM_SPEED`: 0 errors (4 runs). Full build skipped: no
+play-test. `kickoffs/char-ara/CH1.md` "Amended by CH1q2" checked: complete (both flags, `--pch force`, tail and chain checks).
+
+**Nothing to play-test.** Next: `/x2-phase char-ara CH1` (Opus 5.5 high).
+
 ## Phase CH5 - UI and data: UnitTemplet rows, cut-ins, dialog pieces
 
 **Run with:** Sonnet 5.5 high, Opus review, user play-test. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_UI`. Sub-tag `UI`.
