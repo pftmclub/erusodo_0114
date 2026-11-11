@@ -12287,3 +12287,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_CORE needs SERV_IRUHADEV_JUNE_SKILL_TEMPLET ( CX2SkillTree::GetUpgradeBaseSkillID )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-11
+// Description: June character port ( Ara ) Phase CH1j - guards only ( no new flag ): the Common* helpers set and drop skill buffs ( SetSkillBuffFactors, GetSkillBuffTempletID ), read skill levels and ability values ( GetSkillLevelValue, GetLearnedSkillAbilityValue ) and name June's RNSI_ skill ids
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_CORE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS ) || !defined( SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE ) || !defined( SERV_IRUHADEV_JUNE_ENUM_NAMES ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_CORE needs SERV_IRUHADEV_JUNE_CHAR_EVE_PASSIVE, SERV_IRUHADEV_JUNE_USER_SKILL_LEVEL_HELPERS, SERV_IRUHADEV_JUNE_DIVERGE_SKILL_LEVEL_VALUE and SERV_IRUHADEV_JUNE_ENUM_NAMES ( RNSI_ names )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+//////////////////////////////////////////////////////////////////////////

@@ -1870,6 +1870,20 @@ public:
 		RNSI_SA_ALD_WOLF_SPEAR_UPGRADE                        = 27039,	// June's Enum.lua; Ara's SetEquippedSkillLevel / state replacement read it
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-11 // char-ara CH1j
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_SA_ARA_PULLING_PIERCE_UPGRADE                    = 27030,	// June's Enum.lua; Ara's passive-rate groups read it
+		RNSI_SA_ALH_DOUBLE_COLLISION_UPGRADE                  = 27037,	// June's Enum.lua; Ara's passive-rate groups read it
+		RNSI_A_ALH_ROCK_CRASH_UPGRADE                         = 27223,	// June's Enum.lua; Ara's passive-rate groups read it
+		RNSI_P_ASD_FULLMOON_SLASH                             = 27402,	// June's Enum.lua; Ara's passive rate of the Pulling Pierce group
+		RNSI_P_ASD_POWER_OF_TIGER                             = 27403,	// June's Enum.lua; Ara's passive rate of the Turbulent Wave group
+		RNSI_P_AYR_HOWLING                                    = 27407,	// June's Enum.lua; Ara's passive rate of the Wind Wedge group
+		RNSI_P_AYR_HELL_GATE_OPEN                             = 27408,	// June's Enum.lua; Ara's passive rate of the Hell Gate group
+		RNSI_P_ASR_LOAD_OF_ASURA                              = 27412,	// June's Enum.lua; Ara's passive rate of the Shadow Knot group
+		RNSI_P_ASR_FOX_SMILE                                  = 27413,	// June's Enum.lua; Ara's passive rate of the Get Blood group
+		RNSI_P_ASD_OPEN_MIND                                  = 27415,	// June's Enum.lua; its buff follows Ara's force power
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-09 // char-rena CH1i
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_SA_RWS_VIOLENT_ATTACK                            = 23008,	// June's Enum.lua; SetEquippedSkillLevel sets its landing states

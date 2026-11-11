@@ -181,7 +181,7 @@ values, before loading the script. Otherwise **every state after the first refer
 
 ## 5. What no scan here covers
 
-- **Every non-DamageData key in a character script.** Unit-state keys, skill-templet keys, motion and (Ara: CH1h: the 7 INIT_COMPONENT keys are read in `InitComponent` `32bb0da0` under `_FP`; the members are declared `_CORE`)
+- **Every non-DamageData key in a character script.** Unit-state keys, skill-templet keys, motion and (Ara: CH1h: the 7 INIT_COMPONENT keys are read in `InitComponent` `32bb0da0` under `_FP`; the members are declared `_CORE`) (Ara: CH1j: `CommonStateStart` `32bd2a40` reads USE_FORCE_POWER, ADD_FORCE_POWER and FP_CANCEL under `_LIVE`, the first two into March's own members and FP_CANCEL with a -1 / -1 else-branch; the DAMAGEDATA_CHANGE_TIME reads are not in June's)
   bone tables and so on are read by June parsers nobody has mapped. The effect plan's Phase 0/1 method
   applies unchanged:
   1. identify the parser in Ghidra;

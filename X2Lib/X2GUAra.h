@@ -541,9 +541,20 @@ protected:
 	void			MarkSkillFPGainHit( const int iSkillID_, const int iAttackSerial_ );	// char-ara CH1h: June 32bab160
 	void			MarkSkillFPGainHitByDamage( const CX2DamageManager::DamageData* pDamageData_ );	// char-ara CH1h: June 32bab1d0 ( user vslot 0x2fc, CH1o wires it )
 	bool			IsNowStateSameOrUpgradeSkill( const int iSkillID_ ) const;	// char-ara CH1h2: June 31edf580 on the running state's skill ( no skill tree reads false )
+	float			GetNowSkillPassiveRate() const;	// char-ara CH1j: June 32ba7ec0
+	float			GetPassiveSkillRate( const int iPassiveSkillID_ ) const;	// char-ara CH1j: June 32ba7b80
+	bool			IsSkillAffectedByHellGateOpen( const int iSkillID_ ) const;	// char-ara CH1j: June 32b95a00
+	bool			IsSkillAffectedByLoadOfAsura( const int iSkillID_ ) const;	// char-ara CH1j: June 32b95b00
+	bool			IsSkillAffectedByFoxSmile( const int iSkillID_ ) const;	// char-ara CH1j: June 32b95b30
+	void			UpdateOpenMindBuffByForcePower();	// char-ara CH1j: June 32ba7cf0
+	void			UpdateValorDevotionTimer();	// char-ara CH1j: June 32ba7da0
+	void			CreateTranscendenceDamageEffectByTimer();	// char-ara CH1j: June 32bc13c0
+	void			StopKillEnemyEffectSet();	// char-ara CH1j: June 32bc5ea0
+	void			CleanupSkillFPGainTable();	// char-ara CH1j: June 32bc6aa0
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 	void			ProcessFullHyperHitReward( CX2DamageManager::DamageData& pDamageData_ );	// char-ara CH1h2: June 32bc9a60, body in CH1q
 	void			UpForcePowerBySkillHit( CX2DamageManager::DamageData& pDamageData_ );	// char-ara CH1h2: June 32bab780, body in CH1q
+	void			UpForcePowerByReadySkillGain();	// char-ara CH1j: June 32bab5c0, body in CH1q
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2
@@ -1453,7 +1464,7 @@ protected:
 		USHORT	m_usGain;			/// +0
 		bool	m_bHit;				/// +2: set by MarkSkillFPGainHit
 		int		m_iAttackSerial;	/// +4
-		int		m_iUnread;			/// +8
+		int		m_iUnread;			/// +8: CleanupSkillFPGainTable ( CH1j ) drops an entry once it is negative
 	};
 	struct SkillFPGainRecord	/// June 0x18-byte record of the vector at +0x9858
 	{
@@ -1464,7 +1475,7 @@ protected:
 	std::vector<SkillFPGainRecord>	m_vecSkillFPGainRecord;	/// June +0x9858: skills whose hits give force power ( CH4a fills it )
 	bool		m_bSkillFPGainLocked;				/// June +0x983c: cleared by Init / ReInit ( CH1q reads it )
 	int			m_iSkillFPGainSerial;				/// June +0x9840: -1 after Init / ReInit
-	int			m_iSkillFPGainCount;				/// June +0x9844: 0 after Init / ReInit
+	int			m_iSkillFPGainSkillID;				/// June +0x9844: the skill the FP-gain entries track ( 0 after Init / ReInit ), tested against the new state's skill by CommonStateStartFuture ( CH1j named it, CH1h had Count )
 	std::vector<int>		m_vecSkillFPGainSerial;	/// June +0x9848: cleared by Init / ReInit
 	// char-ara CH1i: the CH1i functions that need the record type above
 	std::vector<SkillFPGainRecord>::iterator	FindSkillFPGainEntry( std::vector<SkillFPGainRecord>::iterator itFirst_, std::vector<SkillFPGainRecord>::iterator itLast_, const int iSkillID_ ) const;	/// June 32bd6a70: body in CH1i, CH4a calls it
@@ -1479,6 +1490,16 @@ protected:
 	CX2DamageEffect::CEffectHandle	m_hManaDrainEffect;	/// June +0x97c8: damage effect of the Mana Drain attack
 	float		m_fManaDrainRetakeMp;				/// June +0x97cc: MP the Mana Drain hits have given back so far
 	USHORT		m_usManaDrainHitCount;				/// June +0x97d0: Mana Drain hits so far
+	// char-ara CH1j: members of the CH1j functions ( June offsets in june2017_re/char_ara/ch1_offsets.tsv )
+	float		m_fNowSkillPassiveRate;				/// June CX2GUUser +0x8908: stand-in held by Ara, the base reader 32051bef ( state power rate x it, then 1 ) is CH1q2's
+	CX2EffectSet::Handle	m_hKillEnemyEffectSet;	/// June +0x9718: the KILL_ENEMY effect set of the berserk kill reward ( CH1q starts it )
+	float		m_fNecromancyFoxCoolTime;			/// June +0x9768: wait before Necromancy's fox effect set plays again
+	float		m_fNecromancyFoxPowerRate;			/// June +0x976c: power rate that effect set plays with ( the Necromancy state sets it )
+	float		m_fValorDevotionTimer;				/// June +0x9868: counts down; Valor Devotion's buff is dropped once force power runs out while it is above 0
+	USHORT		m_usHellGhostCount;					/// June +0x986c: Hell Ghost damage effects still to create ( Open Mind, transcendence )
+	DWORD		m_dwHellGhostTime;					/// June +0x9870: tick of the last Hell Ghost damage effect
+	float		m_fLinkFlowerSlashTime;				/// June +0x987c: counted down here, set by the Link Flower Slash states ( CH3a2 )
+	int			m_iFPGainStateSkillID;				/// June +0x9834: set from the state skill at state change by the FP-gain helpers ( CH1q ), zeroed when a state has no skill
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 
 	UCHAR		m_ucBasicForcePower;		/// 기본 기력치

@@ -204,9 +204,11 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	, m_ucForcePowerCountAtDungeonStart( 0 ), m_ucForcePowerCountAtPvpStart( 0 ), m_iFullHyperModeAdvantageCount( 0 ), m_iFullHyperModeAdvantageHitCount( 0 )	// char-ara CH1h: June 32bc6bf0
 	, m_fFullHyperModeAdvantageIntervalTime( 0.f ), m_fFullHyperModeAdvantageTimer( 0.f ), m_fGainMpByForcePowerConversionHyperMode( 0.f )
 	, m_fNecromancyRate( -1.f ), m_fSpecterOfThunderRate( -1.f ), m_iCustomRenderState( 0 ), m_fRenderAlphaSpecterOfThunder( 1.f ), m_fRenderAlphaVeritablePandemonium( 1.f )
-	, m_bSkillFPGainLocked( false ), m_iSkillFPGainSerial( -1 ), m_iSkillFPGainCount( 0 )
+	, m_bSkillFPGainLocked( false ), m_iSkillFPGainSerial( -1 ), m_iSkillFPGainSkillID( 0 )	// char-ara CH1j: renamed, June +0x9844 is a skill id
 	, m_fSpecterOfThunderCoolTime( 0.f ), m_fSpecterOfThunderPowerRate( 1.f ), m_hGetBloodEffect( INVALID_DAMAGE_EFFECT_HANDLE ), m_iGetBloodHitUnitCount( 0 ), m_bRaidHit( false )	// char-ara CH1h2: June 32bc6bf0
 	, m_hManaDrainEffect( INVALID_DAMAGE_EFFECT_HANDLE ), m_fManaDrainRetakeMp( -1.f ), m_usManaDrainHitCount( 0 )
+	, m_fNowSkillPassiveRate( 1.f ), m_hKillEnemyEffectSet( INVALID_EFFECTSET_HANDLE ), m_fNecromancyFoxCoolTime( 0.f ), m_fNecromancyFoxPowerRate( 1.f )	// char-ara CH1j: June 32bc6bf0
+	, m_fValorDevotionTimer( 0.f ), m_usHellGhostCount( 0 ), m_dwHellGhostTime( timeGetTime() ), m_fLinkFlowerSlashTime( 0.f ), m_iFPGainStateSkillID( 0 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	, m_usForceGainCount( 0 ), m_usBeforeForceGainCount( 0 ), m_pSkillTemplet( NULL ), m_iPressedSkillSlotIndex( -1 )
 	, m_fMPConsume( 0.f )	
@@ -336,7 +338,7 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	m_vecSkillFPGainRecord.clear();	// char-ara CH1h: June 32bc7e90 tail
 	m_bSkillFPGainLocked = false;
 	m_iSkillFPGainSerial = -1;
-	m_iSkillFPGainCount = 0;
+	m_iSkillFPGainSkillID = 0;	// char-ara CH1j: renamed
 	m_vecSkillFPGainSerial.clear();
 #else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CX2GUUser::Init( bUseTeamPos_, iStartPosIndex_ );
@@ -440,7 +442,7 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	m_vecSkillFPGainRecord.clear();
 	m_bSkillFPGainLocked = false;
 	m_iSkillFPGainSerial = -1;
-	m_iSkillFPGainCount = 0;
+	m_iSkillFPGainSkillID = 0;	// char-ara CH1j: renamed
 	m_vecSkillFPGainSerial.clear();
 #else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	SetFullHyperMode( false );
@@ -4017,6 +4019,55 @@ void CX2GUAra::DeleteMajorMesh()
 }
 #pragma endregion
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+namespace _CONST_ARA_CH1J_
+{
+	// char-ara CH1j: June 32ba7ec0 / 32bc8380 switch on the upgrade-base skill id; the three groups the base passives scale
+	inline bool IsSkillAffectedByFullmoonSlash( const int iBaseSkillID_ )
+	{
+		switch ( iBaseSkillID_ )
+		{
+		case CX2SkillTree::RNSI_SA_ARA_PULLING_PIERCE:
+		case CX2SkillTree::RNSI_SA_ALH_DOUBLE_COLLISION:
+		case CX2SkillTree::RNSI_SA_ALH_MOONLIGHT_SLASH:
+		case CX2SkillTree::RNSI_SA_ARA_PULLING_PIERCE_UPGRADE:
+		case CX2SkillTree::RNSI_SA_ALH_DOUBLE_COLLISION_UPGRADE:
+			return true;
+		}
+
+		return false;
+	}
+
+	inline bool IsSkillAffectedByPowerOfTiger( const int iBaseSkillID_ )
+	{
+		switch ( iBaseSkillID_ )
+		{
+		case CX2SkillTree::RNSI_SA_ASD_TURBULENT_WAVE:
+		case CX2SkillTree::RNSI_A_ALH_ROCK_CRASH:
+		case CX2SkillTree::RNSI_A_ALH_TIGER_CLAW:
+		case CX2SkillTree::RNSI_A_ASD_LOW_BRANDISH:
+		case CX2SkillTree::RNSI_A_ALH_ROCK_CRASH_UPGRADE:
+			return true;
+		}
+
+		return false;
+	}
+
+	inline bool IsSkillAffectedByHowling( const int iBaseSkillID_ )
+	{
+		switch ( iBaseSkillID_ )
+		{
+		case CX2SkillTree::RNSI_SA_ARA_WIND_WEDGE:
+		case CX2SkillTree::RNSI_SA_ALD_WOLF_SPEAR:
+		case CX2SkillTree::RNSI_A_ALD_WOLF_CLAW:
+			return true;
+		}
+
+		return false;
+	}
+}
+using namespace _CONST_ARA_CH1J_;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 #pragma region CommonStateStartFuture
 /** @function	: CommonStateStartFuture
 	@brief		: 모든 스테이트의 StartFuture에서 호출되는 함수
@@ -4024,7 +4075,40 @@ void CX2GUAra::DeleteMajorMesh()
 void CX2GUAra::CommonStateStartFuture()
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1j: June 32bc8380 ( the base runs last: June jumps to it )
+	m_fNowSkillPassiveRate = GetNowSkillPassiveRate();
+
+	if ( true == HaveSkillBuff( CX2SkillTree::RNSI_P_ASD_VALOR_DEVOTION, 0, true )
+		&& true == IsSkillAffectedByFullmoonSlash( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( GetFutureStateSkillID() ) ) )
+		m_fNowSkillPassiveRate *= GetLearnedSkillAbilityValue( CX2SkillTree::SA_CHAIN_SKILL_ANI_SPEED_REL, CX2SkillTree::RNSI_P_ASD_VALOR_DEVOTION );
+
+	if ( 0 < GetFutureStateSkillID() )
+	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+		UpForcePowerByReadySkillGain();	// char-ara CH1j: June 32bab5c0, body in CH1q
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
+
+		if ( false == ( NULL != g_pData && NULL != g_pData->GetSkillTree() && true == CX2UISkillTreeNew::IsSameOrUpgradeSkill( m_iSkillFPGainSkillID, GetFutureStateSkillID() ) ) )
+		{
+			// June 32bd7230: the FP-gain tracking starts over for a skill the entries do not belong to
+			m_bSkillFPGainLocked = false;
+			m_iSkillFPGainSerial = -1;
+			m_iSkillFPGainSkillID = 0;
+			m_vecSkillFPGainSerial.clear();
+		}
+	}
+	else
+	{
+		CleanupSkillFPGainTable();
+		m_bSkillFPGainLocked = false;
+		m_iFPGainStateSkillID = 0;
+	}
+
 	CX2GUUser::CommonStateStartFuture();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	CX2GUUser::CommonStateStartFuture();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -4035,6 +4119,80 @@ void CX2GUAra::CommonStateStartFuture()
 void CX2GUAra::CommonStateStart()
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1j: June 32bd2a40 ( no DAMAGEDATA_CHANGE_TIME keys: June's Ara script does not read them )
+	m_fUseForcePowerTime = -1.f;
+	m_iUseForcePowerCount = 0;
+
+	if ( m_LuaManager.BeginTable( "USE_FORCE_POWER" ) == true )
+	{
+		LUA_GET_VALUE( m_LuaManager, 1, m_fUseForcePowerTime, -1.f );
+		LUA_GET_VALUE( m_LuaManager, 2, m_iUseForcePowerCount, 0 );
+
+		m_LuaManager.EndTable();
+	}
+
+	m_fAddForcePowerTime = -1.f;
+	m_iAddForcePowerCount = 0;
+
+	if ( m_LuaManager.BeginTable( "ADD_FORCE_POWER" ) == true )
+	{
+		LUA_GET_VALUE( m_LuaManager, 1, m_fAddForcePowerTime, -1.f );
+		LUA_GET_VALUE( m_LuaManager, 2, m_iAddForcePowerCount, 0 );
+
+		m_LuaManager.EndTable();
+	}
+
+	if ( m_LuaManager.BeginTable( "FP_CANCEL" ) == true )
+	{
+		LUA_GET_VALUE( m_LuaManager, 1, m_vFPCancel.x, -1.f );
+		LUA_GET_VALUE( m_LuaManager, 2, m_vFPCancel.y, -1.f );
+
+		m_LuaManager.EndTable();
+	}
+	else
+	{
+		m_vFPCancel.x = -1.f;
+		m_vFPCancel.y = -1.f;
+	}
+
+	ChangeAnimTail();
+	StopKillEnemyEffectSet();
+
+	const int iPrevAppliedSkillID = m_DamageData.m_iAppliedSkillID;
+	const int iPrevAttackSerial = m_DamageData.m_iAttackSerial;
+
+	CX2GUUser::CommonStateStart();
+
+	// June 32bd2c06: a new attack set the damage data's skill or serial, the entries of the one before count as hit
+	if ( m_DamageData.m_iAppliedSkillID != iPrevAppliedSkillID || m_DamageData.m_iAttackSerial != iPrevAttackSerial )
+		MarkSkillFPGainHit( iPrevAppliedSkillID, iPrevAttackSerial );
+
+	if ( true == m_DamageData.m_bMeleeAttack && true == m_bBrutalPiercing && NULL != m_pBrutalPiercingBuffFactor )
+		m_DamageData.PushBuffFactor( m_pBrutalPiercingBuffFactor );
+
+	m_ForcePowerSystem.SetUsedForcePowerAtThisState( 0 );
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
+	// char-ara CH1j: June 32bd2c74, Necromancy's fox attack: an effect set of a unit in a Specter state
+	if ( true == IsSpecterState() && m_fNecromancyFoxCoolTime <= 0.f && GetRandomFloat( 0 ) < m_fNecromancyRate )
+	{
+		WCHAR wszEffectSetName[256] = { 0, };
+		StringCchPrintfW( wszEffectSetName, 256, L"EffectSet_SI_SA_AA_NECROMANCY_FOX_ATTACK%d", GetRandomInt( 0 ) % 2 );
+
+		const CX2EffectSet::Handle hFoxEffectSet = g_pX2Game->GetEffectSet()->PlayEffectSet( wszEffectSetName, this, NULL, IsHyperState(), m_fNecromancyFoxPowerRate, -1.f, D3DXVECTOR3( 1.f, 1.f, 1.f ) );
+		if ( INVALID_EFFECTSET_HANDLE != hFoxEffectSet )
+			m_vecEffectSetToDeleteOnDamageReact.push_back( hFoxEffectSet );
+
+		m_fNecromancyFoxCoolTime = 1.f;
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
+
+	// June 32bd2e2c: Asura's X-X-down-X-Z black hole stays only through its three states ( June ids 284 - 286, the C++ members are not consecutive )
+	if ( ASI_COMBO_AA_XXDownXZStart != m_FrameDataNow.syncData.nowState && ASI_COMBO_AA_XXDownXZLoop != m_FrameDataNow.syncData.nowState
+		&& ASI_COMBO_AA_XXDownXZLoopX != m_FrameDataNow.syncData.nowState && INVALID_EFFECTSET_HANDLE != m_hComboXXdownXZBlackHole )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hComboXXdownXZBlackHole );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	
 	LUA_GET_VALUE( m_LuaManager, "DAMAGEDATA_CHANGE_TIME", m_fDamageDataChangeTime, 0.f );
 	LUA_GET_VALUE( m_LuaManager, "DAMAGEDATA_CHANGE_TIME2", m_fDamageDataChangeTime2, 0.f );
@@ -4083,6 +4241,7 @@ void CX2GUAra::CommonStateStart()
 		m_DamageData.PushBuffFactor( m_pBrutalPiercingBuffFactor );
 
 	m_ForcePowerSystem.SetUsedForcePowerAtThisState( 0 );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -4127,6 +4286,77 @@ void CX2GUAra::CommonFrameMoveFuture()
 void CX2GUAra::CommonFrameMove()
 {
 	KTDXPROFILE();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+	// char-ara CH1j: June 32bce2e0
+	CX2GUUser::CommonFrameMove();
+
+	UpdateOpenMindBuffByForcePower();
+	UpdateValorDevotionTimer();
+	CreateTranscendenceDamageEffectByTimer();
+
+	m_fLinkFlowerSlashTime -= m_fElapsedTime;
+
+	if ( false == IsMyUnit() )
+		SetForcePower( m_FrameDataNow.syncData.m_CannonBallCount );
+
+	BOOST_TEST_FOREACH( CX2EqipPtr, pPromotionEquipPtr, m_vecPromotionEquipList )
+	{
+		pPromotionEquipPtr->SetRenderParam( m_fTime, m_fElapsedTime, m_pXSkinAnim->GetRenderParam() );
+		pPromotionEquipPtr->OnFrameMove( m_fTime, m_fElapsedTime );
+	}
+
+	if ( 0.f < m_fNecromancyFoxCoolTime )
+		m_fNecromancyFoxCoolTime -= m_fElapsedTime;
+
+	if ( 0.f < m_fSpecterOfThunderCoolTime )
+		m_fSpecterOfThunderCoolTime -= m_fElapsedTime;
+
+	BOOST_TEST_FOREACH( CX2EqipPtr, pPromotionEquipTailPtr, m_vecPromotionEquipTailList )
+	{
+		pPromotionEquipTailPtr->SetRenderParam( m_fTime, m_fElapsedTime, m_pXSkinAnim->GetRenderParam() );
+		pPromotionEquipTailPtr->OnFrameMove( m_fTime, m_fElapsedTime );
+	}
+
+	if ( 0.f < m_fResurrectionCoolTime )
+	{
+		m_fResurrectionCoolTime -= m_fElapsedTime;
+
+		if ( 0.f >= m_fResurrectionCoolTime )
+			EraseBuffTempletFromGameUnit( BTI_DEBUFF_SELF_PROTECTION_FORTITUDE );
+	}
+
+	if ( false == IsSamef( m_fUseForcePowerTime, -1.f ) )
+	{
+		int iUseForcePowerCount = m_iUseForcePowerCount;
+		if ( 0 == iUseForcePowerCount )
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( GetNowStateSkillID(), true );
+			if ( NULL != pSkillTemplet )
+				iUseForcePowerCount = pSkillTemplet->m_usFPConsumtion;
+		}
+
+		// June 32bce61b: the force power the animation time spends is the skill's when the script gives no count
+		if ( true == m_pXSkinAnim->EventTimerOneshot( m_fUseForcePowerTime ) )
+		{
+			UseForcePower( iUseForcePowerCount );
+			m_fUseForcePowerTime = -1.f;
+		}
+	}
+
+	if ( false == IsSamef( m_fAddForcePowerTime, -1.f ) )
+	{
+		if ( true == UpForcePowerAtThisAnimationTime( m_fAddForcePowerTime, m_iAddForcePowerCount ) )
+			m_fAddForcePowerTime = -1.f;
+	}
+
+	if ( 0.f < m_fFullHyperModeAdvantageTimer )
+	{
+		m_fFullHyperModeAdvantageTimer -= m_fElapsedTime;
+
+		if ( m_fFullHyperModeAdvantageTimer <= 0.f )
+			m_fFullHyperModeAdvantageTimer = 0.f;
+	}
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 	CX2GUUser::CommonFrameMove();
 
 	if ( false == IsMyUnit() )
@@ -4172,6 +4402,7 @@ void CX2GUAra::CommonFrameMove()
 			m_fAddForcePowerTime = -1.f;
 	}
 #endif // SERV_ARA_CHANGE_CLASS_SECOND
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 }
 #pragma endregion
 
@@ -7392,6 +7623,11 @@ bool CX2GUAra::UpForcePowerAtThisAnimationTime( float fAnimationTimeNeededToChar
 #endif  X2OPTIMIZE_NPC_ADAPTIVE_FRAME_MOVE
 	{
 		UpForcePower( iUpCount_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
+		// char-ara CH1j: June 32baa0d0 @32baa186 ( the Open Mind buff is set again after every gain )
+		if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+			SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 		return true;
 	}
 
@@ -21839,6 +22075,193 @@ std::vector<CX2GUAra::SkillFPGainRecord>::iterator CX2GUAra::FindSkillFPGainEntr
 	}
 
 	return itFirst_;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
+// char-ara CH1j: June 32ba7ec0 ( stored by CommonStateStartFuture; the base multiplies it into the state's power rate, CH1q2 ports that reader )
+float CX2GUAra::GetNowSkillPassiveRate() const
+{
+	if ( NULL == g_pData || NULL == g_pData->GetSkillTree() )	// stand-in: June has no null test
+		return 1.f;
+
+	const int iBaseSkillID = g_pData->GetSkillTree()->GetUpgradeBaseSkillID( GetFutureStateSkillID() );
+
+	if ( true == IsSkillAffectedByFullmoonSlash( iBaseSkillID ) )
+		return GetPassiveSkillRate( CX2SkillTree::RNSI_P_ASD_FULLMOON_SLASH );
+
+	if ( true == IsSkillAffectedByPowerOfTiger( iBaseSkillID ) )
+		return GetPassiveSkillRate( CX2SkillTree::RNSI_P_ASD_POWER_OF_TIGER );
+
+	if ( true == IsSkillAffectedByHowling( iBaseSkillID ) )
+		return GetPassiveSkillRate( CX2SkillTree::RNSI_P_AYR_HOWLING );
+
+	if ( true == IsSkillAffectedByHellGateOpen( GetFutureStateSkillID() ) )
+		return GetPassiveSkillRate( CX2SkillTree::RNSI_P_AYR_HELL_GATE_OPEN );
+
+	if ( true == IsSkillAffectedByLoadOfAsura( GetFutureStateSkillID() ) )
+		return GetPassiveSkillRate( CX2SkillTree::RNSI_P_ASR_LOAD_OF_ASURA );
+
+	if ( true == IsSkillAffectedByFoxSmile( GetFutureStateSkillID() ) )
+		return GetPassiveSkillRate( CX2SkillTree::RNSI_P_ASR_FOX_SMILE );
+
+	return 1.f;
+}
+
+// char-ara CH1j: June 32ba7b80 ( the passive's SA_CHAIN_SKILL_ANI_SPEED_REL at level 1, whatever level it is learned at: JUNE_BUGS )
+float CX2GUAra::GetPassiveSkillRate( const int iPassiveSkillID_ ) const
+{
+	if ( NULL == GetUnit() )	// stand-in: June has no null test
+		return 1.f;
+
+	if ( GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( static_cast<CX2SkillTree::SKILL_ID>( iPassiveSkillID_ ), true, 0, true ) <= 0 )
+		return 1.f;
+
+	if ( NULL == g_pData || NULL == g_pData->GetSkillTree() )
+		return 1.f;
+
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( static_cast<CX2SkillTree::SKILL_ID>( iPassiveSkillID_ ) );
+	if ( NULL == pSkillTemplet )
+		return 1.f;
+
+	const float fRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_CHAIN_SKILL_ANI_SPEED_REL, 1, false );
+	return ( 0.f < fRate ? fRate : 1.f );
+}
+
+// char-ara CH1j: June 32b95a00
+bool CX2GUAra::IsSkillAffectedByHellGateOpen( const int iSkillID_ ) const
+{
+	switch ( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) )
+	{
+	case CX2SkillTree::RNSI_SA_AYR_ENERGY_BEAD:
+	case CX2SkillTree::RNSI_SA_ALD_PRISON_SPEAR:
+	case CX2SkillTree::RNSI_SA_AYR_STEAL_SOUL:
+	case CX2SkillTree::RNSI_A_ALD_FINGER_BULLET:
+		return true;
+	}
+
+	return false;
+}
+
+// char-ara CH1j: June 32b95b00
+bool CX2GUAra::IsSkillAffectedByLoadOfAsura( const int iSkillID_ ) const
+{
+	switch ( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) )
+	{
+	case CX2SkillTree::RNSI_SA_ARA_SHADOW_KNOT:
+	case CX2SkillTree::RNSI_SA_ALS_RESTRAINTS_SPECTER:
+	case CX2SkillTree::RNSI_SA_ALS_SEVER:
+		return true;
+	}
+
+	return false;
+}
+
+// char-ara CH1j: June 32b95b30
+bool CX2GUAra::IsSkillAffectedByFoxSmile( const int iSkillID_ ) const
+{
+	switch ( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( static_cast<CX2SkillTree::SKILL_ID>( iSkillID_ ) ) )
+	{
+	case CX2SkillTree::RNSI_SA_ASR_GET_BLOOD:
+	case CX2SkillTree::RNSI_A_ALS_VIEW_BETWEEN:
+	case CX2SkillTree::RNSI_A_ALS_SHAKE_CHAOS:
+	case CX2SkillTree::RNSI_A_ASR_RAID:
+		return true;
+	}
+
+	return false;
+}
+
+// char-ara CH1j: June 32ba7cf0 ( Sakra Devanam's Open Mind: its buff follows the gauge, full / empty / in between )
+void CX2GUAra::UpdateOpenMindBuffByForcePower()
+{
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_ASD_OPEN_MIND ) <= 0 )
+		return;
+
+	if ( true == IsFullForcePower() )
+	{
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_ASD_OPEN_MIND, 0, true );
+		EraseBuffTempletFromGameUnit( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_ASD_OPEN_MIND, 1, true ) );	// June 3229ea50
+	}
+	else if ( true == IsEmptyForcePower() )
+	{
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_ASD_OPEN_MIND, 1, true );
+		EraseBuffTempletFromGameUnit( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_ASD_OPEN_MIND, 0, true ) );
+	}
+	else
+	{
+		EraseBuffTempletFromGameUnit( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_ASD_OPEN_MIND, 0, true ) );
+		EraseBuffTempletFromGameUnit( GetSkillBuffTempletID( CX2SkillTree::RNSI_P_ASD_OPEN_MIND, 1, true ) );
+	}
+}
+
+// char-ara CH1j: June 32ba7da0 ( the timer counts down every frame, a full gauge reloads it, an empty one ends the buff once )
+void CX2GUAra::UpdateValorDevotionTimer()
+{
+	m_fValorDevotionTimer -= m_fElapsedTime;
+
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_ASD_VALOR_DEVOTION ) <= 0 )
+		return;
+
+	if ( true == IsFullForcePower() )
+	{
+		m_fValorDevotionTimer = GetLearnedSkillAbilityValue( CX2SkillTree::SA_TIME_ABS, CX2SkillTree::RNSI_P_ASD_VALOR_DEVOTION );
+		return;
+	}
+
+	if ( false == IsEmptyForcePower() )
+		return;
+
+	if ( 0.f < m_fValorDevotionTimer )
+	{
+		m_fValorDevotionTimer = 0.f;
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_ASD_VALOR_DEVOTION, 0, true );
+	}
+}
+
+// char-ara CH1j: June 32bc13c0 ( Yama Raja's transcendence Open Mind: one Hell Ghost every tenth of a second while the counter lasts )
+void CX2GUAra::CreateTranscendenceDamageEffectByTimer()
+{
+	if ( GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) <= 0 || 0 == m_usHellGhostCount )
+		return;
+
+	if ( static_cast<double>( static_cast<int>( timeGetTime() - m_dwHellGhostTime ) ) / 1000.0 <= static_cast<double>( 0.1f ) )
+		return;
+
+	--m_usHellGhostCount;
+	m_dwHellGhostTime = timeGetTime();
+
+	g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_P_AYR_TRANCENDENCE_Hell_Ghost", GetPowerRate(), GetBonePos( L"Bip01" ), GetRotateDegree(), GetRotateDegree(),
+		m_FrameDataNow.unitCondition.landPosition.y, false, 1.f, 1.f, 1.f, -1, -1.f, 0, -1.f );
+}
+
+// char-ara CH1j: June 32bc5ea0 ( the berserk kill reward's effect set ends with the next state, except Swallow Assault's )
+void CX2GUAra::StopKillEnemyEffectSet()
+{
+	if ( INVALID_EFFECTSET_HANDLE == m_hKillEnemyEffectSet || ASI_SA_ALH_SWALLOW_ASSAULT_ATTACK == m_FrameDataNow.syncData.nowState )
+		return;
+
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+		g_pX2Game->GetEffectSet()->StopEffectSet( m_hKillEnemyEffectSet );
+}
+
+// char-ara CH1j: June 32bc6aa0 ( entries a hit has used or that went negative go, then the records left empty )
+void CX2GUAra::CleanupSkillFPGainTable()
+{
+	for ( vector<SkillFPGainRecord>::iterator itRecord = m_vecSkillFPGainRecord.begin(); itRecord != m_vecSkillFPGainRecord.end(); )
+	{
+		for ( vector<SkillFPGainEntry>::iterator itEntry = itRecord->m_vecEntry.begin(); itEntry != itRecord->m_vecEntry.end(); )
+		{
+			if ( true == itEntry->m_bHit || itEntry->m_iUnread < 0 )
+				itEntry = itRecord->m_vecEntry.erase( itEntry );
+			else
+				++itEntry;
+		}
+
+		if ( true == itRecord->m_vecEntry.empty() )
+			itRecord = m_vecSkillFPGainRecord.erase( itRecord );
+		else
+			++itRecord;
+	}
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 //#ifdef FIX_GAIN_FORCE_BUG
