@@ -383,7 +383,7 @@ Plan `JUNE_STAT_CALC_PHASES.md` - branch `main` - log tag `[JUNE_STATCALC]` (`of
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | D0 | ready: damage map, `GetFinalDamage` block ledger (read-only); can run beside D1 | Opus 5.5 / xhigh; review Opus 5.5 / high | - | `june2017_re/statcalc/*.tsv`, funcmap rows (`StatCalc S33`), kickoffs | `D0.md`, review `D0-review.md` |
-| D1 | **ready: the 0-damage fix** - June's defence curve in `GetFinalDamage`, per-hit debug log, full build + secret-dungeon play-test | Opus 5.5 / high; review Opus 5.5 / high | - | `X2GameUnit.*`, Always.h, `june2017_re/statcalc/emu_defence.py`, `june_march_divergent.tsv` | `D1.md`, review `D1-review.md` |
+| D1 | **ready: the 0-damage fix** - June's defence curve in `GetFinalDamage`, per-hit debug log, full build + Elder secret dungeon play-test (33030; user 2026-11-12) | Opus 5.5 / high; review Opus 5.5 / high | - | `X2GameUnit.*`, Always.h, `june2017_re/statcalc/emu_defence.py`, `june_march_divergent.tsv` | `D1.md`, review `D1-review.md` |
 | D2 | blocked (D0 review, D1 review): the rest of `GetFinalDamage` as June's body | Opus 5.5 / xhigh, Opus review | D0 review, D1 review | `X2GameUnit.*`, `X2Unit.*`, Always.h | `D2.md` |
 | D3 | blocked (D2 review): hit pipeline - `SetDamageExceptionProcess` base / user / NPC, `DamageCheck` prelude, dispatch gaps | Opus 5.5 / high, Opus review | D2 review | `X2GameUnit.*`, `X2GUUser.*`, `X2GUNPC.*`, `X2DamageManager.*`, `X2DamageEffect.cpp` | `D3.md` |
 | D4 | blocked (D3 review): `DamageReact` damage arithmetic, user and NPC | Opus 5.5 / high, Opus review | D3 review | `X2GUNPC.cpp`, `X2GUUser.*` | `D4.md` |
@@ -392,7 +392,7 @@ Plan `JUNE_STAT_CALC_PHASES.md` - branch `main` - log tag `[JUNE_STATCALC]` (`of
 | S0 | ready: stat-sheet and resource map (read-only); runs beside anything | Opus 5.5 / xhigh; review Opus 5.5 / high | - | `june2017_re/statcalc/statcalc_map.tsv`, funcmap rows, kickoffs | `S0.md` |
 | S1 | blocked (S0 review, Stages 7 + 8 closed, D6 review): unit stat core | Opus 5.5 / high, Opus review | S0 review, Stages 7 + 8, D6 review | `X2Stat.*`, `X2Unit.*`, `X2GameUnit.*`, `X2GUUser.*` | `S1.md` |
 | S2 | blocked (S1): equipment, set items, enchant stat | Opus 5.5 / high, Opus review | S1 review | `X2Unit.*`, `X2Item.*`, `X2ItemStatCalculator.*` | `S2.md` |
-| S3 | blocked (S2; user answer on `320839e0`): sockets and options | Opus 5.5 / high, Opus review | S2 review | `X2SocketItem.*`, `X2GameUnit.*`, `X2GUUser.*`, `X2Unit.*` | `S3.md` |
+| S3 | blocked (S2): sockets and options, incl. June's `320839e0` rewrite (user approved 2026-11-12) | Opus 5.5 / high, Opus review | S2 review | `X2SocketItem.*`, `X2GameUnit.*`, `X2GUUser.*`, `X2Unit.*` | `S3.md` |
 | S4 | blocked (S3): buff finalizers | Opus 5.5 / high, Opus review | S3 review | `X2BuffFinalizer*`, `X2GameUnit.*` | `S4.md` |
 | R1 | blocked (S4): MP / awakening gain, regen, MP cost | Opus 5.5 / high, Opus review | S4 review | `X2GameUnit.*`, `X2GUUser.*`, `X2GageData.*`, class MP blocks | `R1.md` |
 | Z | blocked (R1 review): close | Sonnet 5.5 / medium | R1 review, D6 review | `MODS.md`, backlog, STATUS archive | `Z.md` |

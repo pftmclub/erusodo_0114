@@ -202,8 +202,8 @@ Not in D1: any other block of `GetFinalDamage` (D2), monster stat data, the Extr
 
 **Done gate.** `flagcheck` PASS for both flags; `junediverge --check` PASS; the emulation agrees on every input set (or each difference
 is explained as June's own behaviour with a `JUNE_BUGS.md` row); `DEPLOY OK`; `EXESTR OK` for `[JUNE_STATCALC] HIT`; play-test: in one
-secret dungeon per curve the user hits a monster that took 0 before, and the log's `rate=` is below 1 with `march=` at or above 1 for
-that monster; the monster's hits on the player also log.
+the Elder secret dungeon ("Decisions", item 1) the user hits a `k = 1.2` boss that took 0 before, and the log's `rate=` is below 1
+with `march=` at or above 1 for it; a `k = 1.0` monster logs a `rate=` below its `march=`; the monsters' hits on the player also log.
 
 ## Phase D2 - GetFinalDamage: the rest of June's body
 
@@ -305,7 +305,7 @@ pure function, an Opus review, and a play-test on every character (level 99, wit
 |---|---|---|---|
 | S1 | unit stat core: `SetKStat`, `SetGameStat`, `ResetMaxHP` / `ResetMaxMP`, `Stat` [9] / [10] | `_UNIT_STAT` | `X2Stat.*`, `X2Unit.*`, `X2GameUnit.*`, `X2GUUser.*` |
 | S2 | equipment, set items, enchant stat | `_EQUIP_STAT` | `X2Unit.*`, `X2Item.*`, `X2ItemStatCalculator.*` |
-| S3 | sockets and options: `320839e0`, `SumSocketOption`, socket skill levels | `_SOCKET` | `X2SocketItem.*`, `X2GameUnit.*`, `X2GUUser.*`, `X2Unit.*` |
+| S3 | sockets and options: `320839e0` (June's rewrite, approved 2026-11-12), `SumSocketOption`, socket skill levels | `_SOCKET` | `X2SocketItem.*`, `X2GameUnit.*`, `X2GUUser.*`, `X2Unit.*` |
 | S4 | buff finalizers `SetFactor` x3, buff stat members re-read | `_BUFF_FACTOR` | `X2BuffFinalizer*`, `X2GameUnit.*` |
 | R1 | MP / awakening gain, regen, MP cost, MP change rate, absorb | `_RESOURCE` | `X2GameUnit.*`, `X2GUUser.*`, `X2GageData.*`, class MP blocks |
 
@@ -331,12 +331,14 @@ Each code phase hands over, copy-ready (dev-console lines in full):
 5. **If not.** Which log line is missing or which field is off, and what that means.
 6. **Log check.** `python tools/logs.py --tag JUNE_STATCALC`: the lines the phase's gate names, by monster id.
 
-## Open questions for the user
+## Decisions (user, 2026-11-12)
 
-None blocks D0 or D1.
-1. **Which dungeon and monsters showed the 0 damage?** D1 tests one secret dungeon per curve either way; naming yours puts them in the
-   hand-off first.
-2. **Normal dungeons shift by a few percent** once D1 lands (table above: June is slightly harder at `k = 1.0`, easier at `k = 2.0`),
-   and so does damage taken. That is June's balance; D1 ports it as is.
-3. **`320839e0` (the option-data rewrite)** was left unported by an earlier decision (buff Phase 5c). S3 ports it under this plan's
-   rule unless you say that decision stands.
+1. **Where the 0 damage showed: the Elder secret dungeon** (the user does not remember the others). `DI_ELDER_SECRET_COMMON` 33030 and
+   `DI_ELDER_SECRET_HELL` 33031 are in `IsSecretDungeon`'s list, so they get game type 2. `NewNPCStat.lua` has six
+   `NUI_ELDER_SECRET_*` rows: `CANNON_BIG`, `PUNCH`, `SMALL_KNIFE` and `BUNKER` at `k = 1.0` (March: about a fifth of the damage),
+   `PUNCH_BOSS` and `SMALL_KNIFE_BOSS` at `k = 1.2` (March: 0). That matches "0 to little". D1's play-test is this dungeon.
+2. **`320839e0` (the option-data rewrite) is ported.** The buff Phase 5c decision to leave it out is withdrawn: S3 ports June's
+   rewrite whole.
+
+Not a question: normal dungeons shift by a few percent once D1 lands (table in "Measurement": June is slightly harder at `k = 1.0`,
+easier at `k = 2.0`), and so does damage taken. That is June's balance; D1 ports it as is.
