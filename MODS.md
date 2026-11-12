@@ -6680,3 +6680,20 @@ bar 2 that June lacks too).
 - **Follow-up (W3b, same day):** 9 Besma village textures June's `Besma_Village_G01.Y` names past a damaged MSZIP block (the census reader stopped
   there; `june2017_re/fxdata.py` now reads on): staged new into data028 (backup `kom_backup_stage_june/20261112_095755`), packed + copied. Revert:
   delete them from `kom_contents/data028_kom` and its manifest, re-pack / copy data028.
+
+## June's field graph: Besma rest is the hub between Besma, Altera and Peita (W3c, 2026-11-12)
+
+No flag, no exe change (data only). User decision: June's route.
+- **Portals.** `data034` `DLG_Map_Village.lua` (core list, edited): Besma 42 -> Elder field 1, Besma 43 -> Besma rest; Altera 62 / 63 and Peita 72 ->
+  Besma rest; Besma rest 311 / 313 / 315 -> Besma / Peita / Altera; Altera StartPos 67 (bottom walkway -> Altera field 3) removed. Each edited row
+  carries a `-- june-dungeons W3c` comment with March's value. `data036` `BattleFieldData.lua` (core list): Elder field 1's far portal -> Besma
+  StartPos 40 (March: Elder rest 300). `data036` `MapData.lua` (core list): June's Lanox rest `AddMapData` row (inert offline).
+- **Assets.** `kom.py stage-june june2017_re/w3c_stage_assets.tsv`: 4 Altera field 1 meshes (data032) and `field_Peita_stage1_bluegate.dds`
+  (data030) replaced by June's; backup `kom_backup_stage_june/20261112_102612`.
+- **Effect.** Elder field 2, Elder rest, Besma fields 1-3, Peita field 1, Altera fields 1-3 and the Altera rest can no longer be walked to (as in
+  June). June's quest data uses none of them on a reachable quest. The Besma rest -> Peita portal lands at June's undefined StartPos 108
+  (`JUNE_BUGS.md` #623).
+- **Deploy:** PACK OK + COPY OK data030 032 034 036.
+- **Revert:** copy back `kom_backup_tools/data030.kom.20261112_102907`, `data032.kom.20261112_102908`, `data034.kom.20261112_102908`,
+  `data036.kom.20261112_102909` into the game dir; in `kom_contents`, restore the 5 staged files from the stage backup and undo the commented rows in
+  the three Lua (`luasrc.py refresh` each).

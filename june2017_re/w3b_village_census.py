@@ -155,7 +155,8 @@ def main():
     add("(all)", "DLG_Map_Local_*.lua (region map UI)", "22 differ, 10 June-only, 22 March-only",
         "routed Stage 9 bullet: region-map dialogs; the 2026-10-09 user rollback keeps the core-list ones March's, a partial wave is not redone here")
     add("(all)", "DLG_Map_House_1.lua / _2.lua", "differs / June-only", "routed W3d: house dialog data that goes with the NPC roster")
-    add("(all)", "MapData.lua AddMapData (BEFORE / AFTER)", "June has 23 rows, March 18", "routed W3c: the field graph")
+    add("(all)", "MapData.lua AddMapData (BEFORE / AFTER)", "same as June for the 20 shared rows",
+        "W3c: shared rows were already June's; W3c added the Lanox rest row; VMI_GUILD_AGIT / VMI_SPA_RANOX / VMI_SPA_RUBEN rows routed W3d (June-only places)")
     add("(all)", "MapData.lua AddLocalMapInfo", "June 201, March 186", "routed Stage 9 with the region-map dialogs")
     with open(os.path.join(TRUNK, "june2017_re", "w3b_village_census.tsv"), "w", encoding="utf-8", newline="\n") as f:
         f.write("place\tcheck\tresult\twhy\n")

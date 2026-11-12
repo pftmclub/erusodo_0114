@@ -1,0 +1,6 @@
+name	june_kom	state	first_field
+Field_Altera_Stage0_Flying_Boat_E.Y	data032	differs	VMI_BATTLE_FIELD_ALTERA_FIELD_01
+Field_Altera_Stage0_Grass_D.Y	data032	differs	VMI_BATTLE_FIELD_ALTERA_FIELD_01
+Field_Altera_Stage0_Grass_E.Y	data032	differs	VMI_BATTLE_FIELD_ALTERA_FIELD_01
+Field_Altera_Stage0_Sky_Land_BB.Y	data032	differs	VMI_BATTLE_FIELD_ALTERA_FIELD_01
+field_Peita_stage1_bluegate.dds	data030	differs	VMI_BATTLE_FIELD_PEITA_FIELD_02

@@ -120,6 +120,17 @@ bottom path, Elder rest sign; detail in `W3c.md`). Kickoff `W3c.md`.
 Ruben drops `HI_POSTBOX`), the 18 June-only houses and 3 June-only places (spa Ruben / Ranox, guild agit), and the NPC service and talk keys June
 changes in ~40 houses. Each needs its assets, its `AddFieldNpc` gate and its offline system checked before June's value goes in. Kickoff `W3d.md`.
 
+## Phase W3e - June's field worlds and field rows (routed by W3c, 2026-11-12)
+
+**Run with:** Opus 5.5 high; identify, port what is safe, then a user play-test. W3c ported June's field graph and the route fields' assets that
+do not move the ground. Left: (1) Ruben field 1 is rebuilt in June (`Field_Ruben_Stage0_Linemap.lua` 53 lines vs 116, 10 meshes, BattleFieldData
+portal line 115 -> 51, 21 -> 10 monsters), but March's server spawn table `Ruben_Field_00.lua` walks lines up to 109 and June's copy is not in the tree;
+(2) June's line maps for Velder field 1, Sander field 4, Lanox fields 1-4 and the Sander field 3 sign `field_sander_stage2_Guidealpa.Y`, each checked
+against its spawn table and portal lines first; (3) BattleFieldData columns that are not the graph: `REQUIRE_LEVEL` on 26 rows (no March reader),
+Elder fields 1 / 2 middle bosses (June has none), `MAX_JOIN_USER_COUNT`, the Velder ship `REQUIRE_DUNGEON`. Boss-raid parts (third portals in Hamel /
+Sander fields, `RAID_FIELD_PORTAL_POSITION_INDEX`, the Nasod raid row, `raid_ssky.dds`) stay with C3z-8. Kickoff `W3e.md`; evidence
+`june2017_re/w3c_field_closure.tsv`.
+
 ## Order (recommendation, 2026-10-11)
 
 1. C3y-1b play-test (user) and review; 2. C3y-1c; 3. C3y-2 / 3 / 4 one at a time (identify halves can run earlier);
@@ -173,3 +184,40 @@ line map, meshes, sounds -> textures / XET / TET inside each mesh, June's copy, 
   `Field_Dragon_Road_Road02_1b`), staged new in data028 (backup `20261112_095755`), PACK OK + COPY OK data028 (md5 64674884). Closure 5,760 rows, 0
   differ / missing; census 0 unexplained. Boards and the Altera portal are June's route half-installed: user chose June's route -> W3c. Cobo list
   equals June's (June's dialog has no Elder / Altera rest rows).
+
+## W3c - Done (2026-11-12, Opus 5.5)
+
+Data only: no client source, no flag (flagcheck / junediverge not applicable; full build skipped: no code, the deployed exe is unchanged).
+User decision taken before the phase: June's route. Graph read from June's `DLG_Map_Village` / `BattleFieldData` / `MapData` (`june_src_fixed`).
+- **June's route (now live).** Ruben - Ruben field 1 - Elder - Elder field 1 - Besma - Besma rest - { Peita, Altera }; Peita - Peita fields 2 / 3 -
+  Velder as before. Besma east (43) -> Besma rest StartPos 310; Besma rest 311 -> Besma 41, 313 -> Peita 108, 315 -> Altera 60; Altera 62 / 63 ->
+  Besma rest 314; Peita 72 -> Besma rest 312; Besma west (42) -> Elder field 1 line 2; Elder field 1's far portal -> Besma StartPos 40 (was the
+  Elder rest 300). March's Altera StartPos 67 (bottom walkway -> Altera field 3) removed: June has no row and its line map drops that walkway.
+- **Edited (core-list source, `luasrc.py refresh`, `ledger --check` PASS, `core --check` PASS):** data034 `DLG_Map_Village.lua` (8 rows + 67 removed,
+  March key names kept, a one-line `-- june-dungeons W3c` comment with March's value on each); data036 `BattleFieldData.lua` (Elder field 1 portal 2);
+  data036 `MapData.lua` (June's Lanox rest `AddMapData`, MapData.lua:331-342; `AddMapData` is a no-op offline, `X2OfflineMapData.cpp:155`).
+  The 20 shared `AddMapData` rows already equalled June's (BEFORE / AFTER included); the Cobo zone / cost functions equal June's but for the
+  June-only `VMI_SPA_*` / `VMI_GUILD_AGIT` ids (-> W3d). After the edit every START_POS route equals June's bar Ruben 5 (spa, W3d).
+- **Reader check.** Village / rest targets take `EGS_STATE_CHANGE_FIELD_REQ` (`X2StateField.cpp:2139`: 20000-20010 / 1000-1008; Besma 20002, Altera
+  20003, Peita 20005, Besma rest 1001), and the "line index" there is a StartPosId (`GetStartPosLoc`, `X2StateField.cpp:2150`).
+- **June quirk kept:** Besma rest 313 -> Peita StartPos 108, which neither June nor March defines; `GetStartPosLoc` returns (0, 0, 0) in June too
+  (`324f1fd0`, funcmap). `JUNE_BUGS.md` #623.
+- **Stranded by June's route (as in June):** Elder field 2 + Elder rest (only reach each other), Besma fields 1-3, Peita field 1, Altera fields 1-3,
+  Altera rest; Cobo cannot reach them either (June's `DLG_Destination_byButton`, live since atlas A5, has no Elder / Altera rest row). Quest check (live
+  `FieldQuest` / `FieldSubQuest` = June's, adopt-june dry run "identical"): 63 June sub-quests name those fields; only quest 13000 "[Field] Under
+  Cover of Night" (Elder field 2) uses any, and nothing leads to it (June chains 12070 -> 13010); no save holds it (`unit_quest`). No dungeon entry
+  sits in a field. So nothing reachable is stranded.
+- **Field assets.** New `june2017_re/w3c_field_closure.py` (W3b's closure over every BattleFieldData world + line map): 5,199 rows, 23 differ,
+  1 missing. Staged the route fields whose ground does not move: `w3c_stage_assets.tsv` (Altera field 1: `Field_Altera_Stage0_Flying_Boat_E` /
+  `_Grass_D` / `_Grass_E` / `_Sky_Land_BB.Y`, data032; Peita field 2: `field_Peita_stage1_bluegate.dds`, data030); backup
+  `kom_backup_stage_june/20261112_102612`.
+- **Not ported, routed W3e:** Ruben field 1's June rebuild (line map 53 lines vs 116, 10 meshes, portal line 51) because March's server spawn table
+  `Ruben_Field_00.lua` walks lines up to 109 and June's copy is not in the tree, so Ruben field 1 stays March's whole (its link to Elder is the same);
+  June's Velder 1 / Sander 4 / Lanox 1-4 line maps and Sander 3 sign; BattleFieldData's non-graph columns (`REQUIRE_LEVEL`, Elder middle bosses,
+  join counts, Velder ship gate). Boss-raid portals / rows -> C3z-8.
+- **Elder rest end sign:** `Field_Elder_StageRest_alpaguide.Y` and its texture `Field_Elder_Type1.dds` ("Twin Watchtower", the Elder field 2 board)
+  are byte-equal to June's (W3b closure `same`), so what shows there is June's look.
+- **Census:** `w3b_village_census.py` re-run: 248 rows, 0 unexplained, 0 `routed W3c`.
+- **PACK OK + COPY OK:** data030 (md5 d61905ba), data032 (604d6989), data034 (3c785a26), data036 (ff70b7d4); each pack changed only the intended
+  entries. Revert: copy back `kom_backup_tools/data0{30,32,34,36}.kom.20261112_1029*`, restore the staged files from the stage backup, and undo the
+  commented rows in the three Lua (`luasrc.py refresh` each).

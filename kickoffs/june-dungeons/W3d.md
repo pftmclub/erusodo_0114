@@ -27,7 +27,8 @@ Census, then port what is unambiguous, house by house (data034 `DLG_Map_Village.
   Ruben village drops `HI_POSTBOX`. For each: its assets (`w3b_asset_closure.py` covers listed houses once added), its `AddFieldNpc` gate
   (`X2TFieldGame.cpp` ~3317-3391: quest relation, code-event, EDAN / spa-sign gates), and what clicking it opens offline (guild, events).
 - The 18 June-only house blocks and the June-only places `VMI_SPA_RUBEN`, `VMI_SPA_RANOX`, `VMI_GUILD_AGIT` (worlds and systems March lacks):
-  identify and route (scope rule), do not half-add.
+  identify and route (scope rule), do not half-add. With them go June's data036 `MapData.lua` `AddMapData` rows and the
+  `CheckCOBOExpressTicketMapID` / `ComputeCOBOExpressTicketCost` branches for those three ids (W3c left them; March's Enum lacks two of the names).
 - Per-house service keys June changes (`EXCHANGE`, `MAKING_NPC`, `OLD_ENCHANT`, `OLD_ADVANCED_ENCHANT`, `HENIR_EQUIP_UPGRADE`, `EXTRACTION`, `TRADE`,
   `SYNTHESIS`, `GUILD`, `GURA_2014_EVENT`, `EVENT2/3`) and talk tables (`NPC_TALK_LIST*`, `NPC_COMMON_TALK`, `*_Talk`, `TALK_BOX`) in ~40 houses:
   check each system and string id exists in March before taking June's value. `HI_LUTO` / `HI_APINK` keys go with their listing.
