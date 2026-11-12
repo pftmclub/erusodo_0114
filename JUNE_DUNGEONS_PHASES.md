@@ -302,3 +302,6 @@ W3c fix `SERV_IRUHADEV_JUNE_FIELD_CHANGE_ACK` stays on). User decision (2026-11-
 - **Re-test 2 (user, 2026-11-12):** walkway signpost passed. Cobo rows showed empty: my insert had copied each March block only up to its first
   blank line (control created, no picture / string). Replaced with March's whole blocks (icon `Icon_Elder` / `Icon_Altera`, `STR_ID_19920` /
   `STR_ID_19922`, red like the Besma rest); refresh, ledger / core check PASS; PACK OK + COPY OK datai014 (md5 d279d73a). Re-test owed: Cobo only.
+- **Re-test 3 (user, 2026-11-12): passed.** Cobo rows show icon + name; logs: `button warp 20003 -> 1000, cost=21780` and `1000 -> 1002,
+  cost=27720`, each followed by `entering mapID=1000 / 1002 (warp item)`; 0 EXCEPTION. W3f done. (Unrelated, not this phase: `ChainQuestInfo.lua`
+  calls the unbound `AddGroupChainQuest`.)
