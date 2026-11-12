@@ -378,12 +378,11 @@ Plan `JUNE_STAT_CALC_PHASES.md` - branch `main` - log tag `[JUNE_STATCALC]` (`of
 
 **Scope:** every stat and damage formula becomes June's whole calculation. Damage track D0-D6 runs now (user 2026-11-12: secret-dungeon monsters take 0 or tiny damage; cause = March's straight-line defence formula reading June's monster defence, fix = D1). Stat-sheet and resource track S1-S4 / R1: code after Stages 7 and 8 (user 2026-10-27). D1-D5 all edit `X2GameUnit.cpp` / `X2GUNPC.cpp` / `X2GUUser.cpp`: one at a time, and not beside a char-port phase that edits the same file.
 
-Done: D0 (2026-11-12, reviewed: ledger 55 ranges holds in the exe; map rows 12 / 31 / 32 were already ported, set June; march_lines remapped past D1).
+Done: D0 (2026-11-12, reviewed: ledger 55 ranges holds in the exe; map rows 12 / 31 / 32 were already ported, set June; march_lines remapped past D1), D1 (2026-11-12, reviewed: compiled rate and floor = June's instructions; level gap none, re-proved; 939 emu sets; play-test passed).
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| D1 | **play-test passed 2026-11-12** (flag `JUNE_STATCALC_DEFENCE_CURVE` + `_DEBUG`): Punch Boss 1470 `rate=0.65` vs `march=2.05`, HP moves; **review next** | Opus 5.5 / high; review Opus 5.5 / high | - | `X2GameUnit.*`, Always.h, `june2017_re/statcalc/emu_defence.py`, `june_march_divergent.tsv` | `D1.md`, review `D1-review.md` |
-| D2a | blocked (D1 review): `GetFinalDamage` `32284aa0-32285ccf` as June's (hook `3229a530`, class passives, smash, state lists); probe build, no review of its own | Opus 5.5 / xhigh | D1 review | `X2GameUnit.*`, Always.h | `D2a.md` |
+| D2a | **ready** (D0 + D1 reviews done): `GetFinalDamage` `32284aa0-32285ccf` as June's (hook `3229a530`, class passives, smash, state lists); probe build, no review of its own | Opus 5.5 / xhigh | D1 review | `X2GameUnit.*`, Always.h | `D2a.md` |
 | D2b | blocked (D2a): `GetFinalDamage` `32285ccf`-end as June's (level path, state defence, boss, shield, HP-rate gate, `32869e10`); full build + play-test for both | Opus 5.5 / xhigh; review Opus 5.5 / high (covers D2a) | D2a | `X2GameUnit.*`, `X2Unit.*`, `X2GUChung.*`, Always.h | `D2b.md`, review `D2-review.md` |
 | D3 | blocked (D2 review): hit pipeline - `SetDamageExceptionProcess` re-check (base / user / NPC already June), `DamageCheck` prelude, dispatch gaps | Opus 5.5 / high, Opus review | D2 review | `X2GameUnit.*`, `X2GUUser.*`, `X2GUNPC.*`, `X2DamageManager.*`, `X2DamageEffect.cpp` | `D3.md` |
 | D4 | blocked (D3 review): `DamageReact` damage arithmetic, user and NPC | Opus 5.5 / high, Opus review | D3 review | `X2GUNPC.cpp`, `X2GUUser.*` | `D4.md` |

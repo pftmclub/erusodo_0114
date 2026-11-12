@@ -362,6 +362,42 @@ jtLordKnight (unit 25, Lord Knight 99) in `DI_ELDER_SECRET_HELL` 33031; monsters
   comes after the defence rate (a 0 motion damage or a later multiplier); D2a / D2b read the rest of the body.
 - Not run: `_SMALL_KNIFE_BOSS` 1469 and the second dungeon (Altera Secret Hell 33051); the plan's gate is met without them.
 
+### Phase D1 - Review (2026-11-12)
+
+Verdict: **D1 holds; no transcription error, no code change, no build** (the deployed exe md5 f030a272 stays). Opus 5.5 / high.
+
+**Against the exe** (`disasm_range.py`, June `32284aa0`):
+- **Units.** `EBP` = DD `+0xc` (attacker, @32284b9e-32284bb1), `[esp+0x38]` = DD `+0x470` (defender, @32284bb5-32284bcf). The rate's
+  level is vslot `0x20c` on `[esp+0x38]` (@32285d58-32285d66) = `pDefender->GetUnitLevel()`; the level-damage path calls the same slot
+  on `EBP` @32285dea and `[esp+0x38]` @32285e17, as March's `pAttacker` / `pDefender` (:3453-3466). `+0x85d` is `IsDamageFreeGame()`
+  (that path's 18.0 test @32285dde = March's `IsDamageFreeGame() == false`). Holds.
+- **Rate.** `fild level; fmul qword 33487178; fadd qword 33487170; fstp dword` then `fld def; fld curve; fadd st(1); fdivp` =
+  `def / ( curve + def )`, the curve rounded to float in between. **Our compiled port at `X2_offline.exe` 0x32c79f6e-0x32c79f8e is
+  the same nine instructions** (its double constants 0x33ce1518 / 0x33ce1510 = `(double)39.35f` / `(double)258.65f`). Holds.
+- **Multipliers.** `[esp+0x3c]` frozen, `[esp+0x18]` = 1.0, or vslot `0x428` on the attacker when `+0x264` (`m_GameUnitType`) is 0
+  (`GUT_USER`) with `attackType` pushed = :3381-3383. Order `( rate * frozen ) * skill`, as the port. Holds.
+- **Floor.** `fldz; fcom t; test ah, 0x41; jne` keeps `t` when `0 < t`, `0 == t` or unordered: `t < 0` -> 0, NaN passes, a rate below 0
+  (defence between minus the curve and 0) gives `t > 1` unclamped, a rate above 1 floors to 0. **Our compiled floor 0x32c7a206-0x32c7a227
+  is June's 32286068-3228608c instruction for instruction.** Holds.
+- **Sharpen Arrow** on `[ebx+8]` (`attackType`) == 2 = `AT_COMMAND` only (@32285ccf-32285ce2). Holds.
+- **Level-gap factor: none, re-proved.** Byte scan of the June exe: 0.065 and 410 (float, double, float-as-double) and 1.635 absent;
+  348.0f once, unaligned inside a data table, no reference; 0.127f one reader (Chung @32c19cd1); 62.0f readers 3226748a / 32e01f71; 62.0
+  double one reader, 32de443d, a UI position offset (`x + 62`). No twin.
+- **`#else` = March:** `flagcheck SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE --range 42183ed2^..42183ed2 --with
+  SERV_IRUHADEV_JUNE_STATCALC_DEBUG`: 1 PASS (X2GameUnit.cpp +59), 1 DEFINE, 0 OTHER, 0 FAIL, 0 deleted, 0 non-ASCII, 0 EOL, 0 tok ->
+  `RESULT: PASS`. `git log -S` of both flags over `42183ed2..HEAD`: no commits. `junediverge --check-all`: `RESULT: PASS` (206 allow-listed).
+
+**Emulation:** `emu_defence.py` with 50 review sets added (`review_inputs()`: the logged hits, frozen 0.75, skill 0.8, level 0 / -5 /
+120, NaN and denormal defence, both sides of minus the curve at level 1, multipliers 2.5 and -1, 35 seeded random sets):
+`EMU_DEFENCE OK: 939 input sets, 0 mismatch(es) (rate and damage rate compared bit for bit, NaN = NaN)`.
+
+**Play-test lines** (154 HIT lines, 12:54-12:57): 1470 `dlv=104 defence=8121 rate=0.6511` = 8121 / (104 x 39.35 + 258.65 + 8121);
+`march=2.0472` = 8121 x 1.635 / 6486. 1466 `rate=0.5526 march=1.3547`; 532 -> unit 25 `dlv=99 defence=3381 rate=0.4487`; all recompute.
+Rates span 0.4487-0.6511, no NaN / inf. 1469 and 1551 have no lines (not run, as the Done note says). 17 lines show `dmg=0` at a normal
+rate, two of them incoming (530 / 532 -> 25): routed to D2b's kickoff as a lead (its `GFD` lines must show which multiplier gives the 0).
+
+**Kickoffs.** D2a fits (Depends: D1 review, now met). D2b: the `dmg=0` lead added. The debug define stays on until the D6 review.
+
 ## Phase D2 - GetFinalDamage: the rest of June's body
 
 **Scope.** Every `gfd_blocks.tsv` range still `March`, `mixed` or `absent`, under `SERV_IRUHADEV_JUNE_STATCALC_FINAL_DAMAGE`, so the

@@ -12,6 +12,7 @@ Usage: python june2017_re/statcalc/emu_defence.py      (prints one line per mism
 import ctypes
 import itertools
 import math
+import random
 import struct
 
 from unicorn import Uc, UC_ARCH_X86, UC_MODE_32
@@ -90,6 +91,27 @@ def inputs():
         yield lv, d, fr, sk
     for lv in levels:  # defence = -(level curve): the divide-by-zero edge
         yield lv, -f32(float(lv) * D39 + D258), 1.0, 1.0
+    for row in review_inputs():
+        yield row
+
+
+def review_inputs():
+    """D1 review: 50 more sets - the play-test's own hits, odd levels, fractional rates, defences near the edges"""
+    for lv, d in ((104, 8121.0), (104, 5374.0), (99, 3381.0), (99, 4155.0), (99, 4571.0)):  # logged HIT lines
+        yield lv, d, 1.0, 1.0
+    yield 104, 8121.0, 0.75, 1.0     # frozen debuff on the k 1.2 boss
+    yield 99, 4571.0, 1.0, 0.8       # a skill rate below 1
+    yield 120, 1e-30, 1.0, 1.0       # denormal-range defence
+    yield 1, -297.0, 1.0, 1.0        # just past minus the curve (298.0)
+    yield 1, -299.0, 1.0, 1.0        # just short of it
+    yield 0, 100.0, 1.0, 1.0         # level 0
+    yield -5, 100.0, 1.0, 1.0        # a negative level (never read, but the fild takes it)
+    yield 99, math.nan, 1.0, 1.0     # NaN defence
+    yield 99, 5000.0, 2.5, 1.0       # rate x multiplier above 1: floored to 0
+    yield 99, 5000.0, -1.0, 1.0      # negative multiplier: damage rate above 1
+    rng = random.Random(20261112)
+    for _ in range(35):
+        yield (rng.randint(1, 120), f32(rng.uniform(-3000.0, 30000.0)), f32(rng.uniform(0.3, 1.2)), f32(rng.uniform(0.5, 1.5)))
 
 
 def main():

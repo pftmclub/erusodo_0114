@@ -33,6 +33,8 @@ Port every `gfd_blocks.tsv` range from `32285ccf` on that is `mixed` or `absent`
 - `GetEquippingItemByEquipPos` `32869e10`'s third argument: replace March's definition (divergent row) and fix its callers as June's
   (`GetFinalDamage`'s piercing term, `CalcExtraAttackPower`, the rest found by grep).
 - Re-read `GetIgnoreDefenceRate` `32274970` (map row `unknown`).
+- D1's play-test lead (D1 review): 17 of 154 `HIT` lines show `dmg=0` at a normal `rate=` (0.45-0.65), on every monster kind and on two
+  incoming hits (530 / 532 -> the player). The `GFD` lines must show which multiplier gives the 0; if no range of D2a / D2b does, say so.
 
 `GFD` debug lines for each multiplier of this half; one emulation script per pure helper ported. Full build and the phase section's
 play-test, which covers D2a's ranges too. Write `D2-review.md` from `kickoffs/TEMPLATE-review.md` (it reviews D2a and D2b).
