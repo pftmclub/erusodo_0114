@@ -42,3 +42,8 @@ Little Hsien / Sakra Devanam / Little Devil / Yama Raja and read each preview an
 - **Transition units.** Units 98 / 48 / 104 are transcended by CH3d's set-up: walk the becoming-transcended transition on fresh un-transcended 118 / 119 / 124 units ( `createchar.py`, level 70+ ). Expect the level-70 guide popup ( `LevelUpEvent.lua` TYPE6, `DLG_Transcendental_Change_Guide_Ara.lua`, `AraVoice_ClassUpReady01 / 02` ) and the gray / party pictures ( `[JUNE_TRANSCEND] IMAGE` type 3 `Texture101_GRAY`, type 6 `Texture100_NEW` ).
 - **CH3 items no play-test reached:** Smash ( Get Blood's chain, after CH4a writes its multiplier ), Low Brandish's kick state, and one base id of each Enhanced pair ( the emulator's `SeedAutoLearn` re-learns the Enhanced id: slot the base after removing the Enhanced one ).
 - **The CH2dx chain guard.** `CX2GUAra::IsStateRegistered` ( stand-in, `X2GUAra.cpp`, chain step refusal under `_SKILL` ) was to stay "until CH3's chain states are registered"; they are now. Use the `s3_no_state.py` / `charport_scan.py` reruns to list any chain target still unregistered; if none, Z retires the guard ( June has none ). Its refusal log line is under the retired `_SKILL_DEBUG`.
+
+## Amended by the CH4b review (2026-11-12)
+
+- **Valor Devotion (27416, Sakra Devanam):** its buff starts when a **full** force-power gauge reaches 0 within 2 s (June `32ba7da0`), not while the gauge is full. In the walk, fill the gauge, cast Advent Dragon (27064, costs 10), then a Tiger Stance skill: its MP cost drops x0.9.
+- **Conversion Health (27210):** in PvE June's passive branch writes 0.06 over the data's own 0.06 (a no-op); the walk only checks HP goes up when it hits.

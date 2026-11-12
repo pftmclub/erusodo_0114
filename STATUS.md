@@ -108,7 +108,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH4b | done (play-test passed, logs clean; Resurrection + Quick Piercing seen); ready: the CH4 stage review (`CH4b-review.md`, CH4a-CH4b, retires `_PASSIVE_DEBUG`) | Opus 5.5 / high, Opus review, user play-test | CH4a | `X2GUAra.*`, `X2GUUser.*` | `CH4b.md` |
+| CH4b | review: pass, no code fix (comment + funcmap row corrected); play-test owed on the deployed exe (Valor Devotion via Advent Dragon on 98, Conversion Health on 48), then `_PASSIVE_DEBUG` retires | Opus 5.5 / high, Opus review, user play-test | CH4a | `X2GUAra.*`, `X2GUUser.*` | `CH4b-review.md` |
 | CH6 | blocked (CH4b review): scans rerun + user walk incl. both job changes and the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH4b, CH5, CHNb reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template + CH-N rewrite, unblock `char-elesis`'s code rows (planned 2026-11-11) | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 

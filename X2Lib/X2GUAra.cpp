@@ -3023,7 +3023,7 @@ void CX2GUAra::InitStateByUnitClass()
 					m_iGainMpByFpConversion = static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, iSkillLevel ) );
 			}
 
-			SetCanAvoidance( 0 < userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_ASD_BREAKING, false, 0, true ) );	// June reads the base id only, not 27233
+			SetCanAvoidance( 0 < userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_ASD_BREAKING, false, 0, true ) );	// char-ara CH4b review: June 32bcdd88 reads 27207 with the upgrade swap, so 27233 counts
 
 			iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ASD_VIGOR_ENERGIZE, true, 0, true );
 			if ( 0 < iSkillLevel )
