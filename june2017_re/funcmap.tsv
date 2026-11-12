@@ -10235,3 +10235,50 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32bc92a0	CX2GUAra::ASI_A_ASD_LOW_BRANDISH_KICK_CreateState	PORTED	Char Ara CH3a2: = March's CreateState ( table KICK, Init / FrameMove / EventProcess ): no code
 32bd09d0 (CH3a2)	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex	PORTED	Char Ara CH3a2: RNSI labels 27012 / 27053 ( Peerlessness Slash ), 27207 / 27233 ( Breaking ), 27206 / 27232 ( Low Brandish ) added to March's cases; new cases 27043 ( the three chain states only ), 27044 and 27226 ( normal EventProcess, hyper = CopyStateCallbacks, END state with the shared GenericActiveSkillEventProcess ), 27064 ( Init + GenericSpecialActiveSkillEventProcess ); Breaking's attack / avoidance states gain StateStart
 32bd34c0 (CH3a2)	CX2GUAra::InitAquiredActiveSkillState	PORTED	Char Ara CH3a2: RNSI labels 27206 / 27232 added to March's Low Brandish case ( SLICE 247, KICK 248 ); the chain lookup takes the swapped id
+32b93320	CX2GUAra::ASI_A_AYR_HIGH_SPEED_READY_EventProcess	PORTED	Char Ara CH3b: = March: no code
+32b933b0	CX2GUAra::ASI_A_AYR_HIGH_SPEED_Init	PORTED	Char Ara CH3b: = March: no code
+32b933e0	CX2GUAra::ASI_A_AYR_HIGH_SPEED_StateStartFuture	PORTED	Char Ara CH3b: June body inside March's function under _SKILL: the speed value is read through the equipped-skill helper ( upgrade swapped ); a failed read keeps the old value
+32b93430	CX2GUAra::ASI_A_AYR_HIGH_SPEED_StateEndFuture	PORTED	Char Ara CH3b: = March: no code
+32b93930	CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_Init	PORTED	Char Ara CH3b: = March: no code
+32b93990	CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_StateStart	PORTED	Char Ara CH3b: = March: no code
+32b939b0	CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_FINISH_Init	PORTED	Char Ara CH3b: = March: no code
+32b93aa0	CX2GUAra::ASI_A_AYR_STEAL_SOUL_Init	PORTED	Char Ara CH3b: = March: no code
+32b93b00	CX2GUAra::ASI_A_AYR_STEAL_SOUL_FINISH_Init	PORTED	Char Ara CH3b: = March: no code
+32b93b80	CX2GUAra::ASI_SA_AYR_ENERGY_VOID_START_Init	PORTED	Char Ara CH3b: = March: no code
+32b93bc0	CX2GUAra::ASI_SA_AYR_ENERGY_VOID_START_StateStartFuture	PORTED	Char Ara CH3b: = March ( CH1p already ported it ): no code
+32b93bf0	CX2GUAra::ASI_SA_AYR_ENERGY_VOID_START_StateStart	PORTED	Char Ara CH3b: = March: no code
+32b93c10	CX2GUAra::ASI_SA_AYR_ENERGY_VOID_LOOP_Init	PORTED	Char Ara CH3b: = March: no code
+32b93c90	CX2GUAra::ASI_SA_AYR_ENERGY_VOID_END_Init	PORTED	Char Ara CH3b: = March: no code
+32b93e40	CX2GUAra::ASI_SA_AYR_OPEN_THE_HELL_Init	PORTED	Char Ara CH3b: = March: no code
+32b95370	CX2GUAra::ASI_SA_AYR_RAKSASA_FIRE_Init	PORTED	Char Ara CH3b: new function, whole June body
+32b9db10	CX2GUAra::ASI_A_AYR_HIGH_SPEED_EventProcess	PORTED	Char Ara CH3b: June body inside March's function under _SKILL: walk and dash cancels need the foot on a line ( _ON_LINE_ macros )
+32b9e6e0	CX2GUAra::ASI_A_AYR_STEAL_SOUL_FINISH_EventProcess	PORTED	Char Ara CH3b: June body inside March's function under _SKILL: walk and dash cancels need the foot on a line
+32b9e7f0	CX2GUAra::ASI_SA_AYR_ENERGY_VOID_START_EventProcess	PORTED	Char Ara CH3b: = March: no code
+32b9e820	CX2GUAra::ASI_SA_AYR_ENERGY_VOID_LOOP_EventProcess	PORTED	Char Ara CH3b: June body inside March's function under _SKILL: charge 5 ( March 4 ) and the key released ends the loop ( the key calls are CH1p )
+32b9e8a0	CX2GUAra::ASI_SA_AYR_ENERGY_VOID_END_EventProcess	PORTED	Char Ara CH3b: June body inside March's function under _SKILL: walk and dash cancels need the foot on a line
+32b9ed30	CX2GUAra::ASI_SA_AYR_OPEN_THE_HELL_EventProcess	PORTED	Char Ara CH3b: = March: no code
+32ba44a0	CX2GUAra::ASI_SA_AYR_RESTRICTION_ENERGY_START_StateStart	PORTED	Char Ara CH3b: new function, whole June body
+32baa7f0	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( outlined case helper )	PORTED	Char Ara CH3b: the case body is the registration row of 32bd09d0 ( CH3b )
+32baa830	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( outlined case helper )	PORTED	Char Ara CH3b: the case body is the registration row of 32bd09d0 ( CH3b )
+32baa9e0	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( outlined case helper )	PORTED	Char Ara CH3b: the case body is the registration row of 32bd09d0 ( CH3b )
+32baaa80	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( outlined case helper )	PORTED	Char Ara CH3b: the case body is the registration row of 32bd09d0 ( CH3b )
+32bacfa0	CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_EventProcess	PORTED	Char Ara CH3b: June body inside March's function under _SKILL: end through StateChangeOrFPCancel( 268 ), probe window, walk and dash cancels on a line ( = Prison Spear )
+32bad260	CX2GUAra::ASI_A_AYR_STEAL_SOUL_EventProcess	PORTED	Char Ara CH3b: June body inside March's function under _SKILL: end through StateChangeOrFPCancel( 272 ) and nothing else that frame, probe window, cancels on a line
+32bad9a0	CX2GUAra::ASI_SA_AYR_RESTRICTION_ENERGY_START_EventProcess	PORTED	Char Ara CH3b: new function, whole June body
+32bada30	CX2GUAra::ASI_SA_AYR_REVERSE_GRAVITY_FIELD_START_EventProcess	PORTED	Char Ara CH3b: new function, whole June body
+32bae9d0	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( outlined case helper )	PORTED	Char Ara CH3b: the case body is the registration row of 32bd09d0 ( CH3b )
+32baf600	CX2GUAra::ASI_A_AYR_STEAL_SOUL_StateStart	PORTED	Char Ara CH3b: = March: no code
+32baf670	CX2GUAra::ASI_A_AYR_STEAL_SOUL_FINISH_FrameMove	PORTED	Char Ara CH3b: June body inside March's function under _SKILL: AttackResult ( vslot 0x64 ) after each unit pulled down
+32bb06f0	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( outlined case helper )	PORTED	Char Ara CH3b: the case body is the registration row of 32bd09d0 ( CH3b )
+32bb0740	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( outlined case helper )	PORTED	Char Ara CH3b: the case body is the registration row of 32bd09d0 ( CH3b )
+32bbadc0	CX2GUAra::ASI_SA_AYR_ENERGY_VOID_END_StateStart	PORTED	Char Ara CH3b: = March: no code
+32bbae10	CX2GUAra::ASI_SA_AYR_ENERGY_VOID_END_FrameMove	PORTED	Char Ara CH3b: June body inside March's function under _SKILL: June's skill id 27019 for the templet and the level ( upgrade swapped )
+32bc2c50	CX2GUAra::ASI_SA_AYR_ENERGY_VOID_LOOP_StateStart	PORTED	Char Ara CH3b: June body inside March's function under _SKILL: charge 5 ( March 4 ) spends force power and creates the attack effect ( June's +1 on the used-force-power count +0x9614 is not ported: CH1q dropped the member, no reader )
+32bc56d0	CX2GUAra::ASI_SA_AYR_RESTRICTION_ENERGY_START_FrameMove	PORTED	Char Ara CH3b: new function, whole June body
+32bc92f0	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( outlined case helper )	PORTED	Char Ara CH3b: the case body is the registration row of 32bd09d0 ( CH3b )
+32bc93b0	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( outlined case helper )	PORTED	Char Ara CH3b: the case body is the registration row of 32bd09d0 ( CH3b )
+32bc9810	CX2GUAra::ASI_SA_AYR_RESTRICTION_ENERGY_END_FrameMove	PORTED	Char Ara CH3b: new function, whole June body
+32bce7c0	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( outlined case helper )	PORTED	Char Ara CH3b: the case body is the registration row of 32bd09d0 ( CH3b )
+32bd09d0 (CH3b)	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex	PORTED	Char Ara CH3b: RNSI labels on March's cases for 27212 / 27237 ( High Speed ), 27018 / 27056 ( Energy Bead ), 27020 / 27058 ( Steal Soul ), 27019 / 27057 ( Energy Void ), 27213 / 27238 ( Reflection: sound preload only ); new cases 27045, 27046 ( start with its callbacks, end state with the shared GenericActiveSkillEventProcess ), 27065 ( Init + GenericSpecialActiveSkillEventProcess ), 27227 ( GenericActiveSkillEventProcess ); hyper = CopyStateCallbacks
+32bd34c0 (CH3b)	CX2GUAra::InitAquiredActiveSkillState	PORTED	Char Ara CH3b: RNSI labels 27018 / 27056 ( Energy Bead ) and 27020 / 27058 ( Steal Soul ) on March's cases; the chain lookup takes the swapped id
+322d80a0 (CH3b)	CX2GUAra::GetUnitByUIDAndType	PORTED	Char Ara CH3b: CX2Game vslot 0xc8 ( unit list entry with this UID and game unit type ), kept in the class: CX2Game is shared

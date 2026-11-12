@@ -61,3 +61,8 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 ## Amended by CH3a2 (2026-11-12)
 
 - The passive init's `SetCanAvoidance( 0 < GetSkillLevel( SI_A_ALH_BREAKING ) )` ( `X2GUAra.cpp`, near `SI_P_ALH_FILLED_POWER` ) reads March's id 7209: Breaking's avoidance state is registered by CH3a2 but unreachable until this phase reads June's `RNSI_A_ASD_BREAKING` 27207 / `_UPGRADE` 27233 there ( test it: hit Ara while the Breaking is learned ).
+
+## Amended by CH3b (2026-11-12)
+
+- **Restriction Energy's hit flag.** `MarkRestrictionEnergyHit` ( `32b95980`, delegate thunk `32bd5480` ) sets `m_bRestrictionEnergyHit` ( `X2GUAra.h`, June `+0x9890` ) when the damage data's skill is `RNSI_SA_AYR_RESTRICTION_ENERGY` 27045. Until it is written, `ASI_SA_AYR_RESTRICTION_ENERGY_END_FrameMove` never gives the target the buff factor or plays `EffectSet_SA_AYR_RESTRICTION_ENERGY_End`: test it after this phase.
+- **Steal Soul's pull-down.** `AddHitUnitInfoByDamageData` ( `X2GUAra.cpp`, `switch ( damageData_.m_eUsedSkillID )` ) still lists March's `SI_A_AYR_STEAL_SOUL`: June's id there is `RNSI_SA_AYR_STEAL_SOUL` 27020 / `_UPGRADE` 27058 ( the delegate `32bb0d10` pushes it ). Until then `ASI_A_AYR_STEAL_SOUL_FINISH_FrameMove` has no units to pull down.

@@ -246,6 +246,7 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	, m_iLinkFlowerSlashStateID( 0 ), m_usSkillFPConsumption( 0 ), m_iFPCancelSkillID( 0 ), m_iUsedSkillID( 0 )	// char-ara CH1k: June 32bc6bf0
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	, m_iSwallowAssaultAttackCount( 0 )	// char-ara CH3a: June 32bc6bf0
+	, m_uidRestrictionEnergyTarget( -1 ), m_iRestrictionEnergyTargetType( 0 ), m_bRestrictionEnergyHit( false )	// char-ara CH3b: June 32bc6bf0
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	, m_usForceGainCount( 0 ), m_usBeforeForceGainCount( 0 ), m_pSkillTemplet( NULL ), m_iPressedSkillSlotIndex( -1 )
@@ -3902,6 +3903,66 @@ void CX2GUAra::InitStateByUnitClass()
 				m_LuaManager.MakeTableReference( "ASI_SA_ASD_ADVENT_DRAGON", hyperStateData.stateID );
 				CopyStateCallbacks( hyperStateData, normalStateData );
 			} break;
+
+		case CX2SkillTree::RNSI_SA_AYR_RESTRICTION_ENERGY:	// char-ara CH3b: June 32bd09d0 case 27045
+			{
+				m_LuaManager.MakeTableReference( "ASI_SA_AYR_RESTRICTION_ENERGY_START", normalStateData.stateID );
+				normalStateData.StateStart		= SET_CB_FUNC( CX2GUAra, ASI_SA_AYR_RESTRICTION_ENERGY_START_StateStart );
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_AYR_RESTRICTION_ENERGY_START_FrameMove );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_AYR_RESTRICTION_ENERGY_START_EventProcess );
+
+				m_LuaManager.MakeTableReference( "ASI_SA_AYR_RESTRICTION_ENERGY_START", hyperStateData.stateID );
+				CopyStateCallbacks( hyperStateData, normalStateData );
+
+				{
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= ASI_SA_AYR_RESTRICTION_ENERGY_END;
+					m_LuaManager.MakeTableReference( "ASI_SA_AYR_RESTRICTION_ENERGY_END", stateData.stateID );
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_AYR_RESTRICTION_ENERGY_END_FrameMove );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
+					m_StateList[stateData.stateID] = stateData;
+				}
+			} break;
+
+		case CX2SkillTree::RNSI_SA_AYR_REVERSE_GRAVITY_FIELD:	// char-ara CH3b: June 32bd09d0 case 27046
+			{
+				m_LuaManager.MakeTableReference( "ASI_SA_AYR_REVERSE_GRAVITY_FIELD_START", normalStateData.stateID );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_AYR_REVERSE_GRAVITY_FIELD_START_EventProcess );
+
+				m_LuaManager.MakeTableReference( "ASI_SA_AYR_REVERSE_GRAVITY_FIELD_START", hyperStateData.stateID );
+				CopyStateCallbacks( hyperStateData, normalStateData );
+
+				{
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= ASI_SA_AYR_REVERSE_GRAVITY_FIELD_END;
+					m_LuaManager.MakeTableReference( "ASI_SA_AYR_REVERSE_GRAVITY_FIELD_END", stateData.stateID );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
+					m_StateList[stateData.stateID] = stateData;
+				}
+			} break;
+
+		case CX2SkillTree::RNSI_SA_AYR_RAKSASA_FIRE:	// char-ara CH3b: June 32bd09d0 case 27065
+			{
+				m_LuaManager.MakeTableReference( "ASI_SA_AYR_RAKSASA_FIRE", normalStateData.stateID );
+				normalStateData.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_AYR_RAKSASA_FIRE_Init );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericSpecialActiveSkillEventProcess );
+
+				m_LuaManager.MakeTableReference( "ASI_SA_AYR_RAKSASA_FIRE", hyperStateData.stateID );
+				CopyStateCallbacks( hyperStateData, normalStateData );
+			} break;
+
+		case CX2SkillTree::RNSI_A_AYR_GAIN_GOOD_ENERGY_BALL:	// char-ara CH3b: June 32bd09d0 case 27227
+			{
+				m_LuaManager.MakeTableReference( "ASI_A_AYR_GAIN_GOOD_ENERGY_BALL", normalStateData.stateID );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
+
+				m_LuaManager.MakeTableReference( "ASI_A_AYR_GAIN_GOOD_ENERGY_BALL", hyperStateData.stateID );
+				CopyStateCallbacks( hyperStateData, normalStateData );
+			} break;
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	#pragma region SI_SA_ALH_SWALLOW_ASSAULT
 		case CX2SkillTree::SI_SA_ALH_SWALLOW_ASSAULT: // 비연
@@ -4265,6 +4326,10 @@ void CX2GUAra::InitStateByUnitClass()
 
 	#pragma region SI_A_AYR_HIGH_SPEED
 		case CX2SkillTree::SI_A_AYR_HIGH_SPEED:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_A_AYR_HIGH_SPEED:	// char-ara CH3b: June 32bd09d0 case 27212 / 27237
+		case CX2SkillTree::RNSI_A_AYR_HIGH_SPEED_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			{
 				ASI_A_AYR_HIGH_SPEED_READY_CreateState( normalStateData, normalStateData.stateID );
 				ASI_A_AYR_HIGH_SPEED_READY_CreateState( hyperStateData, hyperStateData.stateID );
@@ -4475,6 +4540,10 @@ void CX2GUAra::InitStateByUnitClass()
 
 	#pragma region SI_SA_ALD_ENERGY_BEAD
 		case CX2SkillTree::SI_SA_ALD_ENERGY_BEAD:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_SA_AYR_ENERGY_BEAD:	// char-ara CH3b: June 32bd09d0 case 27018 / 27056
+		case CX2SkillTree::RNSI_SA_AYR_ENERGY_BEAD_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			{
 				ASI_SA_ALD_ENERGY_BEAD_CreateState( normalStateData, normalStateData.stateID );
 				ASI_SA_ALD_ENERGY_BEAD_CreateState( hyperStateData, hyperStateData.stateID );
@@ -4503,6 +4572,10 @@ void CX2GUAra::InitStateByUnitClass()
 
 	#pragma region SI_A_AYR_STEAL_SOUL
 		case CX2SkillTree::SI_A_AYR_STEAL_SOUL:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_SA_AYR_STEAL_SOUL:	// char-ara CH3b: June 32bd09d0 case 27020 / 27058
+		case CX2SkillTree::RNSI_SA_AYR_STEAL_SOUL_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			{
 				ASI_A_AYR_STEAL_SOUL_CreateState( normalStateData, normalStateData.stateID );
 				ASI_A_AYR_STEAL_SOUL_CreateState( hyperStateData, hyperStateData.stateID );
@@ -4515,6 +4588,10 @@ void CX2GUAra::InitStateByUnitClass()
 
 	#pragma region SI_SA_AYR_ENERGY_VOID
 		case CX2SkillTree::SI_SA_AYR_ENERGY_VOID:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_SA_AYR_ENERGY_VOID:	// char-ara CH3b: June 32bd09d0 case 27019 / 27057
+		case CX2SkillTree::RNSI_SA_AYR_ENERGY_VOID_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			{
 				ASI_SA_AYR_ENERGY_VOID_START_CreateState( normalStateData, normalStateData.stateID );
 				ASI_SA_AYR_ENERGY_VOID_START_CreateState( hyperStateData, hyperStateData.stateID );
@@ -4554,6 +4631,10 @@ void CX2GUAra::InitStateByUnitClass()
 
 #pragma region SI_A_ALD_REFLECTION
 		case CX2SkillTree::SI_A_ALD_REFLECTION:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_A_AYR_REFLECTION:	// char-ara CH3b: June 32bd09d0 case 27213 / 27238 ( no state: the sound preload only )
+		case CX2SkillTree::RNSI_A_AYR_REFLECTION_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			{
 				// 20130812 // 김현철 // 반탄공은 스테이트가 없어서 사운드 레디를 이곳에서 시킴
 				SoundReadyInBackground( L"Elsword_Endurance.ogg" );
@@ -23911,6 +23992,163 @@ void CX2GUAra::ASI_SA_ASD_ADVENT_DRAGON_Init()
 	TextureReadyInBackground( L"WhitePoint.dds" );
 	TextureReadyInBackground( L"WhitePointSmall.dds" );
 }
+
+namespace _CONST_ARA_CH3B_
+{
+	const int		ENERGY_VOID_FORCE_POWER_CHARGE_VALUE	= 5;		// June 32bc2c50 / 32b9e820: from this charge a loop step spends force power and a released key may end the loop
+	const float		RESTRICTION_ENERGY_EVENT_TIME			= 0.271f;	// June 32bc56d0 / 32bc9810: the time the target is picked, then hit
+	const float		RESTRICTION_ENERGY_CONE_DEGREE			= 180.f;	// June 32bc56d0
+	const float		RESTRICTION_ENERGY_DEFAULT_ANGLE		= 35.f;		// June 32bc56d0: default of the up angle; its negative is the default of the down angle
+}
+using namespace _CONST_ARA_CH3B_;
+
+// char-ara CH3b: June 32b95370
+void CX2GUAra::ASI_SA_AYR_RAKSASA_FIRE_Init()
+{
+	XSkinMeshReadyInBackground( L"ALH_MOONLIGHT_SLASH_BLADE_FULL_BASE.X" );
+	XSkinMeshReadyInBackground( L"ALH_MOONLIGHT_SLASH_BLADE_FULL_LIGHT.X" );
+	TextureReadyInBackground( L"ALH_MOONLIGHT_SLASH_MOON.tga" );
+	XSkinMeshReadyInBackground( L"AYR_RaksasaFire_Dummy.X" );
+	XSkinMeshReadyInBackground( L"AYR_RaksasaFire_Dummy1.X" );
+	TextureReadyInBackground( L"A_ALD_WOLF_CLAW_Map01.dds" );
+	TextureReadyInBackground( L"Ara_Black_LEAF.dds" );
+	TextureReadyInBackground( L"Arme_Ring2.dds" );
+	TextureReadyInBackground( L"Arme_ring2.dds" );
+	TextureReadyInBackground( L"Condense_Pulse01.dds" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_500x50x50.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XSkinMeshReadyInBackground( L"SA_AYR_ORB_KI_BARAM.X" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_KNOT_Trace.dds" );
+	TextureReadyInBackground( L"SpreadLight01.dds" );
+	TextureReadyInBackground( L"WhitePointSmall.dds" );
+	XMeshReadyInBackground( L"eve_SA_photonFlare_lightLine.Y" );
+}
+
+// char-ara CH3b: June 32ba44a0 ( the target is forgotten; June's word at +0x988c is a stack leftover nobody reads, JUNE_BUGS )
+void CX2GUAra::ASI_SA_AYR_RESTRICTION_ENERGY_START_StateStart()
+{
+	CommonStateStart();
+
+	m_uidRestrictionEnergyTarget	= -1;
+	m_iRestrictionEnergyTargetType	= 0;
+	m_bRestrictionEnergyHit			= false;
+}
+
+// char-ara CH3b: June 32bc56d0 ( at 0.271 s the first enemy in the cone is picked: effect set on it, its UID and type kept for the end state )
+void CX2GUAra::ASI_SA_AYR_RESTRICTION_ENERGY_START_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( RESTRICTION_ENERGY_EVENT_TIME ) )
+	{
+		float fRange		= 0.f;
+		float fAngleUp		= RESTRICTION_ENERGY_DEFAULT_ANGLE;
+		float fAngleDown	= -RESTRICTION_ENERGY_DEFAULT_ANGLE;
+
+		TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_PROJECTILE_RANGE_REL, CX2SkillTree::RNSI_SA_AYR_RESTRICTION_ENERGY, true, fRange );		/// June SA 0x1f
+		if ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() )	// June 322cc1a0: PVP or PVE
+			TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_PROJECTILE_RANGE_REL_2, CX2SkillTree::RNSI_SA_AYR_RESTRICTION_ENERGY, true, fRange );	/// June SA 0x90
+		TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_SCOPE_ABS_Y, CX2SkillTree::RNSI_SA_AYR_RESTRICTION_ENERGY, true, fAngleUp );			/// June SA 0x9e
+		TryGetAcquiredSkillAbilityValue( GetUnit(), CX2SkillTree::SA_SCOPE_ABS_Z, CX2SkillTree::RNSI_SA_AYR_RESTRICTION_ENERGY, true, fAngleDown );		/// June SA 0x9f
+
+		std::vector<CX2GameUnit*> vecUnits;
+		CollectEnemyUnitsInCone( vecUnits, 1, fRange, fAngleDown, fAngleUp, true, RESTRICTION_ENERGY_CONE_DEGREE, false );
+
+		CX2GameUnit* pTargetUnit = NULL;
+		for ( std::vector<CX2GameUnit*>::iterator it = vecUnits.begin(); it != vecUnits.end(); ++it )
+		{
+			if ( NULL != *it )
+			{
+				pTargetUnit = *it;
+				break;
+			}
+		}
+
+		if ( NULL != pTargetUnit && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+		{
+			g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_AYR_RESTRICTION_ENERGY", this, pTargetUnit, IsHyperState(), GetPowerRate() );
+
+			m_uidRestrictionEnergyTarget	= pTargetUnit->GetUnitUID();
+			m_iRestrictionEnergyTargetType	= static_cast<int>( pTargetUnit->GetGameUnitType() );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH3b: June 32bad9a0 ( the end goes through the FP cancel )
+void CX2GUAra::ASI_SA_AYR_RESTRICTION_ENERGY_START_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_SA_AYR_RESTRICTION_ENERGY_END );
+
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+}
+
+// char-ara CH3b: June 32bc9810 ( at 0.271 s the remembered unit, if the skill hit, gets the skill's buff factor and the end effect set )
+void CX2GUAra::ASI_SA_AYR_RESTRICTION_ENERGY_END_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( RESTRICTION_ENERGY_EVENT_TIME ) && NULL != g_pX2Game )
+	{
+		CX2GameUnit* pTargetUnit = GetUnitByUIDAndType( m_uidRestrictionEnergyTarget, m_iRestrictionEnergyTargetType );
+
+		if ( NULL != pTargetUnit && true == m_bRestrictionEnergyHit )
+		{
+			CX2BuffFactorPtr ptrBuffFactor = GetSkillBuffFactorPtr( CX2SkillTree::RNSI_SA_AYR_RESTRICTION_ENERGY, 0, true );
+
+			if ( NULL != ptrBuffFactor )
+			{
+				pTargetUnit->SetBuffFactorToGameUnit( *ptrBuffFactor );
+
+				if ( NULL != g_pX2Game->GetEffectSet() )
+					g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_SA_AYR_RESTRICTION_ENERGY_End", pTargetUnit, NULL, false, 1.f );
+			}
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH3b: June 32bada30 ( the end goes through the FP cancel )
+void CX2GUAra::ASI_SA_AYR_REVERSE_GRAVITY_FIELD_START_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_SA_AYR_REVERSE_GRAVITY_FIELD_END );
+
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+}
+
+// char-ara CH3b: June CX2Game vslot 0xc8 ( 322d80a0 ): the unit list entry that has this UID and game unit type
+CX2GameUnit* CX2GUAra::GetUnitByUIDAndType( const UidType uidUnit_, const int iGameUnitType_ ) const
+{
+	if ( NULL == g_pX2Game )
+		return NULL;
+
+	const std::vector<CX2GameUnit*>& vecUnitList = g_pX2Game->GetUnitList();
+	for ( std::vector<CX2GameUnit*>::const_iterator it = vecUnitList.begin(); it != vecUnitList.end(); ++it )
+	{
+		CX2GameUnit* pGameUnit = *it;
+		if ( NULL != pGameUnit && pGameUnit->GetUnitUID() == uidUnit_ && iGameUnitType_ == static_cast<int>( pGameUnit->GetGameUnitType() ) )
+			return pGameUnit;
+	}
+
+	return NULL;
+}
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #pragma region LOW_BRANDISH
 
@@ -25756,6 +25994,16 @@ void CX2GUAra::ASI_A_AYR_HIGH_SPEED_Init()
 */
 void CX2GUAra::ASI_A_AYR_HIGH_SPEED_StateStartFuture()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH3b: June 32b933e0 ( the value comes from the equipped skill, upgrade swapped; a failed read keeps the old value )
+	CommonStateStartFuture();
+
+	TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_REMOTE_SPEED_ABS, CX2SkillTree::RNSI_A_AYR_HIGH_SPEED, true, m_fHighSpeedValue );
+	if ( 0.f >= m_fHighSpeedValue )
+		m_fHighSpeedValue = 1.f;
+
+	m_PhysicParam.passiveSpeed.x *= m_fHighSpeedValue;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	CommonStateStartFuture();
 
 	if ( NULL != g_pData &&
@@ -25777,6 +26025,7 @@ void CX2GUAra::ASI_A_AYR_HIGH_SPEED_StateStartFuture()
 			m_PhysicParam.passiveSpeed.x *= m_fHighSpeedValue;
 		}
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function	: ASI_A_AYR_HIGH_SPEED_EventProcess
@@ -25793,8 +26042,14 @@ void CX2GUAra::ASI_A_AYR_HIGH_SPEED_EventProcess()
 	}
 
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH3b: June 32b9db10 ( the walk and dash cancels need the foot on a line )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 
 	CommonEventProcess();
 }
@@ -26527,6 +26782,25 @@ void CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_StateStart()
 */
 void CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH3b: June 32bacfa0 ( animation end -> FP cancel or the finish state; the walk and dash cancels need the foot on a line )
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_SA_ALD_ENERGY_BEAD_FINISH );
+
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+	const bool bStartFPCancel = ( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() );	// June vslot 0x7f8 ( true = ASUT_GROUND )
+	m_bFPCancelProbe = false;
+
+	if ( true == bStartFPCancel )
+	{
+		m_bFPCancel = true;
+	}
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 #ifdef BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
@@ -26553,6 +26827,7 @@ void CX2GUAra::ASI_SA_ALD_ENERGY_BEAD_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 		CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function	: ASI_SA_ALD_ENERGY_BEAD_FINISH_CreateState
@@ -26795,6 +27070,30 @@ void CX2GUAra::ASI_A_AYR_STEAL_SOUL_StateStart()
 */
 void CX2GUAra::ASI_A_AYR_STEAL_SOUL_EventProcess()
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH3b: June 32bad260 ( animation end -> FP cancel or the finish state, and nothing else that frame; the walk and dash cancels need the foot on a line )
+	const bool bAnimationEnd = m_pXSkinAnimFuture->IsAnimationEnd();
+	bool bStartFPCancel = false;
+	if ( true == bAnimationEnd )
+		StateChangeOrFPCancel( ASI_A_AYR_STEAL_SOUL_FINISH );
+	else
+	{
+		m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+		bStartFPCancel = ( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+			&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() );	// June vslot 0x7f8 ( true = ASUT_GROUND )
+		m_bFPCancelProbe = false;
+	}
+
+	if ( true == bAnimationEnd || true == bStartFPCancel )
+	{
+		if ( true == bStartFPCancel )
+			m_bFPCancel = true;
+	}
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+
+	CommonEventProcess();
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{
 #ifdef BALANCE_PATCH_20131107					// 김종훈 / 13-10-16, 2013년 후반기 밸런스 개편
@@ -26821,6 +27120,7 @@ void CX2GUAra::ASI_A_AYR_STEAL_SOUL_EventProcess()
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
 
 	CommonEventProcess();
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 }
 
 /** @function	: ASI_A_AYR_STEAL_SOUL_FINISH_CreateState
@@ -26877,6 +27177,9 @@ void CX2GUAra::ASI_A_AYR_STEAL_SOUL_FINISH_FrameMove()
 
 				/// 강제로 데미지 설정
 				pGameUnit->DamageReact( &m_DamageData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+				AttackResult();	// char-ara CH3b: June 32baf670 @32baf776 ( vslot 0x64 after each unit pulled down )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			}
 		}
 
@@ -26902,8 +27205,14 @@ void CX2GUAra::ASI_A_AYR_STEAL_SOUL_FINISH_EventProcess()
 			StateChange( USI_WAIT );
 	}
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH3b: June 32b9e6e0 ( the walk and dash cancels need the foot on a line )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 
 	CommonEventProcess();
 }
@@ -27011,8 +27320,13 @@ void CX2GUAra::ASI_SA_AYR_ENERGY_VOID_LOOP_Init()
 void CX2GUAra::ASI_SA_AYR_ENERGY_VOID_LOOP_StateStart()
 {
 	/// 차지 4단계를 초과 하면서 사용할 수 있는 기력량이 부족할 때
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	if ( ENERGY_VOID_FORCE_POWER_CHARGE_VALUE <= m_iEnergeVoidChargeValue &&	// char-ara CH3b: June 32bc2c50 ( charge 5 on, March: 4 )
+		0 >= GetForcePower() )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	if ( 3 < m_iEnergeVoidChargeValue &&
 		0 >= GetForcePower() )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	{
 		m_bEnergeVoidChargeEnd = true;		/// 종료 설정
 
@@ -27062,13 +27376,20 @@ void CX2GUAra::ASI_SA_AYR_ENERGY_VOID_LOOP_StateStart()
 		}
 
 		/// 실제 데미지 ( 연속되는 타격을 위해, 차지 한번 한 만큼 살아있는 데미지 이펙트 생성 )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		if ( ENERGY_VOID_FORCE_POWER_CHARGE_VALUE <= m_iEnergeVoidChargeValue )		// char-ara CH3b: June 32bc2c50 @32bc2f73 ( charge 5 on, March: 4 )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		if ( 3 < m_iEnergeVoidChargeValue )		/// 기력을 소비한 추가 타격
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		{
 			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_AYR_Energy_Void_Attack", 
 				GetPowerRate(), vPos, GetRotateDegree(), GetRotateDegree(),
 				m_FrameDataNow.unitCondition.landPosition.y );
 
 			UseForcePower( 1 );	/// 기력 소비
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+			// char-ara CH3b: June 32bc2c50 @32bc305c also adds 1 to the used-force-power count ( +0x9614 ); CH1q dropped that member, nothing reads it
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		}
 		else									/// MP를 소비한 기본 타격
 			g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_AYR_Energy_Void_Default_Attack", 
@@ -27097,7 +27418,11 @@ void CX2GUAra::ASI_SA_AYR_ENERGY_VOID_LOOP_EventProcess()
 	if ( 0.4f <= m_pXSkinAnimFuture->GetNowAnimationTime() )
 	{
 		/// 차지 4단계 이상이고 키 입력을 해제 하였거나, 최대 반복 횟수에 도달되었다면 스테이트로 전환
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		if ( ( ENERGY_VOID_FORCE_POWER_CHARGE_VALUE <= m_iEnergeVoidChargeValue &&	// char-ara CH3b: June 32b9e820 ( charge 5 and the key released, March: 4 )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		if ( ( 3 < m_iEnergeVoidChargeValue &&
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
 			   true == m_kSkillSlotKey.IsKeyReleased( m_InputData ) ) ||	// char-ara CH1p: June @32b9e85e ( the charge test is CH3b's )
 #else SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE
@@ -27183,14 +27508,22 @@ if( true == m_pXSkinAnim->EventTimerOneshot( 0.08f ) &&
 		NULL != g_pData->GetSkillTree() )
 	{
 		/// 초진공장 스킬 템플릿 반환
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_SA_AYR_ENERGY_VOID );	// char-ara CH3b: June 32bbae10 ( June's skill id )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::SI_SA_AYR_ENERGY_VOID );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 
 		if ( NULL != pSkillTemplet && 
 			 NULL != g_pX2Game->GetEffectSet() &&
 			 NULL != GetUnit() )
 		{
 			const CX2UserSkillTree&		userSkillTree	= GetUnit()->GetUnitData().m_UserSkillTree;		/// 유저 스킬 트리
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+			const int					iSkillLevel		= userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_SA_AYR_ENERGY_VOID, false, 0, true );	// char-ara CH3b: June 32bbae10 @32bbaee2 ( the upgrade swapped level )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			const int					iSkillLevel		= userSkillTree.GetSkillLevel( CX2SkillTree::SI_SA_AYR_ENERGY_VOID );	/// 스킬 레벨
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 
 			/// 기본 데미지 배율에 차지 단계만큼 곱해준다. ( 차지 단계 * 차지 단계별 데미지 배율 )
 			const float fChargePowerRate = max( m_iEnergeVoidChargeValue * pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGED_REL, iSkillLevel ), 1.f );
@@ -27221,8 +27554,14 @@ void CX2GUAra::ASI_SA_AYR_ENERGY_VOID_END_EventProcess()
 	}
 
 	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	// char-ara CH3b: June 32b9e8a0 ( the walk and dash cancels need the foot on a line )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	WALK_CANCEL_AFTER( m_fWalkCancelAfter )
 	DASH_CANCEL_AFTER( m_fDashCancelAfter )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 
 	CommonEventProcess();
 }
@@ -28146,13 +28485,21 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 					}
 				} break;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+			case CX2SkillTree::RNSI_SA_AYR_ENERGY_BEAD:	// char-ara CH3b: June 32bd34c0 case 27018 / 27056 ( the chain lookup takes the swapped id )
+			case CX2SkillTree::RNSI_SA_AYR_ENERGY_BEAD_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			case CX2SkillTree::SI_SA_ALD_ENERGY_BEAD:		/// 아라 1차 전직 소마 - 나찰 2식 연환장
 				{
 					{
 						UserUnitStateData&	stateData = m_StateList[ASI_SA_ALD_ENERGY_BEAD];
 						ASI_SA_ALD_ENERGY_BEAD_CreateState( stateData, ASI_SA_ALD_ENERGY_BEAD );
 						SetSkillLevelStateData( pSkillTemplet, stateData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// char-ara CH3b: June 32bd34c0 @32bd44ad
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( iSkillID_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 					}
 
 					{
@@ -28186,13 +28533,21 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 					}
 				} break;
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+			case CX2SkillTree::RNSI_SA_AYR_STEAL_SOUL:	// char-ara CH3b: June 32bd34c0 case 27020 / 27058 ( the chain lookup takes the swapped id )
+			case CX2SkillTree::RNSI_SA_AYR_STEAL_SOUL_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			case CX2SkillTree::SI_A_AYR_STEAL_SOUL:			/// 아라 2차 전직 명왕 - 나찰 4식 탈혼
 				{
 					{
 						UserUnitStateData&	stateData = m_StateList[ASI_A_AYR_STEAL_SOUL];
 						ASI_A_AYR_STEAL_SOUL_CreateState( stateData, ASI_A_AYR_STEAL_SOUL );
 						SetSkillLevelStateData( pSkillTemplet, stateData );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// char-ara CH3b: June 32bd34c0 @32bd4624
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( iSkillID_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 					}
 
 					{

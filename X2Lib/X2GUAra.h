@@ -743,6 +743,13 @@ protected:
 	void			ASI_SA_ASD_CONTINUITY_STRIKE_THROWING_START_EventProcess();	// char-ara CH3a2: June 32bad910
 	void			ASI_A_ASD_SWALLOW_ASSAULT_TEETH_START_EventProcess();	// char-ara CH3a2: June 32badac0
 	void			ASI_SA_ASD_ADVENT_DRAGON_Init();	// char-ara CH3a2: June 32b952c0
+	void			ASI_SA_AYR_RAKSASA_FIRE_Init();	// char-ara CH3b: June 32b95370
+	void			ASI_SA_AYR_RESTRICTION_ENERGY_START_StateStart();	// char-ara CH3b: June 32ba44a0
+	void			ASI_SA_AYR_RESTRICTION_ENERGY_START_FrameMove();	// char-ara CH3b: June 32bc56d0
+	void			ASI_SA_AYR_RESTRICTION_ENERGY_START_EventProcess();	// char-ara CH3b: June 32bad9a0
+	void			ASI_SA_AYR_RESTRICTION_ENERGY_END_FrameMove();	// char-ara CH3b: June 32bc9810
+	void			ASI_SA_AYR_REVERSE_GRAVITY_FIELD_START_EventProcess();	// char-ara CH3b: June 32bada30
+	CX2GameUnit*	GetUnitByUIDAndType( const UidType uidUnit_, const int iGameUnitType_ ) const;	// char-ara CH3b: June CX2Game vslot 0xc8 ( 322d80a0 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2
@@ -1703,6 +1710,9 @@ protected:
 	CX2EffectSet::Handle	m_hSwallowAssaultFirstEffectSet;	/// June +0x9718: Swallow Assault's first-attack effect set ( char-ara CH3a: CH1j took it for the kill reward's ), ends with the next state
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	int			m_iSwallowAssaultAttackCount;		/// June +0x9710: attacks played in this Swallow Assault use, cleared by its Ready state ( char-ara CH3a )
+	UidType		m_uidRestrictionEnergyTarget;		/// June +0x9880: UID of the unit Restriction Energy's start state found ( char-ara CH3b )
+	int			m_iRestrictionEnergyTargetType;		/// June +0x9888: game unit type of that unit
+	bool		m_bRestrictionEnergyHit;			/// June +0x9890: set when Restriction Energy hits ( the attack-result delegate is CH4a ), cleared by the start state
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	float		m_fNecromancyFoxCoolTime;			/// June +0x9768: wait before Necromancy's fox effect set plays again
 	float		m_fNecromancyFoxPowerRate;			/// June +0x976c: power rate that effect set plays with ( the Necromancy state sets it )

@@ -2293,6 +2293,39 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DE
 
 **Play-test (2026-11-12, runs 06:30-06:33 and 06:35-06:37 on md5 6b58b2fc; unit 98).** Set 1: equip lines for the 8 Enhanced ids; Void Break chain 49 -> 51 -> 53 -> 55 -> 195 -> 203 ( `DAMAGE_EFFECT_VOID_BREAK_BUFF` hit ) x3; Low Brandish slide effect set; Peerlessness Slash 63 -> 188 with Start / Attack_Effect / Attack / End / Last_Attack from the script only; Link Flower Slash 275 -> 276 -> 277 ( chain window works ); Swallow Assault Teeth 61 -> 281; Breaking 59 -> 175. Set 2: Continuity Strike Throwing 49 -> 278 x3 ( start / projectile effect sets and damage effects hit ), Advent Dragon ( ready, attack and explosion damage effects hit ). 0 `BLANK` / `EXCEPTION` / `KEM_ERROR` / `Motion Error`; the `OpenXET` misses are the companion-file lookup. The user reported set 1 all fine. **Not reached:** Low Brandish's kick state ( the slide was always chained on into Turbulent Wave; the kick body = March plus on-line cancels ), Breaking's avoidance ( CH4a ), the base ids 27206 / 27207 / 27012 ( only the Enhanced ids are learned in the save ). Unit 98 now holds set 2 ( 27044, 27064, 27232, 27051, 27233, 27226, 27053, 27043 ).
 
+### CH3b - Done (2026-11-12)
+
+Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DEBUG` stays on, the CH3d stage review retires it ). Yama Raja ( 119 ): 27018 / 27056 Energy Bead, 27019 / 27057 Energy Void, 27020 / 27058 Steal Soul, 27212 / 27237 High Speed, 27213 / 27238 Reflection, 27045 Restriction Energy, 27046 Reverse Gravity Field, 27065 Raksasa Fire, 27227 Gain Good Energy Ball. All 44 class-map rows read from `charport_adis.py ara --phase CH3b` listings plus the registration rows of `32bd09d0` ( `ch0_skill_listing_rows.tsv` ). **6 new functions + 1 helper, 10 June bodies changed under the flag ( March in `#else` ), 18 functions are June = March ( no code ), 10 outlined case helpers = the registration rows.** Every block carries `// char-ara CH3b`. `funcmap.tsv` rows `Char Ara CH3b` ( 47 ); `MODS.md` "Stage 7 Ara, CH3b"; `JUNE_BUGS.md` 615.
+
+| June | `CX2GUAra::` | June differs from March |
+|---|---|---|
+| `32b933e0` | High Speed `StateStartFuture` | speed value through `TryGetEquippedSkillAbilityValue( SA_REMOTE_SPEED_ABS, 27212, swap )`, a failed read keeps the old value |
+| `32b9db10` `32b9e6e0` `32b9e8a0` | High Speed / Steal Soul finish / Energy Void end `EventProcess` | walk and dash cancels need the foot on a line ( `_ON_LINE_` macros ) |
+| `32bacfa0` | Energy Bead `EventProcess` | end through `StateChangeOrFPCancel( 268 )`, probe window, cancels on a line ( = Prison Spear's shape ) |
+| `32bad260` | Steal Soul `EventProcess` | end through `StateChangeOrFPCancel( 272 )` and nothing else that frame ( the FP test is the else branch ), probe window |
+| `32baf670` | Steal Soul finish `FrameMove` | `AttackResult()` ( vslot 0x64 ) after each unit pulled down |
+| `32bc2c50` | Energy Void loop `StateStart` | force power is spent ( and the attack effect made ) from charge 5, March 4; June's +1 on the used-force-power count ( `+0x9614` ) is not ported: CH1q dropped that member and nothing reads it |
+| `32b9e820` | Energy Void loop `EventProcess` | a released key ends the loop from charge 5, March 4 ( the key calls are CH1p's ) |
+| `32bbae10` | Energy Void end `FrameMove` | templet and level of June's 27019 ( upgrade swapped level ) |
+| new: `32b95370` | Raksasa Fire `Init` | 18 preloads |
+| new: `32ba44a0` `32bc56d0` `32bad9a0` `32bc9810` | Restriction Energy start `StateStart` / `FrameMove` / `EventProcess`, end `FrameMove` | at 0.271 s the first enemy in a cone ( `CollectEnemyUnitsInCone`, Eve's ) gets the effect set and its UID + type are kept; the end state finds it again ( `GetUnitByUIDAndType` = `322d80a0` ) and, if the hit flag is set ( **CH4a** ), gives it the buff factor and the end effect set |
+| new: `32bada30` | Reverse Gravity Field start `EventProcess` | end through the FP cancel ( 341 ) |
+| = March | 18 functions | the 9 `Init` lists, High Speed Ready `EventProcess`, High Speed `EndFuture`, Energy Bead / Steal Soul `StateStart`, Energy Void start `StateStart` / `EventProcess` ( `StartFuture` is CH1p's ), end `StateStart`, Open the Hell `EventProcess` ( the funcmap rows say which ) |
+
+**Registration** ( `32bd09d0` ): RNSI labels on March's cases for 27212 / 27237, 27018 / 27056, 27020 / 27058, 27019 / 27057 and 27213 / 27238 ( Reflection: the sound preload only, as June ); new cases 27045 ( start `StateStart` + `FrameMove` + `EventProcess`, end state 340 with `FrameMove` + `GenericActiveSkillEventProcess` ), 27046 ( start `EventProcess`, end state 341 with `GenericActiveSkillEventProcess` ), 27065 ( `Init` + `GenericSpecialActiveSkillEventProcess` ), 27227 ( `GenericActiveSkillEventProcess` ); hyper = `CopyStateCallbacks`. Second switch ( `32bd34c0` ): labels 27018 / 27056 and 27020 / 27058, the chain lookup takes `eUpgradeSwappedSkillID`. `X2SkillTree.h`: 27056, 27057, 27058, 27065, 27227, 27237.
+**Checklist** `(Ara: CH3b ...)`: §1 l.55, §2 l.116 / l.117 ( the Steal Soul finish table + the others through the engine ), §4 l.178 ( 6 names ), §7ai ( High Speed Ready's `..._ULTIMATE` key is script data ). §7ae l.713-745 / l.726 carry no Ara tags ( the skill ids are bound by the registration ).
+**Found, not ported ( CH4a, kickoff amended ).** `MarkRestrictionEnergyHit` ( sets the hit flag ): until then Restriction Energy's end buff and end effect set never play. `AddHitUnitInfoByDamageData` still lists March's `SI_A_AYR_STEAL_SOUL`: Steal Soul's finish has no unit to pull down until June's id is read there.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ARA_SKILL --with ..._SKILL_DEBUG --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2SkillTree.h`: `2 PASS, 1 OTHER ( X2SkillTree.h = JUNE_ENUM_NAMES ), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`. __RANGE__
+- `junediverge.py --check` ( the 3 files ): `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: `0 A/B row(s) remain`. `skillicons.py check` ( the 14 ids ): `misses 0`, PASS. `luabind.py check Ara_Martial_Artist`: `0 unbound`, ENUM `0 missing`, STATE `37 compared, 0 wrong`, PASS.
+- First build failed ( `m_ForcePowerSystem` is not a member under `_FP`: June's +1 on the used-force-power count at `32bc305c` is not ported, CH1q dropped the member ); second: `BUILD OK: X2/US_SERVICE/x2.exe 26,292,224 B, 2026-11-12 07:09:10`; `DEPLOY OK: X2_offline.exe is 26,292,224 B, dated 2026-11-12 07:09:17, md5 dbbed0b37dc9d2db1cebe1609144279f, equal to X2/US_SERVICE/x2.exe (2026-11-12 07:09:10); built at main 0e8089cb + 3 uncommitted code file(s).`
+- `EXESTR OK: 3 of 3 found` ( wide `EffectSet_SA_AYR_RESTRICTION_ENERGY_End`, `AYR_RaksasaFire_Dummy1.X`, `eve_SA_photonFlare_lightLine.Y` ) and `4 of 4` ( narrow `ASI_SA_AYR_REVERSE_GRAVITY_FIELD_START`, `ASI_A_AYR_GAIN_GOOD_ENERGY_BALL`, `ASI_SA_AYR_RAKSASA_FIRE`, `ASI_SA_AYR_RESTRICTION_ENERGY_END` ), md5 dbbed0b3.
+
+**Save.** Unit 48 `Ara99` ( 119, lv 99; backup `db_backup/els_db_20261112_065946_pre_sql.sql` ), set 1: bank A slot 0 Energy Bead 27056, 1 Energy Void 27057 ( added at level 1 ), 2 Steal Soul 27058, 3 High Speed 27237; bank B slot 5 Restriction Energy 27045, 6 Reverse Gravity Field 27046, 7 Raksasa Fire 27065, 8 Gain Good Energy Ball 27227. Reflection ( 27238 ) and the base ids are the second set.
+
+**Play-test hand-off.** In the chat of 2026-11-12. Logs: `[JUNE_CHAR] ARA SKILL state <n> skill <id>` ( one per state entered, no `BLANK` ), `[JUNE_SKILL]` `NUM use`, 0 `EXCEPTION` / `Motion Error`.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, one Opus review at CH4b (covers CH4a-CH4b), user play-test (two engine pieces, planned as two from the start; CH0

@@ -1909,6 +1909,12 @@ public:
 		RNSI_SA_ASD_ADVENT_DRAGON                             = 27064,	// char-ara CH3a2: June's Enum.lua; Advent Dragon
 		RNSI_A_ASD_LOW_BRANDISH_UPGRADE                       = 27232,	// char-ara CH3a2: June's Enum.lua; the enhanced Low Brandish
 		RNSI_A_ASD_BREAKING_UPGRADE                           = 27233,	// char-ara CH3a2: June's Enum.lua; the enhanced Breaking
+		RNSI_SA_AYR_ENERGY_BEAD_UPGRADE                       = 27056,	// char-ara CH3b: June's Enum.lua; the enhanced Energy Bead
+		RNSI_SA_AYR_ENERGY_VOID_UPGRADE                       = 27057,	// char-ara CH3b: June's Enum.lua; the enhanced Energy Void
+		RNSI_SA_AYR_STEAL_SOUL_UPGRADE                        = 27058,	// char-ara CH3b: June's Enum.lua; the enhanced Steal Soul
+		RNSI_SA_AYR_RAKSASA_FIRE                              = 27065,	// char-ara CH3b: June's Enum.lua; Raksasa Fire
+		RNSI_A_AYR_GAIN_GOOD_ENERGY_BALL                      = 27227,	// char-ara CH3b: June's Enum.lua; Gain Good Energy Ball
+		RNSI_A_AYR_HIGH_SPEED_UPGRADE                         = 27237,	// char-ara CH3b: June's Enum.lua; the enhanced High Speed
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 //{{ Iruha : 2026-11-11 // char-ara CH1q

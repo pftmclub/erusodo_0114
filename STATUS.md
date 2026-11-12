@@ -105,7 +105,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH3b | **ready** (CH3a2 done 2026-11-12): Yama Raja (119) skills | Sonnet 5.5 / high, user play-test | CH3a2 | `X2GUAra.*` | `CH3b.md` |
+| CH3b | **built 2026-11-12, user play-test owed** (unit 48 set 1; then "check logs"): Yama Raja (119) skills; Restriction Energy's end buff and Steal Soul's pull-down wait for CH4a | Sonnet 5.5 / high, user play-test | CH3a2 | `X2GUAra.*` | `CH3b.md` |
 | CH3c | blocked (CH3b): Asura (124) SA-tier skills, Fox Phantom render stand-in (7w) | Sonnet 5.5 / high, user play-test | CH3b, CHNb review | `X2GUAra.*` | `CH3c.md` |
 | CH3c2 | blocked (CH3c): Asura (124) A-tier skills (CH0 split) | Sonnet 5.5 / high, user play-test | CH3c | `X2GUAra.*` | `CH3c2.md` |
 | CH3d | blocked (CH3c2): hyper actives + transcendence rows 118 / 119 / 124; CH3 stage review (CH3a-CH3d) | Opus 5.5 / high, Opus review, user play-test | CH3c2 | `X2GUAra.*`, `Handlers_Quest.cpp`, data036 | `CH3d.md` |
