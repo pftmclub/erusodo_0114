@@ -12593,3 +12593,24 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 //              (June's field graph) no longer leaves OnFrameMove returning early (empty world, frozen unit). Revert: comment out the #define.
 #define SERV_IRUHADEV_JUNE_FIELD_CHANGE_ACK
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-12
+// Description: june-stat-calc D1 - CX2GameUnit::GetFinalDamage's defence rate as June 32284aa0 @32285ccf-32286090: defence / ( defender
+//              level * 39.35 + 258.65 + defence ) in place of March's straight line ( defence * level-gap factor / ( 348 + 62 * attacker
+//              level ) ); no level-gap factor, no shock term, Sharpen Arrow on AT_COMMAND hits only. Secret-dungeon monsters stop taking
+//              0 damage. Revert: comment out the #define.
+#define SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-12
+// Description: june-stat-calc (from D1) - per-hit "[JUNE_STATCALC] HIT" line in offline_server.log, about once a second per
+//              attacker-defender pair, with March's rate beside June's. The D6 review retires it. Revert: comment out the #define.
+#define SERV_IRUHADEV_JUNE_STATCALC_DEBUG
+#if defined( SERV_IRUHADEV_JUNE_STATCALC_DEBUG ) && !defined( SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE )
+#error SERV_IRUHADEV_JUNE_STATCALC_DEBUG needs SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
+#endif SERV_IRUHADEV_JUNE_STATCALC_DEBUG
+//////////////////////////////////////////////////////////////////////////

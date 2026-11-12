@@ -3041,7 +3041,11 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
+	// june-stat-calc D1: June 32284aa0 has no level-gap factor (0.065 / 348 / 410 are not in the exe)
+#else SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
 	float fLvFactor			= CalcLevelFactorForFinalDamage( pAttacker );	// 레벨 보정치 계산		
+#endif SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
 	float fExtraAttackPower = CalcExtraAttackPower( pAttDamageData, pAttacker, pAttackerStat );		// 화염강타, 냉기 충격 추가 공격력 
 
 
@@ -3158,6 +3162,9 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 #endif SERV_IRUHADEV_JUNE_BUFF_NEW_STAT
 
 
+#ifdef SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
+	// june-stat-calc D1: June 32284aa0 never reads the shock time (+0x2480): no shock term on the defence
+#else SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
 #ifdef ENCHANT_BALANCE_101014 
 	// oasis907 : 김상윤 [2010.10.5] // 속성 쇼크시 피해자 방어력 향상
 	float fShockDebuffDefenceRate = 0.f;				
@@ -3166,6 +3173,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 		fShockDebuffDefenceRate = 0.1f;
 	}
 #endif ENCHANT_BALANCE_101014
+#endif SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
 
 	// 공격력, 방어력 계산
 	float fAttackPower	= 0.f;
@@ -3314,11 +3322,20 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	}
 
 #ifdef	SERV_TRAPPING_RANGER_TEST
+#ifdef SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
+	// june-stat-calc D1: June @32285ccf scales the defence by the Sharpen Arrow rate on an AT_COMMAND hit only
+	if ( CX2DamageManager::AT_COMMAND == pAttDamageData->attackType )
+		fDefencePower *= fSharpenDamageRate;
+#else SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
 	fDefencePower *= fSharpenDamageRate;	//	날카로운 화살 적용
+#endif SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
 #endif	SERV_TRAPPING_RANGER_TEST
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
+	// june-stat-calc D1: June has no full-defence line by attacker level; the rate below reads the defender's level
+#else SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
 	// 레벨 1에 해당하는 100% 방어력 & 레벨당 방어력 증가량
 	const float MAGIC_DEFENCE_POWER_DELTA	= 62.f;
 	const float MAGIC_DEFENCE_POWER_LV1		= 410.f - MAGIC_DEFENCE_POWER_DELTA; 
@@ -3355,6 +3372,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 
 	// 공격자 레벨에 해당하는 100% 방어력
 	const float fFullDefencePowerByAttackerLevel = MAGIC_DEFENCE_POWER_LV1 + MAGIC_DEFENCE_POWER_DELTA * (float) iAttackerLevel;
+#endif SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
 
 
 
@@ -3399,6 +3417,20 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 
 
 
+#ifdef SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
+	// june-stat-calc D1: stand-in: Rose not ported (June @32285d08-32285d54: a UT_ROSE class 346 / 347 attacker's attack *= its +0x9798)
+	// june-stat-calc D1: June @32285d58-32285dbd: the defender's level (vslot 0x20c), 1 in a damage-free game (g_pX2Game +0x85d)
+	int iDefenderLevel = pDefender->GetUnitLevel();
+	if ( true == g_pX2Game->IsDamageFreeGame() )
+		iDefenderLevel = 1;
+	const float fBasicDefenceByDefenderLevel = static_cast<float>( static_cast<double>( iDefenderLevel ) * static_cast<double>( 39.35f ) + static_cast<double>( 258.65f ) );
+	float fDefencePowerRate = fDefencePower / ( fBasicDefenceByDefenderLevel + fDefencePower );
+#if defined( SERV_IRUHADEV_JUNE_STATCALC_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	// june-stat-calc D1: March's rate for the HIT line only (dungeon / field form: defence * level-gap factor / ( 348 + 62 * attacker level ))
+	const int iMarchAttackerLevel = ( GUT_USER == pAttacker->GetGameUnitType() && true == g_pX2Game->IsDamageFreeGame() ) ? 1 : pAttacker->GetUnitLevel();
+	const float fMarchDefencePowerRate = fDefencePower * CalcLevelFactorForFinalDamage( pAttacker ) / ( 348.f + 62.f * static_cast<float>( iMarchAttackerLevel ) );
+#endif // SERV_IRUHADEV_JUNE_STATCALC_DEBUG && SERV_IRUHADEV_OFFLINE
+#else SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
 	// 방어력에 의한 방어도 계산
 	float fDefencePowerRate = 0.f;
 	switch( g_pX2Game->GetGameType() )
@@ -3416,6 +3448,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 
 		} break;
 	}
+#endif SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
 
 #ifdef SERV_ADD_ARME_BATTLE_MAGICIAN
 	if( pAttDamageData->m_bLvDamage == true )
@@ -3531,6 +3564,12 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	}
 #endif
 
+#ifdef SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
+	// june-stat-calc D1: June @32286068-32286090: frozen and skill rates only, NaN passes the 0 floor
+	float fDamageRateByDefencePowerRate = 1.f - fDefencePowerRate * fFronzenDebuffDefenceRate * fDefenceRateBySkill;
+	if ( fDamageRateByDefencePowerRate < 0.f )
+		fDamageRateByDefencePowerRate = 0.f;
+#else SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
 #ifdef ENCHANT_BALANCE_101014
 	float fDamageRateByDefencePowerRate = 1.f - fDefencePowerRate * fFronzenDebuffDefenceRate * fDefenceRateBySkill - fShockDebuffDefenceRate;
 	if(fDamageRateByDefencePowerRate < 0.f)
@@ -3538,6 +3577,7 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 #else
 	float fDamageRateByDefencePowerRate = 1.f - fDefencePowerRate * fFronzenDebuffDefenceRate * fDefenceRateBySkill;
 #endif ENCHANT_BALANCE_101014
+#endif SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE
 		
 	float fFinalDamage = 0.f;
 	// 공격자의 모션상태에 따라 지정된 공격력 배율
@@ -3983,6 +4023,25 @@ float CX2GameUnit::GetFinalDamage( CX2DamageManager::DamageData* pAttDamageData 
 	ApplyMultipleDamageByDebuff( fFinalDamage, *pAttDamageData );
 #endif SERV_IRUHADEV_JUNE_BUFF_BINDING
 #endif SERV_IRUHADEV_JUNE_DAMAGEDATA
+#if defined( SERV_IRUHADEV_JUNE_STATCALC_DEBUG ) && defined( SERV_IRUHADEV_OFFLINE )
+	// june-stat-calc D1: one HIT line per attacker-defender pair, about once a second
+	{
+		static std::map< std::pair< const CX2GameUnit*, const CX2GameUnit* >, DWORD > s_mapHitLogged;
+		if ( s_mapHitLogged.size() > 256 )
+			s_mapHitLogged.clear();
+		const DWORD dwHitNow = ::GetTickCount();
+		DWORD& dwHitLast = s_mapHitLogged[ std::make_pair( static_cast<const CX2GameUnit*>( pAttacker ), static_cast<const CX2GameUnit*>( pDefender ) ) ];
+		if ( dwHitNow - dwHitLast >= 1000 )
+		{
+			dwHitLast = dwHitNow;
+			const __int64 iHitAttackerID = ( GUT_NPC == pAttacker->GetGameUnitType() ) ? static_cast<__int64>( static_cast<CX2GUNPC*>( pAttacker )->GetNPCTemplet().m_nNPCUnitID ) : pAttacker->GetUnitUID();
+			const __int64 iHitDefenderID = ( GUT_NPC == pDefender->GetGameUnitType() ) ? static_cast<__int64>( static_cast<CX2GUNPC*>( pDefender )->GetNPCTemplet().m_nNPCUnitID ) : pDefender->GetUnitUID();
+			CX2OfflineLog::Server( L"[JUNE_STATCALC] HIT att=%I64d lv=%d def=%I64d dlv=%d dt=%d atk=%.0f defence=%.0f rate=%.4f march=%.4f dmg=%.0f",
+				iHitAttackerID, pAttacker->GetUnitLevel(), iHitDefenderID, iDefenderLevel, static_cast<int>( pAttDamageData->damageType ),
+				fAttackPower, fDefencePower, fDefencePowerRate, fMarchDefencePowerRate, fFinalDamage );
+		}
+	}
+#endif // SERV_IRUHADEV_JUNE_STATCALC_DEBUG && SERV_IRUHADEV_OFFLINE
 	
 #ifdef APPLY_THEMIDA
 	ENCODE_END

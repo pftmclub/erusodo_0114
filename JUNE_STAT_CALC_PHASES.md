@@ -255,6 +255,58 @@ is explained as June's own behaviour with a `JUNE_BUGS.md` row); `DEPLOY OK`; `E
 the Elder secret dungeon ("Decisions", item 1) the user hits a `k = 1.2` boss that took 0 before, and the log's `rate=` is below 1
 with `march=` at or above 1 for it; a `k = 1.0` monster logs a `rate=` below its `march=`; the monsters' hits on the player also log.
 
+## Phase D1 - Done
+
+**2026-11-12, Opus 5.5 / high. Flags `SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE`, `SERV_IRUHADEV_JUNE_STATCALC_DEBUG` (`KTDXLIB/Always.h`).**
+Commit: this commit (`june-stat-calc Phase D1`). Code: `X2Lib/X2GameUnit.cpp` `GetFinalDamage` only (+59 lines, insert-only).
+
+**The reads (June `32284aa0`; funcmap rows tagged `StatCalc S33`):**
+- **Level-gap factor: none in June.** 0.065, 348 and 410 (float, double or float-as-double) are not in the exe; 0.127f has one
+  reader, Chung code @32c19ccf; 62.0f two non-damage readers (an effect spawner 32267300, 32e01f71). June feeds the defence sum
+  `[esp+0x24]` straight into the rate. `CalcLevelFactorForFinalDamage` gets a `june_march_divergent.tsv` row (`replace`, ported under
+  this flag): `GetFinalDamage` no longer calls it; March's body stays for the `#else` and the debug `march=` value.
+- **Whose level: the DEFENDER's.** `[esp+0x38]` = DD+0x470 (@32284bcf); vslot 0x20c = `GetUnitLevel` (the level-damage path calls it
+  on the attacker @32285dea and on `[esp+0x38]` @32285e17, March's `pAttacker / pDefender->GetUnitLevel()` there). Forced to 1 when
+  `g_pX2Game +0x85d` = `IsDamageFreeGame()` (the same path keeps 18.0 on it @32285dde). The planning note's "attacker" was wrong.
+  The character window (`GetDamageDecrement`, `322a8b60`) also uses the unit's own level; 33487178 / 33487170 have only these two readers.
+- **Constants:** June's doubles are `(double)39.35f` and `(double)258.65f`; the curve is stored as a float before `def / ( curve + def )`.
+- **Multipliers:** `[esp+0x3c]` = the frozen rate (written @322855c5-32285682, = March's `fFronzenDebuffDefenceRate`); `[esp+0x18]` =
+  `GetDefenceRateBySkill` (vslot 0x428 @32285cf9, already June under `JUNE_USER_PASSIVE_HOOKS`).
+- **Shock: gone.** 32284aa0 never reads the shock time (+0x2480). March's `- 0.1` and its local are in `#else`.
+- **PvP: no game-type switch** (March's PvP variant is in `#else`; offline has no PvP).
+- **Sharpen Arrow** (`[esp+0x130]` = skill 23411's value, March's `fSharpenDamageRate`) scales the defence only on an `AT_COMMAND` hit
+  (@32285ccf); March did it on every hit. Ported. Its writer @32285059-32285098 is D2a's.
+- **Defence sum** (@32285849-32285cc7): cases 0-2 are the SOCKET_PARITY blocks; weapon cases 3-5 equal March's. Not re-ported.
+- **Rose block** @32285d08-32285d54 (UT_ROSE class 346 / 347: attack *= +0x9798): stand-in comment; Rose's port (Stage 8) owns it.
+- **Level-damage path** (@32285dc4, `m_bLvDamage`) leaves before the damage rate and never reads the rate: unchanged.
+- **Negative defence:** June has no guard (`JUNE_BUGS` 624, latent: the highest secret-dungeon `k` is 1.3; the `k >= 1.98` rows are
+  Henir-type NPCs). Between minus the curve and 0 a hit does more than its attack; at exactly minus the curve it is infinite.
+
+**Other readers of 348 / 62 / 410 / the level factor:** `X2UICharInfo.cpp` `GetDamageDecrement` is already June's curve (CharInfo C3;
+the 348 + 62 copy is its `#else`). `X2Lib/Offline` has no damage formula. No other reader in `X2Lib` / `KTDXLIB`.
+
+**Emulation:** `june2017_re/statcalc/emu_defence.py` runs @32285d8d-32285dc4 and @32286068-32286090 in Unicorn (FPCW 0x027F) against
+the port's expression: `EMU_DEFENCE OK: 889 input sets, 0 mismatch(es) (rate and damage rate compared bit for bit, NaN = NaN)`
+(levels 1-99, defence 0 / -0 / negative / 1e6 / inf / minus the curve, both rates 0 / 0.5 / 1).
+
+**Debug line** (`offline_server.log`, about once a second per pair): `[JUNE_STATCALC] HIT att= lv= def= dlv= dt= atk= defence= rate=
+march= dmg=`. `att` / `def` = NPC id or user UID; `lv` = attacker level, `dlv` = the defender level June's curve used (one field more
+than the plan's shape); `march=` = March's dungeon / field rate with its level-gap factor, for the log only; `atk=` is 0 on a mixed
+hit; `dmg` = the final damage `GetFinalDamage` returns. Level-damage hits return early and do not log.
+
+**Hygiene:** `flagcheck SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE --with SERV_IRUHADEV_JUNE_STATCALC_DEBUG --worktree`: 1 PASS (X2GameUnit.cpp
+  +59), 1 DEFINE (Always.h +21), 0 deleted, 0 non-ASCII, 0 EOL, 0 tok -> `RESULT: PASS`; `junediverge --check`: `RESULT: PASS`; `enumscan`: 0 A/B rows.
+**Build:** `DEPLOY OK: X2_offline.exe is 26,330,624 B, dated 2026-11-12 12:49:16, md5 f030a272d934783d3108b7bfeb47be3a`;
+  `EXESTR OK: 1 of 1 found in X2_offline.exe` (`[JUNE_STATCALC] HIT att=`, wide).
+
+**Bookkeeping:** map rows `GetFinalDamage: defence rate`, `damage rate by defence`, `defence sum by damage type`,
+`CalcLevelFactorForFinalDamage` -> `June`; 4 funcmap rows (`StatCalc S33`); `JUNE_BUGS` 624; `MODS.md` entry; divergent row.
+
+**Play-test owed** (hand-off below). 33030 (`DI_ELDER_SECRET_COMMON`) is registered as `UNUSED_DUNGEON_ID` with
+`m_bForbidEnterDungeon` in the live `DungeonData.lua`, so the test uses `DI_ELDER_SECRET_HELL` 33031 (stage 0: `NUI_ELDER_SECRET_BUNKER`
+1466, k 1.0; stage 2: `_PUNCH_BOSS` 1470 / `_SMALL_KNIFE_BOSS` 1469, k 1.2) and `DI_ALTERA_SECRET_HELL` 33051 (stage 0:
+`NUI_ALTERA_SECRET_TYPE2_BOSS` 1551, k 1.2). Both scale monsters to the party level (`m_bRelativeMonsterLevel`).
+
 ## Phase D2 - GetFinalDamage: the rest of June's body
 
 **Scope.** Every `gfd_blocks.tsv` range still `March`, `mixed` or `absent`, under `SERV_IRUHADEV_JUNE_STATCALC_FINAL_DAMAGE`, so the
