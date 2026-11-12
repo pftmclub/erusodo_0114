@@ -12579,7 +12579,7 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Date: 2026-11-12
 // Description: char-ara CH4a - [JUNE_CHAR] ARA PASSIVE log lines ( the init values, each hook / delegate that fires, throttled to one a second per
 //              site ); the CH4b review retires it. Revert: comment out the #define ( JUNE_CHAR_ARA_PASSIVE_DEBUG ).
-#define SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+//#define SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG	// char-ara CH4b review: retired 2026-11-12
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG ) && !defined( SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE )
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
