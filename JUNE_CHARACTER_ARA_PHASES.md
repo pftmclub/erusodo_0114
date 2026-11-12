@@ -2357,6 +2357,8 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DE
 
 **Play-test hand-off.** In the chat of 2026-11-12. Logs: `[JUNE_CHAR] ARA SKILL state <n> skill <id>` ( one per state entered, no `BLANK` ), `ES_CREATE EffectSet_Shadow_Rising_Jump` / `_Landing` / `_End`, `EffectSet_SI_SA_AA_SMASH_TRENSCENDENCE` only when transcended, 0 `EXCEPTION` / `Motion Error`.
 
+**Play-test ( 2026-11-12, run 08:19-08:21 on md5 248fc58a; unit 104 ).** All 6 equip lines ( 27061, 27062, 27063, 27047, 27048, 27066 ). States entered: Specter of Blade 60 -> 268 ( finish ) twice and a third use; Fox Phantom 62 x4; Get Blood 50 -> 272 ( finish ) x3 ( `ES_CREATE EffectSet_SI_A_AA_GET_BLOOD_FX1` ); Fire Fox 52 x2; Necromancy 54 x2 ( `EffectSet_SI_SA_AA_NECROMANCY_SMILE_FOX_FX2`, then the fox attack sets `..._FOX_ATTACK0 / 1` ); Shadow Rising 56 -> 255 -> 256 x3 ( `ES_CREATE EffectSet_Shadow_Rising_Landing` and `_End` ). 0 `BLANK` / `EXCEPTION` / `KEM_ERROR` / `Motion Error`; the `OpenXET` misses are the companion-file lookup; the one unbound name ( `AddGroupChainQuest` ) is a quest script's. **Not reached / no line:** Smash ( the Get Blood chain was not entered ), the particle-only Shadow Rising jump set and the Fire Fox / Specter of Blade damage effects ( the log prints no line for them: the user's eye decides ), Fox Phantom's invisible window ( visual ), the transcendence effect sets ( unit not transcended ). The user's own verdict is not in yet.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, one Opus review at CH4b (covers CH4a-CH4b), user play-test (two engine pieces, planned as two from the start; CH0
