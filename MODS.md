@@ -6699,3 +6699,12 @@ No flag, no exe change (data only). User decision: June's route.
   the three Lua (`luasrc.py refresh` each).
 
 - **Follow-up (W3c, same day): `SERV_IRUHADEV_JUNE_FIELD_CHANGE_ACK`** (`KTDXLIB/Always.h`, `X2Lib/X2StateField.cpp`). A village / rest-area portal that swaps the world in place left the "moving to field" flag set, so the new area never drew and the unit froze; the field-change ACK handler now clears it and re-enables shortcut keys first, as June `32509660`. June's third error pop-up (`0x654`, quest-gated entry) is not ported: no quest-gate stand-in (user, 2026-10-19), so the emulator never sends it. Revert: comment out the `#define`.
+
+## March's route on June's villages: every field reachable again (W3f, 2026-11-12)
+
+No flag, no exe change (data only). User decision: keep June's villages, walk March's route with March's sign boards. Replaces W3c's route.
+- **Portals.** `data034` `DLG_Map_Village.lua` (core list): W3c's 8 route rows back to March's targets (Besma -> Elder field 2 / Besma field 1; Altera -> Besma field 3 / Altera field 1; Peita -> Peita field 1; Besma rest -> Besma fields 1-3) and Altera StartPos 67 (bottom walkway -> Altera field 3) restored. `data036` `BattleFieldData.lua` (core list): Elder field 1's far portal -> Elder rest 300 again.
+- **March files restored over June's (byte-exact, exception to the same-name rule for the route only):** `Besma_Village_Alpha_Text.Y` (data028), `Field_Peita_Villeage_sign.Y` (data030), `Field_Elder_StageRest_alpaguide.Y` (data027), `Field_Besma_Rest_G01_Navi.Y` (data029), `Altera_Village_Typo.Y` (data031): June's boards name June's route. `LINEMAP_Altera_Village.lua` (data040): March's keeps the walkway; June's also nudges two line ends and the land height (user chose March's whole). June copies: `kom_backup_stage_june/20261112_w3f_june_boards`.
+- **Kept from W3c:** the field-change ACK fix, the Lanox rest MapData row, the Altera field 1 / Peita field 2 assets.
+- **Deploy:** PACK OK + COPY OK data027 028 029 030 031 034 036 040.
+- **Revert:** copy back `kom_backup_tools/data0{27,28,29,30,31,34,36,40}.kom.20261112_11452*`; in `kom_contents` restore the 6 files from the stage backup above and re-apply W3c's rows (`luasrc.py refresh` each).

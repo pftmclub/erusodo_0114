@@ -37,7 +37,7 @@ def field_main():
         for ln, (n, via) in sorted(closure(roots).items()):
             s = state(ln)
             rows.append((place, n, via, s))
-            if s in ("differs", "march-missing") and (not route_only or any(r in place for r in ROUTE)):
+            if s in ("differs", "march-missing") and ln not in KEPT_MARCH and (not route_only or any(r in place for r in ROUTE)):
                 need.setdefault(ln, (n, place))
     with open(os.path.join(TRUNK, "june2017_re", "w3c_field_closure.tsv"), "w", encoding="utf-8", newline="\n") as f:
         f.write("field\tasset\tvia\tstate\n")

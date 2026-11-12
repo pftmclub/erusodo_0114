@@ -2,6 +2,8 @@
 
 > Routed by W3c (2026-11-12). W3c made the field graph June's and staged the route fields' assets that leave the ground in place. What is left
 > changes a field's ground or its BattleFieldData columns other than the portals.
+> **W3f (user 2026-11-12) put March's route back:** every field (Elder 2 + rest, Besma 1-3, Peita 1, Altera 1-3 + rest) is reachable again, so
+> June's field worlds now show in play; weigh them higher. Keep March's route boards and Altera line map (W3f's `KEPT_MARCH` list).
 
 | | |
 |---|---|

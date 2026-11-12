@@ -15,8 +15,8 @@ STAGED_BY_W3B = {l.split("\t")[0].lower() for l in open(os.path.join(TRUNK, "jun
 STAGED_BY_W3B |= {"elysion_village_festival.lua", "elysion_village_xmas.lua"}     # luasrc adopt-june, june_adopt_20261112_091808.tsv
 
 # Explanations for rows that stay different on purpose (key = (check, detail prefix)).
-GRAPH = ("routed W3c: June's field graph sends this portal somewhere else (June BattleFieldData + MapData BEFORE/AFTER change with it); "
-         "March's reader carries the id (VillageParsing BattleFieldId, X2StateField ranges 20000-20010 / 1000-1008) but the route change is a design decision")
+GRAPH = ("kept W3f: user hybrid (2026-11-12) - June's villages, March's route; this portal keeps March's target so no field is cut off "
+         "(W3c had ported June's route; reader: VillageParsing BattleFieldId, X2StateField ranges 20000-20010 / 1000-1008)")
 ROSTER = "routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first)"
 MISSING_BOTH = {
     "ruben_bank_close.dds": "June's Elder_Village_Bank.Y / Elder_Village_G02.y name it and June ships no such texture: June logs the same miss (parity)",
@@ -27,6 +27,16 @@ MISSING_BOTH = {
     "ruben_dungeon_gate.lua": "WorldData WI_DUNGEON_GATE_RUBEN names a file neither client has; the Ruben gate is not a reachable world (parity)",
     "motion_npc_elsion_hugo.xet": "HI_HUGO NPCAniTex names an XET June does not ship either (parity, harmless: OpenXET noise)",
 }
+# W3f (user 2026-11-12, March's route on June's villages): March's copy put back on purpose (backup kom_backup_stage_june/20261112_w3f_june_boards).
+KEPT_MARCH_W3F = {
+    "besma_village_alpha_text.y": "Besma end boards: March's names Bethagara Falls / Twin Watchtower (March's route), June's Dicey Sky Road / Wally's Memorial Bridge",
+    "field_peita_villeage_sign.y": "Peita board: March's names Pilgrim's Gateway (Peita field 1), June's Dicey Sky Road (June's route)",
+    "field_elder_stagerest_alpaguide.y": "Elder rest boards: March's names Wally's Memorial Bridge / Twin Watchtower, June's Bethma Village (June's route)",
+    "field_besma_rest_g01_navi.y": "Besma rest sign: March's names Besma fields 1-3 + Pilgrim's Gateway, June's only the three villages (June's route)",
+    "altera_village_typo.y": "Altera boards: March's names Toretugera Canyon / Graveyard of Purification, June's Dicey Sky Road (June's route)",
+    "linemap_altera_village.lua": "March's line map keeps the bottom walkway to Altera field 3 (StartPos 67 / 68); user chose March's whole over June's",
+}
+
 
 
 def sp_map(lst):
@@ -52,6 +62,8 @@ def main():
         for asset, via, state in odd[place]:
             if state == "missing-both":
                 add(place, "asset " + asset, state, MISSING_BOTH.get(asset.lower(), "UNEXPLAINED"))
+            elif state in ("differs", "march-missing") and asset.lower() in KEPT_MARCH_W3F:
+                add(place, "asset " + asset, state, "kept March's W3f: " + KEPT_MARCH_W3F[asset.lower()])
             elif state in ("differs", "march-missing"):
                 add(place, "asset " + asset, state, "UNEXPLAINED (re-run after staging)" if asset.lower() not in STAGED_BY_W3B
                     else "staged from June by W3b; re-run the closure after the copy to see it as same")

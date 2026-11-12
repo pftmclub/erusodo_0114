@@ -244,3 +244,45 @@ User decision taken before the phase: June's route. Graph read from June's `DLG_
   has no matching NetError. Divergence row added (`june_march_divergent.tsv`). flagcheck `--worktree` PASS (X2StateField.cpp PASS, Always.h OTHER
   = a peer's lines), junediverge PASS. My own run was blocked by char-ara CH4b's in-progress `Always.h` guard; char-ara's build `.build/logs/20261112-110130` started after this edit (10:58), compiled X2StateField.cpp with 0 errors: DEPLOY OK 2026-11-12 11:12:37, md5 66ee9277.
 - **Play-test (user, 2026-11-12, exe md5 66ee9277): passed.** In-place portals draw the new place and the unit moves. Logs: portals 43 -> 1001, 315 -> 20003, 62 / 63 -> 1001, 313 -> 20005, 74 -> 40010 fired; every village / rest move one `EGS_STATE_CHANGE_FIELD_REQ` + ACK; 0 EXCEPTION, no "isepi wrong". User then chose March's route on June's villages -> W3f.
+
+## W3f - Done (2026-11-12, Opus 5.5)
+
+Data only: no client source, no flag (flagcheck / junediverge not applicable; full build skipped: no code, the deployed exe is unchanged; the
+W3c fix `SERV_IRUHADEV_JUNE_FIELD_CHANGE_ACK` stays on). User decision (2026-11-12): June's villages, March's route and boards.
+- **Route back to March (core-list source, `luasrc.py refresh` each, `ledger --check` PASS, `core --check` PASS).** data034 `DLG_Map_Village.lua`:
+  the 8 `-- june-dungeons W3c` rows take March's target and line from their comment (Besma 42 -> Elder field 2 line 2, 43 -> Besma field 1 line 1;
+  Altera 62 -> Besma field 3 line 2, 63 -> Altera field 1 line 1; Peita 72 -> Peita field 1 line 2; Besma rest 311 -> Besma field 1 line 2,
+  313 -> Besma field 2 line 1, 315 -> Besma field 3 line 1), comments gone; Altera StartPos 67 restored (36174, 409, -193 -> Altera field 3 line 2).
+  The file now equals the pre-W3c backup (`kom_backup_stage_june/20261112_w3b_data034`) bar W3b's 3 own position rows. data036
+  `BattleFieldData.lua`: Elder field 1 portal 2 -> `POSITION_INDEX_TO_MOVE = 300`, `VMI_BATTLE_FIELD_ELDER_REST_00` (line 153 unchanged).
+- **Boards.** Each board mesh's UV faces painted onto its textures (scratch renderer over the binary `.x`; textures from kom_contents). All five
+  route boards were June's (staged by W3 / W3b) and June's names June's route, so March's copy is back, byte-exact:
+
+  | Board | March names | June named | Restored from |
+  |---|---|---|---|
+  | data028 `Besma_Village_Alpha_Text.Y` | Bethagara Falls (Lv 21-22), Twin Watchtower | Dicey Sky Road, Wally's Memorial Bridge | `20261112_083749` |
+  | data030 `Field_Peita_Villeage_sign.Y` | Pilgrim's Gateway, Pilgrim's Site, Feita | Dicey Sky Road, Pilgrim's Site, Feita | `20261112_083431` |
+  | data027 `Field_Elder_StageRest_alpaguide.Y` | Wally's Memorial Bridge, Wally's Castle Gateway, Twin Watchtower | Bethma Village, Wally's Memorial Bridge | `20261112_083749` |
+  | data029 `Field_Besma_Rest_G01_Navi.Y` | Bethma, Altera, Feita, Bethagara Falls, Toretugera, Leikiki, Pilgrim's Gateway + Lv | Bethma, Altera, Feita | `20261112_091758` |
+  | data031 `Altera_Village_Typo.Y` | Toretugera Canyon (Lv 25-26), Graveyard of Purification | Dicey Sky Road | `20261112_083749` |
+
+  Textures stay June's: the two W3b replaced (`Ruben_Dungeon_Gate_Font.dds`, `ruben_build_typo.dds`) keep March's layout (only "LV 1~9" and the
+  coin differ), so March's UVs land on the same words; every other texture these meshes name is March's in both. Other replaced meshes checked for
+  board textures: only `Besma_Village_Alpha_01/05/06.Y` (house-name sheet, not route) and Sander 3 (off route). June copies backed up to
+  `kom_backup_stage_june/20261112_w3f_june_boards`.
+- **Altera bottom walkway.** June's `LINEMAP_Altera_Village.lua` drops March's lines 28-30 (34583,480 -> 36264,409) and also trims line 3's end
+  (34600 -> 34584, `CAN_DOWN = FALSE` dropped), moves line 26's start (30971 -> 30991), turns two `-2` links into `-1` and sets land height
+  140 -> 0. Reported; **user chose March's whole** (2026-11-12): restored byte-exact from `20261112_083532/data040_kom` (March bytecode, md5 45112997).
+  Altera field 3's way back (StartPos 68, 35812,409) sits on that walkway.
+- **Census.** `w3b_asset_closure.py` re-run (5,760 rows: 5,752 same, 6 differs = the 5 boards, 2 missing-both); `w3b_village_census.py` (`GRAPH`
+  note now "kept W3f: user hybrid", new `KEPT_MARCH_W3F` notes): 255 rows, 0 unexplained. Both closures (`w3b_asset_closure.py`,
+  `w3c_field_closure.py`) now leave the kept-March names out of their `need_stage` lists, so a later `stage-june` run cannot undo W3f. The line
+  map is not in the village closure (no world Lua names it by a `.lua` token); checked by hand above.
+- **PACK OK + COPY OK** (each pack changed only its one entry): data027 (md5 1f3fad0b), data028 (ff3be268), data029 (7af719ae), data030
+  (be0f60b1), data031 (9ad20a2e), data034 (fffab949), data036 (50f47529), data040 (0524a741). Revert: copy back
+  `kom_backup_tools/data0{27..31,34,36,40}.kom.20261112_11452*`; in kom_contents restore the 6 files from `20261112_w3f_june_boards` and re-apply W3c's
+  rows (its Done note), `luasrc.py refresh` each.
+- **Kept:** the field-change ACK fix, the Lanox rest `AddMapData` row, W3c's staged Altera field 1 / Peita field 2 assets, Ruben field 1 March's.
+  W3e's kickoff notes that every field is reachable again.
+- **How to see it:** the play-test hand-off below (STATUS row). Log tag `[JUNE_ENGINE] WVIL`; the portal moves show as
+  `EGS_JOIN_BATTLE_FIELD_REQ` (into a field) and `EGS_STATE_CHANGE_FIELD_REQ` (into a village or rest) in `offline_packets.log`.
