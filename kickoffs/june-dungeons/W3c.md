@@ -30,5 +30,15 @@ Identify, then decide with the user, then port June's field graph for the places
 - What reads them offline: `X2Lib/Offline/X2OfflineBattleField.cpp` (field join, portals, `GetIsRight`), `X2StateField.cpp` ~1928 / 2138-2160
   (village / rest ids 20000-20010 / 1000-1008 already take the `EGS_STATE_CHANGE_FIELD_REQ` path), quests that name the fields.
 
-Stop and hand the user **"this needs a design decision"** with the route June draws, which fields leave the main path, and what quests or
-dungeons that touches. Port only after the user's answer; then the census rows become `same as June`.
+**Decision taken (user, 2026-11-12, after the W3b play-test): June's route.** Port it whole: no need to ask again. Stop only if the port
+would strand a quest or dungeon that has no June replacement (say which). The census rows become `same as June`.
+
+What the W3b play-test showed (the half-installed June route; each must be right after this phase):
+- Altera village end and Peita village start: boards read "Dicey Sky Road" (June's Besma rest destination), while March still sends you to the
+  Altera / Peita fields.
+- Altera village end: June's line map (`LINEMAP_Altera_Village.lua`, adopted by W3) drops the bottom walkways x 34583 -> 36264 (y 480 -> 409) and
+  the portal there (March START_POS 67 -> `VMI_BATTLE_FIELD_ALTERA_FIELD_03` line 2): the platform is drawn but cannot be walked on.
+- Elder rest area end: W3 replaced `Field_Elder_StageRest_alpaguide.Y` with June's (one sign plane, `Besma_Village_Milestone.dds`), so the end
+  board shows no text: check it against June's route there (June's `ELDER_FIELD_02` uses world `WI_BATTLE_FIELD_ELDER_FIELD_01`).
+- Cobo Express (B): June's `DLG_Destination_byButton.lua` has no row for the Elder (1000) or Altera (1002) rest areas, and March's list now matches
+  June's; confirm the warp table (`MapData.lua` `CheckCOBOExpressTicketMapID`) and list still fit once the route is June's.

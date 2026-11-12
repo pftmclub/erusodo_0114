@@ -8,7 +8,7 @@ VMI_BATTLE_FIELD_HAMEL_REST_00	assets	260 same, 0 other	closure Lua -> mesh -> t
 VMI_BATTLE_FIELD_RANOX_REST_00	assets	96 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
 VMI_BATTLE_FIELD_SANDER_REST_00	assets	57 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
 VMI_BATTLE_FIELD_VELDER_REST_00	assets	174 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
-VMI_BESMA	assets	153 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_BESMA	assets	184 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
 VMI_DUNGEON_GATE_ALTERA	assets	71 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
 VMI_DUNGEON_GATE_BESMA	assets	74 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
 VMI_DUNGEON_GATE_ELDER	assets	209 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure

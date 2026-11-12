@@ -6677,3 +6677,6 @@ bar 2 that June lacks too).
 - **Revert:** restore the backups above (and `kom_backup_stage_june/20261112_091808` for the two Elysion scripts, which were new: delete them and their
   manifest keys), copy `kom_backup_stage_june/20261112_w3b_data034/*.lua` over the two data034 files and run `luasrc.py refresh data034 <file>`, then
   re-pack / copy the ten koms.
+- **Follow-up (W3b, same day):** 9 Besma village textures June's `Besma_Village_G01.Y` names past a damaged MSZIP block (the census reader stopped
+  there; `june2017_re/fxdata.py` now reads on): staged new into data028 (backup `kom_backup_stage_june/20261112_095755`), packed + copied. Revert:
+  delete them from `kom_contents/data028_kom` and its manifest, re-pack / copy data028.

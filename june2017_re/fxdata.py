@@ -387,6 +387,12 @@ def xfile_text(data, lenient=False):
                     chunk += d.decompress(blk[i:i + 256])
             except zlib.error:
                 pass
+            # W3b (2026-11-12): a block zlib rejects mid-file (June's Besma_Village_G01.Y block 29) is not the end: the game reads on, so
+            # pad it to its raw size and keep going; the later blocks hold names (8 Besma textures) the census missed.
+            if p + 4 + packed < len(data) and raw:
+                out += (chunk + b'\0' * raw)[:raw]
+                p += 4 + packed
+                continue
             out += chunk
             break
         if len(chunk) > raw or (len(chunk) < raw and not lenient):

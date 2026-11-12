@@ -110,7 +110,8 @@ portal leads to the Besma rest area (line 310), and the Besma rest area leads to
 Besma fields 1-3. W3b found it in `DLG_Map_Village.lua` START_POS (Besma 42 / 43, Altera 62 / 63 / March-only 67, Peita 72, Besma rest 311 / 313 /
 315; `w3b_village_census.tsv` rows `routed W3c`). It goes with June's `BattleFieldData.lua` portals and world ids and `MapData.lua` `AddMapData`
 BEFORE / AFTER. March's reader already carries village / rest ids as `BattleFieldId` (`X2StateField.cpp` ranges 20000-20010 / 1000-1008), so this
-is a data port, but it changes which fields lie on the main route: **a design decision** for the user first. Kickoff `W3c.md`.
+is a data port. **Decision (user, 2026-11-12): June's route**, after the W3b play-test showed the half-installed route (boards, Altera's
+bottom path, Elder rest sign; detail in `W3c.md`). Kickoff `W3c.md`.
 
 ## Phase W3d - June's village NPC roster, services and talk (routed by W3b, 2026-11-12)
 
@@ -165,4 +166,10 @@ line map, meshes, sounds -> textures / XET / TET inside each mesh, June's copy, 
   BattleFieldData and MapData BEFORE / AFTER; a design decision); W3d (village NPC roster: Adams, Mu, guild mark, EDAN / Bless of Solace, Pane, spa sign,
   Ruben gate Apink, Ruben drops Postbox; 18 June-only houses, 3 June-only places; service and talk keys in ~40 houses; `DLG_Map_House_1/_2`);
   Stage 9 bullet (region-map dialogs `DLG_Map_Local_*`, MapData `AddLocalMapInfo`). The village minimap dialogs already equal June's.
-- **Play-test owed:** the hand-off in the session reply (every village and rest area walked).
+- **Play-test (user, 2026-11-12):** Besma alchemist house still untextured; boards at Altera end / Peita start / Elder rest end wrong or blank;
+  Altera bottom portal dead; Cobo list without Elder / Altera rest. **Follow-up (same day):** `fxdata.xfile_text(lenient)` stopped at the first
+  MSZIP block zlib rejects (June's `Besma_Village_G01.Y` block 29 of 55), hiding half the mesh; it now pads that block and reads on. The rerun found
+  the 9 Besma textures (`Alchemist_Roof_01` / `_building_01` / `_Column_01` / `_Object01` / `_02`, `Display`, `Acc_Object01`, `Bridge_Floor03`,
+  `Field_Dragon_Road_Road02_1b`), staged new in data028 (backup `20261112_095755`), PACK OK + COPY OK data028 (md5 64674884). Closure 5,760 rows, 0
+  differ / missing; census 0 unexplained. Boards and the Altera portal are June's route half-installed: user chose June's route -> W3c. Cobo list
+  equals June's (June's dialog has no Elder / Altera rest rows).
