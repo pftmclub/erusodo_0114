@@ -106,7 +106,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
 | CH3c | done (play-test: states entered, logs clean; Smash chain not reached) | Sonnet 5.5 / high | CH3b, CHNb review | `X2GUAra.*` | `CH3c.md` |
-| CH3c2 | built + deployed, play-test owed (unit 104: Raid 27242 / Specter Walk 27243 / Fox Ghost 27228) | Sonnet 5.5 / high, user play-test | CH3c | `X2GUAra.*` | `CH3c2.md` |
+| CH3c2 | done (play-test: Raid / Specter Walk / Fox Ghost states entered, logs clean) | Sonnet 5.5 / high, user play-test | CH3c | `X2GUAra.*` | `CH3c2.md` |
 | CH3d | blocked (CH3c2): hyper actives + transcendence rows 118 / 119 / 124; CH3 stage review (CH3a-CH3d) | Opus 5.5 / high, Opus review, user play-test | CH3c2 | `X2GUAra.*`, `Handlers_Quest.cpp`, data036 | `CH3d.md` |
 | CH4a | blocked (CH3d review): passives `32bcd9c0`, 0x780 hook `32bca010`, delegates; no review of its own | Opus 5.5 / high, user play-test | CH3d review | `X2GUAra.*`, `X2GUUser.*` | `CH4a.md` |
 | CH4b | blocked (CH4a): overrides + `MemoConditionAra`; CH4 stage review (CH4a-CH4b) | Opus 5.5 / high, Opus review, user play-test | CH4a | `X2GUAra.*`, `X2GUUser.*` | `CH4b.md` |
