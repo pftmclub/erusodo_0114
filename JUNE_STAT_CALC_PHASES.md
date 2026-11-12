@@ -307,6 +307,17 @@ hit; `dmg` = the final damage `GetFinalDamage` returns. Level-damage hits return
 1466, k 1.0; stage 2: `_PUNCH_BOSS` 1470 / `_SMALL_KNIFE_BOSS` 1469, k 1.2) and `DI_ALTERA_SECRET_HELL` 33051 (stage 0:
 `NUI_ALTERA_SECRET_TYPE2_BOSS` 1551, k 1.2). Both scale monsters to the party level (`m_bRelativeMonsterLevel`).
 
+**Play-test 1 PASSED (2026-11-12, run 12:53-12:57 on the D1 exe md5 f030a272; `logs.py --tag JUNE_STATCALC`, 151 HIT lines).**
+jtLordKnight (unit 25, Lord Knight 99) in `DI_ELDER_SECRET_HELL` 33031; monsters scaled to level 104.
+- `k = 1.2` boss `NUI_ELDER_SECRET_PUNCH_BOSS` 1470 (stage 2): `defence=8121 rate=0.6511 march=2.0472`, 14 hits, `dmg` up to 138,054
+  (March's line read 2.05: 0 damage). Gate met.
+- `k = 1.0`: `NUI_ELDER_SECRET_BUNKER` 1466 `rate=0.5526 march=1.3547` (March's level-gap factor 1.635 at a 5-level gap also took it
+  to 0), the stage-1/2 `_COMMON` soldiers and Nasods (530-532, 566, 574, 576) the same. `rate` below `march` on every one.
+- Incoming: 530 / 532 / 574 / 576 / 1470 -> unit 25 log `dlv=99 defence=3381-4571 rate=0.45-0.52`, `dmg` up to 15,652.
+- 16 of 151 lines show `dmg=0` on every kind of monster at the same `rate` (the curve never gives 0 here: `1 - rate` > 0.34), so the 0
+  comes after the defence rate (a 0 motion damage or a later multiplier); D2a / D2b read the rest of the body.
+- Not run: `_SMALL_KNIFE_BOSS` 1469 and the second dungeon (Altera Secret Hell 33051); the plan's gate is met without them.
+
 ## Phase D2 - GetFinalDamage: the rest of June's body
 
 **Scope.** Every `gfd_blocks.tsv` range still `March`, `mixed` or `absent`, under `SERV_IRUHADEV_JUNE_STATCALC_FINAL_DAMAGE`, so the
