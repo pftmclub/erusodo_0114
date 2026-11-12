@@ -50,6 +50,8 @@ so they run as their own plan. Engine fixes the dungeons need (NPC/game queries,
 | C3z-8 | June's boss-raid systems (`CX2BossRaidLongTimeEvent` enter / state UI, `CX2NewBossRaidManager` + raid phases, June's `CX2BossRaidManager`); scope first, report size and offline reach, then write port phases. Routed from skill-system-core S7o (user 2026-10-19) | kickoff `C3z-8.md`; `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7o - Done" |
 | W3 | June's village world Lua: census every village world script + line map in data040, stage the closure, adopt June's (ljconv), pack, ask, copy. Moved from june-engine by its scope audit (2026-10-20), same ID; Sonnet 5.5 high | `JUNE_ENGINE_REMAINDER_PHASES.md` "Phase W3 - June village world Lua"; kickoff `W3.md` |
 | W3b | full investigation of EVERY village and rest area against June after W3 (user 2026-11-12: Elder / Besma NPCs and layout do not match, textures missing): layout, NPC positions, textures, then the unambiguous fixes; Opus 5.5 high | kickoff `W3b.md`; "Phase W3b" below |
+| W3c | June's field graph (village / rest / field links, BattleFieldData, MapData BEFORE / AFTER); identify, user decision, port | kickoff `W3c.md`; "Phase W3c" below |
+| W3d | June's village NPC roster, services and talk (houses June lists that March does not, June-only houses / places, service + talk keys) | kickoff `W3d.md`; "Phase W3d" below |
 
 Run with: Opus 5.5 high (C3y-5: xhigh). Kickoffs: `kickoffs/june-dungeons/<id>.md`. Board: `STATUS.md`, block `june-dungeons`.
 
@@ -101,6 +103,22 @@ Elder, Besma, Altera, Peita, Velder, Hamel, Sander, Ranox, Elysion, Atlas Statio
   house mark says, nothing floats or sinks, no pink / black textures, spawn and warp-in points sit on the ground. `python tools/logs.py --grep "OpenTexture"`
   shows none of the names above.
 
+## Phase W3c - June's field graph (routed by W3b, 2026-11-12)
+
+**Run with:** Opus 5.5 high; identify, then a user decision, then the port. June links Elder - Besma - Altera - Peita differently: Besma's east
+portal leads to the Besma rest area (line 310), and the Besma rest area leads to Besma (line 41), Peita (line 108) and Altera (line 60) instead of
+Besma fields 1-3. W3b found it in `DLG_Map_Village.lua` START_POS (Besma 42 / 43, Altera 62 / 63 / March-only 67, Peita 72, Besma rest 311 / 313 /
+315; `w3b_village_census.tsv` rows `routed W3c`). It goes with June's `BattleFieldData.lua` portals and world ids and `MapData.lua` `AddMapData`
+BEFORE / AFTER. March's reader already carries village / rest ids as `BattleFieldId` (`X2StateField.cpp` ranges 20000-20010 / 1000-1008), so this
+is a data port, but it changes which fields lie on the main route: **a design decision** for the user first. Kickoff `W3c.md`.
+
+## Phase W3d - June's village NPC roster, services and talk (routed by W3b, 2026-11-12)
+
+**Run with:** Opus 5.5 high, then a user play-test. The houses June lists that March does not (`HI_GUILD_MARK`, `HI_ADAMS_HOUSE`, `HI_MU`,
+`HI_EVENT_GUILD_EDAN_VILAGE`, `HI_EVENT_BLESS_OF_SOLACE` in every village; June-only `HI_PANE_PEITA_HOUSE`, `HI_SPA_SIGN_RUBEN`; Ruben gate `HI_APINK`;
+Ruben drops `HI_POSTBOX`), the 18 June-only houses and 3 June-only places (spa Ruben / Ranox, guild agit), and the NPC service and talk keys June
+changes in ~40 houses. Each needs its assets, its `AddFieldNpc` gate and its offline system checked before June's value goes in. Kickoff `W3d.md`.
+
 ## Order (recommendation, 2026-10-11)
 
 1. C3y-1b play-test (user) and review; 2. C3y-1c; 3. C3y-2 / 3 / 4 one at a time (identify halves can run earlier);
@@ -119,3 +137,32 @@ Scope grew by the user's request: village / rest-area world scripts and assets t
 - **Left:** `DLG_Map_Village.lua` `HouseIDList` / `START_POS` (June's rest areas arrive from the village; Adams / Mu / guild houses).
 - **data101 (follow-up, same day):** dir restored byte-exact from the live kom (1,205 files), packed, copied (md5 3d798391); the Velder village meshes already match June except `Velder_village_ADplane.Y` (staged). Two 0-byte live entries (`Velder_Field_001/003.dds`) dropped. MODS.md has the detail.
 - **Play-test owed:** every village loads, NPCs stand on the ground; Lanox rest area shows Hellen / Postbox / Billboard / Glave; entering Lanox field 1 shows the Lanox banner; Sander field 4 ends with the Lanox board.
+
+## W3b - Done (2026-11-12, Opus 5.5)
+
+Data only: no client source, no flag (flagcheck / junediverge not applicable; full build skipped: no code). Census `june2017_re/w3b_village_census.tsv`
+(249 rows, 0 unexplained; `python june2017_re/w3b_village_census.py`), closure `june2017_re/w3b_asset_closure.tsv` (`w3b_asset_closure.py`: every
+`Village[]` world incl. gates, lounges, rest areas, Atlas Station 1008, plus the Arcade and Peita rests; WorldData row -> every world `.lua` and variant ->
+line map, meshes, sounds -> textures / XET / TET inside each mesh, June's copy, compared by bytes; `.lua` against ljconv(June)). New readers
+`june2017_re/luatable.py` (data-only Lua tables).
+- **Causes proven.** (1) Elder / Besma NPCs: W3 adopted June's worlds but six houses keep their spot in `NPCMeshPos` (no `COMMON_NPC_LOCATION`):
+  Richang / Stella stood at y 3910 under June's Besma at y ~5500; Echo / Hofmann / Lenphad / Luichel at March's Elder spots. (2) Elder spawn points 20 / 22
+  were March's x. (3) Textures: the closure W3 ran skipped meshes March already had and the NPC models; 52 June files were missing or older.
+- **Fixed (data034 core source, `luasrc.py refresh`, `ledger --check` PASS, `core --check` PASS):** `NPCMeshPos` of the six houses, `JoinArea` of Grail /
+  Hofmann / Richang, Ariel event house `NPCAniTex`; Elder StartPosId 20 / 22 x; Hamel lounge 87 -> 88 (March duplicated Velder lounge's id).
+- **Staged:** `w3b_stage_assets.tsv` (52: 31 + 1 NPC model / XET / face files in data013, 6 data023, 2 data024, 4 data026, 2 data029, 3 data054, 2 new
+  data056, 1 data110), `adopt-june` Elysion_Village_Festival / _XMAS (new; `luabind.py check` PASS). After the copy the closure shows 0 differ, 0 missing
+  (2 `missing-both`: `Ruben_Dungeon_Gate.lua`, `Motion_NPC_Elsion_Hugo.XET`, June lacks them too). June's NPC models keep March's animation names
+  (Wait01-03 / Talk / Bye); Billboard and Postbox become KSM, which March loads.
+- **PACK OK + COPY OK:** data013 (md5 16766c83), 023 (a1b10494), 024 (dc4ca09b), 026 (d477b250), 029 (afbe34e5), 034 (fffab949), 040 (8ee149cd),
+  054 (1aefda2f), 056 (dcb9947f), 110 (a684e35e). Each pack showed only the intended entries against live.
+- **Log textures (run 2026-11-12 8:48):** `RUBEN_BANK_CLOSE`, `RUBEN_TECHHOUSE_GANPAN`, `RUBEN_VILLAGE_HERB01/02`, `FIELD_ELDER_ROADTILE2` are named by
+  June's own meshes and June ships no such file (parity, kept). **Open:** the Besma Alchemist / Display / Acc-object / Bridge_Floor03 / Road02_1b textures exist only in June's data028, yet neither June's
+  Besma meshes, Besma script nor March's old G01 name them; a full-kom scan was still running at commit. The play-test's `OpenTexture` grep decides
+  whether a follow-up is needed.
+- **Kept on purpose:** START_POS rows that differ only by key name (June `OtherPlaceID` = March `BattleFieldId`, atlas A5); `COMMON_NPC_LOCATION` row order.
+- **Routed:** W3c (June's field graph: Besma 42 / 43, Altera 62 / 63 / 67, Peita 72, Besma rest 311 / 313 / 315 lead elsewhere in June, with
+  BattleFieldData and MapData BEFORE / AFTER; a design decision); W3d (village NPC roster: Adams, Mu, guild mark, EDAN / Bless of Solace, Pane, spa sign,
+  Ruben gate Apink, Ruben drops Postbox; 18 June-only houses, 3 June-only places; service and talk keys in ~40 houses; `DLG_Map_House_1/_2`);
+  Stage 9 bullet (region-map dialogs `DLG_Map_Local_*`, MapData `AddLocalMapInfo`). The village minimap dialogs already equal June's.
+- **Play-test owed:** the hand-off in the session reply (every village and rest area walked).

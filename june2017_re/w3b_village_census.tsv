@@ -1,0 +1,250 @@
+place	check	result	why
+VMI_ALTERA	assets	145 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_BATTLE_FIELD_ALTERA_REST_00	assets	140 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_BATTLE_FIELD_BESMA_REST_00	assets	274 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_BATTLE_FIELD_ELDER_REST_00	assets	214 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_BATTLE_FIELD_ELYSION_REST_00	assets	125 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_BATTLE_FIELD_HAMEL_REST_00	assets	260 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_BATTLE_FIELD_RANOX_REST_00	assets	96 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_BATTLE_FIELD_SANDER_REST_00	assets	57 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_BATTLE_FIELD_VELDER_REST_00	assets	174 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_BESMA	assets	153 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_GATE_ALTERA	assets	71 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_GATE_BESMA	assets	74 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_GATE_ELDER	assets	209 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_GATE_HAMEL	assets	147 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_GATE_RUBEN	assets	10 same, 1 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_GATE_RUBEN	asset Ruben_Dungeon_Gate.lua	missing-both	WorldData WI_DUNGEON_GATE_RUBEN names a file neither client has; the Ruben gate is not a reachable world (parity)
+VMI_DUNGEON_GATE_VELDER	assets	123 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_LOUNGE_ALTERA	assets	207 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_LOUNGE_BESMA	assets	207 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_LOUNGE_ELDER	assets	207 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_LOUNGE_HAMEL	assets	14 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_LOUNGE_PEITA	assets	207 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_LOUNGE_RUBEN	assets	201 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_DUNGEON_LOUNGE_VELDER	assets	121 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_ELDER	assets	383 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_ELYSION	assets	287 same, 1 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_ELYSION	asset Motion_NPC_Elsion_Hugo.XET	missing-both	HI_HUGO NPCAniTex names an XET June does not ship either (parity, harmless: OpenXET noise)
+VMI_HAMEL	assets	300 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_PEITA	assets	164 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_RANOX	assets	267 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_RUBEN	assets	203 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_SANDER	assets	344 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_VELDER	assets	213 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+WI_ARCADE_NEW_STAGE_REST	assets	28 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+WI_BATTLE_FIELD_PEITA_FIELD_REST_00	assets	102 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+(log 2026-11-12 8:48)	OpenTexture field_elder_roadtile2.dds	missing-both	named by June's Field_Elder_Stage0_Ground2/4/5 and StageRest_ground6/8; absent in June too (parity)
+(log 2026-11-12 8:48)	OpenTexture ruben_bank_close.dds	missing-both	June's Elder_Village_Bank.Y / Elder_Village_G02.y name it and June ships no such texture: June logs the same miss (parity)
+(log 2026-11-12 8:48)	OpenTexture ruben_techhouse_ganpan.dds	missing-both	named by June's Ruben / Elder tech-house meshes; absent in June too (parity)
+(log 2026-11-12 8:48)	OpenTexture ruben_village_herb01.dds	missing-both	named by June's Ruben_Villeage_alpaGR1-22.Y; absent in June too (parity)
+(log 2026-11-12 8:48)	OpenTexture ruben_village_herb02.dds	missing-both	named by June's Ruben_Villeage_alpaGR1-22.Y; absent in June too (parity)
+VMI_ALTERA	HouseIDList	-[] +['HI_GUILD_MARK', 'HI_ADAMS_HOUSE', 'HI_MU', 'HI_EVENT_GUILD_EDAN_VILAGE', 'HI_EVENT_BLESS_OF_SOLACE']	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first)
+VMI_ALTERA	START_POS 62	differs	routed W3c: June's field graph sends this portal somewhere else (June BattleFieldData + MapData BEFORE/AFTER change with it); March's reader carries the id (VillageParsing BattleFieldId, X2StateField ranges 20000-20010 / 1000-1008) but the route change is a design decision
+VMI_ALTERA	START_POS 63	differs	routed W3c: June's field graph sends this portal somewhere else (June BattleFieldData + MapData BEFORE/AFTER change with it); March's reader carries the id (VillageParsing BattleFieldId, X2StateField ranges 20000-20010 / 1000-1008) but the route change is a design decision
+VMI_ALTERA	START_POS 67	march-only	routed W3c: June's field graph sends this portal somewhere else (June BattleFieldData + MapData BEFORE/AFTER change with it); March's reader carries the id (VillageParsing BattleFieldId, X2StateField ranges 20000-20010 / 1000-1008) but the route change is a design decision
+VMI_BATTLE_FIELD_ALTERA_REST_00	START_POS 321	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_ALTERA_REST_00	START_POS 323	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_BESMA_REST_00	START_POS 311	differs	routed W3c: June's field graph sends this portal somewhere else (June BattleFieldData + MapData BEFORE/AFTER change with it); March's reader carries the id (VillageParsing BattleFieldId, X2StateField ranges 20000-20010 / 1000-1008) but the route change is a design decision
+VMI_BATTLE_FIELD_BESMA_REST_00	START_POS 313	differs	routed W3c: June's field graph sends this portal somewhere else (June BattleFieldData + MapData BEFORE/AFTER change with it); March's reader carries the id (VillageParsing BattleFieldId, X2StateField ranges 20000-20010 / 1000-1008) but the route change is a design decision
+VMI_BATTLE_FIELD_BESMA_REST_00	START_POS 315	differs	routed W3c: June's field graph sends this portal somewhere else (June BattleFieldData + MapData BEFORE/AFTER change with it); March's reader carries the id (VillageParsing BattleFieldId, X2StateField ranges 20000-20010 / 1000-1008) but the route change is a design decision
+VMI_BATTLE_FIELD_ELDER_REST_00	START_POS 301	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_ELDER_REST_00	START_POS 303	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_ELYSION_REST_00	START_POS 401	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_ELYSION_REST_00	START_POS 403	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_HAMEL_REST_00	START_POS 341	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_HAMEL_REST_00	START_POS 343	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_HAMEL_REST_00	START_POS 345	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_RANOX_REST_00	START_POS 361	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_RANOX_REST_00	START_POS 364	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_SANDER_REST_00	START_POS 351	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_SANDER_REST_00	START_POS 353	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_VELDER_REST_00	START_POS 331	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_VELDER_REST_00	START_POS 333	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BATTLE_FIELD_VELDER_REST_00	START_POS 335	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_BESMA	HouseIDList	-[] +['HI_GUILD_MARK', 'HI_ADAMS_HOUSE', 'HI_MU', 'HI_EVENT_GUILD_EDAN_VILAGE', 'HI_EVENT_BLESS_OF_SOLACE']	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first)
+VMI_BESMA	START_POS 42	differs	routed W3c: June's field graph sends this portal somewhere else (June BattleFieldData + MapData BEFORE/AFTER change with it); March's reader carries the id (VillageParsing BattleFieldId, X2StateField ranges 20000-20010 / 1000-1008) but the route change is a design decision
+VMI_BESMA	START_POS 43	differs	routed W3c: June's field graph sends this portal somewhere else (June BattleFieldData + MapData BEFORE/AFTER change with it); March's reader carries the id (VillageParsing BattleFieldId, X2StateField ranges 20000-20010 / 1000-1008) but the route change is a design decision
+VMI_DUNGEON_GATE_ALTERA	Village block	same as June	every key incl. START_POS (W3b moved Elder 20 / 22 x and Hamel lounge 87 -> 88 to June)
+VMI_DUNGEON_GATE_BESMA	Village block	same as June	every key incl. START_POS (W3b moved Elder 20 / 22 x and Hamel lounge 87 -> 88 to June)
+VMI_DUNGEON_GATE_ELDER	Village block	same as June	every key incl. START_POS (W3b moved Elder 20 / 22 x and Hamel lounge 87 -> 88 to June)
+VMI_DUNGEON_GATE_HAMEL	Village block	same as June	every key incl. START_POS (W3b moved Elder 20 / 22 x and Hamel lounge 87 -> 88 to June)
+VMI_DUNGEON_GATE_RUBEN	HouseIDList	-[] +['HI_APINK']	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first)
+VMI_DUNGEON_GATE_VELDER	Village block	same as June	every key incl. START_POS (W3b moved Elder 20 / 22 x and Hamel lounge 87 -> 88 to June)
+VMI_DUNGEON_LOUNGE_ALTERA	Village block	same as June	every key incl. START_POS (W3b moved Elder 20 / 22 x and Hamel lounge 87 -> 88 to June)
+VMI_DUNGEON_LOUNGE_BESMA	Village block	same as June	every key incl. START_POS (W3b moved Elder 20 / 22 x and Hamel lounge 87 -> 88 to June)
+VMI_DUNGEON_LOUNGE_ELDER	Village block	same as June	every key incl. START_POS (W3b moved Elder 20 / 22 x and Hamel lounge 87 -> 88 to June)
+VMI_DUNGEON_LOUNGE_HAMEL	Village block	same as June	every key incl. START_POS (W3b moved Elder 20 / 22 x and Hamel lounge 87 -> 88 to June)
+VMI_DUNGEON_LOUNGE_PEITA	Village block	same as June	every key incl. START_POS (W3b moved Elder 20 / 22 x and Hamel lounge 87 -> 88 to June)
+VMI_DUNGEON_LOUNGE_RUBEN	Village block	same as June	every key incl. START_POS (W3b moved Elder 20 / 22 x and Hamel lounge 87 -> 88 to June)
+VMI_DUNGEON_LOUNGE_VELDER	Village block	same as June	every key incl. START_POS (W3b moved Elder 20 / 22 x and Hamel lounge 87 -> 88 to June)
+VMI_ELDER	HouseIDList	-[] +['HI_GUILD_MARK', 'HI_ADAMS_HOUSE', 'HI_MU', 'HI_EVENT_GUILD_EDAN_VILAGE', 'HI_EVENT_BLESS_OF_SOLACE']	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first)
+VMI_ELDER	START_POS 22	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_ELDER	START_POS 23	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_ELYSION	START_POS 501	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_ELYSION	START_POS 517	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_GUILD_AGIT	Village block	june-only	routed W3d: June's village NPC roster (places and houses June lists that March does not; their services / guild / event gates need checking first); June-only place (spa / guild agit), no March world or system
+VMI_HAMEL	HouseIDList	-[] +['HI_GUILD_MARK', 'HI_ADAMS_HOUSE', 'HI_MU', 'HI_EVENT_GUILD_EDAN_VILAGE', 'HI_EVENT_BLESS_OF_SOLACE']	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first)
+VMI_HAMEL	START_POS 112	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_HAMEL	START_POS 113	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_PEITA	HouseIDList	-[] +['HI_GUILD_MARK', 'HI_ADAMS_HOUSE', 'HI_MU', 'HI_EVENT_GUILD_EDAN_VILAGE', 'HI_EVENT_BLESS_OF_SOLACE', 'HI_PANE_PEITA_HOUSE']	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first)
+VMI_PEITA	START_POS 72	differs	routed W3c: June's field graph sends this portal somewhere else (June BattleFieldData + MapData BEFORE/AFTER change with it); March's reader carries the id (VillageParsing BattleFieldId, X2StateField ranges 20000-20010 / 1000-1008) but the route change is a design decision
+VMI_PEITA	START_POS 74	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_RANOX	START_POS 142	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_RANOX	START_POS 143	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_RUBEN	HouseIDList	-['HI_POSTBOX'] +['HI_ADAMS_HOUSE', 'HI_SPA_SIGN_RUBEN']	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first)
+VMI_RUBEN	START_POS 4	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_RUBEN	START_POS 5	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); spa entrance to June-only VMI_SPA_*
+VMI_SANDER	HouseIDList	-[] +['HI_GUILD_MARK', 'HI_ADAMS_HOUSE', 'HI_MU', 'HI_EVENT_GUILD_EDAN_VILAGE', 'HI_EVENT_BLESS_OF_SOLACE']	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first)
+VMI_SANDER	START_POS 132	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_SANDER	START_POS 133	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_SPA_RANOX	Village block	june-only	routed W3d: June's village NPC roster (places and houses June lists that March does not; their services / guild / event gates need checking first); June-only place (spa / guild agit), no March world or system
+VMI_SPA_RUBEN	Village block	june-only	routed W3d: June's village NPC roster (places and houses June lists that March does not; their services / guild / event gates need checking first); June-only place (spa / guild agit), no March world or system
+VMI_VELDER	HouseIDList	-[] +['HI_GUILD_MARK', 'HI_ADAMS_HOUSE', 'HI_MU', 'HI_EVENT_GUILD_EDAN_VILAGE', 'HI_EVENT_BLESS_OF_SOLACE']	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first)
+VMI_VELDER	START_POS 92	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+VMI_VELDER	START_POS 93	key-name only	June OtherPlaceID / OtherPlaceStartLineIndex = March BattleFieldId / BattleFieldStartLineIndex, same values (atlas A5 naming, reader X2LocationManager.cpp:481-482)
+HI_ADAMS_HOUSE	House block	same as June	
+HI_ADEL_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_ADEL_HOUSE	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_AGATHA_EQUIP_SHOP_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,TALK_BOX,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_AGATHA_EQUIP_SHOP_HOUSE	service keys	EVENT2,EVENT3,EXCHANGE,HENIR_EQUIP_UPGRADE,MAKING_NPC,OLD_ADVANCED_ENCHANT,OLD_ENCHANT	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_AGIT_BANK	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_AIDA_ACCESSORY_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_AIDA_ACCESSORY_HOUSE	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_ALLEGRO_PEITA_HOUSE	talk keys	Make_Talk,NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Shop_Talk,TALK_BOX,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_ALLEGRO_PEITA_HOUSE	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_AMOS_ALCHEMIST_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_AMOS_ALCHEMIST_HOUSE	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_ANNE_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_ANNE_HOUSE	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_APINK	talk keys	Bye_Talk,Exchange_Talk,NPCJoinTalk,Quest_Talk,TALK_BOX,Wait_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_APINK	layout / look keys	NPCMeshName,NPCTextureKey,NPCTextureName	kept: house is in no March village list (June lists it: routed W3d with the roster)
+HI_APINK_ARCHANGEL	House block	march-only	kept: March event house June dropped; no village list names it in June (no effect)
+HI_ARIEL_EVENT_HOUSE	talk keys	Exchange_New_Item_Talk,NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,TALK_BOX	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_ARIEL_EVENT_HOUSE	service keys	EVENT2,EVENT3,GURA_2014_EVENT	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_BERNARD	House block	same as June	
+HI_BILLBOARD	talk keys	Quest_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_BILLBOARD	service keys	GUILD	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_BILLBOARD	COMMON_NPC_LOCATION	+2 june / +0 march rows	June-only rows are for June-only worlds (spa / guild agit): routed W3d
+HI_BIRD_QUEST_00	House block	same as June	
+HI_BIRD_QUEST_01	House block	same as June	
+HI_BIRD_QUEST_02	House block	same as June	
+HI_BIRD_QUEST_03	House block	same as June	
+HI_BIRD_QUEST_04	House block	same as June	
+HI_CAMILLA_PVP_HOUSE	talk keys	Exchange_Talk,Make_Talk,NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_CAMILLA_PVP_HOUSE	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE,MAKING_NPC	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_CHACHABUK_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_CHACHABUK_HOUSE	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_DAISY	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_DAISY	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_DAO	House block	same as June	
+HI_DAPPAR	talk keys	Make_Talk,NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,TALK_BOX,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_DAPPAR	service keys	EVENT2,EVENT3,EXCHANGE,HENIR_EQUIP_UPGRADE,MAKING_NPC	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_DENKA	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_DENKA	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_DURANDA	House block	same as June	
+HI_ECHO_ALCHEMIST_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_ECHO_ALCHEMIST_HOUSE	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_EDEL	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_EDEL	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_ED_SHOP_MU	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_ELYSION_BLUE_TREE	House block	same as June	
+HI_ELYSION_RED_TREE	House block	same as June	
+HI_EMIRATE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_EMIRATE	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_EVENT_ADD	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_EVENT_ARC_TRACER	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_EVENT_BENDERS	House block	march-only	kept: March event house June dropped; no village list names it in June (no effect)
+HI_EVENT_BLESS_OF_SOLACE	House block	same as June	
+HI_EVENT_BOX_ARIEL	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_EVENT_CRAYONPOP	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_EVENT_DOLL	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_EVENT_GUILD_EDAN_ROOM	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_EVENT_GUILD_EDAN_VILAGE	House block	same as June	
+HI_EVENT_KEEPER	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_EVENT_MOON_RABBIT	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_EVENT_NASOD_ARIEL	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_EVENT_NPC1	House block	same as June	
+HI_EVENT_NPC2	House block	same as June	
+HI_EVENT_TEDDYBEAR	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_FACEOFF	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_FACEOFF	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_GLAVE_HOUSE	talk keys	Exchange_New_Item_Talk,NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Trade_Talk,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_GLAVE_HOUSE	service keys	EVENT2,EVENT3,EXTRACTION,HENIR_EQUIP_UPGRADE,TRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_GLAVE_HOUSE	COMMON_NPC_LOCATION	order only	same rows, other order; the reader matches by world id (X2TFieldNpc.cpp:1847-1867)
+HI_GRAIL	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_GRAIL	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_GUILD_MARK	House block	same as June	
+HI_HAGERS_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_HAGERS_HOUSE	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_HANNA	talk keys	Exchange_Talk,NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,TALK_BOX,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_HANNA	service keys	EVENT2,EVENT3,EXCHANGE,HENIR_EQUIP_UPGRADE,MAKING_NPC	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_HELLEN_SHOP_HOUSE	talk keys	Exchange_Talk,Make_Talk,NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_HELLEN_SHOP_HOUSE	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_HOFMANN_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_HOFMANN_HOUSE	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_HORATIO	talk keys	Exchange_Talk,NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,TALK_BOX,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_HORATIO	service keys	EVENT2,EVENT3,EXCHANGE,HENIR_EQUIP_UPGRADE,MAKING_NPC	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_HUGO	House block	same as June	
+HI_IGNIA	House block	same as June	
+HI_LENPAD_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,TALK_BOX,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_LENPAD_HOUSE	service keys	EVENT2,EVENT3,EXCHANGE,HENIR_EQUIP_UPGRADE,MAKING_NPC	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_LENTO_PEITA_HOUSE	talk keys	Make_Talk,NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Shop_Talk,TALK_BOX	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_LENTO_PEITA_HOUSE	service keys	EVENT2,EVENT3,MAKING_NPC	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_LOW_TRAINNING_ZONE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_LOW_TRAINNING_ZONE	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_LUCY	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_LUCY	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_LUICHEL_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_LUICHEL_HOUSE	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_LUTO	talk keys	TALK_BOX	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_LUTO	COMMON_NPC_LOCATION	+0 june / +5 march rows	March-only rows; house is in no March or June village list
+HI_LUTO	layout / look keys	EventQuestInfoPosX,EventQuestInfoPosY,NPCTexturePosX,NPCTexturePosY,QuestInfoPosX,QuestInfoPosY	kept: house is in no March village list (June lists it: routed W3d with the roster)
+HI_MANDRASSIL	House block	same as June	
+HI_MU	COMMON_NPC_LOCATION	+1 june / +0 march rows	June-only rows are for June-only worlds (spa / guild agit): routed W3d
+HI_NOEL	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_NOEL	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_NUI_EVENT_SPIKA	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_PANE_PEITA_HOUSE	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_PENENSIO	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_PENENSIO	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_POSTBOX	COMMON_NPC_LOCATION	+1 june / +0 march rows	June-only rows are for June-only worlds (spa / guild agit): routed W3d
+HI_PRAUS	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_PRAUS	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_PRIVATE_BANK	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,TALK_BOX	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_PRIVATE_BANK	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_RICHANG_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_RICHANG_HOUSE	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_ROSEANG	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_ROSEANG	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_SANTA_DARKELF	House block	same as June	
+HI_SPA_INNER_NPC_RANOX	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_SPA_INNER_NPC_RUBEN	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_SPA_PPORU	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_SPA_SIGN_RANOX	House block	same as June	
+HI_SPA_SIGN_RUBEN	House block	june-only	routed W3d: June's village NPC roster (houses June lists that March does not; their services / guild / event gates need checking first); June-only house
+HI_STEEL	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_STEEL	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_STELLA_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_STELLA_HOUSE	service keys	EVENT2,EVENT3,EXCHANGE	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_STORY_QUEST	House block	same as June	
+HI_SYOTA	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_SYOTA	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_THEODOR	House block	same as June	
+HI_TOMA_HOUSE	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,TALK_BOX,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_TOMA_HOUSE	service keys	EVENT2,EVENT3,EXCHANGE,HENIR_EQUIP_UPGRADE,MAKING_NPC	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_TRANSCEND_QUEST	House block	same as June	
+HI_VANESSA	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_VANESSA	service keys	EVENT2,EVENT3	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_VAPOR	talk keys	NPC_COMMON_TALK,NPC_TALK_LIST0,NPC_TALK_LIST1,NPC_TALK_LIST2,NPC_TALK_LIST3,Synthesis_Talk,Upgrade_Talk	routed W3d: NPC talk tables (June string ids, gift / daily talk); not layout
+HI_VAPOR	service keys	EVENT2,EVENT3,HENIR_EQUIP_UPGRADE,SYNTHESIS	routed W3d: NPC menu services June turns on / off; each needs its system checked offline
+HI_WILLIAM_PORTER1	House block	same as June	
+HI_WILLIAM_PORTER2	House block	same as June	
+HI_WILLIAM_PORTER3	House block	same as June	
+HI_WILLIAM_PORTER4	House block	same as June	
+HI_YUNO	House block	same as June	
+(all)	DLG_Map_Village_*_Back / _Front / _House_Button.lua	same	every village minimap dialog equals ljconv(June)
+(all)	DLG_Map_Local_*.lua (region map UI)	22 differ, 10 June-only, 22 March-only	routed Stage 9 bullet: region-map dialogs; the 2026-10-09 user rollback keeps the core-list ones March's, a partial wave is not redone here
+(all)	DLG_Map_House_1.lua / _2.lua	differs / June-only	routed W3d: house dialog data that goes with the NPC roster
+(all)	MapData.lua AddMapData (BEFORE / AFTER)	June has 23 rows, March 18	routed W3c: the field graph
+(all)	MapData.lua AddLocalMapInfo	June 201, March 186	routed Stage 9 with the region-map dialogs

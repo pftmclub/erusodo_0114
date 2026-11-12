@@ -737,6 +737,12 @@ Port whatever June UI is still March-shaped once Stages 1–8 have delivered the
   list, notice manager), `ToggleCashShop`, `ToggleSystemMenu`, `OpenAdvertisementDialog`, `ShortCutKeyProcess`, `SetShowMiniMap`, `UpdateEventNotice`,
   `IsValidPacket` (net-error lists and popups), `NetError::GetErrStr` (language table), `GetPVPEmblemData` (built-in rank table). Each is a
   `tools/data/june_march_divergent.tsv` row (verdict `out`, owner Stage 9) with the June address and what differs.
+- **Region-map dialogs found by june-dungeons W3b** *(2026-11-12)*. `DLG_Map_Local_*.lua` against June: 22 differ (Ruben, Elder, Besma, Altera,
+  Peita, Velder + east / north / south, Sander, Henir limit, Hero recruit, the `_Icon` / `_Icon_NEW` files), 10 are June-only (`_EN`, `_Event`,
+  `Bestera_limit`, `Space_of_Thought_limit`, `Valentine_2017_limit`, `DLG_Map_House_2` aside), 22 are March-only (`_Front`, `_Icon_Info_NEW`, Velder
+  sub-maps), plus `MapData.lua` `AddLocalMapInfo` (June 201 rows, March 186) and `DLG_Map_Select_Window(_Instance).lua`. The village minimap dialogs
+  (`DLG_Map_Village_*`) already equal June's. The user's 2026-10-09 rollback keeps the core-list region-map files March's (MODS "June partial ports
+  replaced"), so the wave is done whole here or not at all. Evidence: `june2017_re/w3b_village_census.tsv`.
 
 **Why UI is last and not first:** UI is not one system. Each stage above brings its own June dialogs: the region maps (1), slots and skill tree (3), quests (4), and the transcendence guides (6). A UI-first pass would port buttons with no system behind them, and then collide with every feature stage that touches the same dialog. The only UI work that must come early is the framework itself, and that is measured in Stage 2.
 

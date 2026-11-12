@@ -6654,3 +6654,26 @@ No flag, no exe change. Replaces the "data101 not done" line of the W3 entry abo
 - **Velder assets:** with the dir restored, 1,068 meshes / textures named by the village and rest scripts match June except `Velder_village_ADplane.Y`, staged from June (backup `kom_backup_stage_june/20261112_084915`). The "65 missing Velder meshes" of the first entry were the broken dir, not June content.
 - **Deploy:** `data101` packed and copied (md5 3d798391c96713dc9bb65e31616506a0, 2,181 entries; live backup `kom_backup_tools/data101.kom.20261112_084922`). Also in it: `Velder_Bridge_Hope_Stage3_1_Wall01.Y` and `Velder_Bridge_Hope__stage_3_1_River_Wave.Y`, staged earlier and never deployed.
 - **Revert:** copy the backup over `data\data101.kom`.
+
+## Every village and rest area checked against June: NPC positions, spawn points, assets (W3b, 2026-11-12)
+
+No flag, no exe change (data only). Census `june2017_re/w3b_village_census.tsv` (0 unexplained rows), closure `june2017_re/w3b_asset_closure.tsv`
+(every village, dungeon gate, lounge and rest area plus the Arcade and Peita rests: Lua -> mesh -> texture / XET / TET, 5,729 rows, 0 differ, 0 missing
+bar 2 that June lacks too).
+- **NPC positions.** `data034` `DLG_Map_House.lua` (core list, edited): `NPCMeshPos` to June's for Echo, Hofmann, Lenphad, Luichel (Elder) and Richang,
+  Stella (Besma; March's stood at y 3910 under June's Besma at y ~5500); `JoinArea` to June's for Grail (600 -> 500), Hofmann (500 -> 700), Richang
+  (700 -> 600); `HI_ARIEL_EVENT_HOUSE` gains June's `NPCAniTex = "Motion_Npc_All_Ariel.XET"`.
+- **Spawn points.** `data034` `DLG_Map_Village.lua` (core list, edited): Elder StartPosId 20 x -8041 -> -4780 and 22 x -8499 -> -5071 (June's Elder
+  world); Hamel lounge StartPosId 87 -> 88 (March repeated Velder lounge's 87, so the parser dropped Hamel's).
+- **Assets.** `kom.py stage-june june2017_re/w3b_stage_assets.tsv`: 52 June files (4 new, 48 replaced) in data013 (village NPC models / XET / face
+  textures: Ariel, Billboard, Camilla, Mu, Ruriel, Lento, Adams, Anne, Low, Luichel, Stella, Toma, Grail, Praus, Hanna, Noel, Vanessa, Postbox), data023
+  (ad boards, `square_Blue_Footing.dds`, `NUI_MUL_MAI_04.tga`), data024 / data026 (Ruben / Elder sign textures), data029 (Besma rest G01 Left / Navi),
+  data054 (NPC name sheets 71 / 75 + TET), data056 (`DLG_INT_Button03` TGA + TET, new), data110 (`Village_Hamel_Bridge_Right.Y`). Backups
+  `kom_backup_stage_june/20261112_091758` and `_092402`. `luasrc.py adopt-june data040 Elysion_Village_Festival.lua Elysion_Village_XMAS.lua` (new, June's
+  ljconv bytecode; WorldData already named them).
+- **Deploy:** PACK OK + COPY OK data013 023 024 026 029 034 040 054 056 110.
+- **Left (routed):** June's field graph (Besma / Altera / Peita portals, BattleFieldData, MapData) -> june-dungeons W3c; June's village NPC roster,
+  services and talk -> W3d; region-map dialogs `DLG_Map_Local_*` -> Stage 9 bullet.
+- **Revert:** restore the backups above (and `kom_backup_stage_june/20261112_091808` for the two Elysion scripts, which were new: delete them and their
+  manifest keys), copy `kom_backup_stage_june/20261112_w3b_data034/*.lua` over the two data034 files and run `luasrc.py refresh data034 <file>`, then
+  re-pack / copy the ten koms.
