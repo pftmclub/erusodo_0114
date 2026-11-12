@@ -1990,6 +1990,16 @@ public:
 		RNSI_A_ALD_CONVERSION_HEALTH_ADD_TRANS_UPGRADE        = 27244,	// char-ara CH1n: June's Enum.lua; the enhanced one, same state
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-12 // char-ara CH4a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+		RNSI_P_ALH_FILLED_POWER                               = 27400,	// char-ara CH4a: June's Enum.lua; MP per force power converted ( InitPassiveSkillState )
+		RNSI_P_ASD_BRUTAL_PIERCING                            = 27404,	// char-ara CH4a: June's Enum.lua; block / turn rates and the debuff factor
+		RNSI_P_ALD_ENERGY_BULLET_REINFORCE                    = 27405,	// char-ara CH4a: June's Enum.lua; energy bullet size and damage
+		RNSI_P_AYR_ENERGY_REINFORCE                           = 27406,	// char-ara CH4a: June's Enum.lua; energy bullet range and force down
+		RNSI_P_ASR_ENERGY_REINFORCE                           = 27411,	// char-ara CH4a: June's Enum.lua; force-down cut and berserk MP per force power
+		RNSI_P_ASR_SPIRITUAL_EYE                              = 27414,	// char-ara CH4a: June's Enum.lua; defence rate and Veritable Pandemonium's cool time rate
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-09 // char-rena CH1i
 #ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
 		RNSI_SA_RWS_VIOLENT_ATTACK                            = 23008,	// June's Enum.lua; SetEquippedSkillLevel sets its landing states

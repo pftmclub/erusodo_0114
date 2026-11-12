@@ -3285,6 +3285,9 @@ class CX2GameUnit : public CKTDGObject, public CKTDXDeviceHolder, public KObserv
 		void EraseBuffTempletFromGameUnit( const BUFF_TEMPLET_ID eBuffTempletID_ );
 		void EraseBuffTempletFromGameUnitByIterator( vector<CX2BuffTempletPtr>::iterator vItr_ );
 		void ReserveToFinishBuffTempletFromGameUnit( const BUFF_TEMPLET_ID eBuffTempletID_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+		void ReserveToFinishDebuffTempletsFromGameUnit();	// char-ara CH4a: June 32282190
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 
 		bool HaveThisBuff( const BUFF_TEMPLET_ID eBuffTempletID_ );
 //{{ Iruha : 2026-10-05 // June buff port Phase 10 (JUNE_BUFF_PORT_PHASES.md)

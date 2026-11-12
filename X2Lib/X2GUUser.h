@@ -4111,6 +4111,9 @@ public:
 		bool	IsSocketDownTargetState( const bool bFuture_ ) const;
 		/// June 3202b9a0: the own unit's SIEE 19 (return from death) gate in UpNowHp / SetNowHp
 		bool	ProcessSocketReturnFromDeath();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+		bool	ProcessPassiveReturnFromDeath();	// char-ara CH4a: June 320072d0, the class-passive gate in UpNowHp / SetNowHp
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		float	GetManaRecoveryVal() const { return m_fManaRecoveryVal; }
 		float	GetManaRecoveryTime() const { return m_fManaRecoveryDurationTime; }

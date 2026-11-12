@@ -14826,6 +14826,19 @@ void CX2GameUnit::ReserveToFinishBuffTempletFromGameUnit( const BUFF_TEMPLET_ID 
 		(*vItr)->ReserveToFinish();
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+// char-ara CH4a: June 32282190 ( every debuff, by IS_DEBUF or the non-control test, is found again by id and reserved to finish )
+void CX2GameUnit::ReserveToFinishDebuffTempletsFromGameUnit()
+{
+	for ( UINT uiIndex = 0; uiIndex < m_vecBuffTempletPtr.size(); ++uiIndex )
+	{
+		const CX2BuffTempletPtr ptrBuffTemplet = m_vecBuffTempletPtr[uiIndex];
+		if ( NULL != ptrBuffTemplet && ( true == ptrBuffTemplet->IsDeBuff() || true == ptrBuffTemplet->IsNonControlDebuff() ) )
+			ReserveToFinishBuffTempletFromGameUnit( ptrBuffTemplet->GetBuffTempletID() );
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+
 /** @function : GetAppliedBuffCount
 	@brief : 현재 걸려있는 버프/디버프의 개수를 알아내기 위한 함수
 	@param : true인 경우 디버프의 개수 리턴(bIsDebuff_)

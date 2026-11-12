@@ -125,6 +125,13 @@ class CX2DamageManager
 			DTT_DECENT_DRAGON                     = 68,	// June's Enum.lua; Valor Devotion's trigger ( AttackResultByType )
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
+//{{ Iruha : 2026-11-12 // char-ara CH4a
+#ifdef SERV_IRUHADEV_JUNE_ENUM_NAMES
+			DTT_AYR_ENERGY_BULLET                 = 26,	// char-ara CH4a: the live data036 Enum.lua ( June's ); Yama Raja Open Mind's spirit ball trigger
+			DTT_AYR_GAIN_GOOD_ENERGY_BALL         = 27,	// char-ara CH4a: the live data036 Enum.lua; Gain Good Energy Ball's buff trigger
+			DTT_ASR_LIGHTNING                     = 28,	// char-ara CH4a: June's Enum.lua; Spiritism Weird Fox's Spell: Thunder trigger
+#endif SERV_IRUHADEV_JUNE_ENUM_NAMES
+//}}
 //{{ Iruha : 2026-11-11 // enum-gate-fix F1
 #ifdef SERV_IRUHADEV_ENUM_GATE_AISHA_TRIGGER
 			DTT_AISHA_STICK_ATTACK                = 17,	// June's Enum.lua; Open Mind's trigger ( OpenMindAttackResult, June 32ce9f90 )

@@ -23766,8 +23766,14 @@ void CX2GUUser::CommonCameraMove()
 	/// June buff port 16-step3b4, June 3202fcf0 @3202fd9d-fe47: a live unit that this decrease would take to 0 or below runs the death
 	/// gates, and a gate that fires cancels the decrease. The first gate (320072d0, class passives) is checklist section 7; the second is
 	/// SIEE 19 (3202b9a0). June's g_pData vector clear in front of them (@3202fde7) is not identified and not ported.
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	// char-ara CH4a: June @3202fdf1, the class-passive gate 320072d0 runs first
+	if ( 0.f < GetNowHp() && GetNowHp() + hpIncrement <= 0.f && ( true == ProcessPassiveReturnFromDeath() || true == ProcessSocketReturnFromDeath() ) )
+		return;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 	if ( 0.f < GetNowHp() && GetNowHp() + hpIncrement <= 0.f && true == ProcessSocketReturnFromDeath() )
 		return;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	CX2GameUnit::UpNowHp( hpIncrement, hpMinimum );
 }
@@ -23793,8 +23799,14 @@ void CX2GUUser::CommonCameraMove()
 
 #ifdef SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	/// June buff port 16-step3b4, June 3202ff60 @3203003b-3203006d: the same death gates for a live unit set to 0 or below
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	// char-ara CH4a: June @32030045, the class-passive gate 320072d0 runs first
+	if ( 0.f < GetNowHp() && fHPNow <= 0.f && ( true == ProcessPassiveReturnFromDeath() || true == ProcessSocketReturnFromDeath() ) )
+		return;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 	if ( 0.f < GetNowHp() && fHPNow <= 0.f && true == ProcessSocketReturnFromDeath() )
 		return;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 	CX2GameUnit::SetNowHp( fHPNow );
 }
@@ -40494,6 +40506,33 @@ bool CX2GUUser::ProcessSocketReturnFromDeath()
 #endif SERV_IRUHADEV_JUNE_BUFF_DEBUG
 	return true;
 }
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+// char-ara CH4a: June 320072d0 ( own unit ), its Ara piece; Crest of Time's piece is char-add's, Soft Body's stays March's ProcessSkillAtDie
+bool CX2GUUser::ProcessPassiveReturnFromDeath()
+{
+	if ( false == IsMyUnit() )
+		return false;
+
+	if ( true == HaveThisBuff( BTI_BUFF_CREST_OF_TIME ) || true == HaveThisBuff( BTI_BUFF_CREST_OF_TIME_UPGRADE ) )
+		return false;	// stand-in: June restores the Crest of Time snapshot here ( vslot 0x744, routed to char-add )
+
+	if ( NULL == GetUnit() )
+		return false;
+
+	const int iResurrectionLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_AYR_RESURRECTION, true, 0, true );
+	if ( 0 < iResurrectionLevel && CX2Unit::UT_ARA == GetUnit()->GetType() && true == static_cast<CX2GUAra*>( this )->ProcessResurrection( iResurrectionLevel ) )
+	{
+		SetForceInvincible( 1.f );
+		m_bSocketReturnFromDeathDown = true;	// June +0x8e78; its +0x8e74 = 0x27 is read only by June's unported CommonEventProcess rewrite ( Phase 7c )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE resurrection gate fired ( level %d, HP now %.1f, knocked down at the next event process )", iResurrectionLevel, GetNowHp() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+		return true;	// stand-in: June's PvP / PvE-only vslot 0x280 call is not reached offline
+	}
+	return false;
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #else SERV_IRUHADEV_JUNE_SOCKET_PARITY
 CX2SocketItem::SOCKET_ITEM_EFFECT_EX CX2GUUser::ProcessSocketEffectEx( const CX2SocketItem::SOCKET_ITEM_EFFECT_EX eEx_, CX2GameUnit* pGameUnit_ )
 {
@@ -49662,6 +49701,9 @@ bool CX2GUUser::ProcessSkillAtDie( IN const float fFinalDamage_, IN CX2DamageMan
 	/// 죽여버릴 데미지라면
 	if ( fFinalDamage_ > GetNowHp() )
 	{
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+		// char-ara CH4a: June has no resurrection test here; ProcessPassiveReturnFromDeath runs it from UpNowHp / SetNowHp
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 		/// 아라 2차 전직 명왕 - 회광반조-------------------------------------------------------------------------------------------
 		int iSkillLevel = GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::SI_P_AYR_RESURRECTION, true );
 
@@ -49689,6 +49731,7 @@ bool CX2GUUser::ProcessSkillAtDie( IN const float fFinalDamage_, IN CX2DamageMan
 			}
 		}
 		/// ------------------------------------------------------------------------------------------------------------------------
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 
 		/// 레나 1차 전직 컴뱃 레인저 - 유연한 몸놀림-------------------------------------------------------------------------------
 		if( m_SkillRelatedData.m_fSkillCoolTimeLeft_SI_P_COMMON_SOFTBODY <= 0.f )

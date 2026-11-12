@@ -107,7 +107,7 @@ Plan `JUNE_CHARACTER_ARA_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (l
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
 | CH0b | done (play-test passed, logs clean: 0 KEM_ERROR / 0 Motion Error) | Sonnet 5.5 / high | CH0, char-rena CH6 | koms, save | `CH0b.md` |
-| CH4a | ready: passives `32bcd9c0`, 0x780 hook `32bca010`, delegates; no review of its own | Opus 5.5 / high, user play-test | CH3d review | `X2GUAra.*`, `X2GUUser.*` | `CH4a.md` |
+| CH4a | play-test owed: passives `32bcd9c0`, 0x780 hook, delegates, death gate on units 98 / 48 / 104 (flag `_PASSIVE`, DEPLOY OK md5 81d47bd2); no review of its own | Opus 5.5 / high, user play-test | CH3d review | `X2GUAra.*`, `X2GUUser.*` | `CH4a.md` |
 | CH4b | blocked (CH4a): overrides + `MemoConditionAra`; CH4 stage review (CH4a-CH4b) | Opus 5.5 / high, Opus review, user play-test | CH4a | `X2GUAra.*`, `X2GUUser.*` | `CH4b.md` |
 | CH6 | blocked (CH4b review): scans rerun + user walk incl. both job changes and the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH4b, CH5, CHNb reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template + CH-N rewrite, unblock `char-elesis`'s code rows (planned 2026-11-11) | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |

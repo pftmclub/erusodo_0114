@@ -1007,6 +1007,15 @@ public:
 	void			UpNowForcePowerHitOthers( const CX2DamageManager::DamageData& damageData_ );
 	/// 타격된 대상의 객체 포인터 저장
 	void			AddHitUnitInfoByDamageData( const CX2DamageManager::DamageData& damageData_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	// char-ara CH4a: the passive hooks and attack-result delegates ( June addresses at the bodies )
+	virtual void	DamageExceptionClassHook( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate_ );
+	virtual void	OnDamageEffectCreated( CX2DamageEffect::CEffect* pEffect_ );
+	void			ProcessDemigodHitCount( const CX2DamageManager::DamageData& damageData_ );
+	void			MarkRestrictionEnergyHit( const CX2DamageManager::DamageData& damageData_ );
+	void			ProcessGainGoodEnergyBallOnHit( const CX2DamageManager::DamageData& damageData_ );
+	void			ProcessAsuraOpenMindOnHit( const CX2DamageManager::DamageData& damageData_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 	/// 데미지 처리시 추가로 관련 수치 설정하는 함수( GetFinalDamage )
 	virtual void	ModifyFinalDamageByGameUnitType( OUT CX2DamageManager::DAMAGE_TYPE& damageType_, OUT float& fAttackerPhysicDamage_, 
 													 OUT float& fAttackerMagicDamage_, OUT float& fForceDownValue_ );
@@ -1807,6 +1816,12 @@ protected:
 	float		m_fMpGainPerForcePowerInFullHyperMode;	/// June +0x973c: MP per force power spent in berserk ( InitPassiveSkillState writes it, CH4a )
 	int			m_iFPCancelChainCount;				/// June +0x9838: skills reached by an FP cancel ( the 0x780 hook reads it, CH4a )
 	int			m_iSnapshotForcePower;				/// June +0x92bc ( CX2GUUser snapshot region, ctor 0 ): the force power StoreGageSnapshot keeps
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	// char-ara CH4a: members only the passive init and its delegates write ( June offsets in june2017_re/char_ara/ch1_offsets.tsv )
+	float		m_fSpiritualEyeDefenceRate;			/// June +0x9748: Spiritual Eye's defence rate ( -1 = none ); GetDefenceRateBySkill reads it ( CH4b )
+	float		m_fEnergyReinforceForceDownPercent;	/// June +0x9740: Asura Energy Reinforce's force-down cut in percent ( -1 = none ); the CEffect hook 0x300 reads it ( CH4b )
+	USHORT		m_usDemigodHitCount;				/// June +0x9874: hits counted toward Demigod's next energy ball buff
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_FP
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 

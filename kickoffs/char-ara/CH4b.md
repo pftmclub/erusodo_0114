@@ -47,3 +47,8 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - **CH-N (class path) rows: 1** (`awk -F'\t' '$7 ~ /(^| )CH4b( |$)/' june2017_re/char_ara/ch0_classn.tsv`, col 7 = proposed phase, free text: a note in parentheses is ignored in the count).
 - **Identified callees first needed here: 2** (`awk -F'\t' '$8 ~ /(^| )CH4b( |$)/' june2017_re/char_ara/ch0_unmapped_identified.tsv`, col 8 = earliest caller phase; none needs Opus): `31fca980` `32d3f040`.
 - 0x300 `32ba47f0` CEffect hook (skill 27411: effect +0x3f0 x (100 - `+0x9740`) x 0.01 when `+0x973c` != 0). MemoCondition `32b955c0` / `32ba46f0`.
+
+## Amended by CH4a (2026-11-12)
+
+- **Members CH4a writes, CH4b reads.** `m_fSpiritualEyeDefenceRate` ( `X2GUAra.h`, June `+0x9748`, ctor -1, Asura's Spiritual Eye 27414 `SA_UNFIXED_DEFENSE_REL` ) is what `GetDefenceRateBySkill` 0x428 `32b956a0` returns when above 0; `m_fEnergyReinforceForceDownPercent` ( June `+0x9740`, ctor -1, 27411 `SA_FORCE_DOWN_MELEE_REL` ) is the `+0x9740` of the CEffect hook 0x300 `32ba47f0`, gated on `m_fMpGainPerForcePowerInFullHyperMode` ( `+0x973c` ). Both are written by `InitPassiveSkillState` under `SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE`; CH4b uses that flag ( or widens it ) for the readers.
+- **The CH4 stage review** also covers CH4a: retire `SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG`, re-read `32bcd9c0`, `32bca010`, `32ba6440` and the four delegates from the exe, and give `X2GUUser.*` ( `ProcessPassiveReturnFromDeath`, the `ProcessSkillAtDie` Ara block ), `X2GameUnit.*` ( `ReserveToFinishDebuffTempletsFromGameUnit` ) and the enum headers their own verdict lines.

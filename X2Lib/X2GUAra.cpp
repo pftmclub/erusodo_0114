@@ -249,6 +249,9 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	, m_uidRestrictionEnergyTarget( -1 ), m_iRestrictionEnergyTargetType( 0 ), m_bRestrictionEnergyHit( false )	// char-ara CH3b: June 32bc6bf0
 	, m_fSpecterOfBladeRangeRate( -1.f ), m_iFireFoxCount( 0 ), m_fFireFoxThrowCoolTime( 0.f ), m_fFireFoxRangeRate( -1.f ), m_fSmashPowerRate( 1.f )	// char-ara CH3c: June 32bc6bf0
 	, m_fRaidRangeRate( -1.f )	// char-ara CH3c2: June 32bc6bf0 +0x97c0
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	, m_fSpiritualEyeDefenceRate( -1.f ), m_fEnergyReinforceForceDownPercent( -1.f ), m_usDemigodHitCount( 0 )	// char-ara CH4a: June 32bc6bf0
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	, m_usForceGainCount( 0 ), m_usBeforeForceGainCount( 0 ), m_pSkillTemplet( NULL ), m_iPressedSkillSlotIndex( -1 )
@@ -2956,6 +2959,215 @@ void CX2GUAra::InitStateByUnitClass()
 /*virtual*/ void CX2GUAra::InitPassiveSkillState()
 {
 	CX2GUUser::InitPassiveSkillState();
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	// char-ara CH4a: June 32bcd9c0 ( vslot 0x690 ) whole, after the base 31fe19d0 above
+	SetAttackResultDelegate();	// June 32bb0d10
+
+	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const CX2SkillTree* const pSkillTree = g_pData->GetSkillTree();
+
+	switch ( GetUnitClass() )
+	{
+	case CX2Unit::UC_ARA_SAKRA_DEVANAM:
+		{
+			int iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ASD_BRUTAL_PIERCING, true, 0, true );
+			m_fBlockingRate = m_fTurningRate = 0.f;
+			m_bBrutalPiercing = false;
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ASD_BRUTAL_PIERCING );
+				if ( NULL != pSkillTemplet )
+				{
+					m_fBlockingRate = m_fTurningRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel );	// June folds March's Quicken Guard into 27404
+					if ( false == pSkillTemplet->m_vecBuffFactorPtr.empty() )
+					{
+						m_pBrutalPiercingBuffFactor = pSkillTemplet->m_vecBuffFactorPtr[0]->GetClonePtr( iSkillLevel );
+						if ( NULL != m_pBrutalPiercingBuffFactor )
+						{
+							if ( NULL != g_pX2Game && ( CX2Game::GT_DUNGEON == g_pX2Game->GetGameType() || CX2Game::GT_BATTLE_FIELD == g_pX2Game->GetGameType() || CX2Game::GT_PVE == g_pX2Game->GetGameType() ) )
+								m_pBrutalPiercingBuffFactor->SetRate( pSkillTemplet->m_vecBuffFactorPtr[0]->GetRate( iSkillLevel + 1 ) * 2.f, iSkillLevel );	// June reads the next level's rate ( JUNE_BUGS )
+							m_bBrutalPiercing = true;
+						}
+					}
+				}
+			}
+
+			iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ASD_FULLMOON_SLASH, true, 0, true );
+			m_fCurrentSpeed = 1.f;
+			m_bMoonSlash = false;
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ASD_FULLMOON_SLASH );
+				if ( NULL != pSkillTemplet )
+				{
+					m_fCurrentSpeed = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_ANI_SPEED, iSkillLevel );
+					m_bMoonSlash = true;
+					if ( NULL != m_sMoonRightSlashDataPtr )
+					{
+						CX2SkillTree::SkillTemplet::NumericalRow kPowerRateMulRow;
+						pSkillTemplet->GetNumericalRowByName( L"POWER_RATE_MUL", iSkillLevel, kPowerRateMulRow );
+						m_sMoonRightSlashDataPtr->SetPowerRateMul( kPowerRateMulRow.m_fValue );
+					}
+				}
+			}
+		}
+		// fall through: Sakra Devanam runs Little Hsien's block too ( June @32bcdc63 )
+	case CX2Unit::UC_ARA_LITTLE_HSIEN:
+		{
+			m_iGainMpByFpConversion = 0;
+			int iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ALH_FILLED_POWER, true, 0, true );
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ALH_FILLED_POWER );
+				if ( NULL != pSkillTemplet )
+					m_iGainMpByFpConversion = static_cast<int>( pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, iSkillLevel ) );
+			}
+
+			SetCanAvoidance( 0 < userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_ASD_BREAKING, false, 0, true ) );	// June reads the base id only, not 27233
+
+			iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ASD_VIGOR_ENERGIZE, true, 0, true );
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ASD_VIGOR_ENERGIZE );
+				if ( NULL != pSkillTemplet )
+					m_fReduceEDTDurationRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_REDUCE_EDT_TIME_REL, iSkillLevel );
+			}
+		}
+		break;
+
+	case CX2Unit::UC_ARA_YAMA_RAJA:
+		{
+			const int iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_AYR_HOWLING, true, 0, true );
+			m_fHowlingDamageRel = 1.f;
+			m_fHowlingActiveRate = 0.f;
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_AYR_HOWLING );
+				if ( NULL != pSkillTemplet )
+				{
+					const float fDamageRel = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel );
+					m_fHowlingDamageRel = ( 1.f < fDamageRel ? fDamageRel : 1.f );
+					m_fHowlingActiveRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, iSkillLevel );
+				}
+			}
+		}
+		// fall through: Yama Raja runs Little Devil's block too ( June @32bcde90 )
+	case CX2Unit::UC_ARA_LITTLE_DEVIL:
+		{
+			int iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ALD_ENERGY_BULLET_REINFORCE, true, 0, true );
+			m_fIncreaseEnergeBulletSize = m_fIncreaseEnergeBulletDamage = 1.f;
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ALD_ENERGY_BULLET_REINFORCE );
+				if ( NULL != pSkillTemplet )
+				{
+					m_fIncreaseEnergeBulletSize = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_SIZE, iSkillLevel );
+					m_fIncreaseEnergeBulletDamage = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel );
+				}
+			}
+
+			iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_AYR_ENERGY_REINFORCE, true, 0, true );
+			m_fIncreaseEnergeBulletRange = 1.f;
+			m_fIncreaseEnergeBulletForceDownValue = 0.f;
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_AYR_ENERGY_REINFORCE );
+				if ( NULL != pSkillTemplet )
+				{
+					m_fIncreaseEnergeBulletRange = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_SCOPE_ABS, iSkillLevel );
+					m_fIncreaseEnergeBulletForceDownValue = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_ABS, iSkillLevel );
+				}
+			}
+
+			iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_AYR_HELL_GATE_OPEN, true, 0, true );
+			m_fOpenTheHellIncreaseDamage = 1.f;
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_AYR_HELL_GATE_OPEN );
+				if ( NULL != pSkillTemplet )
+					m_fOpenTheHellIncreaseDamage = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel );
+			}
+		}
+		break;
+
+	case CX2Unit::UC_ARA_ASURA:
+		{
+			int iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ASR_SPIRITUAL_EYE, false, 0, true );
+			m_fSpiritualEyeDefenceRate = m_fPandemoniumCoolTimeRate = -1.f;
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ASR_SPIRITUAL_EYE );
+				if ( NULL != pSkillTemplet )
+				{
+					m_fSpiritualEyeDefenceRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_UNFIXED_DEFENSE_REL, iSkillLevel );
+					m_fPandemoniumCoolTimeRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_COOLTIME_1, iSkillLevel );
+				}
+			}
+
+			iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ASR_LOAD_OF_ASURA, false, 0, true );
+			m_fPandemoniumPowerRate = 1.f;
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ASR_LOAD_OF_ASURA );
+				if ( NULL != pSkillTemplet )
+					m_fPandemoniumPowerRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel );
+			}
+
+			iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ASR_FOX_SMILE, false, 0, true );
+			m_fSmashPowerRate = 1.f;
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ASR_FOX_SMILE );
+				if ( NULL != pSkillTemplet )
+					m_fSmashPowerRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel );
+			}
+		}
+		// fall through: Asura runs Little Specter's block too ( June @32bce0ce )
+	case CX2Unit::UC_ARA_LITTLE_SPECTER:
+		{
+			int iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ASR_ENERGY_REINFORCE, false, 0, true );
+			m_fEnergyReinforceForceDownPercent = m_fMpGainPerForcePowerInFullHyperMode = -1.f;
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ASR_ENERGY_REINFORCE );
+				if ( NULL != pSkillTemplet )
+				{
+					m_fEnergyReinforceForceDownPercent = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_FORCE_DOWN_MELEE_REL, iSkillLevel );
+					m_fMpGainPerForcePowerInFullHyperMode = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_MP_RETAKE_ABS, iSkillLevel );
+				}
+			}
+
+			iSkillLevel = userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_ALS_FILLED_POWER, false, 0, true );
+			m_fBuffHyperModeDamageRate = -1.f;
+			if ( 0 < iSkillLevel )
+			{
+				const CX2SkillTree::SkillTemplet* pSkillTemplet = pSkillTree->GetSkillTemplet( CX2SkillTree::RNSI_P_ALS_FILLED_POWER );
+				if ( NULL != pSkillTemplet )
+					m_fBuffHyperModeDamageRate = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_DAMAGE_REL, iSkillLevel );
+			}
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_DEMIGOD ) )
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUAra, ProcessDemigodHitCount ) );	// June thunk 32bd5470
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASR_OPEN_MIND ) )
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUAra, ProcessAsuraOpenMindOnHit ) );	// June thunk 32bd6b10
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_SA_AYR_RESTRICTION_ENERGY ) )
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUAra, MarkRestrictionEnergyHit ) );	// June thunk 32bd5480
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_A_AYR_GAIN_GOOD_ENERGY_BALL ) )
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUAra, ProcessGainGoodEnergyBallOnHit ) );	// June thunk 32bd5490
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE init ( unit %I64d class %d: block / turn %.3f, brutal piercing %d, moon speed %.3f mul %.3f, gain mp %d, avoidance %d, edt %.3f, howling %.3f / %.3f, bullet %.3f / %.3f, range %.3f / %.3f, hell %.3f, spiritual eye %.3f / %.3f, asura %.3f, smash %.3f, energy %.3f / %.3f, specter %.3f, attack result list %d )",
+		GetUnitUID(), static_cast<int>( GetUnitClass() ), m_fBlockingRate, m_bBrutalPiercing ? 1 : 0, m_fCurrentSpeed, NULL != m_sMoonRightSlashDataPtr ? m_sMoonRightSlashDataPtr->GetPowerRateMul() : 0.f,
+		m_iGainMpByFpConversion, GetCanAvoidance() ? 1 : 0, m_fReduceEDTDurationRate, m_fHowlingDamageRel, m_fHowlingActiveRate, m_fIncreaseEnergeBulletSize, m_fIncreaseEnergeBulletDamage,
+		m_fIncreaseEnergeBulletRange, m_fIncreaseEnergeBulletForceDownValue, m_fOpenTheHellIncreaseDamage, m_fSpiritualEyeDefenceRate, m_fPandemoniumCoolTimeRate, m_fPandemoniumPowerRate,
+		m_fSmashPowerRate, m_fEnergyReinforceForceDownPercent, m_fMpGainPerForcePowerInFullHyperMode, m_fBuffHyperModeDamageRate, static_cast<int>( m_vecDelegateProcessInAttackResult.size() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 
 #ifdef SERV_ARA_CHANGE_CLASS_SECOND // 김태환
 	/// AttackResult에 추가될 함수들 설정
@@ -3322,6 +3534,7 @@ void CX2GUAra::InitStateByUnitClass()
 #ifdef ARA_CHANGE_CLASS_FIRST
 
 #endif
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 }
 #pragma endregion
 
@@ -26274,6 +26487,20 @@ float CX2GUAra::GetReduceDebuffDurationRate(BUFF_TEMPLET_ID eBuffTempletID_)
 	}
 #endif // HAMEL_SECRET_DUNGEON
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	// char-ara CH4a: June 32bd32f0 @32bd339e-32bd3454, Open Mind 27415 at a full gauge shortens a debuff once more
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASD_OPEN_MIND ) && GetForcePower() >= GetMaxForcePower() )
+	{
+		const CX2BuffTempletPtr ptrBuffTemplet = CX2BuffTempletManager::GetInstance()->GetBuffTempletPtr( eBuffTempletID_ );
+		if ( NULL != ptrBuffTemplet && true == ptrBuffTemplet->IsDeBuff() )	// stand-in: June reads the templet without a null test
+		{
+			fReduceDebuffDurationRate *= GetLearnedSkillAbilityValue( CX2SkillTree::SA_REDUCE_EDT_TIME_REL, CX2SkillTree::RNSI_P_ASD_OPEN_MIND );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE open mind debuff time ( BTI %d, rate %.3f )", static_cast<int>( eBuffTempletID_ ), fReduceDebuffDurationRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 	return fReduceDebuffDurationRate;
 }
 #pragma endregion 기력 활성화
@@ -30184,6 +30411,29 @@ bool CX2GUAra::ProcessResurrection( IN const int iSkillLevel_ )
 void CX2GUAra::SetResurrection( IN const int iSkillLevel_ )
 #endif //FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	// char-ara CH4a: June 32bc5a50, called only by the death gate CX2GUUser::ProcessPassiveReturnFromDeath ( June 320072d0 )
+	if ( 0.f >= m_fResurrectionCoolTime && 5 <= GetForcePower() && NULL != g_pData->GetSkillTree() )
+	{
+		const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_P_AYR_RESURRECTION );
+		if ( NULL != pSkillTemplet )
+		{
+			m_fResurrectionCoolTime = pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_READY_TIME_REL, iSkillLevel_ );
+			const float fDefaultAddHp = GetMaxHp() * pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_TARGET_HP_REL, iSkillLevel_ );
+			const float fAddHpPerForcePower = GetMaxHp() * pSkillTemplet->GetSkillAbilityValue( CX2SkillTree::SA_HP_GAIN_REL_MAX_HP, iSkillLevel_ );
+			const int iForcePowerOverFive = ( 0 < GetForcePower() - 5 ? GetForcePower() - 5 : 0 );
+			ReserveToFinishDebuffTempletsFromGameUnit();	// June 32282190
+			SetNowHp( static_cast<float>( iForcePowerOverFive ) * fAddHpPerForcePower + fDefaultAddHp );	// June sets the HP, it does not add to it
+			const int iSpentForcePower = GetForcePower();
+			UseForcePower( iSpentForcePower );	// June also adds the spent count to +0x9614, a count nothing reads ( JUNE_BUGS )
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE resurrection ( level %d, force power spent %d, HP set to %.1f, cool time %.1f )", iSkillLevel_, iSpentForcePower, GetNowHp(), m_fResurrectionCoolTime );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+			return true;
+		}
+	}
+	return false;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 	/// 회강반조 사용 가능 시점이며, 기력이 3개 이상일 때
 	if ( 0.f >= m_fResurrectionCoolTime && 3 <= GetForcePower() && NULL != g_pData->GetSkillTree() )
 	{
@@ -30235,6 +30485,7 @@ void CX2GUAra::SetResurrection( IN const int iSkillLevel_ )
 #ifdef FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE // 김태환
 	return false;
 #endif //FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 }
 #pragma endregion
 
@@ -30280,12 +30531,20 @@ void CX2GUAra::SetAttackResultDelegate()
 	const CX2UserSkillTree& userSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
 
 	/// 아라 1차 전직 소마 - 흡혼 혹은 아라 2차 전직 소마 - 탈혼 습득시, 타격 정보 저장하는 기능 설정
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	// char-ara CH4a: June 32bb0d10 on June's ids ( Finger Bullet 27209, Steal Soul 27020 )
+	if ( 0 < userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_A_ALD_FINGER_BULLET, false, 0, true ) || 0 < userSkillTree.GetSkillLevel( CX2SkillTree::RNSI_SA_AYR_STEAL_SOUL, false, 0, true ) )
+		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUAra, AddHitUnitInfoByDamageData ) );	// June thunk 32bd7a90
+
+	InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA( CX2GUAra, UpNowForcePowerHitOthers ) );	// June thunk 32bd6c80
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 	if ( 0 < userSkillTree.GetSkillLevel( CX2SkillTree::SI_SA_ALD_FINGER_BULLET ) ||
 		 0 < userSkillTree.GetSkillLevel( CX2SkillTree::SI_A_AYR_STEAL_SOUL ) )
 		InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA(CX2GUAra, AddHitUnitInfoByDamageData ) );
 
 	/// 타격시 추가되는 기력량 설정
 	InsertDelegateProcessToAttackResult( SET_DELEGATE_PROCESS_WITH_DAMAGE_DATA(CX2GUAra, UpNowForcePowerHitOthers ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 
 
 }		
@@ -30335,6 +30594,24 @@ void CX2GUAra::UpNowForcePowerHitOthers( const CX2DamageManager::DamageData& dam
 */
 void CX2GUAra::AddHitUnitInfoByDamageData( const CX2DamageManager::DamageData& damageData_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	// char-ara CH4a: June 32baf810 on June's ids ( Steal Soul 27020, Finger Bullet 27209 by the used skill )
+	if ( null == damageData_.optrDefenderGameUnit )
+		return;
+
+	if ( CX2SkillTree::RNSI_SA_AYR_STEAL_SOUL != damageData_.m_eUsedSkillID && CX2SkillTree::RNSI_A_ALD_FINGER_BULLET != damageData_.m_eUsedSkillID )
+		return;
+
+	const UidType uidUnitUID = static_cast<UidType>( damageData_.optrDefenderGameUnit->GetUnitUID() );
+	for ( std::vector<CX2GameUnitoPtr>::const_iterator vit = m_vecHitUnitPointer.begin(); vit != m_vecHitUnitPointer.end(); ++vit )
+	{
+		CX2GameUnitoPtr pGameUnit = *vit;
+		if ( null != pGameUnit && pGameUnit->GetUnitUID() == uidUnitUID )
+			return;
+	}
+
+	m_vecHitUnitPointer.push_back( damageData_.optrDefenderGameUnit );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 	if ( null == damageData_.optrDefenderGameUnit )
 		return;
 
@@ -30362,9 +30639,294 @@ void CX2GUAra::AddHitUnitInfoByDamageData( const CX2DamageManager::DamageData& d
 			m_vecHitUnitPointer.push_back( damageData_.optrDefenderGameUnit );
 		} break;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 }		
 #pragma endregion
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+namespace _CONST_ARA_CH4A_	// char-ara CH4a
+{
+	bool IsPassiveLogDue( DWORD& dwLastLogTime_ )
+	{
+		const DWORD dwNow = timeGetTime();
+		if ( dwNow - dwLastLogTime_ < 1000 )
+			return false;
+
+		dwLastLogTime_ = dwNow;
+		return true;
+	}
+}
+using namespace _CONST_ARA_CH4A_;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+
+// char-ara CH4a: June 32b95910 ( attack-result delegate, thunk 32bd5470 )
+void CX2GUAra::ProcessDemigodHitCount( const CX2DamageManager::DamageData& damageData_ )
+{
+	if ( 0 >= GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_DEMIGOD ) )
+		return;
+
+	++m_usDemigodHitCount;
+	if ( GetLearnedSkillAbilityValue( CX2SkillTree::SA_HIT_COUNT_1, CX2SkillTree::RNSI_P_AYR_DEMIGOD ) <= static_cast<float>( m_usDemigodHitCount ) )
+	{
+		m_usDemigodHitCount = 0;
+		SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_DEMIGOD, 0, true );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE demigod energy ball buff ( every %.0f hits )", GetLearnedSkillAbilityValue( CX2SkillTree::SA_HIT_COUNT_1, CX2SkillTree::RNSI_P_AYR_DEMIGOD ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	}
+}
+
+// char-ara CH4a: June 32b95980 ( attack-result delegate, thunk 32bd5480 )
+void CX2GUAra::MarkRestrictionEnergyHit( const CX2DamageManager::DamageData& damageData_ )
+{
+	if ( CX2SkillTree::RNSI_SA_AYR_RESTRICTION_ENERGY != damageData_.m_iAppliedSkillID )
+		return;
+
+	m_bRestrictionEnergyHit = true;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	static DWORD s_dwRestrictionEnergyLogTime = 0;
+	if ( true == IsPassiveLogDue( s_dwRestrictionEnergyLogTime ) )
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE restriction energy hit" );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+}
+
+// char-ara CH4a: June 32b959a0 ( attack-result delegate, thunk 32bd5490 )
+void CX2GUAra::ProcessGainGoodEnergyBallOnHit( const CX2DamageManager::DamageData& damageData_ )
+{
+	if ( false == damageData_.IsAttackTrigger( CX2DamageManager::DTT_AYR_GAIN_GOOD_ENERGY_BALL ) )
+		return;
+
+	SetSkillBuffFactors( CX2SkillTree::RNSI_A_AYR_GAIN_GOOD_ENERGY_BALL, 0, true );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	static DWORD s_dwGoodEnergyBallLogTime = 0;
+	if ( true == IsPassiveLogDue( s_dwGoodEnergyBallLogTime ) )
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE gain good energy ball buff" );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+}
+
+// char-ara CH4a: June 32ba7e40 ( attack-result delegate, thunk 32bd6b10 )
+void CX2GUAra::ProcessAsuraOpenMindOnHit( const CX2DamageManager::DamageData& damageData_ )
+{
+	if ( null == damageData_.optrDefenderGameUnit )
+		return;
+
+	CX2GameUnit* pDefender = damageData_.optrDefenderGameUnit.GetObservable();
+	const CX2GameUnit::ExtraDamagePack& kExtraDamagePack = pDefender->GetExtraDamagePack();
+	if ( 0 == pDefender->GetAppliedBuffCount( true ) && false == ( 0.f < kExtraDamagePack.m_EnchantBlaze.m_fTime || 0.f < kExtraDamagePack.m_EnchantFrozen.m_fTime
+		|| 0.f < kExtraDamagePack.m_EnchantPoison.m_fTime || 0.f < kExtraDamagePack.m_EnchantShock.m_fTime ) )	// June 3226fce0 inlined
+		return;
+
+	SetSkillBuffFactors( CX2SkillTree::RNSI_P_ASR_OPEN_MIND, 0, true );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	static DWORD s_dwAsuraOpenMindLogTime = 0;
+	if ( true == IsPassiveLogDue( s_dwAsuraOpenMindLogTime ) )
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE asura open mind buff ( target debuffs %d )", static_cast<int>( pDefender->GetAppliedBuffCount( true ) ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+}
+
+// char-ara CH4a: June 32bca010 ( vslot 0x780, the last call of SetDamageExceptionProcess' user layer; June does not read fPowerRate_ )
+/*virtual*/ void CX2GUAra::DamageExceptionClassHook( CX2DamageManager::DamageData* pDamageData_, float& fPowerRate_ )
+{
+	if ( NULL == pDamageData_ )
+		return;
+
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASD_OPEN_MIND ) && CX2DamageManager::AT_COMMAND == pDamageData_->attackType )
+	{
+		m_DamageData.fStopTimeDef += GetLearnedSkillAbilityValue( CX2SkillTree::SA_DAMAGE_TIME, CX2SkillTree::RNSI_P_ASD_OPEN_MIND );	// June adds to this unit's own damage data, not the hit's ( JUNE_BUGS )
+		const float fIgnoreDefenceRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_P_ASD_OPEN_MIND );
+		if ( GetRandomFloat( 0 ) < fIgnoreDefenceRate )
+		{
+			pDamageData_->m_bIgnoreStateDefence = true;
+			pDamageData_->m_bIgnoreDefence = true;
+			pDamageData_->m_bIgnoreDefenceOnPvp = true;	// June writes the word +0x528 = 0x101
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+			static DWORD s_dwSakraOpenMindLogTime = 0;
+			if ( true == IsPassiveLogDue( s_dwSakraOpenMindLogTime ) )
+				CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE sakra open mind ignore defence ( rate %.3f, stop time def %.3f )", fIgnoreDefenceRate, m_DamageData.fStopTimeDef );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+		}
+	}
+
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+	{
+		const float fForcePower = static_cast<float>( GetForcePower() );
+		if ( GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_COUNT, CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) <= fForcePower && true == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_AYR_ENERGY_BULLET ) )
+		{
+			const float fIgnoreDefenceRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_P_AYR_OPEN_MIND );
+			if ( GetRandomFloat( 0 ) < fIgnoreDefenceRate )
+			{
+				pDamageData_->m_bIgnoreStateDefence = true;
+				pDamageData_->m_bIgnoreDefence = true;
+				pDamageData_->m_bIgnoreDefenceOnPvp = true;	// June writes the word +0x528 = 0x101
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+				static DWORD s_dwYamaOpenMindLogTime = 0;
+				if ( true == IsPassiveLogDue( s_dwYamaOpenMindLogTime ) )
+					CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE yama open mind ignore defence ( force power %d, rate %.3f )", GetForcePower(), fIgnoreDefenceRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+			}
+		}
+	}
+
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASR_SPIRITISM_WEIRD_FOX ) && true == pDamageData_->IsAttackTrigger( CX2DamageManager::DTT_ASR_LIGHTNING ) )
+	{
+		pDamageData_->m_bIgnoreStateDefence = true;
+		const float fCriticalRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_ATK_CRITICAL_RATE_ABS, CX2SkillTree::RNSI_P_ASR_SPIRITISM_WEIRD_FOX ) + pDamageData_->m_fCriticalRate;
+		pDamageData_->m_fCriticalRate = ( 1.f < fCriticalRate ? 1.f : fCriticalRate );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+		static DWORD s_dwWeirdFoxLogTime = 0;
+		if ( true == IsPassiveLogDue( s_dwWeirdFoxLogTime ) )
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE weird fox thunder ( critical rate %.3f )", pDamageData_->m_fCriticalRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	}
+
+	switch ( pDamageData_->m_iAppliedSkillID )
+	{
+	case CX2SkillTree::RNSI_SA_ASR_FIRE_FOX:
+		{
+			float fTimeRate = 1.f;
+			if ( true == TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, GetNowStateSkillID(), true, fTimeRate ) )
+			{
+				pDamageData_->SetBuffFactorTimeValue( 1, fTimeRate );	// op 1: the debuff time is multiplied
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+				static DWORD s_dwFireFoxLogTime = 0;
+				if ( true == IsPassiveLogDue( s_dwFireFoxLogTime ) )
+					CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE fire fox debuff time x%.3f", fTimeRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+			}
+		} break;
+
+	case CX2SkillTree::RNSI_A_ALD_CONVERSION_HEALTH:
+		{
+			const CX2SkillTree::SkillTemplet* pSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( CX2SkillTree::RNSI_A_ALD_CONVERSION_HEALTH );
+			if ( NULL != pSkillTemplet && false == ( fabs( pDamageData_->fHitAddHPPer ) <= FLT_EPSILON ) )
+			{
+				const bool bPvpOrPve = ( NULL != g_pX2Game && true == g_pX2Game->GetIsNowPVPCorrectionGame() );
+				const CX2SkillTree::SkillTemplet::NumericalData* pHpRecovery = pSkillTemplet->FindNumericalData( true == bPvpOrPve ? L"HP_RECOVERY_PVP" : L"HP_RECOVERY" );
+				if ( NULL != pHpRecovery )
+				{
+					CX2SkillTree::SkillTemplet::NumericalRow kHpRecoveryRow;
+					CX2SkillTree::SkillTemplet::GetNumericalRow( *pHpRecovery, GetSkillLevelValue( pSkillTemplet->m_eID ), kHpRecoveryRow );
+					pDamageData_->fHitAddHPPer = kHpRecoveryRow.m_fValue;	// June's protected float is written only when it differs
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+					static DWORD s_dwConversionHealthLogTime = 0;
+					if ( true == IsPassiveLogDue( s_dwConversionHealthLogTime ) )
+						CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE conversion health hp recovery %.3f", pDamageData_->fHitAddHPPer );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+				}
+			}
+		} break;
+
+	case CX2SkillTree::RNSI_A_ALS_QUICK_PIERCING:
+		{
+			float fTimeAdd = 0.f;
+			if ( true == TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_RATE, CX2SkillTree::RNSI_A_ALS_QUICK_PIERCING, true, fTimeAdd ) )
+			{
+				pDamageData_->SetBuffFactorTimeValue( 0, fTimeAdd );	// op 0: the debuff time is added to
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+				static DWORD s_dwQuickPiercingLogTime = 0;
+				if ( true == IsPassiveLogDue( s_dwQuickPiercingLogTime ) )
+					CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE quick piercing debuff time +%.3f", fTimeAdd );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+			}
+		} break;
+
+	default:
+		break;
+	}
+
+	if ( NULL == g_pData->GetSkillTree() )
+		return;
+
+	const int iHitSkillID = ( 0 != pDamageData_->m_iAppliedSkillID ? pDamageData_->m_iAppliedSkillID : static_cast<int>( pDamageData_->m_eUsedSkillID ) );
+	const CX2SkillTree::SKILL_ID eHitSkillID = GetUpgradeSwappedSkillID( static_cast<CX2SkillTree::SKILL_ID>( iHitSkillID ) );
+	const CX2SkillTree::SkillTemplet* pHitSkillTemplet = g_pData->GetSkillTree()->GetSkillTemplet( eHitSkillID );
+	if ( NULL == pHitSkillTemplet || false == IsMyUnit() )
+		return;
+
+	float fFPCancelSkill = 0.f;
+	if ( false == pHitSkillTemplet->TryGetSkillAbilityValue( CX2SkillTree::SA_FP_CANCEL_SKILL, GetSkillLevelValue( eHitSkillID ), false, fFPCancelSkill ) || true == m_bSkillFPGainLocked )
+		return;	// only a skill with an FP_CANCEL_SKILL ability enters the force-power gain table
+
+	SkillFPGainEntry kEntry;
+	kEntry.m_bEnabled = false;
+	kEntry.m_bHit = false;
+	kEntry.m_iAttackSerial = pDamageData_->m_iAttackSerial;
+	kEntry.m_iGainHitID = m_iFPCancelChainCount;
+
+	std::vector<SkillFPGainRecord>::iterator itRecord = FindSkillFPGainEntry( m_vecSkillFPGainRecord.begin(), m_vecSkillFPGainRecord.end(), eHitSkillID );
+	if ( m_vecSkillFPGainRecord.end() == itRecord )
+	{
+		kEntry.m_bReady = ( m_iFPGainStateSkillID == eHitSkillID );
+
+		SkillFPGainRecord kRecord;
+		kRecord.m_usGain = pHitSkillTemplet->m_usFPGainCount;
+		kRecord.m_iSkillID = eHitSkillID;
+		kRecord.m_vecEntry.push_back( kEntry );
+		m_vecSkillFPGainRecord.push_back( kRecord );
+
+		m_iSkillFPGainSkillID = eHitSkillID;
+		m_iSkillFPGainSerial = m_iFPCancelChainCount;
+		m_vecSkillFPGainSerial.push_back( pDamageData_->m_iAttackSerial );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+		static DWORD s_dwFPGainLogTime = 0;
+		if ( true == IsPassiveLogDue( s_dwFPGainLogTime ) )
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE fp gain record ( skill %d, gain %d, ready %d, records %d )", static_cast<int>( eHitSkillID ), static_cast<int>( kRecord.m_usGain ),
+				kEntry.m_bReady ? 1 : 0, static_cast<int>( m_vecSkillFPGainRecord.size() ) );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	}
+	else
+	{
+		kEntry.m_bReady = ( m_iSkillFPGainSerial == m_iFPCancelChainCount && m_iFPGainStateSkillID == eHitSkillID );
+		itRecord->m_vecEntry.push_back( kEntry );
+		if ( m_iSkillFPGainSkillID == eHitSkillID )
+			m_vecSkillFPGainSerial.push_back( pDamageData_->m_iAttackSerial );	// June also stores the same skill id again
+	}
+}
+
+// char-ara CH4a: June 32ba6440 ( vslot 0x328, told about every damage effect this unit creates )
+/*virtual*/ void CX2GUAra::OnDamageEffectCreated( CX2DamageEffect::CEffect* pEffect_ )
+{
+	if ( NULL == pEffect_ )
+		return;
+
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+	{
+		if ( GetLearnedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_COUNT, CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) <= static_cast<float>( GetForcePower() ) && true == pEffect_->GetDamageData().IsAttackTrigger( CX2DamageManager::DTT_AYR_ENERGY_BULLET ) )
+		{
+			const float fRangeRate = GetLearnedSkillAbilityValue( CX2SkillTree::SA_PROJECTILE_RANGE_REL, CX2SkillTree::RNSI_P_AYR_OPEN_MIND );
+			CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pEffect_->GetMainEffect();
+			if ( NULL != pMainEffect )
+			{
+				pMainEffect->SetMaxLifeTime( pMainEffect->GetMaxLifeTime() + fRangeRate );	// a longer life carries the spirit ball further
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+				static DWORD s_dwSpiritBallLogTime = 0;
+				if ( true == IsPassiveLogDue( s_dwSpiritBallLogTime ) )
+					CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE yama open mind spirit ball range ( life +%.3f = %.3f )", fRangeRate, pMainEffect->GetMaxLifeTime() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+			}
+		}
+	}
+
+	if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASR_SPIRITISM_WEIRD_FOX ) )
+	{
+		if ( CX2SkillTree::RNSI_A_ALS_MANA_DRAIN != pEffect_->GetDamageData().m_iAppliedSkillID )
+			return;
+
+		pEffect_->SetDamageTime( pEffect_->GetDamageTime() + 1 );	// Mana Drain hits one more unit
+	}
+
+	if ( CX2SkillTree::RNSI_A_ALS_MANA_DRAIN == pEffect_->GetDamageData().m_iAppliedSkillID )
+	{
+		float fAddHitCount = 0.f;
+		if ( true == TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_EFFECTIVE_COUNT, CX2SkillTree::RNSI_A_ALS_MANA_DRAIN, true, fAddHitCount ) )
+			pEffect_->SetDamageTime( pEffect_->GetDamageTime() + static_cast<int>( fAddHitCount ) );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE mana drain hit count %d", pEffect_->GetDamageTime() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #pragma region ModifyFinalDamageByGameUnitType
 /** @function	: ModifyFinalDamageByGameUnitType
 	@brief		: 데미지 처리시 추가로 관련 수치 설정하는 함수( GetFinalDamage )
