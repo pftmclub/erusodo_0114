@@ -67,5 +67,6 @@ Scope grew by the user's request: village / rest-area world scripts and assets t
 - `data034` `DLG_Map_House.lua`: 9 positions to June, 29 rows added (Lanox rest 4). `ledger --check` and `core --check` PASS.
 - `data057` Fieldname sheets 1 and 6 and `data135` / `data030` sign meshes: June's.
 - PACK OK + COPY OK: data024 026 027 028 029 030 031 034 040 057 110 135. Full build skipped: no code change.
-- **Left:** `DLG_Map_Village.lua` `HouseIDList` / `START_POS` (June's rest areas arrive from the village; Adams / Mu / guild houses), data101 Velder meshes.
+- **Left:** `DLG_Map_Village.lua` `HouseIDList` / `START_POS` (June's rest areas arrive from the village; Adams / Mu / guild houses).
+- **data101 (follow-up, same day):** dir restored byte-exact from the live kom (1,205 files), packed, copied (md5 3d798391); the Velder village meshes already match June except `Velder_village_ADplane.Y` (staged). Two 0-byte live entries (`Velder_Field_001/003.dds`) dropped. MODS.md has the detail.
 - **Play-test owed:** every village loads, NPCs stand on the ground; Lanox rest area shows Hellen / Postbox / Billboard / Glave; entering Lanox field 1 shows the Lanox banner; Sander field 4 ends with the Lanox board.

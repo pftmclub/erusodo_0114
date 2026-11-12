@@ -6635,3 +6635,12 @@ No flag, no exe change (data only). Requested by the user in one message; kom co
 - **Field-name banner.** `data057` `DLG_UI_Common_Texture_Fieldname_6.TET` / `.tga` and `_1.TET` replaced by June's: March's sheet 6 had no `FIELD_NAME_RANOX_1`, so Lanox field 1 showed the Karuso banner.
 - **Sander last field sign board.** `Field_Sander_Stage3_Sign.Y` / `_Signtype.Y` (data135) and `Field_Peita_Villeage_sign.Y` (data030) replaced by June's (the Lanox direction board).
 - **Revert:** restore the backups above and re-pack / copy `data024 026 027 028 029 030 031 034 040 057 110 135`.
+
+## data101 restored and Velder village assets checked (W3 follow-up, 2026-11-12)
+
+No flag, no exe change. Replaces the "data101 not done" line of the W3 entry above.
+- **Cause of the broken `kom_contents/data101_kom`:** 1,072 live entries were missing and 133 were truncated stubs (for example `Velder_Gate_Stage1_Left.Y` 41 B, live 47,977 B). `elstools extract` fails on 1,071 entries of this kom; `junekom.Kom` + `junekom.decode` read all 2,181 strictly.
+- **Restore:** the 1,205 missing / truncated files were written byte-exact from the live V.0.3 kom (the 133 truncated stubs are backed up under `kom_backup_stage_june/20261112_data101_restore`). Two live entries are 0 bytes (`Velder_Field_001.dds`, `Velder_Field_003.dds`; June's are 0 bytes too) and `elstools pack` cannot write an empty file, so they are dropped from the dir and the manifest. The packed kom decodes to the live bytes for all 2,179 other entries.
+- **Velder assets:** with the dir restored, 1,068 meshes / textures named by the village and rest scripts match June except `Velder_village_ADplane.Y`, staged from June (backup `kom_backup_stage_june/20261112_084915`). The "65 missing Velder meshes" of the first entry were the broken dir, not June content.
+- **Deploy:** `data101` packed and copied (md5 3d798391c96713dc9bb65e31616506a0, 2,181 entries; live backup `kom_backup_tools/data101.kom.20261112_084922`). Also in it: `Velder_Bridge_Hope_Stage3_1_Wall01.Y` and `Velder_Bridge_Hope__stage_3_1_River_Wave.Y`, staged earlier and never deployed.
+- **Revert:** copy the backup over `data\data101.kom`.
