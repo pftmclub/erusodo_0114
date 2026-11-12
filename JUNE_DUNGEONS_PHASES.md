@@ -49,8 +49,57 @@ so they run as their own plan. Engine fixes the dungeons need (NPC/game queries,
 | C3z-5b | the DungeonData readers C3z-5 routed (DCC bits, GetLastClearDungeonID, m_fExtraValue, June-only-row keys) | kickoff `C3z-5b.md`; "C3z-5 - Done" |
 | C3z-8 | June's boss-raid systems (`CX2BossRaidLongTimeEvent` enter / state UI, `CX2NewBossRaidManager` + raid phases, June's `CX2BossRaidManager`); scope first, report size and offline reach, then write port phases. Routed from skill-system-core S7o (user 2026-10-19) | kickoff `C3z-8.md`; `JUNE_SKILL_SYSTEM_PHASES.md` "Phase S7o - Done" |
 | W3 | June's village world Lua: census every village world script + line map in data040, stage the closure, adopt June's (ljconv), pack, ask, copy. Moved from june-engine by its scope audit (2026-10-20), same ID; Sonnet 5.5 high | `JUNE_ENGINE_REMAINDER_PHASES.md` "Phase W3 - June village world Lua"; kickoff `W3.md` |
+| W3b | full investigation of EVERY village and rest area against June after W3 (user 2026-11-12: Elder / Besma NPCs and layout do not match, textures missing): layout, NPC positions, textures, then the unambiguous fixes; Opus 5.5 high | kickoff `W3b.md`; "Phase W3b" below |
 
 Run with: Opus 5.5 high (C3y-5: xhigh). Kickoffs: `kickoffs/june-dungeons/<id>.md`. Board: `STATUS.md`, block `june-dungeons`.
+
+## Phase W3b - every village and rest area against June (user 2026-11-12, after W3)
+
+**Run with:** Opus 5.5 high, then a user play-test. Read-only census first; fixes only where the cause is proven. No code flag unless the census
+finds a C++ gap (that becomes its own flagged phase, never an improvised edit). Log tag `[JUNE_ENGINE] WVIL`.
+
+**Why.** W3 (Done note at the end of this file; MODS.md "June villages and rest areas..." and "data101 restored...") adopted June's world scripts and
+line maps for villages and rest areas, staged 43 assets, restored `data101` and moved some NPC rows. The user then reported, travelling through
+Elder and Besma: NPC positions and village layout do not match, some textures are missing. W3's check was too narrow, so this phase re-checks
+EVERY village and rest area, not only those two: Ruben, Elder, Besma, Altera, Peita, Velder, Hamel, Sander, Ranox, Elysion and the rest areas
+Elder, Besma, Altera, Peita, Velder, Hamel, Sander, Ranox, Elysion, Atlas Station (1008), plus the Arcade rest.
+
+**Evidence already in hand (verified 2026-11-12, `ErrorLog.txt` of the run at 8:48):**
+- `OpenTexture` failures for Besma village: `BESMA_VILLAGE_BRIDGE_FLOOR03`, `_ALCHEMIST_ROOF_01`, `_ALCHEMIST_BUILDING_01`, `_ALCHEMIST_COLUMN_01`,
+  `_ALCHEMIST_OBJECT01`, `_ALCHEMIST_OBJECT02`, `_DISPLAY`, `_ACC_OBJECT01` (all `.dds`). March's live koms lack them, June's have them. Also
+  `FIELD_ELDER_ROADTILE2.DDS`, `FIELD_DRAGON_ROAD_ROAD02_1B.DDS`, `RUBEN_BANK_CLOSE`, `RUBEN_TECHHOUSE_GANPAN`, `RUBEN_VILLAGE_HERB01` / `02` (check
+  whether each is new since W3). `OpenXET` failures are noise (every mesh logs one).
+- Likely cause of the textures: W3's closure followed Lua -> meshes March lacks or differs on, but never opened meshes March already had unchanged
+  whose textures March lacks (June's new objects, for example the Besma Alchemist buildings). Real closure = Lua -> every mesh -> every texture
+  inside the mesh (inflate `.Y` with `june2017_re/fxdata.xfile_text(lenient=True)`; method in `june2017_re/npc_mesh_census.py`: `jbytes`, `tokens`, `resolve`).
+- `DLG_Map_Village.lua` `START_POS` is still March's: Elder StartPosId 20 x = -8041 (June -4780), id 22 x = -8499 (June -5071); June's Elder world is
+  laid out differently, so spawn / warp-in positions no longer fit. June uses the keys `OtherPlaceID` / `OtherPlaceStartLineIndex` where March's file
+  uses `BattleFieldId` / `BattleFieldStartLineIndex` (deliberate Atlas A5 choice; reader `X2Lib/X2LocationManager.cpp` ~455-490); the meaning differs
+  for some rows (Besma rest 311: June `OtherPlaceID = VMI_BESMA` line 41, March `BattleFieldId = BESMA_FIELD_01` line 2; Altera 62 line 314 vs 2; Peita 72 line 312 vs 2).
+- W3 synced only `COMMON_NPC_LOCATION` rows in `DLG_Map_House.lua` (9 moved, 29 added). Other per-house keys that decide where an NPC stands or where
+  its mark / join area is were not diffed.
+- Village `HouseIDList`s lack June's `HI_ADAMS_HOUSE`, `HI_MU`, `HI_GUILD_MARK`, `HI_EVENT_*` (those house blocks exist in March; `HI_SPA_SIGN_RUBEN`
+  and `HI_PANE_PEITA_HOUSE` do not).
+
+**Steps.**
+1. **Census, all places** (`june2017_re/w3b_village_census.tsv`, one row per village / rest area / check). For each place: world script and its
+   seasonal variants, line map, `WorldData.lua` row, `Village[...]` block (every key, not only `START_POS` and `HouseIDList`), every house block of its
+   `HouseIDList` diffed key by key (June `june_src_fixed/data034_kom/DLG_Map_House.src.lua` and `DLG_Map_Village.src.lua` vs the staged March files),
+   the minimap / map-window Lua (`DLG_Map_Village_*_Back/Front/House_Button.lua`, `DLG_Map_Local*.lua`, `MapData.lua`), and the full texture closure
+   above, compared by NAME and by BYTES against March (staged and live; `data101` is restored, the staged dir equals live bar 2 empty entries).
+2. **Prove the causes** before changing anything: read the log lines, diff tables and the C++ readers (`X2TFieldGame.cpp` `AddFieldNpc` ~3140-3157,
+   `X2LocationManager.cpp` `VillageParsing`). June's meaning of `OtherPlaceID` / `OtherPlaceStartLineIndex` is read in Ghidra (skill `ghidra`) where the
+   March reader cannot carry it.
+3. **Fix what is unambiguous:** stage every June texture / mesh the closure needs (`kom.py stage-june`), June's value for every per-house and per-village
+   key March's reader supports (core-list BOM source: edit, `luasrc.py refresh data034 <file>`, `ledger --check`, `core --check`), pack and copy the koms
+   (`/elstools pack`, `/x2-kom-packed copy`, no ask).
+4. **Route the rest:** a June key or semantic March's C++ cannot read, the missing houses, `HouseIDList` additions whose NPC assets are absent: each gets
+   its own bullet in the plan or a new phase with the evidence, deferred and never dropped.
+- **Gate:** census at 0 unexplained rows; the texture closure of every adopted world script at 0 missing; `ledger --check` and `core --check` PASS;
+  `kom.py pack` of each touched kom shows only the intended changes against live; the Done note lists what is routed.
+- **Play-test (user):** unit on the existing offline save; walk each village from the door to every edge, then each rest area: NPCs stand where their
+  house mark says, nothing floats or sinks, no pink / black textures, spawn and warp-in points sit on the ground. `python tools/logs.py --grep "OpenTexture"`
+  shows none of the names above.
 
 ## Order (recommendation, 2026-10-11)
 
