@@ -299,3 +299,6 @@ W3c fix `SERV_IRUHADEV_JUNE_FIELD_CHANGE_ACK` stays on). User decision (2026-11-
     1000 -> 3, 1002 -> 7 (`Handlers_Social.cpp` warp handler prices them). The Peita rest (1003) was in neither list.
   - `luasrc.py refresh` datai014; ledger / core check PASS; G02 added to `KEPT_MARCH` / `KEPT_MARCH_W3F`. PACK OK + COPY OK data031 (md5 1f20d388) + datai014 (cf326d55) (one entry
     each). MODS.md entry rewritten as a "MERGE MOD" note (user ask).
+- **Re-test 2 (user, 2026-11-12):** walkway signpost passed. Cobo rows showed empty: my insert had copied each March block only up to its first
+  blank line (control created, no picture / string). Replaced with March's whole blocks (icon `Icon_Elder` / `Icon_Altera`, `STR_ID_19920` /
+  `STR_ID_19922`, red like the Besma rest); refresh, ledger / core check PASS; PACK OK + COPY OK datai014 (md5 d279d73a). Re-test owed: Cobo only.
