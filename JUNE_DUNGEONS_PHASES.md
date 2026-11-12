@@ -158,8 +158,8 @@ line map, meshes, sounds -> textures / XET / TET inside each mesh, June's copy, 
   054 (1aefda2f), 056 (dcb9947f), 110 (a684e35e). Each pack showed only the intended entries against live.
 - **Log textures (run 2026-11-12 8:48):** `RUBEN_BANK_CLOSE`, `RUBEN_TECHHOUSE_GANPAN`, `RUBEN_VILLAGE_HERB01/02`, `FIELD_ELDER_ROADTILE2` are named by
   June's own meshes and June ships no such file (parity, kept). **Open:** the Besma Alchemist / Display / Acc-object / Bridge_Floor03 / Road02_1b textures exist only in June's data028, yet neither June's
-  Besma meshes, Besma script nor March's old G01 name them; a full-kom scan was still running at commit. The play-test's `OpenTexture` grep decides
-  whether a follow-up is needed.
+  Besma meshes, Besma script nor March's old G01 name them; the full scan after the copies (every .x / .y / .lua / .tet / .xet of all 258 June koms
+  and every live kom) found no file naming them. The play-test's `OpenTexture` grep decides whether a follow-up is needed.
 - **Kept on purpose:** START_POS rows that differ only by key name (June `OtherPlaceID` = March `BattleFieldId`, atlas A5); `COMMON_NPC_LOCATION` row order.
 - **Routed:** W3c (June's field graph: Besma 42 / 43, Altera 62 / 63 / 67, Peita 72, Besma rest 311 / 313 / 315 lead elsewhere in June, with
   BattleFieldData and MapData BEFORE / AFTER; a design decision); W3d (village NPC roster: Adams, Mu, guild mark, EDAN / Bless of Solace, Pane, spa sign,
