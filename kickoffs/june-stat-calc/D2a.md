@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, xhigh** effort, then type `/x2-phase june-stat-calc D2a` |
 | Plan doc | `JUNE_STAT_CALC_PHASES.md` (branch `main`) |
-| Depends on | D0 review, D1 review; not beside another phase that edits `X2GameUnit.cpp` |
+| Depends on | D1 review (D0 review done 2026-11-12); not beside another phase that edits `X2GameUnit.cpp` |
 | Flag | `SERV_IRUHADEV_JUNE_STATCALC_FINAL_DAMAGE` (+ `_STATCALC_DEBUG`); D2b continues under the same flag |
 | Log tag | `[JUNE_STATCALC]` (`python tools/logs.py --tag JUNE_STATCALC`) |
 | Review | none of its own: `D2-review.md` (written by D2b) covers D2a and D2b |
@@ -26,9 +26,10 @@ listing: Ghidra's skips the switch bodies `322851b1-322852d7`.
 Port every `gfd_blocks.tsv` range before `32285ccf` that is `mixed` or `absent`, in June's order, March's code in `#else`:
 
 - `32284d76`: the damage-result hook `3229a530` as a new `CX2GameUnit` virtual at slot `0x6c` and its call. Its Raven, Rena and Ara
-  blocks port with it (all three classes are ported; D0 corrected planning's "Eve").
-- `32284db2-32285055`: the class passives on June's ids (24403 at 0.3, 24408, 22410 without the 0.9 HP gate, with vslot `0x524` /
-  `0x784`; identify `0x784` first). March's blocks key March ids (4412 / 2414 / 3411) that June's skill data no longer uses.
+  blocks port with it (all three classes are ported; D0 corrected planning's "Eve"). Rena's reader `32c85b20` already exists:
+  `GetRageFungusTargetLockCount` (char-rena CH1o).
+- `32284db2-32285055`: the class passives on June's ids (24403 at 0.3 on the defender's HP, 24408 on the attacker's own HP (D0 review),
+  22410 without the 0.9 HP gate, with vslot `0x524` / `0x784`; identify `0x784` first). March's blocks key March ids (4412 / 2414 / 3411) that June's skill data no longer uses.
 - `32285055`: the Sharpen Arrow writer (23411 ability `0x11`); its reader is D1's.
 - `3228509f`: the world-mission rate epsilon (June `5e-8`, March's `CalculateIncreasingRate` `5e-5`): a local helper, never an edit of
   `KTDXCommonFunc.h`.

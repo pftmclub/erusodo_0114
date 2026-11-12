@@ -227,6 +227,50 @@ than about a dozen blocks (unread parts remain in both). D5 fits. Kickoffs `D2a.
 
 **Review** (`D0-review.md`, Opus 5.5 / high): the ledger, five blocks against the exe, three map rows outside `GetFinalDamage`.
 
+### Phase D0 - Review (2026-11-12)
+
+Verdict: the ledger holds; the map had three stale rows (fixed). Read-only, no flag: flagcheck / junediverge not applicable; full build
+skipped: no play-test. March's branch resolved with `cl /P` of `X2GameUnit.cpp` and `june2017_re/flagprobe.py`.
+
+**Coverage.** The Done note's script still prints `True 32284aa0 32286c48 55`. In the exe (capstone, `disasm_range.py`): 2,407
+instructions from `32284aa0` to `32286c48`, every `jmp` / `jcc` target inside the range and on an instruction boundary, one `RET`
+(`ret 4` @32284b28), the last instruction `jmp 32284b01` @32286c40 plus padding; the four indirect jumps (@322851aa, @32285842,
+@3228609b, @32286809) read tables `32286c48` / `32286c60` / `32286c78` / `32286c90` whose entries all land inside; `int3` from
+`32286ca8`. All 55 range starts are instruction boundaries. Ranges contiguous, none overlapping.
+
+**Five blocks against the exe and March's live branch** (constants read from `.rdata`):
+- `32285481` June: defender (`EDI` = `[esp+0x38]`) `+0x4120` > 0 -> defence x 2.0 (`33437820`); attacker `+0x4124` > 0 -> attack x 1.1
+  (`334720b0`) = X2GameUnit.cpp:3013-3022. Holds.
+- `3228626e` June: `AT_COMMAND` (DD `+8` == 2) -> melee byte DD `+0x2c` picks `+0x6adc` (87) else `+0x6b90` (96), x the summed damage
+  = :3675-3684. Holds.
+- `32285055` mixed: June keys 23411 (`0x5b73`), ability `0x11` = `SA_UNFIXED_DEFENSE_REL`; March's live block (`SERV_TRAPPING_RANGER_TEST`
+  on) keys `SI_P_LTR_SHARPEN_ARROW`. Holds.
+- `3228509f` mixed: June `GT_PVP` (1) skip, user attacker / user this, rate - 1.0 + 5e-8 (`334355b0` / `3346ed68`); March
+  `CalculateIncreasingRate` 5e-5. Holds.
+- `32284e96` absent (24408): no March counterpart in the live text. Holds; detail added: it tests the attacker's own HP (`EBP`), not
+  the defender's like 24403 (ledger, funcmap 10392, D2a kickoff).
+
+**Three map rows outside `GetFinalDamage`**, readers by a `.text` call scan and a grep:
+- NPC `DamageReact` `DI_EVENT_ALCHEMY_LAB` (row 21): dungeon test `0xa186` = 41350 @327b45a4; no March code. Holds.
+- PvP halving `322cfca0` (row 31): callers `3204968a` / `327b47cd` only, as listed. **Failed:** marked absent, but effect completion
+  C10e ported it (`CX2Game::PvpAmusementHalveDamage`, `SERV_IRUHADEV_JUNE_DAMAGE_REACT_HOOKS` on); the body matches June. Row -> June.
+- Training clamp (row 32): **failed** the same way: Buff 14c ported it (`X2GUUser.cpp:11582-11596`, `SERV_IRUHADEV_JUNE_TUTORIAL_MODE`
+  on; `+0x16a` is the tutorial byte, June @32049b32-32049b6e). Row -> June.
+
+**Whole re-check** (two failures): every non-`June` map row and ledger range was grepped for its June addresses in `X2Lib` / `KTDXLIB`.
+One more stale row: NPC `SetDamageExceptionProcess` `32759f30` (row 12, "absent, NPC inherits the base") is ported (effect completion
+C8b, `SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION` + `MODIFY_SET_DAMAGE_DATA` on) and matches June except a documented guard for a non-user owner.
+Row -> June. The other hits are citations, not ports. Row 8 notes that Rena's `3229a530` reader already exists (char-rena CH1o).
+
+**Line numbers.** D1 inserted lines into `GetFinalDamage` after D0, so the ledger's `march_lines` from :3041 on were 4-59 lines off.
+They were remapped exactly from the D0 file to HEAD by `difflib` (37 rows, no approximate line), with map rows 26 / 30.
+
+**Class hand-offs** landed as the Done note says: checklist rows 333 (eight overrides, Elesis 7b), 953 (Rose @32285d0a), 954 (class
+blocks are D2a / D2b's); six overrides are cited in their class files.
+
+**Kickoffs.** D2a fits (24408's HP owner and Rena's reader added; Depends drops D0 review). D3: the NPC layer is re-check only. D4: the
+training clamp and the PvP halving are re-check only.
+
 ## Phase D1 - Defence curve: the 0-damage fix
 
 **Scope.** In `CX2GameUnit::GetFinalDamage`, under `SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE`, replace March's defence-rate chain with
