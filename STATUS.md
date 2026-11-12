@@ -39,7 +39,7 @@ Done: C3y-1b.
 | C3y-5 | **ready** (C3y): identify (read-only) June's real route into the Hero tier (191 ids; the Mode Button has no callers), then write the port phases | Opus 5.5 / **xhigh** | C3y; runs with anything | read-only (Ghidra), plan doc | `C3y-5.md` |
 | C3z-1b | ready (data101 dir restored 2026-11-12 by W3, `kom.py pack data101` = live bar 2 empty entries; P0 step 2 data101 half done): re-run `dungeon_map_parity.py` once data101's dir equals live, then stage `c3z1_data101_pending.tsv` (104 Velder / Henir names; grows with the 799 entries the broken ...) | Opus 5.5 / high | june-asset-port P0, C3z-1 | data101 (kom_contents, game dir) | `C3z-1b.md` |
 | C3z-5b | ready (routed by C3z-5): DCC 8 riding pet (live on Henir; 31fcf040, 321f9480, 321f99e0, 321fa590, 3204ea20), DCC 2 vs March's IsEventDungeon lists, DCC 1/9/10/12/13/14 readers, June's GetLastClearDungeonID ... | Opus 5.5 / high | C3z-5; best before/with C3y | X2RidingPetManager / X2GUUser, X2Dungeon(.h/Manager), X2Unit, X2PartyUI, the DCC sites, Always.h | `C3z-5b.md` |
-| C3z-2b | ready, scope first (user 2026-10-16, from C3z-2): the 142 June-only NPCs C3z-2 added give 0 EXP / ED / drops because their payout rows were server data; identify which tables lack them, port only rows that can be ... | Opus 5.5 / high | C3z-2 | data / server Lua (named for the user to pack), `X2Offline*Table.cpp` only if a loader gap shows | `C3z-2b.md` |
+| C3z-2b | moved 2026-11-12 to plan `field-rewards` (R0 answers its census, R6 writes its rows): do not start here. Was: scope first (user 2026-10-16, from C3z-2): the 142 June-only NPCs C3z-2 added give 0 EXP / ED / drops because their payout rows were server data; identify which tables lack them, port only rows that can be ... | Opus 5.5 / high | C3z-2 | data / server Lua (named for the user to pack), `X2Offline*Table.cpp` only if a loader gap shows | `C3z-2b.md` |
 | C3z-4t | ready, scope first (user 2026-10-10, from C3z-4): June's CX2TutorialGuideManager (GetTutorialGuideManager / CheckToNeedTutorialGuide / OnBeginGuideNo; 9 Battle Field tutorial dungeons via benders_actor.lua); report ... | Opus 5.5 / high | C3z-4 | X2Main (embedded manager), new manager files, bindings | `C3z-4t.md` |
 | C3z-8 | ready, scope first (user 2026-10-19, routed from skill-system-core S7o): June's boss-raid systems - `CX2BossRaidLongTimeEvent` ( `g_pMain +0xd80`: enter UI `32161070` / `DLG_BossRaid_Enter.lua`, state + rank ...) | Opus 5.5 / high | skill S7o (done); port halves: A6b ( battlefield types ) where June's ... | read-only (Ghidra), plan doc, funcmap | `C3z-8.md` |
 | W3 | built + copied 2026-11-12 (PACK OK / COPY OK data024 026 027 028 029 030 031 034 040 057 110 135; full build skipped: no play-test code): 13 village / rest scripts + 43 assets to June, house positions + Lanox rest NPC rows, Fieldname banner sheets, Sander field-4 sign board; data101 dir restored + packed + copied (md5 3d798391), Velder meshes already June bar one; left: village HouseIDList / START_POS; play-test owed ("W3 - Done" in JUNE_DUNGEONS_PHASES.md) | Sonnet 5.5 / high (census, then adopt), then user play-test | - ; one at a time with the port halves of C3y-1b / 1c / 2 / 3 / 4 and any ... | `kom_contents/data040_kom/` village world + line-map `.lua`, staged closure, ... | `W3.md` (text: `JUNE_ENGINE_REMAINDER_PHASES.md` "Phase W3") |
@@ -226,12 +226,11 @@ Decision answered 2026-11-11 (plan "Open decisions"): 1 stat rows for all seven 
 ## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.
 
-Done: stage2-plan, stage3-plan, stage4-plan, stage29-plan, stage5-plan, stage6-plan, stage34-plan, stage35-plan.
+Done: stage2-plan, stage3-plan, stage4-plan, stage29-plan, stage5-plan, stage6-plan, stage34-plan, stage35-plan, stage23-plan (2026-11-12 -> plan `field-rewards`).
 
 | Phase | State | Model | Needs | Touches | Kickoff |
 |---|---|---|---|---|---|
 | stage12-plan | **ready** (start: `/x2-phase new-plan june-customize`): character customize system (`CX2CustomizeManager`, `CharCustomData.lua`) -> `JUNE_CUSTOMIZE_SYSTEM_PHASES.md` + `kickoffs/june-customize/` | Opus 5.5 / high | dep: june-effect C9g-2 review (done); runs with anything (read-only) | docs, funcmap rows (`Customize S12`) | `stage12-plan.md` |
-| stage23-plan | ready (start: `/x2-phase new-plan field-rewards`): offline field rewards stand-in for Lanox + Elysion fields (no server drop rows past 40025; found by atlas A6) -> `OFFLINE_FIELD_REWARDS_PHASES.md` + ... | Opus 5.5 / high | dep: atlas A6 (done); runs with anything (read-only) | docs | `stage23-plan.md` |
 | stage25-plan | ready (start: `/x2-phase new-plan june-fonts`): June fonts and text rendering (June's `data196` font set, June's FreeType setup; user: March text looks un-anti-aliased) -> `JUNE_FONTS_PHASES.md` + ... | Opus 5.5 / high | dep: -; runs with anything (read-only) | docs, funcmap rows (`Fonts S25`) | `stage25-plan.md` |
 | stage26-plan | ready (start: `/x2-phase new-plan june-movies`, after quest-system Q8 review): June AVI movie system remainder - dungeon first-clear / intro movies, the field / battle-field starts, the other `+0x80a` readers, ... | Opus 5.5 / high | dep: quest-system Q8 review | docs, kickoffs, funcmap | `stage26-plan.md` |
 | stage27-plan | ready (start: `/x2-phase new-plan june-lua-scenes`): June Lua event scenes - adopt `EventScene.lua` / `EventSceneObject.lua` with June's DUO keys (`325b1f40` / `325b0020` / `325b0c70`), find the Lua-scene callers ... | Opus 5.5 / high | - | docs, kickoffs, funcmap | `stage27-plan.md` |
@@ -360,6 +359,23 @@ Plan `JUNE_CHARACTER_LUCIEL_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]`
 | Z | blocked (CH6): close-out, `MODS.md`, "Template for Stage 8", `stage8-plan` -> `char-rose` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
 Done: CH0b (2026-11-03, 14,609 + 12 June files and 14 Lua staged, 44 koms packed and copied, skill icons PASS; user select-screen ErrorLog pass owed), CH0 (2026-11-02, read-only class map: 867 functions / 553 tables / 198 ids phased, splits + 5 Opus helper phases, kickoffs amended; stat-row question with the user), NU0 (2026-11-02, read-only engine map: 8 `nu0_*.tsv`, kickoffs amended, DU4 shape written).
+
+## field-rewards - offline EXP / ED / drop rows for June-only dungeons and fields (stand-in)
+Plan `OFFLINE_FIELD_REWARDS_PHASES.md` - branch `main` - log tag `[DROP_STANDIN]` (`offline_server.log`) - flags `SERV_IRUHADEV_OFFLINE_DROP_STANDIN` (+ `_DEBUG`) - kickoffs `kickoffs/field-rewards/` - backlog Stage 23 - created 2026-11-12 (user: drop table from item.kim + the dungeon entry lists, fair rates).
+
+**Scope:** generated, labelled rows for Lanox (18 dungeon keys, 4 fields), Elysion (21 keys, 3 fields), 3 secret dungeons, June-only monsters in old dungeons (was june-dungeons C3z-2b) and, once registered, heroic dungeons. Rates copied from the studio's Sander rows; boss items from each dungeon's `BOSS_DROP_ITEM`. The user packs `DropTable.lua` / `StaticDropTable.lua` after each rows phase. R3-R6 edit the same generated block: one at a time.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| R0 | ready: census of every spawned monster against the reward tables (read-only) | Sonnet 5.5 / high | - | `tools/droptable.py`, `tools/data/drop_census.tsv` | `R0.md` |
+| R1 | blocked (R0): item pools + rate sheet, then 4 decisions for the user | Opus 5.5 / high | R0 | `tools/data/drop_item_pools.tsv`, `drop_rate_sheet.tsv`, `tools/droptable.py` | `R1.md` |
+| R2 | blocked (R0): loader flag + generator, no rows yet; can run beside R1 | Sonnet 5.5 / high; review Opus 5.5 / medium | R0 | `X2OfflineDropTable.*`, `Handlers_Room.cpp`, Always.h, `tools/droptable.py` | `R2.md` |
+| R3 | blocked (R1 approved, R2 review): Lanox rows, first full build + play-test | Sonnet 5.5 / medium | R1, R2 review | server `DropTable.lua`, `StaticDropTable.lua` (user packs) | `R3.md` |
+| R4 | blocked (R3): Elysion rows + play-test | Sonnet 5.5 / medium | R3 | same two server Lua files | `R4.md` |
+| R5 | blocked (R3): secret dungeon rows + play-test | Sonnet 5.5 / high | R1, R3 | same two server Lua files | `R5.md` |
+| R6 | blocked (R3): June-only monsters in old dungeons + smoke; its review covers R3-R6 | Sonnet 5.5 / high; review Opus 5.5 / high | R0, R3 | same two server Lua files | `R6.md` |
+| R7 | blocked (heroic dungeons are not registered in the live `DungeonData.lua` yet: june-dungeons) | Opus 5.5 / high | june-dungeons heroic rows, R5 | sheets + the two server Lua files | `R7.md` |
+| Z | blocked (R6 review): close | Sonnet 5.5 / medium | R6 review | `MODS.md`, backlog, `tools/README.md` | `Z.md` |
 
 ## Other plans (no STATUS rows)
 
