@@ -6615,6 +6615,17 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DEBUG` stays d
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( and `_SKILL_DEBUG` ), `python tools/build.py --deploy`.
 - **Save.** Unit 104 `Asura99` ( 124, lv 99 ) skill slots changed for the play-test ( 27062 added at level 1 ).
 
+## Stage 7 Ara, CH3c2: Asura A tier - Raid ( + attack and finish states ), Specter Walk, Fox Ghost (2026-11-12)
+
+Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DEBUG` stays defined, the CH3d stage review retires it ). Plan `JUNE_CHARACTER_ARA_PHASES.md` "CH3c2 - Done". Asura ( 124 ): ids 27218 / 27242 ( Raid ), 27219 / 27243 ( Specter Walk ), 27228 ( Fox Ghost ). All 19 class-map rows are new June functions ( none of these skills exists in March ), in `X2GUAra.cpp` / `.h`; the first id switch ( `32bd09d0` ) and the second ( `32bd34c0`, Raid only ) bind them.
+- **Raid ( 27218 / 27242 ).** Three states: the dash ( state 294 ) clears the hit flag set by CH1h2's attack-result code and goes to the attack state ( 295 ) on a hit or at the animation end; the attack state turns one force power into a damage rate at 0.1 s and makes the `DamageEffect_AAS_Raid_Attack` hit at 0.1 / 0.4 / 0.52 s, 150 in front of the hip ( behind it when facing left ); the finish state ( 296 ) makes `DamageEffect_AAS_Raid_Attack_Finish` at 0.222 s, then once more turned 180 degrees. Every hit takes the damage rate and the size ability `SA_SIZE_ABS` of Raid ( the effect's scale base is multiplied, `ApplyRaidRangeRate` ). The end of the attack goes through the FP cancel.
+- **Specter Walk ( 27219 / 27243 ).** One force power at 0.001 s; the effect set and the buff factor ( `BFI_BUFF_SPECTER_WALK`, 0.41 s ) come from the state script. **Fox Ghost ( 27228 ).** June has only the generic end; everything else is the state script.
+- **Names added.** `X2SkillTree.h` ( `JUNE_ENUM_NAMES` ): `RNSI_A_ASR_SPECTER_WALK` 27219, `RNSI_A_ASR_FOX_GHOST` 27228, `RNSI_A_ASR_RAID_UPGRADE` 27242, `RNSI_A_ASR_SPECTER_WALK_UPGRADE` 27243.
+- **March vs June damage.** No damage number is written in C++: the damage effects carry their numerical blocks through the engine ( `plan_numerical_rows.tsv` ); the only C++ numbers are the force-power-to-damage-rate conversion ( `GetMpScaledPowerRate`, as CH3c ) and the hit times / offsets above.
+- **Not ported ( JUNE_BUGS 619 ).** June's add of the spent force power to the unread `+0x9614` count; Specter Walk's two-force-power branch needs the skill memo 0x94341, which June's stub `31fca9e0` never holds.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( and `_SKILL_DEBUG` ), `python tools/build.py --deploy`.
+- **Save.** Unit 104 `Asura99` ( 124, lv 99 ) skill slots changed for the play-test ( backup `db_backup/els_db_20261112_083554_pre_sql.sql` ): 27242 slot 0, 27243 slot 1, 27228 slot 5; the CH3c slots are cleared.
+
 ## June villages and rest areas, Lanox rest NPCs, field-name banner, Sander sign board (W3, 2026-11-12)
 
 No flag, no exe change (data only). Requested by the user in one message; kom copies done, play-test owed.

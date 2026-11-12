@@ -1920,6 +1920,10 @@ public:
 		RNSI_SA_ASR_FIRE_FOX_UPGRADE                          = 27062,	// char-ara CH3c: June's Enum.lua; the enhanced Fire Fox
 		RNSI_SA_ASR_NECROMANCY_UPGRADE                        = 27063,	// char-ara CH3c: June's Enum.lua; the enhanced Necromancy
 		RNSI_SA_ASR_FOX_PHANTOM                               = 27066,	// char-ara CH3c: June's Enum.lua; Fox Phantom
+		RNSI_A_ASR_SPECTER_WALK                            = 27219,	// char-ara CH3c2: June's Enum.lua; Specter Walk
+		RNSI_A_ASR_FOX_GHOST                               = 27228,	// char-ara CH3c2: June's Enum.lua; Fox Ghost
+		RNSI_A_ASR_RAID_UPGRADE                            = 27242,	// char-ara CH3c2: June's Enum.lua; the enhanced Raid
+		RNSI_A_ASR_SPECTER_WALK_UPGRADE                    = 27243,	// char-ara CH3c2: June's Enum.lua; the enhanced Specter Walk
 		SI_SA_ALS_SPECTER_OF_BLADE                            = 7021,	// char-ara CH3c: June's Enum.lua; the skill id Asura's Specter of Blade scales its damage rate by ( June 32bc4b90 )
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}

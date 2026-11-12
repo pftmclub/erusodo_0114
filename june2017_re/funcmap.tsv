@@ -10326,3 +10326,23 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32bc97b0	CX2GUAra::ASI_SA_AA_SMASH_CreateState	PORTED	Char Ara CH3c: new: callbacks Init / StartFuture / FrameMove / EventProcess
 32bcebc0	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( Fire Fox case helper )	PORTED	Char Ara CH3c: new case 27027 / 27062 written inline
 -	CX2GUAra::ASI_SA_ASR_FOX_PHANTOM_FrameMove / _StateEnd	PORTED	Char Ara CH3c: stand-in: the state script's CUSTOM_RENDER_STATE { 1.5, 2.4, CRS_INVISIBLE } until the engine renderer phase ( checklist 7w ); ApplyRenderParam gains the CRS_INVISIBLE case ( June 31fd4460 case 5 )
+32b941d0	CX2GUAra::ASI_A_ALS_SPECTER_WALK_Init	PORTED	Char Ara CH3c2: new: 14 preloads
+32b943e0	CX2GUAra::ASI_A_AA_RAID_Init	PORTED	Char Ara CH3c2: new: 4 preloads
+32b94420	CX2GUAra::ASI_A_AA_RAID_StateStartFuture	PORTED	Char Ara CH3c2: new: clears the Raid hit flag ( +0x97bc ), then CommonStateStartFuture
+32b94440	CX2GUAra::ASI_A_AA_RAID_StateStart	PORTED	Char Ara CH3c2: new: CommonStateStart, then +0x9624 = +0x9622 ( m_usBeforeForceGainCount = m_usForceGainCount )
+32b94460	CX2GUAra::ASI_A_AA_RAID_StateEnd	PORTED	Char Ara CH3c2: new: clears the Raid hit flag, then CommonStateEnd
+32b94480	CX2GUAra::ASI_A_AA_RAID_ATTACK_Init	PORTED	Char Ara CH3c2: new: 10 preloads
+32b94510	CX2GUAra::ASI_A_AA_RAID_ATTACK_FINISH_Init	PORTED	Char Ara CH3c2: new: 8 preloads
+32ba09a0	CX2GUAra::ASI_A_ALS_SPECTER_WALK_EventProcess	PORTED	Char Ara CH3c2: new: animation end -> wait / fall ( -45 ), then the plain skill cancels on a line ( the body of 32ba0cc0 )
+32ba0fe0	CX2GUAra::ASI_A_AA_RAID_EventProcess	PORTED	Char Ara CH3c2: new: Raid hit flag or animation end -> state 295 ( ASI_A_AA_RAID_ATTACK )
+32ba1020	CX2GUAra::ASI_A_AA_RAID_ATTACK_FINISH_EventProcess	PORTED	Char Ara CH3c2: new: animation end -> wait; foot off the line -> fall ( -45 ), else the plain skill cancels
+32ba6560	CX2GUAra::ApplyRaidRangeRate	PORTED	Char Ara CH3c2: new: ability SA_SIZE_ABS ( 0x52 ) of 27218 ( equipped ) multiplies the effect's scale base ( +0xb24 ) and SetScale( 1, 1, 1 )
+32baab80	CX2GUAra::ASI_A_AA_RAID_CreateState	PORTED	Char Ara CH3c2: new: callbacks Init / StartFuture / Start / EventProcess / End; the Specter Walk helper 32bce870 and the Fox Ghost case are written inline in their cases
+32bad550	CX2GUAra::ASI_A_AA_RAID_ATTACK_EventProcess	PORTED	Char Ara CH3c2: new: animation end -> StateChangeOrFPCancel( 296 ); the FP-cancel window test
+32bbd3a0	CX2GUAra::ASI_A_AA_RAID_ATTACK_FINISH_FrameMove	PORTED	Char Ara CH3c2: new: 0.222 s the finishing damage effect at the hip, again with the rotation y + 180; each takes the +0x97c0 rate and ApplyRaidRangeRate
+32bc31f0	CX2GUAra::ASI_A_ALS_SPECTER_WALK_FrameMove	PORTED	Char Ara CH3c2: new: 0.001 s one force power ( June's two needs the memo stub 31fca9e0 to hold 0x94341 )
+32bc3580	CX2GUAra::ASI_A_AA_RAID_ATTACK_FrameMove	PORTED	Char Ara CH3c2: new: 0.1 s one force power -> damage rate ( +0x97c0, -1 when none ), then the hit at 0.1 / 0.4 / 0.52 s ( the shared helper CreateRaidAttackEffect is the three blocks )
+32bc94a0	CX2GUAra::ASI_A_AA_RAID_ATTACK_FINISH_CreateState	PORTED	Char Ara CH3c2: new: callbacks Init / FrameMove / EventProcess
+32bce870	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( Specter Walk case helper )	PORTED	Char Ara CH3c2: new case 27219 / 27243 written inline ( Init / FrameMove / EventProcess, hyper copies )
+32bce970	CX2GUAra::ASI_A_AA_RAID_ATTACK_CreateState	PORTED	Char Ara CH3c2: new: callbacks Init / FrameMove / EventProcess
+-	CX2GUAra::CreateRaidAttackEffect	PORTED	Char Ara CH3c2: new: the Raid hit June 32bc3580 writes out three times ( damage effect DamageEffect_AAS_Raid_Attack 150 in front of the hip, behind it when facing left )

@@ -248,6 +248,7 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 	, m_iSwallowAssaultAttackCount( 0 )	// char-ara CH3a: June 32bc6bf0
 	, m_uidRestrictionEnergyTarget( -1 ), m_iRestrictionEnergyTargetType( 0 ), m_bRestrictionEnergyHit( false )	// char-ara CH3b: June 32bc6bf0
 	, m_fSpecterOfBladeRangeRate( -1.f ), m_iFireFoxCount( 0 ), m_fFireFoxThrowCoolTime( 0.f ), m_fFireFoxRangeRate( -1.f ), m_fSmashPowerRate( 1.f )	// char-ara CH3c: June 32bc6bf0
+	, m_fRaidRangeRate( -1.f )	// char-ara CH3c2: June 32bc6bf0 +0x97c0
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	, m_usForceGainCount( 0 ), m_usBeforeForceGainCount( 0 ), m_pSkillTemplet( NULL ), m_iPressedSkillSlotIndex( -1 )
@@ -4072,6 +4073,46 @@ void CX2GUAra::InitStateByUnitClass()
 				normalStateData.StateEnd		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_FOX_PHANTOM_StateEnd );
 
 				m_LuaManager.MakeTableReference( "ASI_SA_ASR_FOX_PHANTOM", hyperStateData.stateID );
+				CopyStateCallbacks( hyperStateData, normalStateData );
+			} break;
+
+		case CX2SkillTree::RNSI_A_ASR_RAID:	// char-ara CH3c2: June 32bd09d0 case 27218 / 27242
+		case CX2SkillTree::RNSI_A_ASR_RAID_UPGRADE:
+			{
+				ASI_A_AA_RAID_CreateState( normalStateData, normalStateData.stateID );
+				ASI_A_AA_RAID_CreateState( hyperStateData, hyperStateData.stateID );
+
+				{
+					UserUnitStateData subStateData;
+					ASI_A_AA_RAID_ATTACK_CreateState( subStateData, ASI_A_AA_RAID_ATTACK );
+					m_StateList[subStateData.stateID] = subStateData;
+				}
+
+				{
+					UserUnitStateData subStateData;
+					ASI_A_AA_RAID_ATTACK_FINISH_CreateState( subStateData, ASI_A_AA_RAID_ATTACK_FINISH );
+					m_StateList[subStateData.stateID] = subStateData;
+				}
+			} break;
+
+		case CX2SkillTree::RNSI_A_ASR_SPECTER_WALK:	// char-ara CH3c2: June 32bd09d0 case 27219 / 27243
+		case CX2SkillTree::RNSI_A_ASR_SPECTER_WALK_UPGRADE:
+			{
+				m_LuaManager.MakeTableReference( "ASI_A_ALS_SPECTER_WALK", normalStateData.stateID );
+				normalStateData.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SPECTER_WALK_Init );
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SPECTER_WALK_FrameMove );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_A_ALS_SPECTER_WALK_EventProcess );
+
+				m_LuaManager.MakeTableReference( "ASI_A_ALS_SPECTER_WALK", hyperStateData.stateID );
+				CopyStateCallbacks( hyperStateData, normalStateData );
+			} break;
+
+		case CX2SkillTree::RNSI_A_ASR_FOX_GHOST:	// char-ara CH3c2: June 32bd09d0 case 27228 ( no Init, no frame code: the generic end only )
+			{
+				m_LuaManager.MakeTableReference( "ASI_A_ASR_FOX_GHOST", normalStateData.stateID );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
+
+				m_LuaManager.MakeTableReference( "ASI_A_ASR_FOX_GHOST", hyperStateData.stateID );
 				CopyStateCallbacks( hyperStateData, normalStateData );
 			} break;
 	#pragma endregion
@@ -25034,6 +25075,292 @@ void CX2GUAra::ASI_SA_ASR_FOX_PHANTOM_Init()
 	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
 	TextureReadyInBackground( L"VERITABLE_PANDEMONIUM_T02.dds" );
 }
+
+// char-ara CH3c2: Asura ( 124 ) A tier: Raid ( + attack and finish states ), Specter Walk, Fox Ghost
+namespace _CONST_ARA_CH3C2_
+{
+	const float		RAID_HIT_TIME_FIRST					= 0.1f;		// June 32bc3580: the first hit also spends the force power
+	const float		RAID_HIT_TIME_SECOND				= 0.4f;		// June 32bc3580
+	const float		RAID_HIT_TIME_THIRD					= 0.52f;	// June 32bc3580
+	const double	RAID_HIT_OFFSET						= 150.0;	// June 32bc3580 @32bc3626: in front of the hip, behind it when facing left
+	const int		RAID_FORCE_POWER					= 1;		// June 32bc3580 @32bc35e3: the force power one Raid spends
+	const float		RAID_FINISH_HIT_TIME				= 0.222f;	// June 32bbd3a0
+	const double	RAID_FINISH_TURN_DEGREE				= 180.0;	// June 32bbd3a0 @32bbd4e1: the second finishing attack faces back
+	const int		SPECTER_WALK_FORCE_POWER			= 1;		// June 32bc31f0 @32bc323b
+}
+using namespace _CONST_ARA_CH3C2_;
+
+// char-ara CH3c2: June 32b941d0
+void CX2GUAra::ASI_A_ALS_SPECTER_WALK_Init()
+{
+	TextureReadyInBackground( L"ALS_FOX_ARMS01.dds" );
+	TextureReadyInBackground( L"ALS_FOX_ARMS06.dds" );
+	TextureReadyInBackground( L"ALS_MANA_DRAIN_P01_Y.dds" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_WALK_P01.X" );
+	XSkinMeshReadyInBackground( L"ALS_TRACE_P01.X" );
+	XMeshReadyInBackground( L"ALS_VERITABLE_PANDEMONIUM_P01.Y" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XMeshReadyInBackground( L"Lire_Uplight01.Y" );
+	TextureReadyInBackground( L"Nasod_King_Laser03.dds" );
+	TextureReadyInBackground( L"rana_C_explosionArrow_boom_circle.dds" );
+	XSkinMeshReadyInBackground( L"Arme_Thunder_Attack_Dummy.X" );
+	TextureReadyInBackground( L"ALS_flame_001.dds" );
+	XSkinMeshReadyInBackground( L"BH_Combo_XZ_Fire_DUMMY01.X" );
+}
+
+// char-ara CH3c2: June 32b943e0
+void CX2GUAra::ASI_A_AA_RAID_Init()
+{
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XMeshReadyInBackground( L"ALS_SHAKE_CHAOS_02.Y" );
+	TextureReadyInBackground( L"Colorballgray.dds" );
+	XMeshReadyInBackground( L"ELK_WIND_SLICER_M02.Y" );
+}
+
+// char-ara CH3c2: June 32b94480
+void CX2GUAra::ASI_A_AA_RAID_ATTACK_Init()
+{
+	XSkinMeshReadyInBackground( L"AA_RAID_MESH_TRACE01.X" );
+	XSkinMeshReadyInBackground( L"AA_RAID_MESH_TRACE02.X" );
+	XSkinMeshReadyInBackground( L"ALS_ComboXXdownXZloop_MESH01.X" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XSkinMeshReadyInBackground( L"ALS_ComboXXdownXZloop_MESH02.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	XSkinMeshReadyInBackground( L"BREAKING_FIST_Attack_Box.X" );
+}
+
+// char-ara CH3c2: June 32b94510
+void CX2GUAra::ASI_A_AA_RAID_ATTACK_FINISH_Init()
+{
+	XSkinMeshReadyInBackground( L"AA_RAID_HAND_F01.X" );
+	XSkinMeshReadyInBackground( L"AA_RAID_MESH_TRACE_F01.X" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_100x50x50_front2.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+}
+
+// char-ara CH3c2: June helper 32baab80
+void CX2GUAra::ASI_A_AA_RAID_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_A_AA_RAID", stateData_.stateID );
+	stateData_.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_A_AA_RAID_Init );
+	stateData_.StateStartFuture	= SET_CB_FUNC( CX2GUAra, ASI_A_AA_RAID_StateStartFuture );
+	stateData_.StateStart		= SET_CB_FUNC( CX2GUAra, ASI_A_AA_RAID_StateStart );
+	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_A_AA_RAID_EventProcess );
+	stateData_.StateEnd			= SET_CB_FUNC( CX2GUAra, ASI_A_AA_RAID_StateEnd );
+}
+
+// char-ara CH3c2: June helper 32bce970
+void CX2GUAra::ASI_A_AA_RAID_ATTACK_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_A_AA_RAID_ATTACK", stateData_.stateID );
+	stateData_.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_A_AA_RAID_ATTACK_Init );
+	stateData_.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_A_AA_RAID_ATTACK_FrameMove );
+	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_A_AA_RAID_ATTACK_EventProcess );
+}
+
+// char-ara CH3c2: June helper 32bc94a0
+void CX2GUAra::ASI_A_AA_RAID_ATTACK_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_A_AA_RAID_ATTACK_FINISH", stateData_.stateID );
+	stateData_.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_A_AA_RAID_ATTACK_FINISH_Init );
+	stateData_.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_A_AA_RAID_ATTACK_FINISH_FrameMove );
+	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_A_AA_RAID_ATTACK_FINISH_EventProcess );
+}
+
+// char-ara CH3c2: June 32b94420
+void CX2GUAra::ASI_A_AA_RAID_StateStartFuture()
+{
+	m_bRaidHit = false;
+
+	CommonStateStartFuture();
+}
+
+// char-ara CH3c2: June 32b94440 ( the force power of this cast counts for the FP cancel )
+void CX2GUAra::ASI_A_AA_RAID_StateStart()
+{
+	CommonStateStart();
+
+	m_usBeforeForceGainCount = m_usForceGainCount;
+}
+
+// char-ara CH3c2: June 32b94460
+void CX2GUAra::ASI_A_AA_RAID_StateEnd()
+{
+	m_bRaidHit = false;
+
+	CommonStateEnd();
+}
+
+// char-ara CH3c2: June 32ba0fe0 ( the dash ends on a hit of the Raid attack, or when its animation ends )
+void CX2GUAra::ASI_A_AA_RAID_EventProcess()
+{
+	if ( true == m_bRaidHit || true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChange( ASI_A_AA_RAID_ATTACK );
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c2: June 32ba6560 ( the ability SA_SIZE_ABS of Raid scales the effect; the scale base is June +0xb24 )
+void CX2GUAra::ApplyRaidRangeRate( CX2DamageEffect::CEffect* pEffect_ )
+{
+	if ( NULL == pEffect_ )
+		return;
+
+	float fSizeRate = 1.f;
+	if ( true == TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_SIZE_ABS, CX2SkillTree::RNSI_A_ASR_RAID, true, fSizeRate ) )
+	{
+		const D3DXVECTOR3 vScaleBase = pEffect_->GetScaleBase();
+		pEffect_->SetScaleBase( D3DXVECTOR3( vScaleBase.x * fSizeRate, vScaleBase.y * fSizeRate, vScaleBase.z * fSizeRate ) );
+		pEffect_->SetScale( 1.f, 1.f, 1.f );
+	}
+}
+
+// char-ara CH3c2: June 32bc3580 / 32bbd3a0 ( June writes this hit out three times in the attack state: at the hip, 150 in front of it, behind it when facing left )
+void CX2GUAra::CreateRaidAttackEffect()
+{
+	if ( NULL == g_pX2Game || NULL == g_pX2Game->GetDamageEffect() )
+		return;
+
+	const D3DXVECTOR3 vDir = GetDirVector();
+	const D3DXVECTOR3 vOffset( static_cast<float>( vDir.x * RAID_HIT_OFFSET ), static_cast<float>( vDir.y * RAID_HIT_OFFSET ), static_cast<float>( vDir.z * RAID_HIT_OFFSET ) );
+	const D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01" );
+	const D3DXVECTOR3 vPos = ( true == GetIsRight() ) ? vBonePos + vOffset : vBonePos - vOffset;
+
+	CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_AAS_Raid_Attack", GetPowerRate(),
+		vPos, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+	if ( NULL != pDamageEffect )
+		pDamageEffect->ScaleDamageByRate( m_fRaidRangeRate );
+	ApplyRaidRangeRate( pDamageEffect );
+}
+
+// char-ara CH3c2: June 32bc3580 ( 0.1 s: one force power turns into the damage rate, then a hit at 0.1 / 0.4 / 0.52 s )
+void CX2GUAra::ASI_A_AA_RAID_ATTACK_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( RAID_HIT_TIME_FIRST ) )
+	{
+		m_fRaidRangeRate = -1.f;
+		if ( 0 < GetForcePower() )
+		{
+			m_fRaidRangeRate = GetMpScaledPowerRate( RAID_FORCE_POWER, CX2SkillTree::RNSI_A_ASR_RAID, true );
+			UseForcePower( RAID_FORCE_POWER );	// June @32bc35fd also adds it to the used-force-power count ( +0x9614 ): CH1q dropped that member, nothing reads it
+		}
+
+		CreateRaidAttackEffect();
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( RAID_HIT_TIME_SECOND ) )
+		CreateRaidAttackEffect();
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( RAID_HIT_TIME_THIRD ) )
+		CreateRaidAttackEffect();
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c2: June 32bad550 ( the end goes through the FP cancel to the finish state )
+void CX2GUAra::ASI_A_AA_RAID_ATTACK_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_A_AA_RAID_ATTACK_FINISH );
+
+	m_bFPCancelProbe = true;	// June +0x9621, as the Restraints Specter
+	if ( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c2: June 32bbd3a0 ( 0.222 s: the finishing hit at the hip with the damage rate of the attack state, then again turned 180 degrees )
+void CX2GUAra::ASI_A_AA_RAID_ATTACK_FINISH_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( RAID_FINISH_HIT_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		const D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01" );
+		D3DXVECTOR3 vRotate = GetRotateDegree();
+
+		for ( int iHit = 0; iHit < 2; ++iHit )
+		{
+			CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_AAS_Raid_Attack_Finish", GetPowerRate(),
+				vBonePos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+			if ( NULL != pDamageEffect )
+				pDamageEffect->ScaleDamageByRate( m_fRaidRangeRate );
+			ApplyRaidRangeRate( pDamageEffect );
+
+			vRotate.y = static_cast<float>( vRotate.y + RAID_FINISH_TURN_DEGREE );
+		}
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c2: June 32ba1020 ( animation end -> wait, a fall when the foot is off the line; the cancels need the foot on a line )
+void CX2GUAra::ASI_A_AA_RAID_ATTACK_FINISH_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChange( USI_WAIT );
+
+	if ( false == IsOnSomethingFuture() )
+	{
+		StateChange( USI_JUMP_DOWN );
+		m_FrameDataFuture.syncData.position.y = static_cast<float>( m_FrameDataFuture.syncData.position.y - STATE_END_FALL_DROP );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c2: June 32bc31f0 ( 0.001 s: one force power; June's two with the memo 0x94341 never happens, the stub 31fca9e0 never holds it )
+void CX2GUAra::ASI_A_ALS_SPECTER_WALK_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( EFFECT_SET_EVENT_TIME ) )
+		UseForcePower( SPECTER_WALK_FORCE_POWER );	// June @32bc323d also adds it to the used-force-power count ( +0x9614 ): not ported, see Raid
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c2: June 32ba09a0 ( animation end -> wait, or a fall; the cancels need the foot on a line, as the view between finish )
+void CX2GUAra::ASI_A_ALS_SPECTER_WALK_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == IsOnSomethingFuture() )
+			StateChange( USI_WAIT );
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y = static_cast<float>( m_FrameDataFuture.syncData.position.y - STATE_END_FALL_DROP );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #pragma region LOW_BRANDISH
 
@@ -29390,6 +29717,29 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 					{
 						UserUnitStateData&	stateData = m_StateList[ASI_SA_AA_SMASH];
 						ASI_SA_AA_SMASH_CreateState( stateData, ASI_SA_AA_SMASH );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+					}
+				} break;
+			case CX2SkillTree::RNSI_A_ASR_RAID:	// char-ara CH3c2: June 32bd34c0 case 27218 / 27242 ( the chain lookup takes the swapped id )
+			case CX2SkillTree::RNSI_A_ASR_RAID_UPGRADE:
+				{
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_A_AA_RAID];
+						ASI_A_AA_RAID_CreateState( stateData, ASI_A_AA_RAID );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// char-ara CH3c2: June 32bd34c0 @32bd4e2e
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_A_AA_RAID_ATTACK];
+						ASI_A_AA_RAID_ATTACK_CreateState( stateData, ASI_A_AA_RAID_ATTACK );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// char-ara CH3c2: June 32bd34c0 @32bd4ec5
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_A_AA_RAID_ATTACK_FINISH];
+						ASI_A_AA_RAID_ATTACK_FINISH_CreateState( stateData, ASI_A_AA_RAID_ATTACK_FINISH );
 						SetSkillLevelStateData( pSkillTemplet, stateData );
 					}
 				} break;

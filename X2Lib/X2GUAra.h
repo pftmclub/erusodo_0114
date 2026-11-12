@@ -793,6 +793,25 @@ protected:
 	void			ASI_SA_AA_SMASH_Init();	// char-ara CH3c: June 32b95210
 	void			ASI_SA_ASR_FOX_PHANTOM_Init();	// char-ara CH3c: June 32b95460
 	void			ASI_SA_ASR_FOX_PHANTOM_FrameMove();	// char-ara CH3c: stand-in for the state script's CUSTOM_RENDER_STATE
+	void			ASI_A_AA_RAID_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH3c2: June 32baab80
+	void			ASI_A_AA_RAID_ATTACK_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH3c2: June 32bce970
+	void			ASI_A_AA_RAID_ATTACK_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH3c2: June 32bc94a0
+	void			ASI_A_AA_RAID_StateStartFuture();	// char-ara CH3c2: June 32b94420
+	void			ASI_A_AA_RAID_StateStart();	// char-ara CH3c2: June 32b94440
+	void			ASI_A_AA_RAID_StateEnd();	// char-ara CH3c2: June 32b94460
+	void			ASI_A_AA_RAID_EventProcess();	// char-ara CH3c2: June 32ba0fe0
+	void			ASI_A_AA_RAID_ATTACK_FrameMove();	// char-ara CH3c2: June 32bc3580
+	void			ASI_A_AA_RAID_ATTACK_EventProcess();	// char-ara CH3c2: June 32bad550
+	void			ASI_A_AA_RAID_ATTACK_FINISH_FrameMove();	// char-ara CH3c2: June 32bbd3a0
+	void			ASI_A_AA_RAID_ATTACK_FINISH_EventProcess();	// char-ara CH3c2: June 32ba1020
+	void			ASI_A_ALS_SPECTER_WALK_FrameMove();	// char-ara CH3c2: June 32bc31f0
+	void			ASI_A_ALS_SPECTER_WALK_EventProcess();	// char-ara CH3c2: June 32ba09a0
+	void			ASI_A_ALS_SPECTER_WALK_Init();	// char-ara CH3c2: June 32b941d0
+	void			ASI_A_AA_RAID_Init();	// char-ara CH3c2: June 32b943e0
+	void			ASI_A_AA_RAID_ATTACK_Init();	// char-ara CH3c2: June 32b94480
+	void			ASI_A_AA_RAID_ATTACK_FINISH_Init();	// char-ara CH3c2: June 32b94510
+	void			ApplyRaidRangeRate( CX2DamageEffect::CEffect* pEffect_ );	// char-ara CH3c2: June 32ba6560
+	void			CreateRaidAttackEffect();	// char-ara CH3c2: the hit June 32bc3580 writes out three times
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2
@@ -1766,6 +1785,7 @@ protected:
 	float		m_fFireFoxThrowCoolTime;			/// June +0x9800: wait before the next fox
 	float		m_fFireFoxRangeRate;				/// June +0x9804: the MP-scaled damage rate of the force power Fire Fox spent ( -1 = nothing spent )
 	float		m_fSmashPowerRate;					/// June +0x9754: multiplier of Smash's effect set power rate ( 1 = none; the passive handler 32bcd9c0 writes it, CH4a )
+	float		m_fRaidRangeRate;					/// June +0x97c0: the MP-scaled damage rate of the force power Raid spent ( -1 = nothing spent ), read by its attack and finish ( char-ara CH3c2 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	float		m_fNecromancyFoxCoolTime;			/// June +0x9768: wait before Necromancy's fox effect set plays again
 	float		m_fNecromancyFoxPowerRate;			/// June +0x976c: power rate that effect set plays with ( the Necromancy state sets it )

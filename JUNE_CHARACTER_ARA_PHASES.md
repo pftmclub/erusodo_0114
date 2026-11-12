@@ -2359,6 +2359,33 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DE
 
 **Play-test ( 2026-11-12, run 08:19-08:21 on md5 248fc58a; unit 104 ).** All 6 equip lines ( 27061, 27062, 27063, 27047, 27048, 27066 ). States entered: Specter of Blade 60 -> 268 ( finish ) twice and a third use; Fox Phantom 62 x4; Get Blood 50 -> 272 ( finish ) x3 ( `ES_CREATE EffectSet_SI_A_AA_GET_BLOOD_FX1` ); Fire Fox 52 x2; Necromancy 54 x2 ( `EffectSet_SI_SA_AA_NECROMANCY_SMILE_FOX_FX2`, then the fox attack sets `..._FOX_ATTACK0 / 1` ); Shadow Rising 56 -> 255 -> 256 x3 ( `ES_CREATE EffectSet_Shadow_Rising_Landing` and `_End` ). 0 `BLANK` / `EXCEPTION` / `KEM_ERROR` / `Motion Error`; the `OpenXET` misses are the companion-file lookup; the one unbound name ( `AddGroupChainQuest` ) is a quest script's. **Not reached / no line:** Smash ( the Get Blood chain was not entered ), the particle-only Shadow Rising jump set and the Fire Fox / Specter of Blade damage effects ( the log prints no line for them: the user's eye decides ), Fox Phantom's invisible window ( visual ), the transcendence effect sets ( unit not transcended ). The user's own verdict is not in yet.
 
+### CH3c2 - Done (2026-11-12)
+
+Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DEBUG` stays on, the CH3d stage review retires it ). Asura ( 124 ) A tier: 27218 / 27242 Raid ( dash, attack, finish states ), 27219 / 27243 Specter Walk, 27228 Fox Ghost. All 19 class-map rows read from `charport_adis.py ara --phase CH3c2` listings. **18 new functions + 1 shared helper ( `CreateRaidAttackEffect` = the hit June writes out three times ), 3 `CreateState` helpers ( = June `32baab80` / `32bce970` / `32bc94a0` ), 3 cases in the first id switch, 1 in the second ( `32bd34c0`, Raid ); no June body went inside a March function** ( none of these skills exists in March ). Fox Ghost has no function of its own ( June: generic end only ). Every block carries `// char-ara CH3c2`. `funcmap.tsv` rows `Char Ara CH3c2` ( 20 ); `MODS.md` "Stage 7 Ara, CH3c2"; `JUNE_BUGS.md` 619.
+
+| June | `CX2GUAra::` | What it does |
+|---|---|---|
+| `32b94420` `32b94440` `32b94460` `32ba0fe0` | Raid dash `StateStartFuture` / `StateStart` / `StateEnd` / `EventProcess` | clears the Raid hit flag ( +0x97bc, set by CH1h2's attack-result code ); start copies the force-gain count; on a hit or animation end -> attack state 295 |
+| `32bc3580` `32bad550` | Raid attack `FrameMove` / `EventProcess` | 0.1 s one force power -> damage rate ( +0x97c0 ), hit `DamageEffect_AAS_Raid_Attack` at 0.1 / 0.4 / 0.52 s, 150 in front of the hip ( behind it facing left ); end through the FP cancel -> finish 296 |
+| `32bbd3a0` `32ba1020` | Raid finish `FrameMove` / `EventProcess` | 0.222 s `DamageEffect_AAS_Raid_Attack_Finish` at the hip, again with rotation y + 180; animation end -> wait, foot off the line -> fall |
+| `32ba6560` | `ApplyRaidRangeRate` | `SA_SIZE_ABS` of Raid multiplies the effect's scale base ( +0xb24 ), then `SetScale( 1, 1, 1 )` |
+| `32bc31f0` `32ba09a0` | Specter Walk `FrameMove` / `EventProcess` | 0.001 s one force power; end -> wait / fall, the plain skill cancels on a line |
+| 4 `Init` | Specter Walk 14, Raid 4, attack 10, finish 8 preloads | |
+
+**Registration** ( `32bd09d0`, `32bd34c0` ): Raid = helper for normal and hyper plus states 295 / 296 in `m_StateList`; second switch: all three states with `SetSkillLevelStateData`, 294 and 295 with the chain lookup on the swapped id ( `@32bd4e2e`, `@32bd4ec5` ). `X2SkillTree.h`: 27219, 27228, 27242, 27243.
+**Checklist** `(Ara: CH3c2 ...)`: §4 l.178 ( 4 names ), §7h l.426 ( Raid's `_FINAL` set ), §7ai ( Specter Walk's `BUFF_FACTOR_ID_AND_APPLY_TIME` is script data ). §7 l.256: none of the 5 writes the state rate; §7u: every effect name is in June's `EffectSet.lua` / `DamageEffect.lua` ( closure rows all `june-bytes`; the 10 sound rows `missing` in the census were staged by CH0b ).
+**Found, not ported.** June's `+0x9614` used-force-power adds ( JUNE_BUGS 619, as 618 ); Specter Walk's 2-force-power branch ( memo 0x94341, June's stub never holds it ). Nothing else.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ARA_SKILL --with ..._SKILL_DEBUG --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2SkillTree.h`: `2 PASS, 1 OTHER ( X2SkillTree.h = JUNE_ENUM_NAMES ), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` ( the 3 files ): `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: `0 A/B row(s) remain`. `skillicons.py check 27218-27243`: `skills 26, misses 0`, PASS. `luabind.py check Ara_Martial_Artist`: `0 unbound`, ENUM `0 missing`, STATE `37 compared, 0 wrong`, PASS.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,323,456 B, 2026-11-12 08:43:18`; `DEPLOY OK: X2_offline.exe is 26,323,456 B, dated 2026-11-12 08:43:26, md5 5e92ccd3008296d379dbd58a9cbf2316, equal to X2/US_SERVICE/x2.exe (2026-11-12 08:43:18); built at main ec412103 + 3 uncommitted code file(s).`
+- `EXESTR OK: 3 of 3 found` ( wide `DamageEffect_AAS_Raid_Attack_Finish`, `AA_RAID_MESH_TRACE_F01.X`, `ALS_SPECTER_WALK_P01.X` ) and `3 of 3` ( narrow `ASI_A_AA_RAID_ATTACK_FINISH`, `ASI_A_ALS_SPECTER_WALK`, `ASI_A_ASR_FOX_GHOST` ), md5 5e92ccd3.
+
+**Save.** Unit 104 `Asura99` ( 124, lv 99; backup `db_backup/els_db_20261112_083554_pre_sql.sql` ): bank A slot 0 Raid 27242, slot 1 Specter Walk 27243; bank B slot 5 Fox Ghost 27228. Other slots empty ( CH3c's cleared ).
+
+**Play-test hand-off.** In the chat of 2026-11-12. Logs: `[JUNE_CHAR] ARA SKILL state <n> skill <id>` ( one per state entered, no `BLANK` ), `ES_CREATE EffectSet_SI_A_AA_RAID_DASH` / `_RAID_ATTACK_FX1` / `_RAID_FINISH`, `EffectSet_SI_A_ALS_SPECTER_WALK_Start`, `EffectSet_A_ASR_Fox_Ghost`, 0 `EXCEPTION` / `Motion Error`.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, one Opus review at CH4b (covers CH4a-CH4b), user play-test (two engine pieces, planned as two from the start; CH0
