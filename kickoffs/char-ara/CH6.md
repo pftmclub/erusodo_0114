@@ -36,3 +36,9 @@ The walk adds the checks CH5 left to it. Cut-ins: on each Ara job cast a skill t
 set 1 = 118 `HQ_CutIn_Ara_SD_01` / `_11`; set 2 = 119 `_YR_`; set 3 = 124 `_AS_`; the `_11` entry is the full hyper-mode cut-in), and the awakening hyper / berserk entry on 118 / 119 / 124
 (`[JUNE_CHAR] ARA UI hyper cut-in class <c> name HQ_Cutin_AS{D,R}_Transcendence`, only when the class script's awakening state sets `SHOW_HYPER_CUT_IN_TIME`). Creation screen: open it, pick Ara, click
 Little Hsien / Sakra Devanam / Little Devil / Yama Raja and read each preview and movie (`Movie_Create_Ara_*`); the 34 / 124 buttons are CHNa's. Lobby: Little Devil's orb shows once (`ALD_LobbyWait`).
+
+## Amended by the CH3d review (2026-11-12)
+
+- **Transition units.** Units 98 / 48 / 104 are transcended by CH3d's set-up: walk the becoming-transcended transition on fresh un-transcended 118 / 119 / 124 units ( `createchar.py`, level 70+ ). Expect the level-70 guide popup ( `LevelUpEvent.lua` TYPE6, `DLG_Transcendental_Change_Guide_Ara.lua`, `AraVoice_ClassUpReady01 / 02` ) and the gray / party pictures ( `[JUNE_TRANSCEND] IMAGE` type 3 `Texture101_GRAY`, type 6 `Texture100_NEW` ).
+- **CH3 items no play-test reached:** Smash ( Get Blood's chain, after CH4a writes its multiplier ), Low Brandish's kick state, and one base id of each Enhanced pair ( the emulator's `SeedAutoLearn` re-learns the Enhanced id: slot the base after removing the Enhanced one ).
+- **The CH2dx chain guard.** `CX2GUAra::IsStateRegistered` ( stand-in, `X2GUAra.cpp`, chain step refusal under `_SKILL` ) was to stay "until CH3's chain states are registered"; they are now. Use the `s3_no_state.py` / `charport_scan.py` reruns to list any chain target still unregistered; if none, Z retires the guard ( June has none ). Its refusal log line is under the retired `_SKILL_DEBUG`.

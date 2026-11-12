@@ -66,3 +66,7 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 
 - **Restriction Energy's hit flag.** `MarkRestrictionEnergyHit` ( `32b95980`, delegate thunk `32bd5480` ) sets `m_bRestrictionEnergyHit` ( `X2GUAra.h`, June `+0x9890` ) when the damage data's skill is `RNSI_SA_AYR_RESTRICTION_ENERGY` 27045. Until it is written, `ASI_SA_AYR_RESTRICTION_ENERGY_END_FrameMove` never gives the target the buff factor or plays `EffectSet_SA_AYR_RESTRICTION_ENERGY_End`: test it after this phase.
 - **Steal Soul's pull-down.** `AddHitUnitInfoByDamageData` ( `X2GUAra.cpp`, `switch ( damageData_.m_eUsedSkillID )` ) still lists March's `SI_A_AYR_STEAL_SOUL`: June's id there is `RNSI_SA_AYR_STEAL_SOUL` 27020 / `_UPGRADE` 27058 ( the delegate `32bb0d10` pushes it ). Until then `ASI_A_AYR_STEAL_SOUL_FINISH_FrameMove` has no units to pull down.
+
+## Amended by the CH3d review (2026-11-12)
+
+- **Smash's multiplier.** `ASI_SA_AA_SMASH_FrameMove` ( CH3c ) multiplies all three effect sets' power rate by `m_fSmashPowerRate` ( `X2GUAra.h`, June `+0x9754`, ctor 1.0 ). Nothing writes it yet: find its write in `32bcd9c0` / the 0x780 hook / the delegates, port it, and test Smash on unit 104 ( Get Blood 27061, then its chain into Smash; `ES_CREATE EffectSet_SI_SA_AA_SMASH*` ).
