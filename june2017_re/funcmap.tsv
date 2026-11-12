@@ -10282,3 +10282,47 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32bd09d0 (CH3b)	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex	PORTED	Char Ara CH3b: RNSI labels on March's cases for 27212 / 27237 ( High Speed ), 27018 / 27056 ( Energy Bead ), 27020 / 27058 ( Steal Soul ), 27019 / 27057 ( Energy Void ), 27213 / 27238 ( Reflection: sound preload only ); new cases 27045, 27046 ( start with its callbacks, end state with the shared GenericActiveSkillEventProcess ), 27065 ( Init + GenericSpecialActiveSkillEventProcess ), 27227 ( GenericActiveSkillEventProcess ); hyper = CopyStateCallbacks
 32bd34c0 (CH3b)	CX2GUAra::InitAquiredActiveSkillState	PORTED	Char Ara CH3b: RNSI labels 27018 / 27056 ( Energy Bead ) and 27020 / 27058 ( Steal Soul ) on March's cases; the chain lookup takes the swapped id
 322d80a0 (CH3b)	CX2GUAra::GetUnitByUIDAndType	PORTED	Char Ara CH3b: CX2Game vslot 0xc8 ( unit list entry with this UID and game unit type ), kept in the class: CX2Game is shared
+32b91390	CX2GUAra::ASI_SA_ASR_SHADOW_RISING_JUMP_Init	PORTED	Char Ara CH3c: new: 21 preloads
+32b914a0	CX2GUAra::ASI_SA_ASR_SHADOW_RISING_LANDING_Init	PORTED	Char Ara CH3c: new: 23 preloads
+32b915c0	CX2GUAra::ASI_SA_ASR_SHADOW_RISING_END_Init	PORTED	Char Ara CH3c: new: 21 preloads
+32b94600	CX2GUAra::ASI_SA_AA_NECROMANCY_Init	PORTED	Char Ara CH3c: new: 11 preloads
+32b94690	CX2GUAra::ASI_SA_AA_NECROMANCY_StateStart	PORTED	Char Ara CH3c: new: the fox effect set's power rate = GetPowerRate()
+32b94cd0	CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_Init	PORTED	Char Ara CH3c: new: 12 preloads
+32b94d70	CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_StateStart	PORTED	Char Ara CH3c: new: CommonStateStart + the FP-cancel force gain count
+32b94d90	CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_Init	PORTED	Char Ara CH3c: new: 13 preloads
+32b94e40	CX2GUAra::ASI_SA_AA_GET_BLOOD_Init	PORTED	Char Ara CH3c: new: 9 preloads
+32b94ec0	CX2GUAra::ASI_SA_AA_GET_BLOOD_FINISH_Init	PORTED	Char Ara CH3c: new: 4 preloads
+32b94f00	CX2GUAra::ASI_SA_AA_FIRE_FOX_Init	PORTED	Char Ara CH3c: new: 18 preloads
+32b94ff0	CX2GUAra::ASI_SA_AA_FIRE_FOX_StateStart	PORTED	Char Ara CH3c: new: fox count and throw wait cleared
+32b95010	CX2GUAra::ASI_SA_AA_FIRE_FOX_StateEnd	PORTED	Char Ara CH3c: new: the same, then CommonStateEnd
+32b95210	CX2GUAra::ASI_SA_AA_SMASH_Init	PORTED	Char Ara CH3c: new: 9 preloads
+32b95460	CX2GUAra::ASI_SA_ASR_FOX_PHANTOM_Init	PORTED	Char Ara CH3c: new: 15 preloads
+32b9ab00	CX2GUAra::ASI_SA_ASR_SHADOW_RISING_JUMP_EventProcess	PORTED	Char Ara CH3c: new: animation end on a line -> the landing state
+32b9ab40	CX2GUAra::ASI_SA_ASR_SHADOW_RISING_END_EventProcess	PORTED	Char Ara CH3c: new: animation end -> wait or jump-down
+32ba1690	CX2GUAra::ASI_SA_AA_NECROMANCY_EventProcess	PORTED	Char Ara CH3c: new: end -> wait / fall, skill, walk, back-walk, dash and Z / X cancels ( the same body as 32ba2b30 / 32ba2e50 / 32ba3860 )
+32ba2aa0	CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_EventProcess	PORTED	Char Ara CH3c: new: end -> wait / fall, no cancels
+32ba2af0	CX2GUAra::ASI_SA_AA_GET_BLOOD_StateStart	PORTED	Char Ara CH3c: new: hit count 0, effect handle cleared
+32ba2b30	CX2GUAra::ASI_SA_AA_GET_BLOOD_FINISH_EventProcess	PORTED	Char Ara CH3c: new: as Necromancy's
+32ba2e50	CX2GUAra::ASI_SA_AA_FIRE_FOX_EventProcess	PORTED	Char Ara CH3c: new: as Necromancy's
+32ba3820	CX2GUAra::ASI_SA_AA_SMASH_StateStartFuture	PORTED	Char Ara CH3c: new: every left cool time runs down by Spiritual Eye's rate
+32ba3860	CX2GUAra::ASI_SA_AA_SMASH_EventProcess	PORTED	Char Ara CH3c: new: as Necromancy's
+32baabf0	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( Necromancy case helper )	PORTED	Char Ara CH3c: new case 27028 / 27063 written inline
+32bac240	CX2GUAra::ASI_SA_ASR_SHADOW_RISING_LANDING_EventProcess	PORTED	Char Ara CH3c: new: end through the FP cancel
+32bad790	CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_EventProcess	PORTED	Char Ara CH3c: new: end through the FP cancel; the cancel tried on the ground, then in the air
+32bad880	CX2GUAra::ASI_SA_AA_GET_BLOOD_EventProcess	PORTED	Char Ara CH3c: new: end through the FP cancel
+32bb50c0	CX2GUAra::ASI_SA_ASR_SHADOW_RISING_JUMP_FrameMove	PORTED	Char Ara CH3c: new: effect set, one force power, Open Mind's buff
+32bb5310	CX2GUAra::ASI_SA_ASR_SHADOW_RISING_LANDING_FrameMove	PORTED	Char Ara CH3c: new: the landing effect set ( the memo set is behind June's false stub )
+32bb5600	CX2GUAra::ASI_SA_ASR_SHADOW_RISING_END_FrameMove	PORTED	Char Ara CH3c: new: the end effect set
+32bbdf00	CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_FrameMove	PORTED	Char Ara CH3c: new: the finishing damage effect with the rate of the start
+32bbe060	CX2GUAra::ASI_SA_AA_GET_BLOOD_FrameMove	PORTED	Char Ara CH3c: new: 0.4 s the attack at the feet, 1.01 s up to 2 force power for its hits
+32bbe2a0	CX2GUAra::ASI_SA_AA_GET_BLOOD_StateEnd	PORTED	Char Ara CH3c: new: the attack's damage effect is let go
+32bbe2f0	CX2GUAra::ASI_SA_AA_GET_BLOOD_FINISH_FrameMove	PORTED	Char Ara CH3c: new: 0.47 s the finishing attack 75 in front of the hip
+32bbe500	CX2GUAra::ASI_SA_AA_GET_BLOOD_FINISH_StateEnd	PORTED	Char Ara CH3c: new: as the start state's end
+32bbf500	CX2GUAra::ASI_SA_AA_SMASH_FrameMove	PORTED	Char Ara CH3c: new: three effect sets at 0.001 / 0.25 / 0.63 s, transcendence twins, Load of Asura's multiplier
+32bc4b90	CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_FrameMove	PORTED	Char Ara CH3c: new: 0.4 s up to 3 force power into the damage rate, the damage effect at the hip
+32bc4d50	CX2GUAra::ASI_SA_AA_FIRE_FOX_FrameMove	PORTED	Char Ara CH3c: new: fox kind and force power at 0.01 s, a fox every 0.035 s with jittered angles, the scratch at 0.4 s
+32bc9680	CX2GUAra::ASI_SA_AA_GET_BLOOD_CreateState	PORTED	Char Ara CH3c: new: callbacks Init / Start / FrameMove / EventProcess / End
+32bc96f0	CX2GUAra::ASI_SA_AA_GET_BLOOD_FINISH_CreateState	PORTED	Char Ara CH3c: new: callbacks Init / FrameMove / EventProcess / End
+32bc97b0	CX2GUAra::ASI_SA_AA_SMASH_CreateState	PORTED	Char Ara CH3c: new: callbacks Init / StartFuture / FrameMove / EventProcess
+32bcebc0	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( Fire Fox case helper )	PORTED	Char Ara CH3c: new case 27027 / 27062 written inline
+-	CX2GUAra::ASI_SA_ASR_FOX_PHANTOM_FrameMove / _StateEnd	PORTED	Char Ara CH3c: stand-in: the state script's CUSTOM_RENDER_STATE { 1.5, 2.4, CRS_INVISIBLE } until the engine renderer phase ( checklist 7w ); ApplyRenderParam gains the CRS_INVISIBLE case ( June 31fd4460 case 5 )

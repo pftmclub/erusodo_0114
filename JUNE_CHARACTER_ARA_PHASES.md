@@ -2328,6 +2328,35 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DE
 
 **Play-test ( 2026-11-12, run 07:13-07:15 on md5 dbbed0b3; unit 48 ).** All 8 equip lines ( 27056, 27057, 27058, 27237, 27045, 27046, 27065, 27227 ). States entered: Energy Bead 50 ( chained into Prison Spear 223, skill 27054 ); Steal Soul 54 -> 226 ( `ES_CREATE EffectSet_A_AYR_STEAL_SOUL_END` ); Energy Void 52 -> 229 x5 -> 230 twice, plus a third use ( `EffectSet_SI_SA_AHD_ENERGY_VOID_FX_Hit` made at each end, line 1310 / 1351 / 1427 ); High Speed 56 -> 212; Restriction Energy 60 -> 279 ( `EffectSet_SA_AYR_RESTRICTION_ENERGY` on the target, hyper=1 ); Reverse Gravity Field 62 -> 280; Raksasa Fire 64; Gain Good Energy Ball 66. 0 `BLANK` / `EXCEPTION` / `KEM_ERROR` / `Motion Error`; the `OpenXET` misses are the companion-file lookup; the one unbound name ( `AddGroupChainQuest` ) is a quest script's. **Not reached / no line:** `NUM use` and `SBUF` lines ( none printed by this build ), Restriction Energy's end effect ( CH4a ), Reflection ( second set ), the base ids.
 
+### CH3c - Done (2026-11-12)
+
+Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DEBUG` stays on, the CH3d stage review retires it ). Asura ( 124 ) SA tier: 27026 / 27061 Get Blood ( + Smash chain state ), 27027 / 27062 Fire Fox, 27028 / 27063 Necromancy, 27047 Shadow Rising, 27048 Specter of Blade, 27066 Fox Phantom. All 43 class-map rows read from `charport_adis.py ara --phase CH3c` listings. **40 new functions + 2 stand-ins ( Fox Phantom's `FrameMove` / `StateEnd` ), 3 `CreateState` helpers ( = June's helpers `32bc9680` / `32bc96f0` / `32bc97b0` ), 6 new cases in the first id switch, 1 in the second ( `32bd34c0` ); no June body went inside a March function** ( none of these skills exists in March; March's `ASI_SA_ARA_SHADOW_RISING_*` stay for the old skill ). Every block carries `// char-ara CH3c`. `funcmap.tsv` rows `Char Ara CH3c` ( 44 ); `MODS.md` "Stage 7 Ara, CH3c"; `JUNE_BUGS.md` 616-618.
+
+| June | `CX2GUAra::` | What it does |
+|---|---|---|
+| `32b91390` `32b914a0` `32b915c0` + `32bb50c0` `32bb5310` `32bb5600` + `32b9ab00` `32bac240` `32b9ab40` | Shadow Rising jump / landing / end ( `Init`, `FrameMove`, `EventProcess` ) | jump: effect set, 1 force power, Open Mind's buff; landing: effect set, end through the FP cancel; end: effect set, wait / jump-down |
+| `32b94cd0` `32b94d90` `32b94d70` `32bc4b90` `32bbdf00` `32bad790` `32ba2aa0` | Specter of Blade + finish | 0.4 s up to 3 force power -> damage rate ( skill id 7021, JUNE_BUGS 616 ), damage effect at the hip; the finish repeats it; end through the FP cancel ( ground, then air ) |
+| `32b94e40` `32ba2af0` `32bbe060` `32bad880` `32bbe2a0` + finish `32b94ec0` `32bbe2f0` `32ba2b30` `32bbe500` | Get Blood + finish | 0.4 s the attack at the feet, 1.01 s up to 2 force power for its hits; the finish attacks 75 in front of the hip at 0.47 s; both ends let the attack go |
+| `32b95210` `32ba3820` `32bbf500` `32ba3860` | Smash ( chain state of Get Blood ) | start lowers every left cool time by Spiritual Eye's rate; effect sets at 0.001 / 0.25 / 0.63 s, `_TRENSCENDENCE` twins while a transcended hyper mode runs ( 27420 learned ), power rate x `+0x9754` ( CH4a writes it ); the plain impact set does not exist in June ( JUNE_BUGS 617 ) |
+| `32b94f00` `32b94ff0` `32b95010` `32bc4d50` `32ba2e50` | Fire Fox | 0.01 s fox kind ( fire / frozen / shock ), up to 4 force power ( 9 + n foxes ), a fox every 0.035 s with the angle jittered by the count's parity, main effect life 2 s ( PvP / PvE ) / 3 s; 0.4 s the scratch effect 330 in front |
+| `32b94600` `32b94690` `32ba1690` | Necromancy | the state sets the fox effect set's power rate; the standard end / cancel chain ( same body as Get Blood finish, Fire Fox, Smash ends ) |
+| `32b95460` | Fox Phantom `Init` | 15 preloads; June has no `FrameMove`: the script's `CUSTOM_RENDER_STATE { 1.5, 2.4, CRS_INVISIBLE }` is a **stand-in** ( 7w ): `CRS_INVISIBLE` = 5 in Ara's render state, `ApplyRenderParam` case as June `31fd4460` case 5 ( cartoon, alpha 0 ) |
+
+**Registration** ( `32bd09d0`, `32bd34c0` ): hyper forms = `CopyStateCallbacks` ( or the same `CreateState` ); Fox Phantom: `Init` + `GenericActiveSkillEventProcess` ( June `329cba60` ); the second switch lists Get Blood / its finish / Smash with the chain lookup on the swapped id for Get Blood only. `X2SkillTree.h`: 27027, 27061, 27062, 27063, 27066, 7021 ( `SI_SA_ALS_SPECTER_OF_BLADE` ).
+**Checklist** `(Ara: CH3c ...)`: §1 l.55, §2 l.116 / l.117, §4 l.178 ( 6 names ), §7w ( the stand-in ). §7 l.256: none of the 43 writes the state rate; §7h: no `USEFUL_VALUE` read; §7ai: no BFI call; §7u: all effect names are in June's `EffectSet.lua` / `DamageEffect.lua` except `EffectSet_AA_Smash_Impact` ( June-undefined ).
+**Found, not ported.** June's `+0x9614` used-force-power adds ( JUNE_BUGS 618 ). The memo effect set of Shadow Rising's landing ( June's false stub ). Nothing else.
+
+**Gates.**
+- `flagcheck JUNE_CHAR_ARA_SKILL --with ..._SKILL_DEBUG --worktree --files X2Lib/X2GUAra.cpp X2Lib/X2GUAra.h X2Lib/X2SkillTree.h`: `2 PASS, 1 OTHER ( X2SkillTree.h = JUNE_ENUM_NAMES ), 0 FAIL, 0 ERROR`; `0 deleted line(s), 0 non-ASCII inserted line(s), 0 EOL-mismatched inserted line(s), 0 #else/#endif without the flag token, 0 encoding change(s)`, `RESULT: PASS`.
+- `junediverge.py --check` ( the 3 files ): `allow-listed: 3`, `RESULT: PASS`. `enumscan.py --check X2Lib/X2GUAra.cpp`: `0 A/B row(s) remain`. `skillicons.py check 27026-27066`: `skills 41, misses 0`, PASS. `luabind.py check Ara_Martial_Artist`: `0 unbound`, ENUM `0 missing`, STATE `37 compared, 0 wrong`, PASS.
+- `/Zs` probe of `X2GUAra.cpp`: 0 errors.
+- `BUILD OK: X2/US_SERVICE/x2.exe 26,316,800 B, 2026-11-12 07:49:38`; `DEPLOY OK: X2_offline.exe is 26,316,800 B, dated 2026-11-12 07:49:45, md5 248fc58a6700df6346198dac2a321d4d, equal to X2/US_SERVICE/x2.exe (2026-11-12 07:49:38); built at main 94430255 + 3 uncommitted code file(s).`
+- `EXESTR OK: 4 of 4 found` ( wide `EffectSet_SMASH_Damage_TRENSCENDENCE`, `DamageEffect_SPECTER_OF_BLADE_Damage_Finish`, `DAMAGE_EFFECT_SI_SA_AA_FIRE_FOX_FROZEN`, `ASR_FOX_PHANTOM_FOX.X` ) and `4 of 4` ( narrow `ASI_SA_ASR_FOX_PHANTOM`, `ASI_SA_AA_FIRE_FOX`, `ASI_SA_AA_GET_BLOOD_FINISH`, `ASI_SA_ASR_SHADOW_RISING_END` ), md5 248fc58a.
+
+**Save.** Unit 104 `Asura99` ( 124, lv 99; backup in `db_backup/`, tag `pre_sql` ), set 1: bank A slot 0 Get Blood 27061, 1 Fire Fox 27062 ( added at level 1 ), 2 Necromancy 27063, 3 Shadow Rising 27047; bank B slot 5 Specter of Blade 27048, 6 Fox Phantom 27066. Slots 4 / 9 empty ( no transcendence ).
+
+**Play-test hand-off.** In the chat of 2026-11-12. Logs: `[JUNE_CHAR] ARA SKILL state <n> skill <id>` ( one per state entered, no `BLANK` ), `ES_CREATE EffectSet_Shadow_Rising_Jump` / `_Landing` / `_End`, `EffectSet_SI_SA_AA_SMASH_TRENSCENDENCE` only when transcended, 0 `EXCEPTION` / `Motion Error`.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, one Opus review at CH4b (covers CH4a-CH4b), user play-test (two engine pieces, planned as two from the start; CH0

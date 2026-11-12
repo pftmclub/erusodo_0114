@@ -247,6 +247,7 @@ CX2GUAra::CX2GUAra( int iUnitIndex_, int iTeamNum_, IN lua_State* pScriptLuaStat
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	, m_iSwallowAssaultAttackCount( 0 )	// char-ara CH3a: June 32bc6bf0
 	, m_uidRestrictionEnergyTarget( -1 ), m_iRestrictionEnergyTargetType( 0 ), m_bRestrictionEnergyHit( false )	// char-ara CH3b: June 32bc6bf0
+	, m_fSpecterOfBladeRangeRate( -1.f ), m_iFireFoxCount( 0 ), m_fFireFoxThrowCoolTime( 0.f ), m_fFireFoxRangeRate( -1.f ), m_fSmashPowerRate( 1.f )	// char-ara CH3c: June 32bc6bf0
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_CORE
 	, m_usForceGainCount( 0 ), m_usBeforeForceGainCount( 0 ), m_pSkillTemplet( NULL ), m_iPressedSkillSlotIndex( -1 )
@@ -3963,6 +3964,117 @@ void CX2GUAra::InitStateByUnitClass()
 				m_LuaManager.MakeTableReference( "ASI_A_AYR_GAIN_GOOD_ENERGY_BALL", hyperStateData.stateID );
 				CopyStateCallbacks( hyperStateData, normalStateData );
 			} break;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	#pragma region Asura SA tier
+		case CX2SkillTree::RNSI_SA_ASR_NECROMANCY:	// char-ara CH3c: June 32bd09d0 case 27028 / 27063
+		case CX2SkillTree::RNSI_SA_ASR_NECROMANCY_UPGRADE:
+			{
+				m_LuaManager.MakeTableReference( "ASI_SA_AA_NECROMANCY", normalStateData.stateID );
+				normalStateData.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_NECROMANCY_Init );
+				normalStateData.StateStart		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_NECROMANCY_StateStart );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_NECROMANCY_EventProcess );
+
+				m_LuaManager.MakeTableReference( "ASI_SA_AA_NECROMANCY", hyperStateData.stateID );
+				CopyStateCallbacks( hyperStateData, normalStateData );
+			} break;
+
+		case CX2SkillTree::RNSI_SA_ASR_FIRE_FOX:	// char-ara CH3c: June 32bd09d0 case 27027 / 27062
+		case CX2SkillTree::RNSI_SA_ASR_FIRE_FOX_UPGRADE:
+			{
+				m_LuaManager.MakeTableReference( "ASI_SA_AA_FIRE_FOX", normalStateData.stateID );
+				normalStateData.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_FIRE_FOX_Init );
+				normalStateData.StateStart		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_FIRE_FOX_StateStart );
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_FIRE_FOX_FrameMove );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_FIRE_FOX_EventProcess );
+				normalStateData.StateEnd		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_FIRE_FOX_StateEnd );
+
+				m_LuaManager.MakeTableReference( "ASI_SA_AA_FIRE_FOX", hyperStateData.stateID );
+				CopyStateCallbacks( hyperStateData, normalStateData );
+			} break;
+
+		case CX2SkillTree::RNSI_SA_ASR_GET_BLOOD:	// char-ara CH3c: June 32bd09d0 case 27026 / 27061 ( the Smash state comes with the second switch )
+		case CX2SkillTree::RNSI_SA_ASR_GET_BLOOD_UPGRADE:
+			{
+				ASI_SA_AA_GET_BLOOD_CreateState( normalStateData, normalStateData.stateID );
+				ASI_SA_AA_GET_BLOOD_CreateState( hyperStateData, hyperStateData.stateID );
+
+				UserUnitStateData subStateData;
+				ASI_SA_AA_GET_BLOOD_FINISH_CreateState( subStateData, ASI_SA_AA_GET_BLOOD_FINISH );
+				m_StateList[subStateData.stateID] = subStateData;
+			} break;
+
+		case CX2SkillTree::RNSI_SA_ASR_SHADOW_RISING:	// char-ara CH3c: June 32bd09d0 case 27047
+			{
+				m_LuaManager.MakeTableReference( "ASI_SA_ASR_SHADOW_RISING_JUMP", normalStateData.stateID );
+				normalStateData.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SHADOW_RISING_JUMP_Init );
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SHADOW_RISING_JUMP_FrameMove );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SHADOW_RISING_JUMP_EventProcess );
+
+				m_LuaManager.MakeTableReference( "ASI_SA_ASR_SHADOW_RISING_JUMP", hyperStateData.stateID );
+				CopyStateCallbacks( hyperStateData, normalStateData );
+
+				{
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= ASI_SA_ASR_SHADOW_RISING_LANDING;
+					m_LuaManager.MakeTableReference( "ASI_SA_ASR_SHADOW_RISING_LANDING", stateData.stateID );
+					stateData.StateInit			= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SHADOW_RISING_LANDING_Init );
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SHADOW_RISING_LANDING_FrameMove );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SHADOW_RISING_LANDING_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+				}
+
+				{
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= ASI_SA_ASR_SHADOW_RISING_END;
+					m_LuaManager.MakeTableReference( "ASI_SA_ASR_SHADOW_RISING_END", stateData.stateID );
+					stateData.StateInit			= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SHADOW_RISING_END_Init );
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SHADOW_RISING_END_FrameMove );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SHADOW_RISING_END_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+				}
+			} break;
+
+		case CX2SkillTree::RNSI_SA_ASR_SPECTER_OF_BLADE:	// char-ara CH3c: June 32bd09d0 case 27048
+			{
+				m_LuaManager.MakeTableReference( "ASI_SA_ASR_SPECTER_OF_BLADE", normalStateData.stateID );
+				normalStateData.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SPECTER_OF_BLADE_Init );
+				normalStateData.StateStart		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SPECTER_OF_BLADE_StateStart );
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SPECTER_OF_BLADE_FrameMove );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SPECTER_OF_BLADE_EventProcess );
+
+				m_LuaManager.MakeTableReference( "ASI_SA_ASR_SPECTER_OF_BLADE", hyperStateData.stateID );
+				CopyStateCallbacks( hyperStateData, normalStateData );
+
+				{
+					UserUnitStateData stateData;
+
+					stateData.Init();
+					stateData.stateID			= ASI_SA_ASR_SPECTER_OF_BLADE_FINISH;
+					m_LuaManager.MakeTableReference( "ASI_SA_ASR_SPECTER_OF_BLADE_FINISH", stateData.stateID );
+					stateData.StateInit			= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_Init );
+					stateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_FrameMove );
+					stateData.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_EventProcess );
+					m_StateList[stateData.stateID] = stateData;
+				}
+			} break;
+
+		case CX2SkillTree::RNSI_SA_ASR_FOX_PHANTOM:	// char-ara CH3c: June 32bd09d0 case 27066 ( June has Init and the generic end only; the render state is the stand-in )
+			{
+				m_LuaManager.MakeTableReference( "ASI_SA_ASR_FOX_PHANTOM", normalStateData.stateID );
+				normalStateData.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_FOX_PHANTOM_Init );
+				normalStateData.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_FOX_PHANTOM_FrameMove );
+				normalStateData.OnEventProcess	= SET_CB_FUNC( CX2GUUser, GenericActiveSkillEventProcess );
+				normalStateData.StateEnd		= SET_CB_FUNC( CX2GUAra, ASI_SA_ASR_FOX_PHANTOM_StateEnd );
+
+				m_LuaManager.MakeTableReference( "ASI_SA_ASR_FOX_PHANTOM", hyperStateData.stateID );
+				CopyStateCallbacks( hyperStateData, normalStateData );
+			} break;
+	#pragma endregion
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	#pragma region SI_SA_ALH_SWALLOW_ASSAULT
 		case CX2SkillTree::SI_SA_ALH_SWALLOW_ASSAULT: // ºñ¿¬
@@ -9995,6 +10107,15 @@ namespace _CONST_ARA_CH1C_
 		m_RenderParam.bAlphaBlend = true;
 		m_RenderParam.color.a			= m_fRenderAlphaVeritablePandemonium;
 	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	else if ( CRS_INVISIBLE == m_iCustomRenderState )	// char-ara CH3c: June 31fd4460 case 5 ( cartoon, outline and colour alpha 0, alpha blended )
+	{
+		m_RenderParam.renderType		= CKTDGXRenderer::RT_CARTOON;
+		m_RenderParam.outLineColor.a	= 0.f;
+		m_RenderParam.bAlphaBlend = true;
+		m_RenderParam.color.a			= 0.f;
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	else
 	{
 		if ( false == IsAlphaObject() )
@@ -24150,6 +24271,770 @@ CX2GameUnit* CX2GUAra::GetUnitByUIDAndType( const UidType uidUnit_, const int iG
 	return NULL;
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+// char-ara CH3c: Asura ( 124 ) SA tier: Shadow Rising, Specter of Blade, Get Blood + Smash, Fire Fox, Necromancy, Fox Phantom
+namespace _CONST_ARA_CH3C_
+{
+	const float		EFFECT_SET_EVENT_TIME					= 0.001f;	// June 32bb50c0 / 32bb5310 / 32bb5600 / 32bbdf00 / 32bbf500: the time the effect set or damage effect appears
+	const double	STATE_END_FALL_DROP						= 45.0;		// June 32ba1690 @32ba16c4: the unit falls this far from the line when its end state starts in the air
+	const float		SPECTER_OF_BLADE_DAMAGE_TIME			= 0.4f;		// June 32bc4b90
+	const int		SPECTER_OF_BLADE_MAX_FORCE_POWER		= 3;		// June 32bc4b90 @32bc4bfe
+	const float		GET_BLOOD_DAMAGE_TIME					= 0.4f;		// June 32bbe060
+	const float		GET_BLOOD_FORCE_POWER_TIME				= 1.01f;	// June 32bbe060 @32bbe091: the hits of the Get Blood attack give force power
+	const int		GET_BLOOD_MAX_FORCE_POWER				= 2;		// June 32bbe060 @32bbe1cf
+	const float		GET_BLOOD_FINISH_TIME					= 0.47f;	// June 32bbe2f0
+	const double	GET_BLOOD_FINISH_OFFSET					= 75.0;		// June 32bbe2f0 @32bbe356
+	const float		SMASH_START_EFFECT_TIME					= 0.001f;	// June 32bbf500
+	const float		SMASH_IMPACT_EFFECT_TIME				= 0.25f;	// June 32bbf500
+	const float		SMASH_DAMAGE_EFFECT_TIME				= 0.63f;	// June 32bbf500
+	const float		FIRE_FOX_START_TIME						= 0.01f;	// June 32bc4d50: force power is spent, the fox kind is rolled
+	const int		FIRE_FOX_KIND_COUNT						= 3;		// June 32bc4d50 @32bc4da6
+	const int		FIRE_FOX_START_COUNT					= 9;		// June 32bc4d50 @32bc4dff: foxes thrown, one more per force power spent
+	const int		FIRE_FOX_MAX_FORCE_POWER				= 4;		// June 32bc4d50 @32bc4e1d
+	const int		FIRE_FOX_ANGLE_JITTER_RANGE				= 20;		// June 32bc4d50 @32bc4eea: degrees, up or down by the parity of the count
+	const double	FIRE_FOX_THROW_GAP						= 0.035;	// June 32bc4d50 @32bc5084: seconds between two foxes
+	const float		FIRE_FOX_SCRATCH_TIME					= 0.4f;		// June 32bc4d50
+	const double	FIRE_FOX_SCRATCH_OFFSET					= 330.0;	// June 32bc4d50 @32bc5102: in front of the hip
+	const float		FIRE_FOX_LIFE_TIME_PVP_OR_PVE			= 2.f;		// June 32bc4d50 @32bc5055: life time of the fox's main effect
+	const float		FIRE_FOX_LIFE_TIME						= 3.f;		// June 32bc4d50 @32bc505d
+	const float		FOX_PHANTOM_INVISIBLE_START_TIME		= 1.5f;		// the state script's CUSTOM_RENDER_STATE start
+	const float		FOX_PHANTOM_INVISIBLE_END_TIME			= 2.4f;		// the state script's CUSTOM_RENDER_STATE end
+}
+using namespace _CONST_ARA_CH3C_;
+
+// char-ara CH3c: June helpers 32bc9680 / 32bc96f0 / 32bc97b0 ( and the Necromancy / Fire Fox / Shadow Rising / Specter of Blade ones, written inline in their cases )
+void CX2GUAra::ASI_SA_AA_GET_BLOOD_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_AA_GET_BLOOD", stateData_.stateID );
+	stateData_.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_GET_BLOOD_Init );
+	stateData_.StateStart		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_GET_BLOOD_StateStart );
+	stateData_.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_GET_BLOOD_FrameMove );
+	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_GET_BLOOD_EventProcess );
+	stateData_.StateEnd			= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_GET_BLOOD_StateEnd );
+}
+
+// char-ara CH3c: June 32bc96f0
+void CX2GUAra::ASI_SA_AA_GET_BLOOD_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_AA_GET_BLOOD_FINISH", stateData_.stateID );
+	stateData_.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_GET_BLOOD_FINISH_Init );
+	stateData_.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_GET_BLOOD_FINISH_FrameMove );
+	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_GET_BLOOD_FINISH_EventProcess );
+	stateData_.StateEnd			= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_GET_BLOOD_FINISH_StateEnd );
+}
+
+// char-ara CH3c: June 32bc97b0
+void CX2GUAra::ASI_SA_AA_SMASH_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_SA_AA_SMASH", stateData_.stateID );
+	stateData_.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SMASH_Init );
+	stateData_.StateStartFuture	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SMASH_StateStartFuture );
+	stateData_.OnFrameMove		= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SMASH_FrameMove );
+	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_SA_AA_SMASH_EventProcess );
+}
+
+// char-ara CH3c: June 32b94690 ( the Necromancy fox effect set plays with this state's power rate )
+void CX2GUAra::ASI_SA_AA_NECROMANCY_StateStart()
+{
+	CommonStateStart();
+
+	m_fNecromancyFoxPowerRate = GetPowerRate();
+}
+
+// char-ara CH3c: June 32ba1690 ( animation end -> wait, or a fall; the cancels need the foot on a line ), the same body as 32ba2b30 / 32ba2e50 / 32ba3860
+void CX2GUAra::ASI_SA_AA_NECROMANCY_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= static_cast<float>( STATE_END_FALL_DROP );
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c: June 32b94ff0
+void CX2GUAra::ASI_SA_AA_FIRE_FOX_StateStart()
+{
+	m_fFireFoxThrowCoolTime	= 0.f;
+	m_iFireFoxCount			= 0;
+
+	CommonStateStart();
+}
+
+// char-ara CH3c: June 32b95010
+void CX2GUAra::ASI_SA_AA_FIRE_FOX_StateEnd()
+{
+	m_fFireFoxThrowCoolTime	= 0.f;
+	m_iFireFoxCount			= 0;
+
+	CommonStateEnd();
+}
+
+// char-ara CH3c: June 32ba2e50 ( as Necromancy's )
+void CX2GUAra::ASI_SA_AA_FIRE_FOX_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= static_cast<float>( STATE_END_FALL_DROP );
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c: June 32bc4d50 ( 0.01 s: the fox kind is rolled and up to 4 force power are spent; then a fox every 0.035 s with the angle jittered by the count's parity; 0.4 s: the scratch in front )
+void CX2GUAra::ASI_SA_AA_FIRE_FOX_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( FIRE_FOX_START_TIME ) )
+	{
+		switch ( GetRandomInt( 0 ) % FIRE_FOX_KIND_COUNT )
+		{
+		case 1:
+			m_wstrFireFoxDamageEffect = L"DAMAGE_EFFECT_SI_SA_AA_FIRE_FOX_FROZEN";
+			break;
+		case 2:
+			m_wstrFireFoxDamageEffect = L"DAMAGE_EFFECT_SI_SA_AA_FIRE_FOX_SHOCK";
+			break;
+		default:
+			m_wstrFireFoxDamageEffect = L"DAMAGE_EFFECT_SI_SA_AA_FIRE_FOX_FIRE";
+			break;
+		}
+
+		m_fFireFoxRangeRate	= -1.f;
+		m_iFireFoxCount		= FIRE_FOX_START_COUNT;
+		if ( 0 < GetForcePower() )
+		{
+			const int iUseForcePower = ( GetForcePower() <= FIRE_FOX_MAX_FORCE_POWER ) ? GetForcePower() : FIRE_FOX_MAX_FORCE_POWER;
+			UseForcePower( iUseForcePower );	// June @32bc4e3e also adds it to the used-force-power count ( +0x9614 ): CH1q dropped that member, nothing reads it
+			m_iFireFoxCount += iUseForcePower;
+			m_fFireFoxRangeRate = GetMpScaledPowerRate( iUseForcePower, CX2SkillTree::RNSI_SA_ASR_FIRE_FOX, true );
+		}
+	}
+
+	if ( 0.f < m_fFireFoxThrowCoolTime )
+		m_fFireFoxThrowCoolTime -= m_fElapsedTime;
+
+	if ( 0 < m_iFireFoxCount && m_fFireFoxThrowCoolTime <= 0.f && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		const D3DXVECTOR3 vRotate = GetRotateDegree();
+		const int iSign = ( 1 == m_iFireFoxCount % 2 ) ? 1 : -1;
+		D3DXVECTOR3 vAngle = vRotate;
+		vAngle.y += static_cast<float>( ( GetRandomInt( m_iFireFoxCount ) % FIRE_FOX_ANGLE_JITTER_RANGE ) * iSign );
+		vAngle.z += static_cast<float>( ( GetRandomInt( m_iFireFoxCount + 1 ) % FIRE_FOX_ANGLE_JITTER_RANGE ) * iSign );
+
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, m_wstrFireFoxDamageEffect.c_str(), GetPowerRate(),
+			GetBonePos( L"Bip01" ), vAngle, vAngle, m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+		{
+			pDamageEffect->ScaleDamageByRate( m_fFireFoxRangeRate );
+
+			CKTDGXMeshPlayer::CXMeshInstance* pMainEffect = pDamageEffect->GetMainEffect();
+			if ( NULL != pMainEffect )
+			{
+				const bool bPvpOrPve = g_pX2Game->GetIsNowPVPCorrectionGame();	// June 322cc1a0
+				pMainEffect->SetMaxLifeTime( ( true == bPvpOrPve ) ? FIRE_FOX_LIFE_TIME_PVP_OR_PVE : FIRE_FOX_LIFE_TIME );
+			}
+		}
+
+		m_fFireFoxThrowCoolTime = static_cast<float>( m_fFireFoxThrowCoolTime + FIRE_FOX_THROW_GAP );
+		--m_iFireFoxCount;
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( FIRE_FOX_SCRATCH_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		const D3DXVECTOR3 vRotate = GetRotateDegree();
+		const D3DXVECTOR3 vDir = GetDirVector();
+		const double dOffset = ( true == GetIsRight() ) ? FIRE_FOX_SCRATCH_OFFSET : -FIRE_FOX_SCRATCH_OFFSET;
+		const D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01" );
+		const D3DXVECTOR3 vPos( static_cast<float>( vBonePos.x + vDir.x * dOffset ), static_cast<float>( vBonePos.y + vDir.y * dOffset ), static_cast<float>( vBonePos.z + vDir.z * dOffset ) );
+
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_FIRE_FOX_SCRATCH_Damage", GetPowerRate(),
+			vPos, vRotate, vRotate, m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+			pDamageEffect->ScaleDamageByRate( m_fFireFoxRangeRate );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c: June 32ba2af0
+void CX2GUAra::ASI_SA_AA_GET_BLOOD_StateStart()
+{
+	m_iGetBloodHitUnitCount	= 0;
+	m_hGetBloodEffect		= INVALID_DAMAGE_EFFECT_HANDLE;
+
+	CommonStateStart();
+
+	m_usBeforeForceGainCount = m_usForceGainCount;
+}
+
+// char-ara CH3c: June 32bbe060 ( 0.4 s: the Get Blood attack appears at the feet; 1.01 s: up to 2 force power for the units it hit )
+void CX2GUAra::ASI_SA_AA_GET_BLOOD_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( GET_BLOOD_DAMAGE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_AAS_Get_Blood", GetPowerRate(),
+			GetBonePos( L"Bip01_Footsteps" ), GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+			m_hGetBloodEffect = pDamageEffect->GetHandle();
+	}
+
+	UpForcePowerAtThisAnimationTime( GET_BLOOD_FORCE_POWER_TIME, ( m_iGetBloodHitUnitCount < GET_BLOOD_MAX_FORCE_POWER ) ? m_iGetBloodHitUnitCount : GET_BLOOD_MAX_FORCE_POWER );
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c: June 32bad880 ( the end goes through the FP cancel to the finish state )
+void CX2GUAra::ASI_SA_AA_GET_BLOOD_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_SA_AA_GET_BLOOD_FINISH );
+
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c: June 32bbe2a0
+void CX2GUAra::ASI_SA_AA_GET_BLOOD_StateEnd()
+{
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hGetBloodEffect, false );
+
+	CommonStateEnd();
+}
+
+// char-ara CH3c: June 32bbe500
+void CX2GUAra::ASI_SA_AA_GET_BLOOD_FINISH_StateEnd()
+{
+	if ( NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+		g_pX2Game->GetDamageEffect()->DestroyInstanceHandle( m_hGetBloodEffect, false );
+
+	CommonStateEnd();
+}
+
+// char-ara CH3c: June 32bbe2f0 ( 0.47 s: the finishing attack appears 75 in front of the hip, behind it when facing left )
+void CX2GUAra::ASI_SA_AA_GET_BLOOD_FINISH_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( GET_BLOOD_FINISH_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		const D3DXVECTOR3 vDir = GetDirVector();
+		const D3DXVECTOR3 vOffset( static_cast<float>( vDir.x * GET_BLOOD_FINISH_OFFSET ), static_cast<float>( vDir.y * GET_BLOOD_FINISH_OFFSET ), static_cast<float>( vDir.z * GET_BLOOD_FINISH_OFFSET ) );
+		const D3DXVECTOR3 vBonePos = GetBonePos( L"Bip01" );
+		const D3DXVECTOR3 vPos = ( true == GetIsRight() ) ? vBonePos + vOffset : vBonePos - vOffset;
+
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_AAS_Get_Blood_Finish", GetPowerRate(),
+			vPos, GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+			m_hGetBloodEffect = pDamageEffect->GetHandle();
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c: June 32ba2b30 ( as Necromancy's )
+void CX2GUAra::ASI_SA_AA_GET_BLOOD_FINISH_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= static_cast<float>( STATE_END_FALL_DROP );
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c: June 32ba3820 ( the cool times of every skill run down by Spiritual Eye's rate, as Veritable Pandemonium's start )
+void CX2GUAra::ASI_SA_AA_SMASH_StateStartFuture()
+{
+	if ( NULL != GetUnit() && 0.f <= m_fPandemoniumCoolTimeRate )
+		GetUnit()->AccessUnitData().m_UserSkillTree.ReduceLeftSkillCoolTime( m_fPandemoniumCoolTimeRate, true );
+
+	CommonStateStartFuture();
+}
+
+// char-ara CH3c: June 32bbf500 ( the effect sets at 0.001 / 0.25 / 0.63 s take Load of Asura's multiplier of the power rate; the transcendence ones play while a transcended hyper mode runs )
+void CX2GUAra::ASI_SA_AA_SMASH_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( SMASH_START_EFFECT_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		const float fPowerRate = GetPowerRate() * m_fSmashPowerRate;
+		const bool bTranscendenceEffect = ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASR_SPIRITISM_WEIRD_FOX ) && 0.f < GetRemainHyperModeTime() );
+		g_pX2Game->GetEffectSet()->PlayEffectSet( ( true == bTranscendenceEffect ) ? L"EffectSet_SI_SA_AA_SMASH_TRENSCENDENCE" : L"EffectSet_SI_SA_AA_SMASH", this, NULL, IsHyperState(), fPowerRate );
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( SMASH_IMPACT_EFFECT_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		const float fPowerRate = GetPowerRate() * m_fSmashPowerRate;
+		const bool bTranscendenceEffect = ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASR_SPIRITISM_WEIRD_FOX ) && 0.f < GetRemainHyperModeTime() );
+		g_pX2Game->GetEffectSet()->PlayEffectSet( ( true == bTranscendenceEffect ) ? L"EffectSet_AA_Smash_Impact_TRENSCENDENCE" : L"EffectSet_AA_Smash_Impact", this, NULL, IsHyperState(), fPowerRate );	// June has no EffectSet_AA_Smash_Impact ( JUNE_BUGS )
+	}
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( SMASH_DAMAGE_EFFECT_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetEffectSet() )
+	{
+		const float fPowerRate = GetPowerRate() * m_fSmashPowerRate;
+		const bool bTranscendenceEffect = ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_ASR_SPIRITISM_WEIRD_FOX ) && 0.f < GetRemainHyperModeTime() );
+		g_pX2Game->GetEffectSet()->PlayEffectSet( ( true == bTranscendenceEffect ) ? L"EffectSet_SMASH_Damage_TRENSCENDENCE" : L"EffectSet_SMASH_Damage", this, NULL, IsHyperState(), fPowerRate );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c: June 32ba3860 ( as Necromancy's )
+void CX2GUAra::ASI_SA_AA_SMASH_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= static_cast<float>( STATE_END_FALL_DROP );
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c: June 32bb50c0 ( the jump's effect set and one force power at 0.001 s; Open Mind's buff is set again after the gain )
+void CX2GUAra::ASI_SA_ASR_SHADOW_RISING_JUMP_FrameMove()
+{
+	ChangeWorldColorByHyperMode();
+	ShowActiveSkillCutInAndLightByBerserkMode( EFFECT_SET_EVENT_TIME );
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( EFFECT_SET_EVENT_TIME ) )
+	{
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Shadow_Rising_Jump", this );
+		UpForcePower( 1 );
+		if ( 0 < GetSkillLevelValue( CX2SkillTree::RNSI_P_AYR_OPEN_MIND ) )
+			SetSkillBuffFactors( CX2SkillTree::RNSI_P_AYR_OPEN_MIND, 0, true );
+		m_usBeforeForceGainCount = m_usForceGainCount;
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c: June 32b9ab00 ( the landing state when the jump ends on a line )
+void CX2GUAra::ASI_SA_ASR_SHADOW_RISING_JUMP_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() && true == IsOnSomethingFuture() )
+		StateChange( ASI_SA_ASR_SHADOW_RISING_LANDING );
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c: June 32bb5310 ( the memo test is June's always-false stub 31fca9e0, so EffectSet_Shadow_Rising_Landing_MEMO never plays )
+void CX2GUAra::ASI_SA_ASR_SHADOW_RISING_LANDING_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( EFFECT_SET_EVENT_TIME ) )
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Shadow_Rising_Landing", this );
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c: June 32bac240 ( the end goes through the FP cancel )
+void CX2GUAra::ASI_SA_ASR_SHADOW_RISING_LANDING_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_SA_ASR_SHADOW_RISING_END );
+
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack() )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c: June 32bb5600
+void CX2GUAra::ASI_SA_ASR_SHADOW_RISING_END_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( EFFECT_SET_EVENT_TIME ) )
+		g_pX2Game->GetEffectSet()->PlayEffectSet( L"EffectSet_Shadow_Rising_End", this );
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c: June 32b9ab40
+void CX2GUAra::ASI_SA_ASR_SHADOW_RISING_END_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+			StateChange( USI_JUMP_DOWN );
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c: June 32b94d70 ( the force power of this cast counts for the FP cancel )
+void CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_StateStart()
+{
+	CommonStateStart();
+
+	m_usBeforeForceGainCount = m_usForceGainCount;
+}
+
+// char-ara CH3c: June 32bc4b90 ( 0.4 s: up to 3 force power turn into the damage rate, June scales it by Little Specter's old Specter of Blade skill 7021; the damage effect appears at the hip )
+void CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( SPECTER_OF_BLADE_DAMAGE_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		m_fSpecterOfBladeRangeRate = -1.f;
+		if ( 0 < GetForcePower() )
+		{
+			const int iUseForcePower = ( GetForcePower() <= SPECTER_OF_BLADE_MAX_FORCE_POWER ) ? GetForcePower() : SPECTER_OF_BLADE_MAX_FORCE_POWER;
+			m_fSpecterOfBladeRangeRate = GetMpScaledPowerRate( iUseForcePower, CX2SkillTree::SI_SA_ALS_SPECTER_OF_BLADE, true );
+			UseForcePower( iUseForcePower );	// June @32bc4c34 also adds it to the used-force-power count ( +0x9614 ): CH1q dropped that member, nothing reads it
+		}
+
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_SPECTER_OF_BLADE_Damage", GetPowerRate(),
+			GetBonePos( L"Bip01" ), GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+			pDamageEffect->ScaleDamageByRate( m_fSpecterOfBladeRangeRate );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c: June 32bad790 ( the end goes through the FP cancel; the cancel test is tried on the ground, then in the air )
+void CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+		StateChangeOrFPCancel( ASI_SA_ASR_SPECTER_OF_BLADE_FINISH );
+
+	m_bFPCancelProbe = true;	// June +0x9621: set while the FP-cancel test below runs, always clear on leaving ( CH1q )
+	if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack( CX2SkillTree::ASUT_GROUND ) && true == IsOnSomethingFuture() )
+	{
+		m_bFPCancel = true;
+	}
+	else if( false == m_bFPCancel && m_vFPCancel.x <= m_pXSkinAnimFuture->GetNowAnimationTime()
+		&& m_vFPCancel.y > m_pXSkinAnimFuture->GetNowAnimationTime() && true == CanUseSpecialAttack( CX2SkillTree::ASUT_AIR ) )
+	{
+		m_bFPCancel = true;
+	}
+	m_bFPCancelProbe = false;
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c: June 32bbdf00 ( 0.001 s: the finishing damage effect appears at the hip with the same damage rate )
+void CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( EFFECT_SET_EVENT_TIME ) && NULL != g_pX2Game && NULL != g_pX2Game->GetDamageEffect() )
+	{
+		CX2DamageEffect::CEffect* pDamageEffect = g_pX2Game->GetDamageEffect()->CreateInstance( this, L"DamageEffect_SPECTER_OF_BLADE_Damage_Finish", GetPowerRate(),
+			GetBonePos( L"Bip01" ), GetRotateDegree(), GetRotateDegree(), m_FrameDataNow.unitCondition.landPosition.y );
+		if ( NULL != pDamageEffect )
+			pDamageEffect->ScaleDamageByRate( m_fSpecterOfBladeRangeRate );
+	}
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c: June 32ba2aa0
+void CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( false == IsOnSomethingFuture() )
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y -= static_cast<float>( STATE_END_FALL_DROP );
+		}
+		else
+			StateChange( USI_WAIT );
+	}
+
+	CommonEventProcess();
+}
+
+// char-ara CH3c: Fox Phantom ( 27066 ) has only Init and the generic end in June; its state script's CUSTOM_RENDER_STATE { 1.5, 2.4, CRS_INVISIBLE } is the engine's, this
+// stand-in holds the render state in Ara until the engine renderer phase ( checklist 7w ), as Veritable Pandemonium's
+void CX2GUAra::ASI_SA_ASR_FOX_PHANTOM_FrameMove()
+{
+	if ( true == m_pXSkinAnim->EventTimerOneshot( FOX_PHANTOM_INVISIBLE_START_TIME ) )
+		m_iCustomRenderState = CRS_INVISIBLE;
+
+	if ( true == m_pXSkinAnim->EventTimerOneshot( FOX_PHANTOM_INVISIBLE_END_TIME ) )
+		ClearCustomRenderState();
+
+	CommonFrameMove();
+}
+
+// char-ara CH3c: stand-in ( see FrameMove ), the render state is cleared however the state ends
+void CX2GUAra::ASI_SA_ASR_FOX_PHANTOM_StateEnd()
+{
+	ClearCustomRenderState();
+	CommonStateEnd();
+}
+
+// char-ara CH3c: June 32b91390
+void CX2GUAra::ASI_SA_ASR_SHADOW_RISING_JUMP_Init()
+{
+	XMeshReadyInBackground( L"Split_Light01.Y" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Badak.X" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Badak_BALL.X" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Attack_Aura.X" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Attack01.X" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Attack02.X" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Cloud.dds" );
+	TextureReadyInBackground( L"Pa_Ran_SpaD_DarkFlame.DDS" );
+	TextureReadyInBackground( L"Pa_Ran_SpaD_blackSmoke.dds" );
+	TextureReadyInBackground( L"Pa_Ran_SpaD_blackAura.DDS" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_AURA.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Hall.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Impact01.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Impact02.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Impact04.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Impact05.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Smoke.dds" );
+	TextureReadyInBackground( L"SM_MagicAttakcB_Smoke.dds" );
+	TextureReadyInBackground( L"smoke02.dds" );
+	TextureReadyInBackground( L"WhitePoint.dds" );
+	TextureReadyInBackground( L"Condense_Light01.dds" );
+}
+
+// char-ara CH3c: June 32b914a0
+void CX2GUAra::ASI_SA_ASR_SHADOW_RISING_LANDING_Init()
+{
+	XMeshReadyInBackground( L"Split_Light01.Y" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Badak.X" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Badak_BALL.X" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Attack_Aura.X" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Attack01.X" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Attack02.X" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Cloud.dds" );
+	TextureReadyInBackground( L"Pa_Ran_SpaD_DarkFlame.DDS" );
+	TextureReadyInBackground( L"Pa_Ran_SpaD_blackSmoke.dds" );
+	TextureReadyInBackground( L"Pa_Ran_SpaD_blackAura.DDS" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_AURA.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Hall.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Impact01.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Impact02.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Impact04.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Impact05.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Smoke.dds" );
+	TextureReadyInBackground( L"SM_MagicAttakcB_Smoke.dds" );
+	TextureReadyInBackground( L"smoke02.dds" );
+	TextureReadyInBackground( L"WhitePoint.dds" );
+	TextureReadyInBackground( L"Condense_Light01.dds" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	TextureReadyInBackground( L"ADD_CENTER_LIGHT01.dds" );
+}
+
+// char-ara CH3c: June 32b915c0
+void CX2GUAra::ASI_SA_ASR_SHADOW_RISING_END_Init()
+{
+	XMeshReadyInBackground( L"Split_Light01.Y" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Badak.X" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Badak_BALL.X" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Attack_Aura.X" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Attack01.X" );
+	XSkinMeshReadyInBackground( L"SA_ARA_SHADOW_RISING_Attack02.X" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Cloud.dds" );
+	TextureReadyInBackground( L"Pa_Ran_SpaD_DarkFlame.DDS" );
+	TextureReadyInBackground( L"Pa_Ran_SpaD_blackSmoke.dds" );
+	TextureReadyInBackground( L"Pa_Ran_SpaD_blackAura.DDS" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_AURA.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Hall.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Impact01.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Impact02.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Impact04.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Impact05.dds" );
+	TextureReadyInBackground( L"SI_SA_ARA_SHADOW_RISING_Smoke.dds" );
+	TextureReadyInBackground( L"SM_MagicAttakcB_Smoke.dds" );
+	TextureReadyInBackground( L"smoke02.dds" );
+	TextureReadyInBackground( L"WhitePoint.dds" );
+	TextureReadyInBackground( L"Condense_Light01.dds" );
+}
+
+// char-ara CH3c: June 32b94600
+void CX2GUAra::ASI_SA_AA_NECROMANCY_Init()
+{
+	XSkinMeshReadyInBackground( L"AA_GET_BLOOD_FINISH_TRACE01.X" );
+	XSkinMeshReadyInBackground( L"AA_GET_BLOOD_FINISH_TRACE02.X" );
+	XMeshReadyInBackground( L"AA_SUPPRESSION_SPECTER_P01.Y" );
+	XMeshReadyInBackground( L"AA_SUPPRESSION_SPECTER_P02.Y" );
+	TextureReadyInBackground( L"ALS_FOX_ARMS01.dds" );
+	TextureReadyInBackground( L"ALS_FOX_ARMS02.dds" );
+	TextureReadyInBackground( L"ColorBallRed2.dds" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	TextureReadyInBackground( L"Nasod_King_Laser03.dds" );
+	XMeshReadyInBackground( L"SM_WaitStart.Y" );
+}
+
+// char-ara CH3c: June 32b94cd0
+void CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_Init()
+{
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_BLADE_MESH01.X" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_BLADE_TRACE01.X" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_BLADE_TRACE02.X" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_BLADE_TRACE03.X" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_BLADE_TRACE04.X" );
+	XMeshReadyInBackground( L"SM_WaitStart.Y" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_smoke.dds" );
+}
+
+// char-ara CH3c: June 32b94d90
+void CX2GUAra::ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_Init()
+{
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_BLADE_MESH_F01.X" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_BLADE_TRACE01.X" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_BLADE_TRACE03.X" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_BLADE_TRACE_F01.X" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_OF_BLADE_TRACE_F02.X" );
+	TextureReadyInBackground( L"Nasod_King_Laser03.dds" );
+	XMeshReadyInBackground( L"SM_WaitStart.Y" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	TextureReadyInBackground( L"star2.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Ring.dds" );
+	TextureReadyInBackground( L"Arme_Damage_Center.dds" );
+	TextureReadyInBackground( L"Arme_Critical.dds" );
+	TextureReadyInBackground( L"Arme_smoke.dds" );
+}
+
+// char-ara CH3c: June 32b94e40
+void CX2GUAra::ASI_SA_AA_GET_BLOOD_Init()
+{
+	XSkinMeshReadyInBackground( L"AA_GET_BLOOD_HAND01.X" );
+	XSkinMeshReadyInBackground( L"AA_GET_BLOOD_HAND_TRACE01.X" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_WALK_P01.X" );
+	XSkinMeshReadyInBackground( L"ALS_TRACE_P01.X" );
+	TextureReadyInBackground( L"BURSTING_BLADE_flame.dds" );
+	TextureReadyInBackground( L"ColorBallRed2.dds" );
+	TextureReadyInBackground( L"Colorballgray.dds" );
+	TextureReadyInBackground( L"VERITABLE_PANDEMONIUM_T02.dds" );
+	XSkinMeshReadyInBackground( L"Rena_Perfect_Storm_MEMO_AttackBox.X" );
+}
+
+// char-ara CH3c: June 32b94ec0
+void CX2GUAra::ASI_SA_AA_GET_BLOOD_FINISH_Init()
+{
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XSkinMeshReadyInBackground( L"AA_GET_BLOOD_FINISH_TRACE01.X" );
+	XSkinMeshReadyInBackground( L"AA_GET_BLOOD_FINISH_TRACE02.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+}
+
+// char-ara CH3c: June 32b94f00
+void CX2GUAra::ASI_SA_AA_FIRE_FOX_Init()
+{
+	TextureReadyInBackground( L"A_SGM_SONIC_BLADE_Map01.dds" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XSkinMeshReadyInBackground( L"AA_FIRE_FOX_Hand_M01.X" );
+	XSkinMeshReadyInBackground( L"AA_FIRE_FOX_Hand_M02.X" );
+	XSkinMeshReadyInBackground( L"FIRE_FOX_Hand_MESH01.X" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XMeshReadyInBackground( L"SM_WaitStart.Y" );
+	TextureReadyInBackground( L"Enchant_Stat_Stone.tga" );
+	XSkinMeshReadyInBackground( L"Riding_Mobi_Misail.x" );
+	TextureReadyInBackground( L"AA_FIRE_FOX_FIRE001.dds" );
+	TextureReadyInBackground( L"ALS_flame_002.dds" );
+	XSkinMeshReadyInBackground( L"aisha_command_magicBall_attackSphere.X" );
+	TextureReadyInBackground( L"rena_A_explosionTrap_spark.dds" );
+	TextureReadyInBackground( L"secretVelder_perpit_fire_flame.dds" );
+	TextureReadyInBackground( L"Particle_Blur.dds" );
+	TextureReadyInBackground( L"Mesh_Common_AC_Face1_81160_Sorted_P02.DDS" );
+	XMeshReadyInBackground( L"pet_fox_ghostFireFox_model.Y" );
+	TextureReadyInBackground( L"Pet_Haecheulring_flame.dds" );
+}
+
+// char-ara CH3c: June 32b95210
+void CX2GUAra::ASI_SA_AA_SMASH_Init()
+{
+	XSkinMeshReadyInBackground( L"AA_GET_BLOOD_FINISH_TRACE01.X" );
+	XSkinMeshReadyInBackground( L"AA_GET_BLOOD_FINISH_TRACE02.X" );
+	XSkinMeshReadyInBackground( L"AA_SMASH_TRACE01.X" );
+	XSkinMeshReadyInBackground( L"AA_SMASH_TRACE02.X" );
+	XMeshReadyInBackground( L"AA_SMASH_TRACE_P01.Y" );
+	XMeshReadyInBackground( L"AA_SMASH_TRACE_P03.Y" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	XMeshReadyInBackground( L"SM_WaitStart.Y" );
+	XSkinMeshReadyInBackground( L"Sprriggan_MagicAttackB.X" );
+}
+
+// char-ara CH3c: June 32b95460
+void CX2GUAra::ASI_SA_ASR_FOX_PHANTOM_Init()
+{
+	XMeshReadyInBackground( L"AA_SUPPRESSION_SPECTER_P02.Y" );
+	XMeshReadyInBackground( L"ALS_SHAKE_CHAOS_02.Y" );
+	XSkinMeshReadyInBackground( L"ALS_SPECTER_WALK_P01.X" );
+	XSkinMeshReadyInBackground( L"ALS_TRACE_P01.X" );
+	XSkinMeshReadyInBackground( L"ASR_FOX_PHANTOM_FOX.X" );
+	TextureReadyInBackground( L"Ara_Black_LEAF.dds" );
+	TextureReadyInBackground( L"ColorBallFire.dds" );
+	TextureReadyInBackground( L"ColorBallRed2.dds" );
+	TextureReadyInBackground( L"Colorballgray.dds" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_100x50x50_center.X" );
+	XSkinMeshReadyInBackground( L"DummyAttackBox_50x50x50.X" );
+	XMeshReadyInBackground( L"ELK_WIND_SLICER_M02.Y" );
+	TextureReadyInBackground( L"HA_RRF_Reckless_Fiste_FX_Map01.tga" );
+	XSkinMeshReadyInBackground( L"Lire_SI_SA_Gungnir_Mesh05.X" );
+	TextureReadyInBackground( L"VERITABLE_PANDEMONIUM_T02.dds" );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #pragma region LOW_BRANDISH
 
 void CX2GUAra::ASI_A_ASD_LOW_BRANDISH_SLIDING_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
@@ -28486,6 +29371,28 @@ void CX2GUAra::InitAquiredActiveSkillState( const int iSkillID_ )
 				} break;
 
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+			case CX2SkillTree::RNSI_SA_ASR_GET_BLOOD:	// char-ara CH3c: June 32bd34c0 case 27026 / 27061 ( the chain lookup takes the swapped id )
+			case CX2SkillTree::RNSI_SA_ASR_GET_BLOOD_UPGRADE:
+				{
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_AA_GET_BLOOD];
+						ASI_SA_AA_GET_BLOOD_CreateState( stateData, ASI_SA_AA_GET_BLOOD );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+						stateData.m_ptrComboAndSkillChainInfo = m_ComboAndSkillChainSystem.GetSkillChainInfoPtrBySkillID( eUpgradeSwappedSkillID );	// char-ara CH3c: June 32bd34c0 @32bd4fb1
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_AA_GET_BLOOD_FINISH];
+						ASI_SA_AA_GET_BLOOD_FINISH_CreateState( stateData, ASI_SA_AA_GET_BLOOD_FINISH );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+					}
+
+					{
+						UserUnitStateData&	stateData = m_StateList[ASI_SA_AA_SMASH];
+						ASI_SA_AA_SMASH_CreateState( stateData, ASI_SA_AA_SMASH );
+						SetSkillLevelStateData( pSkillTemplet, stateData );
+					}
+				} break;
 			case CX2SkillTree::RNSI_SA_AYR_ENERGY_BEAD:	// char-ara CH3b: June 32bd34c0 case 27018 / 27056 ( the chain lookup takes the swapped id )
 			case CX2SkillTree::RNSI_SA_AYR_ENERGY_BEAD_UPGRADE:
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL

@@ -750,6 +750,49 @@ protected:
 	void			ASI_SA_AYR_RESTRICTION_ENERGY_END_FrameMove();	// char-ara CH3b: June 32bc9810
 	void			ASI_SA_AYR_REVERSE_GRAVITY_FIELD_START_EventProcess();	// char-ara CH3b: June 32bada30
 	CX2GameUnit*	GetUnitByUIDAndType( const UidType uidUnit_, const int iGameUnitType_ ) const;	// char-ara CH3b: June CX2Game vslot 0xc8 ( 322d80a0 )
+	void			ASI_SA_AA_SMASH_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH3c: June 32bc97b0
+	void			ASI_SA_AA_GET_BLOOD_FINISH_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH3c: June 32bc96f0
+	void			ASI_SA_AA_GET_BLOOD_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH3c: June 32bc9680
+	void			ASI_SA_AA_NECROMANCY_StateStart();	// char-ara CH3c: June 32b94690
+	void			ASI_SA_AA_NECROMANCY_EventProcess();	// char-ara CH3c: June 32ba1690
+	void			ASI_SA_AA_FIRE_FOX_StateStart();	// char-ara CH3c: June 32b94ff0
+	void			ASI_SA_AA_FIRE_FOX_StateEnd();	// char-ara CH3c: June 32b95010
+	void			ASI_SA_AA_FIRE_FOX_EventProcess();	// char-ara CH3c: June 32ba2e50
+	void			ASI_SA_AA_FIRE_FOX_FrameMove();	// char-ara CH3c: June 32bc4d50
+	void			ASI_SA_AA_GET_BLOOD_StateStart();	// char-ara CH3c: June 32ba2af0
+	void			ASI_SA_AA_GET_BLOOD_FrameMove();	// char-ara CH3c: June 32bbe060
+	void			ASI_SA_AA_GET_BLOOD_EventProcess();	// char-ara CH3c: June 32bad880
+	void			ASI_SA_AA_GET_BLOOD_StateEnd();	// char-ara CH3c: June 32bbe2a0
+	void			ASI_SA_AA_GET_BLOOD_FINISH_StateEnd();	// char-ara CH3c: June 32bbe500
+	void			ASI_SA_AA_GET_BLOOD_FINISH_FrameMove();	// char-ara CH3c: June 32bbe2f0
+	void			ASI_SA_AA_GET_BLOOD_FINISH_EventProcess();	// char-ara CH3c: June 32ba2b30
+	void			ASI_SA_AA_SMASH_StateStartFuture();	// char-ara CH3c: June 32ba3820
+	void			ASI_SA_AA_SMASH_FrameMove();	// char-ara CH3c: June 32bbf500
+	void			ASI_SA_AA_SMASH_EventProcess();	// char-ara CH3c: June 32ba3860
+	void			ASI_SA_ASR_SHADOW_RISING_JUMP_FrameMove();	// char-ara CH3c: June 32bb50c0
+	void			ASI_SA_ASR_SHADOW_RISING_JUMP_EventProcess();	// char-ara CH3c: June 32b9ab00
+	void			ASI_SA_ASR_SHADOW_RISING_LANDING_FrameMove();	// char-ara CH3c: June 32bb5310
+	void			ASI_SA_ASR_SHADOW_RISING_LANDING_EventProcess();	// char-ara CH3c: June 32bac240
+	void			ASI_SA_ASR_SHADOW_RISING_END_FrameMove();	// char-ara CH3c: June 32bb5600
+	void			ASI_SA_ASR_SHADOW_RISING_END_EventProcess();	// char-ara CH3c: June 32b9ab40
+	void			ASI_SA_ASR_SPECTER_OF_BLADE_StateStart();	// char-ara CH3c: June 32b94d70
+	void			ASI_SA_ASR_SPECTER_OF_BLADE_FrameMove();	// char-ara CH3c: June 32bc4b90
+	void			ASI_SA_ASR_SPECTER_OF_BLADE_EventProcess();	// char-ara CH3c: June 32bad790
+	void			ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_FrameMove();	// char-ara CH3c: June 32bbdf00
+	void			ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_EventProcess();	// char-ara CH3c: June 32ba2aa0
+	void			ASI_SA_ASR_FOX_PHANTOM_StateEnd();	// char-ara CH3c: stand-in
+	void			ASI_SA_ASR_SHADOW_RISING_JUMP_Init();	// char-ara CH3c: June 32b91390
+	void			ASI_SA_ASR_SHADOW_RISING_LANDING_Init();	// char-ara CH3c: June 32b914a0
+	void			ASI_SA_ASR_SHADOW_RISING_END_Init();	// char-ara CH3c: June 32b915c0
+	void			ASI_SA_AA_NECROMANCY_Init();	// char-ara CH3c: June 32b94600
+	void			ASI_SA_ASR_SPECTER_OF_BLADE_Init();	// char-ara CH3c: June 32b94cd0
+	void			ASI_SA_ASR_SPECTER_OF_BLADE_FINISH_Init();	// char-ara CH3c: June 32b94d90
+	void			ASI_SA_AA_GET_BLOOD_Init();	// char-ara CH3c: June 32b94e40
+	void			ASI_SA_AA_GET_BLOOD_FINISH_Init();	// char-ara CH3c: June 32b94ec0
+	void			ASI_SA_AA_FIRE_FOX_Init();	// char-ara CH3c: June 32b94f00
+	void			ASI_SA_AA_SMASH_Init();	// char-ara CH3c: June 32b95210
+	void			ASI_SA_ASR_FOX_PHANTOM_Init();	// char-ara CH3c: June 32b95460
+	void			ASI_SA_ASR_FOX_PHANTOM_FrameMove();	// char-ara CH3c: stand-in for the state script's CUSTOM_RENDER_STATE
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2
@@ -1664,7 +1707,11 @@ protected:
 	std::vector<float>	m_vecFullHyperModeAdvantageSocketRate;	/// June +0x9808: INIT_COMPONENT FULL_HYPER_MODE_ADVANTAGE_SOCKET_RATE
 	float		m_fNecromancyRate;					/// June +0x9764: effective rate of RNSI_SA_ASR_NECROMANCY while BTI_BUFF_NECROMANCY runs, -1 otherwise
 	float		m_fSpecterOfThunderRate;			/// June +0x9790: effective rate of RNSI_SA_ALS_SPECTER_OF_THUNDER while BTI_BUFF_SPECTEROFTHUNDER runs, -1 otherwise
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+	enum ARA_CUSTOM_RENDER_STATE { CRS_SPECTOR_OF_THUNDER = 1, CRS_VERITABLE_PANDEMONIUM = 2, CRS_INVISIBLE = 5 };	/// char-ara CH3c: June Enum.lua CUSTOM_RENDER_STATE
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	enum ARA_CUSTOM_RENDER_STATE { CRS_SPECTOR_OF_THUNDER = 1, CRS_VERITABLE_PANDEMONIUM = 2 };	/// June Enum.lua CUSTOM_RENDER_STATE
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	int			m_iCustomRenderState;				/// June CX2GameUnit +0x8e64 ( CRS_*; stand-in: held by Ara until the engine renderer phase )
 	float		m_fRenderAlphaSpecterOfThunder;		/// June +0x9794: alpha ApplyRenderParam applies in CRS_SPECTOR_OF_THUNDER
 	float		m_fRenderAlphaVeritablePandemonium;	/// June +0x97c4: alpha ApplyRenderParam applies in CRS_VERITABLE_PANDEMONIUM
@@ -1713,6 +1760,12 @@ protected:
 	UidType		m_uidRestrictionEnergyTarget;		/// June +0x9880: UID of the unit Restriction Energy's start state found ( char-ara CH3b )
 	int			m_iRestrictionEnergyTargetType;		/// June +0x9888: game unit type of that unit
 	bool		m_bRestrictionEnergyHit;			/// June +0x9890: set when Restriction Energy hits ( the attack-result delegate is CH4a ), cleared by the start state
+	float		m_fSpecterOfBladeRangeRate;			/// June +0x9770: the MP-scaled damage rate of the force power Specter of Blade spent ( -1 = nothing spent ), read by its finish ( char-ara CH3c )
+	std::wstring	m_wstrFireFoxDamageEffect;		/// June +0x97dc: the damage effect of the fox kind Fire Fox rolled
+	int			m_iFireFoxCount;					/// June +0x97f8: foxes still to throw
+	float		m_fFireFoxThrowCoolTime;			/// June +0x9800: wait before the next fox
+	float		m_fFireFoxRangeRate;				/// June +0x9804: the MP-scaled damage rate of the force power Fire Fox spent ( -1 = nothing spent )
+	float		m_fSmashPowerRate;					/// June +0x9754: multiplier of Smash's effect set power rate ( 1 = none; the passive handler 32bcd9c0 writes it, CH4a )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	float		m_fNecromancyFoxCoolTime;			/// June +0x9768: wait before Necromancy's fox effect set plays again
 	float		m_fNecromancyFoxPowerRate;			/// June +0x976c: power rate that effect set plays with ( the Necromancy state sets it )

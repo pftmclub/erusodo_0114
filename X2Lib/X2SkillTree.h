@@ -1915,6 +1915,12 @@ public:
 		RNSI_SA_AYR_RAKSASA_FIRE                              = 27065,	// char-ara CH3b: June's Enum.lua; Raksasa Fire
 		RNSI_A_AYR_GAIN_GOOD_ENERGY_BALL                      = 27227,	// char-ara CH3b: June's Enum.lua; Gain Good Energy Ball
 		RNSI_A_AYR_HIGH_SPEED_UPGRADE                         = 27237,	// char-ara CH3b: June's Enum.lua; the enhanced High Speed
+		RNSI_SA_ASR_FIRE_FOX                                  = 27027,	// char-ara CH3c: June's Enum.lua; Fire Fox
+		RNSI_SA_ASR_GET_BLOOD_UPGRADE                         = 27061,	// char-ara CH3c: June's Enum.lua; the enhanced Get Blood
+		RNSI_SA_ASR_FIRE_FOX_UPGRADE                          = 27062,	// char-ara CH3c: June's Enum.lua; the enhanced Fire Fox
+		RNSI_SA_ASR_NECROMANCY_UPGRADE                        = 27063,	// char-ara CH3c: June's Enum.lua; the enhanced Necromancy
+		RNSI_SA_ASR_FOX_PHANTOM                               = 27066,	// char-ara CH3c: June's Enum.lua; Fox Phantom
+		SI_SA_ALS_SPECTER_OF_BLADE                            = 7021,	// char-ara CH3c: June's Enum.lua; the skill id Asura's Specter of Blade scales its damage rate by ( June 32bc4b90 )
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 //{{ Iruha : 2026-11-11 // char-ara CH1q
