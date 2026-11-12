@@ -2567,6 +2567,30 @@ picture, the new skill-tree rows, the HUD portrait, and surviving a relog. A def
 
 **Done gate:** the walk passes; 0 unexplained `no_state` rows; no new `KEM_ERROR`.
 
+### CH6 - Done (2026-11-12, Sonnet 5.5): scans PASSED, walk owed
+
+**No code change, no flag, no build** (deployed exe is CH4b's). Save backed up first: `data\db_backup\els_db_20261112_121644_pre_pre_ch6_walk_ara.sql`.
+
+| Scan | Before (CH0, 2026-11-10) | After |
+|---|---|---|
+| `census.py` | 26 PASS, 0 FAIL, 0 `to-implement` | 26 PASS, 0 FAIL (regenerated `census.tsv` reverted) |
+| `charport_scan.py` | `Ara_Martial_Artist {'no NUMERICAL_DATA_INDEX': 49, 'no DAMAGE table': 14}`, ENUM `{'CUSTOM_RENDER_STATE': 1}` | identical |
+| `charport_keys.py Ara_Martial_Artist` | 250 keys: june-only 14 / neither 7 / march-only-site 4 / both 225 | june-only 5 / neither 7 / march-only-site 4 / both 234 |
+| `s3_no_state.py --family X2GUAra.cpp --preprocess` | 197 rows, 192 no_state (34 / 124 absent from the tsv) | 288 rows, `no_state=61` (33 ids), **0 unexplained** |
+| `luabind.py check Ara_Martial_Artist` | - | RESULT PASS, 0 wrong state ids |
+
+**Left june-only keys (5):** `BBT_CHANGE_NOW_HP_PER_SECOND`, `BFT_TIME` (damage data, no June reader), `IMMUNITY_EDT_LIST_AT_THIS_STATE` (no reader), `FORCE_DYNAMIC_CAMERA_INDEX` / `RETAIN_CAMERA_STATE` (June `ReservedSkillStart` camera keys: Stage 9).
+
+**The 33 `no_state` ids** (the generator resolves unqualified `case SI_*` only):
+- 6 actives with a qualified March `case CX2SkillTree::RNSI_*` (27003 `X2GUAra.cpp:3701` / `:29496`, 27017 `:4992`, 27025 `:4825`, 27026 `:4210`, 27028 `:4184`, 27213 `:5016`, no state: sound preload only).
+- 4 upgrade ids with no state of their own (27030, 27036, 27224, 27225).
+- 21 type-8 passives 27400-27420 (CH4a / CH4b delegates and buff factors) and 106 (hyper aura), 900 (love): no class state in June.
+
+**Walk units (all in the save, backed up).** 7: 96 (lv99) / 107; 28: 97; 31: 99; 34: 102 / 135 / 136 / 138; 118 transcended: 98; 119 transcended: 48; 124 transcended: 104; plus 31 / 34 / 124 guide units 38, 105, 106, 108-110. **Transition units (new, lv75, transcendence 0, no quest 42030 row):** 139 `TrSakra70` (118), 140 `TrYama70` (119), 141 `TrAsura70` (124).
+Failures go back to the owning phase's flag (`JUNE_CHAR_ARA_*`).
+
+**Carried to Z:** the `CX2GUAra::IsStateRegistered` chain guard (CH3 registered every chain state): Z retires it if the walk shows no refusal.
+
 ## Phase Z - Close-out
 
 **Run with:** Sonnet 5.5 medium. `MODS.md` "June character: Ara" section (flags, files, data, revert order: exe + data036 + motion koms together;
