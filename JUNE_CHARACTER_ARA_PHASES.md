@@ -2326,6 +2326,8 @@ Sonnet 5.5. Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DE
 
 **Play-test hand-off.** In the chat of 2026-11-12. Logs: `[JUNE_CHAR] ARA SKILL state <n> skill <id>` ( one per state entered, no `BLANK` ), `[JUNE_SKILL]` `NUM use`, 0 `EXCEPTION` / `Motion Error`.
 
+**Play-test ( 2026-11-12, run 07:13-07:15 on md5 dbbed0b3; unit 48 ).** All 8 equip lines ( 27056, 27057, 27058, 27237, 27045, 27046, 27065, 27227 ). States entered: Energy Bead 50 ( chained into Prison Spear 223, skill 27054 ); Steal Soul 54 -> 226 ( `ES_CREATE EffectSet_A_AYR_STEAL_SOUL_END` ); Energy Void 52 -> 229 x5 -> 230 twice, plus a third use ( `EffectSet_SI_SA_AHD_ENERGY_VOID_FX_Hit` made at each end, line 1310 / 1351 / 1427 ); High Speed 56 -> 212; Restriction Energy 60 -> 279 ( `EffectSet_SA_AYR_RESTRICTION_ENERGY` on the target, hyper=1 ); Reverse Gravity Field 62 -> 280; Raksasa Fire 64; Gain Good Energy Ball 66. 0 `BLANK` / `EXCEPTION` / `KEM_ERROR` / `Motion Error`; the `OpenXET` misses are the companion-file lookup; the one unbound name ( `AddGroupChainQuest` ) is a quest script's. **Not reached / no line:** `NUM use` and `SBUF` lines ( none printed by this build ), Restriction Energy's end effect ( CH4a ), Reflection ( second set ), the base ids.
+
 ## Phase CH4 - Passives and class mechanics
 
 **Run with:** Opus 5.5 high, one Opus review at CH4b (covers CH4a-CH4b), user play-test (two engine pieces, planned as two from the start; CH0
