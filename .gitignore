@@ -12,7 +12,11 @@
 # ============================================================================
 
 # ---- 1. Third-party libraries: NOT in the repo (see README.md, "Libraries") --
-/Libs/
+/Libs/*
+# ...except SQLite (offline save engine): small, stable, tracked so a fresh checkout builds
+!/Libs/ExternalLib/
+/Libs/ExternalLib/*
+!/Libs/ExternalLib/sqlite3/
 
 # ---- 2. Scratch, caches and derived data (regenerable, or not project) ------
 # Session scratch and tool state
