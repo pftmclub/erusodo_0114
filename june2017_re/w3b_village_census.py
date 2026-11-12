@@ -34,6 +34,7 @@ KEPT_MARCH_W3F = {
     "field_elder_stagerest_alpaguide.y": "Elder rest boards: March's names Wally's Memorial Bridge / Twin Watchtower, June's Bethma Village (June's route)",
     "field_besma_rest_g01_navi.y": "Besma rest sign: March's names Besma fields 1-3 + Pilgrim's Gateway, June's only the three villages (June's route)",
     "altera_village_typo.y": "Altera boards: March's names Toretugera Canyon / Graveyard of Purification, June's Dicey Sky Road (June's route)",
+    "altera_village_g02.y": "Altera ground: March's carries the walkway signpost (Field_Altera_waysign) and step; June's drops both and adds a crate closing the ledge",
     "linemap_altera_village.lua": "March's line map keeps the bottom walkway to Altera field 3 (StartPos 67 / 68); user chose March's whole over June's",
 }
 

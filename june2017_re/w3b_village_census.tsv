@@ -1,5 +1,6 @@
 place	check	result	why
-VMI_ALTERA	assets	144 same, 1 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_ALTERA	assets	143 same, 2 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
+VMI_ALTERA	asset Altera_Village_G02.Y	differs	kept March's W3f: Altera ground: March's carries the walkway signpost (Field_Altera_waysign) and step; June's drops both and adds a crate closing the ledge
 VMI_ALTERA	asset Altera_Village_Typo.Y	differs	kept March's W3f: Altera boards: March's names Toretugera Canyon / Graveyard of Purification, June's Dicey Sky Road (June's route)
 VMI_BATTLE_FIELD_ALTERA_REST_00	assets	140 same, 0 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 0 June file(s) staged by W3b in this place's closure
 VMI_BATTLE_FIELD_BESMA_REST_00	assets	273 same, 1 other	closure Lua -> mesh -> texture / XET / TET (w3b_asset_closure.tsv); 1 June file(s) staged by W3b in this place's closure

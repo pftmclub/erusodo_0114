@@ -286,3 +286,16 @@ W3c fix `SERV_IRUHADEV_JUNE_FIELD_CHANGE_ACK` stays on). User decision (2026-11-
   W3e's kickoff notes that every field is reachable again.
 - **How to see it:** the play-test hand-off below (STATUS row). Log tag `[JUNE_ENGINE] WVIL`; the portal moves show as
   `EGS_JOIN_BATTLE_FIELD_REQ` (into a field) and `EGS_STATE_CHANGE_FIELD_REQ` (into a village or rest) in `offline_packets.log`.
+- **Play-test 1 (user, 2026-11-12): every portal works.** Saved logs `24965799\logs_backup_w3f_20261112_120604`: 0 EXCEPTION; Elder field 1 ->
+  Elder rest (1000) -> Elder field 2 -> Besma, Besma field 1 / 3, Altera fields 1 / 3 fired; Altera field 3 -> Altera landed on line 30 (the
+  walkway). 2 UNHANDLED = `E_DISABLE_HB_CHECK_REQ` (old, not this phase). Two asks, done as a follow-up the same day:
+  - **Walkway board missing (text only).** The signpost is a mesh of `Altera_Village_G02.Y` (395 verts, `Field_Altera_waysign.dds`, x 35793-36075);
+    June's G02 drops it. Vertex diff March vs June G02: only the signpost + the step at x 34882-34979 (March) vs a crate at x 35000-35167 closing
+    the ledge (June); the rest is the same geometry re-cut (120 vs 212 meshes), March also naming 6 textures June re-textured (all present).
+    Restored March's G02 byte-exact (md5 baf1759e; June's copy in `20261112_w3f_june_boards`), matching March's line map.
+  - **Cobo Express (B) lacked the Elder / Altera rests.** June's `DLG_Destination_byButton.lua` (datai014, core list) has no `Village_1000` /
+    `Village_1002`; March's did (backup `20261009_141115`). March's two static blocks inserted at March's positions with a `-- june-dungeons W3f`
+    line; `X2StateMenu::CreateWarpDest` (June `324627f0`, atlas A5) already adds a row when the control exists, and MapData's Cobo zones give
+    1000 -> 3, 1002 -> 7 (`Handlers_Social.cpp` warp handler prices them). The Peita rest (1003) was in neither list.
+  - `luasrc.py refresh` datai014; ledger / core check PASS; G02 added to `KEPT_MARCH` / `KEPT_MARCH_W3F`. PACK OK + COPY OK data031 (md5 1f20d388) + datai014 (cf326d55) (one entry
+    each). MODS.md entry rewritten as a "MERGE MOD" note (user ask).

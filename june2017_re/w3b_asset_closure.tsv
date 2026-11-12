@@ -1107,7 +1107,7 @@ VMI_ALTERA	Altera_Village_center_topni1.dds	Altera_Village_G01.Y	same
 VMI_ALTERA	Altera_Village_circle.dds	Altera_Village_G01.Y	same
 VMI_ALTERA	Altera_Village_Festival.lua	WorldData:WI_VILLAGE_ALTERA	same
 VMI_ALTERA	Altera_Village_G01.Y	Altera_Village_Festival.lua	same
-VMI_ALTERA	Altera_Village_G02.Y	Altera_Village_Festival.lua	same
+VMI_ALTERA	Altera_Village_G02.Y	Altera_Village_Festival.lua	differs
 VMI_ALTERA	Altera_Village_G03.Y	Altera_Village_Festival.lua	same
 VMI_ALTERA	Altera_Village_G04.Y	Altera_Village_Festival.lua	same
 VMI_ALTERA	Altera_Village_ganpan_bigsangin.dds	Altera_Village_G01.Y	same

@@ -28,7 +28,8 @@ SND = (".ogg", ".wav")
 KEEP = MODEL + TEX + SND + (".lua", ".xet", ".tet")
 # W3f (user 2026-11-12): March's route boards / Altera line map kept on purpose; never listed for stage-june again.
 KEPT_MARCH = {"besma_village_alpha_text.y", "field_peita_villeage_sign.y", "field_elder_stagerest_alpaguide.y",
-              "field_besma_rest_g01_navi.y", "altera_village_typo.y", "linemap_altera_village.lua"}
+              "field_besma_rest_g01_navi.y", "altera_village_typo.y", "linemap_altera_village.lua",
+              "altera_village_g02.y"}
 
 _live_kom = {}
 def live_bytes(ln):
