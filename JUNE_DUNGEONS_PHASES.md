@@ -131,6 +131,18 @@ Elder fields 1 / 2 middle bosses (June has none), `MAX_JOIN_USER_COUNT`, the Vel
 Sander fields, `RAID_FIELD_PORTAL_POSITION_INDEX`, the Nasod raid row, `raid_ssky.dds`) stay with C3z-8. Kickoff `W3e.md`; evidence
 `june2017_re/w3c_field_closure.tsv`.
 
+## Phase W3f - March's route on June's villages (user 2026-11-12, after W3c)
+
+**Run with:** Opus 5.5 high, then a user play-test. **User decision (2026-11-12): June's villages and placement stay, but March's route and
+March's sign boards come back, so no field is cut off.** It replaces W3c's route choice and, for the route's boards and line maps only, the
+"June's same-name asset replaces March's" rule. Undo W3c's route rows (each carries `-- june-dungeons W3c` with March's value): data034
+`DLG_Map_Village.lua` (Besma 42 / 43, Altera 62 / 63, Peita 72, Besma rest 311 / 313 / 315, restore Altera 67) and data036 `BattleFieldData.lua`
+(Elder field 1's far portal back to the Elder rest 300). Then put March's copy back for every route board June re-labelled, from the stage backups
+(`kom_backup_stage_june/20261112_*`): candidates `Besma_Village_Alpha_Text.Y`, `Field_Peita_Villeage_sign.Y`, `Field_Elder_StageRest_alpaguide.Y`,
+`Field_Besma_Rest_G01_Navi.Y`, `Altera_Village_Typo.Y`, and whatever texture each names; and March's `LINEMAP_Altera_Village.lua` (backup
+`20261112_083532`) for the bottom walkway to Altera field 3, once it is shown to fit June's Altera world. Keep the W3c field-change ACK fix,
+the Lanox rest MapData row and the Altera / Peita field assets. Kickoff `W3f.md`.
+
 ## Order (recommendation, 2026-10-11)
 
 1. C3y-1b play-test (user) and review; 2. C3y-1c; 3. C3y-2 / 3 / 4 one at a time (identify halves can run earlier);
