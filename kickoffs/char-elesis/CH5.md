@@ -61,3 +61,9 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
 - **Lines 1 / 2 on the creation screen** go through `GetUnitClassByUnitClassTypeAndLineType` = June `3234b390`, table `337a1660` filled by `3234afb0`; Elesis block
   `337a18e0`: basic 8 (all lines), first job 29 / 30 / 35, second job 120 / 121 / 125 (lines 1 / 2 / 3). Compare March's `GetFirstLine` / `GetSecondLineElesisClassTypeByUnitClassType`.
 - **Stat chart** (`GetUnitStatInfomationChart`, June `3254ee40`; speed, range, difficulty with LOW 1 / MIDDLE 2 / HIGH 3): 8 / 29 / 120 = 2,1,2; 30 / 121 = 2,2,2. Check March's arms against it.
+
+## Amended by CH0 (2026-11-12)
+
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L372, L597, L626, L882.
+- **`ch0_classn.tsv` rows:** 5 (filter on its `proposed_phase` column).
+- `june2017_re/char_elesis/ch0_unittemplet_elesis.tsv`: every string id is in `general.ess`; June adds `m_fLobbyRotationY` (8: 30, 29: 25, 30: 1, 120: 15, 121: 1) and `m_HyperCutIn` for 120 / 121; 35 / 125 rows are June-only (24 / 26 keys). **The 35 / 125 rows must land before CHNa**: a unit with no templet dereferences NULL in `GetType()` / `GetClass()` (`X2Unit.h:734-735`). The lobby: June's `Motion_EL_Lobby.x` spells `SPK_LobbyReadyAction` / `SSK_LobbyReadyAction` where `X2UnitViewerUI.cpp` plays `...Readyaction`: check the lobby call.

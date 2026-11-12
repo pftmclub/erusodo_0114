@@ -1,0 +1,131 @@
+# skill ids: 127 distinct (Elesis tree rows of the s3 run, family X2GUEL.cpp); June names: Enum.src.lua SKILL_ID (2407 names); March C++: X2SkillTree.h SKILL_ID live branch via cl /P (1507 names); core: live data036_kom/Enum.lua SKILL_ID (805 names)
+# tally: core:absent 72, core:name 55, lookalike 28, name 8, none 91
+# cpp_enum: name = same name+value live; lookalike = RNSI_ -> SI_ name live; value-only = other live name at the value; none = no live member at the value. cpp_state: live / DEAD-BRANCH / COMMENTED / absent
+kind	june_name	june_value	june_enum_line	cpp_enum	cpp_h_line	cpp_state	core_enum_lua	core_line	skill_type	tree_classes	templet_name	note
+skill	RNSI_P_COMMON_HYPER_AURA	106	15375	name	2291	live	absent		1	120,121,125	Awakened One	march live names at value: RNSI_P_COMMON_HYPER_AURA
+skill	SI_ETC_WS_COMMON_LOVE	900	16050	name	132	live	absent		12	8,29,30,35,120,121,125	Extreme Heavenly Love	march live names at value: SI_ETC_WS_COMMON_LOVE
+skill	RNSI_SA_EL_SPIRAL_BLAST	28000	16064	none		absent	name	12604	15	8,29,30,35,120,121,125	Spiral Blast	
+skill	RNSI_SA_EL_WILD_SHOCK	28001	15982	lookalike		absent	name	12606	15	8,29,30,35,120,121,125	Wild Shock	
+skill	RNSI_SA_EL_MEGA_BURSTER	28002	14267	lookalike		absent	name	12603	16	8,29,30,35,120,121,125	Mega Buster	
+skill	RNSI_SA_EL_SONIC_ASSAULT_STING	28003	15283	none		absent	name	12892	14	8,29,30,35,120,121,125	Sonic Assault	
+skill	RNSI_SA_EL_UNLIMITED_BLADE	28004	14701	lookalike		absent	name	12605	16	8,29,30,35,120,121,125	Unlimited Blade	
+skill	RNSI_SA_SSK_EXTINCTION	28005	15496	lookalike		absent	name	12822	15	29,120	Saber - Extinction	
+skill	RNSI_SA_SSK_CRITICAL_DIVE	28006	16078	none		absent	name	12905	14	29,120	Critical Dive	
+skill	RNSI_SA_SSK_JUDGEMENT_DRIVE	28007	15282	lookalike		absent	name	12823	16	29,120	Sword of Judgement	
+skill	RNSI_SA_SGM_VICTORIOUS_SWORD	28008	14702	none		absent	name	12904	16	120	Sword of Victory	
+skill	RNSI_SA_SGM_WAR_PRELUDE	28009	15801	lookalike		absent	name	12818	15	120	War Prelude	
+skill	RNSI_SA_SGM_JUGGERNAUT_BUSTER	28010	14515	lookalike		absent	name	12816	15	120	Juggernaut Buster	
+skill	RNSI_SA_SGM_SONIC_BLADE	28011	15059	lookalike		absent	name	12817	14	120	Sonic Blade	
+skill	RNSI_SA_SPK_SWORDFIRE	28012	15651	lookalike		absent	name	12821	15	30,121	Sword Fire	
+skill	RNSI_SA_SPK_SCALDIC_SWORD	28013	14784	none		absent	name	12820	14	30,121	Scaldic Sword	
+skill	RNSI_SA_SPK_INFERNAL_BLADE	28014	14705	lookalike		absent	name	12819	16	30,121	Infernal Blade	
+skill	RNSI_SA_SBH_ETERNAL_FIRE	28015	16463	none		absent	name	12801	16	121	Eternal Fire	
+skill	RNSI_SA_SBH_BLAZING_DANCE	28016	14509	lookalike		absent	name	12799	15	121	Blazing Dance	
+skill	RNSI_SA_SBH_BLAZE_WING	28017	14713	lookalike		absent	name	12798	15	121	Blazing Wing	
+skill	RNSI_SA_SBH_WALL_OF_PROMINENCE	28018	16193	name	1716	live	name	12804	14	121	Fire Wall	march live names at value: RNSI_SA_SBH_WALL_OF_PROMINENCE
+skill	RNSI_SA_SDK_EJECTION_BUSTER	28019	16387	none		absent	name	12812	15	35,125	Ejection Buster	
+skill	RNSI_SA_SDK_BRUTAL_CUTTER	28020	14506	none		absent	name	12901	14	35,125	Brutal Cutter	
+skill	RNSI_SA_SDK_BURNING_PHANTOM	28021	14338	none		absent	name	12811	16	35,125	Burning Phantom	
+skill	RNSI_SA_SCA_BRANDISH_BREAKER	28022	14717	none		absent	name	12807	16	125	Brandish Breaker	
+skill	RNSI_SA_SCA_BLOOD_CUTTER	28023	14826	name	1717	live	name	12805	15	125	Blood Cutter	march live names at value: RNSI_SA_SCA_BLOOD_CUTTER
+skill	RNSI_SA_SCA_SHADE_THE_ILLUSION	28024	15082	none		absent	name	12810	15	125	Shade Illusion	
+skill	RNSI_SA_SCA_DREAD_WEAPON	28025	16575	lookalike		absent	name	12808	14	125	Dread Weapon	
+skill	RNSI_SA_EL_SPIRAL_BLAST_UPGRADE	28026	14722	none		absent	absent		15	8,29,30,35,120,121,125	#Cffcc00[Enhanced]#CX\nSpiral Blast	
+skill	RNSI_SA_EL_WILD_SHOCK_UPGRADE	28027	16283	none		absent	absent		15	8,29,30,35,120,121,125	#Cffcc00[Enhanced]#CX\nWild Shock	
+skill	RNSI_SA_EL_MEGA_BURSTER_UPGRADE	28028	16337	none		absent	absent		16	8,29,30,35,120,121,125	#Cffcc00[Enhanced]#CX\nMega Buster	
+skill	RNSI_SA_EL_SONIC_ASSAULT_STING_UPGRADE	28029	15436	none		absent	absent		14	8,29,30,35,120,121,125	#Cffcc00[Enhanced]#CX\nSonic Assault	
+skill	RNSI_SA_EL_UNLIMITED_BLADE_UPGRADE	28030	15708	none		absent	absent		16	8,29,30,35,120,121,125	#Cffcc00[Enhanced]#CX\nUnlimited Blade	
+skill	RNSI_SA_SSK_EXTINCTION_UPGRADE	28033	15951	none		absent	absent		15	29,120	#Cffcc00[Enhanced]#CX\nSaber - Extinction	
+skill	RNSI_SA_SPK_SWORDFIRE_UPGRADE	28034	14284	none		absent	absent		15	30,121	#Cffcc00[Enhanced]#CX\nSword Fire	
+skill	RNSI_SA_SDK_EJECTION_BUSTER_UPGRADE	28035	15149	none		absent	absent		15	35,125	#Cffcc00[Enhanced]#CX\nEjection Buster	
+skill	RNSI_SA_SSK_CRITICAL_DIVE_UPGRADE	28036	15242	none		absent	absent		14	29,120	#Cffcc00[Enhanced]#CX\nCritical Dive	
+skill	RNSI_SA_SPK_SCALDIC_SWORD_UPGRADE	28037	15949	none		absent	absent		14	30,121	#Cffcc00[Enhanced]#CX\nScaldic Sword	
+skill	RNSI_SA_SDK_BRUTAL_CUTTER_UPGRADE	28038	15404	none		absent	absent		14	35,125	#Cffcc00[Enhanced]#CX\nBrutal Cutter	
+skill	RNSI_SA_SGM_CROSS_SLASH	28039	15331	none		absent	name	12813	14	120	Cross Slash	
+skill	RNSI_SA_SGM_DIVINE_BLADE	28040	15738	none		absent	name	12814	15	120	Divine Blade	
+skill	RNSI_SA_SBH_BURST_RISING	28041	16477	none		absent	name	12800	14	121	Rising Burst	
+skill	RNSI_SA_SBH_IGNIS_CRASHER	28042	15868	none		absent	name	12802	15	121	Ignis Crusher	
+skill	RNSI_SA_SCA_CHASING_SWORD	28043	15564	none		absent	absent		14	125	Chaser Sword	
+skill	RNSI_SA_SCA_SHADE	28044	14303	none		absent	name	12809	15	125	Shade	
+skill	RNSI_SA_SSK_JUDGEMENT_DRIVE_UPGRADE	28045	15806	none		absent	absent		16	29,120	#Cffcc00[Enhanced]#CX Sword of Judgement	
+skill	RNSI_SA_SGM_VICTORIOUS_SWORD_UPGRADE	28046	15200	none		absent	absent		16	120	#Cffcc00[Enhanced]#CX Sword of Victory	
+skill	RNSI_SA_SGM_WAR_PRELUDE_UPGRADE	28047	14393	none		absent	absent		15	120	#Cffcc00[Enhanced]#CX War Prelude	
+skill	RNSI_SA_SGM_JUGGERNAUT_BUSTER_UPGRADE	28048	16443	none		absent	absent		15	120	#Cffcc00[Enhanced]#CX Juggernaut Buster	
+skill	RNSI_SA_SGM_SONIC_BLADE_UPGRADE	28049	14648	none		absent	absent		14	120	#Cffcc00[Enhanced]#CX Sonic Blade	
+skill	RNSI_SA_SPK_INFERNAL_BLADE_UPGRADE	28050	15322	none		absent	absent		16	30,121	#Cffcc00[Enhanced]#CX Infernal Blade	
+skill	RNSI_SA_SBH_ETERNAL_FIRE_UPGRADE	28051	15029	none		absent	absent		16	121	#Cffcc00[Enhanced]#CX Eternal Fire	
+skill	RNSI_SA_SBH_BLAZING_DANCE_UPGRADE	28052	15031	none		absent	absent		15	121	#Cffcc00[Enhanced]#CX Blazing Dance	
+skill	RNSI_SA_SBH_BLAZE_WING_UPGRADE	28053	15034	none		absent	absent		15	121	#Cffcc00[Enhanced]#CX Blazing Wing	
+skill	RNSI_SA_SBH_WALL_OF_PROMINENCE_UPGRADE	28054	16046	name	1718	live	absent		14	121	#Cffcc00[Enhanced]#CX Fire Wall	march live names at value: RNSI_SA_SBH_WALL_OF_PROMINENCE_UPGRADE
+skill	RNSI_SA_SDK_BURNING_PHANTOM_UPGRADE	28055	15243	none		absent	absent		16	35,125	#Cffcc00[Enhanced]#CX Burning Phantom	
+skill	RNSI_SA_SCA_BRANDISH_BREAKER_UPGRADE	28056	15041	none		absent	absent		16	125	#Cffcc00[Enhanced]#CX Brandish Breaker	
+skill	RNSI_SA_SCA_BLOOD_CUTTER_UPGRADE	28057	16350	name	1719	live	absent		15	125	#Cffcc00[Enhanced]#CX Blood Cutter	march live names at value: RNSI_SA_SCA_BLOOD_CUTTER_UPGRADE
+skill	RNSI_SA_SCA_SHADE_THE_ILLUSION_UPGRADE	28058	14812	none		absent	absent		15	125	#Cffcc00[Enhanced]#CX Shade Illusion	
+skill	RNSI_SA_SCA_DREAD_WEAPON_UPGRADE	28059	15044	none		absent	absent		14	125	#Cffcc00[Enhanced]#CX Dread Weapon	
+skill	RNSI_SA_SGM_GIGA_BLAST	28062	15167	none		absent	name	12815	16	120	Giga Blast	
+skill	RNSI_SA_SBH_SOUL_IGNITION	28063	16521	none		absent	name	12803	16	121	Soul Ignition	
+skill	RNSI_SA_SCA_BLOOD_FALLS	28064	14804	none		absent	name	12806	16	125	Blood Falls	
+skill	RNSI_A_EL_DODGE_AND_SLASH	28200	15939	lookalike		absent	name	12855	6	8,29,30,35,120,121,125	Dodge and Slash	
+skill	RNSI_A_EL_ENDURANCE_POWER	28201	16082	lookalike		absent	name	12210	6	8,29,30,35,120,121,125	Iron Body - Strong	
+skill	RNSI_A_SSK_RUSHING_SWORD	28202	16265	none		absent	name	12871	6	29,120	Rushing Sword	
+skill	RNSI_A_SSK_POWER_BREAK	28203	16070	lookalike		absent	name	12318	6	29,120	Power Break	
+skill	RNSI_A_SSK_LEAP_CRASH	28204	15658	none		absent	name	12317	6	29,120	Leap	
+skill	RNSI_A_SGM_PROVOKE	28205	16273	lookalike		absent	name	12313	6	120	Provoke	
+skill	RNSI_A_SGM_DRASTIC_CHARGE	28206	16404	lookalike		absent	name	12312	6	120	Drastic Charge	
+skill	RNSI_A_SPK_BIG_BURST	28207	14727	lookalike		absent	name	12315	6	30,121	Explosive Fist	
+skill	RNSI_A_SPK_AVATAR_OF_THE_FIRE	28208	14497	none		absent	name	12314	6	30,121	Avatar of Fire	
+skill	RNSI_A_SPK_FIREWORKS	28209	15021	none		absent	name	12316	6	30,121	Fireplay	
+skill	RNSI_A_SBH_FLAME_SWORD	28210	15159	lookalike		absent	name	12305	6	121	Red Lotus Sword	
+skill	RNSI_A_SBH_SCALET_ROSE	28211	14495	lookalike		absent	name	12306	6	121	Flame Rose	
+skill	RNSI_A_SDK_DARK_WAVE	28212	15433	none		absent	name	12309	6	35,125	Dark Wave	
+skill	RNSI_A_SDK_INJECTION_STIGMA	28213	14560	none		absent	name	12310	6	35,125	Injection Stigma	
+skill	RNSI_A_SDK_SHADE_SCRATCH	28214	15012	none		absent	name	12311	6	35,125	Shade Scratch	
+skill	RNSI_A_SCA_SHADOW_EDGE	28215	15464	none		absent	name	12308	6	125	Shadow Edge	
+skill	RNSI_A_SCA_ASSAULT_STRIKE	28216	14315	none		absent	name	12307	6	125	Assault Strike	
+skill	RNSI_A_EL_DODGE_AND_SLASH_UPGRADE	28217	15119	none		absent	absent		6	8,29,30,35,120,121,125	#Cffcc00[Enhanced]#CX\nDodge and Slash	
+skill	RNSI_A_EL_ENDURANCE_POWER_UPGRADE	28218	15236	none		absent	absent		6	8,29,30,35,120,121,125	#Cffcc00[Enhanced]#CX\nIron Body - Strong	
+skill	RNSI_A_SSK_RUSHING_SWORD_UPGRADE	28219	15494	none		absent	absent		6	29,120	#Cffcc00[Enhanced]#CX\nRushing Sword	
+skill	RNSI_A_SPK_BIG_BURST_UPGRADE	28220	14402	none		absent	absent		6	30,121	#Cffcc00[Enhanced]#CX Explosive Fist	
+skill	RNSI_A_SDK_DARK_WAVE_UPGRADE	28221	15621	none		absent	absent		6	35,125	#Cffcc00[Enhanced]#CX\nDark Wave	
+skill	RNSI_A_SGM_UPPER_SLASH	28222	16063	none		absent	absent		6	120	Upper Slash	
+skill	RNSI_A_SBH_FLAME_PROTECTION	28223	16426	none		absent	name	12304	6	121	Flame Protection	
+skill	RNSI_A_SCA_BLOOD_STING	28224	14308	none		absent	absent		6	125	Blood Sting	
+skill	RNSI_A_SSK_POWER_BREAK_UPGRADE	28225	15196	none		absent	absent		6	29,120	#Cffcc00[Enhanced]#CX Power Break	
+skill	RNSI_A_SSK_LEAP_CRASH_UPGRADE	28226	16121	none		absent	absent		6	29,120	#Cffcc00[Enhanced]#CX Leap	
+skill	RNSI_A_SGM_PROVOKE_UPGRADE	28227	15047	none		absent	absent		6	120	#Cffcc00[Enhanced]#CX Provoke	
+skill	RNSI_A_SGM_DRASTIC_CHARGE_UPGRADE	28228	14363	none		absent	absent		6	120	#Cffcc00[Enhanced]#CX Drastic Charge	
+skill	RNSI_A_SPK_AVATAR_OF_THE_FIRE_UPGRADE	28229	15358	none		absent	absent		6	30,121	#Cffcc00[Enhanced]#CX Avatar of Fire	
+skill	RNSI_A_SPK_FIREWORKS_UPGRADE	28230	16246	none		absent	absent		6	30,121	#Cffcc00[Enhanced]#CX Fireplay	
+skill	RNSI_A_SBH_FLAME_SWORD_UPGRADE	28231	15695	none		absent	absent		6	121	#Cffcc00[Enhanced]#CX Red Lotus Sword	
+skill	RNSI_A_SBH_SCALET_ROSE_UPGRADE	28232	16614	none		absent	absent		6	121	#Cffcc00[Enhanced]#CX Flame Rose	
+skill	RNSI_A_SDK_INJECTION_STIGMA_UPGRADE	28233	15050	none		absent	absent		6	35,125	#Cffcc00[Enhanced]#CX Injection Stigma	
+skill	RNSI_A_SDK_SHADE_SCRATCH_UPGRADE	28234	15051	none		absent	absent		6	35,125	#Cffcc00[Enhanced]#CX Shade Scratch	
+skill	RNSI_A_SCA_SHADOW_EDGE_UPGRADE	28235	14930	none		absent	absent		6	125	#Cffcc00[Enhanced]#CX Shadow Edge	
+skill	RNSI_A_SCA_ASSAULT_STRIKE_UPGRADE	28236	15054	none		absent	absent		6	125	#Cffcc00[Enhanced]#CX Assault Strike	
+skill	RNSI_P_SSK_CHIVALRY	28400	16569	lookalike		absent	absent		8	29,120	Knight's Destiny	
+skill	RNSI_P_SSK_FIRST_STRIKE	28401	15649	none		absent	absent		8	120	Initiate	
+skill	RNSI_P_SGM_AGILITY_MASTERY	28402	16427	none		absent	absent		8	29,120	Enhanced Agility	
+skill	RNSI_P_SGM_WALTZ_OF_SWORD	28403	16659	lookalike		absent	absent		8	120	Waltz of the Sword	
+skill	RNSI_P_SGM_ADVANCED_KNIGHT_MASTERY	28404	14823	lookalike		absent	absent		8	120	Skilled Knight	
+skill	RNSI_P_SPK_BODY_OF_FIRE	28405	15693	name	2521	live	absent		8	30,121	Body of Fire	march live names at value: RNSI_P_SPK_BODY_OF_FIRE
+skill	RNSI_P_SPK_FIRE_BLOSSOMS	28406	16239	none		absent	absent		8	121	Blooming Flame	
+skill	RNSI_P_SBH_CONCENTRATION_MASTERY	28407	16236	none		absent	absent		8	30,121	Enhanced Concentration	
+skill	RNSI_P_SBH_STIGMA_OF_FIRE	28408	15859	lookalike		absent	absent		8	121	Fire Stigma	
+skill	RNSI_P_SBH_UNEXTINGUISHABLE_FIRE	28409	14863	lookalike		absent	absent		8	121	Invincible Flame	
+skill	RNSI_P_SDK_DARK_FORCE	28410	15321	none		absent	absent		8	35,125	Dark Force	
+skill	RNSI_P_SDK_JUDGMENT	28411	15778	none		absent	absent		8	125	Judgement	
+skill	RNSI_P_SCA_BLOOD_REVENGE	28412	16608	none		absent	absent		8	35,125	Revenge of Blood	
+skill	RNSI_P_SCA_PUNISH	28413	15730	none		absent	absent		8	125	Condemnation	
+skill	RNSI_P_SCA_BLOOD_RUNAWAY	28414	15613	none		absent	absent		8	125	Overflowing Blood	
+skill	RNSI_P_SGM_TRANSCENDENCE	28415	15168	none		absent	absent		1	120	Awakened Will: Grand Master	
+skill	RNSI_P_SGM_DIGNITY_OF_GRAND_MASTER	28416	15466	none		absent	absent		1	120	The Knight-Captain	
+skill	RNSI_P_SBH_TRANSCENDENCE	28417	16263	none		absent	absent		1	121	Awakened Will: Blazing Heart	
+skill	RNSI_P_SBH_BLAZE_ABSOLU	28418	15734	none		absent	absent		1	121	Mistress of Inferno	
+skill	RNSI_P_SCA_TRANSCENDENCE	28419	14307	none		absent	absent		1	125	Awakened Will: Crimson Avenger	
+skill	RNSI_P_SCA_MADNESS	28420	15419	name	2582	live	absent		1	125	Berserk	march live names at value: RNSI_P_SCA_MADNESS
+skill	RNSI_HA_SGM_SWORD_OF_RELICS	28600	15395	lookalike		absent	name	12355	13	120	Sword of Relics	
+skill	RNSI_HA_SBH_ANCIENT_FIRE	28601	14385	lookalike		absent	name	12353	13	121	Ancient Fire	
+skill	RNSI_HA_SCA_FATE_SMASHER	28602	14958	none		absent	name	12354	13	125	Fate Smash	
+skill	RNSI_HA_SGM_SWORD_OF_RELICS_UPGRADE	28603	14488	none		absent	absent		13	120	#Cffcc00[Enhanced]#CX\nSword of Relics	
+skill	RNSI_HA_SBH_ANCIENT_FIRE_UPGRADE	28604	15237	none		absent	absent		13	121	#Cffcc00[Enhanced]#CX\nAncient Fire	
+skill	RNSI_HA_SCA_FATE_SMASHER_UPGRADE	28605	14331	none		absent	absent		13	125	#Cffcc00[Enhanced]#CX\nFate Smash	

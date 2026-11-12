@@ -7,7 +7,7 @@
 | Depends on | CH0 (and its amendments), the previous CH1 sub-phase (the char-ara Z gate was dropped, user 2026-11-12). One at a time with CH1-CH4: they all edit `X2GUEL.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ELESIS_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_ELESIS_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
-| Review | none of its own: the CH1g review covers it (its `_DEBUG` define, if any, stays on) |
+| Review | none of its own: the CH1g2 review covers it (CH0 split) (its `_DEBUG` define, if any, stays on) |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 
@@ -52,3 +52,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH1e"' june2017_re/char_elesis/ch0_class_map.tsv` = 21 (10 listing-only: col 9 `n`; 15 `inside`, 6 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Script states:** `awk -F'\t' '$8=="CH1e"' june2017_re/char_elesis/ch0_state_skill.tsv` = 27.
+- **`ch0_classn.tsv` rows:** 2 (filter on its `proposed_phase` column).

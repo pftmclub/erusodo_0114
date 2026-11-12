@@ -39,3 +39,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH1n"' june2017_re/char_elesis/ch0_class_map.tsv` = 1 (0 listing-only: col 9 `n`; 1 `inside`, 0 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L447.
+- `june2017_re/char_elesis/ch0_skill_switches.tsv` (287 rows): (a) 31 entries from 28031 (28031 / 28060 Juggernaut Buster, 28032 / 28061 Blazing Dance), (b) skill type 5..16, (c) 28000..28236 (237 entries, 55 targets, 96 ids register), (d) 28601..28605; compares 28600 and 900. `ch0_skill_listing_rows.tsv` 167 rows; 12 states get their hyper callbacks copied by `329cc2c0` (Ghidra shows none: the listing is right). No second skill switch (0x68c = the base `3208ddc0`). The four delegates CH0 first saw here (`32b52470`, `32b524b0`, `32b6fd50`, `32b6f820`) are InitPassiveSkillState's (CH4a).

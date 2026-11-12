@@ -52,3 +52,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH1h"' june2017_re/char_elesis/ch0_class_map.tsv` = 24 (11 listing-only: col 9 `n`; 18 `inside`, 6 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L267, L296, L988.
+- Overrides named by body: 0x29c `GetReduceDebuffDurationRate` `32b6fc40` (reads `+0x95d0`), 0x4ac `32b90420` returns June state 0xbb = id 187 = `ESI_SWORD_WAIT` (by name). Unnamed for this phase: 0x534 `32b90430` (base `3208e8c0` state test, then a class state-group test; name by body) and 0x558 `32b6fb80` (a gauge-data ratio, base returns 0). ReInit / InitComponent carry Way of the Sword lines (`ch0_wos.tsv`: ReInit nudges the point and ends + re-enters TOWARD outside PvP, InitComponent ends with `RefreshWayOfSwordUI`): those lines under `_WOS`. ReInit calls `32b81300` (Shadow Edge list, CH4c): declare it.

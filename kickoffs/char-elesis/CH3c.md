@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-elesis CH3c` |
 | Plan doc | `JUNE_CHARACTER_ELESIS_PHASES.md` (branch `main`) |
-| Depends on | CH3b, CHNb review (tested on a 125 unit). One at a time with CH1-CH4: they all edit `X2GUEL.*` |
+| Depends on | CH3b2, CHNb review (tested on a 125 unit). One at a time with CH1-CH4: they all edit `X2GUEL.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ELESIS_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`ELESIS SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
 | Review | none of its own: the CH3d review covers it (its `_DEBUG` define stays on) |
@@ -45,3 +45,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH3c"' june2017_re/char_elesis/ch0_class_map.tsv` = 36 (18 listing-only: col 9 `n`; 0 `inside`, 36 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Script states:** `awk -F'\t' '$8=="CH3c"' june2017_re/char_elesis/ch0_state_skill.tsv` = 14.
+- **Skill ids** (16): 28022, 28023, 28024, 28025, 28043, 28044, 28056, 28057, 28058, 28059, 28064, 28215, 28216, 28224, 28235, 28236.
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L52.
+- The 10 bare `SI_` Crimson Avenger tables are here; Blood Cutter `32b8b0c0` spawns NPC 1641 (CH3b0 wrote it).

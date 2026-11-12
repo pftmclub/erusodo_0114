@@ -50,3 +50,8 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **`ch0_classn.tsv` rows:** 9 (filter on its `proposed_phase` column).
+- `june2017_re/char_elesis/ch0_classn_route.tsv`: 35569-35572 (class 8, level 15, `CJT_JOB_THIRD`; 35572 grants 35 + 109999 + 293720) and 35573-35577 (class 35, level 35; 35577 grants 125 + 110850 + 293721); `Handlers_Quest.cpp:586-625` already grants any class. `LevelUpEvent.lua`: June's level-15 row opens `DLG_1ST_...`, level-35 lists 29 / 30 / 35 and opens `DLG_2ND_...` (live: March's guide / no dialog). Open check: `GuideAcceptClassUpQuest` lists quests that start at Echo; 35569 starts at Lenpad, 35573 at Ariel: test the third-line Accept button.

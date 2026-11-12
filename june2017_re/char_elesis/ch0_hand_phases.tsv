@@ -1,0 +1,159 @@
+fn	phase	why	march_pair
+32b87a60	CH1m	InitState (vslot 0x7a4): the wrapper (START / WIN / LOSE roll rows 9 / 11 / 12 + id 130, then 32b81be0 + 3202b110 + 32b864f0)	X2GUEl.h:261 virtual void InitState();
+32b81be0	CH1m	InitState part 1 (registrations incl. the hyper row id 23); called by the wrapper 32b87a60	X2GUEl.h:261 virtual void InitState();
+32b864f0	CH1m	InitState part 2 (registrations); called by the wrapper 32b87a60	X2GUEl.h:261 virtual void InitState();
+32b8c470	CH1n	SetEquippedSkillFuncBySkillSlotIndex (vslot 0x7b4): skill-state switch, head with CH1n, case bodies by their state	X2GUEl.h:264 virtual void SetEquippedSkillFuncBySkillSlotIndex
+32b88300	CH4a	InitPassiveSkillState (vslot 0x690)	X2GUEl.h:263 virtual void InitPassiveSkillState();
+32b80f20	CH4b	SetDamageExceptionProcess (vslot 0x2b8)	X2GUEl.h:912 virtual void SetDamageExceptionProcess
+32b7ebe0	CH4b	GetActualMPConsume (vslot 0x6a0)	X2GUEl.h:282 virtual float GetActualMPConsume
+32b7ee10	CH4b	GetActualCoolTime (vslot 0x6a4)	X2GUEl.h:284 virtual float GetActualCoolTime
+32b52260	CH4b	vslot 0x428 override (name unsettled)	
+32b74ed0	CH1q	vslot 0x74 override (name unsettled; Way of Sword)	X2GUEL.cpp:4004 CX2GUEL::GetFinalDamage_WayOfSword
+32b4ef90	CH1q	vslot 0x78 override (name unsettled; Way of Sword)	X2GUEL.cpp:4028 CX2GUEL::SetCriticalPercent_WayOfSword
+32b7ef90	CH1q	vslot 0xd0 override (name unsettled; Way of Sword)	X2GUEL.cpp:1970 CX2GUEL::CreateGageData
+32b52790	CH1q	vslot 0x674 override (name unsettled; Way of Sword)	X2GUEl.h:840 CX2GUEL::GetWayOfSwordState
+32b527e0	CH1q	vslot 0x678 override (name unsettled; Way of Sword)	X2GUEl.h:843 CX2GUEL::GetWayOfSwordPoint
+32b52800	CH1q	vslot 0x67c override (name unsettled; Way of Sword)	X2GUEl.h:844 CX2GUEL::SetWayOfSwordPoint
+32b903e0	CH1q	vslot 0x720 override (name unsettled; Way of Sword)	
+32b903f0	CH1q	vslot 0x724 override (name unsettled; Way of Sword)	
+32b90400	CH1q	vslot 0x72c override (name unsettled; Way of Sword)	
+32b6ac80	CH1q	vslot 0x740 override (name unsettled; Way of Sword)	
+32b6acb0	CH1q	vslot 0x744 override (name unsettled; Way of Sword)	
+32b89260	CH3b0	SetSpecificValueByBuffTempletID (vslot 0x24c)	X2GUEl.h:830 virtual void SetSpecificValueByBuffTempletID
+32b74500	CH3b0	UnSetSpecificValueByBuffTempletID (vslot 0x250)	X2GUEl.h:831 virtual void UnSetSpecificValueByBuffTempletID
+32b7beb0	CH4c	vslot 0x4f8 override (name unsettled)	
+32b898a0	CH4c	vslot 0x4fc override (name unsettled)	
+32b816a0	CH4c	vslot 0x730 override (name unsettled)	
+32b7bad0	CH4c	vslot 0x734 override (name unsettled)	
+32b732e0	CH1o	vslot 0x83c override (name unsettled)	
+32b74760	CH1q	Way of Sword: Start Vigor	X2GUEL.cpp:3716 CX2GUEL::Start_SwordmanVigor
+32b74930	CH1q	Way of Sword: End Vigor	X2GUEL.cpp:3730 CX2GUEL::End_SwordmanVigor
+32b7f0b0	CH1q	Way of Sword: Start Destruction	X2GUEL.cpp:3740 CX2GUEL::Start_SwordmanDestruction
+32b74bf0	CH1q	Way of Sword: End Destruction	X2GUEL.cpp:3758 CX2GUEL::End_SwordmanDestruction
+32b7f370	CH1q	Way of Sword: WayOfSwordStateChange	X2GUEL.cpp:3769 CX2GUEL::WayOfSwordStateChange
+32b74f80	CH1q	state-end hook (ESI_DIE_FRONT StartFuture)	
+32b74fc0	CH1q	state-end hook (ESI_DIE_BACK StartFuture)	
+32b70ee0	CH1h	ctor: CX2GUEL::CX2GUEL (vtable store 32b70f40; its only caller 32b72489 is the unit factory 32b72430)	X2GUEl.h constructor
+32b70990	CH1h	dtor body: CX2GUEL::~CX2GUEL (vtable store 32b709ba; the scalar deleting dtor 32b90520 calls it)	X2GUEl.h:255 virtual ~CX2GUEL
+32b642f0	CH4b	MemoConditionElesis constructor (vtable 334fa4f4 store 32b642fa; RTTI MemoConditionElesis)	
+32b51980	CH4b	MemoConditionElesis vtable 334fa4f4 slot 1	
+32b519a0	CH4b	MemoConditionElesis vtable 334fa4f4 slot 2	
+32b57240	CH1a	CH0 Opus: ESI_CAN_NOT_ATTACK_JUMP_DOWN / ESI_SWORD_WAIT (wait / jump movement states; 32b6e0c0 = PlayAnimationSwordWaitStart, June 0.15 threshold when +0x95d0 > 0)	inside X2GUEl.cpp:2739 CX2GUEL::ESI_CAN_NOT_ATTACK_JUMP_DOWN_EventProcess
+32b6e0c0	CH1a	CH0 Opus: ESI_CAN_NOT_ATTACK_JUMP_DOWN / ESI_SWORD_WAIT (wait / jump movement states; 32b6e0c0 = PlayAnimationSwordWaitStart, June 0.15 threshold when +0x95d0 > 0)	
+32b700d0	CH1a	CH0 Opus: ESI_CAN_NOT_ATTACK_JUMP_DOWN / ESI_SWORD_WAIT (wait / jump movement states; 32b6e0c0 = PlayAnimationSwordWaitStart, June 0.15 threshold when +0x95d0 > 0)	inside X2GUEl.cpp:2709 CX2GUEL::SwordWaitStartFuture
+32b70100	CH1a	CH0 Opus: ESI_CAN_NOT_ATTACK_JUMP_DOWN / ESI_SWORD_WAIT (wait / jump movement states; 32b6e0c0 = PlayAnimationSwordWaitStart, June 0.15 threshold when +0x95d0 > 0)	inside X2GUEl.cpp:2710 CX2GUEL::SwordWaitStart
+32b7f580	CH1a	CH0 Opus: ESI_CAN_NOT_ATTACK_JUMP_DOWN / ESI_SWORD_WAIT (wait / jump movement states; 32b6e0c0 = PlayAnimationSwordWaitStart, June 0.15 threshold when +0x95d0 > 0)	inside X2GUEl.cpp:2711 CX2GUEL::SwordWaitEventProcess
+32b4fd00	CH1k	CH0 Opus: ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE (ids 205 / 207) / _MEMO (206): entered from NoStateChangeActionFrameMove 32b818b0 -> 32b80c60 (skills 28201 / 28218 have no switch state) and from DetonationStateChange (207)	inside X2GUEl.cpp:2721 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_Init ; inside X2GUEl.cpp:2729 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_Init
+32b59aa0	CH1k	CH0 Opus: ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE (ids 205 / 207) / _MEMO (206): entered from NoStateChangeActionFrameMove 32b818b0 -> 32b80c60 (skills 28201 / 28218 have no switch state) and from DetonationStateChange (207)	inside X2GUEl.cpp:2722 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_EventProcess ; inside X2GUEl.cpp:2730 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_EventProcess
+32b75c90	CH1k	CH0 Opus: ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE (ids 205 / 207) / _MEMO (206): entered from NoStateChangeActionFrameMove 32b818b0 -> 32b80c60 (skills 28201 / 28218 have no switch state) and from DetonationStateChange (207)	inside X2GUEl.cpp:2720 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_StateStart
+32b80840	CH1k	CH0 Opus: ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE (ids 205 / 207) / _MEMO (206): entered from NoStateChangeActionFrameMove 32b818b0 -> 32b80c60 (skills 28201 / 28218 have no switch state) and from DetonationStateChange (207)	inside X2GUEl.cpp:2720 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_StateStart ; inside X2GUEl.cpp:2728 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_StateStart
+32b6ff20	CH4c	CH0 Opus blood map (ch0_blood.tsv): Madness chain (BFI 927/914/915/916), tail-jumped from CommonFrameMove: CH1j declares it	
+32b7e9a0	CH4c	CH0 Opus blood map (ch0_blood.tsv): transcendence berserker chain (BFI 911/912/913), called under CommonFrameMove: CH1j declares it	
+32b87880	CH4c	CH0 Opus blood map (ch0_blood.tsv): Blood Runaway delegate (BFI 462 / 659, BTI 426); pushed by InitPassiveSkillState: CH4a declares it	none in March: Elesis Blood Runaway hit block
+32b81220	CH4c	CH0 Opus blood map (ch0_blood.tsv): Shadow Edge record list at +0x9700 (0x730 family)	
+32b81300	CH4c	CH0 Opus blood map (ch0_blood.tsv): Shadow Edge list remove helper (ReInit / 0x730 family): CH1h declares it	
+32b813d0	CH4c	CH0 Opus blood map (ch0_blood.tsv): Shadow Edge list per-frame owner (heal tick, skill 28215); CommonFrameMove calls it: CH1j declares it	
+32b7e740	CH4a	CH0 Opus: Grand Master aura BFI 909 / 910 (Dignity of Grand Master): passive, not blood	
+32b734d0	CH4a	CH0 Opus: per-frame passive tick (March twin FireBlossomsProc_FrameMove X2GUEL.cpp:9347; BFI 666 under 50% HP, debuff cleanse)	X2GUEL.cpp:9347 CX2GUEL::FireBlossomsProc_FrameMove
+32b7e3b0	CH4a	CH0 Opus: Burning Phantom heal delegate (trigger 9), pushed by InitPassiveSkillState	
+32b4f420	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	inside X2GUEl.cpp:1189 CX2GUEL::ESI_SI_A_EL_LEAP_CRASH_Init
+32b4f460	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	inside X2GUEl.cpp:1220 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_Init
+32b4fdc0	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	inside X2GUEl.cpp:1074 CX2GUEL::ESI_SI_A_SSK_POWER_BREAK_Init
+32b50a30	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1288 CX2GUEL::ESI_A_SGM_PROVOKE_Init
+32b50b00	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	
+32b50b30	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1319 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_START_Init
+32b50bc0	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1320 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_START_StateStart ; inside X2GUEl.cpp:1350 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_END_StateStart
+32b50be0	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1323 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_START_StartFurture
+32b50c10	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1350 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_END_StateStart
+32b51070	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2866 CX2GUEL::ESI_COMBO_SBH_XZ_Init
+32b51090	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2874 CX2GUEL::ESI_COMBO_SBH_XZZ_Init
+32b510f0	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2882 CX2GUEL::ESI_COMBO_SBH_XZZZ_Init
+32b51110	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2890 CX2GUEL::ESI_DASH_COMBO_SBH_X_Init
+32b511d0	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2900 CX2GUEL::ESI_DASH_COMBO_SBH_XX_Init
+32b51290	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2909 CX2GUEL::ESI_DASH_COMBO_SBH_XXX_Init
+32b51350	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2918 CX2GUEL::ESI_DASH_COMBO_SBH_XXXZ_Init
+32b513e0	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	inside X2GUEl.cpp:985 CX2GUEL::ESI_SI_A_SBH_FLAME_SWORD_Init
+32b514c0	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	inside X2GUEl.cpp:1017 CX2GUEL::ESI_SI_A_SBH_SCALET_ROSE_Init
+32b51550	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	
+32b51a20	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b51a40	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b51a70	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b51a90	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b52390	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b523b0	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b523d0	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b52420	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b57350	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	inside X2GUEl.cpp:1190 CX2GUEL::ESI_SI_A_EL_LEAP_CRASH_EventProcess ; inside X2GUEl.cpp:1202 CX2GUEL::ESI_SI_A_EL_LEAP_CRASH_JUMP_EventProcess ; inside X2GUEl.cpp:1208 CX2GUEL::ESI_SI_A_EL_LEAP_CRASH_JUMP_LANDING_EventProcess
+32b57680	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	inside X2GUEl.cpp:1202 CX2GUEL::ESI_SI_A_EL_LEAP_CRASH_JUMP_EventProcess
+32b57960	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	inside X2GUEl.cpp:1208 CX2GUEL::ESI_SI_A_EL_LEAP_CRASH_JUMP_LANDING_EventProcess
+32b57c60	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	inside X2GUEl.cpp:1246 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_3rd_EventProcess
+32b5af20	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	inside X2GUEl.cpp:1075 CX2GUEL::ESI_SI_A_SSK_POWER_BREAK_EventProcess
+32b5faf0	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1289 CX2GUEL::ESI_A_SGM_PROVOKE_StateStart
+32b5fb10	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1291 CX2GUEL::ESI_A_SGM_PROVOKE_StateEnd
+32b5fb30	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1308 CX2GUEL::ESI_A_SGM_PROVOKE_REVENGE_EventProcess
+32b5fe30	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1322 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_START_EventProcess ; inside X2GUEl.cpp:1339 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_LOOP_EventProcess ; inside X2GUEl.cpp:1351 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_END_EventProcess
+32b5fe60	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1339 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_LOOP_EventProcess
+32b5ff40	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1340 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_LOOP_FrameMove
+32b5ffc0	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1351 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_END_EventProcess
+32b61350	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2867 CX2GUEL::ESI_COMBO_SBH_XZ_EventProcess
+32b61660	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2876 CX2GUEL::ESI_COMBO_SBH_XZZ_EventProcess
+32b61970	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2883 CX2GUEL::ESI_COMBO_SBH_XZZZ_EventProcess
+32b61bd0	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2891 CX2GUEL::ESI_DASH_COMBO_SBH_X_EventProcess
+32b61fe0	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2901 CX2GUEL::ESI_DASH_COMBO_SBH_XX_EventProcess
+32b623f0	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2910 CX2GUEL::ESI_DASH_COMBO_SBH_XXX_EventProcess
+32b62520	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2919 CX2GUEL::ESI_DASH_COMBO_SBH_XXXZ_EventProcess
+32b625b0	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	inside X2GUEl.cpp:986 CX2GUEL::ESI_SI_A_SBH_FLAME_SWORD_EventProcess ; inside X2GUEl.cpp:999 CX2GUEL::ESI_SI_A_SBH_FLAME_SWORD_FINISH_EventProcess
+32b628f0	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	inside X2GUEl.cpp:999 CX2GUEL::ESI_SI_A_SBH_FLAME_SWORD_FINISH_EventProcess
+32b62ef0	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	inside X2GUEl.cpp:1033 CX2GUEL::ESI_SI_A_SBH_SCALET_ROSE_SUCCESS_EventProcess
+32b66480	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b667a0	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b66ac0	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b66df0	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b67120	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b67420	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b67740	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b67760	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b67790	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b677b0	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b677d0	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b67a50	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b67a70	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b6b760	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b6ced0	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	
+32b6d1e0	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	
+32b6f710	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2893 CX2GUEL::ESI_DASH_COMBO_SBH_X_FrameMoveFuture
+32b6f750	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2903 CX2GUEL::ESI_DASH_COMBO_SBH_XX_FrameMoveFuture
+32b6f790	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2912 CX2GUEL::ESI_DASH_COMBO_SBH_XXX_FrameMoveFuture
+32b6f7e0	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2921 CX2GUEL::ESI_DASH_COMBO_SBH_XXXZ_FrameMoveFuture
+32b705b0	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	inside X2GUEl.cpp:1218 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_StateStart
+32b70d30	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	
+32b72cc0	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	inside X2GUEl.cpp:1215 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_StartFuture ; inside X2GUEl.cpp:1239 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_2nd_StartFuture
+32b72d70	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	
+32b72e30	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	inside X2GUEl.cpp:1239 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_2nd_StartFuture
+32b75210	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	
+32b775a0	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1321 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_START_FrameMove ; inside X2GUEl.cpp:1340 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_LOOP_FrameMove
+32b78390	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2868 CX2GUEL::ESI_COMBO_SBH_XZ_FrameMove
+32b785b0	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2875 CX2GUEL::ESI_COMBO_SBH_XZZ_FrameMove
+32b78920	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2884 CX2GUEL::ESI_COMBO_SBH_XZZZ_FrameMove
+32b78b40	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2892 CX2GUEL::ESI_DASH_COMBO_SBH_X_FrameMove
+32b78e80	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2902 CX2GUEL::ESI_DASH_COMBO_SBH_XX_FrameMove
+32b791c0	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2911 CX2GUEL::ESI_DASH_COMBO_SBH_XXX_FrameMove
+32b79500	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	inside X2GUEl.cpp:2920 CX2GUEL::ESI_DASH_COMBO_SBH_XXXZ_FrameMove
+32b796e0	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	inside X2GUEl.cpp:1018 CX2GUEL::ESI_SI_A_SBH_SCALET_ROSE_EventProcess ; inside X2GUEl.cpp:1033 CX2GUEL::ESI_SI_A_SBH_SCALET_ROSE_SUCCESS_EventProcess
+32b79b10	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	inside X2GUEl.cpp:1019 CX2GUEL::ESI_SI_A_SBH_SCALET_ROSE_FrameMove
+32b79d70	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	inside X2GUEl.cpp:1020 CX2GUEL::ESI_SI_A_SBH_SCALET_ROSE_StateEnd
+32b79db0	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	
+32b7c2e0	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b7c510	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b7c940	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b7cd70	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b7d920	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	
+32b85470	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	inside X2GUEl.cpp:1221 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_EventProcess ; inside X2GUEl.cpp:1237 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_2nd_EventProcess ; inside X2GUEl.cpp:1246 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_3rd_EventProcess
+32b85aa0	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	inside X2GUEl.cpp:1290 CX2GUEL::ESI_A_SGM_PROVOKE_EventProcess ; inside X2GUEl.cpp:1308 CX2GUEL::ESI_A_SGM_PROVOKE_REVENGE_EventProcess
+32b52470	CH4a	CH0 Opus: InitPassiveSkillState delegate, pushed through the thunk-table adapter 32b8ecf0 @32b88342 (push edx; call; ret); the builder read the adapter call as 32b8c470's	
+32b524b0	CH4a	CH0 Opus: InitPassiveSkillState delegate, pushed through the thunk-table adapter 32b8ed00 @32b88a76 (push edx; call; ret); the builder read the adapter call as 32b8c470's	
+32b6fd50	CH4a	CH0 Opus: InitPassiveSkillState delegate, pushed through the thunk-table adapter 32b8ffd0 @32b8835e (push edx; call; ret); the builder read the adapter call as 32b8c470's	
+32b6f820	CH4a	CH0 Opus: InitPassiveSkillState delegate, pushed through the thunk-table adapter 32b8ffe0 @32b88aac (push edx; call; ret); the builder read the adapter call as 32b8c470's	
+32b872d0	CH4a	CH0 Opus: InitPassiveSkillState delegate, pushed through the thunk-table adapter 32b90ab0 @32b88c21 (push edx; call; ret); the builder read the adapter call as 32b8c470's	
+32b90430	CH1o	CH0 Opus: vslot 0x534 override forwards to the June-only user virtual 3208e8c0 (no March base): Opus writes the base and the override	
+32b7e580	CH4c	CH0 Opus: Blood Runaway helper (counts units in range with CX2Game 322d4a60, June-only): CommonFrameMove (CH1j) declares it	

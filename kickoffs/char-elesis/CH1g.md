@@ -1,4 +1,4 @@
-# June character Elesis (Stage 7) - Phase CH1g - Class core: Dark Knight / Crimson Avenger lines
+# June character Elesis (Stage 7) - Phase CH1g - Class core: Dark Knight line (SDK)
 
 | | |
 |---|---|
@@ -7,7 +7,7 @@
 | Depends on | CH0 (and its amendments), the previous CH1 sub-phase (the char-ara Z gate was dropped, user 2026-11-12). One at a time with CH1-CH4: they all edit `X2GUEL.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ELESIS_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_ELESIS_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
-| Review | `kickoffs/char-elesis/CH1g-review.md` (Opus 5.5 high; the phase writes it when done); covers CH1e-CH1g and reads every `listing-only` function of those phases against the raw listing |
+| Review | none of its own: the CH1g2 review covers it (CH0 split; its `_DEBUG` define, if any, stays on) |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 
@@ -19,7 +19,7 @@ awk -F'\t' '$7=="CH1g"' june2017_re/char_elesis/ch0_class_map.tsv   # CH0 confir
 
 ## Task
 
-Transcribe every function the class map gives phase `CH1g` (the `SDK` / `SCA` combo and dash-combo states (all June-only: every row is `new`, and every state name is a new `EL_STATE_ID` member with June's id, declared here and registered by CH1m)) from Ghidra and the raw listing, **whole**. The plan's "Transcription rules
+Transcribe every function the class map gives phase `CH1g` (the `SDK` combo and dash-combo states (CH0 split: the `SCA` states are CH1g2) (all June-only: every row is `new`, and every state name is a new `EL_STATE_ID` member with June's id, declared here and registered by CH1m)) from Ghidra and the raw listing, **whole**. The plan's "Transcription rules
 (CH1a-CH1k)" apply:
 - **`inside` rows:** June's body inside March's `CX2GUEL` function under `SERV_IRUHADEV_JUNE_CHAR_ELESIS_LIVE`, March's body in `#else`, `#endif SERV_IRUHADEV_JUNE_CHAR_ELESIS_LIVE`. Add `_LIVE` to
   `Always.h` as `//#define` if no earlier phase did. Prove the June path compiles: one `cl /c` of `X2GUEL.cpp` with `/DSERV_IRUHADEV_JUNE_CHAR_ELESIS_LIVE` (the build's own
@@ -52,3 +52,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH1g"' june2017_re/char_elesis/ch0_class_map.tsv` = 18 (13 listing-only: col 9 `n`; 0 `inside`, 18 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Script states:** `awk -F'\t' '$8=="CH1g"' june2017_re/char_elesis/ch0_state_skill.tsv` = 17.
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L499.
+- **`ch0_classn.tsv` rows:** 3 (filter on its `proposed_phase` column).
+- CH0 split by job line: CH1g = Dark Knight (`SDK`), CH1g2 = Crimson Avenger (`SCA`). Every state name is a new `EL_STATE_ID` member with June's id (`june2017_re/char_elesis/ch0_state_enum_names.tsv`: June's USI_END is 152, March 100; 134 registered names missing in C++, 37 of the 79 shared ones off by 1-2 after the rebase: register by June's id, never by March's order).

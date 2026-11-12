@@ -1,0 +1,77 @@
+fn	proposed_name	why
+32b4ef90	?	virtual 0x78 (base vslot 0x78 override (name unsettled; Way of Sword)); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32b51930	?	called by 32b63b20(ESI_SI_SA_SBH_BLAZING_DANCE_) 32b63b80(ESI_SI_SA_SBH_BLAZING_DANCE_)
+32b51980	?	MemoConditionElesis vtable 334fa4f4 slot 1 (RTTI .?AVMemoConditionElesis@CX2GUEL@@); name by the memo-condition pattern (CH4b decision)
+32b52260	GetDefenceRateBySkill	CH0 Opus: vslot 0x428 = X2GUUser.h:3268 (base 1.0)
+32b52470	?	called by 32b8c470(SetEquippedSkillFuncBySkillS)
+32b524b0	?	called by 32b8c470(SetEquippedSkillFuncBySkillS)
+32b526d0	?	called by 32b6de46(?)
+32b52790	?	virtual 0x674 (base vslot 0x674 override (name unsettled; Way of Sword)); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32b527b0	?	called by 32b7f370(helper) 32b81900(ReInit); also called from outside the class: 322ed541 322ed571
+32b527e0	?	virtual 0x678 (base vslot 0x678 override (name unsettled; Way of Sword)); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32b52800	?	virtual 0x67c (base vslot 0x67c override (name unsettled; Way of Sword)); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32b64290	IsInJobLine	CH0 Opus: vslot 0x670, Ara / Elsword name; line 3 = classes 35 / 125
+32b642f0	?	MemoConditionElesis constructor (vtable 334fa4f4 store 32b642fa; RTTI .?AVMemoConditionElesis@CX2GUEL@@, type descriptor 3373d5b8); name by the memo-condition pattern (CH4b decision)
+32b6ac80	StoreGageSnapshot	CH0 Opus: vslot 0x740 (Crest of Time snapshot), Elsword / Ara name; keeps WSP in +0x92b8
+32b6acb0	RestoreGageSnapshot	CH0 Opus: vslot 0x744, Elsword / Ara name
+32b6e050	?	called by 32b88070(CommonFrameMove)
+32b6e0c0	?	called by 32b700d0(ESI_SWORD_WAIT.StartFuture) 32b70100(ESI_SWORD_WAIT.Start)
+32b6e500	?	called by 32b73ff0(DamageReact)
+32b6f820	?	called by 32b8c470(SetEquippedSkillFuncBySkillS)
+32b6f8b0	?	called by 32b7ad80(helper)
+32b6fa50	?	called by 32b6fb10(helper)
+32b6fb10	?	called by 32b734d0(helper) 32b89260(SetSpecificValueByBuffTemple)
+32b6fb80	?	virtual 0x558 (base 3231f510); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32b6fc40	GetReduceDebuffDurationRate	CH0 Opus: vslot 0x29c = X2GameUnit.h:3898
+32b6fd50	?	called by 32b8c470(SetEquippedSkillFuncBySkillS)
+32b6ff20	MadnessFrameMove	CH0 Opus: Madness 28420 chain, BFI 927 / 914 / 915 / 916 (ch0_blood.tsv)
+32b706a0	?	called by 32b75e80(helper)
+32b70af0	?	called by 32b70d10(ShowActiveSkillCutInAndLight)
+32b732e0	?	virtual 0x83c (base vslot 0x83c override (name unsettled)); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32b734d0	?	called by 32b88070(CommonFrameMove)
+32b74760	?	-; Way of Sword: Start Vigor
+32b74930	?	-; Way of Sword: End Vigor
+32b74bf0	?	-; Way of Sword: End Destruction
+32b74ed0	?	virtual 0x74 (base vslot 0x74 override (name unsettled; Way of Sword)); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32b75e80	?	called by 32b75f70(ESI_SI_SA_SSK_EXTINCTION_CHA) 32b762e0(ESI_SI_SA_SSK_EXTINCTION_DEG) 32b76300(ESI_SI_SA_SSK_EXTINCTION_DEG)
+32b7ac20	?	called by 32b88070(CommonFrameMove)
+32b7ad80	?	called by 32b80e90(ESI_SI_SA_SBH_BLAZING_DANCE_) 32b80ee0(ESI_SI_SA_SBH_BLAZING_DANCE_)
+32b7b5f0	?	called by 32b88070(CommonFrameMove)
+32b7b6c0	?	called by 32b88070(CommonFrameMove)
+32b7b760	?	called by 32b88070(CommonFrameMove)
+32b7b820	?	called by 32b7f090(HyperModeFrameMove) 32b81200(ESI_RIDING_HYPER_MODE.FrameM)
+32b7bad0	OnDefenderDamageReact	CH0 Opus: vslot 0x734, defender side Blood Revenge (BFI 464, +0x9740 / +0x9744); CH4c adds the base virtual beside OnAttackerDamageReact_Slot4F8 / _Slot4FC
+32b7beb0	OnAttackerDamageReact_Slot4F8	CH0 Opus: X2GUUser.h:3414 hook (C10e); Dark Force HP intake in Vigor
+32b7e3b0	HealByBurningPhantomOnAttack	CH0 Opus: delegate, damage trigger 9
+32b7e580	?	called by 32b88070(CommonFrameMove)
+32b7e740	ApplyGrandMasterAura	CH0 Opus: BFI 909 / 910 Dignity of Grand Master aura
+32b7e9a0	TranscendenceBerserkerFrameMove	CH0 Opus: Crimson Avenger transcendence, BFI 911 / 912 / 913 stacks by nearby enemies (ch0_blood.tsv)
+32b7ef90	?	virtual 0xd0 (base vslot 0xd0 override (name unsettled; Way of Sword)); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32b7f0b0	?	-; Way of Sword: Start Destruction
+32b7f370	?	-; Way of Sword: WayOfSwordStateChange
+32b80c60	?	called by 32b818b0(NoStateChangeActionFrameMove)
+32b81220	FindShadowEdgeRecord	CH0 Opus: +0x9700 record list lookup (ch0_blood.tsv)
+32b81300	RemoveShadowEdgeRecord	CH0 Opus: +0x9700 record list remove (ch0_blood.tsv)
+32b813d0	ShadowEdgeRecordFrameMove	CH0 Opus: +0x9700 list per-frame owner, heal tick skill 28215 (ch0_blood.tsv)
+32b816a0	?	virtual 0x730 (base vslot 0x730 override (name unsettled)); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32b872d0	?	called by 32b90ab0(helper)
+32b87520	?	called by 32b88070(CommonFrameMove)
+32b87880	ApplyBloodRunawayOnAttack	CH0 Opus: Blood Runaway delegate (BFI 462 / 659, BTI 426)
+32b89470	?	called by 32b89c10(SI_SA_SDK_BRUTAL_CUTTER.Fram) 32b8a320(SI_SA_SDK_BRANDISH_BREAKER_L) 32b8a690(dead) 32b8a9d0(SI_SA_SCA_DREAD_WEAPON_START)
+32b898a0	OnAttackerDamageReact_Slot4FC	CH0 Opus: X2GUUser.h:3415 hook (C10e); Judgment 28411 bleeding heal
+32b900e0	?	called by 32b813d0(helper) 32b81900(ReInit) 32b84390(SI_A_SCA_SHADOW_EDGE.FrameMo)
+32b90160	?	called by 32b902c0(helper)
+32b901c0	?	called by 32b88070(CommonFrameMove) 32b90b60(dead); also called from outside the class: 32d08ba4
+32b902c0	?	called by 32b904c0(helper)
+32b903c0	?	called by 334fa608(?)
+32b903d0	?	called by 334fa610(?)
+32b903e0	GetWayOfSwordPointGainRate	CH0 Opus: vslot 0x720 = +0x9714 (Dark Force 28410 SA 147 SA_WAY_OF_SWORD_POINT_MULTIPLIER, default 1.0); read by 31f86da5 / 32012f2e / 32b74167
+32b903f0	GetVigorHpIntakeRate	CH0 Opus: vslot 0x724 = +0x9718 (Dark Force SA 49 SA_HP_INTAKE_REL_DAMAGE, default 0.0); read only by 0x4f8 32b7beb0
+32b90400	?	virtual 0x72c (base vslot 0x72c override (name unsettled; Way of Sword)); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32b90420	GetSpecialItemUsableExtraStateID	CH0 Opus: vslot 0x4ac = X2GUUser.h:3387; returns June state 0xbb: by name, never the number
+32b90430	?	virtual 0x534 (base 3208e8c0); not named by any sibling class map, funcmap or X2GUUser.h; read the body
+32b904c0	?	called by 32b90540(helper)
+32b90540	?	called by 32b84390(SI_A_SCA_SHADOW_EDGE.FrameMo)
+32b906d0	?	called by 32b88300(InitPassiveSkillState)
+32b90ab0	?	called by 32b88300(InitPassiveSkillState)
+32b90ac0	?	called by 32b88300(InitPassiveSkillState)

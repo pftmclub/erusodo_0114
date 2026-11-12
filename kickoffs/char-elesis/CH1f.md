@@ -1,4 +1,4 @@
-# June character Elesis (Stage 7) - Phase CH1f - Class core: Pyro Knight / Blazing Heart lines
+# June character Elesis (Stage 7) - Phase CH1f - Class core: Pyro Knight line (SPK)
 
 | | |
 |---|---|
@@ -7,7 +7,7 @@
 | Depends on | CH0 (and its amendments), the previous CH1 sub-phase (the char-ara Z gate was dropped, user 2026-11-12). One at a time with CH1-CH4: they all edit `X2GUEL.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ELESIS_CORE` (`new` rows, compiled) and `SERV_IRUHADEV_JUNE_CHAR_ELESIS_LIVE` (`inside` rows; `//#define` until CH1 final) |
 | Log tag | none (nothing runs until `_LIVE`; no play-test) |
-| Review | none of its own: the CH1g review covers it (its `_DEBUG` define, if any, stays on) |
+| Review | none of its own: the CH1g2 review covers it (CH0 split) (its `_DEBUG` define, if any, stays on) |
 
 ## Read first (and nothing else from the plan doc unless you need it)
 
@@ -19,7 +19,7 @@ awk -F'\t' '$7=="CH1f"' june2017_re/char_elesis/ch0_class_map.tsv   # CH0 confir
 
 ## Task
 
-Transcribe every function the class map gives phase `CH1f` (the `SPK` / `SBH` combo and dash-combo states and the non-skill states CH0 assigns to them) from Ghidra and the raw listing, **whole**. The plan's "Transcription rules
+Transcribe every function the class map gives phase `CH1f` (the `SPK` combo and dash-combo states (CH0 split: the `SBH` states are CH1f2) and the non-skill states CH0 assigns to them) from Ghidra and the raw listing, **whole**. The plan's "Transcription rules
 (CH1a-CH1k)" apply:
 - **`inside` rows:** June's body inside March's `CX2GUEL` function under `SERV_IRUHADEV_JUNE_CHAR_ELESIS_LIVE`, March's body in `#else`, `#endif SERV_IRUHADEV_JUNE_CHAR_ELESIS_LIVE`. Add `_LIVE` to
   `Always.h` as `//#define` if no earlier phase did. Prove the June path compiles: one `cl /c` of `X2GUEL.cpp` with `/DSERV_IRUHADEV_JUNE_CHAR_ELESIS_LIVE` (the build's own
@@ -52,3 +52,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH1f"' june2017_re/char_elesis/ch0_class_map.tsv` = 14 (8 listing-only: col 9 `n`; 9 `inside`, 5 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Script states:** `awk -F'\t' '$8=="CH1f"' june2017_re/char_elesis/ch0_state_skill.tsv` = 11.
+- **`ch0_classn.tsv` rows:** 2 (filter on its `proposed_phase` column).
+- CH0 split by job line: CH1f = Pyro Knight (`SPK`), CH1f2 = Blazing Heart (`SBH`). `32b770e0` (`ESI_DASH_JUMP_COMBO_SPK_XZ_FrameMove`) is here: June's whole function under `_LIVE`, the `SERV_IRUHADEV_JUNE_EL_DASHJUMP_XZ_FIREBALL` block stays in the `#else` (Z records it superseded).

@@ -38,3 +38,7 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- S3 baseline: `june2017_re/char_elesis/ch0_s3_baseline.txt` (261 rows, 254 no_state, 35 / 125 included). Reruns: `charport_scan.py`, `charport_keys.py ELESIS_KNIGHT` (CH0: 248 keys, 9 june-only, 1 neither, 4 march-only-site, all owned).

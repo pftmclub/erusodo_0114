@@ -121,17 +121,18 @@ Plan `JUNE_CHARACTER_ELESIS_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]`
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| CH0 | **ready** (read-only): Elesis map, assets list, Way of the Sword / summon / blood / CH-N maps | Opus 5.5 / high | - | `june2017_re/char_elesis/`, funcmap, kickoffs | `CH0.md` |
-| CH0b | blocked (CH0): every June Elesis asset staged, packed, copied; char-ara gate dropped (user 2026-11-12) | Sonnet 5.5 / high, user play-test | CH0 | koms | `CH0b.md` |
-| CH1a | blocked (CH0): movement and slot-head states; no review of its own; char-ara gate dropped (user 2026-11-12) | Sonnet 5.5 / high | CH0 | `X2GUEL.*`, Always.h | `CH1a.md` |
+| CH0b | **ready**: every June Elesis asset staged, packed, copied (6,452-row list; GM / BH motions held); char-ara gate dropped (user 2026-11-12) | Sonnet 5.5 / high, user play-test | CH0 | koms | `CH0b.md` |
+| CH1a | **ready**: movement and slot-head states; no review of its own; char-ara gate dropped (user 2026-11-12) | Sonnet 5.5 / high | CH0 | `X2GUEL.*`, Always.h | `CH1a.md` |
 | CH1b | blocked (CH1a): reactions; review covers CH1a-CH1b | Sonnet 5.5 / high, Opus review | CH1a | `X2GUEL.*` | `CH1b.md` |
 | CH1c | blocked (CH1b review): riding, pepper run, dance | Sonnet 5.5 / high | CH1b review | `X2GUEL.*` | `CH1c.md` |
 | CH1d | blocked (CH1c): ground combos | Sonnet 5.5 / high | CH1c | `X2GUEL.*` | `CH1d.md` |
 | CH1d2 | blocked (CH1d): dash and dash / jump combos; review covers CH1c-CH1d2 | Sonnet 5.5 / high, Opus review | CH1d | `X2GUEL.*` | `CH1d2.md` |
 | CH1e | blocked (CH1d2 review): Saber Knight / Grand Master lines | Sonnet 5.5 / high | CH1d2 review | `X2GUEL.*` | `CH1e.md` |
-| CH1f | blocked (CH1e): Pyro Knight / Blazing Heart lines | Sonnet 5.5 / high | CH1e | `X2GUEL.*` | `CH1f.md` |
-| CH1g | blocked (CH1f): Dark Knight / Crimson Avenger lines (all new); review covers CH1e-CH1g | Sonnet 5.5 / high, Opus review | CH1f | `X2GUEL.*` | `CH1g.md` |
-| CH1h | blocked (CH1g review): overrides below vslot 0x600 | Sonnet 5.5 / high | CH1g review | `X2GUEL.*` | `CH1h.md` |
+| CH1f | blocked (CH1e): Pyro Knight line (SPK; CH0 split) | Sonnet 5.5 / high | CH1e | `X2GUEL.*` | `CH1f.md` |
+| CH1f2 | blocked (CH1f): Blazing Heart line (SBH; CH0 split) | Sonnet 5.5 / high | CH1f | `X2GUEL.*` | `CH1f2.md` |
+| CH1g | blocked (CH1f2): Dark Knight line (SDK, all new; CH0 split) | Sonnet 5.5 / high | CH1f2 | `X2GUEL.*` | `CH1g.md` |
+| CH1g2 | blocked (CH1g): Crimson Avenger line (SCA, all new; CH0 split); review covers CH1e-CH1g2 | Sonnet 5.5 / high, Opus review | CH1g | `X2GUEL.*` | `CH1g2.md` |
+| CH1h | blocked (CH1g2 review): overrides below vslot 0x600 | Sonnet 5.5 / high | CH1g2 review | `X2GUEL.*` | `CH1h.md` |
 | CH1i | blocked (CH1h): overrides 0x600-0x7bc | Sonnet 5.5 / high | CH1h | `X2GUEL.*` | `CH1i.md` |
 | CH1j | blocked (CH1i): Common* overrides | Sonnet 5.5 / high | CH1i | `X2GUEL.*` | `CH1j.md` |
 | CH1k | blocked (CH1j): skill-use overrides + `ReservedSkillStart`; review covers CH1h-CH1k | Sonnet 5.5 / high, Opus review | CH1j | `X2GUEL.*`, `X2GUUser.*` | `CH1k.md` |
@@ -145,13 +146,16 @@ Plan `JUNE_CHARACTER_ELESIS_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]`
 | CHNa | blocked (CH5 review): 35 / 125 load and play, gauge arms, stat rows, creation screen third line | Opus 5.5 / high, Opus review, user play-test | CH5 review, char-ara CHNa review | `X2GageManager.cpp`, `X2Unit.h`, `X2GUEL.cpp`, `X2StateCreateUnit.cpp`, emulator, `createchar.py`, `StatTable.lua` (user packs) | `CHNa.md` |
 | CHNb | blocked (CHNa review): job change to 35 / 125 (quests 35569-35577) + level-15 / level-35 class-change dialogs | Opus 5.5 / high, Opus review, user play-test | CHNa review | `LevelUpEvent.lua`, `Handlers_Quest.cpp`, dialogs | `CHNb.md` |
 | CH2a | blocked (CH1 review): Knight (8) skills; no review of its own | Sonnet 5.5 / high, user play-test | CH1 review | `X2GUEL.*` | `CH2a.md` |
-| CH2b | blocked (CH2a): Saber Knight (29) skills | Sonnet 5.5 / high, user play-test | CH2a | `X2GUEL.*` | `CH2b.md` |
-| CH2c | blocked (CH2b): Pyro Knight (30) skills | Sonnet 5.5 / high, user play-test | CH2b | `X2GUEL.*` | `CH2c.md` |
+| CH2b | blocked (CH2a): Saber Knight (29) special actives (CH0 split) | Sonnet 5.5 / high, user play-test | CH2a | `X2GUEL.*` | `CH2b.md` |
+| CH2b2 | blocked (CH2b): Saber Knight actives 28202 / 28203 / 28204 (CH0 split) | Sonnet 5.5 / high, user play-test | CH2b | `X2GUEL.*` | `CH2b2.md` |
+| CH2c | blocked (CH2b2): Pyro Knight (30) skills | Sonnet 5.5 / high, user play-test | CH2b2 | `X2GUEL.*` | `CH2c.md` |
 | CH2d | blocked (CH2c, CHNb review): Dark Knight (35) skills; CH2 stage review (CH2a-CH2d) | Sonnet 5.5 / high, Opus review, user play-test | CH2c, CHNb review | `X2GUEL.*` | `CH2d.md` |
-| CH3a | blocked (CH2d review): Grand Master (120) skills | Sonnet 5.5 / high, user play-test | CH2d review | `X2GUEL.*` | `CH3a.md` |
-| CH3b0 | blocked (CH3a): four summons + vslots 0x24c / 0x250 (effect-set rate writers), flag `_SUMMON` | Opus 5.5 / high, Opus review | CH3a | `X2GUEL.*`, `X2UnitManager.h`, NPC scripts | `CH3b0.md` |
-| CH3b | blocked (CH3a, CH3b0 review): Blazing Heart (121) skills | Sonnet 5.5 / high, user play-test | CH3a, CH3b0 review | `X2GUEL.*` | `CH3b.md` |
-| CH3c | blocked (CH3b, CHNb review): Crimson Avenger (125) skills | Sonnet 5.5 / high, user play-test | CH3b, CHNb review | `X2GUEL.*` | `CH3c.md` |
+| CH3a | blocked (CH2d review): Grand Master (120) special actives (CH0 split) | Sonnet 5.5 / high, user play-test | CH2d review | `X2GUEL.*` | `CH3a.md` |
+| CH3a2 | blocked (CH3a): Grand Master actives 28205 / 28206 / 28222 (CH0 split) | Sonnet 5.5 / high, user play-test | CH3a | `X2GUEL.*` | `CH3a2.md` |
+| CH3b0 | blocked (CH3a2): four summons + vslots 0x24c / 0x250 (effect-set rate writers), flag `_SUMMON` | Opus 5.5 / high, Opus review | CH3a2 | `X2GUEL.*`, `X2UnitManager.h`, NPC scripts | `CH3b0.md` |
+| CH3b | blocked (CH3a2, CH3b0 review): Blazing Heart (121) special actives (CH0 split) | Sonnet 5.5 / high, user play-test | CH3a2, CH3b0 review | `X2GUEL.*` | `CH3b.md` |
+| CH3b2 | blocked (CH3b): Blazing Heart actives 28210 / 28211 / 28223 (CH0 split) | Sonnet 5.5 / high, user play-test | CH3b | `X2GUEL.*` | `CH3b2.md` |
+| CH3c | blocked (CH3b2, CHNb review): Crimson Avenger (125) skills | Sonnet 5.5 / high, user play-test | CH3b2, CHNb review | `X2GUEL.*` | `CH3c.md` |
 | CH3d | blocked (CH3c): hyper actives + transcendence rows 120 / 121 / 125; CH3 stage review (CH3a-CH3d) | Opus 5.5 / high, Opus review, user play-test | CH3c | `X2GUEL.*`, `Handlers_Quest.cpp`, data036 | `CH3d.md` |
 | CH4a | blocked (CH3d review): passives `32b88300`, 0x83c hook, delegates; no review of its own | Opus 5.5 / high, user play-test | CH3d review | `X2GUEL.*`, `X2GUUser.*` | `CH4a.md` |
 | CH4b | blocked (CH4a): overrides (damage exception, MP / cool time, 0x428) + `MemoConditionElesis` | Opus 5.5 / high, user play-test | CH4a | `X2GUEL.*`, `X2GUUser.*` | `CH4b.md` |
@@ -159,7 +163,9 @@ Plan `JUNE_CHARACTER_ELESIS_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]`
 | CH6 | blocked (CH4c review, CH5 review, CHNb review): scans rerun + user walk incl. both job changes, the creation screen and the becoming-transcended transition | Sonnet 5.5 / medium, user walk | CH4c, CH5, CHNb reviews | docs, save | `CH6.md` |
 | Z | blocked (CH6): close-out, `MODS.md`, template paragraph, `stage7-plan` -> `char-add` | Sonnet 5.5 / medium | CH6 | `MODS.md`, backlog, docs | `Z.md` |
 
-Decision answered 2026-11-11 (plan "Open decisions"): 1 stat rows for 35 / 120 / 121 / 125 follow Ara's rule (CHNa writes, user packs).
+Done: CH0 (2026-11-12; maps + asset list, 5 splits, no code).
+
+Decision answered 2026-11-11 (plan "Open decisions"): 1 stat rows for 35 / 120 / 121 / 125 follow Ara's rule (CHNa writes, user packs); CH0: moot, the flat StatTable (e37c9211) already has their rows.
 
 ## char-add - June character port, Stage 7: Add (last March character; CH-N reused, closes Stage 7)
 Plan `JUNE_CHARACTER_ADD_PHASES.md` · branch `main` · log tag `[JUNE_CHAR]` (lines `ADD <sub>`: `DATA`, `CREATE`, `CORE`, `DP`, `NASOD`, `CLASS`, `CREST`, `SUMMON`, `SKILL`, `PASSIVE`, `UI`, `NUM`) · flags `SERV_IRUHADEV_JUNE_CHAR_ADD_*` (`_CREATE`, `_CORE`, `_LIVE`, `_DP`, `_NASOD`, `_CLASS`, `_SUMMON`, `_SKILL`, `_TRANSCEND`, `_PASSIVE`, `_UI`, + `_DEBUG`), class-generic `SERV_IRUHADEV_JUNE_CLASS_PATH` (Ara's) and `SERV_IRUHADEV_JUNE_USER_CREST_OF_TIME` · kickoffs `kickoffs/char-add/` · backlog Stage 7 · created 2026-11-11.

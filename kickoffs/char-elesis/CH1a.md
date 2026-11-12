@@ -52,3 +52,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH1a"' june2017_re/char_elesis/ch0_class_map.tsv` = 33 (18 listing-only: col 9 `n`; 32 `inside`, 1 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Script states:** `awk -F'\t' '$8=="CH1a"' june2017_re/char_elesis/ch0_state_skill.tsv` = 26.
+- **Skill ids** (1): 900.
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L259.
+- CH0 placed here by hand: `ESI_CAN_NOT_ATTACK_JUMP_DOWN` (id 186), `ESI_SWORD_WAIT` (id 187) and `PlayAnimationSwordWaitStart` `32b6e0c0` (June: fatal threshold 0.15 when `+0x95d0` > 0; `+0x95d0` unnamed, 0x29c reads it too; `PLAY_TYPE` / `TRANSITION` keys). The QUICK group is 4 `ESI_QUICK_STANDUP_ATTACK_*` states on March's StandUpAttack callbacks; `ESI_JUMP_ATTACK_X` / `_Z` are here (JUMP* rule).

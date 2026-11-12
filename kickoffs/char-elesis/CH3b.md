@@ -1,10 +1,10 @@
-# June character Elesis (Stage 7) - Phase CH3b - Skills: Blazing Heart (121)
+# June character Elesis (Stage 7) - Phase CH3b - Skills: Blazing Heart (121), special actives
 
 | | |
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-elesis CH3b` |
 | Plan doc | `JUNE_CHARACTER_ELESIS_PHASES.md` (branch `main`) |
-| Depends on | CH3a, CH3b0 review. One at a time with CH1-CH4: they all edit `X2GUEL.*` |
+| Depends on | CH3a2, CH3b0 review. One at a time with CH1-CH4: they all edit `X2GUEL.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ELESIS_SKILL` (+ `..._SKILL_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`ELESIS SKILL`), `[JUNE_SKILL]` (`--grep NUM`) |
 | Review | none of its own: the CH3d review covers it (its `_DEBUG` define stays on) |
@@ -45,3 +45,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH3b"' june2017_re/char_elesis/ch0_class_map.tsv` = 24 (11 listing-only: col 9 `n`; 17 `inside`, 7 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Script states:** `awk -F'\t' '$8=="CH3b"' june2017_re/char_elesis/ch0_state_skill.tsv` = 11.
+- **Skill ids** (13): 28015, 28016, 28017, 28018, 28041, 28042, 28051, 28052, 28053, 28054, 28063, 28231, 28232.
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L685, L908.
+- CH0 split by skill: CH3b = 28015-28018, 28041, 28042, 28063 (special actives), CH3b2 = 28210 / 28211 / 28223. Wall of Prominence `32b7a0a0` is here (its spawn written by CH3b0).

@@ -41,3 +41,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH4c"' june2017_re/char_elesis/ch0_class_map.tsv` = 11 (0 listing-only: col 9 `n`; 1 `inside`, 10 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L245, L278, L457, L458, L929.
+- **`ch0_wos.tsv` rows:** 2 (filter on its `proposed_phase` column).
+- **`ch0_blood.tsv` rows:** 19 (filter on its `proposed_phase` column).
+- `june2017_re/char_elesis/ch0_blood.tsv` (30 rows): 0x4f8 `OnAttackerDamageReact_Slot4F8` = Dark Force HP intake in Vigor (getter 0x724), 0x4fc `_Slot4FC` = Judgment bleeding heal (BFI 465, BTI 99, chance `+0x974c`), 0x734 `OnDefenderDamageReact` = Blood Revenge (BFI 464; `+0x9740` / `+0x9744`; **add the two base virtuals and their calls**: the June user DamageReact `320462a0` calls 0x730 @`320499f7` and 0x734 @`32049a0c`; March has neither, while 0x4f8 / 0x4fc are already called, `X2GUUser.cpp:11355`), Blood Runaway `32b87880`, Madness `32b6ff20`, transcendence berserker `32b7e9a0`, the Shadow Edge list (0x730 `32b816a0` discards its lookup: June no-op kept verbatim; `32b81220` / `32b81300` / `32b813d0`). No split (10 functions + the base hooks).

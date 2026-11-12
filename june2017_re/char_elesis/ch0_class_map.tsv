@@ -1,0 +1,693 @@
+june_fn	kind	name_or_states	march_pair	inside_new	proposed_name	phase	note	carved
+32b4e770	not-Elesis	called only from outside the range: 31fca204	-	-	-	n/a	shared / folded code	y
+32b4e780	not-Elesis	called only from outside the range: 31fee014	-	-	-	n/a	shared / folded code	y
+32b4e790	override 0x7b8	SetEquippedSkillLevel	X2GUEl.h:265 virtual void SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );	inside	-	CH1i	base 31aa1d30	n
+32b4eda0	override 0x7d8	CommonStateEndFuture	X2GUEl.h:273 virtual void CommonStateEndFuture();	inside	-	CH1j	base 31fdd8e0	n
+32b4edb0	override 0x7dc	CommonStateEnd	X2GUEl.h:274 virtual void CommonStateEnd();	inside	-	CH1j	base 32015250	n
+32b4edc0	override 0x7e8	CommonRender_Prepare	X2GUEl.h:278 virtual RENDER_HINT CommonRender_Prepare();	inside	-	CH1j	base 31fd07b0	y
+32b4ee20	override 0x7f4	SpecialAttackEventProcess	X2GUEl.h:280 virtual bool SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition_ = CX2SkillTree::ASUT_GROUND );	inside	-	CH1k	base 31aa1d30	n
+32b4eef0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 81b988400000bb00	n
+32b4ef10	override 0x818	IsValideSkillRidingOn	X2GUEl.h:304 virtual bool IsValideSkillRidingOn( CX2SkillTree::SKILL_ID eSkill_ID_ );	inside	-	CH1k	base 32ec5990	n
+32b4ef40	override 0x48	InitEffect	X2GUEl.h:812 virtual void InitEffect();	inside	-	CH1h	base 32012760	y
+32b4ef70	override 0x548	CreateMinorParticleArray	X2GUEl.h:815 virtual void CreateMinorParticleArray();	inside	-	CH1h	base 32012920	n
+32b4ef80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c3cccccccccccccc	n
+32b4ef90	override 0x78	?	X2GUEL.cpp:4028 CX2GUEL::SetCriticalPercent_WayOfSword	inside	-	CH1q	vslot 0x78 override (name unsettled; Way of Sword)	n
+32b4efc0	state-fn	ESI_DIE_FRONT.FrameMove ESI_RIDING_DIE.FrameMove	inside X2GUEl.cpp:2013 CX2GUEL::DieFrontFrameMove ; inside X2GUEl.cpp:2426 CX2GUEL::DieFrontFrameMove	inside	-	CH1b	2 states	n
+32b4efe0	state-fn	ESI_DIE_BACK.FrameMove	inside X2GUEl.cpp:2022 CX2GUEL::DieBackFrameMove	inside	-	CH1b	1 states	n
+32b4f000	state-fn	ESI_WAIT.StartFuture	inside X2GUEl.cpp:2039 CX2GUEL::WaitStartFuture	inside	-	CH1a	1 states	y
+32b4f030	state-fn	ESI_JUMP_UP.EventProcess	inside X2GUEl.cpp:2061 CX2GUEL::JumpUpEventProcess	inside	-	CH1a	1 states	y
+32b4f0d0	state-fn	ESI_STANDUP_ROLLING_FRONT_FRONT.End	inside X2GUEl.cpp:2495 CX2GUEL::StandUpRollingFrontFrontEnd	inside	-	CH1b	1 states	y
+32b4f110	state-fn	ESI_STANDUP_ROLLING_FRONT_BACK.End	inside X2GUEl.cpp:2502 CX2GUEL::StandUpRollingFrontBackEnd	inside	-	CH1b	1 states	y
+32b4f150	state-fn	ESI_STANDUP_ROLLING_BACK_FRONT.End	inside X2GUEl.cpp:2509 CX2GUEL::StandUpRollingBackFrontEnd	inside	-	CH1b	1 states	y
+32b4f190	state-fn	ESI_STANDUP_ROLLING_BACK_BACK.End	inside X2GUEl.cpp:2516 CX2GUEL::StandUpRollingBackBackEnd	inside	-	CH1b	1 states	y
+32b4f1d0	state-fn	ESI_STANDUP_ATTACK_FRONT.End ESI_QUICK_STANDUP_ATTACK_FRONT.End	inside X2GUEl.cpp:2523 CX2GUEL::StandUpAttackFrontEnd ; inside X2GUEl.cpp:2693 CX2GUEL::StandUpAttackFrontEnd	inside	-	CH1a	2 states	y
+32b4f210	state-fn	ESI_STANDUP_ATTACK_BACK.End ESI_QUICK_STANDUP_ATTACK_BACK.End	inside X2GUEl.cpp:2530 CX2GUEL::StandUpAttackBackEnd ; inside X2GUEl.cpp:2700 CX2GUEL::StandUpAttackBackEnd	inside	-	CH1a	2 states	y
+32b4f250	state-fn	ESI_STANDUP_ATTACK_BACK.EndFuture ESI_QUICK_STANDUP_ATTACK_BACK.EndFuture	inside X2GUEl.cpp:2531 CX2GUEL::StandUpAttackBackStateEndFuture ; inside X2GUEl.cpp:2701 CX2GUEL::StandUpAttackBackStateEndFuture	inside	-	CH1a	2 states	n
+32b4f270	state-fn	ESI_STANDUP_ATTACK_FRONT_NO_DOWN.End	inside X2GUEl.cpp:2538 CX2GUEL::StandUpAttackFrontNoDownEnd	inside	-	CH1b	1 states	y
+32b4f2b0	state-fn	ESI_STANDUP_ATTACK_BACK_NO_DOWN.End	inside X2GUEl.cpp:2545 CX2GUEL::StandUpAttackBackNoDownEnd	inside	-	CH1b	1 states	y
+32b4f2f0	state-fn	ESI_DASH_JUMP_POWER_LANDING.StartFuture	inside X2GUEl.cpp:2551 CX2GUEL::DashJumpPowerLandingStartFuture	inside	-	CH1a	1 states	y
+32b4f320	state-fn	ESI_DASH_JUMP_POWER_LANDING.Start	inside X2GUEl.cpp:2552 CX2GUEL::DashJumpPowerLandingStart	inside	-	CH1a	1 states	y
+32b4f340	state-fn	ESI_JUMP_ATTACK_Z.FrameMoveFuture	inside X2GUEl.cpp:2624 CX2GUEL::JumpAttackZFrameMoveFuture	inside	-	CH1a	1 states	n
+32b4f380	state-fn	ESI_JUMP_ATTACK_X.FrameMoveFuture	inside X2GUEl.cpp:2631 CX2GUEL::JumpAttackXFrameMoveFuture	inside	-	CH1a	1 states	n
+32b4f3c0	state-fn	ESI_SI_A_EL_DODGE_AND_SLASH.Init ESI_SI_A_EL_DODGE_AND_SLASH_BACK.Init ESI_SI_A_EL_DODGE_AND_SLASH_ATTACK_Z.Init	inside X2GUEl.cpp:1254 CX2GUEL::ESI_SI_A_EL_DODGE_AND_SLASH_Init	inside	-	CH2a	3 states	n
+32b4f410	state-fn	ESI_SI_A_EL_DODGE_AND_SLASH.FrameMove ESI_SI_A_EL_DODGE_AND_SLASH_BACK.FrameMove ESI_SI_A_EL_DODGE_AND_SLASH_ATTACK_Z.FrameMove	inside X2GUEl.cpp:1255 CX2GUEL::ESI_SI_A_EL_DODGE_AND_SLASH_FrameMove	inside	-	CH2a	3 states	n
+32b4f420	state-fn	ESI_SI_A_EL_LEAP_CRASH.Init ESI_SI_A_EL_LEAP_CRASH_JUMP.Init ESI_SI_A_EL_LEAP_CRASH_JUMP_LANDING.Init	inside X2GUEl.cpp:1189 CX2GUEL::ESI_SI_A_EL_LEAP_CRASH_Init	inside	-	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	n
+32b4f460	state-fn	ESI_SI_A_EL_RUSHING_SWORD.Init ESI_SI_A_EL_RUSHING_SWORD_2nd.Init ESI_SI_A_EL_RUSHING_SWORD_3rd.Init	inside X2GUEl.cpp:1220 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_Init	inside	-	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	n
+32b4f4d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32b4f500	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32b4f5a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32b4f640	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c4	y
+32b4f660	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c0	y
+32b4f690	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 8b018b90c4070000	n
+32b4f6a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90cc	y
+32b4f6d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1578d8e588b	y
+32b4f740	state-fn	ESI_SI_A_EL_SONIC_ASSAULT_STING.Init ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_READY.Init ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_CHARGE.Init +1	inside X2GUEl.cpp:1144 CX2GUEL::ESI_SI_A_EL_SONIC_ASSAULT_STING_Init	inside	-	CH2a	4 states	n
+32b4f7e0	state-fn	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_READY.Start	-	new	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_READY_StateStart	CH2a	1 states	y
+32b4f800	state-fn	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_READY.StartFuture	-	new	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_READY_StateStartFuture	CH2a	1 states	y
+32b4f830	state-fn	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_CHARGE.Start	-	new	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_CHARGE_StateStart	CH2a	1 states	n
+32b4f840	state-fn	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_CHARGE.EventProcess	-	new	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_CHARGE_EventProcess	CH2a	1 states	y
+32b4f8a0	state-fn	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_FIRE.Start	-	new	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_FIRE_StateStart	CH2a	1 states	n
+32b4f8b0	state-fn	ESI_SI_SA_EL_WILD_SHOCK.Init	inside X2GUEl.cpp:1111 CX2GUEL::ESI_SI_SA_EL_WILD_SHOCK_Init	inside	-	CH2a	1 states	n
+32b4f950	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32b4fa60	state-fn	ESI_SI_SA_EL_MEGA_BURSTER.Init	inside X2GUEl.cpp:1122 CX2GUEL::ESI_SI_SA_EL_MEGA_BURSTER_Init	inside	-	CH2a	1 states	n
+32b4fc40	state-fn	ESI_SI_SA_EL_UNLIMITED_BLADE.Init	inside X2GUEl.cpp:1100 CX2GUEL::ESI_SI_SA_EL_UNLIMITED_BLADE_Init	inside	-	CH2a	1 states	n
+32b4fd00	state-fn	ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE.Init ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE_MEMO.Init	inside X2GUEl.cpp:2721 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_Init ; inside X2GUEl.cpp:2729 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_Init	inside	-	CH1k	CH0 Opus: ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE (ids 205 / 207) / _MEMO (206): entered from NoStateChangeActionFrameMove 32b818b0 -> 32b80c60 (skills 28201 / 28218 have no switch state) and from DetonationStateChange (207)	n
+32b4fd30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32b4fdc0	state-fn	ESI_SI_A_SSK_POWER_BREAK.Init	inside X2GUEl.cpp:1074 CX2GUEL::ESI_SI_A_SSK_POWER_BREAK_Init	inside	-	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	n
+32b4fe80	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32b4feb0	state-fn	ESI_SI_SA_SSK_SPIRAL_BLAST.Init	inside X2GUEl.cpp:737 CX2GUEL::ESI_SI_SA_SSK_SPIRAL_BLAST_Init	inside	-	CH2a	1 states	n
+32b4ff70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes d9eed991fc950000	n
+32b4ff80	state-fn	ESI_SI_SA_SSK_EXTINCTION_START.Init ESI_SI_SA_SSK_EXTINCTION_CHARGE.Init ESI_SI_SA_SSK_EXTINCTION_DEGREE.Init +1	inside X2GUEl.cpp:749 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_START_Init	inside	-	CH2b	4 states	n
+32b500a0	state-fn	ESI_SI_SA_SSK_EXTINCTION_START.Start ESI_SI_SA_SSK_EXTINCTION_CHARGE.Start ESI_SI_SA_SSK_EXTINCTION_DEGREE.Start +1	inside X2GUEl.cpp:750 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_START_Start	inside	-	CH2b	4 states	n
+32b500c0	state-fn	ESI_SI_SA_SSK_EXTINCTION_CHARGE.FrameMove	inside X2GUEl.cpp:766 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_CHARGE_FrameMove	inside	-	CH2b	1 states	n
+32b500e0	state-fn	ESI_SI_SA_SSK_EXTINCTION_DEGREE.FrameMove	inside X2GUEl.cpp:782 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_DEGREE_UP_FrameMove	inside	-	CH2b	1 states	n
+32b50160	state-fn	ESI_SI_SA_SSK_EXTINCTION_DEGREE.FrameMove	inside X2GUEl.cpp:782 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_DEGREE_UP_FrameMove	inside	-	CH2b	1 states	y
+32b501d0	state-fn	ESI_SI_SA_SSK_VICTORIOUS_SWORD.Init	inside X2GUEl.cpp:799 CX2GUEL::ESI_SI_SA_SSK_VICTORIOUS_SWORD_Init	inside	-	CH3a	1 states	n
+32b50320	state-fn	ESI_SI_SA_SSK_JUDGEMENT_DRIVE.Init ESI_SI_SA_SSK_JUDGEMENT_DRIVE_FINAL.Init	inside X2GUEl.cpp:811 CX2GUEL::ESI_SI_SA_SSK_JUDGEMENT_DRIVE_Init	inside	-	CH2b	2 states	n
+32b50430	state-fn	ESI_SI_SA_SSK_JUDGEMENT_DRIVE.StartFuture ESI_SI_SA_SSK_JUDGEMENT_DRIVE_FINAL.StartFuture	inside X2GUEl.cpp:813 CX2GUEL::ESI_SI_SA_SSK_JUDGEMENT_DRIVE_StateStartFuture	inside	-	CH2b	2 states	y
+32b50460	state-fn	ESI_SI_SA_SSK_JUDGEMENT_DRIVE.Start ESI_SI_SA_SSK_JUDGEMENT_DRIVE_FINAL.Start	inside X2GUEl.cpp:814 CX2GUEL::ESI_SI_SA_SSK_JUDGEMENT_DRIVE_StateStart	inside	-	CH2b	2 states	y
+32b50480	state-fn	ESI_SI_SA_SSK_JUDGEMENT_DRIVE.EventProcess ESI_SI_SA_SSK_JUDGEMENT_DRIVE_FINAL.EventProcess	inside X2GUEl.cpp:816 CX2GUEL::ESI_SI_SA_SSK_JUDGEMENT_DRIVE_EventProcess	inside	-	CH2b	2 states	y
+32b50500	state-fn	ESI_DASH_JUMP_COMBO_SPK_XZ.StartFuture	inside X2GUEl.cpp:2950 CX2GUEL::ESI_DASH_JUMP_COMBO_SPK_XZ_StartFurture	inside	-	CH1f	1 states	n
+32b50520	state-fn	ESI_DASH_JUMP_COMBO_SPK_XZ.StartFuture	inside X2GUEl.cpp:2950 CX2GUEL::ESI_DASH_JUMP_COMBO_SPK_XZ_StartFurture	inside	-	CH1f	1 states	n
+32b505f0	state-fn	ESI_SI_A_SPK_BIG_BURST.Init	inside X2GUEl.cpp:1052 CX2GUEL::ESI_SI_A_SPK_BIG_BURST_Init	inside	-	CH2c	1 states	n
+32b50650	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32b506e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32b507d0	state-fn	ESI_SI_SA_SPK_SWORDFIRE.Init ESI_SI_SA_SPK_SWORDFIRE_FLY.Init ESI_SI_SA_SPK_SWORDFIRE_GROUND.Init	inside X2GUEl.cpp:852 CX2GUEL::ESI_SI_SA_SPK_SWORDFIRE_Init	inside	-	CH2c	3 states	n
+32b50820	state-fn	ESI_SI_SA_SPK_INFERNAL_BLADE.Init	inside X2GUEl.cpp:863 CX2GUEL::ESI_SI_SA_SPK_INFERNAL_BLADE_Init	inside	-	CH2c	1 states	n
+32b508e0	state-fn	ESI_SI_SA_SPK_ETERNAL_FIRE.Init	inside X2GUEl.cpp:874 CX2GUEL::ESI_SI_SA_SPK_ETERNAL_FIRE_Init	inside	-	CH3b	1 states	n
+32b509a0	state-fn	ESI_DASH_JUMP_COMBO_SGM_XZ.Init	inside X2GUEl.cpp:2761 CX2GUEL::ESI_DASH_JUMP_COMBO_SGM_XZ_Init	inside	-	CH1e	1 states	n
+32b509e0	state-fn	ESI_COMBO_SGM_XX_DOWN_X_START.Init	inside X2GUEl.cpp:2786 CX2GUEL::ESI_COMBO_SGM_XX_DOWN_X_START_Init	inside	-	CH1e	1 states	n
+32b50a30	state-fn	ESI_A_SGM_PROVOKE.Init ESI_A_SGM_PROVOKE_REVENGE.Init	inside X2GUEl.cpp:1288 CX2GUEL::ESI_A_SGM_PROVOKE_Init	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	n
+32b50b00	state-fn	ESI_A_SGM_PROVOKE.StartFuture ESI_A_SGM_PROVOKE_REVENGE.StartFuture	-	new	ESI_A_SGM_PROVOKE_StateStartFuture	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	y
+32b50b30	state-fn	ESI_A_SGM_DRASTIC_CHARGE_START.Init ESI_A_SGM_DRASTIC_CHARGE_LOOP.Init ESI_A_SGM_DRASTIC_CHARGE_END.Init	inside X2GUEl.cpp:1319 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_START_Init	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	n
+32b50bc0	state-fn	ESI_A_SGM_DRASTIC_CHARGE_START.Start ESI_A_SGM_DRASTIC_CHARGE_LOOP.Start ESI_A_SGM_DRASTIC_CHARGE_END.Start	inside X2GUEl.cpp:1320 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_START_StateStart ; inside X2GUEl.cpp:1350 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_END_StateStart	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	y
+32b50be0	state-fn	ESI_A_SGM_DRASTIC_CHARGE_START.StartFuture ESI_A_SGM_DRASTIC_CHARGE_LOOP.StartFuture ESI_A_SGM_DRASTIC_CHARGE_END.StartFuture	inside X2GUEl.cpp:1323 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_START_StartFurture	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	y
+32b50c10	state-fn	ESI_A_SGM_DRASTIC_CHARGE_END.Start	inside X2GUEl.cpp:1350 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_END_StateStart	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	n
+32b50c20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32b50cb0	state-fn	ESI_SA_SGM_SONIC_BLADE.Init	inside X2GUEl.cpp:1415 CX2GUEL::ESI_SA_SGM_SONIC_BLADE_Init	inside	-	CH3a	1 states	n
+32b50d20	state-fn	ESI_SA_SGM_CRITICAL_DIVE.Init ESI_SA_SGM_CRITICAL_DIVE_HIT.Init	inside X2GUEl.cpp:1430 CX2GUEL::ESI_SA_SGM_CRITICAL_DIVE_Init	inside	-	CH2b	2 states	n
+32b50d80	state-fn	ESI_SA_SGM_JUGGERNAUT_BUSTER_START.Init ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP.Init ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_LAST.Init +1	inside X2GUEl.cpp:1456 CX2GUEL::ESI_SA_SGM_JUGGERNAUT_BUSTER_START_Init	inside	-	CH3a	4 states	n
+32b50df0	state-fn	ESI_SA_SGM_JUGGERNAUT_BUSTER_START.Start ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP.Start ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_LAST.Start +1	inside X2GUEl.cpp:1457 CX2GUEL::ESI_SA_SGM_JUGGERNAUT_BUSTER_START_StateStart	inside	-	CH3a	4 states	n
+32b50e20	state-fn	ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP.FrameMove	inside X2GUEl.cpp:1473 CX2GUEL::ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_FrameMove	inside	-	CH3a	1 states	n
+32b50e50	state-fn	ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_LAST.End	inside X2GUEl.cpp:1484 CX2GUEL::ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_LAST_StartEnd	inside	-	CH3a	1 states	n
+32b50e70	state-fn	ESI_SA_SGM_WAR_PRELUDE.Init ESI_SA_SGM_WAR_PRELUDE_FLY.Init ESI_SA_SGM_WAR_PRELUDE_GROUND.Init	inside X2GUEl.cpp:1506 CX2GUEL::ESI_SA_SGM_WAR_PRELUDE_Init	inside	-	CH3a	3 states	n
+32b50ef0	state-fn	ESI_HA_SGM_SWORD_OF_RELICS.Init	inside X2GUEl.cpp:1524 CX2GUEL::ESI_HA_SGM_SWORD_OF_RELICS_Init	inside	-	CH3d	1 states	n
+32b51070	state-fn	ESI_COMBO_SBH_XZ.Init	inside X2GUEl.cpp:2866 CX2GUEL::ESI_COMBO_SBH_XZ_Init	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b51090	state-fn	ESI_COMBO_SBH_XZZ.Init	inside X2GUEl.cpp:2874 CX2GUEL::ESI_COMBO_SBH_XZZ_Init	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b510f0	state-fn	ESI_COMBO_SBH_XZZZ.Init	inside X2GUEl.cpp:2882 CX2GUEL::ESI_COMBO_SBH_XZZZ_Init	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b51110	state-fn	ESI_DASH_COMBO_SBH_X.Init	inside X2GUEl.cpp:2890 CX2GUEL::ESI_DASH_COMBO_SBH_X_Init	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b511d0	state-fn	ESI_DASH_COMBO_SBH_XX.Init	inside X2GUEl.cpp:2900 CX2GUEL::ESI_DASH_COMBO_SBH_XX_Init	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b51290	state-fn	ESI_DASH_COMBO_SBH_XXX.Init	inside X2GUEl.cpp:2909 CX2GUEL::ESI_DASH_COMBO_SBH_XXX_Init	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b51350	state-fn	ESI_DASH_COMBO_SBH_XXXZ.Init	inside X2GUEl.cpp:2918 CX2GUEL::ESI_DASH_COMBO_SBH_XXXZ_Init	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b513e0	state-fn	ESI_SI_A_SBH_FLAME_SWORD.Init ESI_SI_A_SBH_FLAME_SWORD_FINISH.Init	inside X2GUEl.cpp:985 CX2GUEL::ESI_SI_A_SBH_FLAME_SWORD_Init	inside	-	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	n
+32b51430	state-fn	ESI_SI_A_SBH_FIREWORKS.Init	inside X2GUEl.cpp:1006 CX2GUEL::ESI_SI_A_SBH_FIREWORKS_Init	inside	-	CH2c	1 states	n
+32b514c0	state-fn	ESI_SI_A_SBH_SCALET_ROSE.Init ESI_SI_A_SBH_SCALET_ROSE_SUCCESS.Init	inside X2GUEl.cpp:1017 CX2GUEL::ESI_SI_A_SBH_SCALET_ROSE_Init	inside	-	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	n
+32b51550	state-fn	ESI_SI_A_SBH_SCALET_ROSE_SUCCESS.Start	-	new	ESI_SI_A_SBH_SCALET_ROSE_SUCCESS_StateStart	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	y
+32b51570	state-fn	ESI_SI_SA_SBH_SCALDIC_SWORD.Init	inside X2GUEl.cpp:886 CX2GUEL::ESI_SI_SA_SBH_SCALDIC_SWORD_Init	inside	-	CH2c	1 states	n
+32b51600	state-fn	ESI_SI_SA_SBH_WALL_OF_PROMINENCE.Init	inside X2GUEl.cpp:897 CX2GUEL::ESI_SI_SA_SBH_WALL_OF_PROMINENCE_Init	inside	-	CH3b	1 states	n
+32b51670	state-fn	ESI_SI_SA_SBH_BLAZE_WING.Init	inside X2GUEl.cpp:909 CX2GUEL::ESI_SI_SA_SBH_BLAZE_WING_Init	inside	-	CH3b	1 states	n
+32b51700	state-fn	ESI_SI_SA_SBH_BLAZING_DANCE_START.Init ESI_SI_SA_SBH_BLAZING_DANCE_1ST.Init ESI_SI_SA_SBH_BLAZING_DANCE_ATTACK_BACK.Init +2	inside X2GUEl.cpp:919 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_START_Init	inside	-	CH3b	5 states	n
+32b517a0	state-fn	ESI_SI_SA_SBH_BLAZING_DANCE_START.Start ESI_SI_SA_SBH_BLAZING_DANCE_1ST.Start ESI_SI_SA_SBH_BLAZING_DANCE_ATTACK_BACK.Start +2	inside X2GUEl.cpp:920 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_START_StateStart	inside	-	CH3b	5 states	y
+32b517e0	state-fn	ESI_SI_SA_SBH_BLAZING_DANCE_FINISH.End	inside X2GUEl.cpp:964 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_FINISH_StateEnd	inside	-	CH3b	1 states	n
+32b51800	state-fn	ESI_SI_HA_SBH_ANCIENT_FIRE.Init	inside X2GUEl.cpp:972 CX2GUEL::ESI_SI_HA_SBH_ANCIENT_FIRE_Init	inside	-	CH3d	1 states	n
+32b518e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51b2013891dc9500	n
+32b51930	helper	called by 32b63b20 32b63b80	-	new	?	CH3b	name: called by 32b63b20(ESI_SI_SA_SBH_BLAZING_DANCE_) 32b63b80(ESI_SI_SA_SBH_BLAZING_DANCE_)	y
+32b51980	helper	-	-	new	?	CH4b	MemoConditionElesis vtable 334fa4f4 slot 1; name: MemoConditionElesis vtable 334fa4f4 slot 1 (RTTI .?AVMemoConditionElesis@CX2GUEL@@); name by the memo-condition pattern (CH4b decision)	n
+32b519a0	thunk	jmp 31fc8cf0	-	-	-	n/a	not ported	n
+32b519e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes b001c3cccccccccc	n
+32b519f0	state-fn	ESI_DASH_JUMP_COMBO_SDK_XXX.Init	-	new	ESI_DASH_JUMP_COMBO_SDK_XXX_Init	CH1g	1 states	n
+32b51a20	state-fn	ESI_DASH_COMBO_SCA_ZZ.Start	-	new	ESI_DASH_COMBO_SCA_ZZ_StateStart	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b51a40	state-fn	ESI_DASH_COMBO_SCA_ZZZ_START.Init	-	new	ESI_DASH_COMBO_SCA_ZZZ_START_Init	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	n
+32b51a70	state-fn	ESI_DASH_COMBO_SCA_ZZZ_LOOP_1.Start ESI_DASH_COMBO_SCA_ZZZ_LOOP_2.Start	-	new	ESI_DASH_COMBO_SCA_ZZZ_LOOP_1_StateStart	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b51a90	state-fn	ESI_DASH_COMBO_SCA_ZX_START.Start	-	new	ESI_DASH_COMBO_SCA_ZX_START_StateStart	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	n
+32b51aa0	state-fn	SI_SA_SDK_BRUTAL_CUTTER.Init	-	new	SI_SA_SDK_BRUTAL_CUTTER_Init	CH2d	1 states	n
+32b51b00	state-fn	SI_SA_SDK_EJECTION_BUSTER_CHARGE.Init SI_SA_SDK_EJECTION_BUSTER_ATTACK.Init	-	new	SI_SA_SDK_EJECTION_BUSTER_CHARGE_Init	CH2d	2 states	n
+32b51b90	state-fn	SI_SA_SDK_EJECTION_BUSTER_CHARGE.StartFuture SI_SA_SDK_EJECTION_BUSTER_ATTACK.StartFuture	-	new	SI_SA_SDK_EJECTION_BUSTER_CHARGE_StateStartFuture	CH2d	2 states	y
+32b51bc0	state-fn	SI_SA_SDK_EJECTION_BUSTER_CHARGE.Start SI_SA_SDK_EJECTION_BUSTER_ATTACK.Start	-	new	SI_SA_SDK_EJECTION_BUSTER_CHARGE_StateStart	CH2d	2 states	y
+32b51be0	state-fn	SI_SA_SDK_EJECTION_BUSTER_CHARGE.EventProcess SI_SA_SDK_EJECTION_BUSTER_ATTACK.EventProcess	-	new	SI_SA_SDK_EJECTION_BUSTER_CHARGE_EventProcess	CH2d	2 states	y
+32b51c00	state-fn	SI_SA_SDK_BRANDISH_BREAKER_START.Init SI_SA_SDK_BRANDISH_BREAKER_LOOP.Init SI_SA_SDK_BRANDISH_BREAKER_FINISH.Init	-	new	SI_SA_SDK_BRANDISH_BREAKER_START_Init	CH3c	3 states	n
+32b51c50	state-fn	SI_SA_SDK_BRANDISH_BREAKER_LOOP.EventProcess	-	new	SI_SA_SDK_BRANDISH_BREAKER_LOOP_EventProcess	CH3c	1 states	y
+32b51c90	state-fn	SI_SA_SDK_BURNING_PHANTOM_READY.Init SI_SA_SDK_BURNING_PHANTOM_START.Init SI_SA_SDK_BURNING_PHANTOM_LOOP.Init +1	-	new	SI_SA_SDK_BURNING_PHANTOM_READY_Init	CH2d	4 states	n
+32b51cf0	state-fn	SI_SA_SDK_BURNING_PHANTOM_READY.Start SI_SA_SDK_BURNING_PHANTOM_START.Start SI_SA_SDK_BURNING_PHANTOM_LOOP.Start +1	-	new	SI_SA_SDK_BURNING_PHANTOM_READY_StateStart	CH2d	4 states	y
+32b51d10	state-fn	SI_SA_SDK_BURNING_PHANTOM_LOOP.EventProcess	-	new	SI_SA_SDK_BURNING_PHANTOM_LOOP_EventProcess	CH2d	1 states	y
+32b51d70	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568db19001000068	n
+32b51dd0	state-fn	SI_SA_SCA_DREAD_WEAPON_START.Init SI_SA_SCA_DREAD_WEAPON_LOOP.Init SI_SA_SCA_DREAD_WEAPON_END.Init	-	new	SI_SA_SCA_DREAD_WEAPON_START_Init	CH3c	3 states	n
+32b51e60	state-fn	SI_SA_SCA_DREAD_WEAPON_START.StartFuture SI_SA_SCA_DREAD_WEAPON_LOOP.StartFuture SI_SA_SCA_DREAD_WEAPON_END.StartFuture	-	new	SI_SA_SCA_DREAD_WEAPON_START_StateStartFuture	CH3c	3 states	y
+32b51e80	state-fn	SI_SA_SCA_DREAD_WEAPON_LOOP.StartFuture	-	new	SI_SA_SCA_DREAD_WEAPON_LOOP_StateStartFuture	CH3c	1 states	y
+32b51ea0	state-fn	SI_SA_SCA_DREAD_WEAPON_END.Start	-	new	SI_SA_SCA_DREAD_WEAPON_END_StateStart	CH3c	1 states	n
+32b51eb0	state-fn	SI_SA_SCA_SHADE_THE_ILLUSION.Init	-	new	SI_SA_SCA_SHADE_THE_ILLUSION_Init	CH3c	1 states	n
+32b51f40	state-fn	SI_SA_SCA_BLOOD_CUTTER.Init	-	new	SI_SA_SCA_BLOOD_CUTTER_Init	CH3c	1 states	n
+32b51fa0	state-fn	SI_A_SDK_INJECTION_STIGMA.Init	-	new	SI_A_SDK_INJECTION_STIGMA_Init	CH2d	1 states	n
+32b52000	state-fn	SI_A_SDK_DARK_WAVE.Init	-	new	SI_A_SDK_DARK_WAVE_Init	CH2d	1 states	n
+32b52060	state-fn	SI_A_SCA_SHADE_SCRATCH.Init SI_A_SCA_SHADE_SCRATCH_ATTACK.Init	-	new	SI_A_SCA_SHADE_SCRATCH_Init	CH2d	2 states	n
+32b520f0	state-fn	SI_A_SCA_SHADOW_EDGE.Init	-	new	SI_A_SCA_SHADOW_EDGE_Init	CH3c	1 states	n
+32b52120	state-fn	SI_A_SCA_ASSAULT_STRIKE.Init	-	new	SI_A_SCA_ASSAULT_STRIKE_Init	CH3c	1 states	n
+32b52160	state-fn	SI_HA_SCA_FATE_SMASHER.Init	-	new	SI_HA_SCA_FATE_SMASHER_Init	CH3d	1 states	n
+32b52220	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568b74240885f675	n
+32b52260	override 0x428	?	- (name unsettled)	new	GetDefenceRateBySkill	CH4b	vslot 0x428 override (name unsettled); name: CH0 Opus: vslot 0x428 = X2GUUser.h:3268 (base 1.0)	n
+32b522d0	state-fn	ESI_DASH_COMBO_SGM_XX_ATTACK.StartFuture	-	new	ESI_DASH_COMBO_SGM_XX_ATTACK_StateStartFuture	CH1e	1 states	y
+32b52300	state-fn	ESI_DASH_JUMP_COMBO_SPK_ZX_READY.StartFuture	-	new	ESI_DASH_JUMP_COMBO_SPK_ZX_READY_StateStartFuture	CH1f	1 states	n
+32b52320	state-fn	ESI_DASH_JUMP_COMBO_SPK_ZX_LOOP.StartFuture	-	new	ESI_DASH_JUMP_COMBO_SPK_ZX_LOOP_StateStartFuture	CH1f	1 states	n
+32b52330	state-fn	ESI_DASH_JUMP_COMBO_SDK_ZX_CHARGE.Start	-	new	ESI_DASH_JUMP_COMBO_SDK_ZX_CHARGE_StateStart	CH1g	1 states	n
+32b52350	state-fn	ESI_DASH_JUMP_COMBO_SDK_ZX_CHARGE.FrameMove	-	new	ESI_DASH_JUMP_COMBO_SDK_ZX_CHARGE_FrameMove	CH1g	1 states	y
+32b52390	state-fn	ESI_DASH_COMBO_SCA_XZ_CHARGE.Start	-	new	ESI_DASH_COMBO_SCA_XZ_CHARGE_StateStart	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b523b0	state-fn	ESI_DASH_COMBO_SCA_XZ_CHARGE.StartFuture	-	new	ESI_DASH_COMBO_SCA_XZ_CHARGE_StateStartFuture	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b523d0	state-fn	ESI_DASH_COMBO_SCA_XZ_CHARGE.EventProcess	-	new	ESI_DASH_COMBO_SCA_XZ_CHARGE_EventProcess	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b52420	state-fn	ESI_DASH_COMBO_SCA_XZ_CHARGE.FrameMove	-	new	ESI_DASH_COMBO_SCA_XZ_CHARGE_FrameMove	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b52460	state-fn	ESI_SI_A_SPK_AVATAR_OF_THE_FIRE.Init	-	new	ESI_SI_A_SPK_AVATAR_OF_THE_FIRE_Init	CH2c	1 states	n
+32b52470	helper	-	-	new	?	CH4a	CH0 Opus: InitPassiveSkillState delegate, pushed through the thunk-table adapter 32b8ecf0 @32b88342 (push edx; call; ret); the builder read the adapter call as 32b8c470's; name: called by 32b8c470(SetEquippedSkillFuncBySkillS)	y
+32b524b0	helper	-	-	new	?	CH4a	CH0 Opus: InitPassiveSkillState delegate, pushed through the thunk-table adapter 32b8ed00 @32b88a76 (push edx; call; ret); the builder read the adapter call as 32b8c470's; name: called by 32b8c470(SetEquippedSkillFuncBySkillS)	n
+32b524f0	not-Elesis	called only from outside the range: 320476a2	-	-	-	n/a	shared / folded code	y
+32b52530	state-fn	ESI_SA_SGM_GIGA_BLAST.Init ESI_SA_SGM_GIGA_BLAST_CHARGE.Init ESI_SA_SGM_GIGA_BLAST_END.Init	-	new	ESI_SA_SGM_GIGA_BLAST_Init	CH3a	3 states	n
+32b52540	state-fn	ESI_SA_SBH_SOUL_IGNITION.Init	-	new	ESI_SA_SBH_SOUL_IGNITION_Init	CH3b	1 states	n
+32b52550	state-fn	ESI_SA_SCA_BLOOD_FALLS.Init	-	new	ESI_SA_SCA_BLOOD_FALLS_Init	CH3c	1 states	n
+32b52560	override 0x40	Init	X2GUEl.h:259 virtual void Init( bool bUseTeamPos_, int iStartPosIndex_ );	inside	-	CH1h	base 3204ea20	n
+32b52590	override 0x7fc	SpecialAttackEventProcess part: skill use (slot 511)	- (no virtual of that name in X2GUEl.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32b52650	override 0x90	Win	X2GUEl.h:808 virtual void Win();	inside	-	CH1h	base 32014660	y
+32b52690	override 0x98	Draw	X2GUEl.h:810 virtual void Draw();	inside	-	CH1h	base 31ff17c0	y
+32b526d0	helper	reached only through callers with no phased caller 32b6de46	-	new	?	CH1o	phase unsettled: read it; name: called by 32b6de46(?)	y
+32b52790	override 0x674	?	X2GUEl.h:840 CX2GUEL::GetWayOfSwordState	inside	-	CH1q	vslot 0x674 override (name unsettled; Way of Sword)	n
+32b527b0	helper	called by 32b7f370 32b81900	-	new	?	CH1h	also called from outside the class: 322ed541 322ed571; name: called by 32b7f370(helper) 32b81900(ReInit); also called from outside the class: 322ed541 322ed571	y
+32b527e0	override 0x678	?	X2GUEl.h:843 CX2GUEL::GetWayOfSwordPoint	inside	-	CH1q	vslot 0x678 override (name unsettled; Way of Sword)	n
+32b52800	override 0x67c	?	X2GUEl.h:844 CX2GUEL::SetWayOfSwordPoint	inside	-	CH1q	vslot 0x67c override (name unsettled; Way of Sword)	n
+32b52850	state-fn	ESI_DIE_FRONT.Start ESI_RIDING_DIE.Start	inside X2GUEl.cpp:2012 CX2GUEL::DieFrontStart ; inside X2GUEl.cpp:2425 CX2GUEL::DieFrontStart	inside	-	CH1b	2 states	y
+32b528c0	state-fn	ESI_DIE_FRONT.EventProcess ESI_RIDING_DIE.EventProcess	inside X2GUEl.cpp:2014 CX2GUEL::DieFrontEventProcess ; inside X2GUEl.cpp:2427 CX2GUEL::DieFrontEventProcess	inside	-	CH1b	2 states	y
+32b52900	state-fn	ESI_DIE_BACK.Start	inside X2GUEl.cpp:2021 CX2GUEL::DieBackStart	inside	-	CH1b	1 states	y
+32b52970	state-fn	ESI_DIE_BACK.EventProcess	inside X2GUEl.cpp:2023 CX2GUEL::DieBackEventProcess	inside	-	CH1b	1 states	y
+32b529b0	state-fn	ESI_WAIT.Start	inside X2GUEl.cpp:2040 CX2GUEL::WaitStart	inside	-	CH1a	1 states	y
+32b529e0	state-fn	ESI_JUMP_DOWN.EventProcess	inside X2GUEl.cpp:2068 CX2GUEL::JumpDownEventProcess	inside	-	CH1a	1 states	y
+32b52ac0	state-fn	ESI_DASH_END.FrameMove	inside X2GUEl.cpp:2092 CX2GUEL::DashEndFrameMove	inside	-	CH1a	1 states	n
+32b52b00	state-fn	ESI_DAMAGE_DOWN_FRONT.FrameMove	inside X2GUEl.cpp:2160 CX2GUEL::DamageDownFrontFrameMove	inside	-	CH1b	1 states	n
+32b52b50	state-fn	ESI_DAMAGE_DOWN_FRONT.EventProcess	inside X2GUEl.cpp:2161 CX2GUEL::DamageDownFrontEventProcess	inside	-	CH1b	1 states	n
+32b52f00	state-fn	ESI_DAMAGE_DOWN_BACK.FrameMove	inside X2GUEl.cpp:2167 CX2GUEL::DamageDownBackFrameMove	inside	-	CH1b	1 states	n
+32b52f40	state-fn	ESI_DAMAGE_DOWN_BACK.EventProcess	inside X2GUEl.cpp:2168 CX2GUEL::DamageDownBackEventProcess	inside	-	CH1b	1 states	n
+32b532f0	state-fn	ESI_DAMAGE_AIR_DOWN_LANDING.EventProcess	inside X2GUEl.cpp:2209 CX2GUEL::DamageAirDownLandingEventProcess	inside	-	CH1b	1 states	n
+32b53300	state-fn	ESI_STANDUP_ROLLING_FRONT_FRONT.EventProcess	inside X2GUEl.cpp:2494 CX2GUEL::StandUpRollingFrontFrontEventProcess	inside	-	CH1b	1 states	y
+32b53440	state-fn	ESI_STANDUP_ROLLING_FRONT_BACK.EventProcess	inside X2GUEl.cpp:2501 CX2GUEL::StandUpRollingFrontBackEventProcess	inside	-	CH1b	1 states	y
+32b53580	state-fn	ESI_STANDUP_ROLLING_BACK_FRONT.EventProcess	inside X2GUEl.cpp:2508 CX2GUEL::StandUpRollingBackFrontEventProcess	inside	-	CH1b	1 states	y
+32b536c0	state-fn	ESI_STANDUP_ROLLING_BACK_BACK.EventProcess	inside X2GUEl.cpp:2515 CX2GUEL::StandUpRollingBackBackEventProcess	inside	-	CH1b	1 states	y
+32b53800	state-fn	ESI_STANDUP_ATTACK_FRONT.EventProcess ESI_QUICK_STANDUP_ATTACK_FRONT.EventProcess	inside X2GUEl.cpp:2522 CX2GUEL::StandUpAttackFrontEventProcess ; inside X2GUEl.cpp:2692 CX2GUEL::StandUpAttackFrontEventProcess	inside	-	CH1a	2 states	y
+32b53880	state-fn	ESI_STANDUP_ATTACK_BACK.EventProcess ESI_QUICK_STANDUP_ATTACK_BACK.EventProcess	inside X2GUEl.cpp:2529 CX2GUEL::StandUpAttackBackEventProcess ; inside X2GUEl.cpp:2699 CX2GUEL::StandUpAttackBackEventProcess	inside	-	CH1a	2 states	y
+32b53900	state-fn	ESI_STANDUP_ATTACK_FRONT_NO_DOWN.EventProcess	inside X2GUEl.cpp:2537 CX2GUEL::StandUpAttackFrontNoDownEventProcess	inside	-	CH1b	1 states	y
+32b53980	state-fn	ESI_STANDUP_ATTACK_BACK_NO_DOWN.EventProcess	inside X2GUEl.cpp:2544 CX2GUEL::StandUpAttackBackNoDownEventProcess	inside	-	CH1b	1 states	y
+32b53a00	state-fn	ESI_COMBO_Z.EventProcess	inside X2GUEl.cpp:2569 CX2GUEL::ComboZEventProcess	inside	-	CH1d	1 states	n
+32b53d50	state-fn	ESI_COMBO_ZZ.EventProcess	inside X2GUEl.cpp:2575 CX2GUEL::ComboZZEventProcess	inside	-	CH1d	1 states	n
+32b540a0	state-fn	ESI_COMBO_ZZZ.EventProcess	inside X2GUEl.cpp:2581 CX2GUEL::ComboZZZEventProcess	inside	-	CH1d	1 states	n
+32b54680	state-fn	ESI_COMBO_ZZZZ.EventProcess	inside X2GUEl.cpp:2587 CX2GUEL::ComboZZZZEventProcess	inside	-	CH1d	1 states	n
+32b54910	state-fn	ESI_COMBO_ZZZX.EventProcess	inside X2GUEl.cpp:2593 CX2GUEL::ComboZZZXEventProcess	inside	-	CH1d	1 states	n
+32b54b90	state-fn	ESI_COMBO_X.EventProcess	inside X2GUEl.cpp:2599 CX2GUEL::ComboXEventProcess	inside	-	CH1d	1 states	n
+32b55040	state-fn	ESI_COMBO_XX.EventProcess	inside X2GUEl.cpp:2605 CX2GUEL::ComboXXEventProcess	inside	-	CH1d	1 states	n
+32b554e0	state-fn	ESI_COMBO_XXX.EventProcess	inside X2GUEl.cpp:2611 CX2GUEL::ComboXXXEventProcess	inside	-	CH1d	1 states	n
+32b55760	state-fn	ESI_COMBO_XXZ.EventProcess	inside X2GUEl.cpp:2617 CX2GUEL::ComboXXZEventProcess	inside	-	CH1d	1 states	n
+32b559e0	state-fn	ESI_DASH_COMBO_Z.EventProcess	inside X2GUEl.cpp:2637 CX2GUEL::DashComboZEventProcess	inside	-	CH1d2	1 states	n
+32b56090	state-fn	ESI_DASH_COMBO_ZZ.EventProcess	inside X2GUEl.cpp:2643 CX2GUEL::DashComboZZEventProcess	inside	-	CH1d2	1 states	n
+32b562f0	state-fn	ESI_DASH_COMBO_X.EventProcess	inside X2GUEl.cpp:2649 CX2GUEL::DashComboXEventProcess	inside	-	CH1d2	1 states	n
+32b56710	state-fn	ESI_DASH_JUMP_COMBO_Z.EventProcess	inside X2GUEl.cpp:2655 CX2GUEL::DashJumpComboZEventProcess	inside	-	CH1d2	1 states	y
+32b56aa0	state-fn	ESI_DASH_JUMP_COMBO_ZZ.EventProcess	inside X2GUEl.cpp:2662 CX2GUEL::DashJumpComboZZEventProcess	inside	-	CH1d2	1 states	y
+32b56c80	state-fn	ESI_DASH_JUMP_COMBO_ZZZ.EventProcess	inside X2GUEl.cpp:2668 CX2GUEL::DashJumpComboZZZEventProcess	inside	-	CH1d2	1 states	y
+32b56cc0	state-fn	ESI_DASH_JUMP_COMBO_X.EventProcess	inside X2GUEl.cpp:2674 CX2GUEL::DashJumpComboXEventProcess	inside	-	CH1d2	1 states	y
+32b570d0	state-fn	ESI_DASH_JUMP_COMBO_XX.EventProcess	inside X2GUEl.cpp:2680 CX2GUEL::DashJumpComboXXEventProcess	inside	-	CH1d2	1 states	y
+32b57100	state-fn	ESI_DASH_JUMP_COMBO_XX_LANDING.EventProcess	inside X2GUEl.cpp:2686 CX2GUEL::DashJumpComboXXLandingEventProcess	inside	-	CH1d2	1 states	y
+32b57240	state-fn	ESI_CAN_NOT_ATTACK_JUMP_DOWN.EventProcess	inside X2GUEl.cpp:2739 CX2GUEL::ESI_CAN_NOT_ATTACK_JUMP_DOWN_EventProcess	inside	-	CH1a	CH0 Opus: ESI_CAN_NOT_ATTACK_JUMP_DOWN / ESI_SWORD_WAIT (wait / jump movement states; 32b6e0c0 = PlayAnimationSwordWaitStart, June 0.15 threshold when +0x95d0 > 0)	y
+32b572e0	state-fn	ESI_SI_A_EL_DODGE_AND_SLASH.Start ESI_SI_A_EL_DODGE_AND_SLASH_BACK.Start ESI_SI_A_EL_DODGE_AND_SLASH_ATTACK_Z.Start	-	new	ESI_SI_A_EL_DODGE_AND_SLASH_StateStart	CH2a	3 states	n
+32b57350	state-fn	ESI_SI_A_EL_LEAP_CRASH.EventProcess ESI_SI_A_EL_LEAP_CRASH_JUMP.EventProcess ESI_SI_A_EL_LEAP_CRASH_JUMP_LANDING.EventProcess	inside X2GUEl.cpp:1190 CX2GUEL::ESI_SI_A_EL_LEAP_CRASH_EventProcess ; inside X2GUEl.cpp:1202 CX2GUEL::ESI_SI_A_EL_LEAP_CRASH_JUMP_EventProcess ; inside X2GUEl.cpp:1208 CX2GUEL::ESI_SI_A_EL_LEAP_CRASH_JUMP_LANDING_EventProcess	inside	-	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	n
+32b57680	state-fn	ESI_SI_A_EL_LEAP_CRASH_JUMP.EventProcess	inside X2GUEl.cpp:1202 CX2GUEL::ESI_SI_A_EL_LEAP_CRASH_JUMP_EventProcess	inside	-	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	y
+32b57960	state-fn	ESI_SI_A_EL_LEAP_CRASH_JUMP_LANDING.EventProcess	inside X2GUEl.cpp:1208 CX2GUEL::ESI_SI_A_EL_LEAP_CRASH_JUMP_LANDING_EventProcess	inside	-	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	n
+32b57c60	state-fn	ESI_SI_A_EL_RUSHING_SWORD_3rd.EventProcess	inside X2GUEl.cpp:1246 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_3rd_EventProcess	inside	-	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	n
+32b57f60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b068b90c4	y
+32b57fe0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32b582e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32b585e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32b588e0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32b58910	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32b58b70	state-fn	ESI_SI_A_EL_SONIC_ASSAULT_STING.EventProcess ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_READY.EventProcess ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_CHARGE.EventProcess +1	inside X2GUEl.cpp:1145 CX2GUEL::ESI_SI_A_EL_SONIC_ASSAULT_STING_EventProcess	inside	-	CH2a	4 states	n
+32b58e70	state-fn	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_READY.EventProcess	-	new	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_READY_EventProcess	CH2a	1 states	y
+32b58ea0	state-fn	ESI_SI_SA_EL_WILD_SHOCK.EventProcess	inside X2GUEl.cpp:1112 CX2GUEL::ESI_SI_SA_EL_WILD_SHOCK_EventProcess	inside	-	CH2a	1 states	n
+32b591a0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32b594a0	state-fn	ESI_SI_SA_EL_MEGA_BURSTER.EventProcess	inside X2GUEl.cpp:1123 CX2GUEL::ESI_SI_SA_EL_MEGA_BURSTER_EventProcess	inside	-	CH2a	1 states	n
+32b597a0	state-fn	ESI_SI_SA_EL_UNLIMITED_BLADE.EventProcess	inside X2GUEl.cpp:1101 CX2GUEL::ESI_SI_SA_EL_UNLIMITED_BLADE_EventProcess	inside	-	CH2a	1 states	n
+32b59aa0	state-fn	ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE.EventProcess ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE_MEMO.EventProcess	inside X2GUEl.cpp:2722 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_EventProcess ; inside X2GUEl.cpp:2730 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_EventProcess	inside	-	CH1k	CH0 Opus: ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE (ids 205 / 207) / _MEMO (206): entered from NoStateChangeActionFrameMove 32b818b0 -> 32b80c60 (skills 28201 / 28218 have no switch state) and from DetonationStateChange (207)	n
+32b59dd0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 807c240401568bf1	n
+32b59e30	state-fn	ESI_DASH_COMBO_SSK_ZZ.EventProcess	inside X2GUEl.cpp:2832 CX2GUEL::ESI_DASH_COMBO_SSK_ZZ_EventProcess	inside	-	CH1e	1 states	n
+32b5a2a0	state-fn	ESI_DASH_COMBO_SSK_ZZZ.EventProcess	inside X2GUEl.cpp:2838 CX2GUEL::ESI_DASH_COMBO_SSK_ZZZ_EventProcess	inside	-	CH1e	1 states	n
+32b5a5a0	state-fn	ESI_DASH_COMBO_SSK_ZZX.EventProcess	inside X2GUEl.cpp:2844 CX2GUEL::ESI_DASH_COMBO_SSK_ZZX_EventProcess	inside	-	CH1e	1 states	n
+32b5a8a0	state-fn	ESI_DASH_JUMP_COMBO_SSK_ZZX.EventProcess ESI_DASH_JUMP_COMBO_SSK_XX.EventProcess	inside X2GUEl.cpp:2850 CX2GUEL::ESI_DASH_JUMP_COMBO_SSK_XX_EventProcess	inside	-	CH1e	2 states	y
+32b5a910	state-fn	ESI_DASH_JUMP_COMBO_SSK_XXX.EventProcess	inside X2GUEl.cpp:2856 CX2GUEL::ESI_DASH_JUMP_COMBO_SSK_XXX_EventProcess	inside	-	CH1e	1 states	n
+32b5ac20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32b5af20	state-fn	ESI_SI_A_SSK_POWER_BREAK.EventProcess	inside X2GUEl.cpp:1075 CX2GUEL::ESI_SI_A_SSK_POWER_BREAK_EventProcess	inside	-	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	n
+32b5b220	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32b5b520	state-fn	ESI_SI_SA_SSK_SPIRAL_BLAST.EventProcess	inside X2GUEl.cpp:738 CX2GUEL::ESI_SI_SA_SSK_SPIRAL_BLAST_EventProcess	inside	-	CH2a	1 states	n
+32b5b820	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes a16058773353568b	n
+32b5b870	state-fn	ESI_SI_SA_SSK_EXTINCTION_START.StartFuture ESI_SI_SA_SSK_EXTINCTION_CHARGE.StartFuture ESI_SI_SA_SSK_EXTINCTION_DEGREE.StartFuture +1	inside X2GUEl.cpp:751 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_START_StartFuture ; inside X2GUEl.cpp:774 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_ATTACK_StartFuture	inside	-	CH2b	4 states	y
+32b5b8e0	state-fn	ESI_SI_SA_SSK_EXTINCTION_START.EventProcess ESI_SI_SA_SSK_EXTINCTION_CHARGE.EventProcess ESI_SI_SA_SSK_EXTINCTION_DEGREE.EventProcess +1	inside X2GUEl.cpp:752 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_START_EventProcess ; inside X2GUEl.cpp:768 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_CHARGE_EventProcess ; inside X2GUEl.cpp:784 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_DEGREE_UP_EventProcess ; inside X2GUEl.cpp:776 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_ATTACK_EventProcess	inside	-	CH2b	4 states	n
+32b5bbe0	state-fn	ESI_SI_SA_SSK_EXTINCTION_CHARGE.EventProcess	inside X2GUEl.cpp:768 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_CHARGE_EventProcess	inside	-	CH2b	1 states	n
+32b5c060	state-fn	ESI_SI_SA_SSK_EXTINCTION_ATTACK.StartFuture	inside X2GUEl.cpp:774 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_ATTACK_StartFuture	inside	-	CH2b	1 states	n
+32b5c0c0	state-fn	ESI_SI_SA_SSK_EXTINCTION_DEGREE.EventProcess	inside X2GUEl.cpp:784 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_DEGREE_UP_EventProcess	inside	-	CH2b	1 states	n
+32b5c400	state-fn	ESI_SI_SA_SSK_EXTINCTION_DEGREE.EventProcess	inside X2GUEl.cpp:784 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_DEGREE_UP_EventProcess	inside	-	CH2b	1 states	n
+32b5c740	state-fn	ESI_SI_SA_SSK_VICTORIOUS_SWORD.EventProcess	inside X2GUEl.cpp:800 CX2GUEL::ESI_SI_SA_SSK_VICTORIOUS_SWORD_EventProcess	inside	-	CH3a	1 states	n
+32b5ca40	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51568bf18b068b90	n
+32b5cac0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 51568bf18b068b90	n
+32b5cb40	state-fn	ESI_SI_SA_SSK_JUDGEMENT_DRIVE.FrameMove ESI_SI_SA_SSK_JUDGEMENT_DRIVE_FINAL.FrameMove	-	new	ESI_SI_SA_SSK_JUDGEMENT_DRIVE_FrameMove	CH2b	2 states	y
+32b5cbd0	state-fn	ESI_SI_SA_SSK_JUDGEMENT_DRIVE_FINAL.EventProcess	-	new	ESI_SI_SA_SSK_JUDGEMENT_DRIVE_FINAL_EventProcess	CH2b	1 states	n
+32b5ced0	state-fn	ESI_DASH_COMBO_SPK_ZX.EventProcess ESI_COMBO_SBH_ZZZX.EventProcess	inside X2GUEl.cpp:2930 CX2GUEL::ESI_DASH_COMBO_SPK_ZX_EventProcess	inside	-	CH1f	2 states	n
+32b5d1d0	state-fn	ESI_DASH_COMBO_SPK_ZZ.EventProcess	inside X2GUEl.cpp:2937 CX2GUEL::ESI_DASH_COMBO_SPK_ZZ_EventProcess	inside	-	CH1f	1 states	n
+32b5d590	state-fn	ESI_DASH_COMBO_SPK_ZZZ.EventProcess	inside X2GUEl.cpp:2943 CX2GUEL::ESI_DASH_COMBO_SPK_ZZZ_EventProcess	inside	-	CH1f	1 states	n
+32b5d890	state-fn	ESI_DASH_JUMP_COMBO_SPK_XZ.EventProcess	inside X2GUEl.cpp:2951 CX2GUEL::ESI_DASH_JUMP_COMBO_SPK_XZ_EventProcess	inside	-	CH1f	1 states	n
+32b5dc30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32b5df30	state-fn	ESI_SI_A_SPK_BIG_BURST.EventProcess	inside X2GUEl.cpp:1053 CX2GUEL::ESI_SI_A_SPK_BIG_BURST_EventProcess	inside	-	CH2c	1 states	n
+32b5e230	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32b5e530	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32b5e830	state-fn	ESI_SI_SA_SPK_SWORDFIRE.EventProcess ESI_SI_SA_SPK_SWORDFIRE_FLY.EventProcess ESI_SI_SA_SPK_SWORDFIRE_GROUND.EventProcess	inside X2GUEl.cpp:853 CX2GUEL::ESI_SI_SA_SPK_SWORDFIRE_EventProcess	inside	-	CH2c	3 states	y
+32b5e860	state-fn	ESI_SI_SA_SPK_SWORDFIRE_GROUND.EventProcess	-	new	ESI_SI_SA_SPK_SWORDFIRE_GROUND_EventProcess	CH2c	1 states	n
+32b5eb60	state-fn	ESI_SI_SA_SPK_INFERNAL_BLADE.EventProcess	inside X2GUEl.cpp:864 CX2GUEL::ESI_SI_SA_SPK_INFERNAL_BLADE_EventProcess	inside	-	CH2c	1 states	n
+32b5ee60	state-fn	ESI_SI_SA_SPK_ETERNAL_FIRE.EventProcess	inside X2GUEl.cpp:875 CX2GUEL::ESI_SI_SA_SPK_ETERNAL_FIRE_EventProcess	inside	-	CH3b	1 states	n
+32b5f160	state-fn	ESI_DASH_JUMP_COMBO_SGM_XZ.EventProcess	inside X2GUEl.cpp:2762 CX2GUEL::ESI_DASH_JUMP_COMBO_SGM_XZ_EventProcess	inside	-	CH1e	1 states	y
+32b5f190	state-fn	ESI_DASH_JUMP_COMBO_SGM_XZ_LOOP.EventProcess	inside X2GUEl.cpp:2770 CX2GUEL::ESI_DASH_JUMP_COMBO_SGM_XZ_LOOP_EventProcess	inside	-	CH1e	1 states	y
+32b5f1c0	state-fn	ESI_DASH_JUMP_COMBO_SGM_XZ_DOWN.EventProcess	inside X2GUEl.cpp:2778 CX2GUEL::ESI_DASH_JUMP_COMBO_SGM_XZ_DOWN_EventProcess	inside	-	CH1e	1 states	n
+32b5f4c0	state-fn	ESI_COMBO_SGM_XX_DOWN_X_END.EventProcess	inside X2GUEl.cpp:2805 CX2GUEL::ESI_COMBO_SGM_XX_DOWN_X_END_EventProcess	inside	-	CH1e	1 states	n
+32b5f7c0	state-fn	ESI_QUICK_STANDUP_ATTACK_FRONT_ADVANCED.EventProcess	inside X2GUEl.cpp:2813 CX2GUEL::ESI_QUICK_STANDUP_ATTACK_FRONT_ADVANCED_EventProcess	inside	-	CH1a	1 states	n
+32b5fac0	state-fn	ESI_QUICK_STANDUP_ATTACK_BACK_ADVANCED.EventProcess	inside X2GUEl.cpp:2821 CX2GUEL::ESI_QUICK_STANDUP_ATTACK_BACK_ADVANCED_EventProcess	inside	-	CH1a	1 states	y
+32b5faf0	state-fn	ESI_A_SGM_PROVOKE.Start ESI_A_SGM_PROVOKE_REVENGE.Start	inside X2GUEl.cpp:1289 CX2GUEL::ESI_A_SGM_PROVOKE_StateStart	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	n
+32b5fb10	state-fn	ESI_A_SGM_PROVOKE.End ESI_A_SGM_PROVOKE_REVENGE.End	inside X2GUEl.cpp:1291 CX2GUEL::ESI_A_SGM_PROVOKE_StateEnd	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	n
+32b5fb30	state-fn	ESI_A_SGM_PROVOKE_REVENGE.EventProcess	inside X2GUEl.cpp:1308 CX2GUEL::ESI_A_SGM_PROVOKE_REVENGE_EventProcess	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	n
+32b5fe30	state-fn	ESI_A_SGM_DRASTIC_CHARGE_START.EventProcess ESI_A_SGM_DRASTIC_CHARGE_LOOP.EventProcess ESI_A_SGM_DRASTIC_CHARGE_END.EventProcess	inside X2GUEl.cpp:1322 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_START_EventProcess ; inside X2GUEl.cpp:1339 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_LOOP_EventProcess ; inside X2GUEl.cpp:1351 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_END_EventProcess	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	y
+32b5fe60	state-fn	ESI_A_SGM_DRASTIC_CHARGE_LOOP.EventProcess	inside X2GUEl.cpp:1339 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_LOOP_EventProcess	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	y
+32b5ff40	state-fn	ESI_A_SGM_DRASTIC_CHARGE_LOOP.FrameMove	inside X2GUEl.cpp:1340 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_LOOP_FrameMove	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	n
+32b5ffc0	state-fn	ESI_A_SGM_DRASTIC_CHARGE_END.EventProcess	inside X2GUEl.cpp:1351 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_END_EventProcess	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	n
+32b602c0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf18b86d08700	y
+32b60300	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 568bf1b00138861c	y
+32b60350	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32b60650	state-fn	ESI_SA_SGM_CRITICAL_DIVE.EventProcess ESI_SA_SGM_CRITICAL_DIVE_HIT.EventProcess	inside X2GUEl.cpp:1431 CX2GUEL::ESI_SA_SGM_CRITICAL_DIVE_EventProcess ; inside X2GUEl.cpp:1444 CX2GUEL::ESI_SA_SGM_CRITICAL_DIVE_HIT_EventProcess	inside	-	CH2b	2 states	n
+32b609e0	state-fn	ESI_SA_SGM_CRITICAL_DIVE_HIT.EventProcess	inside X2GUEl.cpp:1444 CX2GUEL::ESI_SA_SGM_CRITICAL_DIVE_HIT_EventProcess	inside	-	CH2b	1 states	n
+32b60ce0	state-fn	ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_LAST.EventProcess	inside X2GUEl.cpp:1483 CX2GUEL::ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_LAST_EventProcess	inside	-	CH3a	1 states	y
+32b60d10	state-fn	ESI_SA_SGM_JUGGERNAUT_BUSTER_END.EventProcess	inside X2GUEl.cpp:1494 CX2GUEL::ESI_SA_SGM_JUGGERNAUT_BUSTER_END_EventProcess	inside	-	CH3a	1 states	n
+32b61010	state-fn	ESI_SA_SGM_WAR_PRELUDE.EventProcess ESI_SA_SGM_WAR_PRELUDE_FLY.EventProcess ESI_SA_SGM_WAR_PRELUDE_GROUND.EventProcess	inside X2GUEl.cpp:1507 CX2GUEL::ESI_SA_SGM_WAR_PRELUDE_EventProcess	inside	-	CH3a	3 states	y
+32b61050	state-fn	ESI_HA_SGM_SWORD_OF_RELICS.EventProcess	inside X2GUEl.cpp:1525 CX2GUEL::ESI_HA_SGM_SWORD_OF_RELICS_EventProcess	inside	-	CH3d	1 states	n
+32b61350	state-fn	ESI_COMBO_SBH_XZ.EventProcess	inside X2GUEl.cpp:2867 CX2GUEL::ESI_COMBO_SBH_XZ_EventProcess	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b61660	state-fn	ESI_COMBO_SBH_XZZ.EventProcess	inside X2GUEl.cpp:2876 CX2GUEL::ESI_COMBO_SBH_XZZ_EventProcess	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b61970	state-fn	ESI_COMBO_SBH_XZZZ.EventProcess	inside X2GUEl.cpp:2883 CX2GUEL::ESI_COMBO_SBH_XZZZ_EventProcess	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b61bd0	state-fn	ESI_DASH_COMBO_SBH_X.EventProcess	inside X2GUEl.cpp:2891 CX2GUEL::ESI_DASH_COMBO_SBH_X_EventProcess	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b61fe0	state-fn	ESI_DASH_COMBO_SBH_XX.EventProcess	inside X2GUEl.cpp:2901 CX2GUEL::ESI_DASH_COMBO_SBH_XX_EventProcess	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b623f0	state-fn	ESI_DASH_COMBO_SBH_XXX.EventProcess	inside X2GUEl.cpp:2910 CX2GUEL::ESI_DASH_COMBO_SBH_XXX_EventProcess	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	y
+32b62520	state-fn	ESI_DASH_COMBO_SBH_XXXZ.EventProcess	inside X2GUEl.cpp:2919 CX2GUEL::ESI_DASH_COMBO_SBH_XXXZ_EventProcess	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	y
+32b625b0	state-fn	ESI_SI_A_SBH_FLAME_SWORD.EventProcess ESI_SI_A_SBH_FLAME_SWORD_FINISH.EventProcess	inside X2GUEl.cpp:986 CX2GUEL::ESI_SI_A_SBH_FLAME_SWORD_EventProcess ; inside X2GUEl.cpp:999 CX2GUEL::ESI_SI_A_SBH_FLAME_SWORD_FINISH_EventProcess	inside	-	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	n
+32b628f0	state-fn	ESI_SI_A_SBH_FLAME_SWORD_FINISH.EventProcess	inside X2GUEl.cpp:999 CX2GUEL::ESI_SI_A_SBH_FLAME_SWORD_FINISH_EventProcess	inside	-	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	n
+32b62bf0	state-fn	ESI_SI_A_SBH_FIREWORKS.EventProcess	inside X2GUEl.cpp:1007 CX2GUEL::ESI_SI_A_SBH_FIREWORKS_EventProcess	inside	-	CH2c	1 states	n
+32b62ef0	state-fn	ESI_SI_A_SBH_SCALET_ROSE_SUCCESS.EventProcess	inside X2GUEl.cpp:1033 CX2GUEL::ESI_SI_A_SBH_SCALET_ROSE_SUCCESS_EventProcess	inside	-	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	n
+32b631f0	state-fn	ESI_SI_SA_SBH_SCALDIC_SWORD.EventProcess	inside X2GUEl.cpp:887 CX2GUEL::ESI_SI_SA_SBH_SCALDIC_SWORD_EventProcess	inside	-	CH2c	1 states	n
+32b634f0	state-fn	ESI_SI_SA_SBH_WALL_OF_PROMINENCE.EventProcess	inside X2GUEl.cpp:898 CX2GUEL::ESI_SI_SA_SBH_WALL_OF_PROMINENCE_EventProcess	inside	-	CH3b	1 states	n
+32b637f0	state-fn	ESI_SI_SA_SBH_BLAZE_WING.EventProcess	inside X2GUEl.cpp:910 CX2GUEL::ESI_SI_SA_SBH_BLAZE_WING_EventProcess	inside	-	CH3b	1 states	n
+32b63af0	state-fn	ESI_SI_SA_SBH_BLAZING_DANCE_START.EventProcess ESI_SI_SA_SBH_BLAZING_DANCE_1ST.EventProcess ESI_SI_SA_SBH_BLAZING_DANCE_ATTACK_BACK.EventProcess +2	inside X2GUEl.cpp:921 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_START_EventProcess ; inside X2GUEl.cpp:935 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_1ST_EventProcess ; inside X2GUEl.cpp:963 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_FINISH_EventProcess	inside	-	CH3b	5 states	y
+32b63b20	state-fn	ESI_SI_SA_SBH_BLAZING_DANCE_1ST.EventProcess ESI_SI_SA_SBH_BLAZING_DANCE_ATTACK_FRONT.EventProcess	inside X2GUEl.cpp:935 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_1ST_EventProcess	inside	-	CH3b	2 states	y
+32b63b80	state-fn	ESI_SI_SA_SBH_BLAZING_DANCE_ATTACK_BACK.EventProcess	-	new	ESI_SI_SA_SBH_BLAZING_DANCE_ATTACK_BACK_EventProcess	CH3b	1 states	y
+32b63be0	state-fn	ESI_SI_SA_SBH_BLAZING_DANCE_FINISH.EventProcess	inside X2GUEl.cpp:963 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_FINISH_EventProcess	inside	-	CH3b	1 states	y
+32b63f90	state-fn	ESI_SI_HA_SBH_ANCIENT_FIRE.EventProcess	inside X2GUEl.cpp:973 CX2GUEL::ESI_SI_HA_SBH_ANCIENT_FIRE_EventProcess	inside	-	CH3d	1 states	n
+32b64290	override 0x670	?	- (name unsettled)	new	IsInJobLine	CH1i	base 331a4950; name: CH0 Opus: vslot 0x670, Ara / Elsword name; line 3 = classes 35 / 125	n
+32b642f0	helper	-	-	new	?	CH4b	MemoConditionElesis constructor (vtable 334fa4f4 store 32b642fa; RTTI MemoConditionElesis); name: MemoConditionElesis constructor (vtable 334fa4f4 store 32b642fa; RTTI .?AVMemoConditionElesis@CX2GUEL@@, type descriptor 3373d5b8); name by the memo-condition pattern (CH4b decision)	y
+32b64310	state-fn	ESI_COMBO_SDK_ZZZX.EventProcess	-	new	ESI_COMBO_SDK_ZZZX_EventProcess	CH1g	1 states	n
+32b64660	state-fn	ESI_COMBO_SDK_ZZZXX.EventProcess	-	new	ESI_COMBO_SDK_ZZZXX_EventProcess	CH1g	1 states	n
+32b648e0	state-fn	ESI_DASH_JUMP_COMBO_SDK_XX.EventProcess	-	new	ESI_DASH_JUMP_COMBO_SDK_XX_EventProcess	CH1g	1 states	y
+32b64bd0	state-fn	ESI_DASH_JUMP_COMBO_SDK_XXX.EventProcess	-	new	ESI_DASH_JUMP_COMBO_SDK_XXX_EventProcess	CH1g	1 states	n
+32b64ee0	state-fn	ESI_COMBO_SDK_XX.EventProcess	-	new	ESI_COMBO_SDK_XX_EventProcess	CH1g	1 states	n
+32b652d0	state-fn	ESI_COMBO_SDK_XXX.EventProcess	-	new	ESI_COMBO_SDK_XXX_EventProcess	CH1g	1 states	n
+32b656c0	state-fn	ESI_COMBO_SDK_XXXX.EventProcess	-	new	ESI_COMBO_SDK_XXXX_EventProcess	CH1g	1 states	n
+32b65ab0	state-fn	ESI_COMBO_SDK_XXXXX.EventProcess	-	new	ESI_COMBO_SDK_XXXXX_EventProcess	CH1g	1 states	n
+32b65ea0	state-fn	ESI_COMBO_SDK_XXXXXX.EventProcess	-	new	ESI_COMBO_SDK_XXXXXX_EventProcess	CH1g	1 states	n
+32b66200	state-fn	ESI_COMBO_SDK_XXXXXXX.EventProcess	-	new	ESI_COMBO_SDK_XXXXXXX_EventProcess	CH1g	1 states	n
+32b66480	state-fn	ESI_DASH_COMBO_SCA_ZZ.EventProcess	-	new	ESI_DASH_COMBO_SCA_ZZ_EventProcess	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	n
+32b667a0	state-fn	ESI_DASH_COMBO_SCA_ZZZ_START.EventProcess	-	new	ESI_DASH_COMBO_SCA_ZZZ_START_EventProcess	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	n
+32b66ac0	state-fn	ESI_DASH_COMBO_SCA_ZZZ_LOOP_1.EventProcess	-	new	ESI_DASH_COMBO_SCA_ZZZ_LOOP_1_EventProcess	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	n
+32b66df0	state-fn	ESI_DASH_COMBO_SCA_ZZZ_LOOP_2.EventProcess	-	new	ESI_DASH_COMBO_SCA_ZZZ_LOOP_2_EventProcess	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	n
+32b67120	state-fn	ESI_DASH_COMBO_SCA_ZZZ_END.EventProcess	-	new	ESI_DASH_COMBO_SCA_ZZZ_END_EventProcess	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	n
+32b67420	state-fn	ESI_DASH_COMBO_SCA_ZX_START.EventProcess	-	new	ESI_DASH_COMBO_SCA_ZX_START_EventProcess	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	n
+32b67740	state-fn	ESI_DASH_COMBO_SCA_ZX_ATTACK.Start	-	new	ESI_DASH_COMBO_SCA_ZX_ATTACK_StateStart	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b67760	state-fn	ESI_DASH_COMBO_SCA_ZX_ATTACK.EventProcess	-	new	ESI_DASH_COMBO_SCA_ZX_ATTACK_EventProcess	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b67790	state-fn	ESI_DASH_COMBO_SCA_ZX_ATTACK.End	-	new	ESI_DASH_COMBO_SCA_ZX_ATTACK_StateEnd	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b677b0	state-fn	ESI_DASH_COMBO_SCA_ZX_LOOP.Start	-	new	ESI_DASH_COMBO_SCA_ZX_LOOP_StateStart	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b677d0	state-fn	ESI_DASH_COMBO_SCA_ZX_LOOP.EventProcess	-	new	ESI_DASH_COMBO_SCA_ZX_LOOP_EventProcess	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	n
+32b67a50	state-fn	ESI_DASH_COMBO_SCA_ZX_LOOP.End	-	new	ESI_DASH_COMBO_SCA_ZX_LOOP_StateEnd	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b67a70	state-fn	ESI_DASH_COMBO_SCA_ZX_END.EventProcess	-	new	ESI_DASH_COMBO_SCA_ZX_END_EventProcess	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	n
+32b67cd0	state-fn	SI_SA_SDK_BRUTAL_CUTTER.EventProcess	-	new	SI_SA_SDK_BRUTAL_CUTTER_EventProcess	CH2d	1 states	n
+32b67ff0	state-fn	SI_SA_SDK_EJECTION_BUSTER_ATTACK.EventProcess	-	new	SI_SA_SDK_EJECTION_BUSTER_ATTACK_EventProcess	CH2d	1 states	n
+32b682f0	state-fn	SI_SA_SDK_BRANDISH_BREAKER_START.EventProcess SI_SA_SDK_BRANDISH_BREAKER_LOOP.EventProcess SI_SA_SDK_BRANDISH_BREAKER_FINISH.EventProcess	-	new	SI_SA_SDK_BRANDISH_BREAKER_START_EventProcess	CH3c	3 states	y
+32b68330	state-fn	SI_SA_SDK_BRANDISH_BREAKER_FINISH.EventProcess	-	new	SI_SA_SDK_BRANDISH_BREAKER_FINISH_EventProcess	CH3c	1 states	n
+32b68650	state-fn	SI_SA_SDK_BURNING_PHANTOM_READY.EventProcess SI_SA_SDK_BURNING_PHANTOM_START.EventProcess SI_SA_SDK_BURNING_PHANTOM_LOOP.EventProcess +1	-	new	SI_SA_SDK_BURNING_PHANTOM_READY_EventProcess	CH2d	4 states	y
+32b68680	state-fn	SI_SA_SDK_BURNING_PHANTOM_START.EventProcess	-	new	SI_SA_SDK_BURNING_PHANTOM_START_EventProcess	CH2d	1 states	y
+32b686b0	state-fn	SI_SA_SDK_BURNING_PHANTOM_END.EventProcess	-	new	SI_SA_SDK_BURNING_PHANTOM_END_EventProcess	CH2d	1 states	n
+32b689d0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 5153568bf18b8ed0	n
+32b68cd0	state-fn	SI_SA_SCA_DREAD_WEAPON_START.EventProcess SI_SA_SCA_DREAD_WEAPON_LOOP.EventProcess SI_SA_SCA_DREAD_WEAPON_END.EventProcess	-	new	SI_SA_SCA_DREAD_WEAPON_START_EventProcess	CH3c	3 states	y
+32b68d00	state-fn	SI_SA_SCA_DREAD_WEAPON_LOOP.EventProcess	-	new	SI_SA_SCA_DREAD_WEAPON_LOOP_EventProcess	CH3c	1 states	y
+32b68d40	state-fn	SI_SA_SCA_DREAD_WEAPON_END.EventProcess	-	new	SI_SA_SCA_DREAD_WEAPON_END_EventProcess	CH3c	1 states	n
+32b69040	state-fn	SI_SA_SCA_SHADE_THE_ILLUSION.EventProcess	-	new	SI_SA_SCA_SHADE_THE_ILLUSION_EventProcess	CH3c	1 states	n
+32b69360	state-fn	SI_SA_SCA_BLOOD_CUTTER.EventProcess	-	new	SI_SA_SCA_BLOOD_CUTTER_EventProcess	CH3c	1 states	n
+32b69680	state-fn	SI_A_SDK_INJECTION_STIGMA.EventProcess	-	new	SI_A_SDK_INJECTION_STIGMA_EventProcess	CH2d	1 states	n
+32b699a0	state-fn	SI_A_SDK_DARK_WAVE.EventProcess	-	new	SI_A_SDK_DARK_WAVE_EventProcess	CH2d	1 states	n
+32b69cc0	state-fn	SI_A_SCA_SHADE_SCRATCH.EventProcess SI_A_SCA_SHADE_SCRATCH_ATTACK.EventProcess	-	new	SI_A_SCA_SHADE_SCRATCH_EventProcess	CH2d	2 states	n
+32b6a020	state-fn	SI_A_SCA_SHADE_SCRATCH_ATTACK.EventProcess	-	new	SI_A_SCA_SHADE_SCRATCH_ATTACK_EventProcess	CH2d	1 states	n
+32b6a340	state-fn	SI_A_SCA_SHADOW_EDGE.EventProcess	-	new	SI_A_SCA_SHADOW_EDGE_EventProcess	CH3c	1 states	n
+32b6a660	state-fn	SI_A_SCA_ASSAULT_STRIKE.EventProcess	-	new	SI_A_SCA_ASSAULT_STRIKE_EventProcess	CH3c	1 states	n
+32b6a980	state-fn	SI_HA_SCA_FATE_SMASHER.EventProcess	-	new	SI_HA_SCA_FATE_SMASHER_EventProcess	CH3d	1 states	n
+32b6ac80	override 0x740	?	- (name unsettled)	new	StoreGageSnapshot	CH1q	vslot 0x740 override (name unsettled; Way of Sword); name: CH0 Opus: vslot 0x740 (Crest of Time snapshot), Elsword / Ara name; keeps WSP in +0x92b8	y
+32b6acb0	override 0x744	?	- (name unsettled)	new	RestoreGageSnapshot	CH1q	vslot 0x744 override (name unsettled; Way of Sword); name: CH0 Opus: vslot 0x744, Elsword / Ara name	y
+32b6acf0	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 83ec088b91709700	y
+32b6ad40	state-fn	ESI_COMBO_SGM_ZZZX.EventProcess	-	new	ESI_COMBO_SGM_ZZZX_EventProcess	CH1e	1 states	n
+32b6b0a0	state-fn	ESI_DASH_COMBO_SGM_XX_END.EventProcess	-	new	ESI_DASH_COMBO_SGM_XX_END_EventProcess	CH1e	1 states	n
+32b6b320	state-fn	ESI_DASH_JUMP_COMBO_SPK_ZX_READY.EventProcess	-	new	ESI_DASH_JUMP_COMBO_SPK_ZX_READY_EventProcess	CH1f	1 states	y
+32b6b350	state-fn	ESI_DASH_JUMP_COMBO_SPK_ZX_LOOP.EventProcess	-	new	ESI_DASH_JUMP_COMBO_SPK_ZX_LOOP_EventProcess	CH1f	1 states	y
+32b6b460	state-fn	ESI_DASH_JUMP_COMBO_SDK_ZX_FIRE.EventProcess	-	new	ESI_DASH_JUMP_COMBO_SDK_ZX_FIRE_EventProcess	CH1g	1 states	n
+32b6b760	state-fn	ESI_DASH_COMBO_SCA_XZ_FIRE.EventProcess	-	new	ESI_DASH_COMBO_SCA_XZ_FIRE_EventProcess	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	n
+32b6b9c0	state-fn	ESI_SI_A_SPK_AVATAR_OF_THE_FIRE.EventProcess	-	new	ESI_SI_A_SPK_AVATAR_OF_THE_FIRE_EventProcess	CH2c	1 states	n
+32b6bc30	state-fn	ESI_P_SGM_ADVANCED_KNIGHT_MASTERY.Start ESI_P_SGM_ADVANCED_KNIGHT_MASTERY_SMALL.Start	-	new	ESI_P_SGM_ADVANCED_KNIGHT_MASTERY_StateStart	CH1e	2 states	y
+32b6bc80	state-fn	ESI_P_SGM_ADVANCED_KNIGHT_MASTERY.EventProcess ESI_P_SGM_ADVANCED_KNIGHT_MASTERY_SMALL.EventProcess	-	new	ESI_P_SGM_ADVANCED_KNIGHT_MASTERY_EventProcess	CH1e	2 states	y
+32b6bcd0	state-fn	ESI_SA_SGM_CROSS_SLASH.EventProcess	-	new	ESI_SA_SGM_CROSS_SLASH_EventProcess	CH3a	1 states	n
+32b6bfd0	state-fn	ESI_SA_SGM_DIVINE_BLADE.EventProcess	-	new	ESI_SA_SGM_DIVINE_BLADE_EventProcess	CH3a	1 states	n
+32b6c2d0	state-fn	ESI_SA_SBH_BURST_RISING.EventProcess	-	new	ESI_SA_SBH_BURST_RISING_EventProcess	CH3b	1 states	n
+32b6c5d0	state-fn	ESI_SA_SBH_IGNIS_CRASHER.EventProcess	-	new	ESI_SA_SBH_IGNIS_CRASHER_EventProcess	CH3b	1 states	n
+32b6c8d0	state-fn	ESI_SA_SCA_CHASING_SWORD.EventProcess	-	new	ESI_SA_SCA_CHASING_SWORD_EventProcess	CH3c	1 states	n
+32b6cbd0	state-fn	ESI_SA_SCA_SHADE.EventProcess	-	new	ESI_SA_SCA_SHADE_EventProcess	CH3c	1 states	n
+32b6ced0	state-fn	ESI_A_SGM_UPPER_SLASH.EventProcess	-	new	ESI_A_SGM_UPPER_SLASH_EventProcess	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	n
+32b6d1e0	state-fn	ESI_A_SBH_FLAME_PROTECTION.EventProcess	-	new	ESI_A_SBH_FLAME_PROTECTION_EventProcess	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	n
+32b6d4e0	state-fn	ESI_A_SCA_BLOOD_STING.EventProcess	-	new	ESI_A_SCA_BLOOD_STING_EventProcess	CH3c	1 states	n
+32b6d7e0	state-fn	ESI_SA_SGM_WAR_PRELUDE_FLY.EventProcess	-	new	ESI_SA_SGM_WAR_PRELUDE_FLY_EventProcess	CH3a	1 states	n
+32b6dae0	state-fn	ESI_SA_SGM_WAR_PRELUDE_GROUND.EventProcess	-	new	ESI_SA_SGM_WAR_PRELUDE_GROUND_EventProcess	CH3a	1 states	n
+32b6dde0	state-fn	ESI_SA_SGM_GIGA_BLAST.EventProcess ESI_SA_SGM_GIGA_BLAST_CHARGE.EventProcess ESI_SA_SGM_GIGA_BLAST_END.EventProcess	-	new	ESI_SA_SGM_GIGA_BLAST_EventProcess	CH3a	3 states	y
+32b6de10	state-fn	ESI_SA_SGM_GIGA_BLAST_CHARGE.EventProcess	-	new	ESI_SA_SGM_GIGA_BLAST_CHARGE_EventProcess	CH3a	1 states	y
+32b6de40	not-Elesis	called only from outside the range: 31fef55f	-	-	-	n/a	shared / folded code	y
+32b6de60	override 0x94	Lose	X2GUEl.h:809 virtual void Lose();	inside	-	CH1h	base 31ff15d0	n
+32b6def0	override 0x5f0	COMMON_BUFF_FrameMove	X2GUEl.h:821 virtual void COMMON_BUFF_FrameMove();	inside	-	CH1h	base 31aa1d30	y
+32b6e050	helper	called by 32b88070	-	new	?	CH1j	name: called by 32b88070(CommonFrameMove)	y
+32b6e0c0	helper	-	-	new	?	CH1a	CH0 Opus: ESI_CAN_NOT_ATTACK_JUMP_DOWN / ESI_SWORD_WAIT (wait / jump movement states; 32b6e0c0 = PlayAnimationSwordWaitStart, June 0.15 threshold when +0x95d0 > 0); name: called by 32b700d0(ESI_SWORD_WAIT.StartFuture) 32b70100(ESI_SWORD_WAIT.Start)	y
+32b6e500	helper	called by 32b73ff0	-	new	?	CH1h	name: called by 32b73ff0(DamageReact)	y
+32b6e570	state-fn	ESI_JUMP_READY.EventProcess	inside X2GUEl.cpp:2054 CX2GUEL::JumpReadyEventProcess	inside	-	CH1a	1 states	n
+32b6e620	state-fn	ESI_DASH_END.StartFuture	inside X2GUEl.cpp:2091 CX2GUEL::DashEndStartFuture	inside	-	CH1a	1 states	n
+32b6e660	state-fn	ESI_DASH_JUMP.EventProcess	inside X2GUEl.cpp:2102 CX2GUEL::DashJumpEventProcess	inside	-	CH1a	1 states	n
+32b6e980	state-fn	ESI_JUMP_ATTACK_Z.EventProcess	inside X2GUEl.cpp:2623 CX2GUEL::JumpAttackZEventProcess	inside	-	CH1a	1 states	n
+32b6ea10	state-fn	ESI_JUMP_ATTACK_X.EventProcess	inside X2GUEl.cpp:2630 CX2GUEL::JumpAttackXEventProcess	inside	-	CH1a	1 states	n
+32b6eaa0	state-fn	ESI_SI_A_EL_DODGE_AND_SLASH_ATTACK_Z.EventProcess	inside X2GUEl.cpp:1276 CX2GUEL::ESI_SI_A_EL_DODGE_AND_SLASH_ATTACK_Z_EventProcess	inside	-	CH2a	1 states	n
+32b6ee00	state-fn	ESI_SI_SA_SSK_EXTINCTION_ATTACK.EventProcess	inside X2GUEl.cpp:776 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_ATTACK_EventProcess	inside	-	CH2b	1 states	n
+32b6f160	state-fn	ESI_SI_SA_SPK_SWORDFIRE_FLY.EventProcess	-	new	ESI_SI_SA_SPK_SWORDFIRE_FLY_EventProcess	CH2c	1 states	n
+32b6f1f0	state-fn	ESI_SA_SGM_SONIC_BLADE.EventProcess	inside X2GUEl.cpp:1416 CX2GUEL::ESI_SA_SGM_SONIC_BLADE_EventProcess	inside	-	CH3a	1 states	n
+32b6f550	state-fn	ESI_SA_SGM_JUGGERNAUT_BUSTER_START.EventProcess ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP.EventProcess ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_LAST.EventProcess +1	inside X2GUEl.cpp:1458 CX2GUEL::ESI_SA_SGM_JUGGERNAUT_BUSTER_START_EventProcess ; inside X2GUEl.cpp:1472 CX2GUEL::ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_EventProcess ; inside X2GUEl.cpp:1483 CX2GUEL::ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_LAST_EventProcess ; inside X2GUEl.cpp:1494 CX2GUEL::ESI_SA_SGM_JUGGERNAUT_BUSTER_END_EventProcess	inside	-	CH3a	4 states	n
+32b6f620	state-fn	ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP.EventProcess	inside X2GUEl.cpp:1472 CX2GUEL::ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_EventProcess	inside	-	CH3a	1 states	n
+32b6f710	state-fn	ESI_DASH_COMBO_SBH_X.FrameMoveFuture	inside X2GUEl.cpp:2893 CX2GUEL::ESI_DASH_COMBO_SBH_X_FrameMoveFuture	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b6f750	state-fn	ESI_DASH_COMBO_SBH_XX.FrameMoveFuture	inside X2GUEl.cpp:2903 CX2GUEL::ESI_DASH_COMBO_SBH_XX_FrameMoveFuture	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b6f790	state-fn	ESI_DASH_COMBO_SBH_XXX.FrameMoveFuture	inside X2GUEl.cpp:2912 CX2GUEL::ESI_DASH_COMBO_SBH_XXX_FrameMoveFuture	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b6f7e0	state-fn	ESI_DASH_COMBO_SBH_XXXZ.FrameMoveFuture	inside X2GUEl.cpp:2921 CX2GUEL::ESI_DASH_COMBO_SBH_XXXZ_FrameMoveFuture	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	n
+32b6f820	helper	-	-	new	?	CH4a	CH0 Opus: InitPassiveSkillState delegate, pushed through the thunk-table adapter 32b8ffe0 @32b88aac (push edx; call; ret); the builder read the adapter call as 32b8c470's; name: called by 32b8c470(SetEquippedSkillFuncBySkillS)	n
+32b6f8b0	helper	called by 32b7ad80	-	new	?	CH3b	name: called by 32b7ad80(helper)	y
+32b6fa50	helper	called by 32b6fb10	-	new	?	CH3b0	name: called by 32b6fb10(helper)	y
+32b6fb10	helper	called by 32b734d0 32b89260	-	new	?	CH3b0	name: called by 32b734d0(helper) 32b89260(SetSpecificValueByBuffTemple)	y
+32b6fb80	override 0x558	?	- (name unsettled)	new	?	CH1h	base 3231f510; name: virtual 0x558 (base 3231f510); not named by any sibling class map, funcmap or X2GUUser.h; read the body	n
+32b6fc40	override 0x29c	?	- (name unsettled)	new	GetReduceDebuffDurationRate	CH1h	base 3208dd70; name: CH0 Opus: vslot 0x29c = X2GameUnit.h:3898	n
+32b6fd50	helper	-	-	new	?	CH4a	CH0 Opus: InitPassiveSkillState delegate, pushed through the thunk-table adapter 32b8ffd0 @32b8835e (push edx; call; ret); the builder read the adapter call as 32b8c470's; name: called by 32b8c470(SetEquippedSkillFuncBySkillS)	y
+32b6ff20	helper	blood function (no phased caller in the class map)	-	new	MadnessFrameMove	CH4c	CH0 Opus blood map (ch0_blood.tsv): Madness chain (BFI 927/914/915/916), tail-jumped from CommonFrameMove: CH1j declares it; name: CH0 Opus: Madness 28420 chain, BFI 927 / 914 / 915 / 916 (ch0_blood.tsv)	y
+32b700d0	state-fn	ESI_SWORD_WAIT.StartFuture	inside X2GUEl.cpp:2709 CX2GUEL::SwordWaitStartFuture	inside	-	CH1a	CH0 Opus: ESI_CAN_NOT_ATTACK_JUMP_DOWN / ESI_SWORD_WAIT (wait / jump movement states; 32b6e0c0 = PlayAnimationSwordWaitStart, June 0.15 threshold when +0x95d0 > 0)	y
+32b70100	state-fn	ESI_SWORD_WAIT.Start	inside X2GUEl.cpp:2710 CX2GUEL::SwordWaitStart	inside	-	CH1a	CH0 Opus: ESI_CAN_NOT_ATTACK_JUMP_DOWN / ESI_SWORD_WAIT (wait / jump movement states; 32b6e0c0 = PlayAnimationSwordWaitStart, June 0.15 threshold when +0x95d0 > 0)	y
+32b70130	override 0x628	CanRidingState	X2GUEl.h:803 virtual bool CanRidingState();	inside	-	CH1i	base 31fd7930	y
+32b70180	override 0x7c0	CommonStateStartFuture	X2GUEl.h:267 virtual void CommonStateStartFuture();	inside	-	CH1j	base 320506f0	y
+32b70220	override 0x7c4	CommonStateStart	X2GUEl.h:268 virtual void CommonStateStart();	inside	-	CH1j	base 32057b80	y
+32b70290	override 0x828	IsNotCommonMoveState	- (CX2GUEL does not declare it in March; X2GUUser.h:3455 virtual bool IsNotCommonMoveState();)	new	IsNotCommonMoveState	CH1k	base 31fd7640	y
+32b70300	override 0x54c	InitEnchantWeaponEffectUnitSpecific	X2GUEl.h:833 virtual void InitEnchantWeaponEffectUnitSpecific();	inside	-	CH1h	base 31aa1d30	n
+32b70330	override 0x540	CreateMajorParticleArray	X2GUEl.h:814 virtual void CreateMajorParticleArray();	inside	-	CH1h	base 32012800	n
+32b704c0	state-fn	ESI_SI_A_EL_DODGE_AND_SLASH_ATTACK_Z.Start	-	new	ESI_SI_A_EL_DODGE_AND_SLASH_ATTACK_Z_StateStart	CH2a	1 states	y
+32b705b0	state-fn	ESI_SI_A_EL_RUSHING_SWORD.Start ESI_SI_A_EL_RUSHING_SWORD_2nd.Start ESI_SI_A_EL_RUSHING_SWORD_3rd.Start	inside X2GUEl.cpp:1218 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_StateStart	inside	-	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	y
+32b706a0	helper	called by 32b75e80	-	new	?	CH2b	name: called by 32b75e80(helper)	y
+32b70990	helper	-	X2GUEl.h:255 virtual ~CX2GUEL	inside	-	CH1h	dtor body: CX2GUEL::~CX2GUEL (vtable store 32b709ba; the scalar deleting dtor 32b90520 calls it)	y
+32b70af0	helper	called by 32b70d10	-	new	?	CH1k	name: called by 32b70d10(ShowActiveSkillCutInAndLight)	y
+32b70d10	override 0x834	ShowActiveSkillCutInAndLightByScript	X2GUEl.h:299 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );	inside	-	CH1k	base 33093ad0	n
+32b70d30	state-fn	ESI_SI_A_EL_LEAP_CRASH_JUMP.StartFuture	-	new	ESI_SI_A_EL_LEAP_CRASH_JUMP_StateStartFuture	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	y
+32b70db0	state-fn	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_FIRE.FrameMove	-	new	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_FIRE_FrameMove	CH2a	1 states	y
+32b70ee0	helper	-	X2GUEl.h constructor	inside	-	CH1h	ctor: CX2GUEL::CX2GUEL (vtable store 32b70f40; its only caller 32b72489 is the unit factory 32b72430)	y
+32b72430	not-Elesis	called only from outside the range: 322cee6c 322d5d51	-	-	-	n/a	shared / folded code	y
+32b724b0	override 0x7c8	CommonFrameMoveFuture	X2GUEl.h:270 virtual void CommonFrameMoveFuture();	inside	-	CH1j	base 32061bf0	n
+32b72550	override 0x810	SpecialAttackNoStageChange	X2GUEl.h:820 virtual bool SpecialAttackNoStageChange( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_ );	inside	-	CH1k	base 31aa1d30	n
+32b72600	state-fn	ESI_SI_A_EL_DODGE_AND_SLASH.EndFuture ESI_SI_A_EL_DODGE_AND_SLASH_BACK.EndFuture ESI_SI_A_EL_DODGE_AND_SLASH_ATTACK_Z.EndFuture	-	new	ESI_SI_A_EL_DODGE_AND_SLASH_StateEndFuture	CH2a	3 states	y
+32b72740	state-fn	ESI_SI_A_EL_DODGE_AND_SLASH.StartFuture ESI_SI_A_EL_DODGE_AND_SLASH_BACK.StartFuture ESI_SI_A_EL_DODGE_AND_SLASH_ATTACK_Z.StartFuture	inside X2GUEl.cpp:1253 CX2GUEL::ESI_SI_A_EL_DODGE_AND_SLASH_StartFuture	inside	-	CH2a	3 states	y
+32b727f0	state-fn	ESI_SI_A_EL_DODGE_AND_SLASH.EventProcess ESI_SI_A_EL_DODGE_AND_SLASH_BACK.EventProcess ESI_SI_A_EL_DODGE_AND_SLASH_ATTACK_Z.EventProcess	inside X2GUEl.cpp:1256 CX2GUEL::ESI_SI_A_EL_DODGE_AND_SLASH_EventProcess ; inside X2GUEl.cpp:1276 CX2GUEL::ESI_SI_A_EL_DODGE_AND_SLASH_ATTACK_Z_EventProcess	inside	-	CH2a	3 states	y
+32b72c30	state-fn	ESI_SI_A_EL_DODGE_AND_SLASH.StartFuture ESI_SI_A_EL_DODGE_AND_SLASH_BACK.StartFuture	inside X2GUEl.cpp:1253 CX2GUEL::ESI_SI_A_EL_DODGE_AND_SLASH_StartFuture	inside	-	CH2a	2 states	y
+32b72cc0	state-fn	ESI_SI_A_EL_RUSHING_SWORD.StartFuture ESI_SI_A_EL_RUSHING_SWORD_2nd.StartFuture ESI_SI_A_EL_RUSHING_SWORD_3rd.StartFuture	inside X2GUEl.cpp:1215 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_StartFuture ; inside X2GUEl.cpp:1239 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_2nd_StartFuture	inside	-	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	y
+32b72d70	state-fn	ESI_SI_A_EL_RUSHING_SWORD.EndFuture ESI_SI_A_EL_RUSHING_SWORD_2nd.EndFuture ESI_SI_A_EL_RUSHING_SWORD_3rd.EndFuture	-	new	ESI_SI_A_EL_RUSHING_SWORD_StateEndFuture	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	y
+32b72e30	state-fn	ESI_SI_A_EL_RUSHING_SWORD_2nd.StartFuture	inside X2GUEl.cpp:1239 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_2nd_StartFuture	inside	-	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	y
+32b72ed0	state-fn	ESI_COMBO_SGM_XX_DOWN_X_START.Start	inside X2GUEl.cpp:2788 CX2GUEL::ESI_COMBO_SGM_XX_DOWN_X_START_StateStart	inside	-	CH1e	1 states	y
+32b72fe0	state-fn	ESI_COMBO_SGM_XX_DOWN_X_START.EventProcess	inside X2GUEl.cpp:2789 CX2GUEL::ESI_COMBO_SGM_XX_DOWN_X_START_EventProcess	inside	-	CH1e	1 states	y
+32b731a0	state-fn	ESI_COMBO_SGM_XX_DOWN_X_LOOP.EventProcess	inside X2GUEl.cpp:2797 CX2GUEL::ESI_COMBO_SGM_XX_DOWN_X_LOOP_EventProcess	inside	-	CH1e	1 states	y
+32b732e0	override 0x83c	?	- (name unsettled)	new	?	CH1o	vslot 0x83c override (name unsettled); name: virtual 0x83c (base vslot 0x83c override (name unsettled)); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32b734d0	helper	blood function (no phased caller in the class map)	X2GUEL.cpp:9347 CX2GUEL::FireBlossomsProc_FrameMove	inside	-	CH4a	CH0 Opus: per-frame passive tick (March twin FireBlossomsProc_FrameMove X2GUEL.cpp:9347; BFI 666 under 50% HP, debuff cleanse)	y
+32b737a0	state-fn	SI_SA_SDK_BRANDISH_BREAKER_START.Start SI_SA_SDK_BRANDISH_BREAKER_LOOP.Start SI_SA_SDK_BRANDISH_BREAKER_FINISH.Start	-	new	SI_SA_SDK_BRANDISH_BREAKER_START_StateStart	CH3c	3 states	y
+32b73940	state-fn	SI_SA_SDK_BRANDISH_BREAKER_LOOP.Start	-	new	SI_SA_SDK_BRANDISH_BREAKER_LOOP_StateStart	CH3c	1 states	y
+32b73ae0	state-fn	SI_SA_SDK_BURNING_PHANTOM_LOOP.FrameMove	-	new	SI_SA_SDK_BURNING_PHANTOM_LOOP_FrameMove	CH2d	1 states	y
+32b73bf0	state-fn	ESI_DASH_JUMP_COMBO_SDK_ZX_CHARGE.StartFuture	-	new	ESI_DASH_JUMP_COMBO_SDK_ZX_CHARGE_StateStartFuture	CH1g	1 states	y
+32b73c90	state-fn	ESI_DASH_JUMP_COMBO_SDK_ZX_CHARGE.EventProcess	-	new	ESI_DASH_JUMP_COMBO_SDK_ZX_CHARGE_EventProcess	CH1g	1 states	n
+32b73e10	override 0x4d4	DetonationStateChange	X2GUEl.h:276 virtual void DetonationStateChange( CX2DamageManager::DamageData* pDamageData );	inside	-	CH1h	base 31ff0eb0	y
+32b73e60	override 0x800	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	- (no virtual of that name in X2GUEl.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32b73ff0	override 0x60	DamageReact	X2GUEl.h:806 virtual void DamageReact( OUT CX2DamageManager::DamageData* pDamageData_ );	inside	-	CH1h	base 320462a0	y
+32b74300	override 0xc4	HyperModeBuffEffectStart	X2GUEl.h:828 virtual void HyperModeBuffEffectStart();	inside	-	CH1h	base 31fd5cb0	n
+32b74500	override 0x250	UnSetSpecificValueByBuffTempletID	X2GUEl.h:831 virtual void UnSetSpecificValueByBuffTempletID	inside	-	CH3b0	UnSetSpecificValueByBuffTempletID (vslot 0x250)	y
+32b74760	helper	-	X2GUEL.cpp:3716 CX2GUEL::Start_SwordmanVigor	inside	-	CH1q	Way of Sword: Start Vigor	y
+32b74930	helper	-	X2GUEL.cpp:3730 CX2GUEL::End_SwordmanVigor	inside	-	CH1q	Way of Sword: End Vigor	y
+32b74bf0	helper	-	X2GUEL.cpp:3758 CX2GUEL::End_SwordmanDestruction	inside	-	CH1q	Way of Sword: End Destruction	y
+32b74ed0	override 0x74	?	X2GUEL.cpp:4004 CX2GUEL::GetFinalDamage_WayOfSword	inside	-	CH1q	vslot 0x74 override (name unsettled; Way of Sword)	n
+32b74f80	state-fn	ESI_DIE_FRONT.StartFuture ESI_RIDING_DIE.StartFuture	inside X2GUEl.cpp:2011 CX2GUEL::DieFrontStartFuture ; inside X2GUEl.cpp:2424 CX2GUEL::DieFrontStartFuture	inside	-	CH1q	state-end hook (ESI_DIE_FRONT StartFuture)	y
+32b74fc0	state-fn	ESI_DIE_BACK.StartFuture	inside X2GUEl.cpp:2020 CX2GUEL::DieBackStartFuture	inside	-	CH1q	state-end hook (ESI_DIE_BACK StartFuture)	y
+32b75000	state-fn	ESI_DASH_JUMP_POWER_LANDING.EventProcess	inside X2GUEl.cpp:2553 CX2GUEL::DashJumpPowerLandingEventProcess	inside	-	CH1a	1 states	n
+32b75210	state-fn	ESI_SI_A_EL_LEAP_CRASH_JUMP_LANDING.FrameMove	-	new	ESI_SI_A_EL_LEAP_CRASH_JUMP_LANDING_FrameMove	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	y
+32b75580	state-fn	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_CHARGE.FrameMove	-	new	ESI_SI_A_EL_SONIC_ASSAULT_STING_MEMO_CHARGE_FrameMove	CH2a	1 states	y
+32b75760	state-fn	ESI_SI_SA_EL_WILD_SHOCK.FrameMove	-	new	ESI_SI_SA_EL_WILD_SHOCK_FrameMove	CH2a	1 states	y
+32b75c90	state-fn	ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE.Start	inside X2GUEl.cpp:2720 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_StateStart	inside	-	CH1k	CH0 Opus: ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE (ids 205 / 207) / _MEMO (206): entered from NoStateChangeActionFrameMove 32b818b0 -> 32b80c60 (skills 28201 / 28218 have no switch state) and from DetonationStateChange (207)	y
+32b75e80	helper	called by 32b75f70 32b762e0 32b76300	-	new	?	CH2b	name: called by 32b75f70(ESI_SI_SA_SSK_EXTINCTION_CHA) 32b762e0(ESI_SI_SA_SSK_EXTINCTION_DEG) 32b76300(ESI_SI_SA_SSK_EXTINCTION_DEG)	y
+32b75f70	state-fn	ESI_SI_SA_SSK_EXTINCTION_CHARGE.FrameMoveFuture	inside X2GUEl.cpp:767 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_CHARGE_FrameMoveFuture	inside	-	CH2b	1 states	y
+32b75f90	state-fn	ESI_SI_SA_SSK_EXTINCTION_ATTACK.FrameMove	inside X2GUEl.cpp:775 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_ATTACK_FrameMove	inside	-	CH2b	1 states	y
+32b762e0	state-fn	ESI_SI_SA_SSK_EXTINCTION_DEGREE.FrameMoveFuture	inside X2GUEl.cpp:783 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_DEGREE_UP_FrameMoveFuture	inside	-	CH2b	1 states	y
+32b76300	state-fn	ESI_SI_SA_SSK_EXTINCTION_DEGREE.FrameMoveFuture	inside X2GUEl.cpp:783 CX2GUEL::ESI_SI_SA_SSK_EXTINCTION_DEGREE_UP_FrameMoveFuture	inside	-	CH2b	1 states	y
+32b76320	state-fn	ESI_SI_SA_SSK_VICTORIOUS_SWORD.FrameMove	inside X2GUEl.cpp:801 CX2GUEL::ESI_SI_SA_SSK_VICTORIOUS_SWORD_FrameMove	inside	-	CH3a	1 states	y
+32b76710	state-fn	ESI_SI_SA_SSK_JUDGEMENT_DRIVE_FINAL.FrameMove	-	new	ESI_SI_SA_SSK_JUDGEMENT_DRIVE_FINAL_FrameMove	CH2b	1 states	y
+32b76a60	state-fn	ESI_DASH_COMBO_SPK_ZX.FrameMove ESI_COMBO_SBH_ZZZX.FrameMove	inside X2GUEl.cpp:2931 CX2GUEL::ESI_DASH_COMBO_SPK_ZX_FrameMove	inside	-	CH1f	2 states	y
+32b76da0	state-fn	ESI_DASH_COMBO_SPK_ZZZ.FrameMove	inside X2GUEl.cpp:2944 CX2GUEL::ESI_DASH_COMBO_SPK_ZZZ_FrameMove	inside	-	CH1f	1 states	y
+32b770e0	state-fn	ESI_DASH_JUMP_COMBO_SPK_XZ.FrameMove	inside X2GUEl.cpp:2952 CX2GUEL::ESI_DASH_JUMP_COMBO_SPK_XZ_FrameMove	inside	-	CH1f	1 states	y
+32b77380	state-fn	ESI_COMBO_SGM_XX_DOWN_X_START.FrameMove	inside X2GUEl.cpp:2787 CX2GUEL::ESI_COMBO_SGM_XX_DOWN_X_START_FrameMove	inside	-	CH1e	1 states	y
+32b775a0	state-fn	ESI_A_SGM_DRASTIC_CHARGE_START.FrameMove ESI_A_SGM_DRASTIC_CHARGE_LOOP.FrameMove ESI_A_SGM_DRASTIC_CHARGE_END.FrameMove	inside X2GUEl.cpp:1321 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_START_FrameMove ; inside X2GUEl.cpp:1340 CX2GUEL::ESI_A_SGM_DRASTIC_CHARGE_LOOP_FrameMove	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	y
+32b77940	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff684b7a333364	y
+32b77b30	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff687b7a333364	y
+32b77d20	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 538b1d90c93b3357	n
+32b77de0	state-fn	ESI_SA_SGM_JUGGERNAUT_BUSTER_START.FrameMove ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP.FrameMove ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_LAST.FrameMove +1	inside X2GUEl.cpp:1473 CX2GUEL::ESI_SA_SGM_JUGGERNAUT_BUSTER_LOOP_FrameMove	inside	-	CH3a	4 states	n
+32b78170	state-fn	ESI_SA_SGM_JUGGERNAUT_BUSTER_END.FrameMove	-	new	ESI_SA_SGM_JUGGERNAUT_BUSTER_END_FrameMove	CH3a	1 states	y
+32b78390	state-fn	ESI_COMBO_SBH_XZ.FrameMove	inside X2GUEl.cpp:2868 CX2GUEL::ESI_COMBO_SBH_XZ_FrameMove	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	y
+32b785b0	state-fn	ESI_COMBO_SBH_XZZ.FrameMove	inside X2GUEl.cpp:2875 CX2GUEL::ESI_COMBO_SBH_XZZ_FrameMove	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	y
+32b78920	state-fn	ESI_COMBO_SBH_XZZZ.FrameMove	inside X2GUEl.cpp:2884 CX2GUEL::ESI_COMBO_SBH_XZZZ_FrameMove	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	y
+32b78b40	state-fn	ESI_DASH_COMBO_SBH_X.FrameMove	inside X2GUEl.cpp:2892 CX2GUEL::ESI_DASH_COMBO_SBH_X_FrameMove	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	y
+32b78e80	state-fn	ESI_DASH_COMBO_SBH_XX.FrameMove	inside X2GUEl.cpp:2902 CX2GUEL::ESI_DASH_COMBO_SBH_XX_FrameMove	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	y
+32b791c0	state-fn	ESI_DASH_COMBO_SBH_XXX.FrameMove	inside X2GUEl.cpp:2911 CX2GUEL::ESI_DASH_COMBO_SBH_XXX_FrameMove	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	y
+32b79500	state-fn	ESI_DASH_COMBO_SBH_XXXZ.FrameMove	inside X2GUEl.cpp:2920 CX2GUEL::ESI_DASH_COMBO_SBH_XXXZ_FrameMove	inside	-	CH1f2	CH0 split: CH1f = Pyro Knight (SPK), CH1f2 = Blazing Heart (SBH) line states	y
+32b796e0	state-fn	ESI_SI_A_SBH_SCALET_ROSE.EventProcess ESI_SI_A_SBH_SCALET_ROSE_SUCCESS.EventProcess	inside X2GUEl.cpp:1018 CX2GUEL::ESI_SI_A_SBH_SCALET_ROSE_EventProcess ; inside X2GUEl.cpp:1033 CX2GUEL::ESI_SI_A_SBH_SCALET_ROSE_SUCCESS_EventProcess	inside	-	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	n
+32b79b10	state-fn	ESI_SI_A_SBH_SCALET_ROSE.FrameMove ESI_SI_A_SBH_SCALET_ROSE_SUCCESS.FrameMove	inside X2GUEl.cpp:1019 CX2GUEL::ESI_SI_A_SBH_SCALET_ROSE_FrameMove	inside	-	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	n
+32b79d70	state-fn	ESI_SI_A_SBH_SCALET_ROSE.End ESI_SI_A_SBH_SCALET_ROSE_SUCCESS.End	inside X2GUEl.cpp:1020 CX2GUEL::ESI_SI_A_SBH_SCALET_ROSE_StateEnd	inside	-	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	y
+32b79db0	state-fn	ESI_SI_A_SBH_SCALET_ROSE_SUCCESS.End	-	new	ESI_SI_A_SBH_SCALET_ROSE_SUCCESS_StateEnd	CH3b2	CH0 split: CH3b = Blazing Heart special actives, CH3b2 = actives 28210 / 28211 / 28223	y
+32b7a0a0	state-fn	ESI_SI_SA_SBH_WALL_OF_PROMINENCE.FrameMove	inside X2GUEl.cpp:899 CX2GUEL::ESI_SI_SA_SBH_WALL_OF_PROMINENCE_FrameMove	inside	-	CH3b	1 states	y
+32b7a520	state-fn	ESI_SI_SA_SBH_BLAZING_DANCE_START.StartFuture ESI_SI_SA_SBH_BLAZING_DANCE_1ST.StartFuture ESI_SI_SA_SBH_BLAZING_DANCE_ATTACK_BACK.StartFuture +2	inside X2GUEl.cpp:934 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_1ST_StartFuture ; inside X2GUEl.cpp:962 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_FINISH_StartFuture	inside	-	CH3b	5 states	y
+32b7a5f0	state-fn	ESI_SI_SA_SBH_BLAZING_DANCE_FINISH.FrameMoveFuture	inside X2GUEl.cpp:965 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_FINISH_FrameMoveFuture	inside	-	CH3b	1 states	y
+32b7a7a0	state-fn	ESI_SI_HA_SBH_ANCIENT_FIRE.FrameMove	inside X2GUEl.cpp:974 CX2GUEL::ESI_SI_HA_SBH_ANCIENT_FIRE_FrameMove	inside	-	CH3d	1 states	y
+32b7ac20	helper	called by 32b88070	-	new	?	CH1j	name: called by 32b88070(CommonFrameMove)	y
+32b7ad80	helper	called by 32b80e90 32b80ee0	-	new	?	CH3b	name: called by 32b80e90(ESI_SI_SA_SBH_BLAZING_DANCE_) 32b80ee0(ESI_SI_SA_SBH_BLAZING_DANCE_)	y
+32b7b5f0	helper	called by 32b88070	-	new	?	CH1j	name: called by 32b88070(CommonFrameMove)	y
+32b7b6c0	helper	called by 32b88070	-	new	?	CH1j	name: called by 32b88070(CommonFrameMove)	y
+32b7b760	helper	called by 32b88070	-	new	?	CH1j	name: called by 32b88070(CommonFrameMove)	y
+32b7b820	helper	called by 32b7f090 32b81200	-	new	?	CH1c	name: called by 32b7f090(HyperModeFrameMove) 32b81200(ESI_RIDING_HYPER_MODE.FrameM)	y
+32b7bad0	override 0x734	?	- (name unsettled)	new	OnDefenderDamageReact	CH4c	vslot 0x734 override (name unsettled); name: CH0 Opus: vslot 0x734, defender side Blood Revenge (BFI 464, +0x9740 / +0x9744); CH4c adds the base virtual beside OnAttackerDamageReact_Slot4F8 / _Slot4FC	y
+32b7beb0	override 0x4f8	?	- (name unsettled)	new	OnAttackerDamageReact_Slot4F8	CH4c	vslot 0x4f8 override (name unsettled); name: CH0 Opus: X2GUUser.h:3414 hook (C10e); Dark Force HP intake in Vigor	y
+32b7c0b0	state-fn	ESI_DASH_JUMP_COMBO_SDK_XXX.FrameMove	-	new	ESI_DASH_JUMP_COMBO_SDK_XXX_FrameMove	CH1g	1 states	y
+32b7c2e0	state-fn	ESI_DASH_COMBO_SCA_ZZZ_START.FrameMove	-	new	ESI_DASH_COMBO_SCA_ZZZ_START_FrameMove	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b7c510	state-fn	ESI_DASH_COMBO_SCA_ZZZ_LOOP_1.FrameMove	-	new	ESI_DASH_COMBO_SCA_ZZZ_LOOP_1_FrameMove	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b7c940	state-fn	ESI_DASH_COMBO_SCA_ZZZ_LOOP_2.FrameMove	-	new	ESI_DASH_COMBO_SCA_ZZZ_LOOP_2_FrameMove	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b7cd70	state-fn	ESI_DASH_COMBO_SCA_ZZZ_END.FrameMove	-	new	ESI_DASH_COMBO_SCA_ZZZ_END_FrameMove	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b7cfa0	state-fn	SI_SA_SDK_EJECTION_BUSTER_CHARGE.FrameMove SI_SA_SDK_EJECTION_BUSTER_ATTACK.FrameMove	-	new	SI_SA_SDK_EJECTION_BUSTER_CHARGE_FrameMove	CH2d	2 states	y
+32b7d110	state-fn	SI_SA_SDK_EJECTION_BUSTER_ATTACK.FrameMove	-	new	SI_SA_SDK_EJECTION_BUSTER_ATTACK_FrameMove	CH2d	1 states	y
+32b7d2b0	state-fn	ESI_DASH_JUMP_COMBO_SPK_ZX_LOOP.FrameMove	-	new	ESI_DASH_JUMP_COMBO_SPK_ZX_LOOP_FrameMove	CH1f	1 states	y
+32b7d550	state-fn	ESI_DASH_JUMP_COMBO_SDK_ZX_FIRE.FrameMove	-	new	ESI_DASH_JUMP_COMBO_SDK_ZX_FIRE_FrameMove	CH1g	1 states	y
+32b7d920	state-fn	ESI_DASH_COMBO_SCA_XZ_FIRE.FrameMove	-	new	ESI_DASH_COMBO_SCA_XZ_FIRE_FrameMove	CH1g2	CH0 split: CH1g = Dark Knight (SDK), CH1g2 = Crimson Avenger (SCA) line states	y
+32b7db80	state-fn	ESI_SI_A_SPK_AVATAR_OF_THE_FIRE.FrameMove	-	new	ESI_SI_A_SPK_AVATAR_OF_THE_FIRE_FrameMove	CH2c	1 states	y
+32b7e3b0	helper	blood function (no phased caller in the class map)	-	new	HealByBurningPhantomOnAttack	CH4a	CH0 Opus: Burning Phantom heal delegate (trigger 9), pushed by InitPassiveSkillState; name: CH0 Opus: delegate, damage trigger 9	y
+32b7e580	helper	-	-	new	?	CH4c	CH0 Opus: Blood Runaway helper (counts units in range with CX2Game 322d4a60, June-only): CommonFrameMove (CH1j) declares it; name: called by 32b88070(CommonFrameMove)	y
+32b7e740	helper	blood function (no phased caller in the class map)	-	new	ApplyGrandMasterAura	CH4a	CH0 Opus: Grand Master aura BFI 909 / 910 (Dignity of Grand Master): passive, not blood; name: CH0 Opus: BFI 909 / 910 Dignity of Grand Master aura	y
+32b7e9a0	helper	blood function (no phased caller in the class map)	-	new	TranscendenceBerserkerFrameMove	CH4c	CH0 Opus blood map (ch0_blood.tsv): transcendence berserker chain (BFI 911/912/913), called under CommonFrameMove: CH1j declares it; name: CH0 Opus: Crimson Avenger transcendence, BFI 911 / 912 / 913 stacks by nearby enemies (ch0_blood.tsv)	y
+32b7ebe0	override 0x6a0	GetActualMPConsume	X2GUEl.h:282 virtual float GetActualMPConsume	inside	-	CH4b	GetActualMPConsume (vslot 0x6a0)	y
+32b7ee10	override 0x6a4	GetActualCoolTime	X2GUEl.h:284 virtual float GetActualCoolTime	inside	-	CH4b	GetActualCoolTime (vslot 0x6a4)	n
+32b7ef90	override 0xd0	?	X2GUEL.cpp:1970 CX2GUEL::CreateGageData	inside	-	CH1q	vslot 0xd0 override (name unsettled; Way of Sword)	y
+32b7f090	override 0x600	HyperModeFrameMove	X2GUEl.h:823 virtual void HyperModeFrameMove();	inside	-	CH1i	base 31aa1d30	n
+32b7f0b0	helper	-	X2GUEL.cpp:3740 CX2GUEL::Start_SwordmanDestruction	inside	-	CH1q	Way of Sword: Start Destruction	y
+32b7f370	helper	-	X2GUEL.cpp:3769 CX2GUEL::WayOfSwordStateChange	inside	-	CH1q	Way of Sword: WayOfSwordStateChange	y
+32b7f580	state-fn	ESI_SWORD_WAIT.EventProcess	inside X2GUEl.cpp:2711 CX2GUEL::SwordWaitEventProcess	inside	-	CH1a	CH0 Opus: ESI_CAN_NOT_ATTACK_JUMP_DOWN / ESI_SWORD_WAIT (wait / jump movement states; 32b6e0c0 = PlayAnimationSwordWaitStart, June 0.15 threshold when +0x95d0 > 0)	n
+32b7f820	state-fn	ESI_WAIT.EventProcess	inside X2GUEl.cpp:2041 CX2GUEL::WaitEventProcess	inside	-	CH1a	1 states	n
+32b7fad0	state-fn	ESI_WALK.EventProcess	inside X2GUEl.cpp:2048 CX2GUEL::WalkEventProcess	inside	-	CH1a	1 states	n
+32b7fd00	state-fn	ESI_JUMP_LANDING.EventProcess	inside X2GUEl.cpp:2076 CX2GUEL::JumpLandingEventProcess	inside	-	CH1a	1 states	n
+32b80020	state-fn	ESI_DASH.EventProcess	inside X2GUEl.cpp:2085 CX2GUEL::DashEventProcess	inside	-	CH1a	1 states	n
+32b802a0	state-fn	ESI_DASH_END.EventProcess	inside X2GUEl.cpp:2093 CX2GUEL::DashEndEventProcess	inside	-	CH1a	1 states	n
+32b805d0	state-fn	ESI_DASH_JUMP_LANDING.EventProcess	inside X2GUEl.cpp:2111 CX2GUEL::DashJumpLandingEventProcess	inside	-	CH1a	1 states	n
+32b80840	state-fn	ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE.Start ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE_MEMO.Start	inside X2GUEl.cpp:2720 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_StateStart ; inside X2GUEl.cpp:2728 CX2GUEL::ESI_SI_A_EL_ENDURANCE_POWER_ACTIVE_StateStart	inside	-	CH1k	CH0 Opus: ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE (ids 205 / 207) / _MEMO (206): entered from NoStateChangeActionFrameMove 32b818b0 -> 32b80c60 (skills 28201 / 28218 have no switch state) and from DetonationStateChange (207)	y
+32b80c60	helper	called by 32b818b0	-	new	?	CH1k	name: called by 32b818b0(NoStateChangeActionFrameMove)	y
+32b80e90	state-fn	ESI_SI_SA_SBH_BLAZING_DANCE_1ST.StartFuture ESI_SI_SA_SBH_BLAZING_DANCE_ATTACK_BACK.StartFuture ESI_SI_SA_SBH_BLAZING_DANCE_ATTACK_FRONT.StartFuture	inside X2GUEl.cpp:934 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_1ST_StartFuture	inside	-	CH3b	3 states	y
+32b80ee0	state-fn	ESI_SI_SA_SBH_BLAZING_DANCE_FINISH.StartFuture	inside X2GUEl.cpp:962 CX2GUEL::ESI_SI_SA_SBH_BLAZING_DANCE_FINISH_StartFuture	inside	-	CH3b	1 states	y
+32b80f20	override 0x2b8	SetDamageExceptionProcess	X2GUEl.h:912 virtual void SetDamageExceptionProcess	inside	-	CH4b	SetDamageExceptionProcess (vslot 0x2b8)	n
+32b81200	state-fn	ESI_RIDING_HYPER_MODE.FrameMove	inside X2GUEl.cpp:2484 CX2GUEL::RidingHyperModeFrameMove	inside	-	CH1c	1 states	n
+32b81220	helper	blood function (no phased caller in the class map)	-	new	FindShadowEdgeRecord	CH4c	CH0 Opus blood map (ch0_blood.tsv): Shadow Edge record list at +0x9700 (0x730 family); name: CH0 Opus: +0x9700 record list lookup (ch0_blood.tsv)	y
+32b81300	helper	-	-	new	RemoveShadowEdgeRecord	CH4c	CH0 Opus blood map (ch0_blood.tsv): Shadow Edge list remove helper (ReInit / 0x730 family): CH1h declares it; name: CH0 Opus: +0x9700 record list remove (ch0_blood.tsv)	y
+32b813d0	helper	-	-	new	ShadowEdgeRecordFrameMove	CH4c	CH0 Opus blood map (ch0_blood.tsv): Shadow Edge list per-frame owner (heal tick, skill 28215); CommonFrameMove calls it: CH1j declares it; name: CH0 Opus: +0x9700 list per-frame owner, heal tick skill 28215 (ch0_blood.tsv)	y
+32b816a0	override 0x730	?	- (name unsettled)	new	?	CH4c	vslot 0x730 override (name unsettled); name: virtual 0x730 (base vslot 0x730 override (name unsettled)); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32b81710	override 0x3c	InitComponent	X2GUEl.h:262 virtual void InitComponent();	inside	-	CH1h	base 31fee090	y
+32b818b0	override 0x80c	NoStateChangeActionFrameMove	X2GUEl.h:281 virtual void NoStateChangeActionFrameMove();	inside	-	CH1k	base 32008e40	y
+32b81900	override 0x44	ReInit	X2GUEl.h:805 virtual void ReInit( bool bTeamPos = false, int iStartPosIndex = -1 );	inside	-	CH1h	base 32022380	n
+32b81be0	registrar	InitState part 1 (registrations + the hyper row id 23); called by the wrapper 32b87a60	X2GUEl.h:261 virtual void InitState();	inside	-	CH1m	InitState part 1 (registrations incl. the hyper row id 23); called by the wrapper 32b87a60	y
+32b84390	state-fn	SI_A_SCA_SHADOW_EDGE.FrameMove	-	new	SI_A_SCA_SHADOW_EDGE_FrameMove	CH3c	1 states	y
+32b84a50	override 0x7f8	SpecialAttackEventProcess part: skill lookup (slot 510)	- (no virtual of that name in X2GUEl.h / X2GUUser.h / X2GameUnit.h)	inside	-	CH1k	base 31aa1d30	y
+32b85470	state-fn	ESI_SI_A_EL_RUSHING_SWORD.EventProcess ESI_SI_A_EL_RUSHING_SWORD_2nd.EventProcess ESI_SI_A_EL_RUSHING_SWORD_3rd.EventProcess	inside X2GUEl.cpp:1221 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_EventProcess ; inside X2GUEl.cpp:1237 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_2nd_EventProcess ; inside X2GUEl.cpp:1246 CX2GUEL::ESI_SI_A_EL_RUSHING_SWORD_3rd_EventProcess	inside	-	CH2b2	CH0 split: CH2b = Saber Knight special actives, CH2b2 = actives 28202 / 28203 / 28204	y
+32b85aa0	state-fn	ESI_A_SGM_PROVOKE.EventProcess ESI_A_SGM_PROVOKE_REVENGE.EventProcess	inside X2GUEl.cpp:1290 CX2GUEL::ESI_A_SGM_PROVOKE_EventProcess ; inside X2GUEl.cpp:1308 CX2GUEL::ESI_A_SGM_PROVOKE_REVENGE_EventProcess	inside	-	CH3a2	CH0 split: CH3a = Grand Master special actives, CH3a2 = actives 28205 / 28206 / 28222	y
+32b86080	state-fn	ESI_DASH_COMBO_SGM_XX_ATTACK.EventProcess	-	new	ESI_DASH_COMBO_SGM_XX_ATTACK_EventProcess	CH1e	1 states	y
+32b864f0	registrar	InitState part 2 (registrations); called by the wrapper 32b87a60	X2GUEl.h:261 virtual void InitState();	inside	-	CH1m	InitState part 2 (registrations); called by the wrapper 32b87a60	y
+32b872d0	helper	-	-	new	?	CH4a	CH0 Opus: InitPassiveSkillState delegate, pushed through the thunk-table adapter 32b90ab0 @32b88c21 (push edx; call; ret); the builder read the adapter call as 32b8c470's; name: called by 32b90ab0(helper)	y
+32b87520	helper	called by 32b88070	-	new	?	CH1j	name: called by 32b88070(CommonFrameMove)	y
+32b87880	helper	blood function (no phased caller in the class map)	none in March: Elesis Blood Runaway hit block	inside	-	CH4c	CH0 Opus blood map (ch0_blood.tsv): Blood Runaway delegate (BFI 462 / 659, BTI 426); pushed by InitPassiveSkillState: CH4a declares it	y
+32b87a60	override 0x7a4 + registrar	InitState	X2GUEl.h:261 virtual void InitState();	inside	-	CH1m	InitState (vslot 0x7a4): the wrapper (START / WIN / LOSE roll rows 9 / 11 / 12 + id 130, then 32b81be0 + 3202b110 + 32b864f0)	y
+32b88070	override 0x7cc	CommonFrameMove	X2GUEl.h:271 virtual void CommonFrameMove();	inside	-	CH1j	base 32063650	y
+32b88300	override 0x690	InitPassiveSkillState	X2GUEl.h:263 virtual void InitPassiveSkillState();	inside	-	CH4a	InitPassiveSkillState (vslot 0x690)	y
+32b89260	override 0x24c	SetSpecificValueByBuffTempletID	X2GUEl.h:830 virtual void SetSpecificValueByBuffTempletID	inside	-	CH3b0	SetSpecificValueByBuffTempletID (vslot 0x24c)	y
+32b89470	helper	called by 32b89c10 32b8a320 32b8a690 32b8a9d0	-	new	?	CH2d	name: called by 32b89c10(SI_SA_SDK_BRUTAL_CUTTER.Fram) 32b8a320(SI_SA_SDK_BRANDISH_BREAKER_L) 32b8a690(dead) 32b8a9d0(SI_SA_SCA_DREAD_WEAPON_START)	y
+32b898a0	override 0x4fc	?	- (name unsettled)	new	OnAttackerDamageReact_Slot4FC	CH4c	vslot 0x4fc override (name unsettled); name: CH0 Opus: X2GUUser.h:3415 hook (C10e); Judgment 28411 bleeding heal	y
+32b89c10	state-fn	SI_SA_SDK_BRUTAL_CUTTER.FrameMove	-	new	SI_SA_SDK_BRUTAL_CUTTER_FrameMove	CH2d	1 states	y
+32b8a320	state-fn	SI_SA_SDK_BRANDISH_BREAKER_LOOP.FrameMove	-	new	SI_SA_SDK_BRANDISH_BREAKER_LOOP_FrameMove	CH3c	1 states	y
+32b8a690	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes 6aff68f785333364	y
+32b8a9d0	state-fn	SI_SA_SCA_DREAD_WEAPON_START.FrameMove SI_SA_SCA_DREAD_WEAPON_LOOP.FrameMove SI_SA_SCA_DREAD_WEAPON_END.FrameMove	-	new	SI_SA_SCA_DREAD_WEAPON_START_FrameMove	CH3c	3 states	y
+32b8ad50	state-fn	SI_SA_SCA_SHADE_THE_ILLUSION.FrameMove	-	new	SI_SA_SCA_SHADE_THE_ILLUSION_FrameMove	CH3c	1 states	y
+32b8b0c0	state-fn	SI_SA_SCA_BLOOD_CUTTER.FrameMove	-	new	SI_SA_SCA_BLOOD_CUTTER_FrameMove	CH3c	1 states	n
+32b8b410	state-fn	SI_A_SDK_INJECTION_STIGMA.FrameMove	-	new	SI_A_SDK_INJECTION_STIGMA_FrameMove	CH2d	1 states	y
+32b8b850	state-fn	SI_A_SDK_DARK_WAVE.FrameMove	-	new	SI_A_SDK_DARK_WAVE_FrameMove	CH2d	1 states	y
+32b8bd70	state-fn	SI_A_SCA_ASSAULT_STRIKE.FrameMove	-	new	SI_A_SCA_ASSAULT_STRIKE_FrameMove	CH3c	1 states	y
+32b8c0f0	state-fn	ESI_SA_SCA_BLOOD_FALLS.FrameMove	-	new	ESI_SA_SCA_BLOOD_FALLS_FrameMove	CH3c	1 states	y
+32b8c470	override 0x7b4 + registrar	SetEquippedSkillFuncBySkillSlotIndex	X2GUEl.h:264 virtual void SetEquippedSkillFuncBySkillSlotIndex	inside	-	CH1n	SetEquippedSkillFuncBySkillSlotIndex (vslot 0x7b4): skill-state switch, head with CH1n, case bodies by their state	y
+32b90000	thunk	jmp 32b6f620	-	-	-	n/a	not ported	n
+32b90010	thunk	jmp 32b6ee00	-	-	-	n/a	not ported	n
+32b90020	thunk	jmp 32b6f1f0	-	-	-	n/a	not ported	n
+32b90030	thunk	jmp 32b6f160	-	-	-	n/a	not ported	n
+32b90040	thunk	jmp 32b6eaa0	-	-	-	n/a	not ported	n
+32b90050	thunk	jmp 32b6e570	-	-	-	n/a	not ported	n
+32b90060	thunk	jmp 32b6e620	-	-	-	n/a	not ported	n
+32b90070	thunk	jmp 32b6e660	-	-	-	n/a	not ported	n
+32b90080	thunk	jmp 32b6e980	-	-	-	n/a	not ported	n
+32b90090	thunk	jmp 32b6ea10	-	-	-	n/a	not ported	n
+32b900a0	thunk	jmp 32b6f710	-	-	-	n/a	not ported	n
+32b900b0	thunk	jmp 32b6f750	-	-	-	n/a	not ported	n
+32b900c0	thunk	jmp 32b6f790	-	-	-	n/a	not ported	n
+32b900d0	thunk	jmp 32b6f7e0	-	-	-	n/a	not ported	n
+32b900e0	helper	called by 32b813d0 32b81900 32b84390	-	new	?	CH1h	name: called by 32b813d0(helper) 32b81900(ReInit) 32b84390(SI_A_SCA_SHADOW_EDGE.FrameMo)	y
+32b90140	thunk	jmp 32b700d0	-	-	-	n/a	not ported	n
+32b90150	thunk	jmp 32b70100	-	-	-	n/a	not ported	n
+32b90160	helper	called by 32b902c0	-	new	?	CH3c	name: called by 32b902c0(helper)	y
+32b901c0	helper	called by 32b88070 32b90b60	CX2GUUser::IsDashState()	new	?	CH1j	also called from outside the class: 32d08ba4; name: called by 32b88070(CommonFrameMove) 32b90b60(dead); also called from outside the class: 32d08ba4	y
+32b902c0	helper	called by 32b904c0	-	new	?	CH3c	name: called by 32b904c0(helper)	y
+32b903a0	thunk	jmp 32b704c0	-	-	-	n/a	not ported	n
+32b903b0	thunk	jmp 32b705b0	-	-	-	n/a	not ported	n
+32b903c0	helper	reached only through pointer @334fa608	-	new	?	CH1o	phase unsettled: read it; name: called by 334fa608(?)	n
+32b903d0	helper	reached only through pointer @334fa610	-	new	?	CH1o	phase unsettled: read it; name: called by 334fa610(?)	n
+32b903e0	override 0x720	?	- (name unsettled)	new	GetWayOfSwordPointGainRate	CH1q	vslot 0x720 override (name unsettled; Way of Sword); name: CH0 Opus: vslot 0x720 = +0x9714 (Dark Force 28410 SA 147 SA_WAY_OF_SWORD_POINT_MULTIPLIER, default 1.0); read by 31f86da5 / 32012f2e / 32b74167	n
+32b903f0	override 0x724	?	- (name unsettled)	new	GetVigorHpIntakeRate	CH1q	vslot 0x724 override (name unsettled; Way of Sword); name: CH0 Opus: vslot 0x724 = +0x9718 (Dark Force SA 49 SA_HP_INTAKE_REL_DAMAGE, default 0.0); read only by 0x4f8 32b7beb0	n
+32b90400	override 0x72c	?	- (name unsettled)	new	?	CH1q	vslot 0x72c override (name unsettled; Way of Sword); name: virtual 0x72c (base vslot 0x72c override (name unsettled; Way of Sword)); not named by any sibling class map, funcmap or X2GUUser.h; read the body	n
+32b90410	override 0x4b4	GetComboXStateID	X2GUEl.h:836 virtual int GetComboXStateID() const { return ESI_COMBO_X; }	inside	-	CH1h	base 3208df10	n
+32b90420	override 0x4ac	?	- (name unsettled)	new	GetSpecialItemUsableExtraStateID	CH1h	base 3208df00; name: CH0 Opus: vslot 0x4ac = X2GUUser.h:3387; returns June state 0xbb: by name, never the number	n
+32b90430	override 0x534	?	- (name unsettled)	new	?	CH1o	CH0 Opus: vslot 0x534 override forwards to the June-only user virtual 3208e8c0 (no March base): Opus writes the base and the override; name: virtual 0x534 (base 3208e8c0); not named by any sibling class map, funcmap or X2GUUser.h; read the body	y
+32b904c0	helper	called by 32b90540	-	new	?	CH3c	name: called by 32b90540(helper)	y
+32b90520	override 0x0	~CX2GUEL (scalar deleting dtor)	X2GUEl.h:255 virtual ~CX2GUEL(void);	inside	-	CH1h	base 3208f650	y
+32b90540	helper	called by 32b84390	-	new	?	CH3c	name: called by 32b84390(SI_A_SCA_SHADOW_EDGE.FrameMo)	y
+32b905c0	thunk	jmp 32b70db0	-	-	-	n/a	not ported	n
+32b905d0	thunk	jmp 32b70d30	-	-	-	n/a	not ported	n
+32b905e0	thunk	jmp 32b73ae0	-	-	-	n/a	not ported	n
+32b905f0	thunk	jmp 32b737a0	-	-	-	n/a	not ported	n
+32b90600	thunk	jmp 32b73940	-	-	-	n/a	not ported	n
+32b90610	thunk	jmp 32b72740	-	-	-	n/a	not ported	n
+32b90620	thunk	jmp 32b727f0	-	-	-	n/a	not ported	n
+32b90630	thunk	jmp 32b72600	-	-	-	n/a	not ported	n
+32b90640	thunk	jmp 32b72c30	-	-	-	n/a	not ported	n
+32b90650	thunk	jmp 32b72cc0	-	-	-	n/a	not ported	n
+32b90660	thunk	jmp 32b72d70	-	-	-	n/a	not ported	n
+32b90670	thunk	jmp 32b72e30	-	-	-	n/a	not ported	n
+32b90680	thunk	jmp 32b72ed0	-	-	-	n/a	not ported	n
+32b90690	thunk	jmp 32b72fe0	-	-	-	n/a	not ported	n
+32b906a0	thunk	jmp 32b731a0	-	-	-	n/a	not ported	n
+32b906b0	thunk	jmp 32b73bf0	-	-	-	n/a	not ported	n
+32b906c0	thunk	jmp 32b73c90	-	-	-	n/a	not ported	n
+32b906d0	helper	called by 32b88300	CX2GUEL::InitPassiveSkillState delegate adapter	inside	-	CH4a		n
+32b906e0	thunk	jmp 32b77de0	-	-	-	n/a	not ported	n
+32b906f0	thunk	jmp 32b78170	-	-	-	n/a	not ported	n
+32b90700	thunk	jmp 32b7a520	-	-	-	n/a	not ported	n
+32b90710	thunk	jmp 32b7a5f0	-	-	-	n/a	not ported	n
+32b90720	thunk	jmp 32b75760	-	-	-	n/a	not ported	n
+32b90730	thunk	jmp 32b75580	-	-	-	n/a	not ported	n
+32b90740	thunk	jmp 32b75f70	-	-	-	n/a	not ported	n
+32b90750	thunk	jmp 32b75f90	-	-	-	n/a	not ported	n
+32b90760	thunk	jmp 32b762e0	-	-	-	n/a	not ported	n
+32b90770	thunk	jmp 32b76300	-	-	-	n/a	not ported	n
+32b90780	thunk	jmp 32b76710	-	-	-	n/a	not ported	n
+32b90790	thunk	jmp 32b76320	-	-	-	n/a	not ported	n
+32b907a0	thunk	jmp 32b7a0a0	-	-	-	n/a	not ported	n
+32b907b0	thunk	jmp 32b7cfa0	-	-	-	n/a	not ported	n
+32b907c0	thunk	jmp 32b7d110	-	-	-	n/a	not ported	n
+32b907d0	thunk	jmp 32b75210	-	-	-	n/a	not ported	n
+32b907e0	thunk	jmp 32b775a0	-	-	-	n/a	not ported	n
+32b907f0	thunk	jmp 32b7db80	-	-	-	n/a	not ported	n
+32b90800	thunk	jmp 32b796e0	-	-	-	n/a	not ported	n
+32b90810	thunk	jmp 32b79b10	-	-	-	n/a	not ported	n
+32b90820	thunk	jmp 32b79d70	-	-	-	n/a	not ported	n
+32b90830	thunk	jmp 32b79db0	-	-	-	n/a	not ported	n
+32b90840	thunk	jmp 32b7a7a0	-	-	-	n/a	not ported	n
+32b90850	thunk	jmp 32b74f80	-	-	-	n/a	not ported	n
+32b90860	thunk	jmp 32b74fc0	-	-	-	n/a	not ported	n
+32b90870	thunk	jmp 32b75000	-	-	-	n/a	not ported	n
+32b90880	thunk	jmp 32b75c90	-	-	-	n/a	not ported	n
+32b90890	thunk	jmp 32b77380	-	-	-	n/a	not ported	n
+32b908a0	thunk	jmp 32b78390	-	-	-	n/a	not ported	n
+32b908b0	thunk	jmp 32b785b0	-	-	-	n/a	not ported	n
+32b908c0	thunk	jmp 32b78920	-	-	-	n/a	not ported	n
+32b908d0	thunk	jmp 32b78b40	-	-	-	n/a	not ported	n
+32b908e0	thunk	jmp 32b78e80	-	-	-	n/a	not ported	n
+32b908f0	thunk	jmp 32b791c0	-	-	-	n/a	not ported	n
+32b90900	thunk	jmp 32b79500	-	-	-	n/a	not ported	n
+32b90910	thunk	jmp 32b76a60	-	-	-	n/a	not ported	n
+32b90920	thunk	jmp 32b76da0	-	-	-	n/a	not ported	n
+32b90930	thunk	jmp 32b770e0	-	-	-	n/a	not ported	n
+32b90940	thunk	jmp 32b7d2b0	-	-	-	n/a	not ported	n
+32b90950	thunk	jmp 32b7c2e0	-	-	-	n/a	not ported	n
+32b90960	thunk	jmp 32b7c510	-	-	-	n/a	not ported	n
+32b90970	thunk	jmp 32b7c940	-	-	-	n/a	not ported	n
+32b90980	thunk	jmp 32b7cd70	-	-	-	n/a	not ported	n
+32b90990	thunk	jmp 32b7d920	-	-	-	n/a	not ported	n
+32b909a0	thunk	jmp 32b7c0b0	-	-	-	n/a	not ported	n
+32b909b0	thunk	jmp 32b7d550	-	-	-	n/a	not ported	n
+32b909c0	thunk	jmp 32b80e90	-	-	-	n/a	not ported	n
+32b909d0	thunk	jmp 32b80ee0	-	-	-	n/a	not ported	n
+32b909e0	thunk	jmp 32b7f820	-	-	-	n/a	not ported	n
+32b909f0	thunk	jmp 32b7fad0	-	-	-	n/a	not ported	n
+32b90a00	thunk	jmp 32b7fd00	-	-	-	n/a	not ported	n
+32b90a10	thunk	jmp 32b80020	-	-	-	n/a	not ported	n
+32b90a20	thunk	jmp 32b802a0	-	-	-	n/a	not ported	n
+32b90a30	thunk	jmp 32b805d0	-	-	-	n/a	not ported	n
+32b90a40	thunk	jmp 32b81200	-	-	-	n/a	not ported	n
+32b90a50	thunk	jmp 32b7f580	-	-	-	n/a	not ported	n
+32b90a60	thunk	jmp 32b80840	-	-	-	n/a	not ported	n
+32b90a70	thunk	jmp 32b84390	-	-	-	n/a	not ported	n
+32b90a80	thunk	jmp 32b85470	-	-	-	n/a	not ported	n
+32b90a90	thunk	jmp 32b85aa0	-	-	-	n/a	not ported	n
+32b90aa0	thunk	jmp 32b86080	-	-	-	n/a	not ported	n
+32b90ab0	helper	called by 32b88300	CX2GUEL::InitPassiveSkillState delegate adapter	inside	-	CH4a		n
+32b90ac0	helper	called by 32b88300	CX2GUEL::InitPassiveSkillState delegate adapter	inside	-	CH4a		n
+32b90ad0	thunk	jmp 32b89c10	-	-	-	n/a	not ported	n
+32b90ae0	thunk	jmp 32b8a320	-	-	-	n/a	not ported	n
+32b90af0	thunk	jmp 32b8b0c0	-	-	-	n/a	not ported	n
+32b90b00	thunk	jmp 32b8ad50	-	-	-	n/a	not ported	n
+32b90b10	thunk	jmp 32b8a9d0	-	-	-	n/a	not ported	n
+32b90b20	thunk	jmp 32b8b850	-	-	-	n/a	not ported	n
+32b90b30	thunk	jmp 32b8b410	-	-	-	n/a	not ported	n
+32b90b40	thunk	jmp 32b8bd70	-	-	-	n/a	not ported	n
+32b90b50	thunk	jmp 32b8c0f0	-	-	-	n/a	not ported	n
+32b90b60	dead	-	-	-	-	n/a	no call, jmp or pointer reference in the exe; first bytes c781884000000d00	n
+# totals kind: dead=47, helper=56, not-Elesis=5, override=65, registrar=2, state-fn=406, thunk=106; functions in range 687; carved 274; uncarved 413 (thunks 110)
+# totals per phase (to transcribe): CH1a=33, CH1b=23, CH1c=2, CH1d=9, CH1d2=9, CH1e=21, CH1f=14, CH1f2=25, CH1g=18, CH1g2=27, CH1h=24, CH1i=4, CH1j=14, CH1k=15, CH1m=3, CH1n=1, CH1o=5, CH1q=18, CH2a=28, CH2b=28, CH2b2=15, CH2c=15, CH2d=27, CH3a=24, CH3a2=16, CH3b0=4, CH3b=24, CH3b2=11, CH3c=36, CH3d=7, CH4a=12, CH4b=6, CH4c=11
+# inside/new per phase: CH1a inside=32, CH1a new=1, CH1b inside=23, CH1c inside=1, CH1c new=1, CH1d inside=9, CH1d2 inside=9, CH1e inside=15, CH1e new=6, CH1f inside=9, CH1f new=5, CH1f2 inside=25, CH1g new=18, CH1g2 new=27, CH1h inside=18, CH1h new=6, CH1i inside=3, CH1i new=1, CH1j inside=7, CH1j new=7, CH1k inside=12, CH1k new=3, CH1m inside=3, CH1n inside=1, CH1o new=5, CH1q inside=13, CH1q new=5, CH2a inside=16, CH2a new=12, CH2b inside=23, CH2b new=5, CH2b2 inside=12, CH2b2 new=3, CH2c inside=10, CH2c new=5, CH2d new=27, CH3a inside=16, CH3a new=8, CH3a2 inside=14, CH3a2 new=2, CH3b0 inside=2, CH3b0 new=2, CH3b inside=17, CH3b new=7, CH3b2 inside=8, CH3b2 new=3, CH3c new=36, CH3d inside=5, CH3d new=2, CH4a inside=5, CH4a new=7, CH4b inside=3, CH4b new=3, CH4c inside=1, CH4c new=10
+# thunk tables: 409 slots = 402 jmp thunks (402 distinct state-fn targets, all rows) + 7 delegate adapters (push edx; call <delegate>; ret) at 32b8ecf0 32b8ed00 32b8ffd0 32b8ffe0 32b906d0 32b90ab0 32b90ac0, each pushed by InitPassiveSkillState 32b88300 (@32b88342 @32b88a76 @32b8835e @32b88aac @32b8837a @32b88c21 @32b8903c); delegates 32b52470 32b524b0 32b6fd50 32b6f820 32b7e3b0 32b872d0 32b87880 = CH4a / CH4c (char-elesis CH0 Opus)
+# overrides: 66 = 65 in range (32 uncarved) + 0x4b0 32c69f70 (folded GetComboZStateID stub, out of range, uncarved)

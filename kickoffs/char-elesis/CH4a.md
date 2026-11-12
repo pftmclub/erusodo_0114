@@ -39,3 +39,12 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH4a"' june2017_re/char_elesis/ch0_class_map.tsv` = 12 (5 listing-only: col 9 `n`; 5 `inside`, 7 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Skill ids** (22): 106, 28400, 28401, 28402, 28403, 28404, 28405, 28406, 28407, 28408, 28409, 28410, 28411, 28412, 28413, 28414, 28415, 28416, 28417, 28418, 28419, 28420.
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L245, L929, L938.
+- **`ch0_blood.tsv` rows:** 4 (filter on its `proposed_phase` column).
+- **`ch0_classn.tsv` rows:** 1 (filter on its `proposed_phase` column).
+- `InitPassiveSkillState` `32b88300` pushes 7 delegates through the thunk-table adapters `32b8ecf0` / `32b8ed00` / `32b8ffd0` / `32b8ffe0` / `32b906d0` / `32b90ab0` / `32b90ac0` (`push edx; call; ret`): `32b52470`, `32b524b0` (Scalet Rose hit counter `+0x9788`), `32b6fd50`, `32b6f820`, `HealByBurningPhantomOnAttack` `32b7e3b0`, `32b872d0` (here) and `ApplyBloodRunawayOnAttack` `32b87880` (CH4c). It also writes the Dark Force members (`+0x9714` / `+0x9718` / `+0x971c` from 28410), Judgment (`+0x9748` level / `+0x974c` chance of 28411) and Blood Runaway (`+0x9760` cool time of 28414). `ApplyGrandMasterAura` `32b7e740` (BFI 909 / 910) and `FireBlossomsProc_FrameMove` `32b734d0` (March `:9347`) are here. Passive ids: `june2017_re/char_elesis/ch0_passive_ids.tsv` (55 March reads, 41 differ, 12 cross-line).

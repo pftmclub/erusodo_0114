@@ -45,3 +45,13 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH2d"' june2017_re/char_elesis/ch0_class_map.tsv` = 27 (13 listing-only: col 9 `n`; 0 `inside`, 27 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Script states:** `awk -F'\t' '$8=="CH2d"' june2017_re/char_elesis/ch0_state_skill.tsv` = 11.
+- **Skill ids** (12): 28019, 28020, 28021, 28035, 28038, 28055, 28212, 28213, 28214, 28221, 28233, 28234.
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L52.
+- **`ch0_wos.tsv` rows:** 1 (filter on its `proposed_phase` column).
+- **`ch0_blood.tsv` rows:** 1 (filter on its `proposed_phase` column).
+- The 11 bare `SI_` Dark Knight tables are here (registered only through the skill switch). The bleeding self-damage helper `32b89470` (min(final damage, HP - 10% max HP), x0.2 under BTI 666) is first called here (10 callers in CH2d / CH3c).

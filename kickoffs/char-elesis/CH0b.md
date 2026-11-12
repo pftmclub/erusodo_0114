@@ -42,3 +42,13 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L762.
+- **`ch0_classn.tsv` rows:** 1 (filter on its `proposed_phase` column).
+- Stage: `python tools/kom.py stage-june --jobs 8 june2017_re/char_elesis/ch0b_stage_list.tsv` (6,452 rows, 28 koms). CH0 dry run: `STAGE-JUNE DRY RUN: 28 kom(s), 6452 staged (6314 new, 138 replaced, 0 identical), 0 refused`. New kom **data206** (57 June-only motions: 54 emotions, `Motion_EL_DK.x`, `MOTION_EL_CA.x`, `Motion_Standard_El.X`); `Motion_EL_Common` / `_Field` / `_Emotion` / `_PK` (no name dropped) replace March's in data033.
+- **Held for CH1 final** (`june2017_re/char_elesis/ch1_held_motions.tsv`, kept out of the list): `MOTION_EL_GM.x` (drops `SGM_COMBO_XXDOWNX_*`, `SI_A_SGM_CRITICAL_DIVE*`) and `Motion_EL_BH.x` (drops `Combo_XZ*`, `SI_A_SBH_FIREWORKS`, `SI_SA_SBH_SCALDIC_SWORD`): March's script plays all ten; June renamed them into `Motion_EL_PK.x` / `Motion_EL_SK.x`.
+- Adopt (bytecode, `/x2-adopt-june`): data034 `DLG_1ST_Class_Change_Guide_Elesis.lua`, `DLG_2ND_Class_Change_Guide_Elesis.lua` (new), `Class_Change_Guide_Elesis.lua` (replace); data217 `DLG_Class_Change_Elesis_SK` / `_PK` / `_GM` / `_BH` (replace March's in data034, as Ara's CH0b) and `_DK` / `_CA` (new). **Not** `DLG_Unit_Create_ClassChange_Button_Elesis.lua` (CH5). `luabind.py check` on each.
+- Skill icons: `python tools/skillicons.py check 106 900 28000-28064 28200-28236 28400-28420 28600-28605` = 75 misses on 12 files today (`DLG_SKILL_ELESIS_Active_03-05`, `DLG_Elesis_SKILL_ScreenShot_02-04`, .tga + .tet), all in the list: must PASS after the pack.
+- The four summon NPC scripts (data037) are already June's. Four closure names exist in no June kom (`HQ_CutIn_Ara_normal.tga`, `HQ_CutIn_Ara_Rage.tga`, `ELISIS_RIDING_RAMIEL_SWORD_TRACE.DDS`, `SA_EL_MEGA_SLASH_TRACE`): June's own gaps, nothing to stage. Save: every March class has a unit; 35 / 125 wait for CHNa. Pre-log `ErrorLog.txt` first; the KEM 433 frame warning on her part meshes should clear with June's part meshes (check).

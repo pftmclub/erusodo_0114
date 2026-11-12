@@ -71,3 +71,9 @@ Phase tag (user, 2026-11-09): every edited or new code block carries a one-line 
   March's copy differs from June's (`.tga` differs; `kom.py stage-june --dry-run` 2026-11-11): stage June's `.tga` + `.TET`, pack data057, copy. Ara's March copy showed a
   Korean placeholder name and empty text / radar for the third line until June's went in.
 - **Stat rows: none.** The user's flat StatTable (2026-11-11) already has every June class id (`statflat.py check`); the per-class rows and the type-fallback log in this kickoff are moot.
+
+## Amended by CH0 (2026-11-12)
+
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L1016.
+- **`ch0_classn.tsv` rows:** 25 (filter on its `proposed_phase` column).
+- `june2017_re/char_elesis/ch0_classn.tsv` (49 rows; current lines: compatibility arms `X2Unit.h:2085-2151`, Elesis helpers `:2731-2802` (only `GetThirdLine...` gains 35 / 125), gauge arm `X2GageManager.cpp:205-220`, portraits `X2Data.cpp:2925-2936` (indices 57 / 58), stat chart `:3876-3891` (June `3254ee40`: 35 / 125 = 2, 1, 1)). **Stat rows: nothing to write**: the flat `StatTable.lua` (e37c9211) already has 35 / 120 / 121 / 125. Dropped: `X2ComboTree.cpp:302` (June loads no combo tree), the lobby particles (no `SDK_` / `SCA_` rows). Covered by Ara CHNa: the socket bound, `GetClassLevel`, `CorrelateUnitClassTemplet`, class arithmetic (+3 optional bound sites). `TranscendCheck` refuses 120 / 121 / 125 / 35 today (CH3d). June's compat: 35 accepts item classes {8, 35}, 125 {8, 35, 125}.

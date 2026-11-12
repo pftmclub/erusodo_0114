@@ -307,6 +307,72 @@ uncarved thunk targets and the 33 uncarved overrides.
 tables and every skill id mapped; every thunk target and uncarved override has a row; assets union routes a / b / c and the motion kom is named;
 the motion question answered; the Way of the Sword, summon, blood-hook and CH-N maps exist; kickoffs amended; open questions listed.
 
+### CH0 - Done (2026-11-12)
+
+Read-only: no flag, no build, no code. Outputs in `june2017_re/char_elesis/` (tables in the tsvs; per-phase detail in each kickoff's "Amended by CH0").
+
+**Tooling.** Ara's builders copied with Elesis's range / vtable / registrars: `ch0_build_vtable.py`, `ch0_skill_listing_emu.py` (four switches + two compares,
+follows `329cc2c0`), `ch0_march_live_states.py`, `ch0_build_state_skill.py` (her line / class rules, the CH0 splits), `ch0_build_state_enum_names.py`,
+`ch0_build_keys.py`, `ch0_build_class_map.py` (+ `ch0_make_hand_names.py`, `ch0_hand_phases.tsv`, `ch0_hand_names.tsv`), `ch0_unmapped_callees.py`,
+`ch0_passive_ids.py`, `ch0_build_enum_names.py`, `ch0_build_unittemplet.py`, `ch0_numtables.py`, `ch0_build_checklist_rows.py`, `ch0_amend_kickoffs.py`,
+`ch0_funcmap_rows.py`. `charport_adis.py` gained `elesis`; `char_eve/ch0_build_assets.py` gained `elesis` and an optional `held_motions` key (Ara's outputs
+byte-identical through the new script); `s3_no_state.py` `TSV_MISSING_CLASSES` gained `X2GUEL.cpp`: `--append-missing` appended 82 rows (35: 29, 125: 53),
+the old `s3_reform_ids_no_state.tsv` is a byte prefix of the new one.
+
+**Step 0.** `charport_states.py init 32b87a60 32b81be0 32b864f0 3202b110` -> `ch0_reg.tsv` (177: 111 + 57 + wrapper 4 + base 5; `31fe22d0` / `31fd8f00`
+register nothing); `ch0c_listing_check.py` **177 / 177**; hand rows: three `~` rows in `32b864f0` (ids 321 / 326 / 329, shared tail @32b87203), roll ids
+9 / 11 / 12, hyper id 23 (`31fdd490`), id 130. `32b8c470`: (a) 31 entries from 28031, (b) types 5..16, (c) 28000..28236 (237 entries, 55 targets),
+(d) 28601..28605, compares 28600 / 900 (`ch0_skill_switches.tsv` 287 rows, `ch0_skill_listing_rows.tsv` 167). **No second switch** (0x68c = base
+`3208ddc0`). `32b4e790`: 22 blocks, each vslot 0x7a8 per state (`ch0_setskilllevel_blocks.tsv`).
+
+**Maps.**
+- `ch0_class_map.tsv`: 687 starts (274 carved, 413 listing-only): state-fn 406, thunk 106, override 65, helper 56, dead 47, not-Elesis 5, registrar 2.
+  **409 thunk slots = 402 jmp thunks (every target has a row) + 7 delegate adapters** (`push edx; call; ret`, pushed by `InitPassiveSkillState`);
+  **66 overrides = 65 in range (32 uncarved) + `32c69f70`**. Per phase: CH1a 33, CH1b 23, CH1c 2, CH1d 9, CH1d2 9, CH1e 21, CH1f 14, CH1f2 25,
+  CH1g 18, CH1g2 27, CH1h 24, CH1i 4, CH1j 14, CH1k 15, CH1m 3, CH1n 1, CH1o 5, CH1q 18, CH2a 28, CH2b 28, CH2b2 15, CH2c 15, CH2d 27, CH3a 24,
+  CH3a2 16, CH3b0 4, CH3b 24, CH3b2 11, CH3c 36, CH3d 7, CH4a 12, CH4b 6, CH4c 11. 45 `new` helpers keep `?` with a hint (the owning phase names them).
+- Overrides named by body: 0x29c `GetReduceDebuffDurationRate`, 0x428 `GetDefenceRateBySkill`, 0x4ac returns 0xbb = id 187 `ESI_SWORD_WAIT`, 0x670
+  `IsInJobLine` (line 3 = 35 / 125), 0x720 / 0x724 / 0x72c plain getters of `+0x9714` / `+0x9718` / `+0x9720`, 0x740 / 0x744 snapshot pair, 0x4f8 /
+  0x4fc = the C10e hooks, 0x734 = defender-side Blood Revenge; 0x534 (base `3208e8c0`, June-only) moved to CH1o; 0x558 / 0x83c named in CH1h / CH1o.
+- `ch0_state_skill.tsv`: **311 / 311** (299 mapped, 6 dead data, 6 `INIT_*`), **127 / 127 ids**; 13 March-only states; no state id in a `UCHAR` (7l).
+  The 22 bare `SI_` tables are Dark Knight / Crimson Avenger skill states (11 CH2d, 10 CH3c, 1 CH3d); QUICK = 4 `ESI_QUICK_STANDUP_ATTACK_*` (CH1a).
+  Endurance Power (28201 / 28218) has no switch state: its states (ids 205 / 206 / 207) go to CH1k. `ch0_state_enum_names.tsv`: 134 of 213 names
+  missing in `EL_STATE_ID`, 37 shared ones off by 1-2 after the USI_END rebase (register by June's id).
+- `ch0_keys.tsv` 248 (both 234, june-only 9, neither 1, march-only-site 4), every key owned. June does not read `WayOfSword.lua`'s `Const_Elesis_*`.
+- `ch0_checklist_rows.tsv`: 89 rows (all 67 planning rows of Parts A1-A3), 74 phase, 15 n/a; 20 are the numerical-only tables (state phases); `3201ad10` has no caller in her range; `32b77b30` (+0x3f00 writer) is dead code.
+- `ch0_passive_ids.tsv`: 55 March `SI_*` reads, 41 differ (8000s vs 28000s), 12 cross-line. `ch0_enum_names.tsv`: 119 of 127 ids need registering.
+  `ch0_unittemplet_elesis.tsv`: all string ids present. S3 baseline `ch0_s3_baseline.txt`: 261 rows, 254 no_state.
+- **Way of the Sword** (`ch0_wos.tsv`, 84 rows): 28 code-bearing functions, **CH1q not split**; June's class side adds the Dark Knight buffs (BFI 471 /
+  472 / 473, BTI 434 / 435: names to register), scales Destruction by `+0x971c`, and the gain getters come from Dark Force 28410. Emulator `CAC_WSP` OK.
+- **Summons** (`ch0_summon.tsv`): five sites, all behind IsMyUnit; `CheckSummonSpecialAttack` and the `+0x8e74` writer are base code already
+  ported / shared; NPC 1635 / 1641 / 1971 lack `NPCTemplet` rows, `Enum.lua` names and `X2UnitManager.h` members (CH3b0).
+- **Blood hooks** (`ch0_blood.tsv`, 30 rows): CH4c = 0x4f8 (Dark Force HP intake), 0x4fc (Judgment), 0x734 (Blood Revenge; the base virtual and
+  the 0x730 / 0x734 user DamageReact calls are missing in March), Blood Runaway, Madness, the transcendence berserker chain, the Shadow Edge list.
+- **CH-N** (`ch0_classn.tsv` 49 rows, `ch0_classn_route.tsv`): 7 covered by Ara CHNa, 3 by Ara CHNb, 7 Elesis CHNa, 3 CHNb, 3 CH5; quests 35569-35577
+  confirmed, `Handlers_Quest.cpp` already grants any class.
+
+**Assets.** `ch0_assets.tsv` 11,328 rows; **`ch0b_stage_list.tsv` 6,452**: `STAGE-JUNE DRY RUN: 28 kom(s), 6452 staged (6314 new, 138 replaced, 0
+identical), 0 refused`; new kom **data206** (57 motions); class motions -> data033. **Motion question:** `MOTION_EL_GM.x` and `Motion_EL_BH.x` drop
+five names each that March's script plays: **held for CH1** (`ch1_held_motions.tsv`); `_Common`, `_Field`, `_Emotion`, `_PK` go now. The four missing
+March animations are renamed by June (`SI_A_SSK_LEAP_CRASH_*`, `SI_A_SSK_RUSHING_SWORD`, `SI_SA_EL_SPIRAL_BLAST`, `SI_SA_SGM_VICTORIOUS_SWORD`).
+Closure 6,856 rows (96 missing files, 92 in the list, 4 in no June kom). Icons: 75 misses on 12 files, all in the list. Enum gate (`luabind.py check
+ELESIS_KNIGHT`): 4 `ENUM MISSING NAME` (CH1 adds them), 0 STATE, 0 unbound.
+
+**Item 6.** `ch0_unmapped_identified.tsv` 22 rows: 13 same, 5 june-only, 2 differs, 2 unknown; **no `CH<n>0` phase**: each falls in an Opus phase
+already (`32008a20` CH3b0; `3227c200`, `32489b20` CH4a; `32358df0` CH4b; `322d4a60`, `322d4ba0`, `322cf1b0` CH4c; `3208e8c0` CH1o) or is a pure-key
+test CH2d writes (`31fc7ac0`, as `ARME_ANY_SKILL_KEY`). `funcmap.tsv`: 96 rows `Char Elesis CH0`; rows 1061 (vtable `334fae10`) and 1420 (`32b45e0c`
+is Lu/Ciel's) corrected.
+
+**Splits and kickoffs.** CH1f -> CH1f / CH1f2 (SPK / SBH), CH1g -> CH1g / CH1g2 (SDK / SCA; the review moves to CH1g2, covering CH1e-CH1g2), CH2b ->
+CH2b / CH2b2, CH3a -> CH3a / CH3a2, CH3b -> CH3b / CH3b2 (special actives / actives). Every kickoff CH0b-CH6 has "Amended by CH0".
+
+**Plan-doc inconsistencies.** Stat rows are moot (the flat `StatTable.lua`, e37c9211, has 35 / 120 / 121 / 125); CHNa lines moved (`X2Unit.h:2085-2151`,
+`:2731-2802`, `X2GageManager.cpp:205-220`, `X2Data.cpp:2925-2936`); `X2ComboTree.cpp:302` and the lobby particles are dead / need nothing; the five
+`X2GUEL.cpp` class switches are whole-body ports (CH1m / CH5 / CH4a / CH1e-g / CH1o), not CHNa edits; only `GetThirdLine...` gains 35 / 125; 0x4f8 is
+Dark Force's HP intake, not a WoS damage effect (checklist row corrected in the tsv); 0x730 is the Shadow Edge list and `32b7e740` the Grand Master
+aura, not blood hooks; `Motion_EL.x` / `_SK.x` / `_Lobby.x` are June's in the live data033 already; the plan's CH1 table says the CH1g review covers
+CH1e-CH1g (now CH1g2). **Drift:** none. **Open for the user:** none.
+
 ## Phase CH0b - Every June Elesis asset, whole, first
 
 **Run with:** Sonnet 5.5 high, then a user play-test. No C++ unless CH0 found a March reader a June asset breaks (then

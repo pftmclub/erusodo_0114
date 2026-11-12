@@ -49,3 +49,12 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH1q"' june2017_re/char_elesis/ch0_class_map.tsv` = 18 (8 listing-only: col 9 `n`; 13 `inside`, 5 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L261, L281, L844, L952.
+- **`ch0_wos.tsv` rows:** 77 (filter on its `proposed_phase` column).
+- **`ch0_blood.tsv` rows:** 3 (filter on its `proposed_phase` column).
+- **`ch0_classn.tsv` rows:** 1 (filter on its `proposed_phase` column).
+- `june2017_re/char_elesis/ch0_wos.tsv` (84 rows, `proposed_phase` = last column): 28 code-bearing functions (18 class incl. 5 June-only: `GetWayOfSwordPointGainRate` 0x720, `GetVigorHpIntakeRate` 0x724, 0x72c, `StoreGageSnapshot` / `RestoreGageSnapshot`; 3 gauge data; 4 gauge UI incl. `RefreshWayOfSwordUI`; the gauge manager arm is CHNa's; 2 stand-in sites): **no split**. Start Vigor / Destruction pick the Dark Knight buffs on job line 3 (BFI 473 / 471, PvP 472); both Ends erase BTI 435 / 434 and play the `DARK_FORCE` end sets: register `BFI_BUFF_GALE_WAY_OF_SWORD_DARK_KNIGHT` 473, `BFI_BUFF_ANNIHILATION_WAY_OF_SWORD_DARK_KNIGHT` 471, `..._PVP_DARK_KNIGHT` 472, `BTI_BUFF_GALE_WAY_OF_SWORD_DARK_KNIGHT` 435, `BTI_BUFF_ANNIHILATION_WAY_OF_SWORD_DARK_KNIGHT` 434 in `X2BuffFactor.h` under `JUNE_ENUM_NAMES`. `GetFinalDamage_WayOfSword` multiplies the Destruction result by `+0x971c` (Dark Force SA_DAMAGE_REL). `+0x9714` / `+0x9718` / `+0x971c` default 1 / 0 / 1 (ctor, InitPassiveSkillState) and come from Dark Force 28410 (SA 147 / 49 / 15, CH4a). The emulator already answers `CAC_WSP` (comments at `X2OfflineStatTable.cpp:292-295` are stale). June does not read `WayOfSword.lua`'s `Const_Elesis_*` (its constants equal March's `GALE_*`).

@@ -1,0 +1,288 @@
+file	animation	in_march	in_june	played_by_march_code	played_by_june_script	note
+Motion_EL.x	SI_A_EL_LEAP_CRASH_Jump	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+Motion_EL.x	SI_A_EL_LEAP_CRASH_Landing	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+Motion_EL.x	SI_A_EL_LEAP_CRASH_Start	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+Motion_EL.x	SI_A_EL_RUSHING_SWORD	yes	no	ELESIS_KNIGHT.lua bytecode const x3	no	not in any June Eve motion file
+Motion_EL.x	Dance_Wait	no	yes	no	ELESIS_KNIGHT.src.lua:6827	new in June
+Motion_EL.x	Dance_X	no	yes	no	ELESIS_KNIGHT.src.lua:6822	new in June
+Motion_EL.x	Dance_Z	no	yes	no	ELESIS_KNIGHT.src.lua:6817	new in June
+Motion_EL.x	SI_A_EL_DODGE_MEMO	no	yes	no	ELESIS_KNIGHT.src.lua:8836	new in June
+Motion_EL.x	SI_A_EL_SONIC_ASSAULT_CHARGE	no	yes	no	ELESIS_KNIGHT.src.lua:9727	new in June
+Motion_EL.x	SI_A_EL_SONIC_ASSAULT_MEMO_FIRE	no	yes	no	ELESIS_KNIGHT.src.lua:9737	new in June
+Motion_EL.x	SI_A_EL_SONIC_ASSAULT_MEMO_READY	no	yes	no	ELESIS_KNIGHT.src.lua:9701	new in June
+Motion_EL.x	SI_SA_EL_SPIRAL_BLAST	no	yes	no	ELESIS_KNIGHT.src.lua:10903	new in June
+Motion_EL_BH.x	Combo_XZ	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+Motion_EL_BH.x	Combo_XZZ	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+Motion_EL_BH.x	Combo_XZZZ	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+Motion_EL_BH.x	SI_A_SBH_FIREWORKS	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+Motion_EL_BH.x	SI_SA_SBH_SCALDIC_SWORD	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+Motion_EL_BH.x	SI_A_SBH_FLAME_PROTECTION03	no	yes	no	ELESIS_KNIGHT.src.lua:19213	new in June
+Motion_EL_BH.x	SI_SA_SBH_ETERNAL_FIRE	no	yes	no	ELESIS_KNIGHT.src.lua:12520	new in June
+Motion_EL_BH.x	SI_SA_SBH_IGNIS_CRASHER03	no	yes	no	ELESIS_KNIGHT.src.lua:19360	new in June
+Motion_EL_BH.x	SI_SA_SBH_SOUL_IGNITION	no	yes	no	ELESIS_KNIGHT.src.lua:19977	new in June
+Motion_EL_Common.x	(no name dropped)	-	-	-	-	March 1418490 B, June 6111095 B; 25 new names
+Motion_EL_Common.x	Cash1_DownLanding	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash1_Wait	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash1_WaitHabit	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash2_DownLanding	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash2_Wait	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash2_WaitHabit	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash3_DownLanding	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash3_Wait	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash3_WaitHabit	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash4_DownLanding	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash4_Wait	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash4_WaitHabit	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash5_DownLanding	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash5_Wait	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash5_WaitHabit	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash6_DownLanding	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash6_Wait	no	yes	no	no	new in June
+Motion_EL_Common.x	Cash6_WaitHabit	no	yes	no	no	new in June
+Motion_EL_Common.x	Event1_WaitHabit	no	yes	no	no	new in June
+Motion_EL_Common.x	Ride_2	no	yes	no	no	new in June
+Motion_EL_Common.x	Ride_3	no	yes	no	no	new in June
+Motion_EL_Common.x	SCA_LobbyDownLanding	no	yes	no	no	new in June
+Motion_EL_Common.x	SCA_LobbyWait	no	yes	no	no	new in June
+Motion_EL_Common.x	SDK_LobbyDownLanding	no	yes	no	no	new in June
+Motion_EL_Common.x	SDK_LobbyWait	no	yes	no	no	new in June
+Motion_EL_Emotion.x	(no name dropped)	-	-	-	-	March 1031012 B, June 1874391 B; 88 new names
+Motion_EL_Emotion.x	ATTACK_SPHERE1_Rfoot	no	yes	no	no	new in June
+Motion_EL_Emotion.x	ATTACK_SPHERE2_Lfoot	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01	no	yes	ELESIS_KNIGHT.lua bytecode const x85; X2Lib/X2BuffTemplet.cpp:1717; X2Lib/X2Data.cpp:4036; X2Lib/X2Eqip.cpp:2331	ELESIS_KNIGHT.src.lua:556,747,783,791 (+146)	new in June
+Motion_EL_Emotion.x	Bip01_Footsteps	no	yes	X2Lib/X2BaseUnitViewerUI.cpp:653; X2Lib/X2Data.cpp:4037; X2Lib/X2GUAra.cpp:11826; X2Lib/X2GUArme_VioletMage.cpp:8151	no	new in June
+Motion_EL_Emotion.x	Bip01_Head	no	yes	ELESIS_KNIGHT.lua bytecode const x127; X2Lib/X2Data.cpp:4038; X2Lib/X2GUChung.cpp:32804; X2Lib/X2GUElsword_SwordMan.cpp:29014	ELESIS_KNIGHT.src.lua:624,634,697,707 (+186)	new in June
+Motion_EL_Emotion.x	Bip01_HeadNub	no	yes	X2Lib/X2TFieldNpc.h:99	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Calf	no	yes	X2Lib/X2Data.cpp:4042; X2Lib/X2GUUser.cpp:38477; X2Lib/X2UnitViewerUI.cpp:7627	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Clavicle	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Finger0	no	yes	X2Lib/X2GUArme_VioletMage.cpp:21140; X2Lib/X2GuEve.cpp:26644	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Finger01	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Finger0Nub	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Finger1	no	yes	X2Lib/X2GUUser.cpp:23094; X2Lib/X2GuEve.cpp:26580	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Finger11	no	yes	X2Lib/X2GUArme_VioletMage.cpp:26785; X2Lib/X2GuEve.cpp:32023	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Finger1Nub	no	yes	X2Lib/X2GUArme_VioletMage.cpp:19985; X2Lib/X2GuEve.cpp:22033	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Finger2	no	yes	X2Lib/X2GUAdd.cpp:7283; X2Lib/X2GUAra.cpp:22961; X2Lib/X2GuEve.cpp:21546; X2Lib/X2UnitViewerUI.cpp:669	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Finger21	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Finger2Nub	no	yes	X2Lib/X2GuEve.cpp:39852	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Finger3	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Finger31	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Finger3Nub	no	yes	X2Lib/X2GuEve.cpp:55209	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Foot	no	yes	ELESIS_KNIGHT.lua bytecode const x4; X2Lib/X2Data.cpp:4044; X2Lib/X2GULire_ElvenRanger.cpp:35005; X2Lib/X2GUNPC.cpp:32787	ELESIS_KNIGHT.src.lua:1279,1809,2357,2987 (+2)	new in June
+Motion_EL_Emotion.x	Bip01_L_Forearm	no	yes	X2Lib/X2GURaven.cpp:8663	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Hand	no	yes	X2Lib/X2Data.cpp:4046; X2Lib/X2GUArme_VioletMage.cpp:25786; X2Lib/X2GUChung.cpp:19625; X2Lib/X2GULire_ElvenRanger.cpp:38279	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Thigh	no	yes	X2Lib/X2Data.cpp:4040; X2Lib/X2GUUser.cpp:38470; X2Lib/X2UnitViewerUI.cpp:7620	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Toe0	no	yes	X2Lib/X2GULire_ElvenRanger.cpp:35005	no	new in June
+Motion_EL_Emotion.x	Bip01_L_Toe0Nub	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_L_UpperArm	no	yes	X2Lib/X2GUNPC.cpp:32789; X2Lib/X2GUUser.cpp:2371; X2Lib/X2GuEve.cpp:13312; X2Lib/X2GuEve.h:721	no	new in June
+Motion_EL_Emotion.x	Bip01_Neck	no	yes	X2Lib/X2GUElsword_SwordMan.cpp:28756; X2Lib/X2GURaven.cpp:18536; X2Lib/X2GuEve.cpp:21453	no	new in June
+Motion_EL_Emotion.x	Bip01_Pelvis	no	yes	X2Lib/X2Data.cpp:4084; X2Lib/X2GULire_ElvenRanger.cpp:24225; X2Lib/X2GuEve.cpp:27354	no	new in June
+Motion_EL_Emotion.x	Bip01_Ponytail1	no	yes	X2Lib/X2GUAra.cpp:31682	no	new in June
+Motion_EL_Emotion.x	Bip01_Ponytail11	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_Ponytail12	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_Ponytail1Nub	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Calf	no	yes	X2Lib/X2Data.cpp:4041; X2Lib/X2GUUser.cpp:38474; X2Lib/X2UnitViewerUI.cpp:7624	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Clavicle	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Finger0	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Finger01	no	yes	X2Lib/X2GuEve.cpp:15580	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Finger0Nub	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Finger1	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Finger11	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Finger1Nub	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Finger2	no	yes	X2Lib/X2GUAdd.cpp:10967; X2Lib/X2GUAra.cpp:22961; X2Lib/X2GuEve.cpp:7044	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Finger21	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Finger2Nub	no	yes	X2Lib/X2GuEve.cpp:43081	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Finger3	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Finger31	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Finger3Nub	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Foot	no	yes	X2Lib/X2Data.cpp:4043; X2Lib/X2GUElsword_SwordMan.cpp:28815; X2Lib/X2GULire_ElvenRanger.cpp:24781; X2Lib/X2GUNPC.cpp:32786	ELESIS_KNIGHT.src.lua:4419,4429	new in June
+Motion_EL_Emotion.x	Bip01_R_Forearm	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Hand	no	yes	ELESIS_KNIGHT.lua bytecode const x1; X2Lib/X2Data.cpp:4045; X2Lib/X2GUChung.cpp:20996; X2Lib/X2GURaven.cpp:13922	ELESIS_KNIGHT.src.lua:14103	new in June
+Motion_EL_Emotion.x	Bip01_R_Thigh	no	yes	X2Lib/X2Data.cpp:4039; X2Lib/X2GUUser.cpp:38467; X2Lib/X2UnitViewerUI.cpp:7617	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Toe0	no	yes	X2Lib/X2GULire_ElvenRanger.cpp:34997	no	new in June
+Motion_EL_Emotion.x	Bip01_R_Toe0Nub	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bip01_R_UpperArm	no	yes	X2Lib/X2GUNPC.cpp:32788; X2Lib/X2GUUser.cpp:2366; X2Lib/X2GuEve.cpp:13307; X2Lib/X2GuEve.h:722	no	new in June
+Motion_EL_Emotion.x	Bip01_Spine	no	yes	ELESIS_KNIGHT.lua bytecode const x2; X2Lib/X2Data.cpp:4049; X2Lib/X2GUNPC.cpp:20615; X2Lib/X2GUUser.cpp:5205	ELESIS_KNIGHT.src.lua:1082,2742,3945	new in June
+Motion_EL_Emotion.x	Bip01_Spine1	no	yes	ELESIS_KNIGHT.lua bytecode const x69; X2Lib/X2Data.cpp:4082; X2Lib/X2GUAdd.cpp:6290; X2Lib/X2GUArme_VioletMage.cpp:19075	ELESIS_KNIGHT.src.lua:767,775,888,1010 (+101)	new in June
+Motion_EL_Emotion.x	Body_Base03	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bone01	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bone02	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bone03	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bone04	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bone05	no	yes	X2Lib/X2GUNPCFunc.cpp:2980	no	new in June
+Motion_EL_Emotion.x	Bone06	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bone07	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bone08	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bone09	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Bone10	no	yes	no	no	new in June
+Motion_EL_Emotion.x	COLLISION_SPHERE1_Face	no	yes	X2Lib/X2GUChung.cpp:38831; X2Lib/X2GUUser.cpp:38131	no	new in June
+Motion_EL_Emotion.x	COLLISION_SPHERE2_Upbody	no	yes	no	no	new in June
+Motion_EL_Emotion.x	COLLISION_SPHERE3_Lowbody	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Dummy1_Rhand	no	yes	ELESIS_KNIGHT.lua bytecode const x1; X2Lib/X2BuffTemplet.cpp:1307; X2Lib/X2Data.cpp:4047; X2Lib/X2GUArme_VioletMage.cpp:7847	ELESIS_KNIGHT.src.lua:11441,19964	new in June
+Motion_EL_Emotion.x	Dummy2_Lhand	no	yes	X2Lib/X2Data.cpp:4074; X2Lib/X2GUAdd.cpp:2483; X2Lib/X2GUAra.cpp:7852; X2Lib/X2GUArme_VioletMage.cpp:14023	no	new in June
+Motion_EL_Emotion.x	Dummy3_Weapon	no	yes	ELESIS_KNIGHT.lua bytecode const x4; X2Lib/X2GUAra.cpp:21377; X2Lib/X2GUUser.cpp:31489; X2Lib/X2UnitViewerUI.cpp:6275	no	new in June
+Motion_EL_Emotion.x	Emotion_Angry	no	yes	X2Lib/X2ChatBox.cpp:6688; X2Lib/X2Unit.cpp:2759	no	new in June
+Motion_EL_Emotion.x	Emotion_Hello	no	yes	X2Lib/X2BeginningGame.cpp:1220; X2Lib/X2ChatBox.cpp:6691; X2Lib/X2Unit.cpp:2761	no	new in June
+Motion_EL_Emotion.x	Emotion_No	no	yes	X2Lib/X2BeginningGame.cpp:716; X2Lib/X2ChatBox.cpp:6694; X2Lib/X2StateCreateUnit.cpp:2572; X2Lib/X2Unit.cpp:2763	no	new in June
+Motion_EL_Emotion.x	Emotion_Sad	no	yes	X2Lib/X2BeginningGame.cpp:1379; X2Lib/X2ChatBox.cpp:6697; X2Lib/X2Unit.cpp:2765	no	new in June
+Motion_EL_Emotion.x	Emotion_SitReady	no	yes	X2Lib/X2ChatBox.cpp:6682; X2Lib/X2GUUser.cpp:33589; X2Lib/X2StateBattleField.cpp:618; X2Lib/X2StateDungeonGame.cpp:4842	no	new in June
+Motion_EL_Emotion.x	Emotion_SitWait	no	yes	X2Lib/X2GUUser.cpp:35727; X2Lib/X2UnitManager.cpp:362; X2Lib/X2UnitViewerUI.cpp:4245	no	new in June
+Motion_EL_Emotion.x	Emotion_Smile	no	yes	X2Lib/X2ChatBox.cpp:6700; X2Lib/X2Unit.cpp:2767	no	new in June
+Motion_EL_Emotion.x	Emotion_StandUp	no	yes	X2Lib/X2ChatBox.cpp:6685; X2Lib/X2GUUser.cpp:45837; X2Lib/X2Unit.cpp:2757; X2Lib/X2UnitManager.cpp:363	no	new in June
+Motion_EL_Emotion.x	Eve_Face01	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Object01	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Object02	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Object04	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Scene_Root	no	yes	no	no	new in June
+Motion_EL_Emotion.x	Sphere01	no	yes	X2Lib/X2CharacterRoom.cpp:507; X2Lib/X2UIInventory.cpp:767	no	new in June
+Motion_EL_Emotion.x	Wait8	no	yes	no	no	new in June
+Motion_EL_Field.x	(no name dropped)	-	-	-	-	March 331299 B, June 513486 B; 2 new names
+Motion_EL_Field.x	Ride_2	no	yes	no	no	new in June
+Motion_EL_Field.x	Ride_3	no	yes	no	no	new in June
+MOTION_EL_GM.x	SGM_COMBO_XXDOWNX_END	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+MOTION_EL_GM.x	SGM_COMBO_XXDOWNX_LOOP	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+MOTION_EL_GM.x	SGM_COMBO_XXDOWNX_START	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+MOTION_EL_GM.x	SI_A_SGM_CRITICAL_DIVE	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+MOTION_EL_GM.x	SI_A_SGM_CRITICAL_DIVE_ATTACK	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+MOTION_EL_GM.x	SGM_DashComboXX_Attack	no	yes	no	ELESIS_KNIGHT.src.lua:13090	new in June
+MOTION_EL_GM.x	SGM_DashComboXX_End	no	yes	no	ELESIS_KNIGHT.src.lua:13123	new in June
+MOTION_EL_GM.x	SI_A_SGM_UPPER_SLASH	no	yes	no	ELESIS_KNIGHT.src.lua:18905	new in June
+MOTION_EL_GM.x	SI_P_SGM_ADVANCED_KNIGHT_MASTERY_GUARD1	no	yes	no	ELESIS_KNIGHT.src.lua:13141,13156	new in June
+MOTION_EL_GM.x	SI_P_SGM_ADVANCED_KNIGHT_MASTERY_GUARD2	no	yes	no	no	new in June
+MOTION_EL_GM.x	SI_SA_SGM_CROSS_SLASH	no	yes	no	ELESIS_KNIGHT.src.lua:19007	new in June
+MOTION_EL_GM.x	SI_SA_SGM_DIVINE_BLADE	no	yes	no	ELESIS_KNIGHT.src.lua:19075	new in June
+MOTION_EL_GM.x	SI_SA_SGM_GIGA_BLAST_Charge	no	yes	no	ELESIS_KNIGHT.src.lua:19906	new in June
+MOTION_EL_GM.x	SI_SA_SGM_GIGA_BLAST_End	no	yes	no	ELESIS_KNIGHT.src.lua:19928	new in June
+MOTION_EL_GM.x	SI_SA_SGM_GIGA_BLAST_Start	no	yes	no	ELESIS_KNIGHT.src.lua:19872	new in June
+MOTION_EL_GM.x	SI_SA_SGM_VICTORIOUS_SWORD	no	yes	no	ELESIS_KNIGHT.src.lua:11320	new in June
+MOTION_EL_GM.x	SI_SA_SGM_WAR_PRELUDE_AIR	no	yes	no	ELESIS_KNIGHT.src.lua:18756	new in June
+Motion_EL_Lobby.x	SPK_LobbyReadyaction	yes	no	X2Lib/X2UnitViewerUI.cpp:2162	no	case rename -> June has SPK_LobbyReadyAction (June plays it through AnimationNameTable.lua:224)
+Motion_EL_Lobby.x	SSK_LobbyReadyaction	yes	no	X2Lib/X2UnitViewerUI.cpp:5277	no	case rename -> June has SSK_LobbyReadyAction (June plays it through AnimationNameTable.lua:214)
+Motion_EL_Lobby.x	SCA_LobbyReadyAction	no	yes	no	no	new in June
+Motion_EL_Lobby.x	SDK_LobbyReadyAction	no	yes	no	no	new in June
+Motion_EL_Lobby.x	SPK_LobbyReadyAction	no	yes	no	no	new in June
+Motion_EL_Lobby.x	SSK_LobbyReadyAction	no	yes	no	no	new in June
+Motion_EL_PK.x	(no name dropped)	-	-	-	-	March 1163011 B, June 2344871 B; 102 new names
+Motion_EL_PK.x	ATTACK_SPHERE1_Rfoot	no	yes	no	no	new in June
+Motion_EL_PK.x	ATTACK_SPHERE2_Lfoot	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01	no	yes	ELESIS_KNIGHT.lua bytecode const x85; X2Lib/X2BuffTemplet.cpp:1717; X2Lib/X2Data.cpp:4036; X2Lib/X2Eqip.cpp:2331	ELESIS_KNIGHT.src.lua:556,747,783,791 (+146)	new in June
+Motion_EL_PK.x	Bip01_Footsteps	no	yes	X2Lib/X2BaseUnitViewerUI.cpp:653; X2Lib/X2Data.cpp:4037; X2Lib/X2GUAra.cpp:11826; X2Lib/X2GUArme_VioletMage.cpp:8151	no	new in June
+Motion_EL_PK.x	Bip01_Head	no	yes	ELESIS_KNIGHT.lua bytecode const x127; X2Lib/X2Data.cpp:4038; X2Lib/X2GUChung.cpp:32804; X2Lib/X2GUElsword_SwordMan.cpp:29014	ELESIS_KNIGHT.src.lua:624,634,697,707 (+186)	new in June
+Motion_EL_PK.x	Bip01_HeadNub	no	yes	X2Lib/X2TFieldNpc.h:99	no	new in June
+Motion_EL_PK.x	Bip01_L_Calf	no	yes	X2Lib/X2Data.cpp:4042; X2Lib/X2GUUser.cpp:38477; X2Lib/X2UnitViewerUI.cpp:7627	no	new in June
+Motion_EL_PK.x	Bip01_L_Clavicle	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_L_Finger0	no	yes	X2Lib/X2GUArme_VioletMage.cpp:21140; X2Lib/X2GuEve.cpp:26644	no	new in June
+Motion_EL_PK.x	Bip01_L_Finger01	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_L_Finger0Nub	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_L_Finger1	no	yes	X2Lib/X2GUUser.cpp:23094; X2Lib/X2GuEve.cpp:26580	no	new in June
+Motion_EL_PK.x	Bip01_L_Finger11	no	yes	X2Lib/X2GUArme_VioletMage.cpp:26785; X2Lib/X2GuEve.cpp:32023	no	new in June
+Motion_EL_PK.x	Bip01_L_Finger1Nub	no	yes	X2Lib/X2GUArme_VioletMage.cpp:19985; X2Lib/X2GuEve.cpp:22033	no	new in June
+Motion_EL_PK.x	Bip01_L_Finger2	no	yes	X2Lib/X2GUAdd.cpp:7283; X2Lib/X2GUAra.cpp:22961; X2Lib/X2GuEve.cpp:21546; X2Lib/X2UnitViewerUI.cpp:669	no	new in June
+Motion_EL_PK.x	Bip01_L_Finger21	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_L_Finger2Nub	no	yes	X2Lib/X2GuEve.cpp:39852	no	new in June
+Motion_EL_PK.x	Bip01_L_Finger3	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_L_Finger31	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_L_Finger3Nub	no	yes	X2Lib/X2GuEve.cpp:55209	no	new in June
+Motion_EL_PK.x	Bip01_L_Foot	no	yes	ELESIS_KNIGHT.lua bytecode const x4; X2Lib/X2Data.cpp:4044; X2Lib/X2GULire_ElvenRanger.cpp:35005; X2Lib/X2GUNPC.cpp:32787	ELESIS_KNIGHT.src.lua:1279,1809,2357,2987 (+2)	new in June
+Motion_EL_PK.x	Bip01_L_Forearm	no	yes	X2Lib/X2GURaven.cpp:8663	no	new in June
+Motion_EL_PK.x	Bip01_L_Hand	no	yes	X2Lib/X2Data.cpp:4046; X2Lib/X2GUArme_VioletMage.cpp:25786; X2Lib/X2GUChung.cpp:19625; X2Lib/X2GULire_ElvenRanger.cpp:38279	no	new in June
+Motion_EL_PK.x	Bip01_L_Thigh	no	yes	X2Lib/X2Data.cpp:4040; X2Lib/X2GUUser.cpp:38470; X2Lib/X2UnitViewerUI.cpp:7620	no	new in June
+Motion_EL_PK.x	Bip01_L_Toe0	no	yes	X2Lib/X2GULire_ElvenRanger.cpp:35005	no	new in June
+Motion_EL_PK.x	Bip01_L_Toe0Nub	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_L_UpperArm	no	yes	X2Lib/X2GUNPC.cpp:32789; X2Lib/X2GUUser.cpp:2371; X2Lib/X2GuEve.cpp:13312; X2Lib/X2GuEve.h:721	no	new in June
+Motion_EL_PK.x	Bip01_Neck	no	yes	X2Lib/X2GUElsword_SwordMan.cpp:28756; X2Lib/X2GURaven.cpp:18536; X2Lib/X2GuEve.cpp:21453	no	new in June
+Motion_EL_PK.x	Bip01_Pelvis	no	yes	X2Lib/X2Data.cpp:4084; X2Lib/X2GULire_ElvenRanger.cpp:24225; X2Lib/X2GuEve.cpp:27354	no	new in June
+Motion_EL_PK.x	Bip01_Ponytail1	no	yes	X2Lib/X2GUAra.cpp:31682	no	new in June
+Motion_EL_PK.x	Bip01_Ponytail11	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_Ponytail12	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_Ponytail1Nub	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_Calf	no	yes	X2Lib/X2Data.cpp:4041; X2Lib/X2GUUser.cpp:38474; X2Lib/X2UnitViewerUI.cpp:7624	no	new in June
+Motion_EL_PK.x	Bip01_R_Clavicle	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_Finger0	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_Finger01	no	yes	X2Lib/X2GuEve.cpp:15580	no	new in June
+Motion_EL_PK.x	Bip01_R_Finger0Nub	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_Finger1	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_Finger11	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_Finger1Nub	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_Finger2	no	yes	X2Lib/X2GUAdd.cpp:10967; X2Lib/X2GUAra.cpp:22961; X2Lib/X2GuEve.cpp:7044	no	new in June
+Motion_EL_PK.x	Bip01_R_Finger21	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_Finger2Nub	no	yes	X2Lib/X2GuEve.cpp:43081	no	new in June
+Motion_EL_PK.x	Bip01_R_Finger3	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_Finger31	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_Finger3Nub	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_Foot	no	yes	X2Lib/X2Data.cpp:4043; X2Lib/X2GUElsword_SwordMan.cpp:28815; X2Lib/X2GULire_ElvenRanger.cpp:24781; X2Lib/X2GUNPC.cpp:32786	ELESIS_KNIGHT.src.lua:4419,4429	new in June
+Motion_EL_PK.x	Bip01_R_Forearm	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_Hand	no	yes	ELESIS_KNIGHT.lua bytecode const x1; X2Lib/X2Data.cpp:4045; X2Lib/X2GUChung.cpp:20996; X2Lib/X2GURaven.cpp:13922	ELESIS_KNIGHT.src.lua:14103	new in June
+Motion_EL_PK.x	Bip01_R_Thigh	no	yes	X2Lib/X2Data.cpp:4039; X2Lib/X2GUUser.cpp:38467; X2Lib/X2UnitViewerUI.cpp:7617	no	new in June
+Motion_EL_PK.x	Bip01_R_Toe0	no	yes	X2Lib/X2GULire_ElvenRanger.cpp:34997	no	new in June
+Motion_EL_PK.x	Bip01_R_Toe0Nub	no	yes	no	no	new in June
+Motion_EL_PK.x	Bip01_R_UpperArm	no	yes	X2Lib/X2GUNPC.cpp:32788; X2Lib/X2GUUser.cpp:2366; X2Lib/X2GuEve.cpp:13307; X2Lib/X2GuEve.h:722	no	new in June
+Motion_EL_PK.x	Bip01_Spine	no	yes	ELESIS_KNIGHT.lua bytecode const x2; X2Lib/X2Data.cpp:4049; X2Lib/X2GUNPC.cpp:20615; X2Lib/X2GUUser.cpp:5205	ELESIS_KNIGHT.src.lua:1082,2742,3945	new in June
+Motion_EL_PK.x	Bip01_Spine1	no	yes	ELESIS_KNIGHT.lua bytecode const x69; X2Lib/X2Data.cpp:4082; X2Lib/X2GUAdd.cpp:6290; X2Lib/X2GUArme_VioletMage.cpp:19075	ELESIS_KNIGHT.src.lua:767,775,888,1010 (+101)	new in June
+Motion_EL_PK.x	Body_Base03	no	yes	no	no	new in June
+Motion_EL_PK.x	Bone01	no	yes	no	no	new in June
+Motion_EL_PK.x	Bone02	no	yes	no	no	new in June
+Motion_EL_PK.x	Bone03	no	yes	no	no	new in June
+Motion_EL_PK.x	Bone04	no	yes	no	no	new in June
+Motion_EL_PK.x	Bone05	no	yes	X2Lib/X2GUNPCFunc.cpp:2980	no	new in June
+Motion_EL_PK.x	Bone06	no	yes	no	no	new in June
+Motion_EL_PK.x	Bone07	no	yes	no	no	new in June
+Motion_EL_PK.x	Bone08	no	yes	no	no	new in June
+Motion_EL_PK.x	Bone09	no	yes	no	no	new in June
+Motion_EL_PK.x	Bone10	no	yes	no	no	new in June
+Motion_EL_PK.x	COLLISION_SPHERE1_Face	no	yes	X2Lib/X2GUChung.cpp:38831; X2Lib/X2GUUser.cpp:38131	no	new in June
+Motion_EL_PK.x	COLLISION_SPHERE2_Upbody	no	yes	no	no	new in June
+Motion_EL_PK.x	COLLISION_SPHERE3_Lowbody	no	yes	no	no	new in June
+Motion_EL_PK.x	Dummy1_Rhand	no	yes	ELESIS_KNIGHT.lua bytecode const x1; X2Lib/X2BuffTemplet.cpp:1307; X2Lib/X2Data.cpp:4047; X2Lib/X2GUArme_VioletMage.cpp:7847	ELESIS_KNIGHT.src.lua:11441,19964	new in June
+Motion_EL_PK.x	Dummy2_Lhand	no	yes	X2Lib/X2Data.cpp:4074; X2Lib/X2GUAdd.cpp:2483; X2Lib/X2GUAra.cpp:7852; X2Lib/X2GUArme_VioletMage.cpp:14023	no	new in June
+Motion_EL_PK.x	Dummy3_Weapon	no	yes	ELESIS_KNIGHT.lua bytecode const x4; X2Lib/X2GUAra.cpp:21377; X2Lib/X2GUUser.cpp:31489; X2Lib/X2UnitViewerUI.cpp:6275	no	new in June
+Motion_EL_PK.x	Eve_Face01	no	yes	no	no	new in June
+Motion_EL_PK.x	Object01	no	yes	no	no	new in June
+Motion_EL_PK.x	Object02	no	yes	no	no	new in June
+Motion_EL_PK.x	Object04	no	yes	no	no	new in June
+Motion_EL_PK.x	SI_A_SPK_AVATAR_OF_THE_FIRE	no	yes	no	ELESIS_KNIGHT.src.lua:12079	new in June
+Motion_EL_PK.x	SI_A_SPK_BIG_BURST	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:11988	new in June
+Motion_EL_PK.x	SI_A_SPK_FIREWORKS	no	yes	no	ELESIS_KNIGHT.src.lua:14593	new in June
+Motion_EL_PK.x	SI_A_SPK_SWORD_ERUPTION	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:11889	new in June
+Motion_EL_PK.x	SI_SA_SPK_BURST_RISING	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:12237,19254	new in June
+Motion_EL_PK.x	SI_SA_SPK_BURST_WAVE	no	yes	ELESIS_KNIGHT.lua bytecode const x1	no	new in June
+Motion_EL_PK.x	SI_SA_SPK_INFERNAL_BLADE	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:12319	new in June
+Motion_EL_PK.x	SI_SA_SPK_SCALDIC_SWORD	no	yes	no	ELESIS_KNIGHT.src.lua:14728	new in June
+Motion_EL_PK.x	SI_SA_SPK_SWORDFIRE	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:12132	new in June
+Motion_EL_PK.x	SPK_Combo_XZ	no	yes	no	ELESIS_KNIGHT.src.lua:14115	new in June
+Motion_EL_PK.x	SPK_Combo_XZZ	no	yes	no	ELESIS_KNIGHT.src.lua:14189	new in June
+Motion_EL_PK.x	SPK_Combo_XZZZ	no	yes	no	ELESIS_KNIGHT.src.lua:14225	new in June
+Motion_EL_PK.x	SPK_DashJumpComboXZ	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:11771	new in June
+Motion_EL_PK.x	SPK_DashJumpComboZX_Loop	no	yes	no	ELESIS_KNIGHT.src.lua:11841	new in June
+Motion_EL_PK.x	SPK_DashJumpComboZX_Start	no	yes	no	ELESIS_KNIGHT.src.lua:11818	new in June
+Motion_EL_PK.x	SPK_Dash_Combo_ZX	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:11705,14466	new in June
+Motion_EL_PK.x	SPK_Dash_Combo_ZZZ	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:11740	new in June
+Motion_EL_PK.x	SPK_Lose	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:2755	new in June
+Motion_EL_PK.x	SPK_Lose2	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:2892	new in June
+Motion_EL_PK.x	SPK_Start	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:2381	new in June
+Motion_EL_PK.x	SPK_Win	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:2502	new in June
+Motion_EL_PK.x	SPK_Win2	no	yes	ELESIS_KNIGHT.lua bytecode const x1	ELESIS_KNIGHT.src.lua:2625	new in June
+Motion_EL_PK.x	Scene_Root	no	yes	no	no	new in June
+Motion_EL_PK.x	Sphere01	no	yes	X2Lib/X2CharacterRoom.cpp:507; X2Lib/X2UIInventory.cpp:767	no	new in June
+Motion_EL_PK.x	Wait4	no	yes	no	no	new in June
+Motion_EL_SK.x	SI_SA_SSK_SPIRAL_BLAST	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+Motion_EL_SK.x	SI_SA_SSK_VICTORIOUS_SWORD	yes	no	ELESIS_KNIGHT.lua bytecode const x1	no	not in any June Eve motion file
+Motion_EL_SK.x	SI_A_SSK_CRITICAL_DIVE	no	yes	no	ELESIS_KNIGHT.src.lua:13570	new in June
+Motion_EL_SK.x	SI_A_SSK_CRITICAL_DIVE_ATTACK	no	yes	no	ELESIS_KNIGHT.src.lua:13717	new in June
+Motion_EL_SK.x	SI_A_SSK_LEAP_CRASH_Jump	no	yes	no	ELESIS_KNIGHT.src.lua:9058	new in June
+Motion_EL_SK.x	SI_A_SSK_LEAP_CRASH_Landing	no	yes	no	ELESIS_KNIGHT.src.lua:9138	new in June
+Motion_EL_SK.x	SI_A_SSK_LEAP_CRASH_Start	no	yes	no	ELESIS_KNIGHT.src.lua:9023	new in June
+Motion_EL_SK.x	SI_A_SSK_RUSHING_SWORD	no	yes	no	ELESIS_KNIGHT.src.lua:9188,9317,9438	new in June
+Motion_EL_SK.x	SI_SA_SSK_JUDGEMENT_DRIVE_FINAL	no	yes	no	ELESIS_KNIGHT.src.lua:11594	new in June
+Motion_EL_SK.x	SSK_COMBO_XXDOWNX_END	no	yes	no	ELESIS_KNIGHT.src.lua:12933	new in June
+Motion_EL_SK.x	SSK_COMBO_XXDOWNX_LOOP	no	yes	no	ELESIS_KNIGHT.src.lua:12887	new in June
+Motion_EL_SK.x	SSK_COMBO_XXDOWNX_START	no	yes	no	ELESIS_KNIGHT.src.lua:12820	new in June
+# per file: March bytes, June bytes, dropped names, new names, identical
+# Motion_EL.x	3894111	5596017	dropped=4	new=8	differs
+# Motion_EL_BH.x	2066156	3083072	dropped=5	new=4	differs
+# Motion_EL_Common.x	1418490	6111095	dropped=0	new=25	differs
+# Motion_EL_Emotion.x	1031012	1874391	dropped=0	new=88	differs
+# Motion_EL_Field.x	331299	513486	dropped=0	new=2	differs
+# MOTION_EL_GM.x	2454581	3400722	dropped=5	new=12	differs
+# Motion_EL_Lobby.x	1717027	2007749	dropped=2	new=4	differs
+# Motion_EL_PK.x	1163011	2344871	dropped=0	new=102	differs
+# Motion_EL_SK.x	1440530	2213295	dropped=2	new=10	differs

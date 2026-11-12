@@ -1,4 +1,4 @@
-# June character Elesis (Stage 7) - Phase CH3a - Skills: Grand Master (120)
+# June character Elesis (Stage 7) - Phase CH3a - Skills: Grand Master (120), special actives
 
 | | |
 |---|---|
@@ -45,3 +45,11 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH3a"' june2017_re/char_elesis/ch0_class_map.tsv` = 24 (18 listing-only: col 9 `n`; 16 `inside`, 8 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Script states:** `awk -F'\t' '$8=="CH3a"' june2017_re/char_elesis/ch0_state_skill.tsv` = 14.
+- **Skill ids** (13): 28008, 28009, 28010, 28011, 28039, 28040, 28046, 28047, 28048, 28049, 28062, 28227, 28228.
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L52.
+- CH0 split by skill: CH3a = 28008-28011, 28039, 28040, 28062 (special actives), CH3a2 = 28205 / 28206 / 28222.

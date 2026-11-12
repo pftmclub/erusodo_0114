@@ -42,3 +42,8 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L426, L811.
+- Keys (`june2017_re/char_elesis/ch0_keys.tsv`): the four `EFFECT_SET_LIST_*` variants, `RELATIVE_SKILL_LEARN_CHECK`, `IGNORE_STATE_DEFENCE`, `IGNORE_DEFENCE_DECLINE` all have live engine readers (`X2GUUser.cpp:49881-49923`, `X2DamageManager.cpp:752` / `:763`, `:5273`): check her states read through them; no class reader to write.

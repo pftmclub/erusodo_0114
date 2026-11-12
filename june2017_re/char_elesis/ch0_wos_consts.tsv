@@ -1,0 +1,9 @@
+# WayOfSword Elesis constants: June june_src_fixed/data036_kom/WayOfSword.src.lua vs March X2Lib/X2GUEL.cpp _CONST_EL_ (lines 24-31). Facts only; "not found" = no counterpart read.
+june_key	june_value	june_line	march_const	march_value	march_line	same_value
+Const_Elesis_VigorUseMpDown_Skill	0.6	18	GALE_MP_CONSUME_RATE	0.6f	27	y
+Const_Elesis_VigorUseMpDown_Skill_PVP	0.9	19	GALE_MP_CONSUME_RATE_PVP	0.8f	28	n
+Const_Elesis_VigorUseCoolTimeDown_Skill	0.2	20	GALE_COOL_TIME_DECREASE_RATE	0.2f	24	y
+Const_Elesis_VigorUseCoolTimeDown_Skill_PVP	0.8	21	GALE_COOL_TIME_DECREASE_RATE_PVP	0.6f	25	n
+Const_DestRageWSPGain_Elesis	1500	23	not found in X2GUEL.cpp (X2DamageManager.cpp:4815 loader default 2000.f)	2000.f (loader default)	-	n
+not found	-	-	GALE_FORCE_DOWN_DECREASE_RATE	0.6f	30	-
+not found	-	-	GALE_FORCE_DOWN_DECREASE_RATE_PVP	0.8f	31	-

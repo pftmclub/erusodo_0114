@@ -1,0 +1,68 @@
+slot_off	vt_entry	fn	base_fn	name	src	march
+0x0	334fa61c	32b90520	3208f650	~CX2GUEL (scalar deleting dtor)	CONF: sibling class maps slot 0x0; slot-0 dtor 32b90520	X2GUEl.h:255 virtual ~CX2GUEL(void);
+0x3c	334fa658	32b81710	31fee090	InitComponent	CONF: char_ara class map 0x3c	X2GUEl.h:262 virtual void InitComponent();
+0x40	334fa65c	32b52560	3204ea20	Init	CONF: char_ara class map 0x40	X2GUEl.h:259 virtual void Init( bool bUseTeamPos_, int iStartPosIndex_ );
+0x44	334fa660	32b81900	32022380	ReInit	CONF: char_ara class map 0x44	X2GUEl.h:805 virtual void ReInit( bool bTeamPos = false, int iStartPosIndex = -1 );
+0x48	334fa664	32b4ef40	32012760	InitEffect	CONF: char_ara class map 0x48	X2GUEl.h:812 virtual void InitEffect();
+0x60	334fa67c	32b73ff0	320462a0	DamageReact	CONF: char_ara class map 0x60	X2GUEl.h:806 virtual void DamageReact( OUT CX2DamageManager::DamageData* pDamageData_ );
+0x74	334fa690	32b74ed0	3208dd70	?	HINT: base 3208dd70; 34 insns; calls 31aad500	- (name unsettled)
+0x78	334fa694	32b4ef90	33093ad0	?	HINT: base 33093ad0; 14 insns; calls -	- (name unsettled)
+0x90	334fa6ac	32b52650	32014660	Win	CONF: char_ara class map 0x90	X2GUEl.h:808 virtual void Win();
+0x94	334fa6b0	32b6de60	31ff15d0	Lose	CONF: char_ara class map 0x94	X2GUEl.h:809 virtual void Lose();
+0x98	334fa6b4	32b52690	31ff17c0	Draw	CONF: char_ara class map 0x98	X2GUEl.h:810 virtual void Draw();
+0xc4	334fa6e0	32b74300	31fd5cb0	HyperModeBuffEffectStart	CONF: char_ara class map 0xc4	X2GUEl.h:828 virtual void HyperModeBuffEffectStart();
+0xd0	334fa6ec	32b7ef90	322984c0	?	HINT: base 322984c0; 38 insns; calls 324943c0 32489200 32fe243e	- (name unsettled)
+0x24c	334fa868	32b89260	3204b5e0	SetSpecificValueByBuffTempletID	CONF: char_ara class map 0x24c	X2GUEl.h:830 virtual void SetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
+0x250	334fa86c	32b74500	3202ed60	UnSetSpecificValueByBuffTempletID	CONF: char_ara class map 0x250	X2GUEl.h:831 virtual void UnSetSpecificValueByBuffTempletID( const BUFF_TEMPLET_ID eBuffTempletId_ );
+0x29c	334fa8b8	32b6fc40	3208dd70	?	HINT: base 3208dd70; 96 insns; calls 32d40b80 32d40ba0 32d40bc0	- (name unsettled)
+0x2b8	334fa8d4	32b80f20	32045340	SetDamageExceptionProcess	CONF: char_raven class map 0x2b8	X2GUEl.h:912 virtual void SetDamageExceptionProcess( OUT CX2DamageManager::DamageData* pDamageData_ ,OUT float& fPowerRate);
+0x428	334faa44	32b52260	3208dd70	?	HINT: base 3208dd70; 38 insns; calls -	- (name unsettled)
+0x4ac	334faac8	32b90420	3208df00	?	HINT: base 3208df00; 2 insns; calls -	- (name unsettled)
+0x4b4	334faad0	32b90410	3208df10	GetComboXStateID	CONF: char_ara class map 0x4b4	X2GUEl.h:836 virtual int GetComboXStateID() const { return ESI_COMBO_X; }
+0x4d4	334faaf0	32b73e10	31ff0eb0	DetonationStateChange	CONF: funcmap 31ff0eb0 CX2GUUser::DetonationStateChange	X2GUEl.h:276 virtual void DetonationStateChange( CX2DamageManager::DamageData* pDamageData );
+0x4f8	334fab14	32b7beb0	33093ad0	?	HINT: base 33093ad0; 154 insns; calls 31aada50 322d37d0 31aa1670	- (name unsettled)
+0x4fc	334fab18	32b898a0	33093ad0	?	HINT: base 33093ad0; 252 insns; calls 3227baf0 31e9cb70 32007c40	- (name unsettled)
+0x534	334fab50	32b90430	3208e8c0	?	HINT: base 3208e8c0; 12 insns; calls 3208e8c0	- (name unsettled)
+0x540	334fab5c	32b70330	32012800	CreateMajorParticleArray	CONF: char_ara class map 0x540	X2GUEl.h:814 virtual void CreateMajorParticleArray();
+0x548	334fab64	32b4ef70	32012920	CreateMinorParticleArray	CONF: char_ara class map 0x548	X2GUEl.h:815 virtual void CreateMinorParticleArray();
+0x54c	334fab68	32b70300	31aa1d30	InitEnchantWeaponEffectUnitSpecific	CONF: char_ara class map 0x54c	X2GUEl.h:833 virtual void InitEnchantWeaponEffectUnitSpecific();
+0x558	334fab74	32b6fb80	3231f510	?	HINT: base 3231f510; 51 insns; calls -	- (name unsettled)
+0x5f0	334fac0c	32b6def0	31aa1d30	COMMON_BUFF_FrameMove	CONF: char_ara class map 0x5f0	X2GUEl.h:821 virtual void COMMON_BUFF_FrameMove();
+0x600	334fac1c	32b7f090	31aa1d30	HyperModeFrameMove	CONF: char_ara class map 0x600	X2GUEl.h:823 virtual void HyperModeFrameMove();
+0x628	334fac44	32b70130	31fd7930	CanRidingState	CONF: char_ara class map 0x628	X2GUEl.h:803 virtual bool CanRidingState();
+0x670	334fac8c	32b64290	331a4950	?	HINT: base 331a4950; 17 insns; calls -	- (name unsettled)
+0x674	334fac90	32b52790	31fc8770	?	HINT: base 31fc8770; 5 insns; calls -	- (name unsettled)
+0x678	334fac94	32b527e0	31fc8780	?	HINT: base 31fc8780; 5 insns; calls -	- (name unsettled)
+0x67c	334fac98	32b52800	31fc8790	?	HINT: base 31fc8790; 24 insns; calls -	- (name unsettled)
+0x690	334facac	32b88300	31fe19d0	InitPassiveSkillState	CONF: char_ara class map 0x690	X2GUEl.h:263 virtual void InitPassiveSkillState();
+0x6a0	334facbc	32b7ebe0	31fd1840	GetActualMPConsume	CONF: char_ara class map 0x6a0	X2GUEl.h:282 virtual float GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const;
+0x6a4	334facc0	32b7ee10	31fd1920	GetActualCoolTime	CONF: char_raven class map 0x6a4	X2GUEl.h:284 virtual float GetActualCoolTime( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_, IN int iSkillLevel ) const;
+0x720	334fad3c	32b903e0	3208e1b0	?	HINT: base 3208e1b0; 2 insns; calls -	- (name unsettled)
+0x724	334fad40	32b903f0	3208e270	?	HINT: base 3208e270; 2 insns; calls -	- (name unsettled)
+0x72c	334fad48	32b90400	3208e1b0	?	HINT: base 3208e1b0; 2 insns; calls -	- (name unsettled)
+0x730	334fad4c	32b816a0	3208ddc0	?	HINT: base 3208ddc0; 31 insns; calls 32b81220 31aad340 31aad500	- (name unsettled)
+0x734	334fad50	32b7bad0	33093ad0	?	HINT: base 33093ad0; 285 insns; calls 31e4f900 31e4f900 31aada50	- (name unsettled)
+0x740	334fad5c	32b6ac80	32009780	?	HINT: base 32009780; 16 insns; calls 32009780	- (name unsettled)
+0x744	334fad60	32b6acb0	3204da60	?	HINT: base 3204da60; 19 insns; calls -	- (name unsettled)
+0x7a4	334fadc0	32b87a60	31aa1d30	InitState	CONF: char_ara class map 0x7a4	X2GUEl.h:261 virtual void InitState();
+0x7b4	334fadd0	32b8c470	31aa1d30	SetEquippedSkillFuncBySkillSlotIndex	CONF: char_ara class map 0x7b4	X2GUEl.h:264 virtual void SetEquippedSkillFuncBySkillSlotIndex( const CX2SkillTree::SKILL_ID eSkillID_, const int iSlotIndex_, const bool bSlotB_ );
+0x7b8	334fadd4	32b4e790	31aa1d30	SetEquippedSkillLevel	CONF: char_ara class map 0x7b8	X2GUEl.h:265 virtual void SetEquippedSkillLevel( const CX2SkillTree::SKILL_ID eSkillID_, const bool bChangeAll_ );
+0x7c0	334faddc	32b70180	320506f0	CommonStateStartFuture	CONF: char_ara class map 0x7c0	X2GUEl.h:267 virtual void CommonStateStartFuture();
+0x7c4	334fade0	32b70220	32057b80	CommonStateStart	CONF: char_ara class map 0x7c4	X2GUEl.h:268 virtual void CommonStateStart();
+0x7c8	334fade4	32b724b0	32061bf0	CommonFrameMoveFuture	CONF: char_ara class map 0x7c8	X2GUEl.h:270 virtual void CommonFrameMoveFuture();
+0x7cc	334fade8	32b88070	32063650	CommonFrameMove	CONF: char_ara class map 0x7cc	X2GUEl.h:271 virtual void CommonFrameMove();
+0x7d8	334fadf4	32b4eda0	31fdd8e0	CommonStateEndFuture	CONF: char_ara class map 0x7d8	X2GUEl.h:273 virtual void CommonStateEndFuture();
+0x7dc	334fadf8	32b4edb0	32015250	CommonStateEnd	CONF: char_ara class map 0x7dc	X2GUEl.h:274 virtual void CommonStateEnd();
+0x7e8	334fae04	32b4edc0	31fd07b0	CommonRender_Prepare	CONF: char_ara class map 0x7e8	X2GUEl.h:278 virtual RENDER_HINT CommonRender_Prepare();
+0x7f4	334fae10	32b4ee20	31aa1d30	SpecialAttackEventProcess	CONF: char_ara class map 0x7f4	X2GUEl.h:280 virtual bool SpecialAttackEventProcess( CX2SkillTree::ACTIVE_SKILL_USE_CONDITION eActiveSkillUseCondition_ = CX2SkillTree::ASUT_GROUND );
+0x7f8	334fae14	32b84a50	31aa1d30	SpecialAttackEventProcess part: skill lookup (slot 510)	CONF: char_chung vtable names, same slot (funcmap 32bd8790 note: slot 510 / 511 / 512 parts of SpecialAttackEventProcess)	- (no virtual of that name in X2GUEl.h / X2GUUser.h / X2GameUnit.h)
+0x7fc	334fae18	32b52590	31aa1d30	SpecialAttackEventProcess part: skill use (slot 511)	CONF: char_chung vtable names, same slot (funcmap 32bd8790 note: slot 510 / 511 / 512 parts of SpecialAttackEventProcess)	- (no virtual of that name in X2GUEl.h / X2GUUser.h / X2GameUnit.h)
+0x800	334fae1c	32b73e60	31aa1d30	SpecialAttackEventProcess part: per-class skill use / cooldown (slot 512)	CONF: char_chung vtable names, same slot (funcmap 32bd8790 note: slot 510 / 511 / 512 parts of SpecialAttackEventProcess)	- (no virtual of that name in X2GUEl.h / X2GUUser.h / X2GameUnit.h)
+0x80c	334fae28	32b818b0	32008e40	NoStateChangeActionFrameMove	CONF: char_ara class map 0x80c	X2GUEl.h:281 virtual void NoStateChangeActionFrameMove();
+0x810	334fae2c	32b72550	31aa1d30	SpecialAttackNoStageChange	CONF: char_ara class map 0x810	X2GUEl.h:820 virtual bool SpecialAttackNoStageChange( IN const CX2SkillTree::SkillTemplet* pSkillTemplet_ );
+0x818	334fae34	32b4ef10	32ec5990	IsValideSkillRidingOn	CONF: char_arme class map 0x818	X2GUEl.h:304 virtual bool IsValideSkillRidingOn( CX2SkillTree::SKILL_ID eSkill_ID_ );
+0x828	334fae44	32b70290	31fd7640	IsNotCommonMoveState	CONF: char_ara class map 0x828	- (CX2GUEL does not declare it in March; X2GUUser.h:3455 virtual bool IsNotCommonMoveState();)
+0x834	334fae50	32b70d10	33093ad0	ShowActiveSkillCutInAndLightByScript	CONF: char_ara class map 0x834	X2GUEl.h:299 virtual void ShowActiveSkillCutInAndLightByScript( float fTimeToShow_, bool bOnlyLight_ );
+0x83c	334fae58	32b732e0	31f3f070	?	HINT: base 31f3f070; 138 insns; calls 31fceab0 31c2e4a0 323101d0	- (name unsettled)
+# Elesis vtable CX2GUEL 334fa61c: 544 slots (0x0-0x87c); in-range entries (target in 32b4e770-32b90b6f): 65 (overrides 65, unnamed 22)
+# base_fn = CX2GUUser vtable 334781f4 (544 slots)

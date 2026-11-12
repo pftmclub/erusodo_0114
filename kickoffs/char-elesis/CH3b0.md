@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Opus 5.5, high** effort, then type `/x2-phase char-elesis CH3b0` |
 | Plan doc | `JUNE_CHARACTER_ELESIS_PHASES.md` (branch `main`) |
-| Depends on | CH3a. One at a time with CH1-CH4: they all edit `X2GUEL.*` |
+| Depends on | CH3a2. One at a time with CH1-CH4: they all edit `X2GUEL.*` |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ELESIS_SUMMON` (+ `..._SUMMON_DEBUG`) |
 | Log tag | `[JUNE_CHAR]` (`ELESIS SUMMON`) |
 | Review | `kickoffs/char-elesis/CH3b0-review.md` (Opus 5.5 high; the phase writes it when done) |
@@ -49,3 +49,12 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH3b0"' june2017_re/char_elesis/ch0_class_map.tsv` = 4 (0 listing-only: col 9 `n`; 2 `inside`, 2 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L258, L283.
+- **`ch0_summon.tsv` rows:** 9 (filter on its `proposed_phase` column).
+- **`ch0_blood.tsv` rows:** 1 (filter on its `proposed_phase` column).
+- **`ch0_classn.tsv` rows:** 1 (filter on its `proposed_phase` column).
+- `june2017_re/char_elesis/ch0_summon.tsv`: five sites (all `322e67c0` or its forwarder, all behind IsMyUnit): 1567 x up to min(`+0x9788`, 3) in `32b79db0` (Scalet Rose success End, CH3b2) and on BTI 294 end in 0x250 (March `X2GUEL.cpp:3667`); 1635 / 1971 in `32b7a0a0` (Wall of Prominence FrameMove, CH3b; 1971 when `+0x97a4` = Blaze Absolu 28418 level > 0); 1641 in `32b8b0c0` (Blood Cutter, CH3c). Write each spawn under `_SUMMON` inside the owner phase's function. **NPC data**: 1635 / 1641 / 1971 lack `NPCTemplet.lua` rows (core list), `Enum.lua` names and `X2UnitManager.h` members (1971 has an ExtraNPCStat row only); scripts already June's. `+0x8e74` is written by the base `322ece70` (nothing in her class). 0x24c writes `+0x8e50` from 28063's ability 5 on BTI 940; 0x250 zeroes it.

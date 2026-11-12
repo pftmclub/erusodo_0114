@@ -52,3 +52,10 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH1k"' june2017_re/char_elesis/ch0_class_map.tsv` = 15 (6 listing-only: col 9 `n`; 12 `inside`, 3 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **Script states:** `awk -F'\t' '$8=="CH1k"' june2017_re/char_elesis/ch0_state_skill.tsv` = 2.
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L217, L265, L266, L874, L910.
+- CH0 placed the Endurance Power states here: `ESI_SA_A_EL_ENDURANCE_POWER_ACTIVE` (ids 205 and 207: 207 has its own Start `32b75c90` and is the one DetonationStateChange enters) and `_MEMO` (206); skills 28201 / 28218 have no switch state (they run from NoStateChangeActionFrameMove `32b818b0` -> `32b80c60`). `CheckSummonSpecialAttack` (called from `32b84a50 @32b84d19`) is already ported in the base (`X2GUUser.cpp:36995`).

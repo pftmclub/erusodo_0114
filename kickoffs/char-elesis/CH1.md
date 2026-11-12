@@ -55,3 +55,8 @@ June's member to `Enum.lua` (core-list source, `-- char-elesis CH1` one-line com
 are June's own nils: leave them.
 CH0's run (2026-11-11, pre-port): 4 `SKILL_ID` names missing (`RNSI_A_SCA_BLOOD_STING`, `RNSI_A_SGM_UPPER_SLASH`, `RNSI_P_SBH_BLAZE_ABSOLU`,
 `RNSI_SA_SCA_CHASING_SWORD`).
+
+## Amended by CH0 (2026-11-12)
+
+- **Checklist rows** (`june2017_re/char_elesis/ch0_checklist_rows.tsv` col 5): L14, L116, L123, L150, L427, L428, L530, L597, L619, L670, L762, L876.
+- Stage the held `MOTION_EL_GM.x` / `Motion_EL_BH.x` (`ch1_held_motions.tsv`) with the script. Live data033 already has June's `Motion_EL.x`, `Motion_EL_SK.x`, `Motion_EL_Lobby.x`: the six March names they lost (`SI_A_EL_LEAP_CRASH_*`, `SI_A_EL_RUSHING_SWORD`, `SI_SA_SSK_SPIRAL_BLAST`, `_VICTORIOUS_SWORD`) are renamed in June and come right with June's script. Enum gate (`luabind.py check ELESIS_KNIGHT`, CH0): 4 `ENUM MISSING NAME` (`RNSI_A_SCA_BLOOD_STING`, `RNSI_A_SGM_UPPER_SLASH`, `RNSI_P_SBH_BLAZE_ABSOLU`, `RNSI_SA_SCA_CHASING_SWORD`): add June's members to data036 `Enum.lua`; 0 STATE lines, 0 unbound methods.

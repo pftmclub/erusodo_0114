@@ -52,3 +52,9 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH1j"' june2017_re/char_elesis/ch0_class_map.tsv` = 14 (3 listing-only: col 9 `n`; 7 `inside`, 7 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- **`ch0_blood.tsv` rows:** 1 (filter on its `proposed_phase` column).
+- CommonFrameMove `32b88070` calls June pieces owned later: `MadnessFrameMove` `32b6ff20`, `TranscendenceBerserkerFrameMove` `32b7e9a0`, `ShadowEdgeRecordFrameMove` `32b813d0` (CH4c, under `_BLOOD`), `ApplyGrandMasterAura` `32b7e740` and `FireBlossomsProc_FrameMove` `32b734d0` (CH4a, under `_PASSIVE`): declare them `// June <va>: body in <phase>`.

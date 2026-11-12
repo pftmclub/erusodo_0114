@@ -1,0 +1,240 @@
+# Elesis UnitTemplet rows: June june_src_fixed/data036_kom/UnitTemplet.src.lua vs March live kom_contents/data036_kom/UnitTemplet.lua (5 Elesis rows March, 7 June)
+# string table = general.ess (live game-dir text table, 45160 ids, XOR 0x10 utf-16le); sd_live / sd_june = STR_ID_n defined in StringID_def.src.lua (March live 45160 ids / June 45160 ids)
+# UC_ELESIS_KNIGHT: March keys 22 (row at 1239), June keys 23 (row at 1239); same 22, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 30
+# UC_ELESIS_SABER_KNIGHT: March keys 23 (row at 1263), June keys 24 (row at 1264); same 23, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 25
+# UC_ELESIS_PYRO_KNIGHT: March keys 23 (row at 1288), June keys 24 (row at 1290); same 23, changed 0, june-only 1, march-only 0
+#    m_fLobbyRotationY: - -> 1
+# UC_ELESIS_DARK_KNIGHT: March keys 0 (row at ABSENT), June keys 24 (row at 1316); same 0, changed 0, june-only 24, march-only 0
+#    basicBodyItemID: - -> 73
+#    basicFaceItemID: - -> 72
+#    basicHairItemID: - -> 41820
+#    basicWeaponItemID: - -> 77
+#    basicLegItemID: - -> 74
+#    promotionBodyItemID: - -> 41816
+#    promotionWeaponItemID: - -> 41815
+#    m_CommonMotion: - -> "Motion_EL_Common.x"
+#    m_FieldMotion: - -> "Motion_EL_Field.x"
+#    m_LobbyMotion: - -> "Motion_EL_Lobby.x"
+#    m_EmotionMotion: - -> "Motion_EL_Emotion.x"
+#    m_GameMotion0: - -> "Motion_EL.x"
+#    promotionLegItemID: - -> 41817
+#    m_GameMotion1: - -> "Motion_EL_DK.x"
+#    m_fLobbyRotationY: - -> 5
+#    basicFootItemID: - -> 76
+#    introMovieFIleName: - -> "Movie_Create_Elesis_CA.avi"
+#    basicHandItemID: - -> 75
+#    promotionHandItemID: - -> 41818
+#    promotionFootItemID: - -> 41819
+#    unitType: - -> UNIT_TYPE.UT_ELESIS
+#    unitClass: - -> UNIT_CLASS.UC_ELESIS_DARK_KNIGHT
+#    name: - -> STR_ID_31794
+#    description: - -> STR_ID_31796
+# UC_ELESIS_GRAND_MASTER: March keys 24 (row at 1423), June keys 26 (row at 1452); same 24, changed 0, june-only 2, march-only 0
+#    m_HyperCutIn: - -> "HQ_Cutin_EGM_Transcendence"
+#    m_fLobbyRotationY: - -> 15
+# UC_ELESIS_BLAZING_HEART: March keys 24 (row at 1449), June keys 26 (row at 1480); same 24, changed 0, june-only 2, march-only 0
+#    m_HyperCutIn: - -> "HQ_Cutin_EBH_Transcendence"
+#    m_fLobbyRotationY: - -> 1
+# UC_ELESIS_CRIMSON_AVENGER: March keys 0 (row at ABSENT), June keys 26 (row at 1508); same 0, changed 0, june-only 26, march-only 0
+#    basicBodyItemID: - -> 73
+#    basicFaceItemID: - -> 41827
+#    basicHairItemID: - -> 41826
+#    basicWeaponItemID: - -> 77
+#    basicLegItemID: - -> 74
+#    promotionBodyItemID: - -> 41822
+#    promotionWeaponItemID: - -> 41821
+#    m_CommonMotion: - -> "Motion_EL_Common.x"
+#    m_FieldMotion: - -> "Motion_EL_Field.x"
+#    m_LobbyMotion: - -> "Motion_EL_Lobby.x"
+#    m_EmotionMotion: - -> "Motion_EL_Emotion.x"
+#    m_GameMotion0: - -> "Motion_EL.x"
+#    promotionLegItemID: - -> 41823
+#    m_GameMotion1: - -> "Motion_EL_DK.x"
+#    m_HyperCutIn: - -> "HQ_Cutin_ECA_Transcendence"
+#    basicFootItemID: - -> 76
+#    introMovieFIleName: - -> "Movie_Create_Elesis_CA.avi"
+#    m_fLobbyRotationY: - -> 10
+#    basicHandItemID: - -> 75
+#    m_GameMotion2: - -> "Motion_EL_CA.x"
+#    promotionHandItemID: - -> 41824
+#    promotionFootItemID: - -> 41825
+#    unitType: - -> UNIT_TYPE.UT_ELESIS
+#    unitClass: - -> UNIT_CLASS.UC_ELESIS_CRIMSON_AVENGER
+#    name: - -> STR_ID_31795
+#    description: - -> STR_ID_31797
+unit_class	key	march_value	june_value	diff	string_check
+UC_ELESIS_KNIGHT	basicBodyItemID	73	73	same	
+UC_ELESIS_KNIGHT	basicFaceItemID	72	72	same	
+UC_ELESIS_KNIGHT	basicHairItemID	71	71	same	
+UC_ELESIS_KNIGHT	basicWeaponItemID	77	77	same	
+UC_ELESIS_KNIGHT	basicLegItemID	74	74	same	
+UC_ELESIS_KNIGHT	promotionBodyItemID	41721	41721	same	
+UC_ELESIS_KNIGHT	promotionWeaponItemID	41720	41720	same	
+UC_ELESIS_KNIGHT	m_CommonMotion	"Motion_EL_Common.x"	"Motion_EL_Common.x"	same	
+UC_ELESIS_KNIGHT	m_FieldMotion	"Motion_EL_Field.x"	"Motion_EL_Field.x"	same	
+UC_ELESIS_KNIGHT	m_LobbyMotion	"Motion_EL_Lobby.x"	"Motion_EL_Lobby.x"	same	
+UC_ELESIS_KNIGHT	m_EmotionMotion	"Motion_EL_Emotion.x"	"Motion_EL_Emotion.x"	same	
+UC_ELESIS_KNIGHT	m_GameMotion0	"Motion_EL.x"	"Motion_EL.x"	same	
+UC_ELESIS_KNIGHT	promotionLegItemID	41722	41722	same	
+UC_ELESIS_KNIGHT	m_fLobbyRotationY	-	30	june-only	
+UC_ELESIS_KNIGHT	basicFootItemID	76	76	same	
+UC_ELESIS_KNIGHT	introMovieFIleName	"Movie_Create_Elesis_Base.avi"	"Movie_Create_Elesis_Base.avi"	same	
+UC_ELESIS_KNIGHT	basicHandItemID	75	75	same	
+UC_ELESIS_KNIGHT	promotionHandItemID	41723	41723	same	
+UC_ELESIS_KNIGHT	promotionFootItemID	41724	41724	same	
+UC_ELESIS_KNIGHT	unitType	UNIT_TYPE.UT_ELESIS	UNIT_TYPE.UT_ELESIS	same	
+UC_ELESIS_KNIGHT	unitClass	UNIT_CLASS.UC_ELESIS_KNIGHT	UNIT_CLASS.UC_ELESIS_KNIGHT	same	
+UC_ELESIS_KNIGHT	name	STR_ID_25873	STR_ID_25873	same	STR_ID_25873 general.ess=y sd_live=y sd_june=y "Elesis"
+UC_ELESIS_KNIGHT	description	STR_ID_25873	STR_ID_25873	same	STR_ID_25873 general.ess=y sd_live=y sd_june=y "Elesis"
+UC_ELESIS_SABER_KNIGHT	basicBodyItemID	73	73	same	
+UC_ELESIS_SABER_KNIGHT	basicFaceItemID	72	72	same	
+UC_ELESIS_SABER_KNIGHT	basicHairItemID	41725	41725	same	
+UC_ELESIS_SABER_KNIGHT	basicWeaponItemID	77	77	same	
+UC_ELESIS_SABER_KNIGHT	basicLegItemID	74	74	same	
+UC_ELESIS_SABER_KNIGHT	promotionBodyItemID	133480	133480	same	
+UC_ELESIS_SABER_KNIGHT	promotionWeaponItemID	133479	133479	same	
+UC_ELESIS_SABER_KNIGHT	m_CommonMotion	"Motion_EL_Common.x"	"Motion_EL_Common.x"	same	
+UC_ELESIS_SABER_KNIGHT	m_FieldMotion	"Motion_EL_Field.x"	"Motion_EL_Field.x"	same	
+UC_ELESIS_SABER_KNIGHT	m_LobbyMotion	"Motion_EL_Lobby.x"	"Motion_EL_Lobby.x"	same	
+UC_ELESIS_SABER_KNIGHT	m_EmotionMotion	"Motion_EL_Emotion.x"	"Motion_EL_Emotion.x"	same	
+UC_ELESIS_SABER_KNIGHT	m_GameMotion0	"Motion_EL.x"	"Motion_EL.x"	same	
+UC_ELESIS_SABER_KNIGHT	promotionLegItemID	133481	133481	same	
+UC_ELESIS_SABER_KNIGHT	m_GameMotion1	"Motion_EL_SK.x"	"Motion_EL_SK.x"	same	
+UC_ELESIS_SABER_KNIGHT	m_fLobbyRotationY	-	25	june-only	
+UC_ELESIS_SABER_KNIGHT	basicFootItemID	76	76	same	
+UC_ELESIS_SABER_KNIGHT	introMovieFIleName	"Movie_Create_Elesis_GM.avi"	"Movie_Create_Elesis_GM.avi"	same	
+UC_ELESIS_SABER_KNIGHT	basicHandItemID	75	75	same	
+UC_ELESIS_SABER_KNIGHT	promotionHandItemID	133482	133482	same	
+UC_ELESIS_SABER_KNIGHT	promotionFootItemID	133483	133483	same	
+UC_ELESIS_SABER_KNIGHT	unitType	UNIT_TYPE.UT_ELESIS	UNIT_TYPE.UT_ELESIS	same	
+UC_ELESIS_SABER_KNIGHT	unitClass	UNIT_CLASS.UC_ELESIS_SABER_KNIGHT	UNIT_CLASS.UC_ELESIS_SABER_KNIGHT	same	
+UC_ELESIS_SABER_KNIGHT	name	STR_ID_24893	STR_ID_24893	same	STR_ID_24893 general.ess=y sd_live=y sd_june=y "Saber Knight"
+UC_ELESIS_SABER_KNIGHT	description	STR_ID_26274	STR_ID_26274	same	STR_ID_26274 general.ess=y sd_live=y sd_june=y "Elesis (Saber Knight)"
+UC_ELESIS_PYRO_KNIGHT	basicBodyItemID	73	73	same	
+UC_ELESIS_PYRO_KNIGHT	basicFaceItemID	72	72	same	
+UC_ELESIS_PYRO_KNIGHT	basicHairItemID	41726	41726	same	
+UC_ELESIS_PYRO_KNIGHT	basicWeaponItemID	77	77	same	
+UC_ELESIS_PYRO_KNIGHT	basicLegItemID	74	74	same	
+UC_ELESIS_PYRO_KNIGHT	promotionBodyItemID	133485	133485	same	
+UC_ELESIS_PYRO_KNIGHT	promotionWeaponItemID	133484	133484	same	
+UC_ELESIS_PYRO_KNIGHT	m_CommonMotion	"Motion_EL_Common.x"	"Motion_EL_Common.x"	same	
+UC_ELESIS_PYRO_KNIGHT	m_FieldMotion	"Motion_EL_Field.x"	"Motion_EL_Field.x"	same	
+UC_ELESIS_PYRO_KNIGHT	m_LobbyMotion	"Motion_EL_Lobby.x"	"Motion_EL_Lobby.x"	same	
+UC_ELESIS_PYRO_KNIGHT	m_EmotionMotion	"Motion_EL_Emotion.x"	"Motion_EL_Emotion.x"	same	
+UC_ELESIS_PYRO_KNIGHT	m_GameMotion0	"Motion_EL.x"	"Motion_EL.x"	same	
+UC_ELESIS_PYRO_KNIGHT	promotionLegItemID	133486	133486	same	
+UC_ELESIS_PYRO_KNIGHT	m_GameMotion1	"Motion_EL_PK.x"	"Motion_EL_PK.x"	same	
+UC_ELESIS_PYRO_KNIGHT	m_fLobbyRotationY	-	1	june-only	
+UC_ELESIS_PYRO_KNIGHT	basicFootItemID	76	76	same	
+UC_ELESIS_PYRO_KNIGHT	introMovieFIleName	"Movie_Create_Elesis_BH.avi"	"Movie_Create_Elesis_BH.avi"	same	
+UC_ELESIS_PYRO_KNIGHT	basicHandItemID	75	75	same	
+UC_ELESIS_PYRO_KNIGHT	promotionHandItemID	133487	133487	same	
+UC_ELESIS_PYRO_KNIGHT	promotionFootItemID	133488	133488	same	
+UC_ELESIS_PYRO_KNIGHT	unitType	UNIT_TYPE.UT_ELESIS	UNIT_TYPE.UT_ELESIS	same	
+UC_ELESIS_PYRO_KNIGHT	unitClass	UNIT_CLASS.UC_ELESIS_PYRO_KNIGHT	UNIT_CLASS.UC_ELESIS_PYRO_KNIGHT	same	
+UC_ELESIS_PYRO_KNIGHT	name	STR_ID_24894	STR_ID_24894	same	STR_ID_24894 general.ess=y sd_live=y sd_june=y "Pyro Knight"
+UC_ELESIS_PYRO_KNIGHT	description	STR_ID_26275	STR_ID_26275	same	STR_ID_26275 general.ess=y sd_live=y sd_june=y "Elesis (Pyro Knight)"
+UC_ELESIS_DARK_KNIGHT	basicBodyItemID	-	73	june-only	
+UC_ELESIS_DARK_KNIGHT	basicFaceItemID	-	72	june-only	
+UC_ELESIS_DARK_KNIGHT	basicHairItemID	-	41820	june-only	
+UC_ELESIS_DARK_KNIGHT	basicWeaponItemID	-	77	june-only	
+UC_ELESIS_DARK_KNIGHT	basicLegItemID	-	74	june-only	
+UC_ELESIS_DARK_KNIGHT	promotionBodyItemID	-	41816	june-only	
+UC_ELESIS_DARK_KNIGHT	promotionWeaponItemID	-	41815	june-only	
+UC_ELESIS_DARK_KNIGHT	m_CommonMotion	-	"Motion_EL_Common.x"	june-only	
+UC_ELESIS_DARK_KNIGHT	m_FieldMotion	-	"Motion_EL_Field.x"	june-only	
+UC_ELESIS_DARK_KNIGHT	m_LobbyMotion	-	"Motion_EL_Lobby.x"	june-only	
+UC_ELESIS_DARK_KNIGHT	m_EmotionMotion	-	"Motion_EL_Emotion.x"	june-only	
+UC_ELESIS_DARK_KNIGHT	m_GameMotion0	-	"Motion_EL.x"	june-only	
+UC_ELESIS_DARK_KNIGHT	promotionLegItemID	-	41817	june-only	
+UC_ELESIS_DARK_KNIGHT	m_GameMotion1	-	"Motion_EL_DK.x"	june-only	
+UC_ELESIS_DARK_KNIGHT	m_fLobbyRotationY	-	5	june-only	
+UC_ELESIS_DARK_KNIGHT	basicFootItemID	-	76	june-only	
+UC_ELESIS_DARK_KNIGHT	introMovieFIleName	-	"Movie_Create_Elesis_CA.avi"	june-only	
+UC_ELESIS_DARK_KNIGHT	basicHandItemID	-	75	june-only	
+UC_ELESIS_DARK_KNIGHT	promotionHandItemID	-	41818	june-only	
+UC_ELESIS_DARK_KNIGHT	promotionFootItemID	-	41819	june-only	
+UC_ELESIS_DARK_KNIGHT	unitType	-	UNIT_TYPE.UT_ELESIS	june-only	
+UC_ELESIS_DARK_KNIGHT	unitClass	-	UNIT_CLASS.UC_ELESIS_DARK_KNIGHT	june-only	
+UC_ELESIS_DARK_KNIGHT	name	-	STR_ID_31794	june-only	STR_ID_31794 general.ess=y sd_live=y sd_june=y "Dark Knight"
+UC_ELESIS_DARK_KNIGHT	description	-	STR_ID_31796	june-only	STR_ID_31796 general.ess=y sd_live=y sd_june=y "Elesis (Dark Knight)"
+UC_ELESIS_GRAND_MASTER	basicBodyItemID	73	73	same	
+UC_ELESIS_GRAND_MASTER	basicFaceItemID	72	72	same	
+UC_ELESIS_GRAND_MASTER	basicHairItemID	41755	41755	same	
+UC_ELESIS_GRAND_MASTER	basicWeaponItemID	77	77	same	
+UC_ELESIS_GRAND_MASTER	basicLegItemID	74	74	same	
+UC_ELESIS_GRAND_MASTER	promotionBodyItemID	41746	41746	same	
+UC_ELESIS_GRAND_MASTER	promotionWeaponItemID	41745	41745	same	
+UC_ELESIS_GRAND_MASTER	m_CommonMotion	"Motion_EL_Common.x"	"Motion_EL_Common.x"	same	
+UC_ELESIS_GRAND_MASTER	m_FieldMotion	"Motion_EL_Field.x"	"Motion_EL_Field.x"	same	
+UC_ELESIS_GRAND_MASTER	m_LobbyMotion	"Motion_EL_Lobby.x"	"Motion_EL_Lobby.x"	same	
+UC_ELESIS_GRAND_MASTER	m_EmotionMotion	"Motion_EL_Emotion.x"	"Motion_EL_Emotion.x"	same	
+UC_ELESIS_GRAND_MASTER	m_GameMotion0	"Motion_EL.x"	"Motion_EL.x"	same	
+UC_ELESIS_GRAND_MASTER	promotionLegItemID	41747	41747	same	
+UC_ELESIS_GRAND_MASTER	m_GameMotion1	"Motion_EL_SK.x"	"Motion_EL_SK.x"	same	
+UC_ELESIS_GRAND_MASTER	m_HyperCutIn	-	"HQ_Cutin_EGM_Transcendence"	june-only	
+UC_ELESIS_GRAND_MASTER	basicFootItemID	76	76	same	
+UC_ELESIS_GRAND_MASTER	introMovieFIleName	"Movie_Create_Elesis_GM.avi"	"Movie_Create_Elesis_GM.avi"	same	
+UC_ELESIS_GRAND_MASTER	m_fLobbyRotationY	-	15	june-only	
+UC_ELESIS_GRAND_MASTER	basicHandItemID	75	75	same	
+UC_ELESIS_GRAND_MASTER	m_GameMotion2	"MOTION_EL_GM.x"	"MOTION_EL_GM.x"	same	
+UC_ELESIS_GRAND_MASTER	promotionHandItemID	41748	41748	same	
+UC_ELESIS_GRAND_MASTER	promotionFootItemID	41749	41749	same	
+UC_ELESIS_GRAND_MASTER	unitType	UNIT_TYPE.UT_ELESIS	UNIT_TYPE.UT_ELESIS	same	
+UC_ELESIS_GRAND_MASTER	unitClass	UNIT_CLASS.UC_ELESIS_GRAND_MASTER	UNIT_CLASS.UC_ELESIS_GRAND_MASTER	same	
+UC_ELESIS_GRAND_MASTER	name	STR_ID_27281	STR_ID_27281	same	STR_ID_27281 general.ess=y sd_live=y sd_june=y "Grand Master"
+UC_ELESIS_GRAND_MASTER	description	STR_ID_27290	STR_ID_27290	same	STR_ID_27290 general.ess=y sd_live=y sd_june=y "Elesis ( Grand Master )"
+UC_ELESIS_BLAZING_HEART	basicBodyItemID	73	73	same	
+UC_ELESIS_BLAZING_HEART	basicFaceItemID	72	72	same	
+UC_ELESIS_BLAZING_HEART	basicHairItemID	41756	41756	same	
+UC_ELESIS_BLAZING_HEART	basicWeaponItemID	77	77	same	
+UC_ELESIS_BLAZING_HEART	basicLegItemID	74	74	same	
+UC_ELESIS_BLAZING_HEART	promotionBodyItemID	41751	41751	same	
+UC_ELESIS_BLAZING_HEART	promotionWeaponItemID	41750	41750	same	
+UC_ELESIS_BLAZING_HEART	m_CommonMotion	"Motion_EL_Common.x"	"Motion_EL_Common.x"	same	
+UC_ELESIS_BLAZING_HEART	m_FieldMotion	"Motion_EL_Field.x"	"Motion_EL_Field.x"	same	
+UC_ELESIS_BLAZING_HEART	m_LobbyMotion	"Motion_EL_Lobby.x"	"Motion_EL_Lobby.x"	same	
+UC_ELESIS_BLAZING_HEART	m_EmotionMotion	"Motion_EL_Emotion.x"	"Motion_EL_Emotion.x"	same	
+UC_ELESIS_BLAZING_HEART	m_GameMotion0	"Motion_EL.x"	"Motion_EL.x"	same	
+UC_ELESIS_BLAZING_HEART	promotionLegItemID	41752	41752	same	
+UC_ELESIS_BLAZING_HEART	m_GameMotion1	"Motion_EL_PK.x"	"Motion_EL_PK.x"	same	
+UC_ELESIS_BLAZING_HEART	m_HyperCutIn	-	"HQ_Cutin_EBH_Transcendence"	june-only	
+UC_ELESIS_BLAZING_HEART	basicFootItemID	76	76	same	
+UC_ELESIS_BLAZING_HEART	introMovieFIleName	"Movie_Create_Elesis_BH.avi"	"Movie_Create_Elesis_BH.avi"	same	
+UC_ELESIS_BLAZING_HEART	m_fLobbyRotationY	-	1	june-only	
+UC_ELESIS_BLAZING_HEART	basicHandItemID	75	75	same	
+UC_ELESIS_BLAZING_HEART	m_GameMotion2	"Motion_EL_BH.x"	"Motion_EL_BH.x"	same	
+UC_ELESIS_BLAZING_HEART	promotionHandItemID	41753	41753	same	
+UC_ELESIS_BLAZING_HEART	promotionFootItemID	41754	41754	same	
+UC_ELESIS_BLAZING_HEART	unitType	UNIT_TYPE.UT_ELESIS	UNIT_TYPE.UT_ELESIS	same	
+UC_ELESIS_BLAZING_HEART	unitClass	UNIT_CLASS.UC_ELESIS_BLAZING_HEART	UNIT_CLASS.UC_ELESIS_BLAZING_HEART	same	
+UC_ELESIS_BLAZING_HEART	name	STR_ID_27282	STR_ID_27282	same	STR_ID_27282 general.ess=y sd_live=y sd_june=y "Blazing Heart"
+UC_ELESIS_BLAZING_HEART	description	STR_ID_27291	STR_ID_27291	same	STR_ID_27291 general.ess=y sd_live=y sd_june=y "Elesis ( Blazing Heart )"
+UC_ELESIS_CRIMSON_AVENGER	basicBodyItemID	-	73	june-only	
+UC_ELESIS_CRIMSON_AVENGER	basicFaceItemID	-	41827	june-only	
+UC_ELESIS_CRIMSON_AVENGER	basicHairItemID	-	41826	june-only	
+UC_ELESIS_CRIMSON_AVENGER	basicWeaponItemID	-	77	june-only	
+UC_ELESIS_CRIMSON_AVENGER	basicLegItemID	-	74	june-only	
+UC_ELESIS_CRIMSON_AVENGER	promotionBodyItemID	-	41822	june-only	
+UC_ELESIS_CRIMSON_AVENGER	promotionWeaponItemID	-	41821	june-only	
+UC_ELESIS_CRIMSON_AVENGER	m_CommonMotion	-	"Motion_EL_Common.x"	june-only	
+UC_ELESIS_CRIMSON_AVENGER	m_FieldMotion	-	"Motion_EL_Field.x"	june-only	
+UC_ELESIS_CRIMSON_AVENGER	m_LobbyMotion	-	"Motion_EL_Lobby.x"	june-only	
+UC_ELESIS_CRIMSON_AVENGER	m_EmotionMotion	-	"Motion_EL_Emotion.x"	june-only	
+UC_ELESIS_CRIMSON_AVENGER	m_GameMotion0	-	"Motion_EL.x"	june-only	
+UC_ELESIS_CRIMSON_AVENGER	promotionLegItemID	-	41823	june-only	
+UC_ELESIS_CRIMSON_AVENGER	m_GameMotion1	-	"Motion_EL_DK.x"	june-only	
+UC_ELESIS_CRIMSON_AVENGER	m_HyperCutIn	-	"HQ_Cutin_ECA_Transcendence"	june-only	
+UC_ELESIS_CRIMSON_AVENGER	basicFootItemID	-	76	june-only	
+UC_ELESIS_CRIMSON_AVENGER	introMovieFIleName	-	"Movie_Create_Elesis_CA.avi"	june-only	
+UC_ELESIS_CRIMSON_AVENGER	m_fLobbyRotationY	-	10	june-only	
+UC_ELESIS_CRIMSON_AVENGER	basicHandItemID	-	75	june-only	
+UC_ELESIS_CRIMSON_AVENGER	m_GameMotion2	-	"Motion_EL_CA.x"	june-only	
+UC_ELESIS_CRIMSON_AVENGER	promotionHandItemID	-	41824	june-only	
+UC_ELESIS_CRIMSON_AVENGER	promotionFootItemID	-	41825	june-only	
+UC_ELESIS_CRIMSON_AVENGER	unitType	-	UNIT_TYPE.UT_ELESIS	june-only	
+UC_ELESIS_CRIMSON_AVENGER	unitClass	-	UNIT_CLASS.UC_ELESIS_CRIMSON_AVENGER	june-only	
+UC_ELESIS_CRIMSON_AVENGER	name	-	STR_ID_31795	june-only	STR_ID_31795 general.ess=y sd_live=y sd_june=y "Crimson Avenger"
+UC_ELESIS_CRIMSON_AVENGER	description	-	STR_ID_31797	june-only	STR_ID_31797 general.ess=y sd_live=y sd_june=y "Elesis (Crimson Avenger)"

@@ -254,6 +254,44 @@ CHARS = {
             (r'(?i)^POPUP_TR_', 'stage6-transcendence', '-', 'transcendence job popup UI'),
         ],
     ),
+    'elesis': dict(
+        owner='char-elesis',
+        script='ELESIS_KNIGHT', lo=0x32b4e770, hi=0x32b90b6f,
+        unit_type=8, unit_type_name='UT_ELESIS',
+        unit_classes=[8, 29, 30, 35, 120, 121, 125],                 # Knight, Saber Knight, Pyro Knight, Dark Knight, Grand Master, Blazing Heart, Crimson Avenger; no third jobs (171-173)
+        tokens=['elesis', 'elisis'],                                 # June spells her Elesis / Elisis (DLG_CU_ELISIS_*, *_SHADOW_ELISIS)
+        name_re=re.compile(r'(?i)^(Hyper_)?Mesh_EL_|^HQ_Shop_EL_|^AC_EL_|^EL_(Custom|Base|C)_|^(SI_)?(SA|A)_EL_|^Motion_EL(\.|_(?!Extractor|Power))|^Motion_Standard_El\.'),   # "EL" alone is Eve's El_Extractor / the El Forest too: only these prefixes (costume meshes / shop images, custom faces, effects, motions)
+        abbr=['SSK', 'SGM', 'SPK', 'SBH', 'SDK', 'SCA', 'EGM', 'EBH', 'ECA'],     # Saber Knight, Grand Master, Pyro Knight, Blazing Heart, Dark Knight, Crimson Avenger; whole upper-case token
+        abbr_exclude=re.compile(r'(?i)(^|_)pet_|_EVENT_|^HQ_Shop_Pet|^Motion_NPC_Event_'),
+        short_re=re.compile(r'(?!)'),
+        job_re=re.compile(r'(?i)saber[_ ]?knight|pyro[_ ]?knight|dark[_ ]?knight|grand[_ ]?master|blazing[_ ]?heart|crimson[_ ]?avenger'),
+        lua_script='ELESIS_KNIGHT',
+        skill_lua=['ELESIS_FIRE_BLOSSOM', 'Elesis_FireWall', 'Elesis_FireWall_FireKing', 'Elesis_BloodCutter'],     # NPC ids 1567 / 1635 / 1971 / 1641 (NPCTemplet LUA_FILE_NAME)
+        extra_lua=['ELESIS_FIRE_BLOSSOM', 'Elesis_FireWall', 'Elesis_FireWall_FireKing', 'Elesis_BloodCutter', 'DLG_Transcendental_Change_Guide_Elesis',
+                   'DLG_1ST_Class_Change_Guide_Elesis', 'DLG_2ND_Class_Change_Guide_Elesis', 'Class_Change_Guide_Elesis', 'DLG_Elesis_WayOfSword'],
+        skill_icon_ranges=[(106, 106), (900, 900), (28000, 28064), (28200, 28236), (28400, 28420), (28600, 28605)],
+        motion_glob=re.compile(r'(?i)^Motion_EL(_(Common|Field|Lobby|Emotion|SK|PK|DK|GM|BH|CA)\.|\.)'),
+        march_motion_koms=('data033', 'data012'),
+        held_motions=['MOTION_EL_GM.x', 'Motion_EL_BH.x'],           # March's ELESIS_KNIGHT.lua plays names these two drop (ch0_motion_question.tsv): copied with the script in CH1
+        tutorial_re=re.compile(r'(?i)^tuto'),
+        owner_rules=[
+            (r'(?i)^DLG_Unit_Create_ClassChange_Button_Elesis', 'char-elesis', 'CH5', 'class-select button dialog (adopt-june, not stage-june)'),
+            (r'(?i)^DLG_PVP_Game_Damaged_Elesis|^DLG_UI_JUMPING_(EVENT_EL|SYSTEM_ELISIS)|^DLG_Unit_(Create|Select)_',
+             'stage9-ui', '-', 'jumping / unit / PvP dialog'),
+            (r'(?i)^DLG_(1ST|2ND)_Class_Change_Guide_Elesis', 'char-elesis', 'CH5', 'class-change guide dialog (June-only; adopt-june, not stage-june)'),
+            (r'(?i)^(DLG_)?Class_Change_(Guide_)?Elesis', 'char-elesis', 'CH0b-adopt', 'class-change dialog Lua (adopt-june, not stage-june: June bytecode fails the pack gate)'),
+            (r'(?i)^DLG_Class_Change_', 'stage9-ui', '-', 'class-change dialog'),
+            (r'(?i)^DLG_Transcendental_Change_Guide_Elesis', 'char-elesis', 'CH3d', 'transcendence guide (Stage 6 pattern)'),
+            (r'(?i)^(PET_|Pet_|HQ_Shop_Pet)', 'stage17-pet', '-', 'pet asset'),
+            (r'(?i)^Motion_EVENT_', 'june-dungeons', '-', 'event NPC motion, not the character'),
+            (r'(?i)^POPUP_TR_(G_MASTER|B_HEART|C_AVENGER)\.', 'char-elesis', 'CH0b', 'transcendence guide picture named by DLG_Transcendental_Change_Guide_Elesis'),
+            (r'(?i)^POPUP_TR_', 'stage6-transcendence', '-', 'transcendence job popup UI'),
+            (r'(?i)^(Dungeon_Tutorial_Elesis|Motion_(Time_El|Time2_El|TUTORIAL_ELESIS|Challenge_El)|Motion_Event_Challenge_El|MOTION_HAMEL_SUMMON_DUMMY_EL|NUI_HAMEL_SHADOW_ELISIS|Time2_Stage\d+_elesis)',
+             'june-dungeons', '-', 'dungeon / boss / summon copy of the character'),
+            (r'(?i)^((NPC_|Npc_)Elesis|.*_SHADOW_(ELISIS|ELESIS)|TIME_ELESIS|PVP_BOT_ELESIS|APINK_ANGEL_\d+_ELESIS|EVENT_.*ELESIS|CSM_Elesis)',
+             'npc-lua (check ledger)', '-', 'NPC / shadow / bot copy of the character'),
+        ],
+    ),
 }
 
 FILE_EXT = ('.dds', '.tga', '.bmp', '.png', '.jpg', '.jpeg', '.x', '.y', '.xet', '.ksm', '.ogg', '.wav', '.mp3', '.tet', '.gfx',
@@ -761,6 +799,7 @@ def main():
     # ---- stage list (kom.py stage-june placement rules)
     live, staged = D.live, D.staged
     stage = []
+    held = []
     refused = []
     for r in out_rows:
         if not (r['owner'] == owner and r['phase'] == 'CH0b' and r['state'] in ('missing', 'march-copy')):
@@ -781,8 +820,12 @@ def main():
         else:
             stems = sorted({c.kom for c in june[low]}, key=lambda s: (not os.path.isdir(os.path.join(KOM.KOM_ROOT, s + '_kom')), s))
             stem, origin = stems[0], 'June'
+        if nm.lower() in [h.lower() for h in C.get('held_motions', ())]:       # a motion whose dropped names March plays: held for CH1 final, not staged now
+            held.append((nm, r['jk'], stem, r['state'], origin))
+            continue
         stage.append((nm, r['jk'], stem, r['state'], origin))
     stage.sort(key=lambda x: x[0].lower())
+    held.sort(key=lambda x: x[0].lower())
 
     # ---- write
     out_rows.sort(key=lambda r: (r['kind'] != 'lua', r['file'].lower()) if False else r['file'].lower())
@@ -836,7 +879,12 @@ def main():
         f.write('name\tjune_kom\tplacement_kom\tstate\tchosen_by\n')
         for s in stage:
             f.write('\t'.join(s) + '\n')
-    log('rows', len(out_rows), 'stage', len(stage), 'refused', len(refused))
+    if C.get('held_motions'):
+        with open(os.path.join(a.out, 'ch1_held_motions.tsv'), 'w', encoding='utf-8', newline='\n') as f:
+            f.write('name\tjune_kom\tplacement_kom\tstate\tchosen_by\n')
+            for s in held:
+                f.write('\t'.join(s) + '\n')
+    log('rows', len(out_rows), 'stage', len(stage), 'held', len(held), 'refused', len(refused))
     motion_question(C, a.out)
     for l in lines[-14:]:
         log(l[:400])

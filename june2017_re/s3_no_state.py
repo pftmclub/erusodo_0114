@@ -65,6 +65,7 @@ JUNE_ONLY_FAMILIES = {          # family_cpp_file -> UNIT_CLASS names, in the or
 # Classes of a family that the tsv has no rows for (appended by --append-missing; the tsv's other rows are never touched).
 TSV_MISSING_CLASSES = {
     'X2GUAra.cpp': ('UC_ARA_LITTLE_SPECTER', 'UC_ARA_ASURA'),
+    'X2GUEL.cpp': ('UC_ELESIS_DARK_KNIGHT', 'UC_ELESIS_CRIMSON_AVENGER'),   # char-elesis CH0
 }
 COLS = ['unit_class_name', 'unit_class_value', 'family_cpp_file', 'skill_id', 'skill_name', 'templet_name',
         'skill_type', 'master_level', 'row', 'column', 'in_cpp_enum', 'cpp_case_in_family', 'verdict',

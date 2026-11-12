@@ -52,3 +52,8 @@ Every name (locals and constants too) says what it is in context: no Ghidra addr
 Call a March function from June code only if June's namesake does the same; otherwise replace March's definition.
 Run `python tools/junediverge.py --list` before transcribing; a newly found divergent function gets its `june_march_divergent.tsv` row and the replacement in the same commit.
 Phase tag (user, 2026-11-09): every edited or new code block carries a one-line `// char-elesis <phase>` comment (at the start of an existing one-line comment, never a second line).
+
+## Amended by CH0 (2026-11-12)
+
+- **Functions:** `awk -F'\t' '$7=="CH1i"' june2017_re/char_elesis/ch0_class_map.tsv` = 4 (3 listing-only: col 9 `n`; 3 `inside`, 1 `new`: col 5; proposed names col 6, `?` = name by the class pattern from the body).
+- 0x670 `32b64290` = `IsInJobLine` (line 3 = classes 35 / 125). SetEquippedSkillLevel `32b4e790`: 22 blocks in `june2017_re/char_elesis/ch0_setskilllevel_blocks.tsv` (each calls vslot 0x7a8 per state id; no member write); block 21 (28009) state id 260 has no June registration name and ids 220 / 221 may share a label: resolve from the listing or say "this needs Opus".
