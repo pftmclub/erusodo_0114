@@ -1268,6 +1268,11 @@ bool CX2StateField::Handler_EGS_STATE_CHANGE_FIELD_ACK( HWND hWnd, UINT uMsg, WP
 {
 	KSerBuffer* pBuff = (KSerBuffer*)lParam;
 	KEGS_STATE_CHANGE_FIELD_ACK kEvent;
+#ifdef SERV_IRUHADEV_JUNE_FIELD_CHANGE_ACK
+	// june-dungeons W3c: June 32509660 @325096ac / @325096b2 (+0x22f moving flag, +0xc4 shortcut keys)
+	SetNowMovingToBattleField( false );
+	SetEnableShortCutKey( true );
+#endif SERV_IRUHADEV_JUNE_FIELD_CHANGE_ACK
 	DeSerialize( pBuff, &kEvent );
 
 

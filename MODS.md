@@ -6697,3 +6697,5 @@ No flag, no exe change (data only). User decision: June's route.
 - **Revert:** copy back `kom_backup_tools/data030.kom.20261112_102907`, `data032.kom.20261112_102908`, `data034.kom.20261112_102908`,
   `data036.kom.20261112_102909` into the game dir; in `kom_contents`, restore the 5 staged files from the stage backup and undo the commented rows in
   the three Lua (`luasrc.py refresh` each).
+
+- **Follow-up (W3c, same day): `SERV_IRUHADEV_JUNE_FIELD_CHANGE_ACK`** (`KTDXLIB/Always.h`, `X2Lib/X2StateField.cpp`). A village / rest-area portal that swaps the world in place left the "moving to field" flag set, so the new area never drew and the unit froze; the field-change ACK handler now clears it and re-enables shortcut keys first, as June `32509660`. June's third error pop-up (`0x654`, quest-gated entry) is not ported: no quest-gate stand-in (user, 2026-10-19), so the emulator never sends it. Revert: comment out the `#define`.

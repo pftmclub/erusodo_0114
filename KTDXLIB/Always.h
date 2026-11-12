@@ -12584,3 +12584,12 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG needs SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-12
+// Description: june-dungeons W3c - CX2StateField::Handler_EGS_STATE_CHANGE_FIELD_ACK as June 32509660: clear the portal's moving flag and
+//              turn shortcut keys back on first (@325096ac / @325096b2), so a village / rest-area portal that swaps the world in place
+//              (June's field graph) no longer leaves OnFrameMove returning early (empty world, frozen unit). Revert: comment out the #define.
+#define SERV_IRUHADEV_JUNE_FIELD_CHANGE_ACK
+//////////////////////////////////////////////////////////////////////////

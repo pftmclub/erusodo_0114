@@ -221,3 +221,13 @@ User decision taken before the phase: June's route. Graph read from June's `DLG_
 - **PACK OK + COPY OK:** data030 (md5 d61905ba), data032 (604d6989), data034 (3c785a26), data036 (ff70b7d4); each pack changed only the intended
   entries. Revert: copy back `kom_backup_tools/data0{30,32,34,36}.kom.20261112_1029*`, restore the staged files from the stage backup, and undo the
   commented rows in the three Lua (`luasrc.py refresh` each).
+- **Follow-up (W3c play-test, same day): code fix `SERV_IRUHADEV_JUNE_FIELD_CHANGE_ACK`.** Besma east -> Dicey Sky Road (the Besma rest, 1001) and
+  Dicey Sky Road -> Besma drew only the sky and froze the unit; a full load into the rest was fine. Cause: the portal sets
+  `m_bNowMovingToBattleField` (`X2StateField.cpp:2164`, June +0x22f) and `CX2StateField::OnFrameMove` returns early while it is set (`:277`); March's
+  `Handler_EGS_STATE_CHANGE_FIELD_ACK` never clears it, because March's village portals only led to fields. June `32509660` clears it and sets
+  `m_bEnableShortCutKey` (+0xc4, from March's layout probe) first (@325096ac / @325096b2); both are now at the top of March's handler. The rest of
+  June's body equals March's: `SetVillageName` is inlined, and E1d already ported the failure-path setter `323aa1b0( -1, 3.0 )`. **Not ported:** June's
+  third error branch `0x654` (quest-gated entry: reads a 4th / 5th ACK int as the quest id, string 36141, `UI_PopUp_Negative_01.ogg` box). It is the
+  server's reply to the quest gate the user chose not to stand in (2026-10-19, `JUNE_QUEST_SYSTEM_PHASES.md`), so the emulator never sends it; March
+  has no matching NetError. Divergence row added (`june_march_divergent.tsv`). flagcheck `--worktree` PASS (X2StateField.cpp PASS, Always.h OTHER
+  = a peer's lines), junediverge PASS. My own run was blocked by char-ara CH4b's in-progress `Always.h` guard; char-ara's build `.build/logs/20261112-110130` started after this edit (10:58), compiled X2StateField.cpp with 0 errors: DEPLOY OK 2026-11-12 11:12:37, md5 66ee9277.
