@@ -59,3 +59,13 @@ Run with: Opus 5.5 high (C3y-5: xhigh). Kickoffs: `kickoffs/june-dungeons/<id>.m
 7. C3z-8 (added 2026-10-19): its scope half is read-only and runs with anything; port halves wait for the user's look at the scope and, where they need June's
    `BattleFieldData.lua`, for atlas A6b.
 8. W3 (added 2026-10-20, from june-engine): any time no other session packs `data040`.
+
+## W3 - Done (2026-11-12, Sonnet 5.5)
+
+Scope grew by the user's request: village / rest-area world scripts and assets to June, Lanox rest NPCs, field-name banner, Sander last-field sign.
+- Census: 74 village / rest world scripts + line maps + variants; 13 differed. `june2017_re/w3_village_assets.tsv` = the staged closure (43 files); ~65 `data101` Velder meshes left for C3z-1b.
+- `data034` `DLG_Map_House.lua`: 9 positions to June, 29 rows added (Lanox rest 4). `ledger --check` and `core --check` PASS.
+- `data057` Fieldname sheets 1 and 6 and `data135` / `data030` sign meshes: June's.
+- PACK OK + COPY OK: data024 026 027 028 029 030 031 034 040 057 110 135. Full build skipped: no code change.
+- **Left:** `DLG_Map_Village.lua` `HouseIDList` / `START_POS` (June's rest areas arrive from the village; Adams / Mu / guild houses), data101 Velder meshes.
+- **Play-test owed:** every village loads, NPCs stand on the ground; Lanox rest area shows Hellen / Postbox / Billboard / Glave; entering Lanox field 1 shows the Lanox banner; Sander field 4 ends with the Lanox board.
