@@ -3081,6 +3081,12 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 	case CX2Unit::UC_LIRE_GRAND_ARCHER:	pwszPrefix = L"G_ARCHER";	break;
 	case CX2Unit::UC_LIRE_NIGHT_WATCHER:	pwszPrefix = L"N_WATCHER";	break;
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND
+	// char-ara CH3d: June's row pushes ( TR_S_DEVANAM_LARGE @3345e24c, TR_Y_RAJA_LARGE @3345e160, TR_ASURA_LARGE @3345e048 )
+	case CX2Unit::UC_ARA_SAKRA_DEVANAM:	pwszPrefix = L"S_DEVANAM";	break;
+	case CX2Unit::UC_ARA_YAMA_RAJA:	pwszPrefix = L"Y_RAJA";	break;
+	case CX2Unit::UC_ARA_ASURA:	pwszPrefix = L"ASURA";	break;
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND
 #endif SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	default:	return true;
 	}
@@ -3095,6 +3101,12 @@ void CX2Data::SetServerCurrentTime( wstring wstrTime )
 #ifdef SERV_IRUHADEV_JUNE_CHAR_EVE_TRANSCEND
 	case CIT_160by160:
 	case CIT_160by160Gray:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND
+		// char-ara CH3d: June @333777b2 pairs TR_S_DEVANAM_LARGE with Texture101_NEW ( gray: Texture101_GRAY ); Y_RAJA / ASURA likewise
+		if( CX2Unit::UC_ARA_SAKRA_DEVANAM == eUnitClass || CX2Unit::UC_ARA_YAMA_RAJA == eUnitClass || CX2Unit::UC_ARA_ASURA == eUnitClass )
+			pwszFile = ( CIT_160by160 == eImageType ) ? L"DLG_UI_Common_Texture101_NEW.tga" : L"DLG_UI_Common_Texture101_GRAY.tga";
+		else
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND
 #ifdef SERV_IRUHADEV_JUNE_CHAR_CHUNG_TRANSCEND
 		/// June 33376520 / 3337b76b ( Eve ) and the same rows for Chung: the large TR pieces are in Texture99
 #ifdef SERV_IRUHADEV_JUNE_CHAR_RAVEN_TRANSCEND

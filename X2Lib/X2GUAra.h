@@ -812,6 +812,9 @@ protected:
 	void			ASI_A_AA_RAID_ATTACK_FINISH_Init();	// char-ara CH3c2: June 32b94510
 	void			ApplyRaidRangeRate( CX2DamageEffect::CEffect* pEffect_ );	// char-ara CH3c2: June 32ba6560
 	void			CreateRaidAttackEffect();	// char-ara CH3c2: the hit June 32bc3580 writes out three times
+	void			ASI_HA_AA_NINE_TAILED_FOX_CreateState( UserUnitStateData& stateData_, const int iStateId_ );	// char-ara CH3d: June 32baace0
+	void			ASI_HA_AA_NINE_TAILED_FOX_Init();	// char-ara CH3d: June 32b95290
+	void			ASI_HA_AA_NINE_TAILED_FOX_EventProcess();	// char-ara CH3d: June 32ba3b80
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SPECTER
 	bool			IsSpecterState() const;	// char-ara CH1h2: June GetStateparam( false ) byte +0x95 ( IS_SPECTER_STATE ), body in CH1q2

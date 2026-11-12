@@ -4115,6 +4115,13 @@ void CX2GUAra::InitStateByUnitClass()
 				m_LuaManager.MakeTableReference( "ASI_A_ASR_FOX_GHOST", hyperStateData.stateID );
 				CopyStateCallbacks( hyperStateData, normalStateData );
 			} break;
+
+		case CX2SkillTree::RNSI_HA_ASR_NINE_TAILED_FOX:	// char-ara CH3d: June 32bd09d0 case 27602 / 27605
+		case CX2SkillTree::RNSI_HA_ASR_NINE_TAILED_FOX_UPGRADE:
+			{
+				ASI_HA_AA_NINE_TAILED_FOX_CreateState( normalStateData, normalStateData.stateID );
+				ASI_HA_AA_NINE_TAILED_FOX_CreateState( hyperStateData, hyperStateData.stateID );
+			} break;
 	#pragma endregion
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 	#pragma region SI_SA_ALH_SWALLOW_ASSAULT
@@ -4180,6 +4187,10 @@ void CX2GUAra::InitStateByUnitClass()
 #ifdef FINALITY_SKILL_SYSTEM //±èÃ¢ÇÑ
 		#pragma region SI_HA_ASD_THOUSANDS_BLOSSOMS
 		case CX2SkillTree::SI_HA_ASD_THOUSANDS_BLOSSOMS: //¾Æ¶ó Á¦Ãµ ±Ã±Ø±â - ºÐ±â µîÃµ
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_HA_ASD_THOUSANDS_BLOSSOMS:	// char-ara CH3d: June 32bd09d0 case 27600 / 27603 ( inline, = March's body )
+		case CX2SkillTree::RNSI_HA_ASD_THOUSANDS_BLOSSOMS_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 		{
 			m_LuaManager.MakeTableReference( "ASI_HA_ASD_THOUSANDS_BLOSSOMS", normalStateData.stateID );
 			normalStateData.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_HA_ASD_THOUSANDS_BLOSSOMS_Init );
@@ -4776,6 +4787,10 @@ void CX2GUAra::InitStateByUnitClass()
 
 	#pragma region SI_SA_AYR_SUPPRESSION_ENERGY
 		case CX2SkillTree::SI_HA_AYR_ENERGY_CANNON:
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
+		case CX2SkillTree::RNSI_HA_AYR_ENERGY_CANNON:	// char-ara CH3d: June 32bd09d0 case 27601 / 27604 ( helper 32baab30 = March's CreateState )
+		case CX2SkillTree::RNSI_HA_AYR_ENERGY_CANNON_UPGRADE:
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL
 			{
 				ASI_HA_AYR_ENERGY_CANNON_CreateState( normalStateData, normalStateData.stateID );
 				ASI_HA_AYR_ENERGY_CANNON_CreateState( hyperStateData, hyperStateData.stateID );
@@ -25342,6 +25357,43 @@ void CX2GUAra::ASI_A_ALS_SPECTER_WALK_FrameMove()
 
 // char-ara CH3c2: June 32ba09a0 ( animation end -> wait, or a fall; the cancels need the foot on a line, as the view between finish )
 void CX2GUAra::ASI_A_ALS_SPECTER_WALK_EventProcess()
+{
+	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
+	{
+		if ( true == IsOnSomethingFuture() )
+			StateChange( USI_WAIT );
+		else
+		{
+			StateChange( USI_JUMP_DOWN );
+			m_FrameDataFuture.syncData.position.y = static_cast<float>( m_FrameDataFuture.syncData.position.y - STATE_END_FALL_DROP );
+		}
+	}
+	SKILL_CANCEL_AFTER( m_fSkillCancelAfter )
+	WALK_CANCEL_AFTER_ON_LINE_( m_fWalkCancelAfter )
+	BWALK_CANCEL_AFTER_ON_LINE_( m_fBWalkCancelAfter )
+	DASH_CANCEL_AFTER_ON_LINE_( m_fDashCancelAfter )
+	ZX_CANCEL_AFTER_EX_ON_LINE_( m_fAttackCancelAfterEx )
+
+	CommonEventProcess();
+}
+
+// char-ara CH3d: June helper 32baace0
+void CX2GUAra::ASI_HA_AA_NINE_TAILED_FOX_CreateState( UserUnitStateData& stateData_, const int iStateId_ )
+{
+	stateData_.Init();
+	stateData_.stateID			= iStateId_;
+	m_LuaManager.MakeTableReference( "ASI_HA_AA_NINE_TAILED_FOX", stateData_.stateID );
+	stateData_.StateInit		= SET_CB_FUNC( CX2GUAra, ASI_HA_AA_NINE_TAILED_FOX_Init );
+	stateData_.OnEventProcess	= SET_CB_FUNC( CX2GUAra, ASI_HA_AA_NINE_TAILED_FOX_EventProcess );
+}
+
+// char-ara CH3d: June 32b95290 ( empty: June preloads nothing for Nine-Tailed Fox )
+void CX2GUAra::ASI_HA_AA_NINE_TAILED_FOX_Init()
+{
+}
+
+// char-ara CH3d: June 32ba3b80 ( animation end -> wait, or a fall; the cancels need the foot on a line )
+void CX2GUAra::ASI_HA_AA_NINE_TAILED_FOX_EventProcess()
 {
 	if ( true == m_pXSkinAnimFuture->IsAnimationEnd() )
 	{

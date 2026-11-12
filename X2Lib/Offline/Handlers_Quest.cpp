@@ -1435,6 +1435,10 @@ int CX2OfflineServer::TranscendCheck( const KOfflineUnitRow& kRow ) const
 	// char-rena CH3d: Rena's second jobs may transcend
 	if( CX2Unit::UC_LIRE_WIND_SNEAKER != kRow.m_iUnitClass && CX2Unit::UC_LIRE_GRAND_ARCHER != kRow.m_iUnitClass && CX2Unit::UC_LIRE_NIGHT_WATCHER != kRow.m_iUnitClass )
 #endif SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND
+	// char-ara CH3d: Ara's second jobs may transcend
+	if( CX2Unit::UC_ARA_SAKRA_DEVANAM != kRow.m_iUnitClass && CX2Unit::UC_ARA_YAMA_RAJA != kRow.m_iUnitClass && CX2Unit::UC_ARA_ASURA != kRow.m_iUnitClass )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND
 	if( CX2Unit::UC_ARME_ELEMENTAL_MASTER != kRow.m_iUnitClass && CX2Unit::UC_ARME_VOID_PRINCESS != kRow.m_iUnitClass && CX2Unit::UC_ARME_DIMENSION_WITCH != kRow.m_iUnitClass
 		&& CX2Unit::UC_EVE_CODE_NEMESIS != kRow.m_iUnitClass && CX2Unit::UC_EVE_CODE_EMPRESS != kRow.m_iUnitClass && CX2Unit::UC_EVE_BATTLE_SERAPH != kRow.m_iUnitClass )
 		return s_iErrTranscendCannot;

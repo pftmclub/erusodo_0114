@@ -1925,6 +1925,12 @@ public:
 		RNSI_A_ASR_RAID_UPGRADE                            = 27242,	// char-ara CH3c2: June's Enum.lua; the enhanced Raid
 		RNSI_A_ASR_SPECTER_WALK_UPGRADE                    = 27243,	// char-ara CH3c2: June's Enum.lua; the enhanced Specter Walk
 		SI_SA_ALS_SPECTER_OF_BLADE                            = 7021,	// char-ara CH3c: June's Enum.lua; the skill id Asura's Specter of Blade scales its damage rate by ( June 32bc4b90 )
+		RNSI_HA_ASD_THOUSANDS_BLOSSOMS                        = 27600,	// char-ara CH3d: June's Enum.lua; Thousands Blossoms
+		RNSI_HA_AYR_ENERGY_CANNON                             = 27601,	// char-ara CH3d: June's Enum.lua; Energy Cannon
+		RNSI_HA_ASR_NINE_TAILED_FOX                           = 27602,	// char-ara CH3d: June's Enum.lua; Nine-Tailed Fox
+		RNSI_HA_ASD_THOUSANDS_BLOSSOMS_UPGRADE                = 27603,	// char-ara CH3d: June's Enum.lua; the enhanced Thousands Blossoms
+		RNSI_HA_AYR_ENERGY_CANNON_UPGRADE                     = 27604,	// char-ara CH3d: June's Enum.lua; the enhanced Energy Cannon
+		RNSI_HA_ASR_NINE_TAILED_FOX_UPGRADE                   = 27605,	// char-ara CH3d: June's Enum.lua; the enhanced Nine-Tailed Fox
 #endif SERV_IRUHADEV_JUNE_ENUM_NAMES
 //}}
 //{{ Iruha : 2026-11-11 // char-ara CH1q

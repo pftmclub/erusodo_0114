@@ -6626,6 +6626,16 @@ Flag `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DEBUG` stays d
 - **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( and `_SKILL_DEBUG` ), `python tools/build.py --deploy`.
 - **Save.** Unit 104 `Asura99` ( 124, lv 99 ) skill slots changed for the play-test ( backup `db_backup/els_db_20261112_083554_pre_sql.sql` ): 27242 slot 0, 27243 slot 1, 27228 slot 5; the CH3c slots are cleared.
 
+## Stage 7 Ara, CH3d: hyper actives ( Thousands Blossoms, Energy Cannon, Nine-Tailed Fox ) and the transcendence rows for 118 / 119 / 124 (2026-11-12)
+
+Flags `SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL` ( no new define; `_SKILL_DEBUG` stays defined, the CH3d review retires it ) and new `SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND` ( `Always.h`, needs `_ARA_LIVE` and `_RENA_TRANSCEND` ). Plan `JUNE_CHARACTER_ARA_PHASES.md` "CH3d - Done".
+- **Hyper actives.** June's ids 27600 / 27603 ( Thousands Blossoms, 118 ) and 27601 / 27604 ( Energy Cannon, 119 ) now reach March's own states ( before, any June id fell to the switch default and played Wind Wedge ); March's functions are June's. 27602 / 27605 ( Nine-Tailed Fox, 124 ) is new: its state table comes from June's script, the C++ only ends it ( wait or fall ) and opens the usual cancels.
+- **Transcendence.** 118 / 119 / 124 may transcend offline ( `TranscendCheck`, `Handlers_Quest.cpp`; was NetError 1726 ). Transcended pictures `TR_S_DEVANAM` / `TR_Y_RAJA` / `TR_ASURA` ( `X2Data.cpp` `GetCharacterImageName`; large and gray from Texture101 ). `LevelUpEvent.lua` ( data036 ) gains June's `TYPE6` ( the level-70 guide for the three classes ).
+- **Names added.** `X2SkillTree.h` ( `JUNE_ENUM_NAMES` ): `RNSI_HA_ASD_THOUSANDS_BLOSSOMS` 27600, `RNSI_HA_AYR_ENERGY_CANNON` 27601, `RNSI_HA_ASR_NINE_TAILED_FOX` 27602 and the three `_UPGRADE` ids 27603-27605.
+- **March vs June damage.** No damage number changes: the hyper states' damage is the state script's data; no C++ number was written.
+- **Revert:** comment out `SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND` ( and the `_SKILL` cases with `_SKILL` ), `python tools/build.py --deploy`; restore `data036.kom` from `kom_backup_tools/data036.kom.20261112_090326` for the LevelUpEvent row.
+- **Save.** Units 98 / 48 / 104 set transcendence 1 with A-5 / B-5 slots for the play-test ( backup `db_backup/els_db_20261112_090317_pre_pre_ara_ch3d.sql` ).
+
 ## June villages and rest areas, Lanox rest NPCs, field-name banner, Sander sign board (W3, 2026-11-12)
 
 No flag, no exe change (data only). Requested by the user in one message; kom copies done, play-test owed.

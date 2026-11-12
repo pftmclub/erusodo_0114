@@ -12539,3 +12539,15 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #error SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE needs SERV_IRUHADEV_JUNE_SKILL_TYPE ( ST_SPECIAL_ACTIVE_GRADE_1..3 )
 #endif SERV_IRUHADEV_JUNE_CLASS_CHANGE_GUIDE
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// Author: Iruha
+// Date: 2026-11-12
+// Description: char-ara CH3d - Sakra Devanam ( 118 ), Yama Raja ( 119 ) and Asura ( 124 ) join the transcendence allow-list ( TranscendCheck ) and the
+//              transcended class pictures ( T6c rows TR_S_DEVANAM / TR_Y_RAJA / TR_ASURA: 160by160 and gray in Texture101, 50by50, 20by20, gauge _STATE,
+//              party, unit slot ). Log [JUNE_TRANSCEND] IMAGE. Revert: undefine the flag.
+#define SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE ) || !defined( SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND needs SERV_IRUHADEV_JUNE_CHAR_ARA_LIVE and SERV_IRUHADEV_JUNE_CHAR_RENA_TRANSCEND ( the allow-list chain and the picture rows it extends )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_TRANSCEND
+//////////////////////////////////////////////////////////////////////////

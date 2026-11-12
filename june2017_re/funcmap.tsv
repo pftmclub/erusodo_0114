@@ -10346,3 +10346,11 @@ Rena +0x97e0	CX2GULire_ElvenRanger::m_fOpenMindMpPerNaturalForce	PORTED	Char Ren
 32bce870	CX2GUAra::SetEquippedSkillFuncBySkillSlotIndex ( Specter Walk case helper )	PORTED	Char Ara CH3c2: new case 27219 / 27243 written inline ( Init / FrameMove / EventProcess, hyper copies )
 32bce970	CX2GUAra::ASI_A_AA_RAID_ATTACK_CreateState	PORTED	Char Ara CH3c2: new: callbacks Init / FrameMove / EventProcess
 -	CX2GUAra::CreateRaidAttackEffect	PORTED	Char Ara CH3c2: new: the Raid hit June 32bc3580 writes out three times ( damage effect DamageEffect_AAS_Raid_Attack 150 in front of the hip, behind it when facing left )
+32b92fc0	CX2GUAra::ASI_HA_ASD_THOUSANDS_BLOSSOMS_Init	PORTED	Char Ara CH3d: = March ( 13 preloads, same names and order )
+32b9cf50	CX2GUAra::ASI_HA_ASD_THOUSANDS_BLOSSOMS_EventProcess	PORTED	Char Ara CH3d: = March ( animation end -> wait, or jump down and 45 lower )
+32b93ec0	CX2GUAra::ASI_HA_AYR_ENERGY_CANNON_Init	PORTED	Char Ara CH3d: = March ( 14 textures, 3 meshes, same order )
+32b9ed80	CX2GUAra::ASI_HA_AYR_ENERGY_CANNON_EventProcess	PORTED	Char Ara CH3d: = March ( byte-identical to 32b9cf50 )
+32baab30	CX2GUAra::ASI_HA_AYR_ENERGY_CANNON_CreateState	PORTED	Char Ara CH3d: = March CreateState ( table name, Init, EventProcess ); case 27601 / 27604 added to March's case
+32baace0	CX2GUAra::ASI_HA_AA_NINE_TAILED_FOX_CreateState	PORTED	Char Ara CH3d: new: table ASI_HA_AA_NINE_TAILED_FOX, Init, EventProcess; case 27602 / 27605
+32b95290	CX2GUAra::ASI_HA_AA_NINE_TAILED_FOX_Init	PORTED	Char Ara CH3d: new: empty ( June preloads nothing )
+32ba3b80	CX2GUAra::ASI_HA_AA_NINE_TAILED_FOX_EventProcess	PORTED	Char Ara CH3d: new: animation end -> wait / jump down, then the skill / walk / back-walk / dash / ZX cancels on a line ( Ara's macros )
