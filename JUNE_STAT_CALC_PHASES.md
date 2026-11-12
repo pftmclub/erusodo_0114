@@ -177,6 +177,56 @@ row, and hand class rows to their plans. No client code.
 script line in the Done note); every item in the scope list has a map row with a state and a reader list; funcmap rows tagged
 `StatCalc S33` for each new identification; D2-D5 kickoffs amended. Full build skipped: no play-test.
 
+### Phase D0 - Done (2026-11-12)
+
+Read-only. No client code, no flag; full build skipped: no play-test. flagcheck / junediverge: not applicable (no source touched).
+D1 ran beside it in another session; its map rows (defence rate, damage rate, `CalcLevelFactorForFinalDamage`, defence sum), funcmap
+rows and STATUS row were left alone, and this commit stages only D0's hunks of the shared files.
+
+**Block ledger** `june2017_re/statcalc/gfd_blocks.tsv`: `32284aa0` cut into 55 contiguous ranges in June's order, entry to `32286c48`
+(the code ends with `JMP 32284b01` @32286c40 plus padding; the function's only `RET` sits in the shared epilogue @32284b28; the jump
+tables `32286c48-32286ca7` after it are data). Check, from the Trunk:
+`python -c "import csv;r=list(csv.reader(open('june2017_re/statcalc/gfd_blocks.tsv'),delimiter='\t'))[1:];s=[x[0].split('-') for x in r];print(all(a[1]==b[0] for a,b in zip(s,s[1:])),s[0][0],s[-1][1],len(s))"`
+prints `True 32284aa0 32286c48 55`. States: 34 `June` (each re-read against the linear disassembly), 14 `mixed`, 4 `absent`,
+3 `March` (D1's three ranges, ported in its uncommitted work; D1 sets them `June`). Ghidra's listing of `32284aa0` omits three switch
+bodies (`322851b1-322852d7`, `322854f8`, `32286810-3228681a`): read June with `disasm_range.py`.
+
+**Map** `statcalc_map.tsv`: 16 damage rows updated, 7 added (stat-up `3226e9a0`, stat copy `322a91a0`, critical threshold `32273480`,
+`GetIgnoreDefenceRate` `32274970`, the unit hooks `0x3ac` / `0x3b0`, PvP halving `322cfca0`, training clamp). Every scope item has a
+state and readers; claimed-but-not-re-read rows stay `unknown` with the phase that re-reads them. funcmap: 11 rows `StatCalc S33`.
+
+**Variance roll `322788c0`: already ported** (Buff Phase 16, `DamageMaximizeRoll`, flags `JUNE_BUFF_NEW_STAT` + `_BEHAVIOR_PARITY`);
+the map's "absent" was stale. Re-read: matches June (slot 121 on MAXIMIZE, seed = slot 113 random-table index, floor and cap). Its
+range today is the designed 10% basic (`JUNE_ATTACK_RANGE_DESIGN`, users only). June's shipped buff data adds no flat range: BBT 7 / 8
+have 284 / 278 PERCENT factors and 4 + 4 FIX ones only in `BattleFieldBuffFactor_INT` (internal build); 80 / 81 are PERCENT only. June's
+real basic is the server's second KStat set (`SetKStat` `323571c0`): S1. Seeds: mapped (funcmap 931 / 1295).
+
+**Findings that correct earlier notes.**
+- `3229a530` (vslot `0x6c`) holds only class blocks: Raven (24222, 24057), Rena (`0x5a02`, `0x5a13`), Ara (27023 / 27042 + 27420).
+  Planning's "Eve" was wrong. All three classes are ported, so D2a ports it whole.
+- `3226e530` is `CalcExtraAttackPower` (smash attack), not a D5 item: moved to D2a. Differences: June has no `EDT_EVENT_SMASH_3` case
+  and adds a discarded roll per `+0x754` record.
+- `GetFinalDamage`'s user-attacker passives key June's ids (24403, 24408, 22410, 23411); March's blocks key March ids (4412 / 2414 /
+  3411) with other thresholds (0.2, an HP > 0.9 gate). The world-mission epsilon differs (June 5e-8, March 5e-5). The socket stat
+  rates and the atomic shield switch on June states 9 / 11 / 18 / 21 / 23, and the shield formula changed (`1 - r` in game states).
+- `GetSocketReducedDamagePercentInCase` is wholly dead under US_SERVICE; the June-named twin no longer exists (live body:
+  `GetSocketReducedDamagePercent`, X2GUUser.cpp:27839).
+- Base and user `SetDamageExceptionProcess` already match June (map rows; D3 re-checks only).
+- Unidentified, left to the porting phase: vslot `0x2ac` (state defence), NPC `+0x8fd4`, vslot `0x784` (Manaflow MP).
+
+**Class hand-offs.** The eight `SetDamageExceptionProcess` overrides: Eve, Chung, Raven, Rena, Aisha, Elsword ported by their char
+ports; Add's equals March (char-add); Elesis's is char-elesis's (checklist 7b, already listed). Rose's `GetFinalDamage` branch is in the
+checklist (section 7, `@32285d0a`). The class blocks inside `GetFinalDamage` and `3229a530` of ported classes (Raven, Rena, Aisha,
+Ara, Chung's shield) are D2a / D2b's: one checklist line says so.
+
+**Sizing.** D2 held 17 `mixed` / `absent` ranges plus three helpers: split by address into **D2a** (`32284aa0-32285ccf`, probe build,
+no review of its own) and **D2b** (`32285ccf-32286c48`, full build and the play-test for both; `D2-review.md` covers both).
+D3 fits (four items). D4 first cuts both `DamageReact` damage sections into `dr_blocks.tsv` and splits D4a / D4b if they hold more
+than about a dozen blocks (unread parts remain in both). D5 fits. Kickoffs `D2a.md` (was `D2.md`), `D2b.md`, `D3.md`, `D4.md`,
+`D5.md` amended; STATUS rows updated.
+
+**Review** (`D0-review.md`, Opus 5.5 / high): the ledger, five blocks against the exe, three map rows outside `GetFinalDamage`.
+
 ## Phase D1 - Defence curve: the 0-damage fix
 
 **Scope.** In `CX2GameUnit::GetFinalDamage`, under `SERV_IRUHADEV_JUNE_STATCALC_DEFENCE_CURVE`, replace March's defence-rate chain with
@@ -213,7 +263,8 @@ non-zero, the `3229a530` call (base body; class blocks guarded), the level-damag
 multiplier sum, `GetEquippingItemByEquipPos`'s third argument, and June-only early returns. Blocks already `June` are re-read and left.
 `GFD` debug lines. One emulation script per pure helper ported.
 
-**Run with.** Opus 5.5 / xhigh. Review Opus 5.5 / high. D0 may split it into D2a / D2b by address range.
+**Run with.** Opus 5.5 / xhigh. Review Opus 5.5 / high. D0 split it (2026-11-12): D2a `32284aa0-32285ccf`, D2b `32285ccf-32286c48`;
+one review (`D2-review.md`) covers both.
 
 **Read list.** "Rules", "Starting context", "Design: the map and the verification", "Phase D0 - Done", "Phase D1 - Done".
 
@@ -231,7 +282,7 @@ prelude, and the two dispatch gaps (`CEffect::AttackResult` tail: the owner's on
 
 **Run with.** Opus 5.5 / high. Review Opus 5.5 / high.
 
-**Read list.** "Rules", "Starting context", "Phase D0 - Done", "Phase D2 - Done".
+**Read list.** "Rules", "Starting context", "Phase D0 - Done", "Phase D2b - Done".
 
 **Done gate.** Map rows `June`; gates PASS; `DEPLOY OK`; play-test: a damage effect's hit (an arrow or a fireball) fires the attacker's
 on-hit socket effect, and a summoned NPC's hit on a monster logs `HIT` with the summon as attacker.
@@ -247,7 +298,7 @@ owns it.
 
 **Run with.** Opus 5.5 / high. Review Opus 5.5 / high.
 
-**Read list.** "Rules", "Starting context", "Phase D0 - Done", "Phase D2 - Done".
+**Read list.** "Rules", "Starting context", "Phase D0 - Done", "Phase D2b - Done".
 
 **Done gate.** Map rows `June`; gates PASS; `DEPLOY OK`; play-test: for ten logged hits each way, `REACT`'s HP change equals the `GFD`
 damage after the listed reductions, on a unit with damage-reduction sockets and one without.

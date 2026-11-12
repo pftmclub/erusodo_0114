@@ -380,9 +380,10 @@ Plan `JUNE_STAT_CALC_PHASES.md` - branch `main` - log tag `[JUNE_STATCALC]` (`of
 
 | Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
 |---|---|---|---|---|---|
-| D0 | ready: damage map, `GetFinalDamage` block ledger (read-only); can run beside D1 | Opus 5.5 / xhigh; review Opus 5.5 / high | - | `june2017_re/statcalc/*.tsv`, funcmap rows (`StatCalc S33`), kickoffs | `D0.md`, review `D0-review.md` |
+| D0 | **done 2026-11-12**: `gfd_blocks.tsv` (55 ranges), 23 map rows, 11 funcmap rows; D2 split into D2a / D2b; **review owed** | Opus 5.5 / xhigh; review Opus 5.5 / high | - | `june2017_re/statcalc/*.tsv`, funcmap rows (`StatCalc S33`), kickoffs | `D0.md`, review `D0-review.md` |
 | D1 | **built + deployed 2026-11-12** (flag `JUNE_STATCALC_DEFENCE_CURVE` + `_DEBUG`): June's curve on the defender's level, no level factor / shock; **play-test owed** (Elder Secret Hell 33031, Altera Secret Hell 33051), then review | Opus 5.5 / high; review Opus 5.5 / high | - | `X2GameUnit.*`, Always.h, `june2017_re/statcalc/emu_defence.py`, `june_march_divergent.tsv` | `D1.md`, review `D1-review.md` |
-| D2 | blocked (D0 review, D1 review): the rest of `GetFinalDamage` as June's body | Opus 5.5 / xhigh, Opus review | D0 review, D1 review | `X2GameUnit.*`, `X2Unit.*`, Always.h | `D2.md` |
+| D2a | blocked (D0 review, D1 review): `GetFinalDamage` `32284aa0-32285ccf` as June's (hook `3229a530`, class passives, smash, state lists); probe build, no review of its own | Opus 5.5 / xhigh | D0 review, D1 review | `X2GameUnit.*`, Always.h | `D2a.md` |
+| D2b | blocked (D2a): `GetFinalDamage` `32285ccf`-end as June's (level path, state defence, boss, shield, HP-rate gate, `32869e10`); full build + play-test for both | Opus 5.5 / xhigh; review Opus 5.5 / high (covers D2a) | D2a | `X2GameUnit.*`, `X2Unit.*`, `X2GUChung.*`, Always.h | `D2b.md`, review `D2-review.md` |
 | D3 | blocked (D2 review): hit pipeline - `SetDamageExceptionProcess` base / user / NPC, `DamageCheck` prelude, dispatch gaps | Opus 5.5 / high, Opus review | D2 review | `X2GameUnit.*`, `X2GUUser.*`, `X2GUNPC.*`, `X2DamageManager.*`, `X2DamageEffect.cpp` | `D3.md` |
 | D4 | blocked (D3 review): `DamageReact` damage arithmetic, user and NPC | Opus 5.5 / high, Opus review | D3 review | `X2GUNPC.cpp`, `X2GUUser.*` | `D4.md` |
 | D5 | blocked (D4 review): extra damage, enchant resist, level correction | Opus 5.5 / high, Opus review | D4 review | `X2GUNPC.cpp`, `X2GUUser.*`, `X2GameUnit.*`, `DungeonEnum.h` | `D5.md` |
