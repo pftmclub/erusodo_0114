@@ -4,7 +4,7 @@
 |---|---|
 | Start | new conversation on **Sonnet 5.5, high** effort, then type `/x2-phase char-elesis CH0b` |
 | Plan doc | `JUNE_CHARACTER_ELESIS_PHASES.md` (branch `main`) |
-| Depends on | CH0 (and its amendments); char-ara CH6 walk done (the game and save are in use until then) |
+| Depends on | CH0 (and its amendments). The char-ara CH6 gate was dropped (user 2026-11-12): play one plan at a time, the game and save are shared |
 | Flag | `SERV_IRUHADEV_JUNE_CHAR_ELESIS_ASSET` only if CH0 found a March reader a June asset breaks; otherwise none |
 | Log tag | `[JUNE_CHAR]` (`ELESIS DATA`) |
 | Review | none (the play-test is the check) |

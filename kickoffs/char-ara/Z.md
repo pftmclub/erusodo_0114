@@ -23,3 +23,7 @@ flag `SERV_IRUHADEV_JUNE_CLASS_PATH` named as Elesis's and Add's base; the user-
 rows marked `(Ara: CHn)`; the Aisha plan's "Template for Stage 7" gets an Ara paragraph (what she took against this plan) and its "Phase CH-N" block
 is rewritten from what CHNa / CHNb took; backlog Stage 7 note; the `char-elesis` block's code rows unblocked (Elesis was planned 2026-11-11 by `new-plan char-elesis` while CH1q2 ran:
 set `char-elesis` CH1a to ready, and CH0b if CH6's walk is done; her CHNa waits for the CHNa review, done by then); the `char-ara` block moved to `STATUS_ARCHIVE.md` with a *Closed plans* row.
+
+## Amended 2026-11-12 (user)
+
+The `char-elesis` gates on char-ara CH6 / Z were dropped by the user: Elesis CH0b and her code rows depend on her CH0 only. Z no longer unblocks them; skip that step.

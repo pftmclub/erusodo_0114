@@ -35,7 +35,7 @@ Sword, summon, blood-hook and CH-N maps.
   (item 6) get `CH<n>0` Opus kickoffs and rows.
 - **The `inside` / `new` and `carved` / `listing-only` columns decide how CH1a-CH1k write and review each function**; propose the plain name for
   every `new` row. Roles of her overrides come from the body: she shares only 46 of Ara's 77 slots.
-- **The asset list is the top priority** (CH0b runs after char-ara CH6): routes a / b / c unioned, effect closure, `POPUP_TR_G_MASTER` /
+- **The asset list is the top priority** (CH0b runs right after CH0; the char-ara CH6 gate was dropped, user 2026-11-12): routes a / b / c unioned, effect closure, `POPUP_TR_G_MASTER` /
   `_B_HEART` / `_C_AVENGER`, the class-change dialogs and guides, the creation-screen button dialog, the 35 / 125 sets, the summon NPCs' files, the
   motion target kom and the motion question (which of the 6 differing class motions lose a name March plays: held for CH1 final, else CH0b).
 - **Way of the Sword map (item 7), summon map (item 8), blood-hook map (item 9), CH-N map (item 10):** map them, size CH1q, CH3b0, CH4c and
