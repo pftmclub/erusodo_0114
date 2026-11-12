@@ -225,7 +225,7 @@ Decision answered 2026-11-11 (plan "Open decisions"): 1 stat rows for all seven 
 ## june-backlog - backlog stage planning briefs (`JUNE_PORT_BACKLOG_ORDER.md`)
 Branch `main` · plan: `JUNE_PORT_BACKLOG_ORDER.md` · each row is a read-only planning session (Ghidra read-only, no code, no build) that writes a new phased plan and its own STATUS block; each row is started with `/x2-phase new-plan <plan key>` (the key is in the row); the skill reads the row's brief first.
 
-Done: stage2-plan, stage3-plan, stage4-plan, stage29-plan, stage5-plan, stage6-plan, stage34-plan, stage35-plan, stage23-plan (2026-11-12 -> plan `field-rewards`).
+Done: stage2-plan, stage3-plan, stage4-plan, stage29-plan, stage5-plan, stage6-plan, stage34-plan, stage35-plan, stage23-plan (2026-11-12 -> plan `field-rewards`), stage33-plan (2026-11-12 -> plan `june-stat-calc`; damage track moved ahead by the user).
 
 | Phase | State | Model | Needs | Touches | Kickoff |
 |---|---|---|---|---|---|
@@ -236,7 +236,6 @@ Done: stage2-plan, stage3-plan, stage4-plan, stage29-plan, stage5-plan, stage6-p
 | stage28-plan | ready (start: `/x2-phase new-plan june-party`): June party-manager handlers - diff June's `CX2PartyManager` packet handler `3243ee30` against March's (the ready-check's June-only branch `3243cec0`, the auto-party ...) | Opus 5.5 / high | - | docs, kickoffs, funcmap | `stage28-plan.md` |
 | stage30-plan | ready (start: `/x2-phase new-plan june-resonance`): June's level-99 resonance system (`KUnitInfo` tail -> CX2Unit `+0xa99`..`+0xaa9`, gate `3247b460`, EXP `322f8920`; found by june-result R0, identified by Stage 6 ...) | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Resonance S30`) | `stage30-plan.md` |
 | stage31-plan | ready (start: `/x2-phase new-plan june-achievement`): June's achievement system (`CX2AchievementManager`, `AchievementData` / `AchievementConditionData.lua`, `DLG_Achievement_System_UI`; none in March) -> ... | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Achievement S31`) | `stage31-plan.md` |
-| stage33-plan | ready (start: `/x2-phase new-plan june-stat-calc`): June's damage and character stat calculation. Map every stat / damage formula as June / March / mixed, then replace each mixed one with June's whole function ... | Opus 5.5 / xhigh | dep: -; runs with anything (read-only); code after the character ports, Stages ... | docs, `june2017_re/statcalc/`, funcmap rows (`StatCalc S33`) | `stage33-plan.md` |
 | stage7-plan | Eve, Chung, Elsword, Raven closed (Raven 2026-11-07); Rena planned 2026-11-07; Ara planned 2026-11-10 (first CH-N); **Elesis planned 2026-11-11** (`JUNE_CHARACTER_ELESIS_PHASES.md` + `kickoffs/char-elesis/` + the `char-elesis` block; CH-N reused, CH0 ready). **Add planned 2026-11-11** (`JUNE_CHARACTER_ADD_PHASES.md` + `kickoffs/char-add/` + the `char-add` block; CH0 ready); no character left to plan: closes with char-add Z | Opus 5.5 / high | dep: pilot-char-revamp Z (done) | docs, kickoffs | `stage7-plan.md` |
 | stage8-plan | **Lu/Ciel planned 2026-11-02; parked by the user 2026-11-03 until Stage 7 closes** (`JUNE_CHARACTER_LUCIEL_PHASES.md` + `kickoffs/char-luciel/` + the `char-luciel` block). queued: `/x2-phase new-plan char-rose` (then `char-ain`), set ready by char-luciel Z | Opus 5.5 / high | dep: char-luciel Z (NU / DU foundation) | docs, kickoffs | `stage8-plan.md` |
 | stage38-plan | ready (start: `/x2-phase new-plan june-field`): June village / field game core (`CX2TFieldGame`, `CX2SquareUnit`; 168 unowned) -> `JUNE_FIELD_PHASES.md` + `kickoffs/june-field/` | Opus 5.5 / high | dep: -; runs with anything (read-only); code after Stage 9 | docs, funcmap rows (`Field S38`) | `stage38-plan.md` |
@@ -375,6 +374,28 @@ Plan `OFFLINE_FIELD_REWARDS_PHASES.md` - branch `main` - log tag `[DROP_STANDIN]
 | R6 | blocked (R3): June-only monsters in old dungeons + smoke; its review covers R3-R6 | Sonnet 5.5 / high; review Opus 5.5 / high | R0, R3 | same two server Lua files | `R6.md` |
 | R7 | blocked (heroic dungeons are not registered in the live `DungeonData.lua` yet: june-dungeons) | Opus 5.5 / high | june-dungeons heroic rows, R5 | sheets + the two server Lua files | `R7.md` |
 | Z | blocked (R6 review): close | Sonnet 5.5 / medium | R6 review | `MODS.md`, backlog, `tools/README.md` | `Z.md` |
+
+## june-stat-calc - June damage and character stat calculation
+Plan `JUNE_STAT_CALC_PHASES.md` - branch `main` - log tag `[JUNE_STATCALC]` (`offline_server.log`) - flags `SERV_IRUHADEV_JUNE_STATCALC_*` (`_DEFENCE_CURVE`, `_FINAL_DAMAGE`, `_HIT_PIPELINE`, `_DAMAGE_REACT`, `_EXTRA_DAMAGE`, `_UNIT_STAT`, `_EQUIP_STAT`, `_SOCKET`, `_BUFF_FACTOR`, `_RESOURCE`, + `_DEBUG`) - kickoffs `kickoffs/june-stat-calc/` - map `june2017_re/statcalc/statcalc_map.tsv` - backlog Stage 33 - created 2026-11-12.
+
+**Scope:** every stat and damage formula becomes June's whole calculation. Damage track D0-D6 runs now (user 2026-11-12: secret-dungeon monsters take 0 or tiny damage; cause = March's straight-line defence formula reading June's monster defence, fix = D1). Stat-sheet and resource track S1-S4 / R1: code after Stages 7 and 8 (user 2026-10-27). D1-D5 all edit `X2GameUnit.cpp` / `X2GUNPC.cpp` / `X2GUUser.cpp`: one at a time, and not beside a char-port phase that edits the same file.
+
+| Phase | State | Model / effort | Depends | Touches (main files) | Kickoff |
+|---|---|---|---|---|---|
+| D0 | ready: damage map, `GetFinalDamage` block ledger (read-only); can run beside D1 | Opus 5.5 / xhigh; review Opus 5.5 / high | - | `june2017_re/statcalc/*.tsv`, funcmap rows (`StatCalc S33`), kickoffs | `D0.md`, review `D0-review.md` |
+| D1 | **ready: the 0-damage fix** - June's defence curve in `GetFinalDamage`, per-hit debug log, full build + secret-dungeon play-test | Opus 5.5 / high; review Opus 5.5 / high | - | `X2GameUnit.*`, Always.h, `june2017_re/statcalc/emu_defence.py`, `june_march_divergent.tsv` | `D1.md`, review `D1-review.md` |
+| D2 | blocked (D0 review, D1 review): the rest of `GetFinalDamage` as June's body | Opus 5.5 / xhigh, Opus review | D0 review, D1 review | `X2GameUnit.*`, `X2Unit.*`, Always.h | `D2.md` |
+| D3 | blocked (D2 review): hit pipeline - `SetDamageExceptionProcess` base / user / NPC, `DamageCheck` prelude, dispatch gaps | Opus 5.5 / high, Opus review | D2 review | `X2GameUnit.*`, `X2GUUser.*`, `X2GUNPC.*`, `X2DamageManager.*`, `X2DamageEffect.cpp` | `D3.md` |
+| D4 | blocked (D3 review): `DamageReact` damage arithmetic, user and NPC | Opus 5.5 / high, Opus review | D3 review | `X2GUNPC.cpp`, `X2GUUser.*` | `D4.md` |
+| D5 | blocked (D4 review): extra damage, enchant resist, level correction | Opus 5.5 / high, Opus review | D4 review | `X2GUNPC.cpp`, `X2GUUser.*`, `X2GameUnit.*`, `DungeonEnum.h` | `D5.md` |
+| D6 | blocked (D5 review): damage smoke on every ported character; its review covers D1-D5 and retires `_DEBUG` | Sonnet 5.5 / high; review Opus 5.5 / high | D5 review | docs, save DB | `D6.md` |
+| S0 | ready: stat-sheet and resource map (read-only); runs beside anything | Opus 5.5 / xhigh; review Opus 5.5 / high | - | `june2017_re/statcalc/statcalc_map.tsv`, funcmap rows, kickoffs | `S0.md` |
+| S1 | blocked (S0 review, Stages 7 + 8 closed, D6 review): unit stat core | Opus 5.5 / high, Opus review | S0 review, Stages 7 + 8, D6 review | `X2Stat.*`, `X2Unit.*`, `X2GameUnit.*`, `X2GUUser.*` | `S1.md` |
+| S2 | blocked (S1): equipment, set items, enchant stat | Opus 5.5 / high, Opus review | S1 review | `X2Unit.*`, `X2Item.*`, `X2ItemStatCalculator.*` | `S2.md` |
+| S3 | blocked (S2; user answer on `320839e0`): sockets and options | Opus 5.5 / high, Opus review | S2 review | `X2SocketItem.*`, `X2GameUnit.*`, `X2GUUser.*`, `X2Unit.*` | `S3.md` |
+| S4 | blocked (S3): buff finalizers | Opus 5.5 / high, Opus review | S3 review | `X2BuffFinalizer*`, `X2GameUnit.*` | `S4.md` |
+| R1 | blocked (S4): MP / awakening gain, regen, MP cost | Opus 5.5 / high, Opus review | S4 review | `X2GameUnit.*`, `X2GUUser.*`, `X2GageData.*`, class MP blocks | `R1.md` |
+| Z | blocked (R1 review): close | Sonnet 5.5 / medium | R1 review, D6 review | `MODS.md`, backlog, STATUS archive | `Z.md` |
 
 ## Other plans (no STATUS rows)
 
