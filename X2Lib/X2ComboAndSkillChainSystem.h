@@ -274,6 +274,17 @@ public:
 	void ResetPtrNowUseChainInfo() { m_ptrNowUseChainInfo.reset(); }
 
 	int GetTriggerSecretSkillState( const CX2GUUser* pCX2GUUser_ );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	void	GetSkillIDList( OUT std::vector<int>& vecSkillID_ ) const	// char-ara CH4b: June 32d3f040
+	{
+		vecSkillID_.clear();
+		BOOST_FOREACH( CX2ComboAndSkillChainInfoPtr ptrComboAndSkillChainInfo, m_vecComboAndSkillChainInfoPtrInSystem )
+		{
+			if ( NULL != ptrComboAndSkillChainInfo && 0 < ptrComboAndSkillChainInfo->GetSkillID() )
+				vecSkillID_.push_back( ptrComboAndSkillChainInfo->GetSkillID() );
+		}
+	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 
 #ifdef  X2OPTIMIZE_REMOVE_UNNECESSARY_SHARED_PTR
     void    AddRef()    {   ++m_uRefCount; }

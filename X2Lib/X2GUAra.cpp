@@ -7990,6 +7990,46 @@ if( m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) == true )
 */
 /*virtual*/ float CX2GUAra::GetActualMPConsume( const CX2SkillTree::SKILL_ID eSkillID_, const int iSkillLevel_ ) const
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	// char-ara CH4b: June 32b96730 ( vslot 0x6a0 ): Valor Devotion cuts five skills' MP, Link Flower Slash is free in its window; March's memo cases are gone
+	float fMpConsumption = CX2GUUser::GetActualMPConsume( eSkillID_, iSkillLevel_ );
+
+	switch ( g_pData->GetSkillTree()->GetUpgradeBaseSkillID( eSkillID_ ) )	// June 32207210
+	{
+	case CX2SkillTree::RNSI_SA_ASD_TURBULENT_WAVE:
+	case CX2SkillTree::RNSI_A_ALH_ROCK_CRASH:
+	case CX2SkillTree::RNSI_A_ALH_TIGER_CLAW:
+	case CX2SkillTree::RNSI_A_ASD_LOW_BRANDISH:
+	case CX2SkillTree::RNSI_A_ALH_ROCK_CRASH_UPGRADE:
+		if ( true == const_cast<CX2GUAra*>( this )->HaveSkillBuff( CX2SkillTree::RNSI_P_ASD_VALOR_DEVOTION, 0, true ) )	// June vslot 0x240
+		{
+			fMpConsumption *= GetLearnedSkillAbilityValue( CX2SkillTree::SA_MP_CONSUME_REL, CX2SkillTree::RNSI_P_ASD_VALOR_DEVOTION );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+			static DWORD s_dwValorDevotionLogTime = 0;
+			if ( timeGetTime() - s_dwValorDevotionLogTime >= 1000 )
+			{
+				s_dwValorDevotionLogTime = timeGetTime();
+				CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE valor devotion mp ( skill %d, mp %.2f )", static_cast<int>( eSkillID_ ), fMpConsumption );
+			}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	if ( CX2SkillTree::RNSI_SA_ASD_LINK_FLOWER_SLASH == eSkillID_ && 0.f < m_fLinkFlowerSlashTime
+		&& ( ASI_SA_ASD_LINK_FLOWER_SLASH_1st == m_iLinkFlowerSlashStateID || ASI_SA_ASD_LINK_FLOWER_SLASH_2nd == m_iLinkFlowerSlashStateID ) )
+		return 0.f;
+
+	float fMpDecreaseRate = 1.f;
+	const CX2SkillTree::SkillTemplet* pSkillTemplet = GetEquippedActiveSkillTemplet( eSkillID_, true );
+	if ( NULL != pSkillTemplet )
+		fMpDecreaseRate = g_pData->GetMyUser()->GetSelectUnit()->GetSkillMpDecreaseRate( eSkillID_, pSkillTemplet->m_eType );	// June 3234d840 on my unit
+
+	return fMpDecreaseRate * fMpConsumption;
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 	float fMpConsumption = CX2GUUser::GetActualMPConsume( eSkillID_, iSkillLevel_ );
 
 #ifdef ADD_ARA_MEMO	// 적용날짜: 2013-03-22
@@ -8033,6 +8073,7 @@ if( m_pXSkinAnim->EventTimerOneshot( fTimeToShow_ ) == true )
 #else SERV_BALANCE_FINALITY_SKILL_EVENT
 	return fMpConsumption;
 #endif //SERV_BALANCE_FINALITY_SKILL_EVENT
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 }
 #pragma endregion
 
@@ -30927,6 +30968,115 @@ void CX2GUAra::ProcessAsuraOpenMindOnHit( const CX2DamageManager::DamageData& da
 	}
 }
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+// char-ara CH4b: June 32b956a0 ( vslot 0x428 ): Spiritual Eye's rate while it is above 0
+/*virtual*/ float CX2GUAra::GetDefenceRateBySkill( const int iAttackType_ )
+{
+	UNREFERENCED_PARAMETER( iAttackType_ );
+
+	float fDefenceRate = 1.f;
+	if ( 0.f < m_fSpiritualEyeDefenceRate )
+		fDefenceRate = m_fSpiritualEyeDefenceRate;
+
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	static DWORD s_dwSpiritualEyeLogTime = 0;
+	if ( 1.f != fDefenceRate && true == IsPassiveLogDue( s_dwSpiritualEyeLogTime ) )
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE spiritual eye defence rate %.3f", fDefenceRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	return fDefenceRate;
+}
+
+// char-ara CH4b: June 32b958e0 ( vslot 0x6a8 ): Link Flower Slash shows no cool time while its chain window is open
+/*virtual*/ float CX2GUAra::ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ )
+{
+	if ( CX2SkillTree::RNSI_SA_ASD_LINK_FLOWER_SLASH == iSkillID_ && 0.f < m_fLinkFlowerSlashTime )
+		return 0.f;
+
+	return fCoolTime_;
+}
+
+// char-ara CH4b: June 32ba45d0 ( vslot 0x3ac ): Yama Raja's Energy Reinforce scales a physical hit's force down ( March's 4-argument body moved here )
+/*virtual*/ void CX2GUAra::ModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ )
+{
+	UNREFERENCED_PARAMETER( fAttackerPhysicDamage_ );
+	UNREFERENCED_PARAMETER( fAttackerMagicDamage_ );
+
+	if ( NULL == GetUnit() || NULL == pDamageData_ )
+		return;
+
+	if ( 0 < GetUnit()->GetUnitData().m_UserSkillTree.GetSkillLevel( CX2SkillTree::RNSI_P_AYR_ENERGY_REINFORCE, false, 0, true )
+		&& CX2DamageManager::DT_PHYSIC == pDamageData_->damageType )
+	{
+		pDamageData_->fForceDownValue *= m_fIncreaseEnergeBulletForceDownValue;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+		static DWORD s_dwEnergyReinforceLogTime = 0;
+		if ( true == IsPassiveLogDue( s_dwEnergyReinforceLogTime ) )
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE yama energy reinforce force down x%.3f = %.3f", m_fIncreaseEnergeBulletForceDownValue, pDamageData_->fForceDownValue );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	}
+}
+
+// char-ara CH4b: June 32ba47f0 ( vslot 0x300 ): with Asura's Energy Reinforce learned, a hit whose used skill is 27411 loses that percent of its force down
+/*virtual*/ void CX2GUAra::AdjustDamageDataBeforeDamageReact( CX2DamageManager::DamageData* pDamageData_ )
+{
+	if ( 0.f < m_fMpGainPerForcePowerInFullHyperMode && CX2SkillTree::RNSI_P_ASR_ENERGY_REINFORCE == pDamageData_->m_eUsedSkillID )
+	{
+		const float fForceDownRate = static_cast<float>( ( 100.0 - m_fEnergyReinforceForceDownPercent ) * static_cast<double>( 0.01f ) );
+		pDamageData_->fForceDownValue *= fForceDownRate;
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+		static DWORD s_dwAsuraEnergyReinforceLogTime = 0;
+		if ( true == IsPassiveLogDue( s_dwAsuraEnergyReinforceLogTime ) )
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE asura energy reinforce force down x%.3f", fForceDownRate );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	}
+}
+
+// char-ara CH4b: June 32badc80 ( vslot 0x794 ): every chain-system skill that sits in no slot still takes the skill-group power sockets
+/*virtual*/ void CX2GUAra::SumSocketOptionAfterSlots( CX2SocketItem::SocketData& kAggregate_, const CX2SocketItem::SocketData& kSocketData_ )
+{
+	UNREFERENCED_PARAMETER( kAggregate_ );	// AddSkillAdditionalPowerRateBySlot writes m_SocketData, the aggregate SumSocketOption passes
+
+	std::vector<int> vecChainSkillID;
+	m_ComboAndSkillChainSystem.GetSkillIDList( vecChainSkillID );
+
+	int iAddedCount = 0;
+	BOOST_FOREACH( int iSkillID, vecChainSkillID )
+	{
+		if ( false == IsSkillEquipped( static_cast<CX2SkillTree::SKILL_ID>( iSkillID ), true ) )
+		{
+			AddSkillAdditionalPowerRateBySlot( kSocketData_, static_cast<CX2SkillTree::SKILL_ID>( iSkillID ) );
+			++iAddedCount;
+		}
+	}
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	static DWORD s_dwSocketPassLogTime = 0;
+	if ( true == IsPassiveLogDue( s_dwSocketPassLogTime ) )
+		CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE socket pass ( %d chain skills, %d not in a slot )", static_cast<int>( vecChainSkillID.size() ), iAddedCount );
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	UNREFERENCED_PARAMETER( iAddedCount );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+}
+
+// char-ara CH4b: June 32bc1530 ( user vslot 0x4c8 ): an effect set of Raid ( upgrade ) takes the skill's size ability as its scale
+/*virtual*/ void CX2GUAra::AfterPlayEffectSetToPlay( const EffectSetToPlay& effectSetToPlay_, const CX2EffectSet::Handle& hEffectSet_ )
+{
+	CX2EffectSet::EffectSetInstance* pEffectSetInstance = g_pX2Game->GetEffectSet()->GetEffectSetInstance( hEffectSet_ );
+	if ( NULL == pEffectSetInstance || CX2SkillTree::RNSI_A_ASR_RAID_UPGRADE != effectSetToPlay_.m_iRelateSkillID )
+		return;
+
+	float fSizeRate = 1.f;
+	if ( true == TryGetEquippedSkillAbilityValue( CX2SkillTree::SA_SIZE_ABS, CX2SkillTree::RNSI_A_ASR_RAID_UPGRADE, false, fSizeRate ) )
+	{
+		pEffectSetInstance->m_bDamageEffectScale = false;
+		pEffectSetInstance->m_vScale = D3DXVECTOR3( fSizeRate, fSizeRate, fSizeRate );
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+		static DWORD s_dwRaidScaleLogTime = 0;
+		if ( true == IsPassiveLogDue( s_dwRaidScaleLogTime ) )
+			CX2OfflineLog::Server( L"[JUNE_CHAR] ARA PASSIVE raid effect set scale %.3f ( %s )", fSizeRate, effectSetToPlay_.m_wstrEffectSetName.c_str() );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE_DEBUG
+	}
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #pragma region ModifyFinalDamageByGameUnitType
 /** @function	: ModifyFinalDamageByGameUnitType
 	@brief		: 데미지 처리시 추가로 관련 수치 설정하는 함수( GetFinalDamage )
@@ -30935,6 +31085,9 @@ void CX2GUAra::ProcessAsuraOpenMindOnHit( const CX2DamageManager::DamageData& da
 /*virtual*/ void CX2GUAra::ModifyFinalDamageByGameUnitType( OUT CX2DamageManager::DAMAGE_TYPE& damageType_, OUT float& fAttackerPhysicDamage_, 
 															OUT float& fAttackerMagicDamage_, OUT float& fForceDownValue_ )
 {
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	// char-ara CH4b: June has no such slot; Energy Reinforce's force down is the June-argument override ( vslot 0x3ac, 32ba45d0 )
+#else SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 	if ( NULL == GetUnit() )
 		return;
 
@@ -30947,6 +31100,7 @@ void CX2GUAra::ProcessAsuraOpenMindOnHit( const CX2DamageManager::DamageData& da
 		if ( CX2DamageManager::AT_NORMAL == damageType_ )
 			fForceDownValue_ -= m_fIncreaseEnergeBulletForceDownValue;
 	}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 }
 #pragma endregion
 

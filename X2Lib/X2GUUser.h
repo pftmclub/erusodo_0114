@@ -4114,6 +4114,11 @@ public:
 #ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 		bool	ProcessPassiveReturnFromDeath();	// char-ara CH4a: June 320072d0, the class-passive gate in UpNowHp / SetNowHp
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+		virtual void	BeforePlayEffectSetToPlay( const EffectSetToPlay& effectSetToPlay_ ) { UNREFERENCED_PARAMETER( effectSetToPlay_ ); }	// char-ara CH4b: June user vslot 0x4c4 ( base 3208ddc0, empty )
+		virtual void	AfterPlayEffectSetToPlay( const EffectSetToPlay& effectSetToPlay_, const CX2EffectSet::Handle& hEffectSet_ ) { UNREFERENCED_PARAMETER( effectSetToPlay_ ); UNREFERENCED_PARAMETER( hEffectSet_ ); }	// char-ara CH4b: June user vslot 0x4c8 ( base 33093ad0, empty )
+		bool	IsSkillEquipped( const CX2SkillTree::SKILL_ID eSkillID_, const bool bUpgradeSwap_ ) const;	// char-ara CH4b: June 31fca980
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #endif SERV_IRUHADEV_JUNE_SOCKET_PARITY
 		float	GetManaRecoveryVal() const { return m_fManaRecoveryVal; }
 		float	GetManaRecoveryTime() const { return m_fManaRecoveryDurationTime; }

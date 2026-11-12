@@ -1016,6 +1016,15 @@ public:
 	void			ProcessGainGoodEnergyBallOnHit( const CX2DamageManager::DamageData& damageData_ );
 	void			ProcessAsuraOpenMindOnHit( const CX2DamageManager::DamageData& damageData_ );
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+	// char-ara CH4b: the overrides ( June addresses at the bodies )
+	virtual float	GetDefenceRateBySkill( const int iAttackType_ );
+	virtual float	ShownSkillCoolTime( const float fCoolTime_, const int iSkillID_ );
+	virtual void	ModifyFinalDamageByGameUnitType( CX2DamageManager::DamageData* pDamageData_, float& fAttackerPhysicDamage_, float& fAttackerMagicDamage_ );
+	virtual void	AdjustDamageDataBeforeDamageReact( CX2DamageManager::DamageData* pDamageData_ );
+	virtual void	SumSocketOptionAfterSlots( CX2SocketItem::SocketData& kAggregate_, const CX2SocketItem::SocketData& kSocketData_ );
+	virtual void	AfterPlayEffectSetToPlay( const EffectSetToPlay& effectSetToPlay_, const CX2EffectSet::Handle& hEffectSet_ );
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 	/// 데미지 처리시 추가로 관련 수치 설정하는 함수( GetFinalDamage )
 	virtual void	ModifyFinalDamageByGameUnitType( OUT CX2DamageManager::DAMAGE_TYPE& damageType_, OUT float& fAttackerPhysicDamage_, 
 													 OUT float& fAttackerMagicDamage_, OUT float& fForceDownValue_ );

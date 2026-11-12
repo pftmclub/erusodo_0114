@@ -12558,6 +12558,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 // Description: char-ara CH4a - Ara's passives on June's ids: InitPassiveSkillState 32bcd9c0 whole, the 0x780 hook 32bca010 ( Open Mind rolls,
 //              the force-power gain table ), the attack-result delegates ( 32bb0d10 and four more ), the CEffect hook 0x328 32ba6440, the
 //              resurrection gate in UpNowHp / SetNowHp ( 320072d0's Ara piece, 32bc5a50 ) and Open Mind's debuff-time tail ( 32bd32f0 ).
+//              char-ara CH4b widens it to the overrides: GetActualMPConsume 32b96730, the June-argument final-damage hook 32ba45d0 ( March's
+//              4-argument body emptied ), GetDefenceRateBySkill 32b956a0, ShownSkillCoolTime 32b958e0, AdjustDamageDataBeforeDamageReact
+//              32ba47f0, the socket pass 32badc80 ( IsSkillEquipped 31fca980, the chain list 32d3f040 ) and the effect-set hooks 0x4c4 / 0x4c8 32bc1530.
 //              Revert: comment out the #define ( JUNE_CHAR_ARA_PASSIVE ).
 #define SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_CHAR_ARA_SKILL ) || !defined( SERV_IRUHADEV_JUNE_CHAR_ARA_FP ) || !defined( SERV_IRUHADEV_JUNE_DAMAGE_EXCEPTION ) || !defined( SERV_IRUHADEV_JUNE_SPAWN_INHERIT ) )
@@ -12565,6 +12568,9 @@ static const int MAGIC_HERO_MATCH_GAME_KILL_COUNT = 8;
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 #if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_SOCKET_PARITY ) || !defined( SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG ) || !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE ) || !defined( SERV_IRUHADEV_JUNE_SKILL_NUMERICAL ) || !defined( SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ) || !defined( SERV_IRUHADEV_JUNE_BUFF_GROUP ) || !defined( FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE ) )
 #error SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE needs SERV_IRUHADEV_JUNE_SOCKET_PARITY and SERV_IRUHADEV_JUNE_BUFF_NEW_FLAG ( the death gates ), SERV_IRUHADEV_JUNE_CHAR_CHUNG_PASSIVE ( SetBuffFactorTimeValue ), SERV_IRUHADEV_JUNE_SKILL_NUMERICAL ( GetNumericalRowByName ), SERV_IRUHADEV_JUNE_BUFF_NEW_STAT ( m_bIgnoreDefenceOnPvp ), SERV_IRUHADEV_JUNE_BUFF_GROUP ( IsOfficiallyDebuff ) and FIX_NOT_ACTIVE_SKILL_AT_ENCHANT_DAMAGE ( ProcessResurrection )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+#if defined( SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE ) && ( !defined( SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK ) || !defined( SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS ) || !defined( SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME ) || !defined( SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS ) || !defined( SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL ) || !defined( ADD_RENA_SYSTEM ) )
+#error SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE ( char-ara CH4b ) needs SERV_IRUHADEV_JUNE_FINAL_DAMAGE_UNIT_HOOK ( vslot 0x3ac ), SERV_IRUHADEV_JUNE_USER_PASSIVE_HOOKS ( vslot 0x428 ), SERV_IRUHADEV_JUNE_USER_SHOWN_SKILL_COOL_TIME ( vslot 0x6a8 ), SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS ( m_iRelateSkillID ), SERV_IRUHADEV_JUNE_CHAR_CHUNG_SKILL ( TryGetEquippedSkillAbilityValue ) and ADD_RENA_SYSTEM ( vslot 0x300 )
 #endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 //////////////////////////////////////////////////////////////////////////
 

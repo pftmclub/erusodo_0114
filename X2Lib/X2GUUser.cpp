@@ -27720,6 +27720,18 @@ float CX2GUUser::GetSummonPowerRateBySocket( const int iSkillID_ ) const
 	return fRate * ( GetSkillAdditionalPowerRate( iSkillID_ ) + 1.f );
 }
 
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+// char-ara CH4b: June 31fca980: the skill ( upgrade-swapped when asked ) sits in a slot of bank A or B
+bool CX2GUUser::IsSkillEquipped( const CX2SkillTree::SKILL_ID eSkillID_, const bool bUpgradeSwap_ ) const
+{
+	if ( NULL == GetUnit() )
+		return false;
+
+	const CX2UserSkillTree& kUserSkillTree = GetUnit()->GetUnitData().m_UserSkillTree;
+	const CX2SkillTree::SKILL_ID eSkillID = ( true == bUpgradeSwap_ ) ? kUserSkillTree.GetUpgradeSwappedSkillID( eSkillID_ ) : eSkillID_;
+	return 0 <= kUserSkillTree.GetSkillEquippedSlotIndex( eSkillID, false ) || 0 <= kUserSkillTree.GetSkillEquippedSlotIndex( eSkillID, true );
+}
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 /** @function : AddJuneSkillAdditionalPowerRateBySlot
 	@brief : June 31fe14f0 (buff port 16-step3b5), called by SumSocketOption once per equipped skill slot with that slot's skill
 		and the socket templet. With a CX2Unit and a learned templet for the skill (32890720 = GetUserSkillTemplet; June's
@@ -50361,7 +50373,13 @@ void CX2GUUser::CommonFrameMove_EffectSet( float fNowAnimationTime )
 				continue;
 			}
 #endif SERV_IRUHADEV_JUNE_EFFECT_SET_LIST_VARIANTS
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+			BeforePlayEffectSetToPlay( effectSetToPlay );	// char-ara CH4b: June 32007570 @32007664 ( vslot 0x4c4 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 			CX2EffectSet::Handle hEffectSetInst = g_pX2Game->GetEffectSet()->PlayEffectSet( effectSetToPlay.m_wstrEffectSetName, this, NULL, m_bHyperEffectSet, GetPowerRate(), m_fEffectSetLifeTime);
+#ifdef SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
+			AfterPlayEffectSetToPlay( effectSetToPlay, hEffectSetInst );	// char-ara CH4b: June 32007570 @3200772d ( vslot 0x4c8 )
+#endif SERV_IRUHADEV_JUNE_CHAR_ARA_PASSIVE
 			
 			// 기존에 애니메이션 시간을 기준으로 이펙트를 생성하던 것을 effectSetToPlay.m_fStartAnimationTime이 추가되면서 애니메이션을 기준으로 하지 않도록 변경해준다
 			if( 0.f != effectSetToPlay.m_fStartAnimationTime )
